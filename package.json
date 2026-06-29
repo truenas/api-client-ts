@@ -1,0 +1,64 @@
+{
+  "name": "@truenas/api-client",
+  "version": "0.1.0",
+  "description": "Framework-agnostic TypeScript client for the TrueNAS JSON-RPC 2.0 WebSocket API",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "prepack": "yarn build",
+    "dev": "tsup --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.spec.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "rxjs": "^7.8.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "eslint": "^9.18.0",
+    "rxjs": "~7.8.0",
+    "tsup": "^8.3.5",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.20.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "yarn@4.10.3",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/truenas/api-client-ts.git"
+  },
+  "keywords": [
+    "truenas",
+    "api",
+    "client",
+    "websocket",
+    "json-rpc"
+  ]
+}
