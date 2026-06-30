@@ -9,11 +9,15 @@ export const withId = (id: string) =>
   filter((msg: TrueNasMessage) => msg.id === id);
 
 /**
- * Generate a UUID. Uses the platform `crypto.randomUUID()` when available; falls
- * back to a manual v4 generator inside cross-origin iframes where it may be blocked.
+ * Generate a UUID. Uses `crypto.randomUUID()` when available, falling back to a
+ * manual v4 generator (built on `crypto.getRandomValues`) for environments where
+ * `crypto.randomUUID` is absent — e.g. insecure `http://` (non-localhost) pages,
+ * which are not "secure contexts", and older runtimes. Feature-detecting rather
+ * than sniffing the environment keeps this correct across the broader set of hosts
+ * a redistributable library runs in.
  */
 export function randomUUID(): string {
-  if (!isIframe()) {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -21,15 +25,6 @@ export function randomUUID(): string {
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
-}
-
-/** True when running inside a (cross-origin-safe) iframe; false in Node or on error. */
-export function isIframe(): boolean {
-  try {
-    return window.self !== window.top;
-  } catch {
-    return false;
-  }
 }
 
 /** True when `date` is within `minutes` of now. */
