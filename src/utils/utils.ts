@@ -20,6 +20,9 @@ export function randomUUID(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
+  if (typeof crypto === 'undefined' || typeof crypto.getRandomValues !== 'function') {
+    throw new Error('Web Crypto API unavailable: cannot generate a UUID');
+  }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (crypto.getRandomValues(new Uint8Array(1))[0] % 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
