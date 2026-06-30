@@ -3,8 +3,8 @@ import {
   Container,
   ContainerRestartOptions,
   ContainerStopOptions,
-} from './container.type';
-import { Job } from './job.type';
+} from '@/types/container.type';
+import { Job } from '@/types/job.type';
 
 /**
  * OperationMappings Interface

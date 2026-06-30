@@ -1,4 +1,4 @@
-import { AppState } from './app-query.type';
+import { AppState } from '@/types/app-query.type';
 
 export interface VirtualInstanceQuery {
   id: string;
