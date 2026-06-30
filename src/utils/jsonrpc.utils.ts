@@ -21,5 +21,5 @@ export function createJsonRpcMessage(
     id: randomUUID(),
     method,
     params: params ?? [],
-  } as TrueNasMessage;
+  };
 }

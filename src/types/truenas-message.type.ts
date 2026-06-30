@@ -1,5 +1,7 @@
 export interface TrueNasMessage {
   id?: string;
+  /** JSON-RPC 2.0 protocol version, e.g. '2.0' (present on versioned-API messages). */
+  jsonrpc?: string;
   msg?: string;
   version?: string;
   support?: string[];
