@@ -5,7 +5,7 @@ import { TrueNasDate } from '@/types/truenas-date.type';
  * see https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1
  * for levels and their descriptions.
  *
- * `AlertLevel` is always CAPITALIZED as opposed to `NotificationLevel`, which is always lowercase.
+ * `AlertLevel` values are always CAPITALIZED.
  */
 export enum AlertLevel {
   Emergency = 'EMERGENCY',
