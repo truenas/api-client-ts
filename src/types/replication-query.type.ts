@@ -129,6 +129,5 @@ export interface ReplicationQuery {
   job: Job | null;
 
   // Legacy/optional fields (may not be in all responses)
-  system_id?: string;
   description?: string;
 }
