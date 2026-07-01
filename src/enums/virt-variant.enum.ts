@@ -1,0 +1,17 @@
+export enum VirtVariant {
+  Amazon = 'amazon',
+  Bhyve = 'bhyve',
+  Docker = 'docker',
+  Kvm = 'kvm',
+  Lxc = 'lxc',
+  Microsoft = 'microsoft',
+  None = 'none',
+  Oracle = 'oracle',
+  Parallels = 'parallels',
+  Qemu = 'qemu',
+  Rkt = 'rkt',
+  SystemdNspawn = 'systemd-nspawn',
+  Uml = 'uml',
+  Vmware = 'vmware',
+  Xen = 'xen',
+}
