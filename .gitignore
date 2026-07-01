@@ -12,3 +12,8 @@ coverage/
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+# Editor swap files
+*.swp
+*.swo
+*~
