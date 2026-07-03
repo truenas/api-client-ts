@@ -169,12 +169,15 @@ export class TrueNasConnection {
   );
 
   /**
-   * whether to display a connection error to the user.
+   * whether to display a connection error to the user — the **live** signal.
    *
-   * `true` when `connection$` is a `ConnectionError`, meaning the entire race + retry cycle
-   * has been exhausted for all hostnames.
+   * `true` only while `connection$` is currently a `ConnectionError`, meaning the entire race +
+   * retry cycle has been exhausted for all hostnames right now; it flips back to `false` once a
+   * connection is re-established. individual socket losses during a race are expected and not surfaced.
    *
-   * individual socket losses during a race are expected and not surfaced.
+   * NOTE: this is NOT the same as the `hasConnectionError()` method, which is a **cumulative**
+   * snapshot (see there). The two can disagree — prefer this observable for "is the connection
+   * errored right now?".
    */
   hasConnectionError$: Observable<boolean> = this.connection$.pipe(
     map(conn => conn.state === 'error'),
@@ -229,8 +232,17 @@ export class TrueNasConnection {
   }
 
   /**
-   * whether the entire race + retry cycle has been exhausted for all hostnames, or an
-   * error message is currently set. read synchronously (replaces the former computed signal).
+   * whether the connection has seen enough failure to warrant surfacing an error — the
+   * **cumulative** snapshot. read synchronously (replaces the former computed signal).
+   *
+   * `true` when the lifetime `connectionAttempts` count exceeds `hostnames.length * maxRetry`,
+   * OR when an error message is currently set. Ported verbatim from the source (tncui) behavior.
+   *
+   * CAVEAT (pre-existing tncui behavior, preserved here): `connectionAttempts` only ever grows —
+   * it is never reset on a successful (re)connection — so over a long-lived connection with
+   * reconnect churn this can latch to `true` even while the connection is currently healthy. For
+   * "is it errored right now?" use the live `hasConnectionError$` observable instead. Consolidating
+   * these two members is tracked for the Phase 8 public-API pass.
    */
   hasConnectionError(): boolean {
     const attemptsExhausted =
