@@ -45,7 +45,7 @@ type Connection =
 const tenSeconds = 10 * 1000;
 const twentySeconds = 20 * 1000;
 
-export class TrueNasConnectionVersioned {
+export class TrueNasConnection {
   // compatibility properties
   opened = new BehaviorSubject(false);
   closed = new Subject<void>();
