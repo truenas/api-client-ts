@@ -29,13 +29,3 @@ export function randomUUID(): string {
     return v.toString(16);
   });
 }
-
-/** True when `date` is within `minutes` of now. */
-export function isRecentlyCreated(
-  date: Date | null | undefined,
-  minutes = 15,
-): boolean {
-  if (!date) return false;
-  const thresholdTime = new Date(Date.now() - minutes * 60 * 1000);
-  return date > thresholdTime;
-}
