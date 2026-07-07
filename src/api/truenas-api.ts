@@ -23,15 +23,6 @@ import { withId } from '@/utils/utils';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 
 /**
- * TrueNAS API handler using the JSON-RPC 2.0 protocol.
- *
- * It handles:
- * - JSON-RPC 2.0 request formatting
- * - JSON-RPC 2.0 response parsing (result/error)
- * - Event subscriptions
- * - Job tracking
- */
-/**
  * Type for JSON-RPC 2.0 collection_update event params
  */
 interface CollectionUpdateParams {
@@ -41,6 +32,15 @@ interface CollectionUpdateParams {
   fields: Job;
 }
 
+/**
+ * TrueNAS API handler using the JSON-RPC 2.0 protocol.
+ *
+ * It handles:
+ * - JSON-RPC 2.0 request formatting
+ * - JSON-RPC 2.0 response parsing (result/error)
+ * - Event subscriptions
+ * - Job tracking
+ */
 export class TrueNasApi {
   /**
    * Stream of job events from websocket.
