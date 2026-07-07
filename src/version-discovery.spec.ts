@@ -144,6 +144,17 @@ describe('VersionDiscovery', () => {
     expect(error).toBeInstanceOf(InvalidVersionResponseError);
   });
 
+  it('throws InvalidVersionResponseError (not a network error) for an array of non-strings', async () => {
+    // A reachable-but-malformed response must not be misfiled as a network/CORS
+    // failure (which would wrongly trigger the factory's fallback path).
+    fetchMock.mockResolvedValue(fakeResponse({ body: [1, 2, 3] }));
+
+    const error = await settle(discovery.discoverVersion('box'));
+
+    expect(error).toBeInstanceOf(InvalidVersionResponseError);
+    expect(error).not.toBeInstanceOf(VersionDiscoveryNetworkError);
+  });
+
   it('throws InvalidVersionResponseError when the body is not valid JSON', async () => {
     fetchMock.mockResolvedValue(
       fakeResponse({ json: () => Promise.reject(new SyntaxError('Unexpected token')) })

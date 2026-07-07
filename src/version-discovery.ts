@@ -111,8 +111,13 @@ export class VersionDiscovery {
    * Performs the `fetch` with a 5-second `AbortController` timeout and inspects the
    * *resolved* Response (fetch does not reject on non-2xx). Throws
    * `VersionEndpointNotFoundError` on 404 and `InvalidVersionResponseError` on any
-   * other non-2xx or a non-array body; lets `TypeError` (network) and `AbortError`
-   * (timeout) bubble to `classify`.
+   * other non-2xx or a body that is not an array of strings; lets `TypeError`
+   * (network) and `AbortError` (timeout) bubble to `classify`.
+   *
+   * The element-type check matters: a reachable server returning an array of
+   * non-strings (e.g. `[1, 2, 3]`) would otherwise reach `parseApiVersion`, whose
+   * `.match()` throws a `TypeError` on a non-string — which `classify` would then
+   * misfile as a network error. Validating here keeps it an `InvalidVersionResponseError`.
    */
   private async fetchVersions(hostname: string): Promise<ApiVersionResponse> {
     const url = `https://${hostname}/api/versions`;
@@ -133,7 +138,7 @@ export class VersionDiscovery {
       }
 
       const body: unknown = await response.json();
-      if (!Array.isArray(body)) {
+      if (!Array.isArray(body) || !body.every(v => typeof v === 'string')) {
         throw new InvalidVersionResponseError(
           hostname,
           'Response was not an array of version strings'
