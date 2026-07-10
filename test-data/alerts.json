@@ -1,0 +1,17 @@
+[
+  {
+    "system_id": "system-01",
+    "uuid": "uuid1",
+    "source": "",
+    "args": "",
+    "node": "",
+    "datetime": { "$date": 1712680785397 },
+    "last_occurrence": { "$date": 1712680785397 },
+    "dismissed": false,
+    "text": "",
+    "id": "",
+    "level": "",
+    "formatted": "",
+    "one_shot": false
+  }
+]
