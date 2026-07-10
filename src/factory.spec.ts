@@ -1,4 +1,3 @@
-import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
@@ -32,9 +31,11 @@ describe('createTrueNasClient', () => {
 
   // `enabled: false` keeps the connection gate shut, so no real socket is opened.
   async function create(hostnames = ['box']): Promise<TrueNasApiClient> {
-    const client = await firstValueFrom(
-      createTrueNasClient({ uuid: 'uuid-1234', hostnames, enabled: false })
-    );
+    const client = await createTrueNasClient({
+      uuid: 'uuid-1234',
+      hostnames,
+      enabled: false,
+    });
     created.push(client);
     return client;
   }
@@ -71,16 +72,14 @@ describe('createTrueNasClient', () => {
   it('propagates non-network discovery errors (e.g. version too old)', async () => {
     fetchMock.mockResolvedValue(fakeResponse(['v24.10.0']));
 
-    const error = await firstValueFrom(
+    await expect(
       createTrueNasClient({ uuid: 'u', hostnames: ['box'], enabled: false })
-    ).catch((e: unknown) => e);
-
-    expect(error).toBeInstanceOf(VersionTooOldError);
+    ).rejects.toBeInstanceOf(VersionTooOldError);
   });
 
-  it('throws synchronously when hostnames is empty', () => {
-    expect(() =>
+  it('rejects when hostnames is empty', async () => {
+    await expect(
       createTrueNasClient({ uuid: 'u', hostnames: [], enabled: false })
-    ).toThrow(/hostnames array is empty/);
+    ).rejects.toThrow(/hostnames array is empty/);
   });
 });

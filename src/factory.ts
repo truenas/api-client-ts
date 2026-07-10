@@ -1,4 +1,4 @@
-import { Observable, catchError, map, of, throwError } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
@@ -38,13 +38,16 @@ export interface CreateClientOptions {
  *    `v26.x.y` -> `TrueNasApiClientV26`).
  * 3. Instantiates and returns it.
  *
- * @returns an Observable that emits the created client, or errors with a
+ * Resolves exactly once with a single client instance — dispose of it with
+ * `client.close()` when done.
+ *
+ * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
- * @throws synchronously if `hostnames` is empty.
+ *   Rejects if `hostnames` is empty.
  */
-export function createTrueNasClient(
+export async function createTrueNasClient(
   opts: CreateClientOptions
-): Observable<TrueNasApiClient> {
+): Promise<TrueNasApiClient> {
   const { uuid, hostnames, systemName } = opts;
   const logger = opts.logger ?? noopLogger;
 
@@ -63,56 +66,28 @@ export function createTrueNasClient(
     systemName,
   });
 
-  return versionDiscovery.discoverVersion(primaryHostname).pipe(
-    map(version => {
-      logger.info('API version discovered, instantiating client', {
-        uuid: uuid.slice(0, 8),
-        version: version.version,
-        websocketPath: version.websocketPath,
-      });
-      return instantiateClientForVersion(version, opts, logger);
-    }),
-    catchError((error: unknown) => {
-      const errorMessage = errorMessageOrDefault(error, 'Unknown error');
+  let version: ApiVersion;
+  try {
+    version = await firstValueFrom(
+      versionDiscovery.discoverVersion(primaryHostname)
+    );
+    logger.info('API version discovered, instantiating client', {
+      uuid: uuid.slice(0, 8),
+      version: version.version,
+      websocketPath: version.websocketPath,
+    });
+  } catch (error) {
+    const errorMessage = errorMessageOrDefault(error, 'Unknown error');
 
-      // CORS / network fallback (load-bearing).
-      //
-      // `fetch` surfaces network/CORS/unreachable failures as a
-      // `VersionDiscoveryNetworkError` (the replacement for the Angular
-      // `HttpClient`'s `status === 0`). IMPORTANT: TrueNAS v25.10.0 does not
-      // have CORS enabled for the /api/versions endpoint, so discovery is
-      // blocked there. This fallback MUST remain until v25.10.0 is no longer in
-      // the supported range (i.e. once MIN_SUPPORTED_VERSION > v25.10.0).
-      if (error instanceof VersionDiscoveryNetworkError) {
-        const fallbackVersionString = apiVersionConfig.FALLBACK_VERSION;
-        const fallbackVersion = parseApiVersion(fallbackVersionString);
-
-        if (!fallbackVersion) {
-          logger.error('Invalid fallback version configuration', {
-            uuid: uuid.slice(0, 8),
-            hostname: primaryHostname,
-            fallbackVersion: fallbackVersionString,
-          });
-          return throwError(() => error);
-        }
-
-        logger.warn(
-          'Version discovery failed with a network error (possible CORS or ' +
-            'network issue), falling back to assumed version',
-          {
-            uuid: uuid.slice(0, 8),
-            hostname: primaryHostname,
-            fallbackVersion: fallbackVersionString,
-            originalError: errorMessage,
-            warning:
-              'A network error has multiple causes (CORS, network down, DNS ' +
-              'failure). The connection may still fail during the WebSocket handshake.',
-          }
-        );
-
-        return of(instantiateClientForVersion(fallbackVersion, opts, logger));
-      }
-
+    // CORS / network fallback (load-bearing).
+    //
+    // `fetch` surfaces network/CORS/unreachable failures as a
+    // `VersionDiscoveryNetworkError` (the replacement for the Angular
+    // `HttpClient`'s `status === 0`). IMPORTANT: TrueNAS v25.10.0 does not
+    // have CORS enabled for the /api/versions endpoint, so discovery is
+    // blocked there. This fallback MUST remain until v25.10.0 is no longer in
+    // the supported range (i.e. once MIN_SUPPORTED_VERSION > v25.10.0).
+    if (!(error instanceof VersionDiscoveryNetworkError)) {
       // For other errors (version too old/too new, invalid response, etc.), re-throw.
       logger.error('Version discovery failed', {
         uuid: uuid.slice(0, 8),
@@ -121,10 +96,39 @@ export function createTrueNasClient(
         errorType:
           error instanceof Error ? error.constructor.name : typeof error,
       });
+      throw error;
+    }
 
-      return throwError(() => error);
-    })
-  );
+    const fallbackVersionString = apiVersionConfig.FALLBACK_VERSION;
+    const fallbackVersion = parseApiVersion(fallbackVersionString);
+
+    if (!fallbackVersion) {
+      logger.error('Invalid fallback version configuration', {
+        uuid: uuid.slice(0, 8),
+        hostname: primaryHostname,
+        fallbackVersion: fallbackVersionString,
+      });
+      throw error;
+    }
+
+    logger.warn(
+      'Version discovery failed with a network error (possible CORS or ' +
+        'network issue), falling back to assumed version',
+      {
+        uuid: uuid.slice(0, 8),
+        hostname: primaryHostname,
+        fallbackVersion: fallbackVersionString,
+        originalError: errorMessage,
+        warning:
+          'A network error has multiple causes (CORS, network down, DNS ' +
+          'failure). The connection may still fail during the WebSocket handshake.',
+      }
+    );
+
+    version = fallbackVersion;
+  }
+
+  return instantiateClientForVersion(version, opts, logger);
 }
 
 /**
