@@ -103,4 +103,23 @@ describe('TrueNasApiClientV2510', () => {
     ]);
     expect(result).toBe(job);
   });
+
+  it('containerRestart calls virt.instance.restart and tracks the job', async () => {
+    const job = { id: 8, state: JobState.Success } as Job;
+    const options = { force: false };
+    const callJobSpy = vi
+      .spyOn(client.api, 'callAndGetJobId')
+      .mockReturnValue(of(8) as never);
+    vi.spyOn(client.api, 'trackJob').mockReturnValue(of(job) as never);
+
+    const result = await firstValueFrom(
+      client.ops.containerRestart('inst-1', options)
+    );
+
+    expect(callJobSpy).toHaveBeenCalledWith(
+      TrueNasEndpoint.VirtualInstanceRestart,
+      ['inst-1', options]
+    );
+    expect(result).toBe(job);
+  });
 });
