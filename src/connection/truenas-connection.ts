@@ -175,7 +175,7 @@ export class TrueNasConnection {
    * retry cycle has been exhausted for all hostnames right now; it flips back to `false` once a
    * connection is re-established. individual socket losses during a race are expected and not surfaced.
    *
-   * NOTE: this is NOT the same as the `hasConnectionError()` method, which is a **cumulative**
+   * NOTE: this is NOT the same as the `hasExhaustedRetries()` method, which is a **cumulative**
    * snapshot (see there). The two can disagree — prefer this observable for "is the connection
    * errored right now?".
    */
@@ -232,19 +232,19 @@ export class TrueNasConnection {
   }
 
   /**
-   * whether the connection has seen enough failure to warrant surfacing an error — the
-   * **cumulative** snapshot. read synchronously (replaces the former computed signal).
+   * whether the connection has exhausted its retries — the **cumulative** snapshot, read
+   * synchronously. (Formerly `hasConnectionError()`; renamed to disambiguate it from the
+   * live `hasConnectionError$` observable, with which it can disagree.)
    *
    * `true` when the lifetime `connectionAttempts` count exceeds `hostnames.length * maxRetry`,
-   * OR when an error message is currently set. Ported verbatim from the source (tncui) behavior.
+   * OR when an error message is currently set. Ported from the source (tncui) behavior.
    *
    * CAVEAT (pre-existing tncui behavior, preserved here): `connectionAttempts` only ever grows —
    * it is never reset on a successful (re)connection — so over a long-lived connection with
    * reconnect churn this can latch to `true` even while the connection is currently healthy. For
-   * "is it errored right now?" use the live `hasConnectionError$` observable instead. Consolidating
-   * these two members is tracked for the Phase 8 public-API pass.
+   * "is it errored right now?" use the live `hasConnectionError$` observable instead.
    */
-  hasConnectionError(): boolean {
+  hasExhaustedRetries(): boolean {
     const attemptsExhausted =
       this.connectionAttempts.value > this.hostnames.length * this.maxRetry;
 
@@ -316,7 +316,7 @@ export class TrueNasConnection {
 
             // we let individual sockets update the total connection attempts, since
             // this can be safely done in parallel and also the compatibility property
-            // `hasConnectionError` wants to check the *total* number.
+            // `hasExhaustedRetries` wants to check the *total* number.
             this.connectionAttempts.next(this.connectionAttempts.value + 1);
 
             subscriber.error(makeConnectionError(errorMessage, hostname));
