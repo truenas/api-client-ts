@@ -1,0 +1,44 @@
+{
+  "msg": "changed",
+  "collection": "core.get_jobs",
+  "id": 4180,
+  "fields": {
+    "id": 4180,
+    "message_ids": [],
+    "method": "system.debug",
+    "arguments": [],
+    "transient": false,
+    "description": null,
+    "abortable": false,
+    "logs_path": null,
+    "logs_excerpt": null,
+    "progress": {
+      "percent": 90,
+      "description": "Preparing debug file for streaming",
+      "extra": null
+    },
+    "result": null,
+    "result_encoding_error": null,
+    "error": null,
+    "exception": null,
+    "exc_info": null,
+    "state": "RUNNING",
+    "time_started": {
+      "$date": 1752000929000
+    },
+    "time_finished": null,
+    "credentials": {
+      "type": "API_KEY",
+      "data": {
+        "username": "truenas_admin",
+        "login_at": {
+          "$date": 1752000909000
+        },
+        "api_key": {
+          "id": 1,
+          "name": "tnc-31fe14ac-a35e-4ca6-b32e-6732de9abab7"
+        }
+      }
+    }
+  }
+}
