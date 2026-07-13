@@ -17,9 +17,12 @@ const emitted = [
 let failed = false;
 
 // 1. alias-leak guard
+// Matches `from '@/…'`, `import '@/…'`, and the `import("@/…")` / `require('@/…')`
+// forms a `.d.ts` emit can use for un-inlined types.
+const aliasSpecifier = /(?:from|import|require)\s*\(?\s*['"]@\//;
 for (const file of emitted) {
   const source = readFileSync(file, 'utf8');
-  if (/from ['"]@\//.test(source)) {
+  if (aliasSpecifier.test(source)) {
     console.error(`✗ ${file} contains an unresolved '@/' import specifier`);
     failed = true;
   }
