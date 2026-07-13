@@ -13,7 +13,10 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Only cancel superseded PR runs — never cancel a push to main, whose release
+  # job publishes to npm before tagging (a mid-publish cancel would leave npm
+  # published with no matching git tag/release).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify:
