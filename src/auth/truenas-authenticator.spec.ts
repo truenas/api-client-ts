@@ -206,6 +206,102 @@ describe('TrueNasAuthenticator', () => {
       }
     }));
 
+  it('OTP login succeeds and sets authenticated$ (no full-admin gate)', () =>
+    new Promise<void>((resolve, reject) => {
+      authenticator.loginWithOtp('123456').subscribe({
+        next: () => {
+          try {
+            expect(authenticator.authenticated$.value).toBe(true);
+            const sent = sendSpy.mock.calls[0][0] as TrueNasMessage;
+            expect(sent.method).toBe('auth.login_ex');
+            expect(sent.params).toEqual([
+              { mechanism: TrueNasAuthMechanism.Otp, otp_token: '123456' },
+            ]);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      // OTP success does not require the FullAdmin role.
+      respondWith(successResponse([]));
+    }));
+
+  it('newApiKey creates a tnc-prefixed API key for the user', () =>
+    new Promise<void>((resolve, reject) => {
+      const created = { id: 1, name: 'tnc-generated', key: 'secret-key' };
+
+      authenticator.newApiKey('admin').subscribe({
+        next: result => {
+          try {
+            expect(result).toEqual(created);
+            const sent = sendSpy.mock.calls[0][0] as TrueNasMessage;
+            expect(sent.method).toBe('api_key.create');
+            expect(sent.params).toEqual([
+              { name: expect.stringMatching(/^tnc-/), username: 'admin' },
+            ]);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      respondWith(created);
+    }));
+
+  it('re-logs in on reconnect using a cached API key', () =>
+    new Promise<void>((resolve, reject) => {
+      // First, a successful API-key login to cache the key.
+      authenticator.loginWithApiKey({ username: 'admin', key: 'k1' }).subscribe();
+      respondWith(successResponse([]));
+
+      // Simulate the socket re-opening — should re-login via the API-key branch.
+      sendSpy.mockClear();
+      opened$.next(true);
+
+      try {
+        expect(sendSpy).toHaveBeenCalled();
+        const sent = sendSpy.mock.calls[0][0] as TrueNasMessage;
+        expect(sent.params).toEqual([
+          { mechanism: TrueNasAuthMechanism.ApiKey, username: 'admin', api_key: 'k1' },
+        ]);
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    }));
+
+  it('logout on an error response sets authenticated$ to true (FLAGGED pre-existing tncui behavior)', () =>
+    new Promise<void>((resolve, reject) => {
+      // NOTE: logout maps an error response to `success = false`, then runs
+      // `authenticated$.next(!success)` => true. So a FAILED logout marks you
+      // authenticated (falsely, if you weren't). This is ported verbatim from
+      // tncui and pinned here; it is flagged as suspect for upstream to decide.
+      authenticator.authenticated$.next(false);
+
+      authenticator.logout().subscribe({
+        next: () => {
+          try {
+            expect(authenticator.authenticated$.value).toBe(true);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      const sent = sendSpy.mock.calls.at(-1)?.[0] as TrueNasMessage;
+      messages$.next({
+        id: sent.id,
+        error: { code: -1, message: 'logout failed' },
+      } as unknown as TrueNasMessage);
+    }));
+
   it('resets authentication when the connection closes', () => {
     authenticator.authenticated$.next(true);
 

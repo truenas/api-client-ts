@@ -1,6 +1,7 @@
 import { BehaviorSubject, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
+import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 import { ApiCallDirectory } from '@/types/api-call-directory.type';
 import { Job, JobState } from '@/types/job.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
@@ -216,6 +217,90 @@ describe('TrueNasApi', () => {
           id: completedJob.id,
           fields: completedJob,
         },
+      } as unknown as TrueNasMessage);
+    }));
+
+  it('callAndGetJobId returns the id of the job whose message_ids includes the request id', () =>
+    new Promise<void>((resolve, reject) => {
+      const method = 'virt.instance.start';
+      const requestId = `mock-id-${method}`; // from the createJsonRpcMessage mock
+
+      api
+        .callAndGetJobId(method as keyof ApiCallDirectory)
+        .subscribe({
+          next: jobId => {
+            try {
+              // Must pick the matching job (4180), NOT the earlier non-matching one (999).
+              expect(jobId).toBe(4180);
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          },
+          error: reject,
+        });
+
+      // request was sent with the mocked id
+      try {
+        expect(mockConnection.ws.next).toHaveBeenCalledWith(
+          expect.objectContaining({ id: requestId, method })
+        );
+      } catch (err) {
+        reject(err);
+      }
+
+      // A job event whose message_ids do NOT include our request id — must be ignored.
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        method: 'collection_update',
+        params: {
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 999, message_ids: ['someone-elses-request'] },
+        },
+      } as unknown as TrueNasMessage);
+
+      // The matching job event — its message_ids include our request id.
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        method: 'collection_update',
+        params: {
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 4180, message_ids: [requestId] },
+        },
+      } as unknown as TrueNasMessage);
+    }));
+
+  it('generateToken calls auth.generate_token with the expected params', () =>
+    new Promise<void>((resolve, reject) => {
+      api.generateToken(300, true, false).subscribe({
+        next: token => {
+          try {
+            expect(token).toBe('tok-abc');
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      try {
+        expect(mockConnection.ws.next).toHaveBeenCalledWith(
+          expect.objectContaining({
+            method: TrueNasEndpoint.GenerateToken,
+            params: [300, {}, true, false],
+          })
+        );
+      } catch (err) {
+        reject(err);
+      }
+
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        id: `mock-id-${TrueNasEndpoint.GenerateToken}`,
+        result: 'tok-abc',
       } as unknown as TrueNasMessage);
     }));
 
