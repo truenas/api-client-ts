@@ -275,12 +275,10 @@ describe('TrueNasAuthenticator', () => {
       }
     }));
 
-  it('logout on an error response sets authenticated$ to true (FLAGGED pre-existing tncui behavior)', () =>
+  it('logout that fails leaves authenticated$ true', () =>
     new Promise<void>((resolve, reject) => {
-      // NOTE: logout maps an error response to `success = false`, then runs
-      // `authenticated$.next(!success)` => true. So a FAILED logout marks you
-      // authenticated (falsely, if you weren't). This is ported verbatim from
-      // tncui and pinned here; it is flagged as suspect for upstream to decide.
+      // A failed logout is treated as "not logged out": logout maps an error
+      // response to `success = false`, then runs `authenticated$.next(!success)`.
       authenticator.authenticated$.next(false);
 
       authenticator.logout().subscribe({
