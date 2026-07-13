@@ -1,0 +1,32 @@
+name: Validate PR Title
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate:
+    name: Validate Conventional Commit Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title
+        env:
+          # Passed via env (not interpolated into the script) to avoid shell injection.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # A squash merge uses the PR title as the commit subject, which
+          # semantic-release analyzes — so it must be a Conventional Commit
+          # (optionally prefixed with "<ticket> / <version> / "). Keep this pattern
+          # in sync with parserOpts.headerPattern in .releaserc.json.
+          pattern='^(.+ / )?(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]+\))?!?: .+'
+          if [[ "$PR_TITLE" =~ $pattern ]]; then
+            echo "PR title OK: $PR_TITLE"
+          else
+            echo "::error::PR title must follow Conventional Commits, optionally prefixed with '<ticket> / <version> / '."
+            echo "::error::Examples: 'feat: add reconnect backoff' or 'fix(auth): handle expired token'."
+            echo "::error::Got: $PR_TITLE"
+            exit 1
+          fi
