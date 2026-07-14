@@ -374,6 +374,76 @@ describe('TrueNasConnection', () => {
 
       expect(errors).toContain(true);
     });
+
+    it('resets connectionAttempts to 0 on successful open', () => {
+      // exhaust retries on one socket first to increment `connectionAttempts`.
+      connection = createConnection({ maxRetry: 1 });
+      mockSocketInstances[0].simulateClose();
+      vi.advanceTimersByTime(retryDelay);
+      mockSocketInstances[1].simulateClose();
+
+      expect(connection.connectionAttempts.value).toBeGreaterThan(0);
+
+      // since we've exhausted all retries, the `connection$` should retry immediately and succeed.
+      vi.advanceTimersByTime(0);
+      const recoverySocket = mockSocketInstances[mockSocketInstances.length - 1];
+      recoverySocket.simulateOpen();
+
+      // so, we expect the connection attempts to have been reset.
+      expect(connection.connectionAttempts.value).toBe(0);
+    });
+
+    it('does not permanently fix hasExhaustedRetries() after a successful reconnect', () => {
+      connection = exhaustRetries({ maxRetry: 1 });
+      expect(connection.hasExhaustedRetries()).toBe(true);
+
+      const recoverySocket = mockSocketInstances[mockSocketInstances.length - 1];
+      recoverySocket.simulateOpen();
+      recoverySocket.next(handshakeResponse);
+
+      expect(connection.hasExhaustedRetries()).toBe(false);
+    });
+  });
+
+  describe('post-open connection death', () => {
+    let connection: TrueNasConnection | null;
+    afterEach(() => {
+      connection?.close();
+      connection = null;
+    });
+
+    it('propagates an error immediately (without per-socket retry delay) when an already-open socket dies', () => {
+      const { connection: conn, socket } = establishConnection({ maxRetry: 3 });
+      connection = conn;
+
+      const errors: boolean[] = [];
+      connection.hasConnectionError$.subscribe(val => errors.push(val));
+
+      socket.simulateClose(1006, '');
+      // no `vi.advanceTimersByTime(retryDelay)` - the fix ensures this propagates
+      // immediately rather than waiting out the per-socket retry delay.
+
+      expect(errors).toContain(true);
+    });
+
+    it('reconnects (does not re-run the per-socket retry loop) after an already-open socket dies', () => {
+      const { connection: conn, socket } = establishConnection();
+      connection = conn;
+      const priorInstanceCount = mockSocketInstances.length;
+
+      socket.simulateClose(1006, '');
+      vi.advanceTimersByTime(0);
+
+      // connection$'s own `retry()` re-subscribes to `connect()`, creating a fresh socket
+      expect(mockSocketInstances.length).toBeGreaterThan(priorInstanceCount);
+
+      const newSocket = mockSocketInstances[mockSocketInstances.length - 1];
+      newSocket.simulateOpen();
+      newSocket.next(handshakeResponse);
+
+      expect(connection.opened.getValue()).toBe(true);
+      expect(connection.hostname.value).toBe('truenas.test');
+    });
   });
 
   describe('send()', () => {
@@ -403,6 +473,39 @@ describe('TrueNasConnection', () => {
       const testMessage: TrueNasMessage = { id: 'resp-1', result: { data: 'test' } };
       socket.next(testMessage);
 
+      expect(received).toContainEqual(testMessage);
+      connection.close();
+    });
+
+    it('keeps emitting after the underlying socket stream errors and a new socket opens', () => {
+      const { connection, socket } = establishConnection();
+
+      const received: TrueNasMessage[] = [];
+      const completions: number[] = [];
+      connection.messages$.subscribe({
+        next: msg => received.push(msg),
+        complete: () => completions.push(1),
+      });
+
+      // an error on the raw socket stream must not complete/kill the `messages$` subscription
+      socket.socket.error(new Error('mock socket error'));
+      vi.advanceTimersByTime(0);
+
+      expect(completions).toHaveLength(0);
+
+      // now drive an actual reconnect (post-open death -> new socket) and confirm
+      // `messages$` is still alive to deliver messages from the replacement socket.
+      socket.simulateClose(1006, '');
+      vi.advanceTimersByTime(0);
+
+      const newSocket = mockSocketInstances[mockSocketInstances.length - 1];
+      newSocket.simulateOpen();
+      newSocket.next(handshakeResponse);
+
+      const testMessage: TrueNasMessage = { id: 'resp-2', result: { data: 'after-error' } };
+      newSocket.next(testMessage);
+
+      expect(completions).toHaveLength(0);
       expect(received).toContainEqual(testMessage);
       connection.close();
     });

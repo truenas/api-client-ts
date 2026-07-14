@@ -1,4 +1,5 @@
 import {
+  EMPTY,
   BehaviorSubject,
   Observable,
   Subject,
@@ -7,6 +8,7 @@ import {
   retry,
   race,
   take,
+  timer,
   interval,
   combineLatest,
   tap,
@@ -189,7 +191,9 @@ export class TrueNasConnection {
    */
   messages$ = this.ws$.pipe(
     filter(ws => ws !== null),
-    switchMap(ws => ws.messages()),
+    switchMap(ws => ws.messages().pipe(
+      catchError(() => EMPTY),
+    )),
   );
 
   constructor(
@@ -238,11 +242,6 @@ export class TrueNasConnection {
    *
    * `true` when the lifetime `connectionAttempts` count exceeds `hostnames.length * maxRetry`,
    * OR when an error message is currently set. Ported from the source (tncui) behavior.
-   *
-   * CAVEAT (pre-existing tncui behavior, preserved here): `connectionAttempts` only ever grows —
-   * it is never reset on a successful (re)connection — so over a long-lived connection with
-   * reconnect churn this can latch to `true` even while the connection is currently healthy. For
-   * "is it errored right now?" use the live `hasConnectionError$` observable instead.
    */
   hasExhaustedRetries(): boolean {
     const attemptsExhausted =
@@ -296,11 +295,21 @@ export class TrueNasConnection {
    */
   private createSocket(hostname: string): Observable<ActiveConnection> {
     const url = `wss://${hostname}${this.websocketPath}`;
+
+    // track whether a socket has actually been opened and emitted by the observable.
+    // this controls the `retry` operator at the end of this pipeline.
+    let hasOpened = false;
+
     return new Observable<ActiveConnection>(subscriber => {
       const ws = new TrueNasSocket({
         url,
         openObserver: {
           next: () => {
+            hasOpened = true;
+            // a successful open means we're no longer in an error state, so reset the
+            // running attempt count. otherwise it climbs across reboots and
+            // eventually fixes `hasExhaustedRetries` to `true` permanently.
+            this.connectionAttempts.next(0);
             subscriber.next({ ws, hostname, });
           },
         },
@@ -340,9 +349,21 @@ export class TrueNasConnection {
       // retry logic:
       //   * if a connection is not established in 10 seconds, consider that an error
       timeout({ first: tenSeconds }),
-      //   * if an error happens, wait `retryDelay` before trying again.
-      //     after `maxRetry` retries, give up.
-      retry({ count: this.maxRetry, delay: this.retryDelay }),
+      retry({
+        //   * while still *establishing*: wait `retryDelay` before trying again, giving up
+        //     after `maxRetry` retries.
+        count: this.maxRetry,
+        //   * we use a custom `delay` function here to ensure no retries are performed
+        //     once a socket is *opened*.
+        //     basically: a later death must propagate out rather than being retried
+        //     so it can be handled by the `connection$` observable.
+        delay: (error: unknown) => {
+          if (hasOpened) {
+            return throwError(() => error);
+          }
+          return timer(this.retryDelay);
+        }
+      }),
     );
   }
 
