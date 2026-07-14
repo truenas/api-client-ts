@@ -17,3 +17,6 @@ coverage/
 *.swp
 *.swo
 *~
+
+# packaging artifacts
+package.tgz

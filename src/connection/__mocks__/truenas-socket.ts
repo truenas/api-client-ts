@@ -36,8 +36,17 @@ export class TrueNasSocket {
   /**
    * Simulate the websocket closing by firing the `closeObserver` callback with the
    * given code and reason. Default code is 1006 (abnormal closure).
+   *
+   * We emit a plain `{ code, reason }` object rather than `new CloseEvent(...)`:
+   * `CloseEvent` is only a global in Node >= 23, and the connection reads just
+   * `.code`/`.reason` (it never constructs one), so this keeps the mock working on
+   * the Node 22 floor.
    */
   simulateClose(code = 1006, reason = '') {
-    this.config.closeObserver?.next(new CloseEvent('close', { code, reason }));
+    this.config.closeObserver?.next({
+      code,
+      reason,
+      type: 'close',
+    } as unknown as CloseEvent);
   }
 }
