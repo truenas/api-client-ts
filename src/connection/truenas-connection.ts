@@ -242,11 +242,6 @@ export class TrueNasConnection {
    *
    * `true` when the lifetime `connectionAttempts` count exceeds `hostnames.length * maxRetry`,
    * OR when an error message is currently set. Ported from the source (tncui) behavior.
-   *
-   * CAVEAT (pre-existing tncui behavior, preserved here): `connectionAttempts` only ever grows —
-   * it is never reset on a successful (re)connection — so over a long-lived connection with
-   * reconnect churn this can latch to `true` even while the connection is currently healthy. For
-   * "is it errored right now?" use the live `hasConnectionError$` observable instead.
    */
   hasExhaustedRetries(): boolean {
     const attemptsExhausted =
@@ -313,7 +308,7 @@ export class TrueNasConnection {
             hasOpened = true;
             // a successful open means we're no longer in an error state, so reset the
             // running attempt count. otherwise it climbs across reboots and
-            // eventually fixes `hasConnectionError` to `true` permanently.
+            // eventually fixes `hasExhaustedRetries` to `true` permanently.
             this.connectionAttempts.next(0);
             subscriber.next({ ws, hostname, });
           },
