@@ -40,6 +40,7 @@ jobs:
       - run: yarn build
       - run: yarn check:dist
       - run: yarn check:package
+      - run: yarn docs:check # validates doc comments ({@link} targets etc.) without rendering
 
   release:
     name: Release
@@ -51,6 +52,8 @@ jobs:
       issues: write # semantic-release comments on released issues
       pull-requests: write # semantic-release comments on released PRs
       id-token: write # npm publish provenance
+    outputs:
+      released: ${{ steps.check.outputs.released }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -66,3 +69,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # semantic-release exits 0 whether or not it published; a release is
+      # detected by the version tag it creates on HEAD.
+      - id: check
+        name: Detect published release
+        run: |
+          git fetch --tags --quiet origin
+          if [ -n "$(git tag --points-at HEAD)" ]; then
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  docs:
+    name: Publish docs
+    needs: release
+    # Deploy docs only when a release was actually published, so the public
+    # site never drifts ahead of what's installable from npm.
+    if: needs.release.outputs.released == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/docs.yml

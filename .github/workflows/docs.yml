@@ -1,0 +1,45 @@
+name: Docs
+
+# Builds the TypeDoc site and deploys it to GitHub Pages. Not triggered by
+# pushes: CI calls this workflow after a successful npm release (so the
+# published docs always describe the latest released version), and
+# workflow_dispatch allows a manual (re)deploy, e.g. right after enabling Pages.
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --immutable
+      - run: yarn docs
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    # One Pages deployment at a time; never cancel one that already started.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
