@@ -33,6 +33,7 @@
     "lint": "eslint .",
     "check:dist": "node scripts/check-dist.mjs",
     "docs": "typedoc",
+    "docs:check": "typedoc --emit none",
     "check:package": "publint && yarn pack -o package.tgz && attw package.tgz && rm -f package.tgz",
     "clean": "rm -rf dist"
   },

@@ -14,11 +14,12 @@ Framework-agnostic TypeScript client for the TrueNAS JSON-RPC 2.0 WebSocket API.
 ## Documentation
 
 The API reference is generated from the TSDoc comments in the source with
-[TypeDoc](https://typedoc.org/) and published to GitHub Pages on every push to `main`:
+[TypeDoc](https://typedoc.org/) and published to GitHub Pages with each npm release:
 <https://truenas.github.io/api-client-ts/>
 
 ```bash
 yarn docs                # generate locally into docs/ (gitignored)
+yarn docs:check          # validate doc comments without rendering (run in CI)
 ```
 
 ## Development
