@@ -11,6 +11,16 @@ Framework-agnostic TypeScript client for the TrueNAS JSON-RPC 2.0 WebSocket API.
   implementation (e.g. the [`ws`](https://www.npmjs.com/package/ws) package) via the socket config.
 - **`rxjs` ^7.8** is a peer dependency — the consuming project provides it.
 
+## Documentation
+
+The API reference is generated from the TSDoc comments in the source with
+[TypeDoc](https://typedoc.org/) and published to GitHub Pages on every push to `main`:
+<https://truenas.github.io/api-client-ts/>
+
+```bash
+yarn docs                # generate locally into docs/ (gitignored)
+```
+
 ## Development
 
 ```bash

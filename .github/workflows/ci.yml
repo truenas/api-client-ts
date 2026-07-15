@@ -40,6 +40,7 @@ jobs:
       - run: yarn build
       - run: yarn check:dist
       - run: yarn check:package
+      - run: yarn docs # validates doc comments ({@link} targets etc.)
 
   release:
     name: Release

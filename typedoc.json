@@ -1,0 +1,21 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "readme": "README.md",
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "categorizeByGroup": true,
+  "navigationLinks": {
+    "GitHub": "https://github.com/truenas/api-client-ts"
+  },
+  "validation": {
+    // ~30 types are referenced by public signatures (ApiCallDirectory etc.)
+    // but intentionally not re-exported from the barrel; re-enable if the
+    // public surface is ever widened to include them.
+    "notExported": false,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "treatWarningsAsErrors": true
+}
