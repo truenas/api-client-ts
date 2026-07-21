@@ -20,43 +20,55 @@
  * Caveat: collision-suffixed names (UserGetUserObj2, …) are assigned
  * per-version, so adding a shape in a new version can shift suffixes and
  * surface as false divergence. Safe (never wrongly shared), but noisy —
- * middleware-supplied `$defs` names would eliminate it.
+ * middleware-supplied `$defs` names would eliminate it (MIDDLEWARE-ASKS.md,
+ * ask A).
  */
+import type { DefSchema, VersionModel } from './types.mts';
 
 const DOC_KEYS = new Set(['description', 'examples', 'title', '_usedBy']);
 
-function canonical(node) {
+function canonical(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(canonical);
   if (node !== null && typeof node === 'object') {
-    const out = {};
-    for (const key of Object.keys(node).sort()) {
+    const record = node as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(record).sort()) {
       if (DOC_KEYS.has(key)) continue;
-      out[key] = canonical(node[key]);
+      out[key] = canonical(record[key]);
     }
     return out;
   }
   return node;
 }
 
-function refNames(node, into = new Set()) {
+function refNames(node: unknown, into = new Set<string>()): Set<string> {
   if (Array.isArray(node)) {
     node.forEach((n) => refNames(n, into));
   } else if (node !== null && typeof node === 'object') {
-    if (typeof node.$ref === 'string') into.add(node.$ref.replace('#/definitions/', ''));
-    Object.values(node).forEach((v) => refNames(v, into));
+    const record = node as Record<string, unknown>;
+    if (typeof record['$ref'] === 'string') into.add(record['$ref'].replace('#/definitions/', ''));
+    Object.values(record).forEach((v) => refNames(v, into));
   }
   return into;
+}
+
+export interface Partition {
+  shared: Record<string, DefSchema>;
+  /** Parallel to the input models array. */
+  locals: Record<string, DefSchema>[];
+  /** Names defined in several versions but with diverged shapes. */
+  diverged: string[];
 }
 
 /**
  * @param models preprocessed version models (ascending version order — the
  *   last one's docs win for shared types)
  */
-export function partitionShared(models) {
+export function partitionShared(models: VersionModel[]): Partition {
   const allNames = [...new Set(models.flatMap((m) => Object.keys(m.definitions)))];
 
   // Locally shareable: defined in >=2 versions, identical canonical shape.
-  const shareable = new Map();
+  const shareable = new Map<string, boolean>();
   for (const name of allNames) {
     const defs = models.filter((m) => name in m.definitions).map((m) => m.definitions[name]);
     const [first, ...rest] = defs.map((d) => JSON.stringify(canonical(d)));
@@ -69,8 +81,9 @@ export function partitionShared(models) {
     changed = false;
     for (const name of allNames) {
       if (!shareable.get(name)) continue;
-      const def = models.find((m) => name in m.definitions).definitions[name];
-      for (const ref of refNames(def)) {
+      const owner = models.find((m) => name in m.definitions);
+      if (!owner) continue;
+      for (const ref of refNames(owner.definitions[name])) {
         if (shareable.get(ref) === false) {
           shareable.set(name, false);
           changed = true;
@@ -80,7 +93,7 @@ export function partitionShared(models) {
     }
   }
 
-  const shared = {};
+  const shared: Record<string, DefSchema> = {};
   for (const name of allNames) {
     if (!shareable.get(name)) continue;
     const defs = models.filter((m) => name in m.definitions).map((m) => m.definitions[name]);

@@ -3,17 +3,16 @@
  * Generate TypeScript API types from a `middlewared --dump-api` JSON dump.
  *
  * Usage (offline, from a dump file):
- *   node scripts/generate-api-interface/generate.mjs \
- *     --schema scripts/generate-api-interface/26.schema.json \
- *     --api-version v26.0.0 \
- *     --include user.,alert. \
+ *   yarn generate:api \
+ *     --schema 26.schema.json \
+ *     --api-version v25.10.5,v26.0.0 \
  *     --out scripts/generate-api-interface/generated
  *
  * Usage (fetch a fresh dump via the nightly middleware container):
- *   node scripts/generate-api-interface/generate.mjs \
+ *   yarn generate:api \
  *     --fetch docker \
  *     --middleware-repo ~/Projects/middleware \
- *     --api-version v26.0.0 --include user.,alert.
+ *     --api-version v25.10.5,v26.0.0
  *
  * `--fetch docker` runs `middlewared --dump-api` inside the published
  * middleware image (default ghcr.io/truenas/middleware:26) with the local
@@ -24,15 +23,17 @@
  *
  * The dump may be either a full `{"versions": [...]}` document or a single
  * version object. `--include` limits generation to method/event name prefixes
- * (comma-separated); omit it to generate the full API surface.
+ * (comma-separated); omit it to generate the full API surface. With several
+ * versions, identical types are deduplicated into shared/ and each version
+ * directory holds only its own divergences.
  */
 import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 
-import { preprocess } from './lib/preprocess.mjs';
-import { partitionShared } from './lib/partition.mjs';
+import { preprocess } from './lib/preprocess.mts';
+import { partitionShared } from './lib/partition.mts';
 import {
   emitTypes,
   emitCallDirectory,
@@ -40,7 +41,8 @@ import {
   emitEventDirectory,
   emitIndex,
   emitRootIndex,
-} from './lib/emit.mjs';
+} from './lib/emit.mts';
+import type { ApiDumpFile, ApiDumpVersion, DefSchema } from './lib/types.mts';
 
 const { values: args } = parseArgs({
   options: {
@@ -55,7 +57,7 @@ const { values: args } = parseArgs({
 });
 
 /** Run `middlewared --dump-api` inside the published middleware container. */
-function fetchDumpViaDocker() {
+function fetchDumpViaDocker(): string {
   const repo = args['middleware-repo'];
   console.error(`Dumping API from ${repo} via ${args.image}...`);
   const result = spawnSync('docker', [
@@ -66,7 +68,7 @@ function fetchDumpViaDocker() {
     args.image,
     'sh', '-c', 'PYTHONPATH=. python3 -m middlewared.main --dump-api',
   ], { encoding: 'utf8', maxBuffer: 1024 * 1024 * 1024 });
-  if (result.error?.code === 'ENOENT') {
+  if (result.error && 'code' in result.error && result.error.code === 'ENOENT') {
     console.error('docker not found on PATH — install Docker or use --schema <file> instead.');
     process.exit(1);
   }
@@ -78,7 +80,7 @@ function fetchDumpViaDocker() {
   return result.stdout;
 }
 
-let raw;
+let raw: string;
 if (args.fetch === 'docker') {
   raw = fetchDumpViaDocker();
   if (args.schema) {
@@ -92,8 +94,8 @@ if (args.fetch === 'docker') {
   raw = await readFile(args.schema ?? path.join(import.meta.dirname, '26.schema.json'), 'utf8');
 }
 
-const dump = JSON.parse(raw);
-const available = dump.versions ?? [dump];
+const dump = JSON.parse(raw) as ApiDumpFile | ApiDumpVersion;
+const available: ApiDumpVersion[] = (dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion];
 let versions = available;
 if (args['api-version']) {
   const wanted = args['api-version'].split(',').map((s) => s.trim()).filter(Boolean);
@@ -113,7 +115,7 @@ if (versions.length > 1 && !args['api-version']) {
 
 const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Boolean);
 const multi = versions.length > 1;
-const versionDir = (version) => version.replaceAll('.', '_');
+const versionDir = (version: string): string => version.replaceAll('.', '_');
 
 // Ascending version order so the newest version's docs win for shared types.
 const models = versions
@@ -124,9 +126,9 @@ const models = versions
 // what is unique to or diverged in that version.
 const { shared, locals, diverged } = multi
   ? partitionShared(models)
-  : { shared: {}, locals: models.map((m) => m.definitions), diverged: [] };
+  : { shared: {} as Record<string, DefSchema>, locals: models.map((m) => m.definitions), diverged: [] as string[] };
 
-async function writeFiles(dir, files) {
+async function writeFiles(dir: string, files: Record<string, string>): Promise<void> {
   await mkdir(dir, { recursive: true });
   for (const [name, content] of Object.entries(files)) {
     await writeFile(path.join(dir, name), content);
