@@ -27,6 +27,20 @@ const OVERLAY_KEYS = ['title', 'description', 'default', 'examples'];
 
 const JOB_DOC_MARKER = 'This method is a job.';
 
+/**
+ * Names emitted by us outside api-types (query grammar template, directory
+ * interfaces) — generated definitions must never claim them.
+ */
+const RESERVED_NAMES = [
+  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions',
+  'ApiCallDirectory', 'ApiJobDirectory', 'ApiEventDirectory', 'ApiDirectory',
+];
+
+/** The uniform property set of middleware's query options model. */
+const QUERY_OPTION_KEYS = new Set([
+  'count', 'extra', 'force_sql_filters', 'get', 'limit', 'offset', 'order_by', 'select',
+]);
+
 /** JSON.stringify with recursively sorted object keys, for stable hashing. */
 function stableStringify(node: unknown): string {
   if (Array.isArray(node)) {
@@ -115,7 +129,7 @@ class DefRegistry {
     // letter after a digit, 2fa -> 2Fa); apply the same rule so our $refs and
     // its declarations agree even for names that come from middleware titles.
     const normalize = (name: string) => name.replace(/(\d)([a-z])/g, (_, d: string, c: string) => d + c.toUpperCase());
-    const taken = new Map<string, number>(); // name -> count of uses, for suffixing
+    const taken = new Map<string, number>(RESERVED_NAMES.map((n) => [n, 1])); // name -> count of uses, for suffixing
     const names = new Map<string, string>(); // hash -> final name
     // Deterministic order: by preferred name, then hash
     const entries = [...this.byHash.entries()].map(([hash, entry]) => ({
@@ -194,6 +208,62 @@ function renameRefs<T>(node: T, names: Map<string, string>): T {
   return out as T;
 }
 
+const refIn = (s: Schema | boolean | undefined): string | null => (
+  s && typeof s === 'object' && typeof s.$ref === 'string' ? s.$ref.replace('#/definitions/', '') : null
+);
+
+/**
+ * Entity type expression of a query method, from its return schema — the
+ * standard shape is `anyOf: [array-of-entity, single-entity, count]`.
+ */
+function inferEntityExpr(returns: Schema): string | null {
+  const variants = returns.anyOf ?? returns.oneOf ?? [returns];
+  for (const variant of variants) {
+    if (variant.type !== 'array' || !variant.items) continue;
+    const single = refIn(variant.items);
+    if (single) return single;
+    const union = variant.items.anyOf ?? variant.items.oneOf;
+    if (union && union.every((u) => refIn(u))) {
+      return union.map((u) => refIn(u)).join(' | ');
+    }
+  }
+  return null;
+}
+
+/**
+ * Replace the untypeable `filters`/`options` params of query methods with the
+ * hand-written generics from the query-types template, instantiated with the
+ * method's entity type. The orphaned generated options definitions are
+ * removed later by reachability pruning.
+ */
+function applyQueryTyping(methods: MethodModel[], definitions: Record<string, DefSchema>): void {
+  // Keep structured refs alongside the opaque tsType so import collection
+  // still sees the entity type(s).
+  const entityRefs = (entity: string) => entity.split(' | ')
+    .filter((name) => name in definitions)
+    .map((name) => ({ $ref: `#/definitions/${name}` }));
+  const isQueryOptionsDef = (schema: Schema): boolean => {
+    const def = definitions[refIn(schema) ?? ''];
+    const props = Object.keys(def?.properties ?? {});
+    return props.length > 0 && props.every((k) => QUERY_OPTION_KEYS.has(k));
+  };
+
+  for (const method of methods) {
+    // `.query`-style: entity is the result item; single-entity methods
+    // (`.get_instance(id, options)`): entity is the returned entry itself.
+    const entity = inferEntityExpr(method.returns) ?? refIn(method.returns) ?? 'Record<string, unknown>';
+
+    for (let i = 0; i < method.params.length; i++) {
+      const param = method.params[i];
+      if (param.name === 'filters' && method.params[i + 1]?.name === 'options') {
+        param.schema = { tsType: `QueryFilters<${entity}>`, _refs: entityRefs(entity) };
+      } else if (param.name === 'options' && isQueryOptionsDef(param.schema)) {
+        param.schema = { tsType: `QueryOptions<${entity}>`, _refs: entityRefs(entity) };
+      }
+    }
+  }
+}
+
 /**
  * @param versionDump one entry of the dump's `versions` array
  * @param includePrefixes e.g. ['user.', 'alert.'] — empty means everything
@@ -249,10 +319,13 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
     definitions[name] = def;
   }
 
+  const finalMethods = renameRefs(methods, names);
+  applyQueryTyping(finalMethods, definitions);
+
   return {
     version: versionDump.version,
     definitions,
-    methods: renameRefs(methods, names),
+    methods: finalMethods,
     events: renameRefs(events, names),
   };
 }

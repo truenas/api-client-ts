@@ -33,8 +33,9 @@ import { parseArgs } from 'node:util';
 import path from 'node:path';
 
 import { preprocess } from './lib/preprocess.mts';
-import { partitionShared } from './lib/partition.mts';
+import { partitionShared, refNames } from './lib/partition.mts';
 import {
+  HEADER,
   emitTypes,
   emitCallDirectory,
   emitJobDirectory,
@@ -42,7 +43,7 @@ import {
   emitIndex,
   emitRootIndex,
 } from './lib/emit.mts';
-import type { ApiDumpFile, ApiDumpVersion, DefSchema } from './lib/types.mts';
+import type { ApiDumpFile, ApiDumpVersion, DefSchema, VersionModel } from './lib/types.mts';
 
 const { values: args } = parseArgs({
   options: {
@@ -117,10 +118,30 @@ const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Bool
 const multi = versions.length > 1;
 const versionDir = (version: string): string => version.replaceAll('.', '_');
 
+/**
+ * Drop definitions no longer referenced from the API surface — mainly the
+ * generated per-method query-options models orphaned by the QueryOptions<T>
+ * substitution.
+ */
+function pruneUnreachable(model: VersionModel): void {
+  const reachable = new Set<string>();
+  const queue = [...refNames({ methods: model.methods, events: model.events })];
+  while (queue.length) {
+    const name = queue.pop();
+    if (!name || reachable.has(name) || !(name in model.definitions)) continue;
+    reachable.add(name);
+    queue.push(...refNames(model.definitions[name]));
+  }
+  model.definitions = Object.fromEntries(
+    Object.entries(model.definitions).filter(([name]) => reachable.has(name)),
+  );
+}
+
 // Ascending version order so the newest version's docs win for shared types.
 const models = versions
   .map((v) => preprocess(v, includePrefixes))
   .sort((a, b) => a.version.localeCompare(b.version, undefined, { numeric: true }));
+models.forEach(pruneUnreachable);
 
 // Cross-version dedup: identical types go to shared/, version dirs hold only
 // what is unique to or diverged in that version.
@@ -135,9 +156,16 @@ async function writeFiles(dir: string, files: Record<string, string>): Promise<v
   }
 }
 
+// The query grammar is hand-maintained framework semantics, copied verbatim
+// from the template into the generated tree.
+const queryTypesSource = HEADER + '\n'
+  + await readFile(path.join(import.meta.dirname, 'lib/templates/query-types.ts'), 'utf8');
+const queryPath = multi ? '../shared/query-types' : './query-types';
+
 if (multi) {
   await writeFiles(path.join(args.out, 'shared'), {
     'api-types.ts': await emitTypes(shared),
+    'query-types.ts': queryTypesSource,
   });
 }
 
@@ -146,13 +174,15 @@ for (const [i, model] of models.entries()) {
   const sharedNames = new Set(Object.keys(shared).filter((name) => name in model.definitions));
 
   await writeFiles(outDir, {
+    ...(multi ? {} : { 'query-types.ts': queryTypesSource }),
     'api-types.ts': await emitTypes(locals[i], sharedNames),
-    'api-call-directory.ts': emitCallDirectory(model.methods, sharedNames),
-    'api-job-directory.ts': emitJobDirectory(model.methods, sharedNames),
+    'api-call-directory.ts': emitCallDirectory(model.methods, sharedNames, queryPath),
+    'api-job-directory.ts': emitJobDirectory(model.methods, sharedNames, queryPath),
     'api-event-directory.ts': emitEventDirectory(model.events, sharedNames),
     'index.ts': emitIndex({
       sharedEnums: [...sharedNames].filter((n) => shared[n]._kind === 'enum').sort(),
       sharedTypes: [...sharedNames].filter((n) => shared[n]._kind !== 'enum').sort(),
+      queryPath,
     }),
   });
 

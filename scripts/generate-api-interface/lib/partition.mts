@@ -41,7 +41,7 @@ function canonical(node: unknown): unknown {
   return node;
 }
 
-function refNames(node: unknown, into = new Set<string>()): Set<string> {
+export function refNames(node: unknown, into = new Set<string>()): Set<string> {
   if (Array.isArray(node)) {
     node.forEach((n) => refNames(n, into));
   } else if (node !== null && typeof node === 'object') {
