@@ -1,0 +1,7 @@
+# Regenerable output — where generated types permanently live is still an open
+# packaging decision (likely src/ once wired into the build + CI check mode).
+generated/
+
+# Local API dump caches (fetch fresh with --fetch docker)
+*.schema.json
+dump*.json
