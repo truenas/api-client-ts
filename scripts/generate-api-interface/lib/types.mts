@@ -14,6 +14,7 @@
  */
 export interface Schema {
   $ref?: string;
+  $defs?: Record<string, Schema>;
   type?: string | string[];
   title?: string;
   description?: string;
@@ -40,13 +41,25 @@ export interface Schema {
 // Dump format (input)
 // ---------------------------------------------------------------------------
 
+/**
+ * Pydantic-native schema documents from `--dump-api --keep-refs` (middleware
+ * commit 58b62dd6): the accepts/returns wrapper models, each a standalone
+ * JSON Schema document with its own `$defs` table of named model definitions.
+ */
+export interface ApiDumpMethodSchemas {
+  accepts: Schema;
+  /** Wrapper model with a single `result` property. */
+  returns: Schema;
+}
+
 export interface ApiDumpMethod {
   name: string;
   roles: string[];
   doc: string | null;
-  /** `{type: 'object', properties: {'Call parameters': ..., 'Return value': ...}}` */
-  schemas: Schema;
+  schemas: ApiDumpMethodSchemas;
   removed_in: string | null;
+  /** Structured job flag (middleware commit bb3ab33f6f). */
+  job: boolean;
   input_pipes?: boolean;
   output_pipes?: boolean;
   check_pipes?: boolean;
@@ -56,8 +69,8 @@ export interface ApiDumpEvent {
   name: string;
   roles: string[];
   doc: string | null;
-  /** `{type: 'object', properties: {ADDED?, CHANGED?, REMOVED?, 'Subscription parameters'?}}` */
-  schemas: Schema;
+  /** Variant (ADDED / CHANGED / REMOVED / 'Subscription parameters') -> native schema document. */
+  schemas: Record<string, Schema>;
   removed_in: string | null;
 }
 

@@ -156,27 +156,37 @@ const SHARED_PATH = '../shared/api-types';
  * enums. `sharedNames` are types that live in shared/api-types.ts — they are
  * imported rather than declared, keeping version dirs free of duplication.
  */
+/** True for defs json-schema-to-typescript declares reliably: objects with fields. */
+const isDeclarableObject = (s: Schema): boolean => s.type === 'object'
+  && Object.keys(s.properties ?? {}).length > 0;
+
 export async function emitTypes(definitions: Record<string, DefSchema>, sharedNames = new Set<string>()): Promise<string> {
   const objectDefs: Record<string, Schema> = {};
   const enumDefs: Record<string, Schema> = {};
+  // json-schema-to-typescript silently drops top-level defs that aren't
+  // field-bearing objects (arrays, empty marker models, primitives, unions),
+  // so those are declared by us via tsExpr, like enums.
+  const aliasDefs: Record<string, Schema> = {};
   for (const [name, def] of Object.entries(definitions)) {
     const { _kind, _usedBy, ...schema } = def;
     const usage = usedByLine(_usedBy);
     if (usage) {
       schema.description = schema.description ? `${schema.description}\n\n${usage}` : usage;
     }
-    (_kind === 'enum' ? enumDefs : objectDefs)[name] = stripNestedTitles(schema) as Schema;
+    const bucket = _kind === 'enum' ? enumDefs : isDeclarableObject(schema) ? objectDefs : aliasDefs;
+    bucket[name] = stripNestedTitles(schema) as Schema;
   }
 
   // Enum defs are emitted by us and shared defs are imported; hand
   // json-schema-to-typescript an opaque `tsType` for both so references
   // render as the bare name.
-  const referencedShared = [...collectRefs(Object.values(objectDefs), new Set())]
+  const referencedShared = [...collectRefs([Object.values(objectDefs), Object.values(aliasDefs)], new Set())]
     .filter((name) => sharedNames.has(name))
     .sort();
   const jstsDefinitions: Record<string, Schema> = {
     ...objectDefs,
     ...Object.fromEntries(Object.keys(enumDefs).map((name) => [name, { tsType: name }])),
+    ...Object.fromEntries(Object.keys(aliasDefs).map((name) => [name, { tsType: name }])),
     ...Object.fromEntries(referencedShared.map((name) => [name, { tsType: name }])),
   };
 
@@ -215,10 +225,14 @@ export async function emitTypes(definitions: Record<string, DefSchema>, sharedNa
     return `${tsdoc([schema.description], '')}export const ${name} = {\n${members}\n} as const;\nexport type ${name} = (typeof ${name})[keyof typeof ${name}];`;
   });
 
+  const aliases = Object.entries(aliasDefs).map(([name, schema]) => (
+    `${tsdoc([schema.description], '')}export type ${name} = ${tsExpr(schema)};`
+  ));
+
   const sharedImport = referencedShared.length
     ? `import type {\n${referencedShared.map((n) => `  ${n},`).join('\n')}\n} from '${SHARED_PATH}';\n\n`
     : '';
-  return `${HEADER}\n${sharedImport}${[...enums, interfaces].join('\n\n')}\n`;
+  return `${HEADER}\n${sharedImport}${[...enums, ...aliases, interfaces].join('\n\n')}\n`;
 }
 
 function directoryEntry(method: MethodModel): string {

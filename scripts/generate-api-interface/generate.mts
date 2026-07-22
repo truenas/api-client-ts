@@ -49,7 +49,7 @@ const { values: args } = parseArgs({
   options: {
     schema: { type: 'string' },
     fetch: { type: 'string' },
-    image: { type: 'string', default: 'ghcr.io/truenas/middleware:26' },
+    image: { type: 'string', default: 'ghcr.io/truenas/middleware:master' },
     'middleware-repo': { type: 'string', default: path.resolve(import.meta.dirname, '../../../middleware') },
     'api-version': { type: 'string' },
     include: { type: 'string', default: '' },
@@ -67,7 +67,7 @@ function fetchDumpViaDocker(): string {
     '-v', `${repo}:/mnt/middleware`,
     '-w', '/mnt/middleware/src/middlewared',
     args.image,
-    'sh', '-c', 'PYTHONPATH=. python3 -m middlewared.main --dump-api',
+    'sh', '-c', 'PYTHONPATH=. python3 -m middlewared.main --dump-api --keep-refs',
   ], { encoding: 'utf8', maxBuffer: 1024 * 1024 * 1024 });
   if (result.error && 'code' in result.error && result.error.code === 'ENOENT') {
     console.error('docker not found on PATH — install Docker or use --schema <file> instead.');
@@ -97,6 +97,11 @@ if (args.fetch === 'docker') {
 
 const dump = JSON.parse(raw) as ApiDumpFile | ApiDumpVersion;
 const available: ApiDumpVersion[] = (dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion];
+if (available[0] && !available[0].methods[0]?.schemas?.accepts) {
+  console.error('Dump is not in --keep-refs format (methods lack schemas.accepts). '
+    + 'Regenerate it with `middlewared --dump-api --keep-refs` (middleware master, commit 58b62dd6+).');
+  process.exit(1);
+}
 let versions = available;
 if (args['api-version']) {
   const wanted = args['api-version'].split(',').map((s) => s.trim()).filter(Boolean);

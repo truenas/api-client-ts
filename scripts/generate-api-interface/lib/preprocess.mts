@@ -1,20 +1,24 @@
 /**
- * Preprocessor: reconstructs named, shared schema definitions from a
- * `middlewared --dump-api` version dump.
+ * Preprocessor: builds the generator IR from a `middlewared --dump-api
+ * --keep-refs` version dump.
  *
- * The middleware dump runs every schema through `replace_refs`, which inlines
- * all `$defs` at their use sites (merging use-site keys like `description` and
- * `default` over the definition). This module reverses that: it hash-conses
- * structurally identical titled subschemas back into a single `$defs`-style
- * table and replaces occurrences with `$ref`s.
+ * With --keep-refs (middleware commit 58b62dd6), every method emits pydantic's
+ * native JSON Schema documents — `schemas: {accepts, returns}` with a `$defs`
+ * table of named model definitions — and events emit one native document per
+ * variant. This module merges all per-document `$defs` into one version-wide
+ * definition table and unwraps the Args/Result wrapper models into per-method
+ * params and return schemas.
  *
- * NOTE: this whole pass becomes obsolete if/when middleware ships a
- * `$defs`-preserving dump variant (MIDDLEWARE-ASKS.md, ask A). Keep it
- * disposable.
+ * Merging wrinkle: pydantic renders the same model differently in validation
+ * (accepts) vs serialization (returns) mode, under the same name. Where the
+ * two renders differ — directly, or transitively via a referenced model that
+ * differs — the definition is split: the serialization render keeps the bare
+ * name (consumers read far more than they write) and the validation render
+ * gets an `Input` suffix. Rare same-name/same-mode collisions (distinct
+ * middleware models sharing a class name) get numeric suffixes.
  */
 import type {
   ApiDumpVersion,
-  DefKind,
   DefSchema,
   EventModel,
   MethodModel,
@@ -22,26 +26,23 @@ import type {
   VersionModel,
 } from './types.mts';
 
-/** Use-site keys that `replace_refs` merges over the definition body. */
-const OVERLAY_KEYS = ['title', 'description', 'default', 'examples'];
-
-const JOB_DOC_MARKER = 'This method is a job.';
-
 /**
  * Names emitted by us outside api-types (query grammar template, directory
- * interfaces) — generated definitions must never claim them.
+ * interfaces) — middleware model names must never claim them.
  */
-const RESERVED_NAMES = [
+const RESERVED_NAMES = new Set([
   'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions',
   'ApiCallDirectory', 'ApiJobDirectory', 'ApiEventDirectory', 'ApiDirectory',
-];
+]);
 
 /** The uniform property set of middleware's query options model. */
 const QUERY_OPTION_KEYS = new Set([
   'count', 'extra', 'force_sql_filters', 'get', 'limit', 'offset', 'order_by', 'select',
 ]);
 
-/** JSON.stringify with recursively sorted object keys, for stable hashing. */
+type Mode = 'input' | 'output';
+
+/** JSON.stringify with recursively sorted object keys, for stable shape identity. */
 function stableStringify(node: unknown): string {
   if (Array.isArray(node)) {
     return `[${node.map(stableStringify).join(',')}]`;
@@ -54,158 +55,195 @@ function stableStringify(node: unknown): string {
   return JSON.stringify(node);
 }
 
-/** Structural identity of a schema, ignoring top-level use-site overlays. */
-function structuralHash(node: Schema): string {
-  const clone: Schema = { ...node };
-  for (const key of OVERLAY_KEYS) {
-    delete clone[key];
+function directRefNames(node: unknown, into = new Set<string>()): Set<string> {
+  if (Array.isArray(node)) {
+    node.forEach((n) => directRefNames(n, into));
+  } else if (node !== null && typeof node === 'object') {
+    const record = node as Record<string, unknown>;
+    if (typeof record['$ref'] === 'string') into.add(record['$ref'].replace('#/$defs/', ''));
+    Object.values(record).forEach((v) => directRefNames(v, into));
   }
-  return stableStringify(clone);
+  return into;
 }
 
-const isPascalTitle = (title: unknown): title is string => typeof title === 'string' && /^[A-Z][A-Za-z0-9_]*$/.test(title);
+interface DefVariant {
+  schema: Schema;
+  modes: Set<Mode>;
+  /** Per mode, for every `#/$defs/X` inside `schema`: the shape hash X had in that mode's source document. */
+  refHashes: { input?: Map<string, string>; output?: Map<string, string> };
+  finalName?: { input: string; output: string };
+}
 
-/** "user.query" + "options" -> "UserQueryOptions"; collapses repeated token runs. */
-export function pascalName(...parts: string[]): string {
-  const tokens = parts
-    .flatMap((p) => String(p).split(/[^A-Za-z0-9]+|(?=[A-Z])/))
-    .filter(Boolean)
-    .map((t) => t.toLowerCase());
-  // Collapse repeated runs: user create user create -> user create
-  const half = Math.floor(tokens.length / 2);
-  for (let size = half; size >= 1; size--) {
-    for (let i = 0; i + 2 * size <= tokens.length; i++) {
-      const a = tokens.slice(i, i + size).join(' ');
-      const b = tokens.slice(i + size, i + 2 * size).join(' ');
-      if (a === b) {
-        tokens.splice(i + size, size);
-        size = Math.min(Math.floor(tokens.length / 2), size);
-        i--;
+class DefTable {
+  /** model name -> shape hash -> variant */
+  byName = new Map<string, Map<string, DefVariant>>();
+
+  /** Register one `$defs` entry (or event root model) from a document of the given mode. */
+  record(name: string, schema: Schema, mode: Mode, docDefs: Record<string, Schema>): string {
+    const hash = stableStringify(schema);
+    let variants = this.byName.get(name);
+    if (!variants) {
+      variants = new Map();
+      this.byName.set(name, variants);
+    }
+    let variant = variants.get(hash);
+    if (!variant) {
+      variant = { schema, modes: new Set(), refHashes: {} };
+      variants.set(hash, variant);
+    }
+    if (!variant.refHashes[mode]) {
+      const refHashes = new Map<string, string>();
+      for (const ref of directRefNames(schema)) {
+        if (ref in docDefs) refHashes.set(ref, stableStringify(docDefs[ref]));
+      }
+      variant.refHashes[mode] = refHashes;
+    } else {
+      const existing = variant.refHashes[mode];
+      for (const ref of directRefNames(schema)) {
+        if (ref in docDefs && existing.has(ref) && existing.get(ref) !== stableStringify(docDefs[ref])) {
+          console.warn(`warning: ${name} (${mode}) resolves reference ${ref} to different shapes in different documents; first one wins`);
+        }
       }
     }
-  }
-  return tokens
-    .map((t) => t[0].toUpperCase() + t.slice(1))
-    .join('')
-    // Match json-schema-to-typescript's normalizer, which uppercases the
-    // letter following a digit (2fa -> 2Fa) — our declarations and its
-    // references must agree on the name.
-    .replace(/(\d)([a-z])/g, (_, d: string, c: string) => d + c.toUpperCase());
-}
-
-interface RegistryEntry {
-  schema: Schema;
-  titles: Map<string, number>;
-  contexts: Map<string, number>;
-  kind: DefKind;
-  usages: Set<string>;
-}
-
-class DefRegistry {
-  byHash = new Map<string, RegistryEntry>();
-
-  add(node: Schema, contextName: string | null, kind: DefKind, usage: string): string {
-    const hash = structuralHash(node);
-    let entry = this.byHash.get(hash);
-    if (!entry) {
-      entry = { schema: node, titles: new Map(), contexts: new Map(), kind, usages: new Set() };
-      this.byHash.set(hash, entry);
-    }
-    const bump = (map: Map<string, number>, key: string | null) => {
-      if (key) map.set(key, (map.get(key) ?? 0) + 1);
-    };
-    if (isPascalTitle(node.title)) {
-      bump(entry.titles, node.title);
-    }
-    bump(entry.contexts, contextName);
-    entry.usages.add(usage);
+    variant.modes.add(mode);
     return hash;
   }
 
-  /** Assign final names (most common Pascal title, else context name), dedupe collisions. */
-  assignNames(): Map<string, string> {
-    const mostCommon = (map: Map<string, number>) => [...map.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
-    // json-schema-to-typescript normalizes declared names (uppercasing the
-    // letter after a digit, 2fa -> 2Fa); apply the same rule so our $refs and
-    // its declarations agree even for names that come from middleware titles.
-    const normalize = (name: string) => name.replace(/(\d)([a-z])/g, (_, d: string, c: string) => d + c.toUpperCase());
-    const taken = new Map<string, number>(RESERVED_NAMES.map((n) => [n, 1])); // name -> count of uses, for suffixing
-    const names = new Map<string, string>(); // hash -> final name
-    // Deterministic order: by preferred name, then hash
-    const entries = [...this.byHash.entries()].map(([hash, entry]) => ({
-      hash,
-      entry,
-      preferred: normalize(mostCommon(entry.titles) ?? mostCommon(entry.contexts) ?? 'Anonymous'),
-    }));
-    entries.sort((a, b) => a.preferred.localeCompare(b.preferred) || a.hash.localeCompare(b.hash));
-    for (const { hash, preferred } of entries) {
-      const n = taken.get(preferred) ?? 0;
-      taken.set(preferred, n + 1);
-      names.set(hash, n === 0 ? preferred : `${preferred}${n + 1}`);
+  /**
+   * Decide which names must split into Input/output variants: a name splits
+   * when its renders differ between modes, or anything it references splits.
+   */
+  private computeSplit(): Set<string> {
+    const split = new Set<string>();
+    for (const [name, variants] of this.byName) {
+      if (variants.size > 1) {
+        const modes = [...variants.values()].flatMap((v) => [...v.modes]);
+        if (modes.includes('input') && modes.includes('output')) split.add(name);
+      }
     }
-    return names;
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const [name, variants] of this.byName) {
+        if (split.has(name)) continue;
+        for (const variant of variants.values()) {
+          if (variant.modes.size < 2) continue;
+          const refs = new Set([
+            ...(variant.refHashes.input?.keys() ?? []),
+            ...(variant.refHashes.output?.keys() ?? []),
+          ]);
+          if ([...refs].some((ref) => split.has(ref))) {
+            split.add(name);
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
+    return split;
+  }
+
+  /** Assign final TypeScript names to every variant, per mode. */
+  assignNames(): void {
+    const split = this.computeSplit();
+    for (const [name, variants] of this.byName) {
+      // Match json-schema-to-typescript's declared-name normalization
+      // (leading capital, uppercase after digits: iSCSITargetEntry ->
+      // ISCSITargetEntry, Renew2fa -> Renew2Fa) so our references and its
+      // declarations agree. Underscores pass through unchanged.
+      const normalized = (name[0].toUpperCase() + name.slice(1))
+        .replace(/(\d)([a-z])/g, (_, d: string, c: string) => d + c.toUpperCase());
+      const base = RESERVED_NAMES.has(normalized) ? `${normalized}Model` : normalized;
+      const suffixed = (stem: string, i: number) => (i === 0 ? stem : `${stem}${i + 1}`);
+      const ordered = [...variants.entries()].sort(([a], [b]) => a.localeCompare(b));
+
+      if (!split.has(name)) {
+        // One render everywhere (or single-mode-only name): numeric suffixes
+        // for the rare same-name/same-mode collisions.
+        ordered.forEach(([, variant], i) => {
+          const n = suffixed(base, i);
+          variant.finalName = { input: n, output: n };
+        });
+        continue;
+      }
+
+      // Mode-split: serialization render keeps the bare name, validation
+      // render gets the Input suffix. A variant used in both modes (identical
+      // render, split forced by a referenced def) becomes two definitions.
+      const inputs = ordered.filter(([, v]) => v.modes.has('input'));
+      const outputs = ordered.filter(([, v]) => v.modes.has('output'));
+      outputs.forEach(([, variant], i) => {
+        variant.finalName = { input: '', output: suffixed(base, i) };
+      });
+      inputs.forEach(([, variant], i) => {
+        const inputName = suffixed(`${base}Input`, i);
+        variant.finalName = { ...(variant.finalName ?? { output: '' }), input: inputName };
+      });
+    }
+  }
+
+  /** Resolve a `#/$defs/` reference from a document of the given mode to a final name. */
+  resolve(name: string, mode: Mode, docDefs: Record<string, Schema>): string {
+    const source = docDefs[name];
+    const variant = source !== undefined
+      ? this.byName.get(name)?.get(stableStringify(source))
+      : undefined;
+    const final = variant?.finalName?.[mode];
+    if (!final) {
+      console.warn(`warning: unresolved $defs reference '${name}' (${mode})`);
+      return name;
+    }
+    return final;
+  }
+
+  /** Emit the merged definition table with all references rewritten to final names. */
+  definitions(): Record<string, DefSchema> {
+    const out: Record<string, DefSchema> = {};
+    const emit = (variant: DefVariant, mode: Mode, docDefsProxy: Record<string, Schema>) => {
+      const finalName = variant.finalName?.[mode];
+      if (!finalName || finalName in out) return;
+      const def: DefSchema = rewriteRefs(variant.schema, this, mode, docDefsProxy) as DefSchema;
+      def.title = finalName;
+      def._kind = Array.isArray(def.enum) ? 'enum' : 'object';
+      out[finalName] = def;
+    };
+    for (const variants of this.byName.values()) {
+      for (const variant of variants.values()) {
+        // Reconstruct enough of each mode's source-document $defs context to
+        // resolve this definition's own references.
+        for (const mode of ['output', 'input'] as const) {
+          if (!variant.modes.has(mode)) continue;
+          const docDefsProxy: Record<string, Schema> = {};
+          for (const [ref, hash] of variant.refHashes[mode] ?? []) {
+            const target = this.byName.get(ref)?.get(hash);
+            if (target) docDefsProxy[ref] = target.schema;
+          }
+          emit(variant, mode, docDefsProxy);
+        }
+      }
+    }
+    return Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
   }
 }
 
-/**
- * Post-order walk that hoists titled object/enum schemas into the registry,
- * replacing them with `{$ref}` placeholders keyed by structural hash.
- */
-function hoist(node: unknown, registry: DefRegistry, contextName: string | null, usage: string): unknown {
+/** Rewrite `#/$defs/X` references to `#/definitions/<finalName>` and drop `$defs` tables. */
+function rewriteRefs(node: unknown, table: DefTable, mode: Mode, docDefs: Record<string, Schema>): unknown {
   if (Array.isArray(node)) {
-    return node.map((item) => hoist(item, registry, contextName, usage));
-  }
-  if (node === null || typeof node !== 'object') {
-    return node;
-  }
-
-  const out: Schema = {};
-  for (const [key, value] of Object.entries(node)) {
-    if (key === 'properties' && value !== null && typeof value === 'object' && !Array.isArray(value)) {
-      out[key] = Object.fromEntries(
-        Object.entries(value as Record<string, unknown>).map(
-          ([prop, sub]) => [prop, hoist(sub, registry, pascalName(prop), usage)],
-        ),
-      ) as Record<string, Schema>;
-    } else {
-      out[key] = hoist(value, registry, contextName, usage);
-    }
-  }
-
-  const isHoistableObject = out.type === 'object'
-    && out.properties && Object.keys(out.properties).length > 0
-    && (isPascalTitle(out.title) || contextName !== null);
-  const isHoistableEnum = Array.isArray(out.enum) && out.enum.length > 1 && isPascalTitle(out.title);
-
-  if (isHoistableObject || isHoistableEnum) {
-    const hash = registry.add(out, isPascalTitle(out.title) ? null : contextName, isHoistableEnum ? 'enum' : 'object', usage);
-    const ref: Schema = { $ref: `#/definitions/${encodeURIComponent(hash)}` };
-    // Preserve use-site overlays that matter downstream (tuple optionality, docs).
-    if (out.description) ref.description = out.description;
-    if ('default' in out) ref.default = out.default;
-    return ref;
-  }
-  return out;
-}
-
-/** Rewrite hash-keyed $refs to final names, in defs and method/event schemas alike. */
-function renameRefs<T>(node: T, names: Map<string, string>): T {
-  if (Array.isArray(node)) {
-    return node.map((item) => renameRefs(item, names)) as T;
+    return node.map((item) => rewriteRefs(item, table, mode, docDefs));
   }
   if (node === null || typeof node !== 'object') {
     return node;
   }
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(node)) {
+    if (key === '$defs') continue;
     if (key === '$ref' && typeof value === 'string') {
-      const hash = decodeURIComponent(value.replace('#/definitions/', ''));
-      out[key] = `#/definitions/${names.get(hash) ?? hash}`;
+      out[key] = `#/definitions/${table.resolve(value.replace('#/$defs/', ''), mode, docDefs)}`;
     } else {
-      out[key] = renameRefs(value, names);
+      out[key] = rewriteRefs(value, table, mode, docDefs);
     }
   }
-  return out as T;
+  return out;
 }
 
 const refIn = (s: Schema | boolean | undefined): string | null => (
@@ -264,6 +302,86 @@ function applyQueryTyping(methods: MethodModel[], definitions: Record<string, De
   }
 }
 
+const isPascalTitle = (title: unknown): title is string => typeof title === 'string' && /^[A-Z][A-Za-z0-9_]*$/.test(title);
+
+/** Keys that belong to the field site, not the enum definition. */
+const ENUM_USE_SITE_KEYS = ['description', 'default', 'examples'];
+
+/**
+ * Pydantic inlines most middleware enums at their field sites (only true Enum
+ * classes reach `$defs`). Hoist titled inline enums into the document's
+ * `$defs` (mutating the document) so they flow through the normal definition
+ * machinery and get emitted as named const-object enums.
+ */
+function hoistInlineEnums(node: unknown, doc: Schema): unknown {
+  if (Array.isArray(node)) return node.map((n) => hoistInlineEnums(n, doc));
+  if (node === null || typeof node !== 'object') return node;
+  const schema = node as Schema;
+  const out: Schema = {};
+  for (const [key, value] of Object.entries(schema)) {
+    out[key] = key === '$defs' ? value : hoistInlineEnums(value, doc);
+  }
+  if (Array.isArray(out.enum) && out.enum.length > 1 && isPascalTitle(out.title) && !out.$ref) {
+    const body: Schema = { ...out };
+    const useSite: Schema = {};
+    for (const key of ENUM_USE_SITE_KEYS) {
+      if (key in body) {
+        useSite[key] = body[key];
+        delete body[key];
+      }
+    }
+    const defs = (doc.$defs ??= {});
+    const existing = defs[out.title];
+    if (existing === undefined || stableStringify(existing) === stableStringify(body)) {
+      defs[out.title] = body;
+      return { $ref: `#/$defs/${out.title}`, ...useSite };
+    }
+  }
+  return out;
+}
+
+/** Apply enum hoisting to a whole document: def bodies first, then the root. */
+function hoistDocEnums(doc: Schema): Schema {
+  doc.$defs ??= {};
+  for (const name of Object.keys(doc.$defs)) {
+    doc.$defs[name] = hoistInlineEnums(doc.$defs[name], doc) as Schema;
+  }
+  const transformed = hoistInlineEnums(doc, doc) as Schema;
+  transformed.$defs = doc.$defs;
+  return transformed;
+}
+
+/** Record every `$defs` entry of one document into the table. */
+function recordDoc(table: DefTable, doc: Schema, mode: Mode): void {
+  const docDefs = (doc.$defs ?? {}) as Record<string, Schema>;
+  for (const [name, schema] of Object.entries(docDefs)) {
+    table.record(name, schema, mode, docDefs);
+  }
+}
+
+/** Tag every definition reachable from a method/event with its usage site. */
+function tagUsage(roots: unknown, usage: string, definitions: Record<string, DefSchema>): void {
+  const seen = new Set<string>();
+  const queue: string[] = [];
+  const collect = (node: unknown) => {
+    if (Array.isArray(node)) node.forEach(collect);
+    else if (node !== null && typeof node === 'object') {
+      const record = node as Record<string, unknown>;
+      if (typeof record['$ref'] === 'string') queue.push(record['$ref'].replace('#/definitions/', ''));
+      Object.values(record).forEach(collect);
+    }
+  };
+  collect(roots);
+  while (queue.length) {
+    const name = queue.pop();
+    if (!name || seen.has(name) || !(name in definitions)) continue;
+    seen.add(name);
+    const def = definitions[name];
+    def._usedBy = [...new Set([...(def._usedBy ?? []), usage])].sort();
+    collect(def);
+  }
+}
+
 /**
  * @param versionDump one entry of the dump's `versions` array
  * @param includePrefixes e.g. ['user.', 'alert.'] — empty means everything
@@ -272,60 +390,94 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
   const included = (name: string) => includePrefixes.length === 0
     || includePrefixes.some((prefix) => name.startsWith(prefix));
 
-  const registry = new DefRegistry();
+  const methods = versionDump.methods.filter((m) => included(m.name));
+  const events = versionDump.events.filter((e) => included(e.name));
 
-  const methods: MethodModel[] = versionDump.methods.filter((m) => included(m.name)).map((method) => {
-    const properties = method.schemas.properties ?? {};
-    const params = (properties['Call parameters']?.prefixItems ?? []).map((item) => ({
-      name: item.title ?? '',
-      optional: 'default' in item,
-      doc: item.description ?? null,
-      schema: hoist(item, registry, pascalName(method.name, item.title ?? ''), `${method.name} (params)`) as Schema,
+  const table = new DefTable();
+  for (const method of methods) {
+    method.schemas.accepts = hoistDocEnums(method.schemas.accepts);
+    method.schemas.returns = hoistDocEnums(method.schemas.returns);
+    recordDoc(table, method.schemas.accepts, 'input');
+    recordDoc(table, method.schemas.returns, 'output');
+  }
+  for (const event of events) {
+    for (const [variant, rawDoc] of Object.entries(event.schemas)) {
+      const doc = hoistDocEnums(rawDoc);
+      event.schemas[variant] = doc;
+      recordDoc(table, doc, 'input');
+      // The event root itself is a named model; hoist it like a $defs entry.
+      const { $defs, ...root } = doc;
+      if (typeof root.title === 'string') {
+        table.record(root.title, root as Schema, 'input', ($defs ?? {}) as Record<string, Schema>);
+      }
+    }
+  }
+  table.assignNames();
+  const definitions = table.definitions();
+
+  const methodModels: MethodModel[] = methods.map((method) => {
+    const accepts = method.schemas.accepts;
+    const acceptsDefs = (accepts.$defs ?? {}) as Record<string, Schema>;
+    const required = new Set(accepts.required ?? []);
+    const params = Object.entries(accepts.properties ?? {}).map(([name, schema]) => ({
+      name,
+      optional: !required.has(name),
+      doc: schema.description ?? null,
+      schema: rewriteRefs(schema, table, 'input', acceptsDefs) as Schema,
     }));
-    const returns = hoist(
-      properties['Return value'], registry, pascalName(method.name, 'result'), `${method.name} (response)`,
+    const returnsDoc = method.schemas.returns;
+    const returns = rewriteRefs(
+      (returnsDoc.properties ?? {})['result'] ?? {},
+      table,
+      'output',
+      (returnsDoc.$defs ?? {}) as Record<string, Schema>,
     ) as Schema;
     return {
       name: method.name,
       doc: method.doc,
       roles: method.roles,
       removedIn: method.removed_in,
-      job: (method.doc ?? '').includes(JOB_DOC_MARKER),
+      job: method.job,
       params,
       returns,
     };
   });
 
-  const events: EventModel[] = versionDump.events.filter((e) => included(e.name)).map((event) => ({
+  const eventModels: EventModel[] = events.map((event) => ({
     name: event.name,
     doc: event.doc,
     roles: event.roles,
     models: Object.fromEntries(
-      Object.entries(event.schemas.properties ?? {}).map(([variant, schema]) => [
-        variant,
-        hoist(schema, registry, pascalName(event.name, variant, 'event'), `${event.name} (event)`) as Schema,
-      ]),
+      Object.entries(event.schemas).map(([variant, doc]) => {
+        const docDefs = (doc.$defs ?? {}) as Record<string, Schema>;
+        const model: Schema = typeof doc.title === 'string'
+          ? { $ref: `#/definitions/${table.resolve(doc.title, 'input', { ...docDefs, [doc.title]: stripDefs(doc) })}` }
+          : rewriteRefs(doc, table, 'input', docDefs) as Schema;
+        return [variant, model];
+      }),
     ),
   }));
 
-  const names = registry.assignNames();
-  const definitions: Record<string, DefSchema> = {};
-  for (const [hash, entry] of registry.byHash) {
-    const name = names.get(hash);
-    if (!name) continue;
-    const def: DefSchema = renameRefs({ ...entry.schema, title: name }, names);
-    def._kind = entry.kind;
-    def._usedBy = [...entry.usages].sort();
-    definitions[name] = def;
-  }
+  applyQueryTyping(methodModels, definitions);
 
-  const finalMethods = renameRefs(methods, names);
-  applyQueryTyping(finalMethods, definitions);
+  for (const method of methodModels) {
+    tagUsage(method.params.map((p) => p.schema), `${method.name} (params)`, definitions);
+    tagUsage(method.returns, `${method.name} (response)`, definitions);
+  }
+  for (const event of eventModels) {
+    tagUsage(event.models, `${event.name} (event)`, definitions);
+  }
 
   return {
     version: versionDump.version,
     definitions,
-    methods: finalMethods,
-    events: renameRefs(events, names),
+    methods: methodModels,
+    events: eventModels,
   };
+}
+
+function stripDefs(doc: Schema): Schema {
+  const rest: Schema = { ...doc };
+  delete rest.$defs;
+  return rest;
 }
