@@ -235,7 +235,8 @@ export async function emitTypes(definitions: Record<string, DefSchema>, sharedNa
   return `${HEADER}\n${sharedImport}${[...enums, ...aliases, interfaces].join('\n\n')}\n`;
 }
 
-function directoryEntry(method: MethodModel): string {
+/** One `'method.name': { params; response }` entry. Exported so generate.mts can compute cross-version base eligibility on the exact emitted text. */
+export function directoryEntry(method: MethodModel): string {
   // Positional params: one can only be omitted if everything after it can be
   // too (Python allows defaulted-before-required; TS tuples don't, and
   // JSON-RPC positional semantics agree with TS here).
@@ -258,13 +259,13 @@ function collectRefs(node: unknown, into: Set<string>): Set<string> {
   return into;
 }
 
-function importLine(nodes: unknown, sharedNames = new Set<string>()): string {
+function importLine(nodes: unknown, sharedNames = new Set<string>(), localPath = './api-types'): string {
   const names = [...collectRefs(nodes, new Set())].sort();
   const block = (list: string[], from: string) => (list.length
     ? `import type {\n${list.map((n) => `  ${n},`).join('\n')}\n} from '${from}';\n`
     : '');
   const out = block(names.filter((n) => sharedNames.has(n)), SHARED_PATH)
-    + block(names.filter((n) => !sharedNames.has(n)), './api-types');
+    + block(names.filter((n) => !sharedNames.has(n)), localPath);
   return out ? `${out}\n` : '';
 }
 
@@ -276,34 +277,71 @@ function queryImportLine(entries: string, queryPath: string): string {
     : '';
 }
 
-export function emitCallDirectory(methods: MethodModel[], sharedNames?: Set<string>, queryPath = '../shared/query-types'): string {
-  const calls = methods.filter((m) => !m.job);
-  const entries = calls.map(directoryEntry).join('\n\n');
-  return `${HEADER}\n${queryImportLine(entries, queryPath)}${importLine(calls, sharedNames)}export interface ApiCallDirectory {\n${entries}\n}\n`;
+/** `'event.name': { added; changed; … }` entry; exported for base-eligibility computation. */
+export function eventEntry(event: EventModel): string {
+  const variants = Object.entries(event.models)
+    .map(([variant, schema]) => {
+      // Model keys are ADDED/CHANGED/REMOVED, plus 'Subscription parameters'
+      // for dynamic event sources — normalize to identifier-safe camelCase.
+      const key = variant === 'Subscription parameters' ? 'subscriptionParams' : variant.toLowerCase();
+      return `    ${isIdentifier(key) ? key : quote(key)}: ${tsExpr(schema)};`;
+    })
+    .join('\n');
+  return `${tsdoc([event.doc, event.roles.length ? `@roles ${event.roles.join(', ')}` : null])}  ${quote(event.name)}: {\n${variants}\n  };`;
 }
 
-export function emitJobDirectory(methods: MethodModel[], sharedNames?: Set<string>, queryPath = '../shared/query-types'): string {
+/** Entries identical in every version whose types are all shared, hoisted into shared/. */
+export interface DirectoryBase {
+  /** Method/event names that live in the base and are omitted from version files. */
+  names: Set<string>;
+  interfaceName: string;
+  path: string;
+}
+
+function extendedInterface(
+  interfaceName: string,
+  entries: string,
+  base: DirectoryBase | undefined,
+  imports: string,
+): string {
+  if (!base) {
+    return `${HEADER}\n${imports}export interface ${interfaceName} {\n${entries}\n}\n`;
+  }
+  const baseImport = `import type { ${base.interfaceName} } from '${base.path}';\n`;
+  if (!entries) {
+    return `${HEADER}\n${baseImport}\n/** Every entry of this version is shared — see the base interface. */\nexport type ${interfaceName} = ${base.interfaceName};\n`;
+  }
+  return `${HEADER}\n${baseImport}${imports ? `\n${imports}` : '\n'}export interface ${interfaceName} extends ${base.interfaceName} {\n${entries}\n}\n`;
+}
+
+export function emitCallDirectory(methods: MethodModel[], sharedNames?: Set<string>, queryPath = '../shared/query-types', base?: DirectoryBase): string {
+  const own = methods.filter((m) => !m.job && !base?.names.has(m.name));
+  const entries = own.map(directoryEntry).join('\n\n');
+  return extendedInterface('ApiCallDirectory', entries, base,
+    queryImportLine(entries, queryPath) + importLine(own, sharedNames));
+}
+
+export function emitJobDirectory(methods: MethodModel[], sharedNames?: Set<string>, queryPath = '../shared/query-types', base?: DirectoryBase): string {
   const jobs = methods.filter((m) => m.job);
-  if (jobs.length === 0) {
+  if (jobs.length === 0 && !base) {
     return `${HEADER}\n/** No job methods in the generated API slice. */\n// eslint-disable-next-line @typescript-eslint/no-empty-object-type\nexport interface ApiJobDirectory {\n}\n`;
   }
-  const entries = jobs.map(directoryEntry).join('\n\n');
-  return `${HEADER}\n${queryImportLine(entries, queryPath)}${importLine(jobs, sharedNames)}export interface ApiJobDirectory {\n${entries}\n}\n`;
+  const own = jobs.filter((m) => !base?.names.has(m.name));
+  const entries = own.map(directoryEntry).join('\n\n');
+  return extendedInterface('ApiJobDirectory', entries, base,
+    queryImportLine(entries, queryPath) + importLine(own, sharedNames));
 }
 
-export function emitEventDirectory(events: EventModel[], sharedNames?: Set<string>): string {
-  const entries = events.map((event) => {
-    const variants = Object.entries(event.models)
-      .map(([variant, schema]) => {
-        // Model keys are ADDED/CHANGED/REMOVED, plus 'Subscription parameters'
-        // for dynamic event sources — normalize to identifier-safe camelCase.
-        const key = variant === 'Subscription parameters' ? 'subscriptionParams' : variant.toLowerCase();
-        return `    ${isIdentifier(key) ? key : quote(key)}: ${tsExpr(schema)};`;
-      })
-      .join('\n');
-    return `${tsdoc([event.doc, event.roles.length ? `@roles ${event.roles.join(', ')}` : null])}  ${quote(event.name)}: {\n${variants}\n  };`;
-  }).join('\n\n');
-  return `${HEADER}\n${importLine(events, sharedNames)}export interface ApiEventDirectory {\n${entries}\n}\n`;
+export function emitEventDirectory(events: EventModel[], sharedNames?: Set<string>, base?: DirectoryBase): string {
+  const own = events.filter((e) => !base?.names.has(e.name));
+  const entries = own.map(eventEntry).join('\n\n');
+  return extendedInterface('ApiEventDirectory', entries, base, importLine(own, sharedNames));
+}
+
+/** A base directory interface emitted into shared/ — every referenced type is local to shared/. */
+export function emitDirectoryBase(interfaceName: string, entryList: string[], refNodes: unknown): string {
+  const entries = entryList.join('\n\n');
+  return `${HEADER}\n${queryImportLine(entries, './query-types')}${importLine(refNodes, new Set(), './api-types')}export interface ${interfaceName} {\n${entries}\n}\n`;
 }
 
 export interface IndexOptions {

@@ -40,10 +40,14 @@ import {
   emitCallDirectory,
   emitJobDirectory,
   emitEventDirectory,
+  emitDirectoryBase,
   emitIndex,
   emitRootIndex,
+  directoryEntry,
+  eventEntry,
+  type DirectoryBase,
 } from './lib/emit.mts';
-import type { ApiDumpFile, ApiDumpVersion, DefSchema, VersionModel } from './lib/types.mts';
+import type { ApiDumpFile, ApiDumpVersion, DefSchema, MethodModel, VersionModel } from './lib/types.mts';
 
 const { values: args } = parseArgs({
   options: {
@@ -167,11 +171,57 @@ const queryTypesSource = HEADER + '\n'
   + await readFile(path.join(import.meta.dirname, 'lib/templates/query-types.ts'), 'utf8');
 const queryPath = multi ? '../shared/query-types' : './query-types';
 
-if (multi) {
+/**
+ * Base-directory eligibility: an entry hoists into shared/ iff its emitted
+ * text is identical in every version AND every type it references is in the
+ * shared pool (identical text over diverged types would mean different things
+ * per version).
+ */
+function computeDirectoryBase<T extends { name: string }>(
+  perVersion: T[][],
+  entryText: (item: T) => string,
+  refs: (item: T) => Set<string>,
+): Set<string> {
+  const [first, ...rest] = perVersion.map((items) => new Map(items.map((it) => [it.name, it])));
+  const eligible = new Set<string>();
+  for (const [name, item] of first) {
+    const everywhere = rest.every((m) => m.has(name) && entryText(m.get(name) as T) === entryText(item));
+    if (everywhere && [...refs(item)].every((r) => r in shared)) {
+      eligible.add(name);
+    }
+  }
+  return eligible;
+}
+
+const methodRefs = (m: MethodModel) => refNames({ params: m.params.map((p) => p.schema), returns: m.returns });
+const bases = multi ? {
+  call: computeDirectoryBase(models.map((m) => m.methods.filter((x) => !x.job)), directoryEntry, methodRefs),
+  job: computeDirectoryBase(models.map((m) => m.methods.filter((x) => x.job)), directoryEntry, methodRefs),
+  event: computeDirectoryBase(models.map((m) => m.events), eventEntry, (e) => refNames(e.models)),
+} : null;
+const baseFor = (kind: 'call' | 'job' | 'event'): DirectoryBase | undefined => (bases ? {
+  names: bases[kind],
+  interfaceName: `Api${kind[0].toUpperCase()}${kind.slice(1)}DirectoryBase`,
+  path: `../shared/api-${kind}-directory-base`,
+} : undefined);
+
+if (multi && bases) {
+  // Base entries render from the newest version's models (identical everywhere).
+  const newest = models[models.length - 1];
+  const baseCalls = newest.methods.filter((m) => !m.job && bases.call.has(m.name));
+  const baseJobs = newest.methods.filter((m) => m.job && bases.job.has(m.name));
+  const baseEvents = newest.events.filter((e) => bases.event.has(e.name));
   await writeFiles(path.join(args.out, 'shared'), {
     'api-types.ts': await emitTypes(shared),
     'query-types.ts': queryTypesSource,
+    'api-call-directory-base.ts': emitDirectoryBase('ApiCallDirectoryBase', baseCalls.map(directoryEntry),
+      baseCalls.map((m) => [m.params.map((p) => p.schema), m.returns])),
+    'api-job-directory-base.ts': emitDirectoryBase('ApiJobDirectoryBase', baseJobs.map(directoryEntry),
+      baseJobs.map((m) => [m.params.map((p) => p.schema), m.returns])),
+    'api-event-directory-base.ts': emitDirectoryBase('ApiEventDirectoryBase', baseEvents.map(eventEntry),
+      baseEvents.map((e) => e.models)),
   });
+  console.log(`Directory bases: ${bases.call.size} calls, ${bases.job.size} jobs, ${bases.event.size} events shared across versions`);
 }
 
 for (const [i, model] of models.entries()) {
@@ -181,9 +231,9 @@ for (const [i, model] of models.entries()) {
   await writeFiles(outDir, {
     ...(multi ? {} : { 'query-types.ts': queryTypesSource }),
     'api-types.ts': await emitTypes(locals[i], sharedNames),
-    'api-call-directory.ts': emitCallDirectory(model.methods, sharedNames, queryPath),
-    'api-job-directory.ts': emitJobDirectory(model.methods, sharedNames, queryPath),
-    'api-event-directory.ts': emitEventDirectory(model.events, sharedNames),
+    'api-call-directory.ts': emitCallDirectory(model.methods, sharedNames, queryPath, baseFor('call')),
+    'api-job-directory.ts': emitJobDirectory(model.methods, sharedNames, queryPath, baseFor('job')),
+    'api-event-directory.ts': emitEventDirectory(model.events, sharedNames, baseFor('event')),
     'index.ts': emitIndex({
       sharedEnums: [...sharedNames].filter((n) => shared[n]._kind === 'enum').sort(),
       sharedTypes: [...sharedNames].filter((n) => shared[n]._kind !== 'enum').sort(),
