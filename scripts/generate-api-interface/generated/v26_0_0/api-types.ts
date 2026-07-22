@@ -4,17 +4,15 @@
  */
 
 import type {
-  ACLTemplateByPathQueryOptions,
   Aclmode,
   AcltypeInput2,
   AddressPool,
   Advpowermgmt,
+  Aggregations,
   Algorithm,
   AppActiveWorkloads,
   AppImageParsedRepoTags,
   Atime,
-  AuditExportQueryOptions,
-  AuthSessionsEntryInput,
   AuthUserInfo,
   Authenticator,
   Autotrim,
@@ -24,6 +22,7 @@ import type {
   Bootloader,
   BoxCredentialsModel,
   Casesensitivity,
+  CatalogTrainInfo,
   Checksum,
   Checksum2,
   CloudCron,
@@ -31,10 +30,8 @@ import type {
   CloudTaskAttributes,
   CloudTaskAttributesInput,
   Compression,
-  ContainerCreateImage,
   ContainerFilesystemDevice,
   ContainerGPUDevice,
-  ContainerStatusInput,
   ContainerUSBDevice,
   CronJobEntry,
   CronJobSchedule,
@@ -48,18 +45,14 @@ import type {
   DirectionInput2,
   DiskEntryEnclosure,
   DropboxCredentialsModel,
-  EmptyDict,
   Encryption,
   EncryptionInput,
   Exec,
   ExternalOpt,
   ExternalOptInput,
-  FCHostEntryInput,
   FCPStorageOpt,
   FCPStorageOptInput,
-  FCPortEntryInput,
   FTPCredentialsModel,
-  FilesystemSetZfsAttributesOptions,
   Function,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
@@ -67,16 +60,14 @@ import type {
   HTTPCredentialsModel,
   Hddstandby,
   HubicCredentialsModel,
-  ISCSITargetAuthCredentialEntryInput,
-  ISCSITargetAuthorizedInitiatorEntryInput,
-  Interval,
   IsolatedIdmapConfiguration,
   KeychainCredentialEntryInput,
   LegacyOpt,
   LegacyOptInput,
-  MailEntryOAuth,
+  Maintainer,
   MegaCredentialsModel,
   Mode3,
+  ModeInput2,
   MultiprotocolOpt,
   MultiprotocolOptInput,
   NFS4ACEInput,
@@ -87,18 +78,13 @@ import type {
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
   POSIXACE,
-  PeriodicSnapshotTaskEntryInput,
   PoolCreateTopologyCacheVdev,
-  PoolCreateTopologyVdevDRAID,
-  PoolCreateTopologyVdevNonDRAID,
   PoolDatasetCreateUserProperty,
-  PoolScanInput,
   PoolSnapshotTaskCron,
   PoolSnapshotTaskDBEntryInput,
   PoolTopology,
   PrivateDatasetOpt,
   PrivateDatasetOptInput,
-  PrivilegeEntryInput,
   Purpose,
   QueryOptionsModel,
   Readonly,
@@ -113,24 +99,21 @@ import type {
   SMBShareAclEntryWhoId,
   SSHCredentials,
   SSHKeyPair,
-  Security,
   Serialspeed,
-  Service,
-  SharingWebshareEntryInput,
+  Shutdown,
   SmbAuditConfig,
   Snapdev,
   Snapdir,
-  State2,
-  State3,
-  Status3,
-  StatusInput4,
+  StateInput2,
+  StateInput3,
+  StateInput4,
+  StatusInput2,
   StorjIxCredentialsModel,
   StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
   Sync,
   SyslogServer,
   Sysloglevel,
-  TierInfoInput,
   Time,
   TimeLockedOpt,
   TimeLockedOptInput,
@@ -138,24 +121,13 @@ import type {
   TimeMachineOptInput,
   Transport,
   TransportInput,
-  Type11,
-  Type5,
   Type6,
   USBCapability,
   Unixcharset,
   UpgradeOptions,
   UserTwofactorConfigEntry,
-  VMCDROMDevice,
-  VMDiskDevice,
-  VMDiskDeviceInput,
-  VMDisplayDevice,
-  VMISCSIDiskDevice,
-  VMNICDeviceInput2,
-  VMPCIDevice,
-  VMRAWDevice,
-  VMRAWDeviceInput,
-  VMUSBDevice,
-  VMWareEntryStateInput,
+  VMDeviceEntry,
+  VMDeviceEntryInput,
   VMWareMatchDatastoresWithDatasetsResultDatastore,
   VeeamRepositoryOpt,
   VeeamRepositoryOptInput,
@@ -164,15 +136,12 @@ import type {
   YandexCredentialsModel,
   ZFSFileAttrsData,
   ZFSPropertiesEntry,
-  ZPoolEntryInput,
   ZPoolExpand,
   ZPoolFeature,
   ZPoolPropertyValue,
   ZPoolTopology,
-  ZfsTierRewriteJobEntryInput,
   ZfsTierRewriteJobStats,
-  ZfsTierRewriteJobStatusEntryInput,
-} from '../shared/api-types';
+} from '../v25_10_5/api-types';
 
 /**
  * Used by: zpool.scrub.run (params)
@@ -183,6 +152,16 @@ export const Action = {
   Cancel: 'CANCEL',
 } as const;
 export type Action = (typeof Action)[keyof typeof Action];
+
+/**
+ * Used by: pool.scrub (params), pool.scrub.scrub (params)
+ */
+export const Action2 = {
+  Start: 'START',
+  Stop: 'STOP',
+  Pause: 'PAUSE',
+} as const;
+export type Action2 = (typeof Action2)[keyof typeof Action2];
 
 /**
  * Used by: system.feature_enabled (params)
@@ -197,6 +176,15 @@ export const Feature = {
   Zfstier: 'ZFSTIER',
 } as const;
 export type Feature = (typeof Feature)[keyof typeof Feature];
+
+/**
+ * Used by: user.renew_2fa_secret (params)
+ */
+export const Interval = {
+  '30': 30,
+  '60': 60,
+} as const;
+export type Interval = (typeof Interval)[keyof typeof Interval];
 
 /**
  * Used by: reporting.get_data (params), reporting.netdata_get_data (params)
@@ -223,6 +211,46 @@ export const Name = {
 export type Name = (typeof Name)[keyof typeof Name];
 
 /**
+ * Used by: webshare.config (response), webshare.update (params), webshare.update (response)
+ */
+export const Passkey = {
+  Enabled: 'ENABLED',
+  Disabled: 'DISABLED',
+  Required: 'REQUIRED',
+} as const;
+export type Passkey = (typeof Passkey)[keyof typeof Passkey];
+
+/**
+ * Used by: audit.query (response)
+ */
+export const Service = {
+  Middleware: 'MIDDLEWARE',
+  Smb: 'SMB',
+  Sudo: 'SUDO',
+  System: 'SYSTEM',
+} as const;
+export type Service = (typeof Service)[keyof typeof Service];
+
+/**
+ * Used by: container.create (response), container.get_instance (params), container.get_instance (response), container.query (params), container.query (response), container.update (response)
+ */
+export const State2 = {
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+} as const;
+export type State2 = (typeof State2)[keyof typeof State2];
+
+/**
+ * Used by: boot.get_state (response), pool.create (response), pool.get_instance (params), pool.get_instance (response), pool.query (params), pool.query (response), pool.update (response), zpool.query (response)
+ */
+export const State3 = {
+  Scanning: 'SCANNING',
+  Finished: 'FINISHED',
+  Canceled: 'CANCELED',
+} as const;
+export type State3 = (typeof State3)[keyof typeof State3];
+
+/**
  * Used by: sharing.nfs.create (response), sharing.nfs.get_instance (params), sharing.nfs.get_instance (response), sharing.nfs.query (params), sharing.nfs.query (response), sharing.nfs.update (response), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params) … and 14 more
  */
 export const Status = {
@@ -247,13 +275,39 @@ export const Status2 = {
 export type Status2 = (typeof Status2)[keyof typeof Status2];
 
 /**
- * Used by: keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params), replication.query (response), replication.restore (response) … and 7 more
+ * Used by: docker.status (response)
+ */
+export const Status3 = {
+  Pending: 'PENDING',
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+  Initializing: 'INITIALIZING',
+  Stopping: 'STOPPING',
+  Unconfigured: 'UNCONFIGURED',
+  Failed: 'FAILED',
+  Migrating: 'MIGRATING',
+  MigrationFailed: 'MIGRATION_FAILED',
+} as const;
+export type Status3 = (typeof Status3)[keyof typeof Status3];
+
+/**
+ * Used by: keychaincredential.create (response), keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response), keychaincredential.update (response), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params) … and 9 more
  */
 export const Type10 = {
   SshKeyPair: 'SSH_KEY_PAIR',
   SshCredentials: 'SSH_CREDENTIALS',
 } as const;
 export type Type10 = (typeof Type10)[keyof typeof Type10];
+
+/**
+ * Used by: tunable.create (response), tunable.get_instance (params), tunable.get_instance (response), tunable.query (params), tunable.query (response), tunable.update (response)
+ */
+export const Type11 = {
+  Sysctl: 'SYSCTL',
+  Udev: 'UDEV',
+  Zfs: 'ZFS',
+} as const;
+export type Type11 = (typeof Type11)[keyof typeof Type11];
 
 /**
  * Used by: container.create (response), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params), container.get_instance (response), container.query (params) … and 2 more
@@ -320,6 +374,41 @@ export const TypeInput9 = {
 export type TypeInput9 = (typeof TypeInput9)[keyof typeof TypeInput9];
 
 /**
+ * Used by: audit.query (response)
+ */
+export type AuditQueryResultItemQueryResultItem = Record<string, unknown>;
+
+/**
+ * Used by: catalog.apps (response)
+ */
+export type CatalogAppsResponse = Record<string, CatalogTrainInfo>;
+
+/**
+ * Used by: catalog.trains (response)
+ */
+export type CatalogTrainsResponse = string[];
+
+/**
+ * Used by: container.device.query (response)
+ */
+export type ContainerDeviceQueryResultItem = Record<string, unknown>;
+
+/**
+ * Used by: container.query (response)
+ */
+export type ContainerQueryResultItem = Record<string, unknown>;
+
+/**
+ * Used by: iscsi.global.sessions (response)
+ */
+export type ISCSIGlobalSessionsItemQueryResultItem = Record<string, unknown>;
+
+/**
+ * Used by: sharing.webshare.query (response)
+ */
+export type SharingWebshareQueryResultItem = Record<string, unknown>;
+
+/**
  * Used by: vm.device.usb_passthrough_choices (response)
  */
 export type USBPassthroughInfo = Record<string, USBPassthroughDevice>;
@@ -328,6 +417,21 @@ export type USBPassthroughInfo = Record<string, USBPassthroughDevice>;
  * Used by: vmware.create (response), vmware.get_instance (params), vmware.get_instance (response), vmware.query (params), vmware.query (response), vmware.update (response)
  */
 export type VMWareEntryState = Record<string, unknown>;
+
+/**
+ * Used by: zfs.resource.snapshot.create (response), zfs.resource.snapshot.query (response)
+ */
+export type ZFSResourceSnapshotPropertiesEntry = Record<string, unknown>;
+
+/**
+ * Used by: zfs.tier.rewrite_job_failures (response)
+ */
+export type ZfsTierRewriteJobFailureQueryResultItem = Record<string, unknown>;
+
+/**
+ * Used by: zfs.tier.rewrite_job_query (response)
+ */
+export type ZfsTierRewriteJobQueryResultItem = Record<string, unknown>;
 
 /**
  * Used by: filesystem.acltemplate.by_path (params)
@@ -347,38 +451,38 @@ export interface ACLTemplateByPathArgs {
 /**
  * Used by: filesystem.acltemplate.by_path (params)
  */
+export interface ACLTemplateByPathQueryOptions {
+  /**
+   * An array of field names describing the manner in which query results should be ordered. The field names may also have one of more of the following special prefixes: `-` (reverse sort direction), `nulls_first:` (place any null values at the head of the results list), `nulls_last:` (place any null values at the tail of the results list).
+   */
+  order_by?: string[];
+  /**
+   * This specifies the beginning offset of the results array. When combined with the `limit` query-option it may be used to implement pagination of large results arrays. WARNING: some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
+   */
+  offset?: number;
+  /**
+   * This specifies the maximum number of results matching the specified `query-filters` to return. When combined wtih the `offset` query-option it may be used to implement pagination of large results arrays.
+   *
+   * WARNING: Some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
+   */
+  limit?: number;
+  /**
+   * Force use of SQL for result filtering to reduce response time. May not work for all methods.
+   */
+  force_sql_filters?: boolean;
+}
+/**
+ * Used by: filesystem.acltemplate.by_path (params)
+ */
 export interface AclTemplateFormatOptions {
   /**
-   * Whether to ensure built-in templates are included in the response.
+   * Whether to ensure every result contains ACL entries for the `builtin_users` and `builtin_administrators` groups.
    */
   ensure_builtins?: boolean;
   /**
    * Whether to resolve numeric user/group IDs to names in ACL entries.
    */
   resolve_names?: boolean;
-}
-/**
- * Used by: reporting.get_data (response), reporting.graph (response), reporting.netdata_get_data (response), reporting.netdata_graph (response)
- */
-export interface Aggregations {
-  /**
-   * Minimum values for each data series over the time period.
-   */
-  min: {
-    [k: string]: unknown;
-  };
-  /**
-   * Average values for each data series over the time period.
-   */
-  mean: {
-    [k: string]: unknown;
-  };
-  /**
-   * Maximum values for each data series over the time period.
-   */
-  max: {
-    [k: string]: unknown;
-  };
 }
 /**
  * Used by: alert.list (response), disk.temperature_alerts (response)
@@ -563,6 +667,19 @@ export interface AlertListAddedEvent {
   fields: AlertInput;
 }
 /**
+ * Used by: alert.list_categories (params)
+ */
+export interface AlertListCategoriesOptions {
+  /**
+   * Include alert classes for all products, not just the current one.
+   */
+  include_all_products?: boolean;
+  /**
+   * Include hidden alert classes.
+   */
+  include_hidden_classes?: boolean;
+}
+/**
  * Used by: alert.list (event)
  */
 export interface AlertListChangedEvent {
@@ -707,6 +824,35 @@ export interface ApiKeyEntryWithKey {
    * Pre-computed SCRAM ClientKey.
    */
   client_key: string;
+}
+/**
+ * Used by: api_key.convert_raw_key (response)
+ */
+export interface ApiKeyScramData {
+  /**
+   * API key ID.
+   */
+  api_key_id: number;
+  /**
+   * Number of iterations of PBKDF2-SHA512.
+   */
+  iterations: number;
+  /**
+   * Base64 encoded salt for API key.
+   */
+  salt: string;
+  /**
+   * Pre-computed SCRAM ClientKey.
+   */
+  client_key: string;
+  /**
+   * SCRAM StoredKey for API key.
+   */
+  stored_key: string;
+  /**
+   * SCRAM ServerKey for API key.
+   */
+  server_key: string;
 }
 /**
  * Used by: app.upgrade_bulk (response)
@@ -885,6 +1031,33 @@ export interface AuditExport {
   export_format?: "CSV" | "JSON" | "YAML";
 }
 /**
+ * Used by: audit.export (params)
+ */
+export interface AuditExportQueryOptions {
+  /**
+   * An array of field names describing the manner in which query results should be ordered. The field names may also have one of more of the following special prefixes: `-` (reverse sort direction), `nulls_first:` (place any null values at the head of the results list), `nulls_last:` (place any null values at the tail of the results list).
+   */
+  order_by?: string[];
+  /**
+   * An array of field names specifying the exact fields to include in the query return. The dot character `.` may be used to explicitly select only subkeys of the query result.
+   */
+  select?: (string | unknown[])[];
+  /**
+   * This specifies the beginning offset of the results array. When combined with the `limit` query-option it may be used to implement pagination of large results arrays. WARNING: some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
+   */
+  offset?: number;
+  /**
+   * This specifies the maximum number of results matching the specified `query-filters` to return. When combined wtih the `offset` query-option it may be used to implement pagination of large results arrays.
+   *
+   * WARNING: Some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
+   */
+  limit?: number;
+  /**
+   * Force use of SQL for result filtering to reduce response time. May not work for all methods.
+   */
+  force_sql_filters?: boolean;
+}
+/**
  * Used by: audit.query (params)
  */
 export interface AuditQuery {
@@ -976,7 +1149,7 @@ export interface AuthApiKeyPlain {
  */
 export interface AuthCommonOptions {
   /**
-   * Whether to include detailed user information in the authentication response.
+   * Whether to include detailed user information (the output of `auth.me`) in the authentication response.
    */
   user_info?: boolean;
   /**
@@ -1019,13 +1192,43 @@ export interface AuthPasswordPlain {
 /**
  * Used by: auth.login_ex (response), auth.login_ex_continue (response)
  */
+export interface AuthRespDenied {
+  /**
+   * Authentication response type indicating that the credential lacks API access.
+   */
+  response_type: "DENIED";
+}
+/**
+ * Used by: auth.login_ex (response)
+ */
+export interface AuthRespScram {
+  /**
+   * Authentication response type indicating a SCRAM server response.
+   */
+  response_type: "SCRAM_RESPONSE";
+  /**
+   * The type of server response. The SERVER_FIRST_RESPONSE will contain nonce, salt, and iterations. The SERVER_FINAL_RESPONSE will contain the server verification proof for client mutual validation.
+   */
+  scram_type: "SERVER_FIRST_RESPONSE" | "SERVER_FINAL_RESPONSE";
+  /**
+   * Server authentication response containing string per RFC5802.
+   */
+  rfc_str: string;
+  /**
+   * Authenticated user information on SERVER_FINAL_RESPONSE or null on SERVER_FIRST_RESPONSE.
+   */
+  user_info: AuthUserInfo | null;
+}
+/**
+ * Used by: auth.login_ex (response), auth.login_ex_continue (response)
+ */
 export interface AuthRespSuccess {
   /**
    * Authentication response type indicating successful login.
    */
   response_type: "SUCCESS";
   /**
-   * Authenticated user information or `null` if not available.
+   * Authenticated user information (the output of `auth.me`), or `null` if not requested.
    */
   user_info: AuthUserInfo | null;
   authenticator: Authenticator;
@@ -1038,10 +1241,27 @@ export interface AuthRespSuccess {
   reconnect_token: string | null;
 }
 /**
- * Used by: auth.sessions (event)
+ * Used by: auth.login_ex (params)
  */
-export interface AuthSessionsAddedEvent {
-  fields: AuthSessionsEntryInput;
+export interface AuthSCRAM {
+  /**
+   * Authentication mechanism that implements SHA512-based RFC5802 authentication. The authentication mechanism provides replay resistence and capability for mutual validation of server and client sessions.
+   *
+   * The authentication mechanism is currently limited to API key credentials, but at a future point will be expanded to cover local user authentication.
+   *
+   * Channel binding (RFC 5929 tls-server-end-point) is supported and negotiated per exchange. A client that requires it sends a `p=tls-server-end-point` gs2 header over a TLS connection (see `rfc_str`) and the server verifies it against the certificate it serves; binding is only honored over TLS and remains optional, so clients that do not request it still authenticate.
+   *
+   * C and python libraries to for managing the client-side portion of the authentication exchanges are provided at https://github.com/truenas/truenas_scram.
+   */
+  mechanism: "SCRAM";
+  /**
+   * Scram message type from client. The scram types indicate the message type that is represented by the `rfc_str` field. CLIENT_FIRST_MESSAGE - this corresponds with the client-first-message as defined in RFC5802. CLIENT_FINAL_MESSAGE - this corresponds with the client-final-message as defined in RFC5802.
+   */
+  scram_type: "CLIENT_FIRST_MESSAGE" | "CLIENT_FINAL_MESSAGE";
+  /**
+   * This field contains the SCRAM authentication exchange message as defined in RFC5802. The expected format and contents depends on the `scram_type`. CLIENT_FIRST_MESSAGE: `n,,n=user:10,r=fyko+d2lbbFgONRv9qkxdawL` The `n,,` component indicates that client does not support channel bindings. `n=user:10` specifies the username and API key id (separated by `:` character). `r=fyko+d2lbbFgONRv9qkxdawL` specifies a base64-encoded nonce generated client-side. CLIENT_FINAL_MESSAGE: c=biws,r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j, p=v0X8v3Bz2T0CJGbJQyF0X+HI4Ts= `c=biws` contains channel binding information. In this example it's the base64-encoded string `n,,` (no channel binding support). `r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j` contains the combined client and server nonce as returned by the response to the CLIENT_FIRST_MESSAGE. `p=v0X8v3Bz2T0CJGbJQyF0X+HI4Ts=` contains the base64-encoded client proof generated based on client-side key material and client + server nonce.
+   */
+  rfc_str: string;
 }
 /**
  * Used by: auth.login_ex (params)
@@ -1204,6 +1424,120 @@ export interface PoolScan {
    * Number of seconds left (`null` if the scan is not running).
    */
   total_secs_left: number | null;
+}
+/**
+ * Used by: catalog.get_app_details (response)
+ */
+export interface CatalogAppDetails {
+  /**
+   * HTML content of the app README.
+   */
+  app_readme: string | null;
+  /**
+   * List of categories for the app.
+   */
+  categories: string[];
+  /**
+   * Short description of the app.
+   */
+  description: string;
+  /**
+   * Health status of the app.
+   */
+  healthy: boolean;
+  /**
+   * Error if app is not healthy.
+   */
+  healthy_error?: string | null;
+  /**
+   * Homepage URL of the app.
+   */
+  home: string;
+  /**
+   * Local path to the app's location.
+   */
+  location: string;
+  /**
+   * Latest available app version.
+   */
+  latest_version: string | null;
+  /**
+   * Latest available app version in repository.
+   */
+  latest_app_version: string | null;
+  /**
+   * Human-readable version of the app.
+   */
+  latest_human_version: string | null;
+  /**
+   * Timestamp of the last update in ISO format.
+   */
+  last_update: string | null;
+  /**
+   * Name of the app.
+   */
+  name: string;
+  /**
+   * Indicates if the app is recommended.
+   */
+  recommended: boolean;
+  /**
+   * List of app maintainers.
+   */
+  maintainers: Maintainer[];
+  /**
+   * Tags associated with the app.
+   */
+  tags: string[];
+  /**
+   * List of screenshot URLs.
+   */
+  screenshots: string[];
+  /**
+   * List of source URLs.
+   */
+  sources: string[];
+  /**
+   * URL of the app icon.
+   */
+  icon_url?: string | null;
+  /**
+   * Mapping of version strings.
+   */
+  versions: {
+    [k: string]: unknown;
+  };
+  [k: string]: unknown;
+}
+/**
+ * Used by: catalog.apps (params)
+ */
+export interface CatalogApps {
+  /**
+   * Whether to use cached catalog data if available.
+   */
+  cache?: boolean;
+  /**
+   * Whether to only return cached data without fetching updates.
+   */
+  cache_only?: boolean;
+  /**
+   * Whether to retrieve apps from all available trains.
+   */
+  retrieve_all_trains?: boolean;
+  /**
+   * Specific train names to retrieve apps from (empty array means all trains).
+   */
+  trains?: string[];
+}
+/**
+ * Used by: catalog.update (params)
+ */
+export interface CatalogUpdate {
+  /**
+   * Updated array of preferred train names for the catalog.
+   */
+  preferred_trains?: string[];
 }
 /**
  * Used by: cloud_backup.query (event)
@@ -1968,6 +2302,20 @@ export interface ContainerNICDeviceInput2 {
 /**
  * Used by: container.query (event)
  */
+export interface ContainerStatusInput {
+  state: StateInput3;
+  /**
+   * Container host PID (if running). Informational only do not rely on this value to identify the container's init process.
+   */
+  pid: number | null;
+  /**
+   * Domain state reported by libvirt.
+   */
+  domain_state: string | null;
+}
+/**
+ * Used by: container.query (event)
+ */
 export interface ContainerChangedEvent {
   id: number;
   fields: ContainerEntryInput;
@@ -2044,6 +2392,19 @@ export interface ContainerCreateArgs {
   image: ContainerCreateImage;
 }
 /**
+ * Used by: container.create (params)
+ */
+export interface ContainerCreateImage {
+  /**
+   * Image name. Use `container.image.query_registry` to list all available images.
+   */
+  name: string;
+  /**
+   * Image version. Use `container.image.query_registry` to list all available images.
+   */
+  version: string;
+}
+/**
  * Used by: container.device.query (event)
  */
 export interface ContainerDeviceAddedEvent {
@@ -2091,6 +2452,23 @@ export interface ContainerNICDeviceInput {
    * MAC address for the virtual network interface. `null` for auto-generation.
    */
   mac?: string | null;
+}
+/**
+ * Used by: container.device.delete (params)
+ */
+export interface ContainerDeviceDeleteOptions {
+  /**
+   * Force deletion even if the device is in use.
+   */
+  force?: boolean;
+  /**
+   * Delete the underlying raw disk file when removing the device.
+   */
+  raw_file?: boolean;
+  /**
+   * Delete the underlying ZFS volume when removing the device.
+   */
+  zvol?: boolean;
 }
 /**
  * Used by: container.create (response), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params), container.get_instance (response), container.query (params) … and 2 more
@@ -2143,6 +2521,21 @@ export interface ContainerDeviceNicAttachChoicesResult {
    * Available parent interfaces for creating MACVLAN NIC devices.
    */
   MACVLAN: string[];
+}
+/**
+ * Used by: container.device.update (params)
+ */
+export interface ContainerDeviceUpdate {
+  /**
+   * Device-specific configuration attributes.
+   */
+  attributes?: {
+    [k: string]: unknown;
+  };
+  /**
+   * ID of the container this device belongs to.
+   */
+  container?: number;
 }
 /**
  * Used by: container.create (response), container.get_instance (params), container.get_instance (response), container.query (params), container.query (response), container.update (response)
@@ -2240,6 +2633,103 @@ export interface ContainerStatus {
    * Domain state reported by libvirt.
    */
   domain_state: string | null;
+}
+/**
+ * Used by: container.image.query_registry (response)
+ */
+export interface ContainerImageQueryRegistryResultImage {
+  /**
+   * Image name.
+   */
+  name: string;
+  /**
+   * Available image versions.
+   */
+  versions: ContainerImageQueryRegistryResultImageVersion[];
+}
+/**
+ * Used by: container.image.query_registry (response)
+ */
+export interface ContainerImageQueryRegistryResultImageVersion {
+  /**
+   * Image version name.
+   */
+  version: string;
+}
+/**
+ * Used by: container.stop (params)
+ */
+export interface ContainerStopOptions {
+  /**
+   * Kill the container.
+   */
+  force?: boolean;
+  /**
+   * Kill the container if it does not stop within the `shutdown_timeout`.
+   */
+  force_after_timeout?: boolean;
+}
+/**
+ * Used by: container.update (params)
+ */
+export interface ContainerUpdate {
+  /**
+   * Container UUID (for libvirt). Auto-generated if not provided.
+   */
+  uuid?: string | null;
+  /**
+   * Container name.
+   */
+  name?: string;
+  /**
+   * Container description.
+   */
+  description?: string;
+  /**
+   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
+   */
+  cpuset?: string | null;
+  /**
+   * Automatically start the container on boot.
+   */
+  autostart?: boolean;
+  time?: Time;
+  /**
+   * How many seconds to wait for container to shut down before killing it.
+   */
+  shutdown_timeout?: number;
+  /**
+   * "init" process commandline.
+   */
+  init?: string;
+  /**
+   * "init" process working dir.
+   */
+  initdir?: string | null;
+  /**
+   * "init" process environment variables.
+   */
+  initenv?: {
+    [k: string]: string;
+  };
+  /**
+   * "init" process username.
+   */
+  inituser?: string | null;
+  /**
+   * "init" process group.
+   */
+  initgroup?: string | null;
+  /**
+   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
+   */
+  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
+  /**
+   * Enable or disable specific capabilities.
+   */
+  capabilities_state?: {
+    [k: string]: boolean;
+  };
 }
 /**
  * Used by: core.ping_remote (params)
@@ -2354,6 +2844,45 @@ export interface CronJobUpdate {
    * System user account to run the command as.
    */
   user?: string;
+}
+/**
+ * Used by: disk.reset_sed (params)
+ */
+export interface DiskResetSedArgs {
+  /**
+   * Name of disk to reset.
+   */
+  name: string;
+  /**
+   * PID of disk to reset.
+   */
+  psid: string;
+}
+/**
+ * Used by: disk.setup_sed (params)
+ */
+export interface DiskSetupSedArgs {
+  /**
+   * Name of disk to setup.
+   */
+  name: string;
+  /**
+   * Password to use to setup the disk. If this is not set, first if a password on disk is set, it will be used else global configured SED password will be used.
+   */
+  password?: string | null;
+}
+/**
+ * Used by: disk.unlock_sed (params)
+ */
+export interface DiskUnlockSedArgs {
+  /**
+   * Name of disk to unlock.
+   */
+  name: string;
+  /**
+   * Password for disk to unlock.
+   */
+  password?: string | null;
 }
 /**
  * Used by: disk.update (params)
@@ -2504,22 +3033,6 @@ export interface RegistryMirror {
   insecure: boolean;
 }
 /**
- * Used by: docker.state (event)
- */
-export interface DockerStateChangedEvent {
-  fields: DockerStatusInfo;
-}
-/**
- * Used by: docker.state (event)
- */
-export interface DockerStatusInfo {
-  /**
-   * Human-readable description of the current Docker service status.
-   */
-  description: string;
-  status: StatusInput4;
-}
-/**
  * Used by: docker.update (params)
  */
 export interface DockerUpdateArgs {
@@ -2549,119 +3062,6 @@ export interface DockerUpdateArgs {
   migrate_applications?: boolean;
 }
 /**
- * Used by: fc.fc_host.query (event)
- */
-export interface FCHostAddedEvent {
-  id: number;
-  fields: FCHostEntryInput;
-}
-/**
- * Used by: fc.fc_host.query (event)
- */
-export interface FCHostChangedEvent {
-  id: number;
-  fields: FCHostEntryInput;
-}
-/**
- * Used by: fcport.query (event)
- */
-export interface FCPortAddedEvent {
-  id: number;
-  fields: FCPortEntryInput;
-}
-/**
- * Used by: fcport.query (event)
- */
-export interface FCPortChangedEvent {
-  id: number;
-  fields: FCPortEntryInput;
-}
-/**
- * Used by: filesystem.listdir (response), filesystem.mkdir (response)
- */
-export interface FilesystemDirEntry {
-  /**
-   * Entry's base name.
-   */
-  name: string;
-  /**
-   * Entry's full path.
-   */
-  path: string;
-  /**
-   * Canonical path of the entry, eliminating any symbolic links.
-   */
-  realpath: string;
-  type: Type5;
-  /**
-   * Size of the file in bytes. For directories, this may not represent total content size. Corresonds with stx_size.
-   */
-  size: number;
-  /**
-   * Allocated size of file. Calculated by multiplying stx_blocks by 512.
-   */
-  allocation_size: number;
-  /**
-   * Entry's mode including file type information and file permission bits. This corresponds with stx_mode.
-   */
-  mode: number;
-  /**
-   * The mount ID of the mount containing the entry. This corresponds to the number in first field of /proc/self/mountinfo and stx_mnt_id.
-   */
-  mount_id: number;
-  /**
-   * Specifies whether ACL is present on the entry. If this is the case then file permission bits as reported in `mode` may not be representative of the actual permissions.
-   */
-  acl: boolean;
-  /**
-   * User ID of the entry's owner. This corresponds with stx_uid.
-   */
-  uid: number;
-  /**
-   * Group ID of the entry's owner. This corresponds with stx_gid.
-   */
-  gid: number;
-  /**
-   * Specifies whether the entry is also the mountpoint of a filesystem.
-   */
-  is_mountpoint: boolean;
-  /**
-   * Specifies whether the entry is located within the ZFS ctldir (for example a snapshot).
-   */
-  is_ctldir: boolean;
-  /**
-   * Extra file attribute indicators for entry as returned by statx. Expanded from stx_attributes.
-   */
-  attributes: (
-    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
-  )[];
-  /**
-   * List of xattr names of extended attributes on file.
-   */
-  xattrs: string[];
-  /**
-   * List of extra ZFS-related file attribute indicators on file. Will be None type if filesystem is not ZFS.
-   */
-  zfs_attrs:
-    | (
-        | "READONLY"
-        | "HIDDEN"
-        | "SYSTEM"
-        | "ARCHIVE"
-        | "IMMUTABLE"
-        | "NOUNLINK"
-        | "APPENDONLY"
-        | "NODUMP"
-        | "OPAQUE"
-        | "AV_QUARANTINED"
-        | "AV_MODIFIED"
-        | "REPARSE"
-        | "OFFLINE"
-        | "SPARSE"
-      )[]
-    | null;
-}
-/**
  * Used by: filesystem.setacl (params)
  */
 export interface FilesystemSetaclArgs {
@@ -2670,25 +3070,25 @@ export interface FilesystemSetaclArgs {
    */
   path: string;
   /**
-   * Array of Access Control Entries to apply to the filesystem object.
+   * Array of Access Control Entries to apply to the filesystem object. Formatting depends on the underlying `acltype`: an NFS4 ACL requires NFSv4 entries, while a POSIX1e ACL requires POSIX1e entries.
    */
   dacl: NFS4ACEInput[] | POSIXACE[];
   options?: FilesystemSetAclOptions;
   nfs41_flags?: NFS4ACL_Flags;
   /**
-   * Numeric user ID to set as owner or `null` to preserve existing.
+   * Numeric user ID to set as owner or `null` to preserve existing. Set one and only one of `uid`/`user`, and only to change the owning user.
    */
   uid?: number | null;
   /**
-   * Username to set as owner or `null` to preserve existing.
+   * Username to set as owner or `null` to preserve existing. Set one and only one of `uid`/`user`.
    */
   user?: string | null;
   /**
-   * Numeric group ID to set as group or `null` to preserve existing.
+   * Numeric group ID to set as group or `null` to preserve existing. Set one and only one of `gid`/`group`, and only to change the owning group.
    */
   gid?: number | null;
   /**
-   * Group name to set as group or `null` to preserve existing.
+   * Group name to set as group or `null` to preserve existing. Set one and only one of `gid`/`group`.
    */
   group?: string | null;
   /**
@@ -2709,7 +3109,7 @@ export interface FilesystemSetAclOptions {
    */
   recursive?: boolean;
   /**
-   * Whether to traverse filesystem boundaries during recursive operations.
+   * Whether to traverse filesystem boundaries (ZFS datasets) during recursive operations.
    */
   traverse?: boolean;
   /**
@@ -2727,6 +3127,15 @@ export interface FilesystemSetZfsAttributesArgs {
   path: string;
   zfs_file_attributes: ZFSFileAttrsData;
   options?: FilesystemSetZfsAttributesOptions;
+}
+/**
+ * Used by: filesystem.set_zfs_attributes (params)
+ */
+export interface FilesystemSetZfsAttributesOptions {
+  /**
+   * If set, walk the tree under `path` and apply attributes to entries whose type appears in the list (`FILES`, `DIRECTORIES`, or both). The root `path` is included only if its type matches the filter. `null` means no recursion (operate on `path` only). An empty list is rejected. Recursion stops at dataset boundaries.
+   */
+  recursive?: ("FILES" | "DIRECTORIES")[] | null;
 }
 /**
  * Used by: reporting.get_data (params), reporting.netdata_get_data (params)
@@ -2905,6 +3314,71 @@ export interface ISCSIGlobalEntry {
   mode: number;
 }
 /**
+ * Used by: iscsi.global.sessions (params), iscsi.global.sessions (response)
+ */
+export interface ISCSIGlobalSessionsItem {
+  /**
+   * iSCSI Qualified Name (IQN) of the initiator.
+   */
+  initiator: string;
+  /**
+   * IP address of the initiator.
+   */
+  initiator_addr: string;
+  /**
+   * Alias name of the initiator or `null` if not set.
+   */
+  initiator_alias: string | null;
+  /**
+   * iSCSI Qualified Name (IQN) of the target.
+   */
+  target: string;
+  /**
+   * Alias name of the target.
+   */
+  target_alias: string;
+  /**
+   * Header digest algorithm used for the session or `null`.
+   */
+  header_digest: string | null;
+  /**
+   * Data digest algorithm used for the session or `null`.
+   */
+  data_digest: string | null;
+  /**
+   * Maximum data segment length for the session or `null`.
+   */
+  max_data_segment_length: number | null;
+  /**
+   * Maximum receive data segment length or `null`.
+   */
+  max_receive_data_segment_length: number | null;
+  /**
+   * Maximum transmit data segment length or `null`.
+   */
+  max_xmit_data_segment_length: number | null;
+  /**
+   * Maximum burst length for the session or `null`.
+   */
+  max_burst_length: number | null;
+  /**
+   * First burst length for the session or `null`.
+   */
+  first_burst_length: number | null;
+  /**
+   * Whether immediate data transfer is enabled.
+   */
+  immediate_data: boolean;
+  /**
+   * Whether this session is using iSER (iSCSI Extensions for RDMA).
+   */
+  iser: boolean;
+  /**
+   * Whether hardware offload is enabled for this session.
+   */
+  offload: boolean;
+}
+/**
  * Used by: iscsi.global.update (params)
  */
 export interface ISCSIGlobalUpdateArgs {
@@ -2942,34 +3416,6 @@ export interface ISCSIGlobalUpdateArgs {
   mode?: number;
 }
 /**
- * Used by: iscsi.auth.query (event)
- */
-export interface ISCSITargetAuthCredentialAddedEvent {
-  id: number;
-  fields: ISCSITargetAuthCredentialEntryInput;
-}
-/**
- * Used by: iscsi.auth.query (event)
- */
-export interface ISCSITargetAuthCredentialChangedEvent {
-  id: number;
-  fields: ISCSITargetAuthCredentialEntryInput;
-}
-/**
- * Used by: iscsi.initiator.query (event)
- */
-export interface ISCSITargetAuthorizedInitiatorAddedEvent {
-  id: number;
-  fields: ISCSITargetAuthorizedInitiatorEntryInput;
-}
-/**
- * Used by: iscsi.initiator.query (event)
- */
-export interface ISCSITargetAuthorizedInitiatorChangedEvent {
-  id: number;
-  fields: ISCSITargetAuthorizedInitiatorEntryInput;
-}
-/**
  * Used by: iscsi.extent.create (response), iscsi.extent.get_instance (params), iscsi.extent.get_instance (response), iscsi.extent.query (params), iscsi.extent.query (response), iscsi.extent.update (response)
  */
 export interface ISCSITargetExtentEntry {
@@ -3003,7 +3449,7 @@ export interface ISCSITargetExtentEntry {
    */
   relative_path: string | null;
   /**
-   * Size of the file-based extent in bytes.
+   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
    */
   filesize?: string | number;
   blocksize?: Blocksize;
@@ -3024,11 +3470,11 @@ export interface ISCSITargetExtentEntry {
    */
   naa: string;
   /**
-   * Whether to enable insecure Third Party Copy (TPC) operations.
+   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
    */
   insecure_tpc?: boolean;
   /**
-   * Whether to enable Xen compatibility mode.
+   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
    */
   xen?: boolean;
   rpm?: Rpm;
@@ -3058,7 +3504,7 @@ export interface ISCSITargetExtentEntry {
   locked: boolean | null;
 }
 /**
- * Used by: keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params), replication.query (response), replication.restore (response) … and 7 more
+ * Used by: keychaincredential.create (response), keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response), keychaincredential.update (response), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params) … and 9 more
  */
 export interface KeychainCredentialEntry {
   /**
@@ -3074,6 +3520,31 @@ export interface KeychainCredentialEntry {
    * Credential-specific configuration and authentication data.
    */
   attributes: SSHKeyPair | SSHCredentials;
+}
+/**
+ * Used by: lxc.config (response), lxc.update (response)
+ */
+export interface LXCConfigEntry {
+  /**
+   * Configuration ID.
+   */
+  id: number;
+  /**
+   * Default pool used by containers and image datasets.
+   */
+  preferred_pool?: string | null;
+  /**
+   * Network bridge interface for virtualized instance networking. `null` if not configured.
+   */
+  bridge?: string | null;
+  /**
+   * IPv4 network CIDR for the container bridge network.
+   */
+  v4_network: string;
+  /**
+   * IPv6 network CIDR for the container bridge network.
+   */
+  v6_network: string;
 }
 /**
  * Used by: lxc.update (params)
@@ -3095,164 +3566,6 @@ export interface LXCConfigUpdateArgs {
    * IPv6 network CIDR for the container bridge network.
    */
   v6_network?: string;
-}
-/**
- * Used by: mail.config (response), mail.update (response)
- */
-export interface MailEntry {
-  /**
-   * The sending address that the mail server will use for sending emails.
-   */
-  fromemail: string;
-  /**
-   * Display name that will appear as the sender name in outgoing emails.
-   */
-  fromname: string;
-  /**
-   * Hostname or IP address of the SMTP server used for sending emails.
-   */
-  outgoingserver: string;
-  /**
-   * TCP port number for the SMTP server connection.
-   */
-  port: number;
-  security: Security;
-  /**
-   * Whether SMTP authentication is enabled and `user`, `pass` are required.
-   */
-  smtp: boolean;
-  /**
-   * SMTP username.
-   */
-  user: string | null;
-  /**
-   * SMTP password.
-   */
-  pass: string | null;
-  /**
-   * OAuth configuration for email providers that support it or `null` for basic authentication.
-   */
-  oauth: MailEntryOAuth | EmptyDict | null;
-  /**
-   * Unique identifier for this mail configuration.
-   */
-  id: number;
-}
-/**
- * Used by: mail.send (params)
- */
-export interface MailSendMessage {
-  /**
-   * Subject line for the email message.
-   */
-  subject: string;
-  /**
-   * Formatted to HTML using Markdown and rendered using default email template.
-   */
-  text?: string;
-  /**
-   * Custom HTML (overrides `text`). If null, no HTML MIME part will be added to the email.
-   */
-  html?: string | null;
-  /**
-   * Email recipients. Defaults to all local administrators.
-   */
-  to?: string[];
-  /**
-   * Email CC recipients, if any.
-   */
-  cc?: string[];
-  /**
-   * In seconds.
-   */
-  interval?: number | null;
-  /**
-   * Defaults to "truenas".
-   */
-  channel?: string | null;
-  /**
-   * Time limit for connecting to the SMTP server in seconds.
-   */
-  timeout?: number;
-  /**
-   * If set to true, an array compromised of the following object is required via HTTP upload:
-   *
-   * * headers *(array)*
-   *     * name *(string)*
-   *     * value *(string)*
-   *     * params *(object)*
-   *
-   * * content *(string)*
-   *
-   * Example:
-   * [
-   *   {
-   *     "headers": [
-   *       {
-   *         "name": "Content-Transfer-Encoding",
-   *         "value": "base64"
-   *       },
-   *       {
-   *         "name": "Content-Type",
-   *         "value": "application/octet-stream",
-   *         "params": {
-   *           "name": "test.txt"
-   *         }
-   *       }
-   *     ],
-   *     "content": "dGVzdAo="
-   *   }
-   * ]
-   */
-  attachments?: boolean;
-  /**
-   * Queue the message to be sent later if it fails to send.
-   */
-  queue?: boolean;
-  /**
-   * Any additional headers to include in the email message.
-   */
-  extra_headers?: {
-    [k: string]: unknown;
-  };
-}
-/**
- * Used by: mail.send (params), mail.update (params)
- */
-export interface MailUpdate {
-  /**
-   * The sending address that the mail server will use for sending emails.
-   */
-  fromemail?: string;
-  /**
-   * Display name that will appear as the sender name in outgoing emails.
-   */
-  fromname?: string;
-  /**
-   * Hostname or IP address of the SMTP server used for sending emails.
-   */
-  outgoingserver?: string;
-  /**
-   * TCP port number for the SMTP server connection.
-   */
-  port?: number;
-  security?: Security;
-  /**
-   * Whether SMTP authentication is enabled and `user`, `pass` are required.
-   */
-  smtp?: boolean;
-  /**
-   * SMTP username.
-   */
-  user?: string | null;
-  /**
-   * SMTP password.
-   */
-  pass?: string | null;
-  /**
-   * OAuth configuration for email providers that support it or `null` for basic authentication.
-   */
-  oauth?: MailEntryOAuth | EmptyDict | null;
 }
 /**
  * Used by: nvmet.host.query (event)
@@ -3357,21 +3670,7 @@ export interface NVMetNamespaceEntry {
   locked: boolean | null;
 }
 /**
- * Used by: pool.snapshottask.query (event)
- */
-export interface PeriodicSnapshotTaskAddedEvent {
-  id: number;
-  fields: PeriodicSnapshotTaskEntryInput;
-}
-/**
- * Used by: pool.snapshottask.query (event)
- */
-export interface PeriodicSnapshotTaskChangedEvent {
-  id: number;
-  fields: PeriodicSnapshotTaskEntryInput;
-}
-/**
- * Used by: pool.snapshottask.create (response), pool.snapshottask.get_instance (params), pool.snapshottask.get_instance (response), pool.snapshottask.query (params), pool.snapshottask.query (response), pool.snapshottask.update (response)
+ * Used by: pool.snapshottask.create (response), pool.snapshottask.get_instance (params), pool.snapshottask.get_instance (response), pool.snapshottask.query (event), pool.snapshottask.query (params), pool.snapshottask.query (response), pool.snapshottask.update (response)
  */
 export interface PeriodicSnapshotTaskEntry {
   /**
@@ -3403,7 +3702,7 @@ export interface PeriodicSnapshotTaskEntry {
    */
   exclude?: string[];
   /**
-   * Naming pattern for generated snapshots using strftime format.
+   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
    */
   naming_schema?: string;
   /**
@@ -3543,6 +3842,49 @@ export interface PoolEntryInput {
   topology: PoolTopology | null;
 }
 /**
+ * Used by: pool.query (event), pool.scan (event)
+ */
+export interface PoolScanInput {
+  function: Function;
+  state: StateInput4;
+  /**
+   * Scan start time.
+   */
+  start_time: string;
+  /**
+   * Scan end time (`null` while the scan is still running).
+   */
+  end_time: string | null;
+  /**
+   * Scan progress (between 0 and 100%).
+   */
+  percentage: number;
+  /**
+   * Total bytes located by scanner.
+   */
+  bytes_to_process: number;
+  /**
+   * Total bytes to scan.
+   */
+  bytes_processed: number;
+  /**
+   * Issued bytes per scan pass.
+   */
+  bytes_issued: number;
+  /**
+   * Pause time of a scrub pass (`null` if the scan is not paused).
+   */
+  pause: string | null;
+  /**
+   * Number of scan errors.
+   */
+  errors: number;
+  /**
+   * Number of seconds left (`null` if the scan is not running).
+   */
+  total_secs_left: number | null;
+}
+/**
  * Used by: pool.query (event)
  */
 export interface PoolChangedEvent {
@@ -3643,6 +3985,40 @@ export interface PoolCreateTopology {
    * Array of spare disk names for the pool.
    */
   spares?: string[];
+}
+/**
+ * Used by: pool.create (params), pool.update (params)
+ */
+export interface PoolCreateTopologyVdevDRAID {
+  /**
+   * Type of distributed RAID configuration.
+   */
+  type: "DRAID1" | "DRAID2" | "DRAID3";
+  /**
+   * Array of disk names to use in this DRAID vdev.
+   */
+  disks: string[];
+  /**
+   * Defaults to `zfs.VDEV_DRAID_MAX_CHILDREN`.
+   */
+  draid_data_disks?: number | null;
+  /**
+   * Number of distributed spare disks in the DRAID configuration.
+   */
+  draid_spare_disks?: number;
+}
+/**
+ * Used by: pool.create (params), pool.update (params)
+ */
+export interface PoolCreateTopologyVdevNonDRAID {
+  /**
+   * Type of vdev configuration.
+   */
+  type: "RAIDZ1" | "RAIDZ2" | "RAIDZ3" | "MIRROR" | "STRIPE";
+  /**
+   * Array of disk names to use in this vdev.
+   */
+  disks: string[];
 }
 /**
  * Used by: pool.create (params), pool.update (params)
@@ -4112,7 +4488,7 @@ export interface PoolSnapshotRenameOptions {
   recursive?: boolean;
 }
 /**
- * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
+ * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
  */
 export interface PoolSnapshotTaskDBEntry {
   /**
@@ -4144,7 +4520,7 @@ export interface PoolSnapshotTaskDBEntry {
    */
   exclude?: string[];
   /**
-   * Naming pattern for generated snapshots using strftime format.
+   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
    */
   naming_schema?: string;
   /**
@@ -4237,20 +4613,6 @@ export interface PoolUpdateTopology {
    * Array of spare disk names for the pool.
    */
   spares?: string[];
-}
-/**
- * Used by: privilege.query (event)
- */
-export interface PrivilegeAddedEvent {
-  id: number;
-  fields: PrivilegeEntryInput;
-}
-/**
- * Used by: privilege.query (event)
- */
-export interface PrivilegeChangedEvent {
-  id: number;
-  fields: PrivilegeEntryInput;
 }
 /**
  * Used by: webui.main.dashboard.sys_info (response)
@@ -5542,6 +5904,37 @@ export interface SharingNFSEntryInput {
   tier?: TierInfoInput | null;
 }
 /**
+ * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event)
+ */
+export interface TierInfoInput {
+  /**
+   * Storage performance tier for this share.
+   */
+  tier_type: "REGULAR" | "PERFORMANCE";
+  /**
+   * Most recent rewrite job for this share's dataset, or `null` if no job history exists.
+   */
+  tier_job?: ZfsTierRewriteJobEntryInput | null;
+}
+/**
+ * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event), zfs.tier.rewrite_job_query (event)
+ */
+export interface ZfsTierRewriteJobEntryInput {
+  /**
+   * Rewrite job identifier in `dataset_name@job_uuid` format.
+   */
+  tier_job_id: string;
+  /**
+   * ZFS dataset this job is operating on.
+   */
+  dataset_name: string;
+  /**
+   * Unique identifier for this rewrite job.
+   */
+  job_uuid: string;
+  status: StatusInput2;
+}
+/**
  * Used by: sharing.nfs.query (event)
  */
 export interface SharingNFSChangedEvent {
@@ -5626,9 +6019,7 @@ export interface SharingNFSEntry {
    */
   expose_snapshots?: boolean;
   /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
-   *
-   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
+   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
    */
   tier?: TierInfo | null;
 }
@@ -5857,9 +6248,7 @@ export interface SharingSMBEntry {
       )
     | null;
   /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
-   *
-   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
+   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
    */
   tier?: TierInfo | null;
 }
@@ -5884,7 +6273,7 @@ export interface SharingSMBSetaclArgs {
  */
 export interface SMBShareAclEntry {
   /**
-   * Permissions granted or denied to the principal. NOTE: this may appear as CUSTOM on read if user has manually edited the share ACL through unsupported means. In this case users will be required to set it to a supported value on update.
+   * Permissions granted or denied to the principal: `FULL` grants read, write, execute, delete, write ACL, and change owner; `CHANGE` grants read, write, execute, and delete; `READ` grants read and execute. NOTE: this may appear as CUSTOM on read if user has manually edited the share ACL through unsupported means. In this case users will be required to set it to a supported value on update.
    */
   ae_perm: "FULL" | "CHANGE" | "READ" | "CUSTOM";
   /**
@@ -5912,11 +6301,82 @@ export interface SharingWebshareAddedEvent {
   fields: SharingWebshareEntryInput;
 }
 /**
+ * Webshare share entry on the TrueNAS server.
+ *
+ * Used by: sharing.webshare.query (event)
+ */
+export interface SharingWebshareEntryInput {
+  /**
+   * Unique identifier for this Webshare share.
+   */
+  id: number;
+  /**
+   * Webshare share name.
+   */
+  name: string;
+  /**
+   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
+   */
+  path: string;
+  /**
+   * Dataset name component of the path (e.g., 'tank/webshare'). Null if path cannot be resolved.
+   */
+  dataset: string | null;
+  /**
+   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
+   */
+  relative_path: string | null;
+  /**
+   * If unset, the Webshare share is not available.
+   */
+  enabled?: boolean;
+  /**
+   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
+   */
+  is_home_base?: boolean;
+  /**
+   * Read-only value indicating whether the share is located on a locked dataset.
+   *
+   * Returns:
+   *     - True: The share is in a locked dataset.
+   *     - False: The share is not in a locked dataset.
+   *     - None: Lock status is not available because path locking information was not requested.
+   */
+  locked: boolean | null;
+  /**
+   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
+   *
+   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
+   */
+  tier?: TierInfoInput | null;
+}
+/**
  * Used by: sharing.webshare.query (event)
  */
 export interface SharingWebshareChangedEvent {
   id: number;
   fields: SharingWebshareEntryInput;
+}
+/**
+ * Used by: sharing.webshare.create (params)
+ */
+export interface SharingWebshareCreate {
+  /**
+   * Webshare share name.
+   */
+  name: string;
+  /**
+   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
+   */
+  path: string;
+  /**
+   * If unset, the Webshare share is not available.
+   */
+  enabled?: boolean;
+  /**
+   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
+   */
+  is_home_base?: boolean;
 }
 /**
  * Webshare share entry on the TrueNAS server.
@@ -5969,6 +6429,27 @@ export interface SharingWebshareEntry {
   tier?: TierInfo | null;
 }
 /**
+ * Used by: sharing.webshare.update (params)
+ */
+export interface SharingWebshareUpdate {
+  /**
+   * Webshare share name.
+   */
+  name?: string;
+  /**
+   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
+   */
+  path?: string;
+  /**
+   * If unset, the Webshare share is not available.
+   */
+  enabled?: boolean;
+  /**
+   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
+   */
+  is_home_base?: boolean;
+}
+/**
  * TrueNAS SMB server configuration.
  *
  * Used by: smb.config (response), smb.update (response)
@@ -5979,15 +6460,15 @@ export interface SMBEntry {
    */
   id: number;
   /**
-   * The NetBIOS name of this server.
+   * The NetBIOS name of this server. Defaults to the original hostname of the system.
    */
   netbiosname: string;
   /**
-   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain.
+   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain. When the server is joined to an AD domain, additional Kerberos Service Principal Names are generated for these aliases.
    */
   netbiosalias: string[];
   /**
-   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain.
+   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain. This must differ from `netbiosname`.
    */
   workgroup: string;
   /**
@@ -6010,7 +6491,7 @@ export interface SMBEntry {
    */
   syslog: boolean;
   /**
-   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. Enabling this is required for Time Machine support.
+   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. This is not required for MacOS support generally but is currently required for Time Machine support.
    */
   aapl_extensions: boolean;
   /**
@@ -6022,7 +6503,7 @@ export interface SMBEntry {
    */
   admin_group: string | null;
   /**
-   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account.
+   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account. Defaults to "nobody".
    */
   guest: string;
   /**
@@ -6211,19 +6692,44 @@ export interface SmbShareUpdate {
     | null;
 }
 /**
+ * Used by: smb.status (params)
+ */
+export interface SMBStatusOptions {
+  /**
+   * Return verbose status output.
+   */
+  verbose?: boolean;
+  /**
+   * Do not check if the status data is valid by checking if the processes that the status data refer to all still exist. This option decreases execution time on busy systems and clusters but may display stale data of processes that died without cleaning up properly.
+   */
+  fast?: boolean;
+  /**
+   * Limit results to the specified user.
+   */
+  restrict_user?: string;
+  /**
+   * Limit results to the specified SMB session ID.
+   */
+  restrict_session?: string;
+  /**
+   * Resolve Unix user IDs and group IDs to usernames and group names in the status output.
+   */
+  resolve_uids?: boolean;
+}
+/**
  * Used by: smb.update (params)
  */
 export interface SMBUpdateArgs {
   /**
-   * The NetBIOS name of this server.
+   * The NetBIOS name of this server. Defaults to the original hostname of the system.
    */
   netbiosname?: string;
   /**
-   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain.
+   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain. When the server is joined to an AD domain, additional Kerberos Service Principal Names are generated for these aliases.
    */
   netbiosalias?: string[];
   /**
-   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain.
+   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain. This must differ from `netbiosname`.
    */
   workgroup?: string;
   /**
@@ -6246,7 +6752,7 @@ export interface SMBUpdateArgs {
    */
   syslog?: boolean;
   /**
-   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. Enabling this is required for Time Machine support.
+   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. This is not required for MacOS support generally but is currently required for Time Machine support.
    */
   aapl_extensions?: boolean;
   /**
@@ -6258,7 +6764,7 @@ export interface SMBUpdateArgs {
    */
   admin_group?: string | null;
   /**
-   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account.
+   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account. Defaults to "nobody".
    */
   guest?: string;
   /**
@@ -6300,67 +6806,6 @@ export interface SMBUpdateArgs {
   stateful_failover?: boolean;
 }
 /**
- * Used by: snmp.config (response), snmp.update (response)
- */
-export interface SNMPEntry {
-  /**
-   * A comment describing the physical location of the server.
-   */
-  location: string;
-  /**
-   * Contact information for the system administrator (email or name).
-   */
-  contact: string;
-  /**
-   * Whether SNMP traps are enabled.
-   */
-  traps: boolean;
-  /**
-   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
-   */
-  v3: boolean;
-  /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
-   */
-  community?: string;
-  /**
-   * Username for SNMP version 3 authentication.
-   */
-  v3_username: string;
-  /**
-   * Authentication type for SNMP version 3 (empty string means no authentication).
-   */
-  v3_authtype: "" | "MD5" | "SHA";
-  /**
-   * Password for SNMP version 3 authentication.
-   */
-  v3_password: string;
-  /**
-   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
-   */
-  v3_privproto: (null | "AES" | "DES") | null;
-  /**
-   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
-   */
-  v3_privpassphrase?: string | null;
-  /**
-   * Logging level for SNMP daemon (0=emergency to 7=debug).
-   */
-  loglevel: number;
-  /**
-   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
-   */
-  options: string;
-  /**
-   * Whether to enable ZFS dataset statistics collection for SNMP.
-   */
-  zilstat: boolean;
-  /**
-   * Placeholder identifier.  Not used as there is only one.
-   */
-  id: number;
-}
-/**
  * Used by: docker.status (response)
  */
 export interface StatusResult {
@@ -6369,6 +6814,27 @@ export interface StatusResult {
    */
   description: string;
   status: Status3;
+}
+/**
+ * Used by: support.new_ticket (response), truenas.set_production (response)
+ */
+export interface SupportNewTicket {
+  /**
+   * Ticket number if successfully created. `null` if creation failed.
+   */
+  ticket: number | null;
+  /**
+   * URL to view the created ticket. `null` if not available.
+   */
+  url: string | null;
+  /**
+   * Whether debug information was attached to the ticket.
+   */
+  has_debug: boolean;
+  /**
+   * If attaching debug information failed, the error message will appear here.
+   */
+  debug_attach_error: string | null;
 }
 /**
  * Used by: webui.main.dashboard.sys_info (response)
@@ -6694,6 +7160,15 @@ export interface TrueNASConnectUpdateArgs {
   enabled?: boolean;
 }
 /**
+ * Used by: truenas.license.upload (params)
+ */
+export interface TrueNASLicenseUploadOptions {
+  /**
+   * Propagate to another HA system.
+   */
+  ha_propagate?: boolean;
+}
+/**
  * Used by: tunable.create (response), tunable.get_instance (params), tunable.get_instance (response), tunable.query (params), tunable.query (response), tunable.update (response)
  */
 export interface TunableEntry {
@@ -6736,6 +7211,81 @@ export interface TwofactorOptions {
    */
   otp_digits?: number;
   interval?: Interval;
+}
+/**
+ * Used by: ups.update (params)
+ */
+export interface UPSUpdate {
+  /**
+   * Whether the UPS should power down after completing the shutdown sequence.
+   */
+  powerdown?: boolean;
+  /**
+   * Whether to enable remote monitoring of the UPS status over the network.
+   */
+  rmonitor?: boolean;
+  /**
+   * Seconds to wait before warning about communication loss with UPS. `null` for default.
+   */
+  nocommwarntime?: number | null;
+  /**
+   * Network port for communicating with remote UPS monitoring systems.
+   */
+  remoteport?: number;
+  /**
+   * Seconds to wait after initiating shutdown before forcing power off. Only applies when `shutdown` is `BATT`.
+   */
+  shutdowntimer?: number;
+  /**
+   * Maximum seconds to wait for other systems to shutdown before continuing.
+   */
+  hostsync?: number;
+  /**
+   * Human-readable description of this UPS configuration.
+   */
+  description?: string;
+  /**
+   * UPS driver name that handles communication with the specific UPS hardware model.
+   */
+  driver?: string;
+  /**
+   * Additional user configurations for UPS monitoring access.
+   */
+  extrausers?: string;
+  /**
+   * Unique identifier name for this UPS device within the monitoring system.
+   */
+  identifier?: string;
+  mode?: ModeInput2;
+  /**
+   * Password for UPS monitoring authentication (required for updates).
+   */
+  monpwd?: string;
+  /**
+   * Username for UPS monitoring authentication.
+   */
+  monuser?: string;
+  /**
+   * Additional configuration options passed to the UPS driver.
+   */
+  options?: string;
+  /**
+   * Additional configuration options for the UPS daemon.
+   */
+  optionsupsd?: string;
+  /**
+   * Serial port or device path for UPS communication.
+   */
+  port?: string;
+  /**
+   * Hostname or IP address of remote UPS server when operating in SLAVE mode.
+   */
+  remotehost?: string;
+  shutdown?: Shutdown;
+  /**
+   * Custom command to execute during UPS shutdown sequence. `null` to use the default (`poweroff`).
+   */
+  shutdowncmd?: string | null;
 }
 /**
  * Used by: container.device.usb_choices (response), vm.device.usb_passthrough_choices (response), vm.device.usb_passthrough_device (response)
@@ -7527,35 +8077,6 @@ export interface VMEntryInput {
   enable_secure_boot?: boolean;
 }
 /**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMDeviceEntryInput {
-  /**
-   * Unique identifier for the VM device.
-   */
-  id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
-  attributes:
-    | VMCDROMDevice
-    | VMDisplayDevice
-    | VMISCSIDiskDevice
-    | VMNICDeviceInput2
-    | VMPCIDevice
-    | VMRAWDeviceInput
-    | VMDiskDeviceInput
-    | VMUSBDevice;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
-  vm: number;
-  /**
-   * Boot order priority for this device (lower numbers boot first).
-   */
-  order: number;
-}
-/**
  * Used by: vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (event), vm.query (params), vm.query (response), vm.status (response), vm.update (response)
  */
 export interface VMStatus {
@@ -7578,66 +8099,6 @@ export interface VMStatus {
 export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
-}
-/**
- * Used by: vm.device.query (event)
- */
-export interface VMDeviceAddedEvent {
-  id: number;
-  fields: VMDeviceEntryInput;
-}
-/**
- * Used by: vm.device.query (event)
- */
-export interface VMDeviceChangedEvent {
-  id: number;
-  fields: VMDeviceEntryInput;
-}
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
-export interface VMDeviceEntry {
-  /**
-   * Unique identifier for the VM device.
-   */
-  id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
-  attributes: VMCDROMDevice | VMDisplayDevice | VMNICDevice | VMPCIDevice | VMRAWDevice | VMDiskDevice | VMUSBDevice;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
-  vm: number;
-  /**
-   * Boot order priority for this device (lower numbers boot first).
-   */
-  order: number;
-}
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
-export interface VMNICDevice {
-  /**
-   * Device type identifier for network interface cards.
-   */
-  dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
-  trust_guest_rx_filters?: boolean;
-  /**
-   * Network interface controller type. `E1000` for Intel compatibility, `VIRTIO` for performance.
-   */
-  type?: "E1000" | "VIRTIO";
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
-  nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
-  mac?: string | null;
 }
 /**
  * Used by: vm.device.nic_attach_choices (response)
@@ -7820,6 +8281,20 @@ export interface VMWareEntryInput {
 /**
  * Used by: vmware.query (event)
  */
+export interface VMWareEntryStateInput {
+  state?: StateInput2;
+  /**
+   * Error text (if any).
+   */
+  error?: string;
+  /**
+   * State update datetime.
+   */
+  datetime?: string;
+}
+/**
+ * Used by: vmware.query (event)
+ */
 export interface VMWareChangedEvent {
   id: number;
   fields: VMWareEntryInput;
@@ -7880,6 +8355,61 @@ export interface VMWareMatchDatastoresWithDatasetsResultFilesystem {
    * Human-readable description of the filesystem or volume.
    */
   description: string;
+}
+/**
+ * TrueNAS Webshare server configuration.
+ *
+ * Used by: webshare.config (response), webshare.update (response)
+ */
+export interface WebshareEntry {
+  /**
+   * Unique identifier for the Webshare service configuration.
+   */
+  id: number;
+  /**
+   * List of IP addresses used by the TrueNAS Webshare server.
+   */
+  bindip: string[];
+  /**
+   * Search indexing is enabled.
+   */
+  search: boolean;
+  passkey: Passkey;
+  /**
+   * A list of AD/LDAP group names whose members will be granted access to Webshare.
+   */
+  groups: string[];
+}
+/**
+ * Used by: webshare.update (params)
+ */
+export interface WebshareUpdate {
+  /**
+   * List of IP addresses used by the TrueNAS Webshare server.
+   */
+  bindip?: string[];
+  /**
+   * Search indexing is enabled.
+   */
+  search?: boolean;
+  passkey?: Passkey;
+  /**
+   * A list of AD/LDAP group names whose members will be granted access to Webshare.
+   */
+  groups?: string[];
+}
+/**
+ * Used by: zfs.resource.destroy (params)
+ */
+export interface ZFSResourceDestroyArgsData {
+  /**
+   * Path of the zfs resource (dataset or volume) to be destroyed. Must be of the form 'pool/name'; it cannot be an absolute path or end with '/'. Snapshot paths (containing '@') are not accepted - use `zfs.resource.snapshot.destroy` instead.
+   */
+  path: string;
+  /**
+   * Recursively destroy all descendants of the resource, including child datasets, snapshots, clones, and holds.
+   */
+  recursive?: boolean;
 }
 /**
  * Used by: zfs.resource.query (response)
@@ -7982,6 +8512,342 @@ export interface ZFSResourceQuery {
   get_tier?: boolean;
 }
 /**
+ * Used by: zfs.resource.snapshot.clone (params)
+ */
+export interface ZFSResourceSnapshotCloneQuery {
+  /**
+   * Source snapshot path to clone (e.g., 'pool/dataset@snapshot').
+   */
+  snapshot: string;
+  /**
+   * Destination dataset path for the clone (e.g., 'pool/clone').
+   */
+  dataset: string;
+  /**
+   * ZFS properties to set on the cloned dataset.
+   */
+  properties?: {
+    [k: string]: string | number;
+  };
+}
+/**
+ * Used by: zfs.resource.snapshot.count (params)
+ */
+export interface ZFSResourceSnapshotCountQuery {
+  /**
+   * Dataset paths to count snapshots for. If empty, counts all snapshots.
+   */
+  paths?: string[];
+  /**
+   * Include snapshots from child datasets when counting.
+   */
+  recursive?: boolean;
+}
+/**
+ * Used by: zfs.resource.snapshot.create (params)
+ */
+export interface ZFSResourceSnapshotCreateQuery {
+  /**
+   * Dataset path to snapshot (e.g., 'pool/dataset').
+   */
+  dataset: string;
+  /**
+   * Snapshot name (the part after @).
+   */
+  name: string;
+  /**
+   * Create snapshots recursively for child datasets.
+   */
+  recursive?: boolean;
+  /**
+   * Datasets to exclude when creating recursive snapshots.
+   */
+  exclude?: string[];
+  /**
+   * User properties to set on the snapshot. Only user-defined properties are supported (e.g., 'com.company:backup_type'). Regular ZFS properties cannot be set on snapshots at creation time.
+   */
+  user_properties?: {
+    [k: string]: string;
+  };
+}
+/**
+ * Used by: zfs.resource.snapshot.destroy (params)
+ */
+export interface ZFSResourceSnapshotDestroyQuery {
+  /**
+   * Path to destroy. Either a snapshot path (e.g., 'pool/dataset@snapshot') or a dataset path when all_snapshots=True (e.g., 'pool/dataset').
+   */
+  path: string;
+  /**
+   * Recursively destroy matching snapshots in child datasets.
+   */
+  recursive?: boolean;
+  /**
+   * If True, path should be a dataset path and all its snapshots will be destroyed.
+   */
+  all_snapshots?: boolean;
+  /**
+   * Defer destruction if snapshot is in use (e.g., has clones).
+   */
+  defer?: boolean;
+}
+/**
+ * Used by: zfs.resource.snapshot.create (response), zfs.resource.snapshot.query (response)
+ */
+export interface ZFSResourceSnapshotEntry {
+  /**
+   * The TXG in which the snapshot was created.
+   */
+  createtxg: number;
+  /**
+   * A GUID for the snapshot.
+   */
+  guid: number;
+  /**
+   * The zfs resource for the given snapshot.
+   */
+  name: string;
+  /**
+   * The zpool of the snapshot.
+   */
+  pool: string;
+  /**
+   * The zfs resource for the given snapshot.
+   */
+  dataset: string;
+  /**
+   * The name of the snapshot.
+   */
+  snapshot_name: string;
+  /**
+   * The type of zfs resource.
+   */
+  type?: "SNAPSHOT";
+  /**
+   * A list of tags that hold the snapshot.
+   */
+  holds: unknown[] | null;
+  /**
+   * Requested properties for the snapshot.
+   */
+  properties: ZFSResourceSnapshotPropertiesEntry | null;
+  /**
+   * User-defined properties for snapshots.
+   */
+  user_properties: {
+    [k: string]: string;
+  } | null;
+}
+/**
+ * Used by: zfs.resource.snapshot.hold (params)
+ */
+export interface ZFSResourceSnapshotHoldQuery {
+  /**
+   * Snapshot path to hold (e.g., 'pool/dataset@snapshot').
+   */
+  path: string;
+  /**
+   * Hold tag name to apply.
+   */
+  tag?: string;
+  /**
+   * Apply hold recursively to matching snapshots in child datasets.
+   */
+  recursive?: boolean;
+}
+/**
+ * Used by: zfs.resource.snapshot.holds (params)
+ */
+export interface ZFSResourceSnapshotHoldsQuery {
+  /**
+   * Snapshot path to query holds for (e.g., 'pool/dataset@snapshot').
+   */
+  path: string;
+}
+/**
+ * Used by: zfs.resource.snapshot.query (params)
+ */
+export interface ZFSResourceSnapshotQuery {
+  /**
+   * Dataset paths to count snapshots for. If empty, counts all snapshots.
+   */
+  paths?: string[];
+  /**
+   * Include snapshots from child datasets when counting.
+   */
+  recursive?: boolean;
+  /**
+   * List of ZFS properties to retrieve. Empty list returns default properties. None returns no properties.
+   */
+  properties?: string[] | null;
+  /**
+   * Retrieve user-defined properties for snapshots.
+   */
+  get_user_properties?: boolean;
+  /**
+   * Include source information for each property value.
+   */
+  get_source?: boolean;
+  /**
+   * Include holds information (if any) for the snapshot.
+   */
+  get_holds?: boolean;
+  /**
+   * Minimum transaction group for filtering snapshots. 0 means no minimum.
+   */
+  min_txg?: number;
+  /**
+   * Maximum transaction group for filtering snapshots. 0 means no maximum.
+   */
+  max_txg?: number;
+}
+/**
+ * Used by: zfs.resource.snapshot.release (params)
+ */
+export interface ZFSResourceSnapshotReleaseQuery {
+  /**
+   * Snapshot path to release holds from (e.g., 'pool/dataset@snapshot').
+   */
+  path: string;
+  /**
+   * Specific tag to release. If None, releases all hold tags.
+   */
+  tag?: string | null;
+  /**
+   * Release holds recursively from matching snapshots in child datasets.
+   */
+  recursive?: boolean;
+}
+/**
+ * Used by: zfs.resource.snapshot.rename (params)
+ */
+export interface ZFSResourceSnapshotRenameQuery {
+  /**
+   * Current snapshot path (e.g., 'pool/dataset@old_name').
+   */
+  current_name: string;
+  /**
+   * New snapshot path (e.g., 'pool/dataset@new_name').
+   */
+  new_name: string;
+  /**
+   * Recursively rename matching snapshots in child datasets.
+   */
+  recursive?: boolean;
+}
+/**
+ * Used by: zfs.resource.snapshot.rollback (params)
+ */
+export interface ZFSResourceSnapshotRollbackQuery {
+  /**
+   * Snapshot path to rollback to (e.g., 'pool/dataset@snapshot').
+   */
+  path: string;
+  /**
+   * Destroy any snapshots and bookmarks more recent than the one specified.
+   */
+  recursive?: boolean;
+  /**
+   * Like recursive, but also destroy any clones.
+   */
+  recursive_clones?: boolean;
+  /**
+   * Force unmount of any clones.
+   */
+  force?: boolean;
+  /**
+   * Do a complete recursive rollback of each child snapshot. Fails if any child lacks the snapshot.
+   */
+  recursive_rollback?: boolean;
+}
+/**
+ * Used by: zfs.tier.dataset_set_tier (params)
+ */
+export interface ZfsTierDatasetSetTierArgs {
+  /**
+   * ZFS dataset to configure (e.g. `tank/data`).
+   */
+  dataset_name: string;
+  /**
+   * Storage performance tier for this dataset.
+   */
+  tier_type: "REGULAR" | "PERFORMANCE";
+  /**
+   * When `true`, immediately create a rewrite job to physically migrate existing data to match the new tier.
+   */
+  move_existing_data?: boolean;
+}
+/**
+ * Used by: zfs.tier.config (response), zfs.tier.update (response)
+ */
+export interface ZfsTierEntry {
+  /**
+   * Placeholder identifier. Not used; there is only one configuration instance.
+   */
+  id: number;
+  /**
+   * Whether the ZFS tier service is enabled.
+   */
+  enabled: boolean;
+  /**
+   * Maximum number of rewrite jobs that execute simultaneously. Jobs submitted beyond this limit are held in a QUEUED state until a slot becomes available (1-10).
+   */
+  max_concurrent_jobs: number;
+  /**
+   * Abort rewrites when filesystem usage reaches this percentage threshold (70-95).
+   */
+  max_used_percentage: number;
+  /**
+   * Percentage of PERFORMANCE tier space reserved for metadata. Metadata is always written to the PERFORMANCE tier, but data is only placed there while allocated space stays below `100 - special_class_metadata_reserve_pct` percent of total PERFORMANCE tier capacity. Beyond that threshold data falls back to the REGULAR tier. Corresponds to the ZFS kernel parameter `zfs_special_class_metadata_reserve_pct` (default: 25).
+   */
+  special_class_metadata_reserve_pct: number;
+}
+/**
+ * Used by: zfs.tier.rewrite_job_cancel (params)
+ */
+export interface ZfsTierRewriteJobCancelArgs {
+  /**
+   * Rewrite job to cancel, in `dataset_name@job_uuid` format.
+   */
+  tier_job_id: string;
+}
+/**
+ * Used by: zfs.tier.rewrite_job_create (params)
+ */
+export interface ZfsTierRewriteJobCreateArgs {
+  /**
+   * ZFS dataset to rewrite (e.g. `tank/data`). Only one job may exist per dataset at a time; creating a second returns an error.
+   */
+  dataset_name: string;
+}
+/**
+ * Used by: zfs.tier.rewrite_job_failures (response)
+ */
+export interface ZfsTierRewriteJobFailureEntry {
+  /**
+   * Name of the file that failed to migrate storage tier.
+   */
+  filename: string;
+  error: ZfsTierRewriteJobFailureError;
+  /**
+   * Absolute path of the file resolved via its file handle, or `null` if the file no longer exists on the filesystem.
+   */
+  path: string | null;
+}
+/**
+ * Used by: zfs.tier.rewrite_job_failures (response)
+ */
+export interface ZfsTierRewriteJobFailureError {
+  /**
+   * Error number from the failed storage tier migration.
+   */
+  errno: number;
+  /**
+   * Human-readable description of the error.
+   */
+  strerror: string;
+}
+/**
  * Used by: zfs.tier.rewrite_job_failures (params)
  */
 export interface ZfsTierRewriteJobFailuresArgs {
@@ -8022,6 +8888,24 @@ export interface ZfsTierRewriteJobQueryEventSourceEvent2 {
   fields: ZfsTierRewriteJobQueryEventSourceEvent;
 }
 /**
+ * Used by: zfs.tier.rewrite_job_recover (params)
+ */
+export interface ZfsTierRewriteJobRecoverArgs {
+  /**
+   * Rewrite job to recover, in `dataset_name@job_uuid` format. The job must be in `ERROR` state.
+   */
+  tier_job_id: string;
+}
+/**
+ * Used by: zfs.tier.rewrite_job_status (params)
+ */
+export interface ZfsTierRewriteJobStatusArgs {
+  /**
+   * Rewrite job to query, in `dataset_name@job_uuid` format.
+   */
+  tier_job_id: string;
+}
+/**
  * Used by: zfs.tier.rewrite_job_status (response)
  */
 export interface ZfsTierRewriteJobStatusEntry {
@@ -8050,6 +8934,32 @@ export interface ZfsTierRewriteJobStatusEntry {
 /**
  * Used by: zfs.tier.rewrite_job_status (event)
  */
+export interface ZfsTierRewriteJobStatusEntryInput {
+  /**
+   * Rewrite job identifier in `dataset_name@job_uuid` format.
+   */
+  tier_job_id: string;
+  /**
+   * ZFS dataset this job is operating on.
+   */
+  dataset_name: string;
+  /**
+   * Unique identifier for this rewrite job.
+   */
+  job_uuid: string;
+  status: StatusInput2;
+  /**
+   * Progress statistics, or `null` if no statistics have been recorded yet.
+   */
+  stats: ZfsTierRewriteJobStats | null;
+  /**
+   * Error message describing why the job entered `ERROR` state, otherwise `null`.
+   */
+  error: string | null;
+}
+/**
+ * Used by: zfs.tier.rewrite_job_status (event)
+ */
 export interface ZfsTierRewriteJobStatusEventSourceEvent {
   fields: ZfsTierRewriteJobStatusEntryInput;
 }
@@ -8058,6 +8968,27 @@ export interface ZfsTierRewriteJobStatusEventSourceEvent {
  */
 export interface ZfsTierRewriteJobStatusEventSourceEvent2 {
   fields: ZfsTierRewriteJobStatusEventSourceEvent;
+}
+/**
+ * Used by: zfs.tier.update (params)
+ */
+export interface ZfsTierUpdateArgs {
+  /**
+   * Whether the ZFS tier service is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Maximum number of rewrite jobs that execute simultaneously. Jobs submitted beyond this limit are held in a QUEUED state until a slot becomes available (1-10).
+   */
+  max_concurrent_jobs?: number;
+  /**
+   * Abort rewrites when filesystem usage reaches this percentage threshold (70-95).
+   */
+  max_used_percentage?: number;
+  /**
+   * Percentage of PERFORMANCE tier space reserved for metadata. Metadata is always written to the PERFORMANCE tier, but data is only placed there while allocated space stays below `100 - special_class_metadata_reserve_pct` percent of total PERFORMANCE tier capacity. Beyond that threshold data falls back to the REGULAR tier. Corresponds to the ZFS kernel parameter `zfs_special_class_metadata_reserve_pct` (default: 25).
+   */
+  special_class_metadata_reserve_pct?: number;
 }
 /**
  * Used by: zpool.query (response)
@@ -8168,6 +9099,145 @@ export interface ZPoolScan {
    * Number of seconds left (`null` if the scan is not running).
    */
   total_secs_left: number | null;
+}
+/**
+ * Used by: zpool.query (event)
+ */
+export interface ZPoolEntryInput {
+  /**
+   * Database id from `storage.volume`. `null` for the boot pool and for any pool not present in the database.
+   */
+  id?: number | null;
+  /**
+   * Name of the zpool.
+   */
+  name: string;
+  /**
+   * Globally unique identifier for the pool.
+   */
+  guid: number;
+  /**
+   * Current pool status (ONLINE, DEGRADED, FAULTED, OFFLINE, etc.).
+   */
+  status: string;
+  /**
+   * Whether the pool is in a healthy state.
+   */
+  healthy: boolean;
+  /**
+   * Whether the pool has warning conditions.
+   */
+  warning: boolean;
+  /**
+   * Detailed status code (e.g., OK, ERRATA, FEAT_DISABLED, LOCKED_SED_DISKS).
+   */
+  status_code: string | null;
+  /**
+   * Human-readable status description.
+   */
+  status_detail: string | null;
+  /**
+   * Whether every ZFS feature flag on the pool is enabled. `null` for OFFLINE pools.
+   */
+  is_upgraded?: boolean | null;
+  /**
+   * `true` when every disk backing the pool is a Self-Encrypting Drive, `false` when at least one is not. `null` when the SED status of the pool has not yet been determined or does not apply.
+   */
+  all_sed?: boolean | null;
+  /**
+   * Pool properties, keyed by property name.
+   */
+  properties?: {
+    [k: string]: ZPoolPropertyValue;
+  } | null;
+  /**
+   * Pool vdev topology.
+   */
+  topology?: ZPoolTopology | null;
+  /**
+   * Most recent scrub or resilver information.
+   */
+  scan?: ZPoolScanInput | null;
+  /**
+   * RAIDZ expansion information.
+   */
+  expand?: ZPoolExpand | null;
+  /**
+   * Pool feature flags.
+   */
+  features?: ZPoolFeature[] | null;
+}
+/**
+ * Used by: zpool.query (event)
+ */
+export interface ZPoolScanInput {
+  function: Function;
+  state: StateInput4;
+  /**
+   * Scan start time (unix timestamp).
+   */
+  start_time: number;
+  /**
+   * Scan end time as unix timestamp (`null` while the scan is still running).
+   */
+  end_time: number | null;
+  /**
+   * Scan progress (between 0 and 100%).
+   */
+  percentage: number;
+  /**
+   * Total bytes located by scanner.
+   */
+  bytes_to_process: number;
+  /**
+   * Total bytes to scan.
+   */
+  bytes_processed: number;
+  /**
+   * Issued bytes per scan pass.
+   */
+  bytes_issued: number;
+  /**
+   * Pause time as unix timestamp (`null` if the scan is not paused).
+   */
+  pause: number | null;
+  /**
+   * Number of scan errors.
+   */
+  errors: number;
+  /**
+   * Number of seconds left (`null` if the scan is not running).
+   */
+  total_secs_left: number | null;
+}
+/**
+ * Used by: zpool.query (params)
+ */
+export interface ZPoolQuery {
+  /**
+   * Pool names to query. `null` queries all imported pools.
+   */
+  pool_names?: string[] | null;
+  /**
+   * Property names to retrieve. `null` returns no properties.
+   */
+  properties?: string[] | null;
+  /**
+   * Include vdev topology.
+   */
+  topology?: boolean;
+  /**
+   * Include scan/scrub information.
+   */
+  scan?: boolean;
+  /**
+   * Include expansion information.
+   */
+  expand?: boolean;
+  /**
+   * Include feature flags.
+   */
+  features?: boolean;
 }
 /**
  * Used by: zpool.query (event)

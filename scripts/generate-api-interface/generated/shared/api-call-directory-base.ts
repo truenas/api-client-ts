@@ -294,7 +294,7 @@ import type {
   VMStartOptions,
   VMWareGetDatastoresArgs,
   ZFSFileAttrsData,
-} from './api-types';
+} from '../v25_10_5/api-types';
 
 export interface ApiCallDirectoryBase {
   /**

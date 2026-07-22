@@ -6,27 +6,37 @@
 import type { ApiJobDirectoryBase } from '../shared/api-job-directory-base';
 
 import type {
-  Action2,
   AppRollbackOptions,
   AppUpdate,
   CertificateEntry,
-  ContainerStopOptions,
   DISABLED_ACLResult,
   KMIPEntry,
   NFS4ACLResult,
   POSIXACLResult,
-  SupportNewTicket,
   SupportNewTicketCommunity,
   SupportNewTicketEnterprise,
   SystemSecurityEntry,
   TunableCreate,
   TunableUpdate,
   ZFSFileAttrsData,
-} from '../shared/api-types';
+} from '../v25_10_5/api-types';
 import type {
+  Action2,
   AppBulkUpgradeJobResult,
-  AppCreate,
   AppEntry,
+  ContainerStopOptions,
+  FilesystemSetaclArgs,
+  PoolCreate,
+  PoolDatasetChangeKeyOptions,
+  PoolEntry,
+  PoolImportPoolArgs,
+  PoolUpdate,
+  ReplicationRunOnetimeArgs,
+  SupportNewTicket,
+  ZpoolScrubRun,
+} from '../v26_0_0/api-types';
+import type {
+  AppCreate,
   AppImagePull,
   AppUpgradeBulkEntry,
   AppUpgradeOptions,
@@ -37,21 +47,13 @@ import type {
   DockerEntry,
   DockerUpdate,
   FilesystemSetZfsAttributesData,
-  FilesystemSetaclArgs,
   KMIPUpdate,
   MailSendMessage,
   MailUpdate,
-  PoolCreate,
-  PoolDatasetChangeKeyOptions,
-  PoolEntry,
-  PoolImportPoolArgs,
-  PoolUpdate,
-  ReplicationRunOnetimeArgs,
   SupportAttachTicket,
   SystemSecurityUpdate,
   TunableEntry,
   VMDeviceConvert,
-  ZpoolScrubRun,
 } from './api-types';
 
 export interface ApiJobDirectory extends ApiJobDirectoryBase {

@@ -149,18 +149,32 @@ function usedByLine(usedBy: string[] | undefined, cap = 10): string | null {
   return `Used by: ${shown}${extra}`;
 }
 
-const SHARED_PATH = '../shared/api-types';
+/** name -> module path (relative to the emitting file) for inherited types. */
+export type Externals = Map<string, string>;
+
+function groupedImports(names: string[], externals: Externals, localPath: string): string {
+  const byPath = new Map<string, string[]>();
+  for (const name of names) {
+    const from = externals.get(name) ?? localPath;
+    byPath.set(from, [...(byPath.get(from) ?? []), name]);
+  }
+  return [...byPath.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([from, list]) => `import type {\n${list.sort().map((n) => `  ${n},`).join('\n')}\n} from '${from}';\n`)
+    .join('');
+}
 
 /**
  * api-types.ts: interfaces (via json-schema-to-typescript) + const-object
- * enums. `sharedNames` are types that live in shared/api-types.ts — they are
- * imported rather than declared, keeping version dirs free of duplication.
+ * enums. `externals` maps types declared in ancestor versions to their module
+ * paths — they are imported rather than declared, keeping every shape
+ * materialized exactly once across the chain.
  */
 /** True for defs json-schema-to-typescript declares reliably: objects with fields. */
 const isDeclarableObject = (s: Schema): boolean => s.type === 'object'
   && Object.keys(s.properties ?? {}).length > 0;
 
-export async function emitTypes(definitions: Record<string, DefSchema>, sharedNames = new Set<string>()): Promise<string> {
+export async function emitTypes(definitions: Record<string, DefSchema>, externals: Externals = new Map()): Promise<string> {
   const objectDefs: Record<string, Schema> = {};
   const enumDefs: Record<string, Schema> = {};
   // json-schema-to-typescript silently drops top-level defs that aren't
@@ -180,14 +194,14 @@ export async function emitTypes(definitions: Record<string, DefSchema>, sharedNa
   // Enum defs are emitted by us and shared defs are imported; hand
   // json-schema-to-typescript an opaque `tsType` for both so references
   // render as the bare name.
-  const referencedShared = [...collectRefs([Object.values(objectDefs), Object.values(aliasDefs)], new Set())]
-    .filter((name) => sharedNames.has(name))
+  const referencedExternal = [...collectRefs([Object.values(objectDefs), Object.values(aliasDefs)], new Set())]
+    .filter((name) => externals.has(name))
     .sort();
   const jstsDefinitions: Record<string, Schema> = {
     ...objectDefs,
     ...Object.fromEntries(Object.keys(enumDefs).map((name) => [name, { tsType: name }])),
     ...Object.fromEntries(Object.keys(aliasDefs).map((name) => [name, { tsType: name }])),
-    ...Object.fromEntries(referencedShared.map((name) => [name, { tsType: name }])),
+    ...Object.fromEntries(referencedExternal.map((name) => [name, { tsType: name }])),
   };
 
   const root: Schema = {
@@ -229,10 +243,10 @@ export async function emitTypes(definitions: Record<string, DefSchema>, sharedNa
     `${tsdoc([schema.description], '')}export type ${name} = ${tsExpr(schema)};`
   ));
 
-  const sharedImport = referencedShared.length
-    ? `import type {\n${referencedShared.map((n) => `  ${n},`).join('\n')}\n} from '${SHARED_PATH}';\n\n`
+  const importsBlock = referencedExternal.length
+    ? `${groupedImports(referencedExternal, externals, './api-types')}\n`
     : '';
-  return `${HEADER}\n${sharedImport}${[...enums, ...aliases, interfaces].join('\n\n')}\n`;
+  return `${HEADER}\n${importsBlock}${[...enums, ...aliases, interfaces].join('\n\n')}\n`;
 }
 
 /** One `'method.name': { params; response }` entry. Exported so generate.mts can compute cross-version base eligibility on the exact emitted text. */
@@ -259,13 +273,9 @@ function collectRefs(node: unknown, into: Set<string>): Set<string> {
   return into;
 }
 
-function importLine(nodes: unknown, sharedNames = new Set<string>(), localPath = './api-types'): string {
+function importLine(nodes: unknown, externals: Externals = new Map(), localPath = './api-types'): string {
   const names = [...collectRefs(nodes, new Set())].sort();
-  const block = (list: string[], from: string) => (list.length
-    ? `import type {\n${list.map((n) => `  ${n},`).join('\n')}\n} from '${from}';\n`
-    : '');
-  const out = block(names.filter((n) => sharedNames.has(n)), SHARED_PATH)
-    + block(names.filter((n) => !sharedNames.has(n)), localPath);
+  const out = groupedImports(names, externals, localPath);
   return out ? `${out}\n` : '';
 }
 
@@ -314,14 +324,14 @@ function extendedInterface(
   return `${HEADER}\n${baseImport}${imports ? `\n${imports}` : '\n'}export interface ${interfaceName} extends ${base.interfaceName} {\n${entries}\n}\n`;
 }
 
-export function emitCallDirectory(methods: MethodModel[], sharedNames?: Set<string>, queryPath = '../shared/query-types', base?: DirectoryBase): string {
+export function emitCallDirectory(methods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', base?: DirectoryBase): string {
   const own = methods.filter((m) => !m.job && !base?.names.has(m.name));
   const entries = own.map(directoryEntry).join('\n\n');
   return extendedInterface('ApiCallDirectory', entries, base,
-    queryImportLine(entries, queryPath) + importLine(own, sharedNames));
+    queryImportLine(entries, queryPath) + importLine(own, externals));
 }
 
-export function emitJobDirectory(methods: MethodModel[], sharedNames?: Set<string>, queryPath = '../shared/query-types', base?: DirectoryBase): string {
+export function emitJobDirectory(methods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', base?: DirectoryBase): string {
   const jobs = methods.filter((m) => m.job);
   if (jobs.length === 0 && !base) {
     return `${HEADER}\n/** No job methods in the generated API slice. */\n// eslint-disable-next-line @typescript-eslint/no-empty-object-type\nexport interface ApiJobDirectory {\n}\n`;
@@ -329,44 +339,55 @@ export function emitJobDirectory(methods: MethodModel[], sharedNames?: Set<strin
   const own = jobs.filter((m) => !base?.names.has(m.name));
   const entries = own.map(directoryEntry).join('\n\n');
   return extendedInterface('ApiJobDirectory', entries, base,
-    queryImportLine(entries, queryPath) + importLine(own, sharedNames));
+    queryImportLine(entries, queryPath) + importLine(own, externals));
 }
 
-export function emitEventDirectory(events: EventModel[], sharedNames?: Set<string>, base?: DirectoryBase): string {
+export function emitEventDirectory(events: EventModel[], externals?: Externals, base?: DirectoryBase): string {
   const own = events.filter((e) => !base?.names.has(e.name));
   const entries = own.map(eventEntry).join('\n\n');
-  return extendedInterface('ApiEventDirectory', entries, base, importLine(own, sharedNames));
+  return extendedInterface('ApiEventDirectory', entries, base, importLine(own, externals));
 }
 
-/** A base directory interface emitted into shared/ — every referenced type is local to shared/. */
-export function emitDirectoryBase(interfaceName: string, entryList: string[], refNodes: unknown): string {
+/**
+ * A base directory interface emitted into shared/ — every referenced type is
+ * chain-stable, so `externals` maps each one to its declaring version dir.
+ */
+export function emitDirectoryBase(interfaceName: string, entryList: string[], refNodes: unknown, externals: Externals): string {
   const entries = entryList.join('\n\n');
-  return `${HEADER}\n${queryImportLine(entries, './query-types')}${importLine(refNodes, new Set(), './api-types')}export interface ${interfaceName} {\n${entries}\n}\n`;
+  return `${HEADER}\n${queryImportLine(entries, './query-types')}${importLine(refNodes, externals)}export interface ${interfaceName} {\n${entries}\n}\n`;
+}
+
+export interface InheritedGroup {
+  /** Module path of the ancestor's api-types, relative to this index. */
+  path: string;
+  enums: string[];
+  types: string[];
 }
 
 export interface IndexOptions {
-  sharedEnums?: string[];
-  sharedTypes?: string[];
+  inherited?: InheritedGroup[];
   queryPath?: string;
 }
 
 /**
- * Per-version index: re-exports the version's shared names (so every version
- * module presents its complete API surface regardless of where a type
- * physically lives), the version-local types, the three directories, and an
- * `ApiDirectory` bundle for single-generic client binding.
+ * Per-version index: re-exports the names inherited from ancestor versions
+ * (so every version module presents its complete API surface regardless of
+ * where a type is declared), the version's own types, the three directories,
+ * and an `ApiDirectory` bundle for single-generic client binding.
  */
-export function emitIndex({ sharedEnums = [], sharedTypes = [], queryPath = '../shared/query-types' }: IndexOptions = {}): string {
+export function emitIndex({ inherited = [], queryPath = '../shared/query-types' }: IndexOptions = {}): string {
   const parts = [HEADER];
   parts.push(`import type { ApiCallDirectory } from './api-call-directory';
 import type { ApiEventDirectory } from './api-event-directory';
 import type { ApiJobDirectory } from './api-job-directory';`);
   parts.push(`export type {\n${QUERY_TYPE_NAMES.map((n) => `  ${n},`).join('\n')}\n} from '${queryPath}';`);
-  if (sharedEnums.length) {
-    parts.push(`export {\n${sharedEnums.map((n) => `  ${n},`).join('\n')}\n} from '${SHARED_PATH}';`);
-  }
-  if (sharedTypes.length) {
-    parts.push(`export type {\n${sharedTypes.map((n) => `  ${n},`).join('\n')}\n} from '${SHARED_PATH}';`);
+  for (const group of inherited) {
+    if (group.enums.length) {
+      parts.push(`export {\n${group.enums.map((n) => `  ${n},`).join('\n')}\n} from '${group.path}';`);
+    }
+    if (group.types.length) {
+      parts.push(`export type {\n${group.types.map((n) => `  ${n},`).join('\n')}\n} from '${group.path}';`);
+    }
   }
   parts.push(`export * from './api-types';
 export type { ApiCallDirectory } from './api-call-directory';

@@ -125,7 +125,7 @@ import type {
   TunableRemovedEvent,
   UpdateStatusChangedEvent,
   UserWebUiLoginDisabledAddedEvent,
-} from './api-types';
+} from '../v25_10_5/api-types';
 
 export interface ApiEventDirectoryBase {
   /**

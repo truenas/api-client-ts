@@ -33,7 +33,7 @@ import { parseArgs } from 'node:util';
 import path from 'node:path';
 
 import { preprocess } from './lib/preprocess.mts';
-import { partitionShared, refNames } from './lib/partition.mts';
+import { chainAssign, refNames } from './lib/partition.mts';
 import {
   HEADER,
   emitTypes,
@@ -46,8 +46,9 @@ import {
   directoryEntry,
   eventEntry,
   type DirectoryBase,
+  type Externals,
 } from './lib/emit.mts';
-import type { ApiDumpFile, ApiDumpVersion, DefSchema, MethodModel, VersionModel } from './lib/types.mts';
+import type { ApiDumpFile, ApiDumpVersion, MethodModel, VersionModel } from './lib/types.mts';
 
 const { values: args } = parseArgs({
   options: {
@@ -146,17 +147,30 @@ function pruneUnreachable(model: VersionModel): void {
   );
 }
 
-// Ascending version order so the newest version's docs win for shared types.
+// Ascending version order: the chain runs oldest -> newest, and a run's docs
+// come from its newest version.
 const models = versions
   .map((v) => preprocess(v, includePrefixes))
   .sort((a, b) => a.version.localeCompare(b.version, undefined, { numeric: true }));
 models.forEach(pruneUnreachable);
 
-// Cross-version dedup: identical types go to shared/, version dirs hold only
-// what is unique to or diverged in that version.
-const { shared, locals, diverged } = multi
-  ? partitionShared(models)
-  : { shared: {} as Record<string, DefSchema>, locals: models.map((m) => m.definitions), diverged: [] as string[] };
+// Chained materialization: each shape is declared once, in the version where
+// it first appeared; later versions re-export from the declaring version.
+const { declared, homes } = multi
+  ? chainAssign(models)
+  : { declared: models.map((m) => m.definitions), homes: models.map((m) => new Map(Object.keys(m.definitions).map((n) => [n, 0]))) };
+
+const dirOf = (i: number): string => versionDir(models[i].version);
+
+/** Import path map for files inside version dir `i`: inherited name -> ancestor api-types. */
+const externalsFor = (i: number): Externals => new Map(
+  [...homes[i]].filter(([, home]) => home !== i).map(([name, home]) => [name, `../${dirOf(home)}/api-types`]),
+);
+
+/** Names whose shape never changes across the whole chain (declared once, at the root). */
+const chainStable = new Set(
+  Object.keys(declared[0] ?? {}).filter((name) => models.every((_, i) => homes[i].get(name) === 0)),
+);
 
 async function writeFiles(dir: string, files: Record<string, string>): Promise<void> {
   await mkdir(dir, { recursive: true });
@@ -173,9 +187,9 @@ const queryPath = multi ? '../shared/query-types' : './query-types';
 
 /**
  * Base-directory eligibility: an entry hoists into shared/ iff its emitted
- * text is identical in every version AND every type it references is in the
- * shared pool (identical text over diverged types would mean different things
- * per version).
+ * text is identical in every version AND every type it references is
+ * chain-stable (identical text over re-declared types would mean different
+ * things per version).
  */
 function computeDirectoryBase<T extends { name: string }>(
   perVersion: T[][],
@@ -186,7 +200,7 @@ function computeDirectoryBase<T extends { name: string }>(
   const eligible = new Set<string>();
   for (const [name, item] of first) {
     const everywhere = rest.every((m) => m.has(name) && entryText(m.get(name) as T) === entryText(item));
-    if (everywhere && [...refs(item)].every((r) => r in shared)) {
+    if (everywhere && [...refs(item)].every((r) => chainStable.has(r))) {
       eligible.add(name);
     }
   }
@@ -206,47 +220,55 @@ const baseFor = (kind: 'call' | 'job' | 'event'): DirectoryBase | undefined => (
 } : undefined);
 
 if (multi && bases) {
-  // Base entries render from the newest version's models (identical everywhere).
+  // Base entries render from the newest version's models (identical
+  // everywhere); their type imports resolve to the chain root.
   const newest = models[models.length - 1];
   const baseCalls = newest.methods.filter((m) => !m.job && bases.call.has(m.name));
   const baseJobs = newest.methods.filter((m) => m.job && bases.job.has(m.name));
   const baseEvents = newest.events.filter((e) => bases.event.has(e.name));
+  const rootExternals: Externals = new Map([...chainStable].map((name) => [name, `../${dirOf(0)}/api-types`]));
   await writeFiles(path.join(args.out, 'shared'), {
-    'api-types.ts': await emitTypes(shared),
     'query-types.ts': queryTypesSource,
     'api-call-directory-base.ts': emitDirectoryBase('ApiCallDirectoryBase', baseCalls.map(directoryEntry),
-      baseCalls.map((m) => [m.params.map((p) => p.schema), m.returns])),
+      baseCalls.map((m) => [m.params.map((p) => p.schema), m.returns]), rootExternals),
     'api-job-directory-base.ts': emitDirectoryBase('ApiJobDirectoryBase', baseJobs.map(directoryEntry),
-      baseJobs.map((m) => [m.params.map((p) => p.schema), m.returns])),
+      baseJobs.map((m) => [m.params.map((p) => p.schema), m.returns]), rootExternals),
     'api-event-directory-base.ts': emitDirectoryBase('ApiEventDirectoryBase', baseEvents.map(eventEntry),
-      baseEvents.map((e) => e.models)),
+      baseEvents.map((e) => e.models), rootExternals),
   });
   console.log(`Directory bases: ${bases.call.size} calls, ${bases.job.size} jobs, ${bases.event.size} events shared across versions`);
 }
 
 for (const [i, model] of models.entries()) {
   const outDir = multi ? path.join(args.out, versionDir(model.version)) : args.out;
-  const sharedNames = new Set(Object.keys(shared).filter((name) => name in model.definitions));
+  const externals = multi ? externalsFor(i) : new Map<string, string>();
+
+  // Inherited names, grouped by declaring version for index re-exports.
+  const byHome = new Map<number, string[]>();
+  for (const [name, home] of homes[i]) {
+    if (home !== i) byHome.set(home, [...(byHome.get(home) ?? []), name]);
+  }
+  const inherited = [...byHome.entries()].sort(([a], [b]) => a - b).map(([home, names]) => ({
+    path: `../${dirOf(home)}/api-types`,
+    enums: names.filter((n) => declared[home][n]._kind === 'enum').sort(),
+    types: names.filter((n) => declared[home][n]._kind !== 'enum').sort(),
+  }));
 
   await writeFiles(outDir, {
     ...(multi ? {} : { 'query-types.ts': queryTypesSource }),
-    'api-types.ts': await emitTypes(locals[i], sharedNames),
-    'api-call-directory.ts': emitCallDirectory(model.methods, sharedNames, queryPath, baseFor('call')),
-    'api-job-directory.ts': emitJobDirectory(model.methods, sharedNames, queryPath, baseFor('job')),
-    'api-event-directory.ts': emitEventDirectory(model.events, sharedNames, baseFor('event')),
-    'index.ts': emitIndex({
-      sharedEnums: [...sharedNames].filter((n) => shared[n]._kind === 'enum').sort(),
-      sharedTypes: [...sharedNames].filter((n) => shared[n]._kind !== 'enum').sort(),
-      queryPath,
-    }),
+    'api-types.ts': await emitTypes(declared[i], externals),
+    'api-call-directory.ts': emitCallDirectory(model.methods, externals, queryPath, baseFor('call')),
+    'api-job-directory.ts': emitJobDirectory(model.methods, externals, queryPath, baseFor('job')),
+    'api-event-directory.ts': emitEventDirectory(model.events, externals, baseFor('event')),
+    'index.ts': emitIndex({ inherited, queryPath }),
   });
 
-  const localCount = Object.keys(locals[i]).length;
-  console.log(`Generated ${model.version}: ${model.methods.length} methods (${model.methods.filter((m) => m.job).length} jobs), ${model.events.length} events, ${sharedNames.size} shared + ${localCount} version-local types -> ${outDir}`);
+  const declaredCount = Object.keys(declared[i]).length;
+  const inheritedCount = homes[i].size - declaredCount;
+  console.log(`Generated ${model.version}: ${model.methods.length} methods (${model.methods.filter((m) => m.job).length} jobs), ${model.events.length} events, ${declaredCount} declared + ${inheritedCount} inherited types -> ${outDir}`);
 }
 
 if (multi) {
   await writeFile(path.join(args.out, 'index.ts'), emitRootIndex(models.map((m) => versionDir(m.version))));
-  const enumCount = Object.values(shared).filter((d) => d._kind === 'enum').length;
-  console.log(`Shared pool: ${Object.keys(shared).length} types (${enumCount} enums); ${diverged.length} diverged between versions${diverged.length ? `:\n  ${diverged.slice(0, 20).join(', ')}${diverged.length > 20 ? ` … +${diverged.length - 20} more` : ''}` : ''}`);
+  console.log(`Chain: root ${models[0].version} declares ${Object.keys(declared[0]).length} types; ${chainStable.size} stable across the whole chain`);
 }

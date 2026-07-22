@@ -55,7 +55,7 @@ import type {
   UpdateRunAttrs,
   VMStopOptions,
   Verb2,
-} from './api-types';
+} from '../v25_10_5/api-types';
 
 export interface ApiJobDirectoryBase {
   /**
