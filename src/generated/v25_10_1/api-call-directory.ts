@@ -11,15 +11,16 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  StaticRouteEntry,
-} from '../v25_04_0/api-types';
-import type {
+  SharingSMBGetaclArgs,
   SharingSMBQueryResultItem,
+  StaticRouteEntry,
 } from '../v25_10_0/api-types';
 import type {
+  SMBShareAcl,
   SNMPEntry,
   SNMPUpdateArgs,
   SharingSMBEntry,
+  SharingSMBSetaclArgs,
   SmbShareCreate,
   SmbShareUpdate,
   StaticRouteCreate,
@@ -68,11 +69,33 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Retrieve the share-level ACL for the SMB share named ``share_name``.
+   *
+   * This is the access control list enforced by the SMB protocol on connections to the share; it is distinct from the filesystem ACL on the share ``path``. Each entry's SID is resolved to a Unix ID and name where possible. The special share name ``HOMES`` refers to the auto-generated home-directory share.
+   *
+   * A JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned when the named share does not exist.
+   * @roles SHARING_SMB_READ
+   */
+  'sharing.smb.getacl': {
+    params: [smb_getacl: SharingSMBGetaclArgs];
+    response: SMBShareAcl;
+  };
+
+  /**
    * @roles SHARING_SMB_READ
    */
   'sharing.smb.query': {
     params: [filters?: QueryFilters<SharingSMBEntry>, options?: QueryOptions<SharingSMBEntry>];
     response: SharingSMBEntry[] | SharingSMBEntry | SharingSMBQueryResultItem[] | SharingSMBQueryResultItem | number;
+  };
+
+  /**
+   * Set an ACL on ``share_name``. This only impacts access through the SMB protocol.
+   * @roles SHARING_SMB_WRITE
+   */
+  'sharing.smb.setacl': {
+    params: [smb_setacl: SharingSMBSetaclArgs];
+    response: SMBShareAcl;
   };
 
   /**

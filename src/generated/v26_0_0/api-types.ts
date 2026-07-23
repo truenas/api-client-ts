@@ -4,72 +4,54 @@
  */
 
 import type {
-  AddressPool,
-  Aggregations,
-  AppImageParsedRepoTags,
-  AuthUserInfo,
   Authenticator,
-  AzureBlobCredentialsModel,
-  B2CredentialsModel,
   Blocksize,
-  BoxCredentialsModel,
-  CatalogTrainInfo,
   CloudCron,
-  CronJobEntry,
-  CronJobSchedule,
-  DropboxCredentialsModel,
   Encryption,
   EncryptionInput,
-  FTPCredentialsModel,
   Function,
-  GoogleCloudStorageCredentialsModel,
-  GoogleDriveCredentialsModel,
-  GooglePhotosCredentialsModel,
-  HTTPCredentialsModel,
-  HubicCredentialsModel,
-  Maintainer,
   MegaCredentialsModel,
-  NFS4ACL_Flags,
-  OneDriveCredentialsModel,
-  PCloudCredentialsModel,
-  POSIXACE,
-  PoolSnapshotTaskCron,
   Rpm,
-  SFTPCredentialsModel,
-  SSHCredentials,
-  SSHKeyPair,
   StorjIxCredentialsModelInput,
-  SwiftCredentialsModel,
   Unixcharset,
-  UpgradeOptions,
-  UserTwofactorConfigEntry,
-  WebDavCredentialsModel,
-  YandexCredentialsModel,
   ZFSFileAttrsData,
 } from '../v25_04_0/api-types';
 import type {
   Bootloader,
   Resolution,
-  StorjIxCredentialsModel,
   Time,
   Type6,
-  USBAttributes,
 } from '../v25_04_2/api-types';
 import type {
   Aclmode,
   AcltypeInput2,
+  ActiveDirectoryConfig,
+  ActiveDirectoryConfigInput,
+  AddressPool,
   Advpowermgmt,
+  Aggregations,
   Algorithm,
   AppActiveWorkloads,
+  AppImageParsedRepoTags,
   Atime,
+  AuthUserInfo,
   Autotrim,
+  AzureBlobCredentialsModel,
+  B2CredentialsModel,
+  BoxCredentialsModel,
   Casesensitivity,
+  CatalogTrainInfo,
   Checksum,
   Checksum2,
   CloudSyncBwlimit,
   CloudTaskAttributes,
   CloudTaskAttributesInput,
   Compression,
+  CredKRBPrincipal,
+  CredKRBUser,
+  CredLDAPAnonymous,
+  CredLDAPMTLS,
+  CredLDAPPlain,
   Deduplication,
   Deduplication2,
   DefaultOptInput,
@@ -78,24 +60,44 @@ import type {
   DirectionInput,
   DirectionInput2,
   DiskEntryEnclosure,
+  DropboxCredentialsModel,
   Exec,
   ExternalOpt,
   ExternalOptInput,
+  FTPCredentialsModel,
+  GoogleCloudStorageCredentialsModel,
+  GoogleDriveCredentialsModel,
+  GooglePhotosCredentialsModel,
+  HTTPCredentialsModel,
   Hddstandby,
+  HubicCredentialsModel,
+  IPAConfig,
+  IPAConfigInput,
+  IPMILanQueryOptions,
   InterfaceCreateAlias,
   InterfaceCreateFailoverAlias,
+  LDAPMapGroup,
+  LDAPMapPasswd,
+  LDAPMapShadow,
+  LDAPSearchBases,
   LegacyOpt,
   LegacyOptInput,
+  Maintainer,
   Mode3,
   ModeInput2,
   ModeInput3,
   MultiprotocolOptInput,
   NFS4ACEInput,
-  NVMetHostEntry,
+  NFS4ACL_Flags,
   NVMetSubsysEntry,
   NVMetSubsysEntryInput,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
+  POSIXACE,
   PoolCreateTopologyCacheVdev,
   PoolDatasetCreateUserProperty,
+  PoolDatasetUpdateUserProperty,
+  PoolSnapshotTaskCron,
   PoolSnapshotTaskDBEntryInput,
   PoolTopology,
   PrivateDatasetOptInput,
@@ -104,16 +106,20 @@ import type {
   ReadonlyInput,
   ReadonlyInput2,
   ReplicationLifetimeModel,
-  ReplicationTimeCronModel,
   RsyncTaskSchedule,
+  SFTPCredentialsModel,
   SMBShareAclEntryWhoId,
+  SSHCredentials,
+  SSHKeyPair,
+  Schema,
   Serialspeed,
   Shutdown,
-  SmbAuditConfig,
   Snapdev,
   Snapdir,
   StateInput2,
   StatusInput2,
+  StorjIxCredentialsModel,
+  SwiftCredentialsModel,
   Sync,
   SyslogServer,
   Sysloglevel,
@@ -121,12 +127,17 @@ import type {
   TimeMachineOptInput,
   Transport,
   TransportInput,
+  USBAttributes,
   USBCapability,
+  UpgradeOptions,
+  UserTwofactorConfigEntry,
   VMDeviceEntry,
   VMDeviceEntryInput,
   VMWareMatchDatastoresWithDatasetsResultDatastore,
   VeeamRepositoryOptInput,
   Volblocksize,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
   ZFSPropertiesEntry,
 } from '../v25_10_0/api-types';
 import type {
@@ -519,7 +530,7 @@ export interface ACLTemplateByPathQueryOptions {
  */
 export interface AclTemplateFormatOptions {
   /**
-   * Whether to ensure every result contains ACL entries for the `builtin_users` and `builtin_administrators` groups.
+   * Whether to ensure built-in templates are included in the response.
    */
   ensure_builtins?: boolean;
   /**
@@ -997,6 +1008,23 @@ export interface AppEntry {
   } | null;
 }
 /**
+ * Used by: app.image.pull (params)
+ */
+export interface AppImageAuthConfig {
+  /**
+   * Username for container registry authentication (masked for security).
+   */
+  username: string;
+  /**
+   * Password or access token for container registry authentication (masked for security).
+   */
+  password: string;
+  /**
+   * Container registry URI or `null` to use default registry.
+   */
+  registry_uri?: string | null;
+}
+/**
  * Used by: app.image.get_instance (params), app.image.get_instance (response), app.image.query (params), app.image.query (response)
  */
 export interface AppImageEntry {
@@ -1040,6 +1068,19 @@ export interface AppImageEntry {
    * Parsed repository tag information or `null` if not available.
    */
   parsed_repo_tags?: AppImageParsedRepoTags[] | null;
+}
+/**
+ * Used by: app.image.pull (params)
+ */
+export interface AppImagePullArgs {
+  /**
+   * Authentication configuration for private registries or `null` for public images.
+   */
+  auth_config?: AppImageAuthConfig | null;
+  /**
+   * Container image reference to pull (registry/repository:tag).
+   */
+  image: string;
 }
 /**
  * Used by: app.upgrade_bulk (params)
@@ -1192,7 +1233,7 @@ export interface AuthApiKeyPlain {
  */
 export interface AuthCommonOptions {
   /**
-   * Whether to include detailed user information (the output of `auth.me`) in the authentication response.
+   * Whether to include detailed user information in the authentication response.
    */
   user_info?: boolean;
   /**
@@ -1271,7 +1312,7 @@ export interface AuthRespSuccess {
    */
   response_type: "SUCCESS";
   /**
-   * Authenticated user information (the output of `auth.me`), or `null` if not requested.
+   * Authenticated user information or `null` if not available.
    */
   user_info: AuthUserInfo | null;
   authenticator: Authenticator;
@@ -2881,6 +2922,65 @@ export interface CronJobAddedEvent {
   fields: CronJobEntry;
 }
 /**
+ * Used by: cronjob.create (response), cronjob.get_instance (params), cronjob.get_instance (response), cronjob.query (event), cronjob.query (params), cronjob.query (response), cronjob.update (response)
+ */
+export interface CronJobEntry {
+  /**
+   * Whether the cron job is active and will be executed.
+   */
+  enabled?: boolean;
+  /**
+   * Whether to IGNORE standard error (if `false`, it will be added to email).
+   */
+  stderr?: boolean;
+  /**
+   * Whether to IGNORE standard output (if `false`, it will be added to email).
+   */
+  stdout?: boolean;
+  schedule?: CronJobSchedule;
+  /**
+   * Shell command or script to execute.
+   */
+  command: string;
+  /**
+   * Human-readable description of what this cron job does.
+   */
+  description?: string;
+  /**
+   * System user account to run the command as.
+   */
+  user: string;
+  /**
+   * Unique identifier for the cron job.
+   */
+  id: number;
+}
+/**
+ * Used by: cronjob.create (params), cronjob.create (response), cronjob.get_instance (params), cronjob.get_instance (response), cronjob.query (event), cronjob.query (params), cronjob.query (response), cronjob.update (params), cronjob.update (response)
+ */
+export interface CronJobSchedule {
+  /**
+   * "00" - "59".
+   */
+  minute?: string;
+  /**
+   * "00" - "23".
+   */
+  hour?: string;
+  /**
+   * "1" - "31".
+   */
+  dom?: string;
+  /**
+   * "1" (January) - "12" (December).
+   */
+  month?: string;
+  /**
+   * "1" (Monday) - "7" (Sunday).
+   */
+  dow?: string;
+}
+/**
  * Used by: cronjob.query (event)
  */
 export interface CronJobChangedEvent {
@@ -2952,6 +3052,211 @@ export interface CronJobUpdate {
  */
 export interface DeviceGetInfoOther {
   type: TypeInput11;
+}
+/**
+ * Used by: directoryservices.config (response), directoryservices.update (response)
+ */
+export interface DirectoryServicesEntry {
+  /**
+   * Unique identifier for the directory services configuration.
+   */
+  id: number;
+  /**
+   * The pre-existing directory service type to which to bind TrueNAS. Select ACTIVEDIRECTORY to join an Active Directory domain. Select IPA to join a FreeIPA domain. Select LDAP to bind to one or more OpenLDAP-compatible servers.
+   */
+  service_type: ("ACTIVEDIRECTORY" | "IPA" | "LDAP") | null;
+  /**
+   * Credential used to bind to the specified directory service. Kerberos credentials are required for Active Directory or IPA domains. Generic LDAP environments support various authentication methods. Available methods depend on the remote LDAP server configuration. If Kerberos credentials are selected for LDAP, GSSAPI binds replace plain LDAP binds. Use Kerberos or mutual TLS authentication when possible for better security.
+   *
+   * The following credential types are supported based on `service_type`:
+   *
+   * `ACTIVEDIRECTORY` service_type: `KERBEROS_USER` and `KERBEROS_PRINCIPAL`.
+   *
+   * `LDAP` service_type: `LDAP_PLAIN`, `LDAP_ANONYMOUS`, `LDAP_MTLS`, `KERBEROS_USER`, and `KERBEROS_PRINCIPAL`. NOTE: prior configuration of kerberos realm is required in order to use kerberos credentials with the `LDAP` `service_type`.
+   *
+   * `IPA` service_type: `KERBEROS_USER` and `KERBEROS_PRINCIPAL`. NOTE: `KERBEROS_USER` should be used when initially joining an IPA domain.
+   */
+  credential: (CredKRBUser | CredKRBPrincipal | CredLDAPPlain | CredLDAPAnonymous | CredLDAPMTLS) | null;
+  /**
+   * Enable the directory service.
+   *
+   * If TrueNAS has never joined the specified domain (IPA or Active Directory), setting this to True causes TrueNAS to attempt to join the domain.
+   *
+   * NOTE: The domain join process for Active Directory and IPA will make changes to the domain such as creating a new computer account for the TrueNAS server and creating DNS records for TrueNAS.
+   */
+  enable: boolean;
+  /**
+   * Enable backend caching for user and group lists. If enabled, then directory services users and groups will be presented as choices in the UI dropdowns and in API responses for user and group queries. This setting also controls whether users and groups appear in getent results. Disable this setting to reduce load on the directory server when necessary.
+   */
+  enable_account_cache?: boolean;
+  /**
+   * Enable automatic DNS updates for the TrueNAS server in the domain via nsupdate and gssapi / TSIG.
+   */
+  enable_dns_updates?: boolean;
+  /**
+   * The timeout value for DNS queries that are performed as part of the join process and NETWORK_TIMEOUT for LDAP requests.
+   */
+  timeout?: number;
+  /**
+   * Name of kerberos realm used for authentication to the directory service. If set to null, then Kerberos is not used for binding to the directory service. When joining an Active Directory or IPA domain for the first time, the realm is detected and configured automatically if not specified.
+   */
+  kerberos_realm?: string | null;
+  /**
+   * The service_type specific configuration for the directory sevices plugin.
+   */
+  configuration?: (ActiveDirectoryConfig | IPAConfig | LDAPConfig) | null;
+}
+/**
+ * Used by: directoryservices.config (response), directoryservices.update (response)
+ */
+export interface LDAPConfig {
+  /**
+   * List of LDAP server URIs used for LDAP binds. Each URI must begin with ldap:// or ldaps:// and may use either a DNS name or an IP address. Example: `['ldaps://myldap.domain.internal']`.
+   */
+  server_urls: string[];
+  /**
+   * The base DN to use when performing LDAP operations. Example: `"dc=domain,dc=internal"`.
+   */
+  basedn: string;
+  /**
+   * Establish TLS by transmitting a StartTLS request to the server.
+   */
+  starttls?: boolean;
+  /**
+   * If `False`, TrueNAS does not validate certificates from the remote LDAP server. It is better to use valid certificates or import them into the TrueNAS server's trusted certificate store.
+   */
+  validate_certificates?: boolean;
+  schema?: Schema;
+  search_bases?: LDAPSearchBases;
+  attribute_maps?: LDAPAttributeMaps;
+  /**
+   * Additional paramaters to add to the SSSD configuration.
+   *
+   * WARNING: TrueNAS does not check the validity of these parameters. Incorrect values can cause production outages when they are applied or after an operating system upgrade.
+   */
+  auxiliary_parameters?: string | null;
+}
+/**
+ * Used by: directoryservices.config (response), directoryservices.update (params), directoryservices.update (response)
+ */
+export interface LDAPAttributeMaps {
+  passwd?: LDAPMapPasswd;
+  shadow?: LDAPMapShadow;
+  group?: LDAPMapGroup;
+  netgroup?: LDAPMapNetgroup;
+}
+/**
+ * Optional attribute mappings for non-compliant LDAP servers to generate netgroup entries.
+ *
+ * Used by: directoryservices.config (response), directoryservices.update (params), directoryservices.update (response)
+ */
+export interface LDAPMapNetgroup {
+  /**
+   * The LDAP object class for netgroup entries.
+   */
+  netgroup_object_class?: string | null;
+  /**
+   * The LDAP attribute for the netgroup's members.
+   */
+  netgroup_member?: string | null;
+  /**
+   * The LDAP attribute for netgroup triples (host, user, domain).
+   */
+  netgroup_triple?: string | null;
+}
+/**
+ * Update the directory services configuration with the specified payload. If service_type is set to null and     enable is false, then the all existing directory service configuration will be cleared.
+ *
+ * About domain joins:
+ * When you enable IPA or Active Directory for the first time, TrueNAS joins the domain. This requires     a KERBEROS_USER credential type for an account with administrator privileges to the domain. This creates     a domain account for the TrueNAS server. TrueNAS stores the account credentials in a machine account keytab     and uses them for all domain-related actions.
+ *
+ * About disabling directory services or leaving a domain:
+ * To temporarily disable directory services, set `enable` to `false` with the full configuration.     This disables directory services but keeps the settings, so you can enable them later.
+ *
+ * To remove all directory service settings, set `enable` to `false and `service_type` to `null`. NOTE: This     does not remove the TrueNAS computer account from an Active Directory or IPA domain. If the domain status     is `HEALTHY`, use `directoryservices.leave` to remove the account and clear the directory services     configuration.
+ *
+ * Used by: directoryservices.update (params)
+ */
+export interface DirectoryServicesUpdateArgs {
+  /**
+   * The pre-existing directory service type to which to bind TrueNAS. Select ACTIVEDIRECTORY to join an Active Directory domain. Select IPA to join a FreeIPA domain. Select LDAP to bind to one or more OpenLDAP-compatible servers.
+   */
+  service_type?: ("ACTIVEDIRECTORY" | "IPA" | "LDAP") | null;
+  /**
+   * Credential used to bind to the specified directory service. Kerberos credentials are required for Active Directory or IPA domains. Generic LDAP environments support various authentication methods. Available methods depend on the remote LDAP server configuration. If Kerberos credentials are selected for LDAP, GSSAPI binds replace plain LDAP binds. Use Kerberos or mutual TLS authentication when possible for better security.
+   *
+   * The following credential types are supported based on `service_type`:
+   *
+   * `ACTIVEDIRECTORY` service_type: `KERBEROS_USER` and `KERBEROS_PRINCIPAL`.
+   *
+   * `LDAP` service_type: `LDAP_PLAIN`, `LDAP_ANONYMOUS`, `LDAP_MTLS`, `KERBEROS_USER`, and `KERBEROS_PRINCIPAL`. NOTE: prior configuration of kerberos realm is required in order to use kerberos credentials with the `LDAP` `service_type`.
+   *
+   * `IPA` service_type: `KERBEROS_USER` and `KERBEROS_PRINCIPAL`. NOTE: `KERBEROS_USER` should be used when initially joining an IPA domain.
+   */
+  credential?: (CredKRBUser | CredKRBPrincipal | CredLDAPPlain | CredLDAPAnonymous | CredLDAPMTLS) | null;
+  /**
+   * Enable the directory service.
+   *
+   * If TrueNAS has never joined the specified domain (IPA or Active Directory), setting this to True causes TrueNAS to attempt to join the domain.
+   *
+   * NOTE: The domain join process for Active Directory and IPA will make changes to the domain such as creating a new computer account for the TrueNAS server and creating DNS records for TrueNAS.
+   */
+  enable?: boolean;
+  /**
+   * Enable backend caching for user and group lists. If enabled, then directory services users and groups will be presented as choices in the UI dropdowns and in API responses for user and group queries. This setting also controls whether users and groups appear in getent results. Disable this setting to reduce load on the directory server when necessary.
+   */
+  enable_account_cache?: boolean;
+  /**
+   * Enable automatic DNS updates for the TrueNAS server in the domain via nsupdate and gssapi / TSIG.
+   */
+  enable_dns_updates?: boolean;
+  /**
+   * The timeout value for DNS queries that are performed as part of the join process and NETWORK_TIMEOUT for LDAP requests.
+   */
+  timeout?: number;
+  /**
+   * Name of kerberos realm used for authentication to the directory service. If set to null, then Kerberos is not used for binding to the directory service. When joining an Active Directory or IPA domain for the first time, the realm is detected and configured automatically if not specified.
+   */
+  kerberos_realm?: string | null;
+  /**
+   * The service_type specific configuration for the directory sevices plugin.
+   */
+  configuration?: (ActiveDirectoryConfigInput | IPAConfigInput | LDAPConfigInput) | null;
+  /**
+   * Bypass validation to check if a server with this hostname and NetBIOS name is already registered in an IPA or Active Directory domain. Use this option, for example, to replace an existing server with a TrueNAS server. Do not use the force parameter indiscriminately. Using it may cause production outages for clients that rely on the existing server.
+   */
+  force?: boolean;
+}
+/**
+ * Used by: directoryservices.update (params)
+ */
+export interface LDAPConfigInput {
+  service_type: "LDAP";
+  /**
+   * List of LDAP server URIs used for LDAP binds. Each URI must begin with ldap:// or ldaps:// and may use either a DNS name or an IP address. Example: `['ldaps://myldap.domain.internal']`.
+   */
+  server_urls: string[];
+  /**
+   * The base DN to use when performing LDAP operations. Example: `"dc=domain,dc=internal"`.
+   */
+  basedn: string;
+  /**
+   * Establish TLS by transmitting a StartTLS request to the server.
+   */
+  starttls?: boolean;
+  /**
+   * If `False`, TrueNAS does not validate certificates from the remote LDAP server. It is better to use valid certificates or import them into the TrueNAS server's trusted certificate store.
+   */
+  validate_certificates?: boolean;
+  schema?: Schema;
+  search_bases?: LDAPSearchBases;
+  attribute_maps?: LDAPAttributeMaps;
+  /**
+   * Additional paramaters to add to the SSSD configuration.
+   *
+   * WARNING: TrueNAS does not check the validity of these parameters. Incorrect values can cause production outages when they are applied or after an operating system upgrade.
+   */
+  auxiliary_parameters?: string | null;
 }
 /**
  * Used by: disk.details (params)
@@ -3190,25 +3495,25 @@ export interface FilesystemSetaclArgs {
    */
   path: string;
   /**
-   * Array of Access Control Entries to apply to the filesystem object. Formatting depends on the underlying `acltype`: an NFS4 ACL requires NFSv4 entries, while a POSIX1e ACL requires POSIX1e entries.
+   * Array of Access Control Entries to apply to the filesystem object.
    */
   dacl: NFS4ACEInput[] | POSIXACE[];
   options?: FilesystemSetAclOptions;
   nfs41_flags?: NFS4ACL_Flags;
   /**
-   * Numeric user ID to set as owner or `null` to preserve existing. Set one and only one of `uid`/`user`, and only to change the owning user.
+   * Numeric user ID to set as owner or `null` to preserve existing.
    */
   uid?: number | null;
   /**
-   * Username to set as owner or `null` to preserve existing. Set one and only one of `uid`/`user`.
+   * Username to set as owner or `null` to preserve existing.
    */
   user?: string | null;
   /**
-   * Numeric group ID to set as group or `null` to preserve existing. Set one and only one of `gid`/`group`, and only to change the owning group.
+   * Numeric group ID to set as group or `null` to preserve existing.
    */
   gid?: number | null;
   /**
-   * Group name to set as group or `null` to preserve existing. Set one and only one of `gid`/`group`.
+   * Group name to set as group or `null` to preserve existing.
    */
   group?: string | null;
   /**
@@ -3229,7 +3534,7 @@ export interface FilesystemSetAclOptions {
    */
   recursive?: boolean;
   /**
-   * Whether to traverse filesystem boundaries (ZFS datasets) during recursive operations.
+   * Whether to traverse filesystem boundaries during recursive operations.
    */
   traverse?: boolean;
   /**
@@ -3253,7 +3558,7 @@ export interface FilesystemSetZfsAttributesArgs {
  */
 export interface FilesystemSetZfsAttributesOptions {
   /**
-   * If set, walk the tree under `path` and apply attributes to entries whose type appears in the list (`FILES`, `DIRECTORIES`, or both). The root `path` is included only if its type matches the filter. `null` means no recursion (operate on `path` only). An empty list is rejected. Recursion stops at dataset boundaries.
+   * If set, walk the tree under `path` and apply attributes to entries whose type appears in the list (`FILES`, `DIRECTORIES`, or both). The root `path` is included only if its type matches the filter. `null` means no recursion (operate on `path` only). An empty list is rejected.
    */
   recursive?: ("FILES" | "DIRECTORIES")[] | null;
 }
@@ -3367,6 +3672,17 @@ export interface InterfaceUpdate {
    * * "LLRS": Low Latency Reed-Solomon FEC, used for 25GBASE-KR/CR
    */
   fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
+}
+/**
+ * Used by: ipmi.lan.query (params)
+ */
+export interface IPMILanQuery {
+  /**
+   * Query filters to apply to IPMI LAN configuration results.
+   */
+  "query-filters"?: unknown[];
+  "query-options"?: QueryOptionsModel;
+  "ipmi-options"?: IPMILanQueryOptions;
 }
 /**
  * Used by: iscsi.global.config (response), iscsi.global.update (response)
@@ -3545,7 +3861,7 @@ export interface ISCSITargetExtentEntry {
    */
   relative_path: string | null;
   /**
-   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
+   * Size of the file-based extent in bytes.
    */
   filesize?: string | number;
   blocksize?: Blocksize;
@@ -3566,11 +3882,11 @@ export interface ISCSITargetExtentEntry {
    */
   naa: string;
   /**
-   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
+   * Whether to enable insecure Third Party Copy (TPC) operations.
    */
   insecure_tpc?: boolean;
   /**
-   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
+   * Whether to enable Xen compatibility mode.
    */
   xen?: boolean;
   rpm?: Rpm;
@@ -3703,11 +4019,78 @@ export interface NVMetHostAddedEvent {
   fields: NVMetHostEntry;
 }
 /**
+ * Used by: nvmet.host.create (response), nvmet.host.get_instance (params), nvmet.host.get_instance (response), nvmet.host.query (event), nvmet.host.query (params), nvmet.host.query (response), nvmet.host.update (response), nvmet.host_subsys.create (response), nvmet.host_subsys.get_instance (params), nvmet.host_subsys.get_instance (response) … and 4 more
+ */
+export interface NVMetHostEntry {
+  /**
+   * Unique identifier for the NVMe-oF host.
+   */
+  id: number;
+  /**
+   * NQN of the host that will connect to this TrueNAS.
+   */
+  hostnqn: string;
+  /**
+   * Description of the NVMet host.
+   */
+  description?: string;
+  /**
+   * If set, the secret that the host must present when connecting.
+   *
+   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
+   */
+  dhchap_key?: string | null;
+  /**
+   * If set, the secret that this TrueNAS will present to the host when the host is connecting (Bi-Directional Authentication).
+   *
+   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
+   */
+  dhchap_ctrl_key?: string | null;
+  /**
+   * If selected, the DH (Diffie-Hellman) key exchange built on top of CHAP to be used for authentication.
+   */
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  /**
+   * HMAC (Hashed Message Authentication Code) to be used in conjunction if a `dhchap_dhgroup` is selected.
+   */
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+/**
  * Used by: nvmet.host.query (event)
  */
 export interface NVMetHostChangedEvent {
   id: number;
   fields: NVMetHostEntry;
+}
+/**
+ * Used by: nvmet.host.create (params)
+ */
+export interface NVMetHostCreate {
+  hostnqn: string;
+  /**
+   * Description of the NVMet host.
+   */
+  description?: string;
+  /**
+   * If set, the secret that the host must present when connecting.
+   *
+   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
+   */
+  dhchap_key?: string | null;
+  /**
+   * If set, the secret that this TrueNAS will present to the host when the host is connecting (Bi-Directional Authentication).
+   *
+   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
+   */
+  dhchap_ctrl_key?: string | null;
+  /**
+   * If selected, the DH (Diffie-Hellman) key exchange built on top of CHAP to be used for authentication.
+   */
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  /**
+   * HMAC (Hashed Message Authentication Code) to be used in conjunction if a `dhchap_dhgroup` is selected.
+   */
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
 }
 /**
  * Used by: nvmet.host_subsys.query (event)
@@ -3733,6 +4116,50 @@ export interface NVMetHostSubsysEntryInput {
 export interface NVMetHostSubsysChangedEvent {
   id: number;
   fields: NVMetHostSubsysEntryInput;
+}
+/**
+ * Used by: nvmet.host_subsys.create (response), nvmet.host_subsys.get_instance (params), nvmet.host_subsys.get_instance (response), nvmet.host_subsys.query (params), nvmet.host_subsys.query (response), nvmet.host_subsys.update (response)
+ */
+export interface NVMetHostSubsysEntry {
+  /**
+   * Unique identifier for the host-subsystem association.
+   */
+  id: number;
+  host: NVMetHostEntry;
+  subsys: NVMetSubsysEntry;
+}
+/**
+ * Used by: nvmet.host.update (params)
+ */
+export interface NVMetHostUpdate {
+  /**
+   * NQN of the host that will connect to this TrueNAS.
+   */
+  hostnqn?: string;
+  /**
+   * Description of the NVMet host.
+   */
+  description?: string;
+  /**
+   * If set, the secret that the host must present when connecting.
+   *
+   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
+   */
+  dhchap_key?: string | null;
+  /**
+   * If set, the secret that this TrueNAS will present to the host when the host is connecting (Bi-Directional Authentication).
+   *
+   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
+   */
+  dhchap_ctrl_key?: string | null;
+  /**
+   * If selected, the DH (Diffie-Hellman) key exchange built on top of CHAP to be used for authentication.
+   */
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  /**
+   * HMAC (Hashed Message Authentication Code) to be used in conjunction if a `dhchap_dhgroup` is selected.
+   */
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
 }
 /**
  * Used by: nvmet.namespace.create (response), nvmet.namespace.get_instance (params), nvmet.namespace.get_instance (response), nvmet.namespace.query (params), nvmet.namespace.query (response), nvmet.namespace.update (response)
@@ -3798,7 +4225,7 @@ export interface NVMetNamespaceEntry {
   locked: boolean | null;
 }
 /**
- * Used by: pool.snapshottask.create (response), pool.snapshottask.get_instance (params), pool.snapshottask.get_instance (response), pool.snapshottask.query (event), pool.snapshottask.query (params), pool.snapshottask.query (response), pool.snapshottask.update (response)
+ * Used by: pool.snapshottask.create (response), pool.snapshottask.get_instance (params), pool.snapshottask.get_instance (response), pool.snapshottask.query (params), pool.snapshottask.query (response), pool.snapshottask.update (response)
  */
 export interface PeriodicSnapshotTaskEntry {
   /**
@@ -3830,7 +4257,7 @@ export interface PeriodicSnapshotTaskEntry {
    */
   exclude?: string[];
   /**
-   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
+   * Naming pattern for generated snapshots using strftime format.
    */
   naming_schema?: string;
   /**
@@ -4011,6 +4438,23 @@ export interface PoolScanInput {
    * Number of seconds left (`null` if the scan is not running).
    */
   total_secs_left: number | null;
+}
+/**
+ * Used by: pool.attach (params)
+ */
+export interface PoolAttach {
+  /**
+   * GUID or device name of the target vdev to attach to.
+   */
+  target_vdev: string;
+  /**
+   * Name of the new disk to attach.
+   */
+  new_disk: string;
+  /**
+   * Whether to allow attaching disks with duplicate serial numbers.
+   */
+  allow_duplicate_serials?: boolean;
 }
 /**
  * Used by: pool.query (event)
@@ -4391,6 +4835,113 @@ export interface PoolDatasetCreateVolume {
   volblocksize?: Volblocksize;
 }
 /**
+ * Used by: pool.dataset.rename (params)
+ */
+export interface PoolDatasetRenameOptions {
+  /**
+   * The new name for the dataset.
+   */
+  new_name: string;
+  /**
+   * Whether to recursively rename snapshots.
+   */
+  recursive?: boolean;
+  /**
+   * This operation does not check whether the dataset is currently in use. Renaming an active dataset may disrupt SMB shares, iSCSI targets, snapshots, replication, and other services.
+   *
+   * Set Force only if you understand and accept the risks.
+   */
+  force?: boolean;
+}
+/**
+ * Used by: pool.dataset.update (params)
+ */
+export interface PoolDatasetUpdate {
+  /**
+   * Comments or description for the dataset.
+   */
+  comments?: string;
+  sync?: Sync;
+  snapdev?: Snapdev;
+  compression?: Compression;
+  exec?: Exec;
+  /**
+   * Identifies which service or system manages this dataset.
+   */
+  managedby?: string;
+  /**
+   * Percentage of dataset quota at which to issue a warning. 0-100 or 'INHERIT'.
+   */
+  quota_warning?: number | "INHERIT";
+  /**
+   * Percentage of dataset quota at which to issue a critical alert. 0-100 or 'INHERIT'.
+   */
+  quota_critical?: number | "INHERIT";
+  /**
+   * Percentage of reference quota at which to issue a warning. 0-100 or 'INHERIT'.
+   */
+  refquota_warning?: number | "INHERIT";
+  /**
+   * Percentage of reference quota at which to issue a critical alert. 0-100 or 'INHERIT'.
+   */
+  refquota_critical?: number | "INHERIT";
+  /**
+   * Minimum disk space guaranteed to this dataset and its children in bytes.
+   */
+  reservation?: number;
+  /**
+   * Minimum disk space guaranteed to this dataset itself in bytes.
+   */
+  refreservation?: number;
+  /**
+   * Size threshold below which blocks are stored on special vdevs in bytes.
+   */
+  special_small_block_size?: number | "INHERIT";
+  /**
+   * Number of copies of data blocks to maintain for redundancy.
+   */
+  copies?: number | "INHERIT";
+  snapdir?: Snapdir;
+  deduplication?: Deduplication;
+  checksum?: Checksum;
+  readonly?: ReadonlyInput;
+  /**
+   * Custom user-defined properties to set on the dataset.
+   */
+  user_properties?: PoolDatasetCreateUserProperty[];
+  /**
+   * Whether to create any missing parent datasets.
+   */
+  create_ancestors?: boolean;
+  /**
+   * Force creation even if the size is not optimal.
+   */
+  force_size?: boolean;
+  /**
+   * The volume size in bytes; supposed to be a multiple of the block size.
+   */
+  volsize?: number;
+  aclmode?: Aclmode;
+  acltype?: AcltypeInput2;
+  atime?: Atime;
+  /**
+   * Maximum disk space this dataset and its children can consume in bytes.
+   */
+  quota?: number | (0 | null);
+  /**
+   * Maximum disk space this dataset itself can consume in bytes.
+   */
+  refquota?: number | (0 | null);
+  /**
+   * The suggested block size for files in this filesystem dataset.
+   */
+  recordsize?: string;
+  /**
+   * Array of user property updates to apply to the dataset.
+   */
+  user_properties_update?: PoolDatasetUpdateUserProperty[];
+}
+/**
  * Used by: pool.create (response), pool.get_instance (params), pool.get_instance (response), pool.query (params), pool.query (response), pool.update (response)
  */
 export interface PoolEntry {
@@ -4616,7 +5167,7 @@ export interface PoolSnapshotRenameOptions {
   recursive?: boolean;
 }
 /**
- * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
+ * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
  */
 export interface PoolSnapshotTaskDBEntry {
   /**
@@ -4648,7 +5199,7 @@ export interface PoolSnapshotTaskDBEntry {
    */
   exclude?: string[];
   /**
-   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
+   * Naming pattern for generated snapshots using strftime format.
    */
   naming_schema?: string;
   /**
@@ -4999,6 +5550,39 @@ export interface ReplicationEntryInput {
    * Whether this replication task has encrypted dataset keys available.
    */
   has_encrypted_dataset_keys: boolean;
+}
+/**
+ * Used by: replication.create (params), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.run_onetime (params), replication.update (params) … and 1 more
+ */
+export interface ReplicationTimeCronModel {
+  /**
+   * "00" - "59".
+   */
+  minute?: string;
+  /**
+   * "00" - "23".
+   */
+  hour?: string;
+  /**
+   * "1" - "31".
+   */
+  dom?: string;
+  /**
+   * "1" (January) - "12" (December).
+   */
+  month?: string;
+  /**
+   * "1" (Monday) - "7" (Sunday).
+   */
+  dow?: string;
+  /**
+   * Start time for the time window in HH:MM format.
+   */
+  begin?: string;
+  /**
+   * End time for the time window in HH:MM format.
+   */
+  end?: string;
 }
 /**
  * Used by: replication.query (event)
@@ -6267,7 +6851,9 @@ export interface SharingNFSEntry {
    */
   expose_snapshots?: boolean;
   /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
+   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
+   *
+   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
    */
   tier?: TierInfo | null;
 }
@@ -6402,6 +6988,27 @@ export interface SharingSMBEntryInput {
   tier?: TierInfoInput | null;
 }
 /**
+ * Settings for auditing SMB shares.
+ *
+ * NOTE: If a user is a member of groups in the `watch_list` and the `ignore_list`, the `watch_list`     has priority, and the SMB session is audited.
+ *
+ * Used by: sharing.smb.create (params), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (event), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (params), sharing.smb.update (response)
+ */
+export interface SmbAuditConfig {
+  /**
+   * Turn on auditing for the SMB share. SMB share auditing may not be enabled if `minimum_protocol` is `SMB1` in the SMB service configuration.
+   */
+  enable?: boolean;
+  /**
+   * Only audit the listed group accounts. If the list is empty, all groups will be audited.
+   */
+  watch_list?: string[];
+  /**
+   * List of groups that will not be audited.
+   */
+  ignore_list?: string[];
+}
+/**
  * Used by: sharing.smb.query (event)
  */
 export interface SharingSMBChangedEvent {
@@ -6496,7 +7103,9 @@ export interface SharingSMBEntry {
       )
     | null;
   /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
+   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
+   *
+   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
    */
   tier?: TierInfo | null;
 }
@@ -6521,7 +7130,7 @@ export interface SharingSMBSetaclArgs {
  */
 export interface SMBShareAclEntry {
   /**
-   * Permissions granted or denied to the principal: `FULL` grants read, write, execute, delete, write ACL, and change owner; `CHANGE` grants read, write, execute, and delete; `READ` grants read and execute. NOTE: this may appear as CUSTOM on read if user has manually edited the share ACL through unsupported means. In this case users will be required to set it to a supported value on update.
+   * Permissions granted or denied to the principal. NOTE: this may appear as CUSTOM on read if user has manually edited the share ACL through unsupported means. In this case users will be required to set it to a supported value on update.
    */
   ae_perm: "FULL" | "CHANGE" | "READ" | "CUSTOM";
   /**
@@ -6714,15 +7323,15 @@ export interface SMBEntry {
    */
   id: number;
   /**
-   * The NetBIOS name of this server. Defaults to the original hostname of the system.
+   * The NetBIOS name of this server.
    */
   netbiosname: string;
   /**
-   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain. When the server is joined to an AD domain, additional Kerberos Service Principal Names are generated for these aliases.
+   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain.
    */
   netbiosalias: string[];
   /**
-   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain. This must differ from `netbiosname`.
+   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain.
    */
   workgroup: string;
   /**
@@ -6745,7 +7354,7 @@ export interface SMBEntry {
    */
   syslog: boolean;
   /**
-   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. This is not required for MacOS support generally but is currently required for Time Machine support.
+   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. Enabling this is required for Time Machine support.
    */
   aapl_extensions: boolean;
   /**
@@ -6757,7 +7366,7 @@ export interface SMBEntry {
    */
   admin_group: string | null;
   /**
-   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account. Defaults to "nobody".
+   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account.
    */
   guest: string;
   /**
@@ -6975,15 +7584,15 @@ export interface SMBStatusOptions {
  */
 export interface SMBUpdateArgs {
   /**
-   * The NetBIOS name of this server. Defaults to the original hostname of the system.
+   * The NetBIOS name of this server.
    */
   netbiosname?: string;
   /**
-   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain. When the server is joined to an AD domain, additional Kerberos Service Principal Names are generated for these aliases.
+   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain.
    */
   netbiosalias?: string[];
   /**
-   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain. This must differ from `netbiosname`.
+   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain.
    */
   workgroup?: string;
   /**
@@ -7006,7 +7615,7 @@ export interface SMBUpdateArgs {
    */
   syslog?: boolean;
   /**
-   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. This is not required for MacOS support generally but is currently required for Time Machine support.
+   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. Enabling this is required for Time Machine support.
    */
   aapl_extensions?: boolean;
   /**
@@ -7018,7 +7627,7 @@ export interface SMBUpdateArgs {
    */
   admin_group?: string | null;
   /**
-   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account. Defaults to "nobody".
+   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account.
    */
   guest?: string;
   /**
@@ -7058,6 +7667,124 @@ export interface SMBUpdateArgs {
    * Enterprise feature to ensure SMB state consistency across HA failover events. This feature is incompatible with the following share purposes: MULTIPROTOCOL_SHARE, LEGACY_SHARE. This feature is also incompatible with `minimum_protocol` set to `SMB1`.
    */
   stateful_failover?: boolean;
+}
+/**
+ * Used by: snmp.config (response), snmp.update (response)
+ */
+export interface SNMPEntry {
+  /**
+   * A comment describing the physical location of the server.
+   */
+  location: string;
+  /**
+   * Contact information for the system administrator (email or name).
+   */
+  contact: string;
+  /**
+   * Whether SNMP traps are enabled.
+   */
+  traps: boolean;
+  /**
+   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
+   */
+  v3: boolean;
+  /**
+   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
+   */
+  community?: string;
+  /**
+   * Username for SNMP version 3 authentication.
+   */
+  v3_username: string;
+  /**
+   * Authentication type for SNMP version 3 (empty string means no authentication).
+   */
+  v3_authtype: "" | "MD5" | "SHA";
+  /**
+   * Password for SNMP version 3 authentication.
+   */
+  v3_password: string;
+  /**
+   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
+   */
+  v3_privproto: (null | "AES" | "DES") | null;
+  /**
+   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
+   */
+  v3_privpassphrase?: string | null;
+  /**
+   * Logging level for SNMP daemon (0=emergency to 7=debug).
+   */
+  loglevel: number;
+  /**
+   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
+   */
+  options: string;
+  /**
+   * Whether to enable ZFS dataset statistics collection for SNMP.
+   */
+  zilstat: boolean;
+  /**
+   * Placeholder identifier.  Not used as there is only one.
+   */
+  id: number;
+}
+/**
+ * Used by: snmp.update (params)
+ */
+export interface SNMPUpdateArgs {
+  /**
+   * A comment describing the physical location of the server.
+   */
+  location?: string;
+  /**
+   * Contact information for the system administrator (email or name).
+   */
+  contact?: string;
+  /**
+   * Whether SNMP traps are enabled.
+   */
+  traps?: boolean;
+  /**
+   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
+   */
+  v3?: boolean;
+  /**
+   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
+   */
+  community?: string;
+  /**
+   * Username for SNMP version 3 authentication.
+   */
+  v3_username?: string;
+  /**
+   * Authentication type for SNMP version 3 (empty string means no authentication).
+   */
+  v3_authtype?: "" | "MD5" | "SHA";
+  /**
+   * Password for SNMP version 3 authentication.
+   */
+  v3_password?: string;
+  /**
+   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
+   */
+  v3_privproto?: (null | "AES" | "DES") | null;
+  /**
+   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
+   */
+  v3_privpassphrase?: string | null;
+  /**
+   * Logging level for SNMP daemon (0=emergency to 7=debug).
+   */
+  loglevel?: number;
+  /**
+   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
+   */
+  options?: string;
+  /**
+   * Whether to enable ZFS dataset statistics collection for SNMP.
+   */
+  zilstat?: boolean;
 }
 /**
  * Used by: docker.status (response)
@@ -7557,7 +8284,7 @@ export interface UPSUpdate {
    */
   remoteport?: number;
   /**
-   * Seconds to wait after initiating shutdown before forcing power off. Only applies when `shutdown` is `BATT`.
+   * Seconds to wait after initiating shutdown before forcing power off.
    */
   shutdowntimer?: number;
   /**
@@ -7607,7 +8334,7 @@ export interface UPSUpdate {
   remotehost?: string;
   shutdown?: Shutdown;
   /**
-   * Custom command to execute during UPS shutdown sequence. `null` to use the default (`poweroff`).
+   * Custom command to execute during UPS shutdown sequence. `null` for default.
    */
   shutdowncmd?: string | null;
 }
@@ -8727,7 +9454,7 @@ export interface WebshareUpdate {
  */
 export interface ZFSResourceDestroyArgsData {
   /**
-   * Path of the zfs resource (dataset or volume) to be destroyed. Must be of the form 'pool/name'; it cannot be an absolute path or end with '/'. Snapshot paths (containing '@') are not accepted - use `zfs.resource.snapshot.destroy` instead.
+   * Path of the zfs resource (dataset or volume) to be destroyed. Snapshot paths (containing '@') are not accepted - use `zfs.resource.snapshot.destroy` instead.
    */
   path: string;
   /**
@@ -9848,11 +10575,11 @@ export interface ZPoolScanInput {
  */
 export interface ZPoolQuery {
   /**
-   * Pool names to query. `null` queries all imported pools.
+   * Pool names to query. None queries all imported pools.
    */
   pool_names?: string[] | null;
   /**
-   * Property names to retrieve. `null` returns no properties.
+   * Property names to retrieve. None returns no properties.
    */
   properties?: string[] | null;
   /**

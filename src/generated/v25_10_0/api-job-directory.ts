@@ -12,18 +12,16 @@ import type {
 
 import type {
   Action,
-  AppCreateArgs,
-  AppRollbackOptions,
-  AppUpdate,
-  DISABLED_ACLResult,
-  POSIXACLResult,
-  UpgradeOptions,
+  ZFSFileAttrsData,
 } from '../v25_04_0/api-types';
 import type {
-  NFS4ACLResult,
-} from '../v25_04_2/api-types';
-import type {
+  AppCreateArgs,
+  AppDelete,
   AppEntry,
+  AppImagePullArgs,
+  AppPullImages,
+  AppRollbackOptions,
+  AppUpdate,
   AuditDownloadReportArgs,
   AuditExport,
   BootAttachOptions,
@@ -34,7 +32,10 @@ import type {
   CloudBackupSyncOptions,
   CloudSyncCreate,
   CloudSyncSyncOptions,
+  ConfigReset,
+  ConfigSave,
   CoreBulkResultItem,
+  DISABLED_ACLResult,
   DirectoryServicesEntry,
   DirectoryServicesLeaveArgs,
   DirectoryServicesUpdateArgs,
@@ -42,7 +43,11 @@ import type {
   DockerUpdateArgs,
   FailoverRebootOtherNodeOptions,
   FailoverUpgrade,
+  FilesystemChownArgs,
+  FilesystemPutOptions,
+  FilesystemSetZfsAttributesArgs,
   FilesystemSetaclArgs,
+  FilesystemSetpermArgs,
   IPMISELInfo,
   IpmiSelElistEntry,
   IpmiSelElistQueryResultItem,
@@ -51,6 +56,8 @@ import type {
   MailSendMessage,
   MailUpdate,
   ModeInput4,
+  NFS4ACLResult,
+  POSIXACLResult,
   PoolAttach,
   PoolCreate,
   PoolDatasetChangeKeyOptions,
@@ -59,6 +66,7 @@ import type {
   PoolDatasetLockOptions,
   PoolDatasetUnlock,
   PoolDatasetUnlockOptions,
+  PoolDdtPruneArgs,
   PoolEntry,
   PoolExport,
   PoolImportFind,
@@ -74,15 +82,19 @@ import type {
   SupportNewTicketResult,
   SystemDatasetEntry,
   SystemDatasetUpdate,
+  SystemRebootOptions,
   SystemSecurityEntry,
   SystemSecurityUpdateArgs,
+  SystemShutdownOptions,
   TunableCreate,
   TunableEntry,
   TunableUpdate,
   UpdateFileOptions,
   UpdateManualOptions,
   UpdateRunAttrs,
+  UpgradeOptions,
   VMDeviceConvertArgs,
+  VMStopOptions,
   Verb2,
 } from './api-types';
 
@@ -108,6 +120,43 @@ export interface ApiJobDirectoryDelta {
   'app.create': {
     params: [app_create: AppCreateArgs];
     response: AppEntry;
+  };
+
+  /**
+   * Delete ``app_name`` app.
+   *
+   * ``force_remove_ix_volumes`` should be set when the ix-volumes were created by the system for apps which were migrated from k8s to docker and the user wants to remove them. This is to prevent accidental deletion of the original ix-volumes which were created in dragonfish and before for kubernetes based apps. When this is set, it will result in the deletion of ix-volumes from both docker based apps and k8s based apps and should be carefully set.
+   *
+   * ``force_remove_custom_app`` should be set when the app being deleted is a custom app and the user wants to forcefully remove the app. A use-case for this attribute is that the user had an invalid yaml in their custom app and there are no actual docker resources (network/containers/volumes) in place for the custom app, then docker compose down will fail as the yaml itself is invalid. In this case this flag can be set to proceed with the deletion of the custom app. However if this app had any docker resources in place, then this flag will have no effect.
+   *
+   * This method is a job.
+   * @roles APPS_WRITE
+   */
+  'app.delete': {
+    params: [app_name: string, options?: AppDelete];
+    response: true;
+  };
+
+  /**
+   * Pull a docker image.
+   *
+   * This method is a job.
+   * @roles APPS_WRITE
+   */
+  'app.image.pull': {
+    params: [image_pull: AppImagePullArgs];
+    response: null;
+  };
+
+  /**
+   * Pulls docker images for the specified app ``name``.
+   *
+   * This method is a job.
+   * @roles APPS_WRITE
+   */
+  'app.pull_images': {
+    params: [app_name: string, options?: AppPullImages];
+    response: null;
   };
 
   /**
@@ -300,6 +349,32 @@ export interface ApiJobDirectoryDelta {
   };
 
   /**
+   * Reset database to configuration defaults.
+   *
+   * When configured to reboot, this job reboots the system after it has completed with a delay of 10 seconds.
+   *
+   * This method is a job.
+   * @roles FULL_ADMIN
+   */
+  'config.reset': {
+    params: [options?: ConfigReset];
+    response: null;
+  };
+
+  /**
+   * Create a tar file of security-sensitive information.
+   *
+   * If none of these options are set, the tar file is not generated and the database file is returned.
+   *
+   * This method is a job.
+   * @roles FULL_ADMIN
+   */
+  'config.save': {
+    params: [options?: ConfigSave];
+    response: null;
+  };
+
+  /**
    * Will sequentially call ``method`` with the arguments from each entry of the ``params`` list. For example, calling :doc:`core.bulk <api_methods_core.bulk>` with these parameters::
    *
    *     [
@@ -449,6 +524,51 @@ export interface ApiJobDirectoryDelta {
   };
 
   /**
+   * Change owner or group of file at ``path``.
+   *
+   * ``uid`` and ``gid`` specify new owner of the file. If either key is absent or None, then existing value on the file is not changed.
+   *
+   * ``user`` and ``group`` alternatively allow specifying a uid gid by user name or group name.
+   *
+   * ``recursive`` performs action recursively, but does not traverse filesystem mount points.
+   *
+   * If ``traverse`` and ``recursive`` are specified, then the chown operation will traverse filesystem mount points.
+   *
+   * This method is a job.
+   * @roles FILESYSTEM_ATTRS_WRITE
+   */
+  'filesystem.chown': {
+    params: [filesystem_chown: FilesystemChownArgs];
+    response: null;
+  };
+
+  /**
+   * Job to put contents to ``path``.
+   *
+   * This method is a job.
+   * @roles FULL_ADMIN
+   */
+  'filesystem.put': {
+    params: [path: string, options?: FilesystemPutOptions];
+    response: true;
+  };
+
+  /**
+   * Set special ZFS-related file flags (MS-DOS attributes and the BSD-style ``immutable``/``nounlink``/``appendonly`` flags) on the specified path.
+   *
+   * Several of these flags are also surfaced elsewhere. The ``immutable`` flag appears as ``IMMUTABLE`` in the ``attributes`` of :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_IMMUTABLE`` in the ``statx()`` response; ``appendonly`` appears as ``APPEND`` in :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_APPEND`` in ``statx()``.
+   *
+   * When recursion is requested, the path is treated as the root of a tree walk, and attributes are applied to descendants of the matching type. Recursion stops at dataset boundaries.
+   *
+   * This method is a job.
+   * @roles FILESYSTEM_ATTRS_WRITE
+   */
+  'filesystem.set_zfs_attributes': {
+    params: [set_zfs_file_attributes: FilesystemSetZfsAttributesArgs];
+    response: ZFSFileAttrsData;
+  };
+
+  /**
    * Set the ACL of a given path.
    *
    * The ``dacl`` entry formatting depends on the underlying ``acltype``: an ``NFS4`` ACL requires NFSv4 entries, while a ``POSIX1E`` ACL requires POSIX1e entries. When ``stripacl`` is set, the ACL is converted to a trivial ACL; an ACL is trivial if it can be expressed as a file mode without losing any access rules.
@@ -482,6 +602,26 @@ export interface ApiJobDirectoryDelta {
   'filesystem.setacl': {
     params: [filesystem_acl: FilesystemSetaclArgs];
     response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
+  };
+
+  /**
+   * Set Unix permissions on the given ``path``.
+   *
+   * If ``mode`` is specified then the mode is applied to the path, and to files and subdirectories depending on which ``options`` are selected.
+   *
+   * This method will fail if an extended ACL is present on ``path`` unless ``stripacl`` is set. If no ``mode`` is set and ``stripacl`` is ``true``, then non-trivial ACLs are converted to trivial ACLs. An ACL is trivial if it can be expressed as a file mode without losing any access rules.
+   *
+   * .. important::
+   *
+   *     ``uid``, ``gid``, ``user``, and ``group`` *should* remain unset *unless* the
+   *     administrator wishes to change the owner or group of files.
+   *
+   * This method is a job.
+   * @roles FILESYSTEM_ATTRS_WRITE
+   */
+  'filesystem.setperm': {
+    params: [filesystem_setperm: FilesystemSetpermArgs];
+    response: null;
   };
 
   /**
@@ -751,6 +891,17 @@ export interface ApiJobDirectoryDelta {
   };
 
   /**
+   * Prune DDT entries in pool ``pool_name`` based on the specified options.
+   *
+   * This method is a job.
+   * @roles POOL_WRITE
+   */
+  'pool.ddt_prune': {
+    params: [options: PoolDdtPruneArgs];
+    response: null;
+  };
+
+  /**
    * Expand pool to fit all available disk space.
    *
    * This method is a job.
@@ -993,6 +1144,19 @@ export interface ApiJobDirectoryDelta {
   };
 
   /**
+   * Reboots the operating system.
+   *
+   * Emits an "added" event of name "system" and id "reboot".
+   *
+   * This method is a job.
+   * @roles FULL_ADMIN
+   */
+  'system.reboot': {
+    params: [reason: string, options?: SystemRebootOptions];
+    response: null;
+  };
+
+  /**
    * Update System Security Service Configuration.
    *
    * This method is used to change the FIPS, STIG, and local account policies for TrueNAS Enterprise. These features are not available in community editions of TrueNAS.
@@ -1003,6 +1167,19 @@ export interface ApiJobDirectoryDelta {
   'system.security.update': {
     params: [system_security_update?: SystemSecurityUpdateArgs];
     response: SystemSecurityEntry;
+  };
+
+  /**
+   * Shuts down the operating system.
+   *
+   * An "added" event of name "system" and id "shutdown" is emitted when shutdown is initiated.
+   *
+   * This method is a job.
+   * @roles FULL_ADMIN
+   */
+  'system.shutdown': {
+    params: [reason: string, options?: SystemShutdownOptions];
+    response: null;
   };
 
   /**
@@ -1104,6 +1281,19 @@ export interface ApiJobDirectoryDelta {
   'vm.device.convert': {
     params: [vm_convert: VMDeviceConvertArgs];
     response: boolean;
+  };
+
+  /**
+   * Stops a VM.
+   *
+   * For unresponsive guests who have exceeded the ``shutdown_timeout`` defined by the user and have become unresponsive, they required to be powered down using :doc:`vm.poweroff <api_methods_vm.poweroff>`. :doc:`vm.stop <api_methods_vm.stop>` is only going to send a shutdown signal to the guest and wait the desired ``shutdown_timeout`` value before tearing down guest vmemory.
+   *
+   * This method is a job.
+   * @roles VM_WRITE
+   */
+  'vm.stop': {
+    params: [id: number, options?: VMStopOptions];
+    response: null;
   };
 }
 

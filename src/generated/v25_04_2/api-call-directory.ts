@@ -11,19 +11,44 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  ACLTemplateByPathArgs,
   ACLTemplateQueryResultItem,
+  AlertServiceEntry,
+  AlertServiceQueryResultItem,
+  ApiKeyEntry,
+  ApiKeyQueryResultItem,
+  AppEntry,
+  AppImageEntry,
+  AppImageQueryResultItem,
+  AppQueryResultItem,
+  AppRegistryEntry,
+  AppRegistryQueryResultItem,
+  AppsIxVolumeEntry,
+  AppsIxVolumeQueryResultItem,
+  AuthSessionsEntry,
+  AuthSessionsQueryResultItem,
   AzureBlobCredentialsModelInput2,
   B2CredentialsModelInput2,
+  BootEnvironmentEntry,
+  BootEnvironmentQueryResultItem,
   BoxCredentialsModelInput2,
   CloudBackupCreate,
   CloudBackupQueryResultItem,
   CloudBackupUpdate,
   CredentialsQueryResultItem,
   CredentialsVerifyResult,
+  CronJobEntry,
+  CronJobQueryResultItem,
   DISABLED_ACLResult,
+  DNSAuthenticatorEntry,
+  DNSAuthenticatorQueryResultItem,
   DeviceGetInfoDisk,
+  DockerNetworkEntry,
+  DockerNetworkQueryResultItem,
   DropboxCredentialsModelInput2,
+  FCHostEntry,
+  FCHostQueryResultItem,
+  FCPortEntry,
+  FCPortQueryResultItem,
   FTPCredentialsModelInput2,
   FilesystemDirQueryResultItem,
   FilesystemMkdirArgs,
@@ -31,23 +56,58 @@ import type {
   GoogleCloudStorageCredentialsModelInput2,
   GoogleDriveCredentialsModelInput2,
   GooglePhotosCredentialsModelInput2,
+  GroupGetGroupObjArgs,
+  GroupQueryResultItem,
   HTTPCredentialsModelInput2,
   HubicCredentialsModelInput2,
+  ISCSIPortalEntry,
+  ISCSIPortalQueryResultItem,
+  ISCSITargetAuthCredentialEntry,
+  ISCSITargetAuthCredentialQueryResultItem,
+  ISCSITargetAuthorizedInitiatorEntry,
+  ISCSITargetAuthorizedInitiatorQueryResultItem,
+  ISCSITargetEntry,
   ISCSITargetExtentQueryResultItem,
+  ISCSITargetQueryResultItem,
+  ISCSITargetToExtentEntry,
+  ISCSITargetToExtentQueryResultItem,
   InitShutdownScriptQueryResultItem,
+  IscsiSession,
+  IscsiSessionQueryResultItem,
   KeychainCredentialQueryResultItem,
+  NTPServerEntry,
+  NTPServerQueryResultItem,
   OneDriveCredentialsModelInput2,
   PCloudCredentialsModelInput2,
   POSIXACLResult,
-  QueryOptionsModel2,
+  PeriodicSnapshotTaskEntry,
+  PeriodicSnapshotTaskQueryResultItem,
+  PoolScrubEntry,
+  PoolScrubQueryResultItem,
+  PrivilegeQueryResultItem,
+  PrivilegeRolesEntry,
+  PrivilegeRolesQueryResultItem,
+  ReportingExportsEntry,
+  ReportingExportsQueryResultItem,
   S3CredentialsModelInput2,
   SFTPCredentialsModelInput2,
   SerialInfo,
+  SharingNFSEntry,
+  SharingNFSQueryResultItem,
+  StaticRouteEntry,
+  StaticRouteQueryResultItem,
   SwiftCredentialsModelInput2,
+  UserQueryResultItem,
   WebDavCredentialsModelInput2,
   YandexCredentialsModelInput2,
 } from '../v25_04_0/api-types';
 import type {
+  GroupEntry,
+  PrivilegeEntry,
+  UserEntry,
+} from '../v25_04_1/api-types';
+import type {
+  ACLTemplateByPathArgs,
   ACLTemplateEntry,
   AclTemplateCreate,
   AclTemplateUpdate,
@@ -61,6 +121,7 @@ import type {
   FilesystemDirEntry,
   FilesystemStatData,
   GroupCreate,
+  GroupGetGroupObjResult,
   GroupUpdate,
   ISCSITargetExtentEntry,
   InitShutdownScriptCreate,
@@ -70,6 +131,7 @@ import type {
   IscsiExtentUpdate,
   KeychainCredentialEntry,
   NFS4ACLResult,
+  QueryOptionsModel2,
   StorjIxCredentialsModelInput2,
   VMBootloaderOptionsResult,
   VMCreateArgs,
@@ -95,6 +157,109 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiCallDirectoryDelta {
+  /**
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'acme.dns.authenticator.query': {
+    params: [filters?: QueryFilters<DNSAuthenticatorEntry>, options?: QueryOptionsModel2];
+    response: DNSAuthenticatorEntry[] | DNSAuthenticatorEntry | DNSAuthenticatorQueryResultItem[] | DNSAuthenticatorQueryResultItem | number;
+  };
+
+  /**
+   * @roles ALERT_READ
+   */
+  'alertservice.query': {
+    params: [filters?: QueryFilters<AlertServiceEntry>, options?: QueryOptionsModel2];
+    response: AlertServiceEntry[] | AlertServiceEntry | AlertServiceQueryResultItem[] | AlertServiceQueryResultItem | number;
+  };
+
+  /**
+   * @roles API_KEY_READ
+   */
+  'api_key.query': {
+    params: [filters?: QueryFilters<ApiKeyEntry>, options?: QueryOptionsModel2];
+    response: ApiKeyEntry[] | ApiKeyEntry | ApiKeyQueryResultItem[] | ApiKeyQueryResultItem | number;
+  };
+
+  /**
+   * Query all docker images with ``query-filters`` and ``query-options``.
+   *
+   * The following ``query-options.extra`` options are supported:
+   *
+   * ``parse_tags`` *(bool)*:
+   *     Include normalized tags on each entry.
+   * @roles APPS_READ
+   */
+  'app.image.query': {
+    params: [filters?: QueryFilters<AppImageEntry>, options?: QueryOptionsModel2];
+    response: AppImageEntry[] | AppImageEntry | AppImageQueryResultItem[] | AppImageQueryResultItem | number;
+  };
+
+  /**
+   * Query ix-volumes with `filters` and `options`.
+   * @roles APPS_READ
+   */
+  'app.ix_volume.query': {
+    params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: QueryOptionsModel2];
+    response: AppsIxVolumeEntry[] | AppsIxVolumeEntry | AppsIxVolumeQueryResultItem[] | AppsIxVolumeQueryResultItem | number;
+  };
+
+  /**
+   * Query all apps with ``query-filters`` and ``query-options``.
+   *
+   * The following ``query-options.extra`` options are supported:
+   *
+   * ``host_ip`` *(str)*:
+   *     Override the portal IP address when it is a wildcard.
+   *
+   * ``include_app_schema`` *(bool)*:
+   *     Include the app schema in the response.
+   *
+   * ``retrieve_config`` *(bool)*:
+   *     Include the app configuration used to install or manage the app.
+   * @roles APPS_READ
+   */
+  'app.query': {
+    params: [filters?: QueryFilters<AppEntry>, options?: QueryOptionsModel2];
+    response: AppEntry[] | AppEntry | AppQueryResultItem[] | AppQueryResultItem | number;
+  };
+
+  /**
+   * @roles APPS_READ
+   */
+  'app.registry.query': {
+    params: [filters?: QueryFilters<AppRegistryEntry>, options?: QueryOptionsModel2];
+    response: AppRegistryEntry[] | AppRegistryEntry | AppRegistryQueryResultItem[] | AppRegistryQueryResultItem | number;
+  };
+
+  /**
+   * Returns a list of active auth sessions.
+   *
+   * The ``credentials_data`` object varies by ``credentials`` type: password and socket sessions include ``username``; API key sessions additionally include ``api_key`` (id and name); token sessions include ``parent`` (the originating credential) and optionally ``username``.
+   *
+   * Example::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "auth.sessions",
+   *         "params": []
+   *     }
+   * @roles AUTH_SESSIONS_READ
+   */
+  'auth.sessions': {
+    params: [filters?: QueryFilters<AuthSessionsEntry>, options?: QueryOptionsModel2];
+    response: AuthSessionsEntry[] | AuthSessionsEntry | AuthSessionsQueryResultItem[] | AuthSessionsQueryResultItem | number;
+  };
+
+  /**
+   * @roles BOOT_ENV_READ
+   */
+  'boot.environment.query': {
+    params: [filters?: QueryFilters<BootEnvironmentEntry>, options?: QueryOptionsModel2];
+    response: BootEnvironmentEntry[] | BootEnvironmentEntry | BootEnvironmentQueryResultItem[] | BootEnvironmentQueryResultItem | number;
+  };
+
   /**
    * Create a new cloud backup task.
    * @roles CLOUD_BACKUP_WRITE
@@ -188,12 +353,55 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles SYSTEM_CRON_READ
+   */
+  'cronjob.query': {
+    params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptionsModel2];
+    response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
+  };
+
+  /**
    * Get info for ``type`` device.
    * @roles READONLY_ADMIN
    */
   'device.get_info': {
     params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
     response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
+  };
+
+  /**
+   * @roles DOCKER_READ
+   */
+  'docker.network.query': {
+    params: [filters?: QueryFilters<DockerNetworkEntry>, options?: QueryOptionsModel2];
+    response: DockerNetworkEntry[] | DockerNetworkEntry | DockerNetworkQueryResultItem[] | DockerNetworkQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fc.fc_host.query': {
+    params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptionsModel2];
+    response: FCHostEntry[] | FCHostEntry | FCHostQueryResultItem[] | FCHostQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fcport.query': {
+    params: [filters?: QueryFilters<FCPortEntry>, options?: QueryOptionsModel2];
+    response: FCPortEntry[] | FCPortEntry | FCPortQueryResultItem[] | FCPortQueryResultItem | number;
+  };
+
+  /**
+   * Return the runtime status of Fibre Channel ports, including port state, type, speed, and connected sessions.
+   *
+   * On an HA system, status is gathered from both controllers and reported per node.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fcport.status': {
+    params: [filters?: QueryFilters<Record<string, unknown>>, options?: QueryOptionsModel2];
+    response: unknown[];
   };
 
   /**
@@ -314,6 +522,26 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Returns dictionary containing information from struct grp for the group specified by either the ``groupname`` or ``gid``.
+   *
+   * If ``sid_info`` is specified, additional SMB / domain information is returned for the group.
+   * @roles ACCOUNT_READ
+   */
+  'group.get_group_obj': {
+    params: [get_group_obj?: GroupGetGroupObjArgs];
+    response: GroupGetGroupObjResult;
+  };
+
+  /**
+   * Query groups with `query-filters` and `query-options`.
+   * @roles ACCOUNT_READ
+   */
+  'group.query': {
+    params: [filters?: QueryFilters<GroupEntry>, options?: QueryOptionsModel2];
+    response: GroupEntry[] | GroupEntry | GroupQueryResultItem[] | GroupQueryResultItem | number;
+  };
+
+  /**
    * Update attributes of an existing group.
    * @roles ACCOUNT_WRITE
    */
@@ -365,6 +593,14 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles SHARING_ISCSI_AUTH_READ
+   */
+  'iscsi.auth.query': {
+    params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptionsModel2];
+    response: ISCSITargetAuthCredentialEntry[] | ISCSITargetAuthCredentialEntry | ISCSITargetAuthCredentialQueryResultItem[] | ISCSITargetAuthCredentialQueryResultItem | number;
+  };
+
+  /**
    * Create an iSCSI Extent.
    * @roles SHARING_ISCSI_EXTENT_WRITE
    */
@@ -402,6 +638,47 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Get a list of currently running iSCSI sessions. This includes initiator and target names and the unique connection IDs.
+   * @roles SHARING_ISCSI_GLOBAL_READ
+   */
+  'iscsi.global.sessions': {
+    params: [filters?: QueryFilters<IscsiSession>, options?: QueryOptionsModel2];
+    response: IscsiSession[] | IscsiSession | IscsiSessionQueryResultItem[] | IscsiSessionQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_INITIATOR_READ
+   */
+  'iscsi.initiator.query': {
+    params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: QueryOptionsModel2];
+    response: ISCSITargetAuthorizedInitiatorEntry[] | ISCSITargetAuthorizedInitiatorEntry | ISCSITargetAuthorizedInitiatorQueryResultItem[] | ISCSITargetAuthorizedInitiatorQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_PORTAL_READ
+   */
+  'iscsi.portal.query': {
+    params: [filters?: QueryFilters<ISCSIPortalEntry>, options?: QueryOptionsModel2];
+    response: ISCSIPortalEntry[] | ISCSIPortalEntry | ISCSIPortalQueryResultItem[] | ISCSIPortalQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'iscsi.target.query': {
+    params: [filters?: QueryFilters<ISCSITargetEntry>, options?: QueryOptionsModel2];
+    response: ISCSITargetEntry[] | ISCSITargetEntry | ISCSITargetQueryResultItem[] | ISCSITargetQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGETEXTENT_READ
+   */
+  'iscsi.targetextent.query': {
+    params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: QueryOptionsModel2];
+    response: ISCSITargetToExtentEntry[] | ISCSITargetToExtentEntry | ISCSITargetToExtentQueryResultItem[] | ISCSITargetToExtentQueryResultItem | number;
+  };
+
+  /**
    * Returns instance matching `id`. If `id` is not found, Validation error is raised.
    *
    * Please see `query` method documentation for `options`.
@@ -418,6 +695,81 @@ export interface ApiCallDirectoryDelta {
   'keychaincredential.query': {
     params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptionsModel2];
     response: KeychainCredentialEntry[] | KeychainCredentialEntry | KeychainCredentialQueryResultItem[] | KeychainCredentialQueryResultItem | number;
+  };
+
+  /**
+   * @roles POOL_SCRUB_READ
+   */
+  'pool.scrub.query': {
+    params: [filters?: QueryFilters<PoolScrubEntry>, options?: QueryOptionsModel2];
+    response: PoolScrubEntry[] | PoolScrubEntry | PoolScrubQueryResultItem[] | PoolScrubQueryResultItem | number;
+  };
+
+  /**
+   * @roles SNAPSHOT_TASK_READ
+   */
+  'pool.snapshottask.query': {
+    params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptionsModel2];
+    response: PeriodicSnapshotTaskEntry[] | PeriodicSnapshotTaskEntry | PeriodicSnapshotTaskQueryResultItem[] | PeriodicSnapshotTaskQueryResultItem | number;
+  };
+
+  /**
+   * @roles PRIVILEGE_READ
+   */
+  'privilege.query': {
+    params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptionsModel2];
+    response: PrivilegeEntry[] | PrivilegeEntry | PrivilegeQueryResultItem[] | PrivilegeQueryResultItem | number;
+  };
+
+  /**
+   * Get all available roles.
+   */
+  'privilege.roles': {
+    params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: QueryOptionsModel2];
+    response: PrivilegeRolesEntry[] | PrivilegeRolesEntry | PrivilegeRolesQueryResultItem[] | PrivilegeRolesQueryResultItem | number;
+  };
+
+  /**
+   * @roles REPORTING_READ
+   */
+  'reporting.exporters.query': {
+    params: [filters?: QueryFilters<ReportingExportsEntry>, options?: QueryOptionsModel2];
+    response: ReportingExportsEntry[] | ReportingExportsEntry | ReportingExportsQueryResultItem[] | ReportingExportsQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_NFS_READ
+   */
+  'sharing.nfs.query': {
+    params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptionsModel2];
+    response: SharingNFSEntry[] | SharingNFSEntry | SharingNFSQueryResultItem[] | SharingNFSQueryResultItem | number;
+  };
+
+  /**
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'staticroute.query': {
+    params: [filters?: QueryFilters<StaticRouteEntry>, options?: QueryOptionsModel2];
+    response: StaticRouteEntry[] | StaticRouteEntry | StaticRouteQueryResultItem[] | StaticRouteQueryResultItem | number;
+  };
+
+  /**
+   * @roles NETWORK_GENERAL_READ
+   */
+  'system.ntpserver.query': {
+    params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptionsModel2];
+    response: NTPServerEntry[] | NTPServerEntry | NTPServerQueryResultItem[] | NTPServerQueryResultItem | number;
+  };
+
+  /**
+   * Query users with `query-filters` and `query-options`.
+   *
+   * If users provided by Active Directory or LDAP are not desired, then "local", "=", True should be added to filters.
+   * @roles ACCOUNT_READ
+   */
+  'user.query': {
+    params: [filters?: QueryFilters<UserEntry>, options?: QueryOptionsModel2];
+    response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
   };
 
   /**

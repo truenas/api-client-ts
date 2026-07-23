@@ -44,13 +44,22 @@ describe('chainAssign', () => {
     expect(homes[1].get('B')).toBe(1); // own body identical, split forced by A
   });
 
-  it('does not re-declare on docs-only changes, and the newest docs win', () => {
+  it('re-declares on docs-only changes — docs are part of each version\'s shipped surface', () => {
     const { declared, homes } = chainAssign([
       model('v1', { A: str({ description: 'old words' }) }),
       model('v2', { A: str({ description: 'new words' }) }),
     ]);
+    expect(homes[1].get('A')).toBe(1);
+    expect(declared[0]['A'].description).toBe('old words'); // v1's file keeps v1's docs
+    expect(declared[1]['A'].description).toBe('new words');
+  });
+
+  it('does not re-declare on title-only changes (titles are not emitted)', () => {
+    const { homes } = chainAssign([
+      model('v1', { A: { type: 'object', properties: { a: { type: 'string', title: 'Old' } } } }),
+      model('v2', { A: { type: 'object', properties: { a: { type: 'string', title: 'New' } } } }),
+    ]);
     expect(homes[1].get('A')).toBe(0);
-    expect(declared[0]['A'].description).toBe('new words');
   });
 
   it('unions usage metadata across a run', () => {

@@ -11,6 +11,7 @@ import type {
   LegacyOptInput,
   MultiprotocolOptInput,
   PrivateDatasetOptInput,
+  SMBShareAclEntryWhoId,
   SmbAuditConfig,
   SmbAuditConfigInput,
   SmbAuditConfigInput2,
@@ -460,6 +461,64 @@ export interface VeeamRepositoryOpt {
   hostsdeny?: string[];
 }
 /**
+ * Used by: sharing.smb.setacl (params)
+ */
+export interface SharingSMBSetaclArgs {
+  /**
+   * Name of the SMB share.
+   */
+  share_name: string;
+  /**
+   * List of SMB share ACL entries.
+   */
+  share_acl?: SMBShareAclEntry[];
+}
+/**
+ * An SMB Share ACL Entry that grants or denies specific permissions to a principal.
+ * You can identify the principal by a SID (`ae_who_sid`) or Unix ID (`ae_who_id`).
+ *
+ * Used by: sharing.smb.getacl (response), sharing.smb.setacl (params), sharing.smb.setacl (response)
+ */
+export interface SMBShareAclEntry {
+  /**
+   * Permissions granted or denied to the principal.
+   */
+  ae_perm: "FULL" | "CHANGE" | "READ";
+  /**
+   * The type of SMB share ACL entry. This value determines whether the permissions (ae_perm) are granted (ALLOWED) or denied (DENIED).
+   */
+  ae_type: "ALLOWED" | "DENIED";
+  /**
+   * The SID of the principal to whom this ACL entry applies.
+   */
+  ae_who_sid?: string | null;
+  /**
+   * The Unix ID of the principal to whom this ACL entry applies.
+   */
+  ae_who_id?: SMBShareAclEntryWhoId | null;
+  /**
+   * The User or group name of the principal to whom this ACL entry applies.
+   */
+  ae_who_str?: string | null;
+}
+/**
+ * The ACL that applies to a specific SMB share.
+ *
+ * NOTE: this is not the same as a filesystem ACL. It only affects access through the SMB protocol.
+ *
+ * Used by: sharing.smb.getacl (response), sharing.smb.setacl (response)
+ */
+export interface SMBShareAcl {
+  /**
+   * Name of the SMB share.
+   */
+  share_name: string;
+  /**
+   * List of SMB share ACL entries.
+   */
+  share_acl?: SMBShareAclEntry[];
+}
+/**
  * Used by: sharing.smb.create (params)
  */
 export interface SmbShareCreate {
@@ -610,7 +669,7 @@ export interface SNMPEntry {
    */
   v3: boolean;
   /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
+   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @
    */
   community?: string;
   /**
@@ -671,7 +730,7 @@ export interface SNMPUpdateArgs {
    */
   v3?: boolean;
   /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
+   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @
    */
   community?: string;
   /**

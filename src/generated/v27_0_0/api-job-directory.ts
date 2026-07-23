@@ -9,7 +9,9 @@ import type {
   ZFSFileAttrsData,
 } from '../v25_04_0/api-types';
 import type {
-  KMIPEntry,
+  DISABLED_ACLResult,
+  NFS4ACLResult,
+  POSIXACLResult,
   SystemSecurityEntry,
   TunableUpdate,
 } from '../v25_10_0/api-types';
@@ -27,12 +29,18 @@ import type {
   AppUpgradeBulkEntry,
   AppUpgradeOptions,
   AuditExport,
+  BootAttachOptions,
   CertificateCreate,
+  ConfigSave,
   ContainerCreate,
   ContainerEntry,
   DockerEntry,
   DockerUpdate,
+  FailoverUpgrade,
   FilesystemSetZfsAttributesData,
+  FilesystemSetaclArgs,
+  FilesystemSetpermArgs,
+  KMIPEntry,
   KMIPUpdate,
   MailSendMessage,
   MailUpdate,
@@ -102,6 +110,17 @@ export interface ApiJobDirectoryDelta {
   };
 
   /**
+   * Attach a disk to the boot pool, turning a stripe into a mirror.
+   *
+   * This method is a job.
+   * @roles DISK_WRITE
+   */
+  'boot.attach': {
+    params: [dev: string, options?: BootAttachOptions];
+    response: null;
+  };
+
+  /**
    * Create a new certificate.
    *
    * The ``create_type`` attribute selects which kind of certificate is created:
@@ -119,6 +138,19 @@ export interface ApiJobDirectoryDelta {
   'certificate.create': {
     params: [certificate_create: CertificateCreate];
     response: CertificateEntry;
+  };
+
+  /**
+   * Create a tar file of security-sensitive information.
+   *
+   * If none of these options are set, the tar file is not generated and the database file is returned.
+   *
+   * This method is a job.
+   * @roles FULL_ADMIN
+   */
+  'config.save': {
+    params: [options?: ConfigSave];
+    response: null;
   };
 
   /**
@@ -144,6 +176,17 @@ export interface ApiJobDirectoryDelta {
   };
 
   /**
+   * Upgrades both controllers. Files will be downloaded to the Active Controller and then transferred to the Standby Controller. Upgrade process will start concurrently on both nodes. Once both upgrades are applied, the Standby Controller will reboot. This job will wait for that job to complete before finalizing.
+   *
+   * This method is a job.
+   * @roles FAILOVER_WRITE
+   */
+  'failover.upgrade': {
+    params: [failover_upgrade?: FailoverUpgrade];
+    response: boolean;
+  };
+
+  /**
    * Set special ZFS-related file flags (MS-DOS attributes and the BSD-style ``immutable``/``nounlink``/``appendonly`` flags) on the specified path.
    *
    * Several of these flags are also surfaced elsewhere. The ``immutable`` flag appears as ``IMMUTABLE`` in the ``attributes`` of :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_IMMUTABLE`` in the ``statx()`` response; ``appendonly`` appears as ``APPEND`` in :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_APPEND`` in ``statx()``.
@@ -156,6 +199,62 @@ export interface ApiJobDirectoryDelta {
   'filesystem.set_zfs_attributes': {
     params: [data: FilesystemSetZfsAttributesData];
     response: ZFSFileAttrsData;
+  };
+
+  /**
+   * Set the ACL of a given path.
+   *
+   * The ``dacl`` entry formatting depends on the underlying ``acltype``: an ``NFS4`` ACL requires NFSv4 entries, while a ``POSIX1E`` ACL requires POSIX1e entries. When ``stripacl`` is set, the ACL is converted to a trivial ACL; an ACL is trivial if it can be expressed as a file mode without losing any access rules.
+   *
+   * .. note::
+   *
+   *     For each owner change, set one and only one of ``uid`` or ``user`` (and likewise one of
+   *     ``gid`` or ``group``), and only if the caller wishes to change the owning user or group of
+   *     the file or directory.
+   *
+   * .. warning::
+   *
+   *     If ``user``, ``uid``, ``group``, or ``gid`` is specified in a recursive operation, then the
+   *     owning user, group, or both for *all* files will be changed.
+   *
+   * The following notes about ACL entries are necessarily terse. If more detail is required, please consult relevant TrueNAS documentation.
+   *
+   * .. rubric:: NFSv4 ACL entry semantics
+   *
+   * The ``tag`` identifies the principal to whom the entry applies. ``USER`` and ``GROUP`` have conventional meanings: ``owner@`` refers to the owning user of the file, ``group@`` to the owning group, and ``everyone@`` to all users (including the owning user and group). The ``type`` may be ``ALLOW`` or ``DENY``, and ``DENY`` entries take precedence over ``ALLOW`` when the ACL is evaluated. The ``flags`` inheritance flags determine how an entry is presented (if at all) on newly-created files or directories within the specified path and are only valid for directories.
+   *
+   * .. rubric:: POSIX1e ACL entry semantics
+   *
+   * When ``default`` is ``true``, the entry belongs to the POSIX default ACL and is copied to new files and directories created within the directory where it is set; default entries are *not* evaluated when determining access to the file on which they are set. When ``default`` is ``false``, the entry applies to the POSIX access ACL which is used to determine access to the directory but is not inherited.
+   *
+   * For the ``tag``, ``USER_OBJ`` refers to the owning user (denoted "user" in conventional POSIX UGO permissions), ``GROUP_OBJ`` refers to the owning group (denoted "group"), and ``OTHER`` applies to all users and groups who are not ``USER_OBJ`` or ``GROUP_OBJ``. ``MASK`` sets the maximum permissions granted to all ``USER`` and ``GROUP`` entries. A valid POSIX1e ACL contains precisely one ``USER_OBJ``, ``GROUP_OBJ``, ``OTHER``, and ``MASK`` entry for each of the default and access lists.
+   *
+   * This method is a job.
+   * @roles FILESYSTEM_ATTRS_WRITE
+   */
+  'filesystem.setacl': {
+    params: [filesystem_acl: FilesystemSetaclArgs];
+    response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
+  };
+
+  /**
+   * Set Unix permissions on the given ``path``.
+   *
+   * If ``mode`` is specified then the mode is applied to the path, and to files and subdirectories depending on which ``options`` are selected.
+   *
+   * This method will fail if an extended ACL is present on ``path`` unless ``stripacl`` is set. If no ``mode`` is set and ``stripacl`` is ``true``, then non-trivial ACLs are converted to trivial ACLs. An ACL is trivial if it can be expressed as a file mode without losing any access rules.
+   *
+   * .. important::
+   *
+   *     ``uid``, ``gid``, ``user``, and ``group`` *should* remain unset *unless* the
+   *     administrator wishes to change the owner or group of files.
+   *
+   * This method is a job.
+   * @roles FILESYSTEM_ATTRS_WRITE
+   */
+  'filesystem.setperm': {
+    params: [filesystem_setperm: FilesystemSetpermArgs];
+    response: null;
   };
 
   /**

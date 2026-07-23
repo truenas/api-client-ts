@@ -6,37 +6,39 @@
 import type { ApiJobDirectory as PreviousApiJobDirectory } from '../v25_10_5/api-job-directory';
 
 import type {
+  ZFSFileAttrsData,
+} from '../v25_04_0/api-types';
+import type {
   AppCreateArgs,
   AppRollbackOptions,
   AppUpdate,
   DISABLED_ACLResult,
-  POSIXACLResult,
-  UpgradeOptions,
-  ZFSFileAttrsData,
-} from '../v25_04_0/api-types';
-import type {
-  NFS4ACLResult,
-} from '../v25_04_2/api-types';
-import type {
   MailSendMessage,
   MailUpdate,
+  NFS4ACLResult,
+  POSIXACLResult,
   SupportNewTicketCommunity,
   SupportNewTicketEnterprise,
   TunableUpdate,
+  UpgradeOptions,
 } from '../v25_10_0/api-types';
 import type {
   Action2,
   AppBulkUpgradeJobResult,
   AppEntry,
+  AppImagePullArgs,
   AppUpgradeBulkEntry,
   AuditExport,
   ContainerCreateArgs,
   ContainerEntry,
   ContainerStopOptions,
+  DirectoryServicesEntry,
+  DirectoryServicesUpdateArgs,
   DockerEntry,
   DockerUpdateArgs,
   FilesystemSetZfsAttributesArgs,
   FilesystemSetaclArgs,
+  PoolAttach,
   PoolCreate,
   PoolDatasetChangeKeyOptions,
   PoolEntry,
@@ -71,6 +73,17 @@ export interface ApiJobDirectoryDelta {
   'app.create': {
     params: [app_create: AppCreateArgs];
     response: AppEntry;
+  };
+
+  /**
+   * Pull a docker image.
+   *
+   * This method is a job.
+   * @roles APPS_WRITE
+   */
+  'app.image.pull': {
+    params: [image_pull: AppImagePullArgs];
+    response: null;
   };
 
   /**
@@ -175,6 +188,19 @@ export interface ApiJobDirectoryDelta {
   };
 
   /**
+   * Update the directory services configuration that binds TrueNAS to an Active Directory, IPA, or OpenLDAP domain.
+   *
+   * When IPA or Active Directory is enabled for the first time, TrueNAS joins the domain which creates a computer account and DNS records on the domain controller. Setting ``enable`` to ``false`` while keeping the rest of the configuration temporarily disables directory services without discarding the settings. Setting both ``enable`` to ``false`` and ``service_type`` to ``null`` clears the configuration but does not remove the TrueNAS computer account from the domain; use :doc:`directoryservices.leave <api_methods_directoryservices.leave>` to leave a domain cleanly.
+   *
+   * This method is a job.
+   * @roles DIRECTORY_SERVICE_WRITE
+   */
+  'directoryservices.update': {
+    params: [directoryservices_update?: DirectoryServicesUpdateArgs];
+    response: DirectoryServicesEntry;
+  };
+
+  /**
    * Update Docker service configuration.
    *
    * This method is a job.
@@ -244,6 +270,27 @@ export interface ApiJobDirectoryDelta {
    */
   'mail.send': {
     params: [message: MailSendMessage, config?: MailUpdate];
+    response: null;
+  };
+
+  /**
+   * Attach a disk to an existing vdev in a pool, converting a striped vdev to a mirror or extending an existing mirror to an n-way mirror.
+   *
+   * This operation will format the new disk, attach it to the target vdev, and wait for resilvering to complete if the target is a RAIDZ vdev undergoing expansion.
+   *
+   * Locking behavior:
+   *
+   * - If another attach operation is already using the same disk, this call will fail immediately
+   *   with EBUSY rather than queueing.
+   * - If another attach operation is running on the same pool (but with a different disk), this
+   *   call will queue and wait for the previous operation to complete.
+   * - Operations on different pools with different disks can run concurrently.
+   *
+   * This method is a job.
+   * @roles POOL_WRITE
+   */
+  'pool.attach': {
+    params: [oid: number, options: PoolAttach];
     response: null;
   };
 

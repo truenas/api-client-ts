@@ -11,11 +11,27 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  ApiKeyCreate,
   ApiKeyQueryResultItem,
-  ApiKeyUpdate,
   AppImageQueryResultItem,
   AppQueryResultItem,
+  CloudBackupQueryResultItem,
+  CredentialsQueryResultItem,
+  CronJobQueryResultItem,
+  ISCSITargetExtentQueryResultItem,
+  KeychainCredentialQueryResultItem,
+  MegaCredentialsModel,
+  PeriodicSnapshotTaskQueryResultItem,
+  SharingNFSQueryResultItem,
+  StorjIxCredentialsModelInput,
+  UserQueryResultItem,
+} from '../v25_04_0/api-types';
+import type {
+  VMQueryResultItem,
+} from '../v25_04_2/api-types';
+import type {
+  ACLTemplateEntry,
+  ApiKeyCreate,
+  ApiKeyUpdate,
   AuthRespAuthErr,
   AuthRespAuthRedirect,
   AuthRespExpired,
@@ -25,59 +41,41 @@ import type {
   BoxCredentialsModel,
   CatalogAppVersionDetails,
   CatalogEntry,
-  CloudBackupQueryResultItem,
-  CredentialsQueryResultItem,
+  CloudBackupCreate,
+  CloudBackupUpdate,
+  CloudSyncCreate,
+  CloudSyncQueryResultItem,
+  CloudSyncUpdate,
   CredentialsVerifyResult,
-  CronJobEntry,
   DeviceGetInfoDisk,
+  DirectionInput2,
+  DirectoryServicesStatus,
+  DiskEntry,
   DropboxCredentialsModel,
   FTPCredentialsModel,
+  FailoverRebootInfo,
   GPUInfo,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
-  ISCSITargetExtentQueryResultItem,
-  KeychainCredentialQueryResultItem,
-  MegaCredentialsModel,
-  OneDriveCredentialsModel,
-  PCloudCredentialsModel,
-  PeriodicSnapshotTaskQueryResultItem,
-  ReportingQuery,
-  SFTPCredentialsModel,
-  SerialInfo,
-  SharingNFSQueryResultItem,
-  SharingSMBGetaclArgs,
-  StorjIxCredentialsModelInput,
-  SwiftCredentialsModel,
-  UserQueryResultItem,
-  WebDavCredentialsModel,
-  YandexCredentialsModel,
-} from '../v25_04_0/api-types';
-import type {
-  ACLTemplateEntry,
-  VMDeleteOptions,
-  VMQueryResultItem,
-} from '../v25_04_2/api-types';
-import type {
-  CloudBackupCreate,
-  CloudBackupUpdate,
-  CloudSyncCreate,
-  CloudSyncQueryResultItem,
-  CloudSyncUpdate,
-  DirectionInput2,
-  DirectoryServicesStatus,
-  DiskEntry,
-  FailoverRebootInfo,
+  IPMILanEntry,
+  IPMILanQueryResultItem,
   InterfaceEntry,
   IscsiExtentCreate,
   IscsiExtentUpdate,
+  NVMetHostQueryResultItem,
+  NVMetHostSubsysCreate,
+  NVMetHostSubsysQueryResultItem,
+  NVMetHostSubsysUpdate,
   NVMetNamespaceCreate,
   NVMetNamespaceQueryResultItem,
   NVMetNamespaceUpdate,
   NfsShareCreate,
   NfsShareUpdate,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
   PoolDatasetDatasetQuota,
   PoolDatasetEntry,
   PoolDatasetProjectQuota,
@@ -88,11 +86,16 @@ import type {
   PoolSnapshotTaskUpdate,
   ReplicationQueryResultItem,
   ReplicationRestoreOptions,
+  ReportingQuery,
   RestoreOpts,
   RsyncTaskCreate,
   RsyncTaskQueryResultItem,
   RsyncTaskUpdate,
+  SFTPCredentialsModel,
+  SerialInfo,
+  SharingSMBGetaclArgs,
   SharingSMBQueryResultItem,
+  SwiftCredentialsModel,
   SystemAdvancedEntry,
   SystemGeneralUpdateArgs,
   TransportInput,
@@ -100,11 +103,14 @@ import type {
   TunableQueryResultItem,
   UPSEntry,
   VMCreateArgs,
+  VMDeleteOptions,
   VMUpdate,
   VMWareCreate,
   VMWareMatchDatastoresWithDatasetsArgs,
   VMWareQueryResultItem,
   VMWareUpdate,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
 } from '../v25_10_0/api-types';
 import type {
   ACLTemplateByPathArgs,
@@ -149,8 +155,10 @@ import type {
   ContainerUpdate,
   CredentialsEntry,
   CronJobCreate,
+  CronJobEntry,
   CronJobUpdate,
   DeviceGetInfoOther,
+  DirectoryServicesEntry,
   DiskDetails,
   DiskResetSedArgs,
   DiskSetupSedArgs,
@@ -160,6 +168,7 @@ import type {
   DockerEntry,
   Feature,
   GraphIdentifier,
+  IPMILanQuery,
   ISCSIGlobalEntry,
   ISCSIGlobalSessionsItem,
   ISCSIGlobalSessionsItemQueryResultItem,
@@ -169,10 +178,16 @@ import type {
   KeychainCredentialEntry,
   LXCConfigEntry,
   LXCConfigUpdateArgs,
+  NVMetHostCreate,
+  NVMetHostEntry,
+  NVMetHostSubsysEntry,
+  NVMetHostUpdate,
   NVMetNamespaceEntry,
   PeriodicSnapshotTaskEntry,
   PoolDatasetCreateFilesystem,
   PoolDatasetCreateVolume,
+  PoolDatasetRenameOptions,
+  PoolDatasetUpdate,
   PoolEntry,
   PoolSnapshotCreateWithName,
   PoolSnapshotCreateWithSchema,
@@ -188,6 +203,8 @@ import type {
   SMBShareAcl,
   SMBStatusOptions,
   SMBUpdateArgs,
+  SNMPEntry,
+  SNMPUpdateArgs,
   SharingNFSEntry,
   SharingSMBEntry,
   SharingSMBSetaclArgs,
@@ -796,6 +813,25 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SYSTEM_CRON_READ
+   */
+  'cronjob.get_instance': {
+    params: [id: number, options?: QueryOptions<CronJobEntry>];
+    response: CronJobEntry;
+  };
+
+  /**
+   * @roles SYSTEM_CRON_READ
+   */
+  'cronjob.query': {
+    params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptions<CronJobEntry>];
+    response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
+  };
+
+  /**
    * Update cronjob of ``id``.
    * @roles SYSTEM_CRON_WRITE
    */
@@ -811,6 +847,14 @@ export interface ApiCallDirectoryDelta {
   'device.get_info': {
     params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
     response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
+  };
+
+  /**
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'directoryservices.config': {
+    params: [];
+    response: DirectoryServicesEntry;
   };
 
   /**
@@ -944,6 +988,15 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Query available IPMI Channels with ``query-filters`` and ``query-options``.
+   * @roles IPMI_READ
+   */
+  'ipmi.lan.query': {
+    params: [data?: IPMILanQuery];
+    response: IPMILanEntry[] | IPMILanEntry | IPMILanQueryResultItem[] | IPMILanQueryResultItem | number;
+  };
+
+  /**
    * Create an iSCSI Extent.
    * @roles SHARING_ISCSI_EXTENT_WRITE
    */
@@ -1054,6 +1107,84 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Create an NVMe target ``host``.
+   *
+   * This may be then be associated with one or more ``subsystems`` to control access.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host.create': {
+    params: [nvmet_host_create: NVMetHostCreate];
+    response: NVMetHostEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetHostEntry>];
+    response: NVMetHostEntry;
+  };
+
+  /**
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host.query': {
+    params: [filters?: QueryFilters<NVMetHostEntry>, options?: QueryOptions<NVMetHostEntry>];
+    response: NVMetHostEntry[] | NVMetHostEntry | NVMetHostQueryResultItem[] | NVMetHostQueryResultItem | number;
+  };
+
+  /**
+   * Update NVMe target ``host`` of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host.update': {
+    params: [id: number, nvmet_host_update: NVMetHostUpdate];
+    response: NVMetHostEntry;
+  };
+
+  /**
+   * Create an association between a ``host`` and a subsystem (``subsys``).
+   *
+   * This will enable the ``host`` to access the subsystem, even if the subsystem does not have the ``allow_any_host`` attribute set.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host_subsys.create': {
+    params: [nvmet_host_subsys_create: NVMetHostSubsysCreate];
+    response: NVMetHostSubsysEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host_subsys.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetHostSubsysEntry>];
+    response: NVMetHostSubsysEntry;
+  };
+
+  /**
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host_subsys.query': {
+    params: [filters?: QueryFilters<NVMetHostSubsysEntry>, options?: QueryOptions<NVMetHostSubsysEntry>];
+    response: NVMetHostSubsysEntry[] | NVMetHostSubsysEntry | NVMetHostSubsysQueryResultItem[] | NVMetHostSubsysQueryResultItem | number;
+  };
+
+  /**
+   * Update ``host``/``subsys`` association of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host_subsys.update': {
+    params: [id: number, nvmet_host_subsys_update: NVMetHostSubsysUpdate];
+    response: NVMetHostSubsysEntry;
+  };
+
+  /**
    * Create a NVMe target namespace in a subsystem (``subsys``).
    *
    * This will expose the namespace to any hosts permitted to access the subsystem.
@@ -1124,6 +1255,44 @@ export interface ApiCallDirectoryDelta {
   'pool.dataset.get_quota': {
     params: [dataset: string, quota_type: 'USER' | 'GROUP' | 'DATASET' | 'PROJECT', filters?: QueryFilters<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>, options?: QueryOptions<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>];
     response: (PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota)[] | PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota | number;
+  };
+
+  /**
+   * Rename a ZFS resource (filesystem, snapshot, or zvolume) identified by ``id``.
+   *
+   * .. warning::
+   *
+   *     No safety checks are performed when renaming ZFS resources. If the resource is in use by services
+   *     such as SMB, iSCSI, snapshot tasks, replication, or cloud sync, renaming may cause disruptions or
+   *     service failures. Proceed only if you are certain the resource is not in use and fully understand
+   *     the risks; set ``force`` to continue.
+   *
+   * The ``recursive`` option is only valid for renaming snapshots. If ``true``, and a snapshot is given, the snapshot is renamed recursively for all children -- for example, ``dozer/a@now`` and ``dozer/a/b@now`` are renamed to ``dozer/a@new`` and ``dozer/a/b@new``. Renaming snapshots is likewise not recommended.
+   * @roles DATASET_WRITE
+   */
+  'pool.dataset.rename': {
+    params: [id: string, data: PoolDatasetRenameOptions];
+    response: null;
+  };
+
+  /**
+   * Updates a dataset/zvol ``id``.
+   *
+   * Update the ``comments`` for "tank/myuser"::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.dataset.update",
+   *         "params": ["tank/myuser", {
+   *             "comments": "Dataset for myuser, UPDATE #1"
+   *         }]
+   *     }
+   * @roles DATASET_WRITE
+   */
+  'pool.dataset.update': {
+    params: [id: string, data: PoolDatasetUpdate];
+    response: PoolDatasetEntry;
   };
 
   /**
@@ -1558,6 +1727,27 @@ export interface ApiCallDirectoryDelta {
   'smb.update': {
     params: [smb_update?: SMBUpdateArgs];
     response: SMBEntry;
+  };
+
+  /**
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'snmp.config': {
+    params: [];
+    response: SNMPEntry;
+  };
+
+  /**
+   * Update SNMP Service Configuration.
+   *
+   * The ``v3_*`` settings are valid and enforced only when ``v3`` is enabled.
+   *
+   * Enabling ``v3`` requires ``v3_username``, ``v3_authtype``, and ``v3_password``. Disabling ``v3`` alone retains the v3 user settings in the private config but removes the public config entry, blocking v3 access. Disabling ``v3`` and clearing ``v3_username`` additionally removes the user from the private config.
+   * @roles SYSTEM_GENERAL_WRITE
+   */
+  'snmp.update': {
+    params: [snmp_update?: SNMPUpdateArgs];
+    response: SNMPEntry;
   };
 
   /**

@@ -13,137 +13,125 @@ import type {
 import type {
   ACLTemplateQueryResultItem,
   AlertServiceQueryResultItem,
-  ApiKeyCreate,
   ApiKeyQueryResultItem,
-  ApiKeyUpdate,
-  AppImageEntry,
   AppImageQueryResultItem,
   AppQueryResultItem,
-  AppRegistryEntry,
   AppRegistryQueryResultItem,
-  AppsIxVolumeEntry,
   AppsIxVolumeQueryResultItem,
-  AuthOTPToken,
-  AuthRespAuthErr,
-  AuthRespAuthRedirect,
-  AuthRespExpired,
-  AuthRespOTPRequired,
-  AuthRespSuccess,
   AuthSessionsQueryResultItem,
-  AzureBlobCredentialsModel,
-  B2CredentialsModel,
-  BootEnvironmentEntry,
   BootEnvironmentQueryResultItem,
-  BoxCredentialsModel,
   CloudBackupQueryResultItem,
   CredentialsQueryResultItem,
-  CredentialsVerifyResult,
-  CronJobEntry,
   CronJobQueryResultItem,
-  DNSAuthenticatorEntry,
   DNSAuthenticatorQueryResultItem,
-  DeviceGetInfoDisk,
-  DockerNetworkEntry,
   DockerNetworkQueryResultItem,
-  DropboxCredentialsModel,
-  FCHostEntry,
   FCHostQueryResultItem,
-  FCPortEntry,
   FCPortQueryResultItem,
-  FTPCredentialsModel,
   FilesystemDirQueryResultItem,
-  GPUInfo,
-  GoogleCloudStorageCredentialsModel,
-  GoogleDriveCredentialsModel,
-  GooglePhotosCredentialsModel,
   GroupQueryResultItem,
-  HTTPCredentialsModel,
-  HubicCredentialsModel,
-  ISCSIPortalEntry,
   ISCSIPortalQueryResultItem,
-  ISCSITargetAuthCredentialEntry,
   ISCSITargetAuthCredentialQueryResultItem,
-  ISCSITargetAuthorizedInitiatorEntry,
   ISCSITargetAuthorizedInitiatorQueryResultItem,
-  ISCSITargetEntry,
   ISCSITargetExtentQueryResultItem,
   ISCSITargetQueryResultItem,
-  ISCSITargetToExtentEntry,
   ISCSITargetToExtentQueryResultItem,
   InitShutdownScriptQueryResultItem,
-  IscsiSession,
   KeychainCredentialQueryResultItem,
   MegaCredentialsModel,
-  NTPServerEntry,
+  NFSUpdateArgs,
   NTPServerQueryResultItem,
-  OneDriveCredentialsModel,
-  PCloudCredentialsModel,
   PeriodicSnapshotTaskQueryResultItem,
-  PoolScrubEntry,
   PoolScrubQueryResultItem,
-  PrivilegeCreate,
   PrivilegeQueryResultItem,
-  PrivilegeRolesEntry,
   PrivilegeRolesQueryResultItem,
-  PrivilegeUpdate,
-  ReportingExportsEntry,
   ReportingExportsQueryResultItem,
-  ReportingGetDataResponse,
-  ReportingQuery,
-  S3CredentialsModelInput2,
-  SFTPCredentialsModel,
-  SSHCredentialsEntry,
-  SSHKeyPairEntry,
-  SerialInfo,
   SharingNFSQueryResultItem,
-  SharingSMBGetaclArgs,
-  StaticRouteEntry,
   StaticRouteQueryResultItem,
   StorjIxCredentialsModelInput,
-  SwiftCredentialsModel,
-  TwofactorOptions,
-  UserGetUserObjArgs,
   UserQueryResultItem,
-  WebDavCredentialsModel,
-  YandexCredentialsModel,
+  Username,
 } from '../v25_04_0/api-types';
 import type {
-  ACLTemplateEntry,
-  FilesystemDirEntry,
-  InitShutdownScriptEntry,
   VMDeviceQueryResultItem,
   VMQueryResultItem,
 } from '../v25_04_2/api-types';
 import type {
   ACLTemplateByPathArgs,
+  ACLTemplateEntry,
   ACMEDNSAuthenticatorSchema,
   ACMEDNSAuthenticatorUpdate,
   AclTemplateCreate,
   AclTemplateUpdate,
+  Alert,
+  AlertCategory,
   AlertClassesEntry,
   AlertClassesUpdate,
   AlertServiceCreate,
   AlertServiceEntry,
+  ApiKeyCreate,
   ApiKeyEntry,
   ApiKeyEntryWithKey,
+  ApiKeyUpdate,
   AppAvailableItem,
+  AppCertificate,
+  AppContainerIDOptions,
+  AppContainerResponse,
   AppEntry,
+  AppGPUResponse,
+  AppImageDeleteOptions,
+  AppImageDockerhubRateLimitResult,
+  AppImageEntry,
+  AppRegistryCreate,
+  AppRegistryEntry,
+  AppRegistryUpdate,
+  AppUpgradeSummaryResult,
+  AppsIxVolumeEntry,
   AuditEntry,
   AuditQuery,
   AuditQueryResultItem,
   AuditUpdate,
+  AuthApiKeyPlain,
+  AuthGenerateOnetimePasswordArgs,
+  AuthMeResult,
+  AuthOTPToken,
+  AuthPasswordPlain,
+  AuthRespAuthErr,
+  AuthRespAuthRedirect,
+  AuthRespExpired,
+  AuthRespOTPRequired,
+  AuthRespSuccess,
   AuthSessionsEntry,
+  AuthTokenPlain,
+  AzureBlobCredentialsModel,
+  B2CredentialsModel,
+  BootEnvironmentActivateArgs,
+  BootEnvironmentCloneArgs,
+  BootEnvironmentDestroyArgs,
+  BootEnvironmentEntry,
+  BootEnvironmentKeepArgs,
   BootGetState,
+  BoxCredentialsModel,
+  CSRProfilesModel,
+  CatalogAppInfo,
+  CatalogAppVersionDetails,
+  CatalogAppsArgs,
+  CatalogEntry,
+  CatalogTrainInfo,
+  CatalogUpdateArgs,
   CertificateEntry,
   CertificateQueryResultItem,
   CloudBackupCreate,
   CloudBackupEntry,
+  CloudBackupSnapshot,
+  CloudBackupSnapshotItem,
   CloudBackupUpdate,
   CloudCredentialCreate,
   CloudCredentialUpdate,
   CloudSyncCreate,
   CloudSyncEntry,
   CloudSyncListDirectoryArgs,
+  CloudSyncOneDriveListDrivesArgs,
+  CloudSyncOneDriveListDrivesDrive,
   CloudSyncProvider,
   CloudSyncQueryResultItem,
   CloudSyncUpdate,
@@ -154,9 +142,16 @@ import type {
   CoreOptionsInput,
   CorePingRemoteArgs,
   CredentialsEntry,
+  CredentialsVerifyResult,
+  CronJobCreate,
+  CronJobEntry,
+  CronJobUpdate,
+  DISABLED_ACLResult,
   DNSAuthenticatorCreateArgs,
+  DNSAuthenticatorEntry,
   DNSQueryItem,
   DNSQueryItemQueryResultItem,
+  DeviceGetInfoDisk,
   DeviceGetInfoOther,
   DirectionInput2,
   DirectoryServicesEntry,
@@ -168,25 +163,61 @@ import type {
   DiskUpdate,
   DisplayDevice,
   DisplayWebURIOptions,
+  DockerBackupInfo,
   DockerEntry,
+  DockerNetworkEntry,
+  DropboxCredentialsModel,
   EmptyDict,
   Enclosure2Entry,
   Enclosure2QueryResultItem,
   Enclosure2SetSlotStatusArgs,
+  FCHostCreate,
+  FCHostEntry,
+  FCHostUpdate,
+  FCPortChoiceEntry,
+  FCPortCreate,
+  FCPortEntry,
+  FCPortUpdate,
+  FTPCredentialsModel,
+  FTPEntry,
+  FTPUpdateArgs,
   FailoverEntry,
+  FailoverRebootInfoResult,
   FailoverSyncToPeer,
   FailoverUpdate,
   Feature,
+  FilesystemDirEntry,
+  FilesystemMkdirArgs,
+  FilesystemStatData,
+  FilesystemStatfsData,
+  GPUInfo,
+  GoogleCloudStorageCredentialsModel,
+  GoogleDriveCredentialsModel,
+  GooglePhotosCredentialsModel,
   GraphIdentifier,
+  GroupCreate,
   GroupEntry,
+  GroupGetGroupObjArgs,
+  GroupGetGroupObjResult,
+  GroupUpdate,
+  HTTPCredentialsModel,
+  HubicCredentialsModel,
   IPMIChassisInfo,
   IPMILanEntry,
   IPMILanQuery,
   IPMILanQueryResultItem,
   IPMILanUpdateOptionsDHCP,
   IPMILanUpdateOptionsStatic,
+  ISCSIGlobalEntry,
+  ISCSIGlobalUpdateArgs,
+  ISCSIPortalEntry,
+  ISCSITargetAuthCredentialEntry,
+  ISCSITargetAuthorizedInitiatorEntry,
+  ISCSITargetEntry,
   ISCSITargetExtentEntry,
+  ISCSITargetToExtentEntry,
   InitShutdownScriptCreate,
+  InitShutdownScriptEntry,
   InitShutdownScriptUpdate,
   InterfaceChoicesOptions,
   InterfaceCommitOptions,
@@ -200,9 +231,18 @@ import type {
   InterfaceServicesRestartedOnSyncItem,
   InterfaceUpdate,
   InterfaceXmitHashPolicyChoicesResult,
+  IscsiAuthCreate,
+  IscsiAuthUpdate,
   IscsiExtentCreate,
   IscsiExtentUpdate,
+  IscsiInitiatorCreate,
+  IscsiInitiatorUpdate,
+  IscsiPortalCreate,
+  IscsiPortalUpdate,
+  IscsiSession,
   IscsiTargetCreate,
+  IscsiTargetToExtentCreate,
+  IscsiTargetToExtentUpdate,
   IscsiTargetUpdate,
   JBOFCreate,
   JBOFEntry,
@@ -221,15 +261,24 @@ import type {
   KerberosUpdateArgs,
   KeychainCredentialCreateSSHCredentialsEntry,
   KeychainCredentialCreateSSHKeyPairEntry,
+  KeychainCredentialDeleteOptions,
   KeychainCredentialEntry,
+  KeychainCredentialGenerateSshKeyPairResult,
+  KeychainCredentialRemoteSSHSemiautomaticSetup,
+  KeychainCredentialRemoteSshHostKeyScanArgs,
   KeychainCredentialUpdateSSHCredentialsEntry,
   KeychainCredentialUpdateSSHKeyPairEntry,
   MailEntry,
   MailUpdate,
+  NFS4ACLResult,
+  NFSEntry,
   NFSGetNfs3ClientsEntry,
   NFSGetNfs3ClientsQueryResultItem,
   NFSGetNfs4ClientsEntry,
   NFSGetNfs4ClientsQueryResultItem,
+  NTPServerCreate,
+  NTPServerEntry,
+  NTPServerUpdate,
   NVMetGlobalEntry,
   NVMetGlobalUpdateArgs,
   NVMetHostCreate,
@@ -267,6 +316,9 @@ import type {
   NetworkGeneralSummaryResult,
   NfsShareCreate,
   NfsShareUpdate,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
+  POSIXACLResult,
   PeriodicSnapshotTaskEntry,
   PoolAttachment,
   PoolDatasetChecksumChoicesResult,
@@ -287,7 +339,10 @@ import type {
   PoolLabel,
   PoolProcess,
   PoolQueryResultItem,
+  PoolResilverEntry,
+  PoolResilverUpdate,
   PoolScrubCreate,
+  PoolScrubEntry,
   PoolScrubUpdate,
   PoolSnapshotCloneArgs,
   PoolSnapshotCreateUpdateEntry,
@@ -301,11 +356,17 @@ import type {
   PoolSnapshotRenameOptions,
   PoolSnapshotRollbackOptions,
   PoolSnapshotTaskCreate,
+  PoolSnapshotTaskDeleteOptions,
   PoolSnapshotTaskUpdate,
   PoolSnapshotTaskUpdateWillChangeRetentionFor,
   PoolSnapshotUpdate,
+  PrivilegeCreate,
   PrivilegeEntry,
+  PrivilegeRolesEntry,
+  PrivilegeUpdate,
   QueryOptionsModel,
+  RdmaCardConfig,
+  RebootInfo,
   ReplicationConfigEntry,
   ReplicationConfigUpdateArgs,
   ReplicationCountEligibleManualSnapshotsArgs,
@@ -315,9 +376,14 @@ import type {
   ReplicationQueryResultItem,
   ReplicationRestoreOptions,
   ReplicationUpdate,
+  ReportingEntry,
   ReportingExporterSchema,
   ReportingExporterUpdate,
   ReportingExportsCreateArgs,
+  ReportingExportsEntry,
+  ReportingGetDataResponse,
+  ReportingQuery,
+  ReportingUpdateArgs,
   RestoreOpts,
   Result,
   Result2,
@@ -328,23 +394,39 @@ import type {
   RsyncTaskEntry,
   RsyncTaskQueryResultItem,
   RsyncTaskUpdate,
+  S3CredentialsModelInput2,
+  SFTPCredentialsModel,
+  SMBEntry,
   SMBShareAcl,
+  SMBUpdateArgs,
+  SNMPEntry,
+  SNMPUpdateArgs,
+  SSHCredentialsEntry,
   SSHEntry,
+  SSHKeyPairEntry,
   SSHUpdate,
+  SerialInfo,
   ServiceEntry,
   ServiceQueryResultItem,
   ServiceUpdate,
+  SetupSSHConnectionManual,
+  SetupSSHConnectionSemiautomatic,
   SharingNFSEntry,
   SharingSMBEntry,
+  SharingSMBGetaclArgs,
   SharingSMBQueryResultItem,
   SharingSMBSetaclArgs,
   SharingSMBSharePrecheckArgs,
   SmbShareCreate,
   SmbShareUpdate,
+  StaticRouteCreate,
+  StaticRouteEntry,
+  StaticRouteUpdate,
   StatusResult,
   SupportEntry,
   SupportSimilarIssue,
   SupportUpdate,
+  SwiftCredentialsModel,
   SysInfo,
   SystemAdvancedEntry,
   SystemAdvancedUpdate,
@@ -364,6 +446,7 @@ import type {
   TunableTunableTypeChoices,
   TwoFactorAuthEntry,
   TwoFactorAuthUpdate,
+  TwofactorOptions,
   UPSEntry,
   UPSUpdateArgs,
   USBPassthroughDevice,
@@ -373,27 +456,42 @@ import type {
   UpdateProfileChoice,
   UpdateStatus,
   UpdateUpdate,
+  UpgradeSummaryOptions,
+  UsedKeychainCredential,
   UserCreate,
   UserCreateUpdateResult,
+  UserDeleteOptions,
   UserEntry,
   UserGetUserObj,
+  UserGetUserObjArgs,
   UserRenew2FaSecretResult,
+  UserSetPasswordArgs,
+  UserSetupLocalAdministratorOptions,
   UserUpdate,
+  VMBootloaderOptionsResult,
   VMBootloaderOvmfChoicesResult,
   VMCpuModelChoicesResult,
   VMCreateArgs,
+  VMDeleteOptions,
   VMDeviceCreateArgs,
+  VMDeviceDeleteOptions,
   VMDeviceEntry,
   VMDeviceIotypeChoicesResult,
   VMDeviceNicAttachChoicesResult,
+  VMDevicePassthroughDevice,
+  VMDevicePassthroughInfo,
   VMDeviceUpdate,
   VMDeviceUsbControllerChoicesResult,
   VMEntry,
+  VMFlagsResult,
   VMGetDisplayWebUriResult,
   VMGetVmMemoryInfoResult,
   VMGetVmemoryInUseResult,
   VMGuestArchitectureAndMachineChoicesResult,
+  VMStartOptions,
+  VMStatus,
   VMUpdate,
+  VMVirtualizationDetailsResult,
   VMWareCreate,
   VMWareEntry,
   VMWareGetDatastoresArgs,
@@ -402,6 +500,8 @@ import type {
   VMWareQueryResultItem,
   VMWareUpdate,
   Verb,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
   ZFSResourceEntry,
   ZFSResourceQuery,
 } from './api-types';
@@ -429,6 +529,17 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'acme.dns.authenticator.get_instance': {
+    params: [id: number, options?: QueryOptions<DNSAuthenticatorEntry>];
+    response: DNSAuthenticatorEntry;
+  };
+
+  /**
    * @roles NETWORK_INTERFACE_READ
    */
   'acme.dns.authenticator.query': {
@@ -443,6 +554,24 @@ export interface ApiCallDirectoryDelta {
   'acme.dns.authenticator.update': {
     params: [id: number, dns_authenticator_update: ACMEDNSAuthenticatorUpdate];
     response: DNSAuthenticatorEntry;
+  };
+
+  /**
+   * List all types of alerts including active/dismissed currently in the system.
+   * @roles ALERT_LIST_READ
+   */
+  'alert.list': {
+    params: [];
+    response: Alert[];
+  };
+
+  /**
+   * List all types of alerts which the system can issue.
+   * @roles ALERT_LIST_READ
+   */
+  'alert.list_categories': {
+    params: [];
+    response: AlertCategory[];
   };
 
   /**
@@ -559,6 +688,33 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Returns certificates which can be used by applications.
+   * @roles APPS_READ, READONLY_ADMIN
+   */
+  'app.certificate_choices': {
+    params: [];
+    response: AppCertificate[];
+  };
+
+  /**
+   * Returns container console choices for ``app_name``.
+   * @roles APPS_READ, READONLY_ADMIN
+   */
+  'app.container_console_choices': {
+    params: [app_name: string];
+    response: AppContainerResponse;
+  };
+
+  /**
+   * Returns container IDs for ``app_name``.
+   * @roles APPS_READ
+   */
+  'app.container_ids': {
+    params: [app_name: string, options?: AppContainerIDOptions];
+    response: AppContainerResponse;
+  };
+
+  /**
    * Returns instance matching `id`. If `id` is not found, Validation error is raised.
    *
    * Please see `query` method documentation for `options`.
@@ -567,6 +723,44 @@ export interface ApiCallDirectoryDelta {
   'app.get_instance': {
     params: [id: string, options?: QueryOptions<AppEntry>];
     response: AppEntry;
+  };
+
+  /**
+   * Returns GPU choices which can be used by applications.
+   * @roles APPS_READ, READONLY_ADMIN
+   */
+  'app.gpu_choices': {
+    params: [];
+    response: AppGPUResponse;
+  };
+
+  /**
+   * Delete docker image ``image_id``.
+   * @roles APPS_WRITE
+   */
+  'app.image.delete': {
+    params: [image_id: string, options?: AppImageDeleteOptions];
+    response: true;
+  };
+
+  /**
+   * Returns the current rate-limit information for the Docker Hub registry.
+   *
+   * Please refer to https://docs.docker.com/docker-hub/download-rate-limit/ for more information.
+   * @roles APPS_READ
+   */
+  'app.image.dockerhub_rate_limit': {
+    params: [];
+    response: AppImageDockerhubRateLimitResult;
+  };
+
+  /**
+   * Returns instance matching `id_`. Raises InstanceNotFound if missing.
+   * @roles APPS_READ
+   */
+  'app.image.get_instance': {
+    params: [id: string, options?: QueryOptions<AppImageEntry>];
+    response: AppImageEntry;
   };
 
   /**
@@ -613,11 +807,40 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Create an app registry entry.
+   * @roles APPS_WRITE
+   */
+  'app.registry.create': {
+    params: [app_registry_create: AppRegistryCreate];
+    response: AppRegistryEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles APPS_READ
+   */
+  'app.registry.get_instance': {
+    params: [id: number, options?: QueryOptions<AppRegistryEntry>];
+    response: AppRegistryEntry;
+  };
+
+  /**
    * @roles APPS_READ
    */
   'app.registry.query': {
     params: [filters?: QueryFilters<AppRegistryEntry>, options?: QueryOptions<AppRegistryEntry>];
     response: AppRegistryEntry[] | AppRegistryEntry | AppRegistryQueryResultItem[] | AppRegistryQueryResultItem | number;
+  };
+
+  /**
+   * Update an app registry entry.
+   * @roles APPS_WRITE
+   */
+  'app.registry.update': {
+    params: [id: number, data: AppRegistryUpdate];
+    response: AppRegistryEntry;
   };
 
   /**
@@ -627,6 +850,15 @@ export interface ApiCallDirectoryDelta {
   'app.similar': {
     params: [app_name: string, train: string];
     response: AppAvailableItem[];
+  };
+
+  /**
+   * Retrieve upgrade summary for ``app_name``.
+   * @roles APPS_READ
+   */
+  'app.upgrade_summary': {
+    params: [app_name: string, options?: UpgradeSummaryOptions];
+    response: AppUpgradeSummaryResult;
   };
 
   /**
@@ -670,6 +902,51 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Generate a password for the specified username that may be used only a single time to authenticate to TrueNAS. This may be used by server administrators to allow users authenticate and then set a proper password and two-factor authentication token.
+   * @roles ACCOUNT_WRITE
+   */
+  'auth.generate_onetime_password': {
+    params: [generate_single_use_password: AuthGenerateOnetimePasswordArgs];
+    response: string;
+  };
+
+  /**
+   * Authenticate using one of a variety of mechanisms.
+   *
+   * The mechanism is selected by the ``mechanism`` field of the request, and the set of supported mechanisms will be expanded in future releases.
+   *
+   * .. warning::
+   *
+   *     Mechanisms with a ``_PLAIN`` suffix involve passing plain-text passwords or
+   *     password-equivalent strings and should not be used over untrusted or insecure
+   *     transport.
+   *
+   * The ``response_type`` of the result indicates the outcome of the current authentication step and whether further action is required to complete authentication:
+   *
+   * - ``SUCCESS`` -- authentication completed and a session was established.
+   * - ``OTP_REQUIRED`` -- the account requires a one-time password; the client must continue
+   *   authentication by submitting the token via the ``OTP_TOKEN`` mechanism.
+   * - ``AUTH_ERR`` -- generic authentication failure corresponding to ``PAM_AUTH_ERR`` and
+   *   ``PAM_USER_UNKNOWN`` from libpam. Returned when the account does not exist or the
+   *   credential is incorrect.
+   * - ``EXPIRED`` -- the supplied credential is expired and not suitable for authentication.
+   * - ``REDIRECT`` -- authentication must be performed on a different server.
+   *
+   * A JSON-RPC ``error`` response (code ``-32001``, *Method call error*) is returned instead of a result in the following cases:
+   *
+   * - a multistep challenge-response mechanism is in progress and the supplied ``mechanism``
+   *   does not match the expected next step (errno ``EBUSY``)
+   * - the ``OTP_TOKEN`` mechanism is used without a preceding step having requested it
+   *   (errno ``EINVAL``)
+   * - the current authenticator assurance level prohibits the supplied mechanism
+   *   (errno ``EOPNOTSUPP``)
+   */
+  'auth.login_ex': {
+    params: [login_data: AuthApiKeyPlain | AuthPasswordPlain | AuthTokenPlain | AuthOTPToken];
+    response: AuthRespSuccess | AuthRespAuthErr | AuthRespExpired | AuthRespOTPRequired | AuthRespAuthRedirect;
+  };
+
+  /**
    * Continue an in-progress authentication attempt. This endpoint should be called to continue an :doc:`auth.login_ex <api_methods_auth.login_ex>` attempt that returned a ``response_type`` of ``OTP_REQUIRED``, submitting the one-time password via the ``OTP_TOKEN`` mechanism.
    *
    * This is a convenience wrapper around :doc:`auth.login_ex <api_methods_auth.login_ex>` for API consumers.
@@ -703,6 +980,14 @@ export interface ApiCallDirectoryDelta {
   'auth.login_with_token': {
     params: [token: string];
     response: boolean;
+  };
+
+  /**
+   * Returns currently logged-in user.
+   */
+  'auth.me': {
+    params: [];
+    response: AuthMeResult;
   };
 
   /**
@@ -754,6 +1039,61 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Activate the boot environment identified by ``id`` so that it becomes the default selection on the next boot. The currently running boot environment is unaffected until the system is rebooted.
+   *
+   * Activating the already-activated boot environment is allowed and regenerates the boot menu, which is how a caller retries after a failed menu regeneration.
+   *
+   * An ``EINVAL`` error is typically returned when the boot environment cannot be activated (for example, when it has no associated kernel); a refusal detected at the ZFS layer carries the errno of the underlying failure instead.
+   * @roles BOOT_ENV_WRITE
+   */
+  'boot.environment.activate': {
+    params: [boot_environment_activate: BootEnvironmentActivateArgs];
+    response: BootEnvironmentEntry;
+  };
+
+  /**
+   * Create a new boot environment named ``target`` as a clone of the existing boot environment identified by ``id``. The clone is not activated; use :doc:`boot.environment.activate <api_methods_boot.environment.activate>` to boot into it.
+   *
+   * An ``EINVAL`` error is returned when ``id`` does not exist or has no associated kernel, or when ``target`` is not a valid boot environment name; an ``EEXIST`` error when a boot environment named ``target`` already exists.
+   * @roles BOOT_ENV_WRITE
+   */
+  'boot.environment.clone': {
+    params: [boot_environment_clone: BootEnvironmentCloneArgs];
+    response: BootEnvironmentEntry;
+  };
+
+  /**
+   * Permanently destroy the boot environment identified by ``id``, freeing the space it consumes.
+   *
+   * The active (currently running) and activated (next boot) boot environments cannot be destroyed; attempting to do so returns an ``EINVAL`` error.
+   * @roles BOOT_ENV_WRITE
+   */
+  'boot.environment.destroy': {
+    params: [boot_environment_destroy: BootEnvironmentDestroyArgs];
+    response: null;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles BOOT_ENV_READ
+   */
+  'boot.environment.get_instance': {
+    params: [id: string, options?: QueryOptions<BootEnvironmentEntry>];
+    response: BootEnvironmentEntry;
+  };
+
+  /**
+   * Set or clear the "keep" flag on the boot environment identified by ``id``. When ``value`` is ``true``, the boot environment is protected from automatic deletion by the updater when it needs space for an update; when ``false``, the boot environment becomes eligible for such automatic pruning.
+   * @roles BOOT_ENV_WRITE
+   */
+  'boot.environment.keep': {
+    params: [boot_environment_destroy: BootEnvironmentKeepArgs];
+    response: BootEnvironmentEntry;
+  };
+
+  /**
    * @roles BOOT_ENV_READ
    */
   'boot.environment.query': {
@@ -786,6 +1126,41 @@ export interface ApiCallDirectoryDelta {
   'boot.set_scrub_interval': {
     params: [interval: number];
     response: number;
+  };
+
+  /**
+   * Retrieve apps details for ``label`` catalog.
+   * @roles CATALOG_READ
+   */
+  'catalog.apps': {
+    params: [catalog_apps_options?: CatalogAppsArgs];
+    response: Record<string, CatalogTrainInfo>;
+  };
+
+  /**
+   * @roles CATALOG_READ
+   */
+  'catalog.config': {
+    params: [];
+    response: CatalogEntry;
+  };
+
+  /**
+   * Retrieve information of ``app_name`` ``app_version_details.catalog`` catalog app.
+   * @roles CATALOG_READ
+   */
+  'catalog.get_app_details': {
+    params: [app_name: string, app_version_details: CatalogAppVersionDetails];
+    response: CatalogAppInfo;
+  };
+
+  /**
+   * Update catalog preferences.
+   * @roles CATALOG_WRITE
+   */
+  'catalog.update': {
+    params: [catalog_update?: CatalogUpdateArgs];
+    response: CatalogEntry;
   };
 
   /**
@@ -834,6 +1209,24 @@ export interface ApiCallDirectoryDelta {
   'cloud_backup.get_instance': {
     params: [id: number, options?: QueryOptions<CloudBackupEntry>];
     response: CloudBackupEntry;
+  };
+
+  /**
+   * List files in the directory ``path`` of the ``snapshot_id`` created by the cloud backup job ``id``.
+   * @roles CLOUD_BACKUP_READ
+   */
+  'cloud_backup.list_snapshot_directory': {
+    params: [id: number, snapshot_id: string, path: string];
+    response: CloudBackupSnapshotItem[];
+  };
+
+  /**
+   * List existing snapshots for the cloud backup job ``id``.
+   * @roles CLOUD_BACKUP_READ
+   */
+  'cloud_backup.list_snapshots': {
+    params: [id: number];
+    response: CloudBackupSnapshot[];
   };
 
   /**
@@ -968,6 +1361,15 @@ export interface ApiCallDirectoryDelta {
   'cloudsync.list_directory': {
     params: [cloud_sync_ls: CloudSyncListDirectoryArgs];
     response: (Record<string, unknown>)[];
+  };
+
+  /**
+   * Lists all available drives and their types for given Microsoft OneDrive credentials.
+   * @roles CLOUD_SYNC_WRITE
+   */
+  'cloudsync.onedrive_list_drives': {
+    params: [onedrive_list_drives: CloudSyncOneDriveListDrivesArgs];
+    response: CloudSyncOneDriveListDrivesDrive[];
   };
 
   /**
@@ -1110,11 +1512,42 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Create a new cron job.
+   *
+   * ``stderr`` and ``stdout`` are boolean values which, if ``true``, represent that we would like to suppress standard error / standard output respectively.
+   * @roles SYSTEM_CRON_WRITE
+   */
+  'cronjob.create': {
+    params: [data: CronJobCreate];
+    response: CronJobEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SYSTEM_CRON_READ
+   */
+  'cronjob.get_instance': {
+    params: [id: number, options?: QueryOptions<CronJobEntry>];
+    response: CronJobEntry;
+  };
+
+  /**
    * @roles SYSTEM_CRON_READ
    */
   'cronjob.query': {
     params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptions<CronJobEntry>];
     response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
+  };
+
+  /**
+   * Update cronjob of ``id``.
+   * @roles SYSTEM_CRON_WRITE
+   */
+  'cronjob.update': {
+    params: [id: number, data: CronJobUpdate];
+    response: CronJobEntry;
   };
 
   /**
@@ -1203,6 +1636,15 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Returns existing temperature alerts for specified disks.
+   * @roles REPORTING_READ
+   */
+  'disk.temperature_alerts': {
+    params: [names: string[]];
+    response: Alert[];
+  };
+
+  /**
    * Returns disk temperatures for disks in degrees celsius.
    *
    * .. note::
@@ -1239,6 +1681,26 @@ export interface ApiCallDirectoryDelta {
   'docker.config': {
     params: [];
     response: DockerEntry;
+  };
+
+  /**
+   * List existing app backups.
+   * @roles DOCKER_READ
+   */
+  'docker.list_backups': {
+    params: [];
+    response: DockerBackupInfo;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles DOCKER_READ
+   */
+  'docker.network.get_instance': {
+    params: [id: string | null, options?: QueryOptions<DockerNetworkEntry>];
+    response: DockerNetworkEntry;
   };
 
   /**
@@ -1367,6 +1829,17 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Return reboot information for both nodes of the failover pair.
+   *
+   * The response reports, for the local node and for the other node, whether a reboot is required and the reasons for it. The ``other_node`` field is ``null`` when the remote node cannot be reached.
+   * @roles FAILOVER_READ
+   */
+  'failover.reboot.info': {
+    params: [];
+    response: FailoverRebootInfoResult;
+  };
+
+  /**
    * Get the current HA status.
    *
    * Returns one of:
@@ -1412,11 +1885,73 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Create an FC host (pairing).
+   *
+   * This associates an ``alias`` with a corresponding Fibre Channel WWPN. For HA systems, the alias is associated with a pair of WWPNs, one per node.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'fc.fc_host.create': {
+    params: [fc_host_create: FCHostCreate];
+    response: FCHostEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fc.fc_host.get_instance': {
+    params: [id: number, options?: QueryOptions<FCHostEntry>];
+    response: FCHostEntry;
+  };
+
+  /**
    * @roles SHARING_ISCSI_TARGET_READ
    */
   'fc.fc_host.query': {
     params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptions<FCHostEntry>];
     response: FCHostEntry[] | FCHostEntry | FCHostQueryResultItem[] | FCHostQueryResultItem | number;
+  };
+
+  /**
+   * Update FC host ``id``.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'fc.fc_host.update': {
+    params: [id: number, fc_host_update: FCHostUpdate];
+    response: FCHostEntry;
+  };
+
+  /**
+   * Creates mapping between a FC port and a target.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'fcport.create': {
+    params: [fc_Port_create: FCPortCreate];
+    response: FCPortEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fcport.get_instance': {
+    params: [id: number, options?: QueryOptions<FCPortEntry>];
+    response: FCPortEntry;
+  };
+
+  /**
+   * Return the available Fibre Channel ports that can be assigned to a target.
+   *
+   * By default this includes ports that are already mapped to a target. Set ``include_used`` to ``false`` to exclude ports that are already in use.
+   * @roles READONLY_ADMIN, SHARING_ISCSI_TARGET_READ
+   */
+  'fcport.port_choices': {
+    params: [include_used?: boolean];
+    response: Record<string, FCPortChoiceEntry>;
   };
 
   /**
@@ -1439,6 +1974,15 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Update FC port mapping ``id``.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'fcport.update': {
+    params: [id: number, fc_Port_update: FCPortUpdate];
+    response: FCPortEntry;
+  };
+
+  /**
    * Retrieve list of available ACL templates for a given ``path``. Supports ``query-filters`` and ``query-options``.
    *
    * ACL entries in the returned templates are always in canonical order.
@@ -1455,6 +1999,17 @@ export interface ApiCallDirectoryDelta {
    */
   'filesystem.acltemplate.create': {
     params: [acltemplate_create: AclTemplateCreate];
+    response: ACLTemplateEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.acltemplate.get_instance': {
+    params: [id: number, options?: QueryOptions<ACLTemplateEntry>];
     response: ACLTemplateEntry;
   };
 
@@ -1479,6 +2034,15 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Return ACL of a given path. This may return a POSIX1e ACL or a NFSv4 ACL. The ACL type is indicated by the ``acltype`` key.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.getacl': {
+    params: [path: string, simplified?: boolean, resolve_ids?: boolean];
+    response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
+  };
+
+  /**
    * Get the contents of a directory.
    *
    * The select option may be used to optimize listdir performance. Metadata-related fields that are not selected will not be retrieved from the filesystem.
@@ -1489,6 +2053,89 @@ export interface ApiCallDirectoryDelta {
   'filesystem.listdir': {
     params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel];
     response: FilesystemDirEntry[] | FilesystemDirEntry | FilesystemDirQueryResultItem[] | FilesystemDirQueryResultItem | number;
+  };
+
+  /**
+   * Create a directory at the specified path.
+   *
+   * If the requested ``mode`` cannot be applied and ``raise_chmod_error`` is set, the newly created directory is removed to prevent its use with unintended permissions.
+   *
+   * .. note::
+   *
+   *     If the chmod error is skipped, the ``mode`` key in the response will indicate the current
+   *     permissions on the directory and not the permissions specified in the request payload.
+   * @roles FILESYSTEM_DATA_WRITE
+   */
+  'filesystem.mkdir': {
+    params: [filesystem_mkdir: FilesystemMkdirArgs];
+    response: FilesystemDirEntry;
+  };
+
+  /**
+   * Return filesystem information for a given path.
+   *
+   * The reported timestamps reflect ``statx()`` values. The ``atime`` and ``mtime`` timestamps are mutable from userspace, and ``btime`` may also be mutable from userspace depending on the platform.
+   *
+   * The returned ``attributes`` list contains the ``statx()`` file attributes that apply to the file (see the ``statx(2)`` manpage for details). ZFS flags set via :doc:`filesystem.set_zfs_attributes <api_methods_filesystem.set_zfs_attributes>` are surfaced here: an immutable file reports ``IMMUTABLE`` and an append-only file reports ``APPEND``.
+   *
+   * .. note::
+   *
+   *     ``mount_id`` uniquely identifies the particular mount underlying the path. Bind mounts
+   *     share the same ``dev`` (device id) but have distinct ``mount_id`` values, so ``mount_id``
+   *     (not ``dev``) must be used to identify children of a given mountpoint.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.stat': {
+    params: [path: string];
+    response: FilesystemStatData;
+  };
+
+  /**
+   * Return stats from the filesystem of a given path.
+   *
+   * If ``path`` does not exist, the method raises a ``CallError`` (code ``-32001``, *Method call error*).
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.statfs': {
+    params: [path: string];
+    response: FilesystemStatfsData;
+  };
+
+  /**
+   * @roles SHARING_FTP_READ
+   */
+  'ftp.config': {
+    params: [];
+    response: FTPEntry;
+  };
+
+  /**
+   * Update ftp service configuration.
+   * @roles SHARING_FTP_WRITE
+   */
+  'ftp.update': {
+    params: [ftp_update?: FTPUpdateArgs];
+    response: FTPEntry;
+  };
+
+  /**
+   * Create a new group.
+   * @roles ACCOUNT_WRITE
+   */
+  'group.create': {
+    params: [group_create: GroupCreate];
+    response: number;
+  };
+
+  /**
+   * Returns dictionary containing information from struct grp for the group specified by either the ``groupname`` or ``gid``.
+   *
+   * If ``sid_info`` is specified, additional SMB / domain information is returned for the group.
+   * @roles ACCOUNT_READ
+   */
+  'group.get_group_obj': {
+    params: [get_group_obj?: GroupGetGroupObjArgs];
+    response: GroupGetGroupObjResult;
   };
 
   /**
@@ -1512,6 +2159,15 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Update attributes of an existing group.
+   * @roles ACCOUNT_WRITE
+   */
+  'group.update': {
+    params: [id: number, group_update: GroupUpdate];
+    response: number;
+  };
+
+  /**
    * Report the virtualization variation of TrueNAS system.
    * @roles SYSTEM_GENERAL_READ
    */
@@ -1531,6 +2187,17 @@ export interface ApiCallDirectoryDelta {
    */
   'initshutdownscript.create': {
     params: [data: InitShutdownScriptCreate];
+    response: InitShutdownScriptEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SYSTEM_CRON_READ
+   */
+  'initshutdownscript.get_instance': {
+    params: [id: number, options?: QueryOptions<InitShutdownScriptEntry>];
     response: InitShutdownScriptEntry;
   };
 
@@ -1930,11 +2597,40 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Create an iSCSI Authorized Access.
+   * @roles SHARING_ISCSI_AUTH_WRITE
+   */
+  'iscsi.auth.create': {
+    params: [data: IscsiAuthCreate];
+    response: ISCSITargetAuthCredentialEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_AUTH_READ
+   */
+  'iscsi.auth.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetAuthCredentialEntry>];
+    response: ISCSITargetAuthCredentialEntry;
+  };
+
+  /**
    * @roles SHARING_ISCSI_AUTH_READ
    */
   'iscsi.auth.query': {
     params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptions<ISCSITargetAuthCredentialEntry>];
     response: ISCSITargetAuthCredentialEntry[] | ISCSITargetAuthCredentialEntry | ISCSITargetAuthCredentialQueryResultItem[] | ISCSITargetAuthCredentialQueryResultItem | number;
+  };
+
+  /**
+   * Update iSCSI Authorized Access of ``id``.
+   * @roles SHARING_ISCSI_AUTH_WRITE
+   */
+  'iscsi.auth.update': {
+    params: [id: number, data: IscsiAuthUpdate];
+    response: ISCSITargetAuthCredentialEntry;
   };
 
   /**
@@ -1975,12 +2671,49 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles SHARING_ISCSI_GLOBAL_READ
+   */
+  'iscsi.global.config': {
+    params: [];
+    response: ISCSIGlobalEntry;
+  };
+
+  /**
    * Get a list of currently running iSCSI sessions. This includes initiator and target names and the unique connection IDs.
    * @roles SHARING_ISCSI_GLOBAL_READ
    */
   'iscsi.global.sessions': {
     params: [filters?: QueryFilters<IscsiSession>, options?: QueryOptions<IscsiSession>];
     response: IscsiSession[];
+  };
+
+  /**
+   * Update the iSCSI global configuration.
+   * @roles SHARING_ISCSI_GLOBAL_WRITE
+   */
+  'iscsi.global.update': {
+    params: [iscsi_update?: ISCSIGlobalUpdateArgs];
+    response: ISCSIGlobalEntry;
+  };
+
+  /**
+   * Create an iSCSI Initiator.
+   * @roles SHARING_ISCSI_INITIATOR_WRITE
+   */
+  'iscsi.initiator.create': {
+    params: [iscsi_initiator_create: IscsiInitiatorCreate];
+    response: ISCSITargetAuthorizedInitiatorEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_INITIATOR_READ
+   */
+  'iscsi.initiator.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetAuthorizedInitiatorEntry>];
+    response: ISCSITargetAuthorizedInitiatorEntry;
   };
 
   /**
@@ -1992,6 +2725,35 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Update iSCSI initiator of ``id``.
+   * @roles SHARING_ISCSI_INITIATOR_WRITE
+   */
+  'iscsi.initiator.update': {
+    params: [id: number, iscsi_initiator_update: IscsiInitiatorUpdate];
+    response: ISCSITargetAuthorizedInitiatorEntry;
+  };
+
+  /**
+   * Create a new iSCSI Portal.
+   * @roles SHARING_ISCSI_PORTAL_WRITE
+   */
+  'iscsi.portal.create': {
+    params: [iscsi_portal_create: IscsiPortalCreate];
+    response: ISCSIPortalEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_PORTAL_READ
+   */
+  'iscsi.portal.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSIPortalEntry>];
+    response: ISCSIPortalEntry;
+  };
+
+  /**
    * @roles SHARING_ISCSI_PORTAL_READ
    */
   'iscsi.portal.query': {
@@ -2000,11 +2762,31 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Update iSCSI Portal ``id``.
+   * @roles SHARING_ISCSI_PORTAL_WRITE
+   */
+  'iscsi.portal.update': {
+    params: [id: number, iscsi_portal_update: IscsiPortalUpdate];
+    response: ISCSIPortalEntry;
+  };
+
+  /**
    * Create an iSCSI Target.
    * @roles SHARING_ISCSI_TARGET_WRITE
    */
   'iscsi.target.create': {
     params: [iscsi_target_create: IscsiTargetCreate];
+    response: ISCSITargetEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'iscsi.target.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetEntry>];
     response: ISCSITargetEntry;
   };
 
@@ -2026,11 +2808,40 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Create an Associated Target.
+   * @roles SHARING_ISCSI_TARGETEXTENT_WRITE
+   */
+  'iscsi.targetextent.create': {
+    params: [iscsi_target_to_extent_create: IscsiTargetToExtentCreate];
+    response: ISCSITargetToExtentEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_TARGETEXTENT_READ
+   */
+  'iscsi.targetextent.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetToExtentEntry>];
+    response: ISCSITargetToExtentEntry;
+  };
+
+  /**
    * @roles SHARING_ISCSI_TARGETEXTENT_READ
    */
   'iscsi.targetextent.query': {
     params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: QueryOptions<ISCSITargetToExtentEntry>];
     response: ISCSITargetToExtentEntry[] | ISCSITargetToExtentEntry | ISCSITargetToExtentQueryResultItem[] | ISCSITargetToExtentQueryResultItem | number;
+  };
+
+  /**
+   * Update Associated Target of ``id``.
+   * @roles SHARING_ISCSI_TARGETEXTENT_WRITE
+   */
+  'iscsi.targetextent.update': {
+    params: [id: number, iscsi_target_to_extent_update: IscsiTargetToExtentUpdate];
+    response: ISCSITargetToExtentEntry;
   };
 
   /**
@@ -2226,6 +3037,24 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Delete Keychain Credential with specific ``id``.
+   * @roles KEYCHAIN_CREDENTIAL_WRITE
+   */
+  'keychaincredential.delete': {
+    params: [id: number, options?: KeychainCredentialDeleteOptions];
+    response: null;
+  };
+
+  /**
+   * Generate a public/private key pair (useful for ``SSH_KEY_PAIR`` type).
+   * @roles KEYCHAIN_CREDENTIAL_WRITE
+   */
+  'keychaincredential.generate_ssh_key_pair': {
+    params: [];
+    response: KeychainCredentialGenerateSshKeyPairResult;
+  };
+
+  /**
    * Returns instance matching `id`. If `id` is not found, Validation error is raised.
    *
    * Please see `query` method documentation for `options`.
@@ -2245,6 +3074,40 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Discover a remote host key (useful for ``SSH_CREDENTIALS``).
+   * @roles KEYCHAIN_CREDENTIAL_WRITE
+   */
+  'keychaincredential.remote_ssh_host_key_scan': {
+    params: [keychain_remote_ssh_host_key_scan: KeychainCredentialRemoteSshHostKeyScanArgs];
+    response: string;
+  };
+
+  /**
+   * Perform semi-automatic SSH connection setup with other TrueNAS machine.
+   *
+   * It creates an ``SSH_CREDENTIALS`` credential with specified ``name`` that can be used to connect to TrueNAS machine with specified ``url`` and temporary auth ``token``. Other TrueNAS machine adds ``private_key`` to allowed ``username``'s private keys. Other ``SSH_CREDENTIALS`` attributes such as ``connect_timeout`` can be specified as well.
+   * @roles KEYCHAIN_CREDENTIAL_WRITE
+   */
+  'keychaincredential.remote_ssh_semiautomatic_setup': {
+    params: [data: KeychainCredentialRemoteSSHSemiautomaticSetup];
+    response: SSHCredentialsEntry;
+  };
+
+  /**
+   * Create an SSH connection by performing the following steps:
+   *
+   * 1. Generate an SSH key pair if required.
+   * 2. Set up SSH credentials based on ``setup_type``.
+   *
+   * If step 2 fails, any SSH key pair generated in the process is removed.
+   * @roles KEYCHAIN_CREDENTIAL_WRITE
+   */
+  'keychaincredential.setup_ssh_connection': {
+    params: [options: SetupSSHConnectionManual | SetupSSHConnectionSemiautomatic];
+    response: SSHCredentialsEntry;
+  };
+
+  /**
    * Update a Keychain Credential with specific ``id``.
    *
    * Please note that you can't change ``type``. You must specify full ``attributes`` value.
@@ -2253,6 +3116,15 @@ export interface ApiCallDirectoryDelta {
   'keychaincredential.update': {
     params: [id: number, keychain_credential_update: KeychainCredentialUpdateSSHKeyPairEntry | KeychainCredentialUpdateSSHCredentialsEntry];
     response: SSHKeyPairEntry | SSHCredentialsEntry;
+  };
+
+  /**
+   * Returns list of objects that use this credential.
+   * @roles KEYCHAIN_CREDENTIAL_READ
+   */
+  'keychaincredential.used_by': {
+    params: [id: number];
+    response: UsedKeychainCredential[];
   };
 
   /**
@@ -2383,6 +3255,14 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles SHARING_NFS_READ
+   */
+  'nfs.config': {
+    params: [];
+    response: NFSEntry;
+  };
+
+  /**
    * Read contents of rmtab. This information may not be accurate due to stale entries. This is ultimately a limitation of the NFSv3 protocol.
    * @roles READONLY_ADMIN, SHARING_NFS_WRITE
    */
@@ -2466,6 +3346,17 @@ export interface ApiCallDirectoryDelta {
   'nfs.get_nfs4_clients': {
     params: [filters?: QueryFilters<NFSGetNfs4ClientsEntry>, options?: QueryOptions<NFSGetNfs4ClientsEntry>];
     response: NFSGetNfs4ClientsEntry[] | NFSGetNfs4ClientsEntry | NFSGetNfs4ClientsQueryResultItem[] | NFSGetNfs4ClientsQueryResultItem | number;
+  };
+
+  /**
+   * Update the NFS service configuration.
+   *
+   * At least one protocol must remain enabled in ``protocols``; the ``showmount`` command is available only while NFSv3 is enabled. When ``servers`` is ``null``, the number of nfsd is determined automatically from the system's capabilities (between 1 and 32); otherwise it is set to the requested value (1 to 256). The number of mountd processes is always one quarter of the number of nfsd. When ``bindip`` is empty, NFS listens on all active server addresses. NFS over RDMA, enabled with ``rdma``, is only available on supported platforms with an RDMA-capable NIC and uses port 20049.
+   * @roles SHARING_NFS_WRITE
+   */
+  'nfs.update': {
+    params: [nfs_update?: NFSUpdateArgs];
+    response: NFSEntry;
   };
 
   /**
@@ -3214,6 +4105,41 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles POOL_READ
+   */
+  'pool.resilver.config': {
+    params: [];
+    response: PoolResilverEntry;
+  };
+
+  /**
+   * Configure Pool Resilver Priority.
+   *
+   * If ``begin`` time is greater than ``end`` time it means it will rollover the day, e.g. begin = "19:00", end = "05:00" will increase pool resilver priority from 19:00 of one day until 05:00 of the next day.
+   *
+   * ``weekday`` follows crontab(5) values 0-7 (0 or 7 is Sun).
+   *
+   * Enable pool resilver priority all business days from 7PM to 5AM::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.resilver.update",
+   *         "params": [{
+   *             "enabled": true,
+   *             "begin": "19:00",
+   *             "end": "05:00",
+   *             "weekday": [1, 2, 3, 4, 5]
+   *         }]
+   *     }
+   * @roles POOL_WRITE
+   */
+  'pool.resilver.update': {
+    params: [data: PoolResilverUpdate];
+    response: PoolResilverEntry;
+  };
+
+  /**
    * Create a scrub task for a pool.
    *
    * Create a scrub task for pool of id 1, to run every Sunday at 3AM with a threshold of 35 days::
@@ -3234,6 +4160,17 @@ export interface ApiCallDirectoryDelta {
    */
   'pool.scrub.create': {
     params: [data: PoolScrubCreate];
+    response: PoolScrubEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles POOL_SCRUB_READ
+   */
+  'pool.scrub.get_instance': {
+    params: [id: number, options?: QueryOptions<PoolScrubEntry>];
     response: PoolScrubEntry;
   };
 
@@ -3392,6 +4329,15 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Delete a Periodic Snapshot Task with specific ``id``.
+   * @roles SNAPSHOT_TASK_WRITE
+   */
+  'pool.snapshottask.delete': {
+    params: [id: number, options?: PoolSnapshotTaskDeleteOptions];
+    response: true;
+  };
+
+  /**
    * Returns instance matching `id`. If `id` is not found, Validation error is raised.
    *
    * Please see `query` method documentation for `options`.
@@ -3504,6 +4450,15 @@ export interface ApiCallDirectoryDelta {
   'rdma.capable_protocols': {
     params: [];
     response: ('ISER' | 'NFS' | 'NVMET')[];
+  };
+
+  /**
+   * Return an array containing details about each RDMA card. Dual cards will contain two RDMA links.
+   * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN
+   */
+  'rdma.get_card_choices': {
+    params: [];
+    response: RdmaCardConfig[];
   };
 
   /**
@@ -3624,6 +4579,14 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles REPORTING_READ
+   */
+  'reporting.config': {
+    params: [];
+    response: ReportingEntry;
+  };
+
+  /**
    * Create a specific reporting exporter configuration containing required details for exporting reporting metrics.
    * @roles REPORTING_WRITE
    */
@@ -3639,6 +4602,17 @@ export interface ApiCallDirectoryDelta {
   'reporting.exporters.exporter_schemas': {
     params: [];
     response: ReportingExporterSchema[];
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles REPORTING_READ
+   */
+  'reporting.exporters.get_instance': {
+    params: [id: number, options?: QueryOptions<ReportingExportsEntry>];
+    response: ReportingExportsEntry;
   };
 
   /**
@@ -3689,6 +4663,24 @@ export interface ApiCallDirectoryDelta {
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+  };
+
+  /**
+   * Get reporting data for ``name`` graph.
+   * @roles REPORTING_READ
+   */
+  'reporting.netdata_graph': {
+    params: [str: string, query?: ReportingQuery];
+    response: ReportingGetDataResponse[];
+  };
+
+  /**
+   * Update reporting configuration settings.
+   * @roles REPORTING_WRITE
+   */
+  'reporting.update': {
+    params: [reporting_update?: ReportingUpdateArgs];
+    response: ReportingEntry;
   };
 
   /**
@@ -3945,6 +4937,58 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles SHARING_SMB_READ
+   */
+  'smb.config': {
+    params: [];
+    response: SMBEntry;
+  };
+
+  /**
+   * Update the SMB service configuration.
+   *
+   * The group specified as the SMB ``admin_group`` is automatically added as a foreign group member of ``S-1-5-32-544`` (the builtin administrators group), affording the group all privileges granted to a local administrator. Any SMB group may be selected, including Active Directory groups.
+   *
+   * Mandatory SMB encryption (``encryption`` set to ``REQUIRED``) is not compatible with ``SMB1`` server support.
+   *
+   * .. note::
+   *
+   *     ``workgroup`` and ``netbiosname`` must have different values.
+   *
+   * .. important::
+   *
+   *     ``smb_options`` are raw ``smb.conf`` parameters that are not covered by the supported configuration
+   *     options. Not all options are tested or supported, and their behavior may change between releases.
+   *     Stability of ``smb.conf`` options is not guaranteed.
+   * @roles SHARING_SMB_WRITE
+   */
+  'smb.update': {
+    params: [smb_update?: SMBUpdateArgs];
+    response: SMBEntry;
+  };
+
+  /**
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'snmp.config': {
+    params: [];
+    response: SNMPEntry;
+  };
+
+  /**
+   * Update SNMP Service Configuration.
+   *
+   * The ``v3_*`` settings are valid and enforced only when ``v3`` is enabled.
+   *
+   * Enabling ``v3`` requires ``v3_username``, ``v3_authtype``, and ``v3_password``. Disabling ``v3`` alone retains the v3 user settings in the private config but removes the public config entry, blocking v3 access. Disabling ``v3`` and clearing ``v3_username`` additionally removes the user from the private config.
+   * @roles SYSTEM_GENERAL_WRITE
+   */
+  'snmp.update': {
+    params: [snmp_update?: SNMPUpdateArgs];
+    response: SNMPEntry;
+  };
+
+  /**
    * Available choices for the bindiface attribute of SSH service.
    * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN, SSH_READ
    */
@@ -3973,11 +5017,42 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Create a Static Route.
+   *
+   * Address families of ``gateway`` and ``destination`` should match when creating a static route.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'staticroute.create': {
+    params: [data: StaticRouteCreate];
+    response: StaticRouteEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'staticroute.get_instance': {
+    params: [id: number, options?: QueryOptions<StaticRouteEntry>];
+    response: StaticRouteEntry;
+  };
+
+  /**
    * @roles NETWORK_INTERFACE_READ
    */
   'staticroute.query': {
     params: [filters?: QueryFilters<StaticRouteEntry>, options?: QueryOptions<StaticRouteEntry>];
     response: StaticRouteEntry[] | StaticRouteEntry | StaticRouteQueryResultItem[] | StaticRouteQueryResultItem | number;
+  };
+
+  /**
+   * Update Static Route of ``id``.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'staticroute.update': {
+    params: [id: number, data: StaticRouteUpdate];
+    response: StaticRouteEntry;
   };
 
   /**
@@ -4302,11 +5377,40 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Add an NTP Server.
+   * @roles NETWORK_GENERAL_WRITE
+   */
+  'system.ntpserver.create': {
+    params: [ntp_server_create: NTPServerCreate];
+    response: NTPServerEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles NETWORK_GENERAL_READ
+   */
+  'system.ntpserver.get_instance': {
+    params: [id: number, options?: QueryOptions<NTPServerEntry>];
+    response: NTPServerEntry;
+  };
+
+  /**
    * @roles NETWORK_GENERAL_READ
    */
   'system.ntpserver.query': {
     params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptions<NTPServerEntry>];
     response: NTPServerEntry[] | NTPServerEntry | NTPServerQueryResultItem[] | NTPServerQueryResultItem | number;
+  };
+
+  /**
+   * Update NTP server of ``id``.
+   * @roles NETWORK_GENERAL_WRITE
+   */
+  'system.ntpserver.update': {
+    params: [id: number, ntp_server_update: NTPServerUpdate];
+    response: NTPServerEntry;
   };
 
   /**
@@ -4325,6 +5429,17 @@ export interface ApiCallDirectoryDelta {
   'system.ready': {
     params: [];
     response: boolean;
+  };
+
+  /**
+   * Return information about whether the system requires a reboot, including the current boot session identifier and the list of pending reasons a reboot is required (for example, a FIPS or STIG configuration change or a pending system upgrade). An empty list of reasons indicates no reboot is currently required.
+   *
+   * The :doc:`system.reboot.info <api_methods_system.reboot.info>` event is emitted whenever this information changes.
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'system.reboot.info': {
+    params: [];
+    response: RebootInfo;
   };
 
   /**
@@ -4541,6 +5656,15 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Delete user ``id``.
+   * @roles ACCOUNT_WRITE
+   */
+  'user.delete': {
+    params: [id: number, options?: UserDeleteOptions];
+    response: number;
+  };
+
+  /**
    * Returns instance matching `id`. If `id` is not found, Validation error is raised.
    *
    * Please see `query` method documentation for `options`.
@@ -4589,12 +5713,51 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Set the password of the specified ``username`` to the ``new_password`` specified in payload.
+   *
+   * A JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned in the following situations:
+   *
+   * - the user does not exist
+   * - the account is not local to the NAS (Active Directory, LDAP, etc.)
+   * - the account has password authentication disabled
+   * - the account is locked
+   *
+   * .. note::
+   *
+   *     When the authenticated session has less than the ``FULL_ADMIN`` role, password changes
+   *     will be rejected if the payload does not match the currently-authenticated user. Users
+   *     authenticated with a one-time password are exempt and may change the password without
+   *     submitting it a second time.
+   */
+  'user.set_password': {
+    params: [set_password_data: UserSetPasswordArgs];
+    response: null;
+  };
+
+  /**
+   * Set up local administrator (this method does not require authentication if local administrator is not already set up).
+   */
+  'user.setup_local_administrator': {
+    params: [username: Username, password: string, options?: UserSetupLocalAdministratorOptions];
+    response: null;
+  };
+
+  /**
    * Update attributes of an existing user.
    * @roles ACCOUNT_WRITE
    */
   'user.update': {
     params: [id: number, user_update: UserUpdate];
     response: UserCreateUpdateResult;
+  };
+
+  /**
+   * Supported motherboard firmware options.
+   * @roles VM_READ
+   */
+  'vm.bootloader_options': {
+    params: [];
+    response: VMBootloaderOptionsResult;
   };
 
   /**
@@ -4627,6 +5790,15 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Delete a VM.
+   * @roles VM_WRITE
+   */
+  'vm.delete': {
+    params: [id: number, options?: VMDeleteOptions];
+    response: boolean;
+  };
+
+  /**
    * Create a new device for the VM of id ``vm``.
    *
    * If ``attributes.dtype`` is the ``RAW`` type and a new raw file is to be created, ``attributes.exists`` will be passed as false. This means the API handles creating the raw file and raises the appropriate exception if file creation fails.
@@ -4637,6 +5809,15 @@ export interface ApiCallDirectoryDelta {
   'vm.device.create': {
     params: [vm_device_create: VMDeviceCreateArgs];
     response: VMDeviceEntry;
+  };
+
+  /**
+   * Delete a VM device of ``id``.
+   * @roles VM_DEVICE_WRITE
+   */
+  'vm.device.delete': {
+    params: [id: number, options?: VMDeviceDeleteOptions];
+    response: boolean;
   };
 
   /**
@@ -4675,6 +5856,24 @@ export interface ApiCallDirectoryDelta {
   'vm.device.nic_attach_choices': {
     params: [];
     response: VMDeviceNicAttachChoicesResult;
+  };
+
+  /**
+   * Retrieve details about ``device`` PCI device.
+   * @roles VM_DEVICE_READ
+   */
+  'vm.device.passthrough_device': {
+    params: [device: string];
+    response: VMDevicePassthroughDevice;
+  };
+
+  /**
+   * Available choices for PCI passthru devices.
+   * @roles READONLY_ADMIN, VM_DEVICE_READ
+   */
+  'vm.device.passthrough_device_choices': {
+    params: [];
+    response: VMDevicePassthroughInfo;
   };
 
   /**
@@ -4721,6 +5920,15 @@ export interface ApiCallDirectoryDelta {
   'vm.device.usb_passthrough_device': {
     params: [device: string];
     response: USBPassthroughDevice;
+  };
+
+  /**
+   * Returns a dictionary with CPU flags for the hypervisor.
+   * @roles VM_READ
+   */
+  'vm.flags': {
+    params: [];
+    response: VMFlagsResult;
   };
 
   /**
@@ -4801,6 +6009,34 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Start a VM.
+   *
+   * options.overcommit defaults to false, meaning VMs are not allowed to start if there is not enough available memory to hold all configured VMs. If true, VM starts even if there is not enough memory for all configured VMs.
+   *
+   * Error codes:
+   *
+   *     ENOMEM(12): not enough free memory to run the VM without overcommit
+   * @roles VM_WRITE
+   */
+  'vm.start': {
+    params: [id: number, options?: VMStartOptions];
+    response: null;
+  };
+
+  /**
+   * Get the status of ``id`` VM.
+   *
+   * Returns a dict:
+   *     - state, RUNNING / STOPPED / SUSPENDED
+   *     - pid, process id if RUNNING
+   * @roles VM_READ
+   */
+  'vm.status': {
+    params: [id: number];
+    response: VMStatus;
+  };
+
+  /**
    * Update all information of a specific VM.
    *
    * ``devices`` is a list of virtualized hardware to attach to the virtual machine. If ``devices`` is not present, no change is made to devices. If either the device list order or the data stored by a device changes when the attribute is passed, these actions are taken:
@@ -4815,6 +6051,15 @@ export interface ApiCallDirectoryDelta {
   'vm.update': {
     params: [id: number, vm_update: VMUpdate];
     response: VMEntry;
+  };
+
+  /**
+   * Retrieve details if virtualization is supported on the system and in case why it's not supported if it isn't.
+   * @roles VM_READ
+   */
+  'vm.virtualization_details': {
+    params: [];
+    response: VMVirtualizationDetailsResult;
   };
 
   /**
@@ -4890,6 +6135,17 @@ export interface ApiCallDirectoryDelta {
   'vmware.update': {
     params: [id: number, vmware_update: VMWareUpdate];
     response: VMWareEntry;
+  };
+
+  /**
+   * Return predefined CSR profiles for common certificate types.
+   *
+   * Each profile provides recommended defaults for key type, key length or curve, lifetime, digest algorithm, and X.509 extensions (basic constraints, key usage, extended key usage).
+   * @roles CERTIFICATE_READ
+   */
+  'webui.crypto.csr_profiles': {
+    params: [];
+    response: CSRProfilesModel;
   };
 
   /**

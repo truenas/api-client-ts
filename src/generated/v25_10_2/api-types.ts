@@ -219,3 +219,20 @@ export interface IpmiChassisInfoRequest {
    */
   "query-remote"?: boolean;
 }
+/**
+ * Used by: pool.attach (params)
+ */
+export interface PoolAttach {
+  /**
+   * The GUID of the vdev where the disk needs to be attached. In the case of a STRIPED vdev, this is the STRIPED disk GUID which will be converted into a mirror. If `target_vdev` is already a mirror, it will be converted into an n-way mirror.
+   */
+  target_vdev: string;
+  /**
+   * Name of the new disk to attach.
+   */
+  new_disk: string;
+  /**
+   * Whether to allow attaching disks with duplicate serial numbers.
+   */
+  allow_duplicate_serials?: boolean;
+}

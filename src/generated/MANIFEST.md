@@ -19,14 +19,14 @@ greppable record: an entry exists in every version from its introduction until
 | acme.dns.authenticator.authenticator_schemas | call | introduced v25.04.0; changed v25.10.0 |
 | acme.dns.authenticator.create | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | acme.dns.authenticator.delete | call | introduced v25.04.0 |
-| acme.dns.authenticator.get_instance | call | introduced v25.04.0 |
-| acme.dns.authenticator.query | call | introduced v25.04.0; changed v25.10.0 |
+| acme.dns.authenticator.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| acme.dns.authenticator.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | acme.dns.authenticator.query | event | introduced v25.04.0; changed v25.10.0 |
 | acme.dns.authenticator.update | call | introduced v25.04.0; changed v25.10.0 |
 | alert.dismiss | call | introduced v25.04.0 |
-| alert.list | call | introduced v25.04.0; changed v26.0.0, v27.0.0 |
+| alert.list | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | alert.list | event | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
-| alert.list_categories | call | introduced v25.04.0; changed v26.0.0 |
+| alert.list_categories | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | alert.list_policies | call | introduced v25.04.0 |
 | alert.restore | call | introduced v25.04.0 |
 | alertclasses.config | call | introduced v25.04.0; changed v25.10.0 |
@@ -34,7 +34,7 @@ greppable record: an entry exists in every version from its introduction until
 | alertservice.create | call | introduced v25.04.0; changed v25.10.0 |
 | alertservice.delete | call | introduced v25.04.0 |
 | alertservice.get_instance | call | introduced v25.04.0; changed v25.10.0 |
-| alertservice.query | call | introduced v25.04.0; changed v25.10.0 |
+| alertservice.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | alertservice.query | event | introduced v25.04.0; changed v25.10.0 |
 | alertservice.test | call | introduced v25.04.0; changed v25.10.0 |
 | alertservice.update | call | introduced v25.04.0; changed v25.10.0 |
@@ -43,42 +43,42 @@ greppable record: an entry exists in every version from its introduction until
 | api_key.delete | call | introduced v25.04.0 |
 | api_key.get_instance | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | api_key.my_keys | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| api_key.query | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| api_key.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
 | api_key.query | event | introduced v25.04.0; changed v26.0.0 |
 | api_key.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | app.available | call | introduced v27.0.0 |
 | app.available_space | call | introduced v25.04.0 |
 | app.categories | call | introduced v25.04.0 |
-| app.certificate_choices | call | introduced v25.04.0 |
+| app.certificate_choices | call | introduced v25.04.0; changed v25.10.0 |
 | app.config | call | introduced v25.04.0 |
-| app.container_console_choices | call | introduced v25.04.0 |
-| app.container_ids | call | introduced v25.04.0 |
+| app.container_console_choices | call | introduced v25.04.0; changed v25.10.0 |
+| app.container_ids | call | introduced v25.04.0; changed v25.10.0 |
 | app.container_log_follow | event | introduced v25.04.0 |
 | app.convert_to_custom | job | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | app.create | job | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
-| app.delete | job | introduced v25.04.0 |
+| app.delete | job | introduced v25.04.0; changed v25.10.0 |
 | app.get_instance | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| app.gpu_choices | call | introduced v25.04.0 |
-| app.image.delete | call | introduced v25.04.0 |
-| app.image.dockerhub_rate_limit | call | introduced v25.04.0; changed v27.0.0 |
-| app.image.get_instance | call | introduced v25.04.0; changed v26.0.0 |
-| app.image.pull | job | introduced v25.04.0; changed v27.0.0 |
-| app.image.query | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| app.gpu_choices | call | introduced v25.04.0; changed v25.10.0 |
+| app.image.delete | call | introduced v25.04.0; changed v25.10.0 |
+| app.image.dockerhub_rate_limit | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| app.image.get_instance | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| app.image.pull | job | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
+| app.image.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
 | app.ip_choices | call | introduced v25.04.0 |
 | app.ix_volume.exists | call | introduced v25.04.0 |
 | app.ix_volume.get_instance | call | introduced v27.0.0 |
-| app.ix_volume.query | call | introduced v25.04.0; changed v25.10.0 |
+| app.ix_volume.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | app.latest | call | introduced v27.0.0 |
 | app.outdated_docker_images | call | introduced v25.04.0 |
-| app.pull_images | job | introduced v25.04.0 |
-| app.query | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| app.pull_images | job | introduced v25.04.0; changed v25.10.0 |
+| app.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
 | app.query | event | introduced v25.04.0; changed v25.10.0 |
 | app.redeploy | job | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| app.registry.create | call | introduced v25.04.0 |
+| app.registry.create | call | introduced v25.04.0; changed v25.10.0 |
 | app.registry.delete | call | introduced v25.04.0 |
-| app.registry.get_instance | call | introduced v25.04.0 |
-| app.registry.query | call | introduced v25.04.0; changed v25.10.0 |
-| app.registry.update | call | introduced v25.04.0 |
+| app.registry.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| app.registry.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
+| app.registry.update | call | introduced v25.04.0; changed v25.10.0 |
 | app.rollback | job | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | app.rollback_versions | call | introduced v25.04.0 |
 | app.similar | call | introduced v25.04.0; changed v25.10.0 |
@@ -88,7 +88,7 @@ greppable record: an entry exists in every version from its introduction until
 | app.update | job | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | app.upgrade | job | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | app.upgrade_bulk | job | introduced v26.0.0; changed v27.0.0 |
-| app.upgrade_summary | call | introduced v25.04.0; changed v27.0.0 |
+| app.upgrade_summary | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | app.used_host_ips | call | introduced v25.10.0 |
 | app.used_ports | call | introduced v25.04.0 |
 | audit.config | call | introduced v25.10.0 |
@@ -96,44 +96,44 @@ greppable record: an entry exists in every version from its introduction until
 | audit.export | job | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | audit.query | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | audit.update | call | introduced v25.10.0 |
-| auth.generate_onetime_password | call | introduced v25.04.0 |
+| auth.generate_onetime_password | call | introduced v25.04.0; changed v25.10.0 |
 | auth.generate_token | call | introduced v25.04.0 |
 | auth.login | call | introduced v25.04.0 |
-| auth.login_ex | call | introduced v25.04.0; changed v26.0.0 |
-| auth.login_ex_continue | call | introduced v25.10.0; changed v26.0.0 |
+| auth.login_ex | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
+| auth.login_ex_continue | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | auth.login_with_api_key | call | introduced v25.10.0 |
 | auth.login_with_token | call | introduced v25.10.0 |
 | auth.logout | call | introduced v25.04.0 |
-| auth.me | call | introduced v25.04.0 |
+| auth.me | call | introduced v25.04.0; changed v25.10.0 |
 | auth.mechanism_choices | call | introduced v25.04.0 |
-| auth.sessions | call | introduced v25.04.0; changed v25.10.0 |
+| auth.sessions | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
 | auth.sessions | event | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | auth.set_attribute | call | introduced v25.04.0 |
 | auth.terminate_other_sessions | call | introduced v25.04.0 |
 | auth.terminate_session | call | introduced v25.04.0 |
 | auth.twofactor.config | call | introduced v25.10.0 |
 | auth.twofactor.update | call | introduced v25.10.0 |
-| boot.attach | job | introduced v25.10.0 |
+| boot.attach | job | introduced v25.10.0; changed v27.0.0 |
 | boot.detach | call | introduced v25.10.0 |
-| boot.environment.activate | call | introduced v25.04.0; changed v27.0.0 |
-| boot.environment.clone | call | introduced v25.04.0; changed v27.0.0 |
-| boot.environment.destroy | call | introduced v25.04.0; changed v27.0.0 |
-| boot.environment.get_instance | call | introduced v25.04.0 |
-| boot.environment.keep | call | introduced v25.04.0; changed v27.0.0 |
-| boot.environment.query | call | introduced v25.04.0; changed v25.10.0 |
+| boot.environment.activate | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| boot.environment.clone | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| boot.environment.destroy | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| boot.environment.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| boot.environment.keep | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| boot.environment.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | boot.environment.query | event | introduced v25.04.0; changed v25.10.0 |
 | boot.get_disks | call | introduced v25.10.0 |
 | boot.get_state | call | introduced v25.10.0; changed v26.0.0 |
 | boot.replace | job | introduced v25.10.0 |
 | boot.scrub | job | introduced v25.10.0 |
 | boot.set_scrub_interval | call | introduced v25.10.0 |
-| catalog.apps | call | introduced v25.04.0; changed v26.0.0 |
-| catalog.config | call | introduced v25.04.0 |
-| catalog.get_app_details | call | introduced v25.04.0; changed v26.0.0 |
+| catalog.apps | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| catalog.config | call | introduced v25.04.0; changed v25.10.0 |
+| catalog.get_app_details | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | catalog.sync | job | introduced v25.04.0 |
 | catalog.synced | call | introduced v26.0.0 |
 | catalog.trains | call | introduced v25.04.0; changed v26.0.0 |
-| catalog.update | call | introduced v25.04.0; changed v26.0.0 |
+| catalog.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | certificate.acme_server_choices | call | introduced v25.04.0 |
 | certificate.country_choices | call | introduced v25.10.0 |
 | certificate.create | job | introduced v25.10.0; changed v25.10.2, v27.0.0 |
@@ -149,8 +149,8 @@ greppable record: an entry exists in every version from its introduction until
 | cloud_backup.delete | call | introduced v25.04.0 |
 | cloud_backup.delete_snapshot | job | introduced v25.04.0 |
 | cloud_backup.get_instance | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
-| cloud_backup.list_snapshot_directory | call | introduced v25.04.0; changed v25.04.2 |
-| cloud_backup.list_snapshots | call | introduced v25.04.0 |
+| cloud_backup.list_snapshot_directory | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
+| cloud_backup.list_snapshots | call | introduced v25.04.0; changed v25.10.0 |
 | cloud_backup.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
 | cloud_backup.query | event | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | cloud_backup.restore | job | introduced v25.04.0; changed v25.10.0 |
@@ -172,7 +172,7 @@ greppable record: an entry exists in every version from its introduction until
 | cloudsync.get_instance | call | introduced v25.10.0; changed v26.0.0 |
 | cloudsync.list_buckets | call | introduced v25.10.0 |
 | cloudsync.list_directory | call | introduced v25.10.0; changed v27.0.0 |
-| cloudsync.onedrive_list_drives | call | introduced v25.04.0 |
+| cloudsync.onedrive_list_drives | call | introduced v25.04.0; changed v25.10.0 |
 | cloudsync.providers | call | introduced v25.10.0 |
 | cloudsync.query | call | introduced v25.10.0; changed v26.0.0 |
 | cloudsync.query | event | introduced v25.10.0; changed v26.0.0 |
@@ -180,8 +180,8 @@ greppable record: an entry exists in every version from its introduction until
 | cloudsync.sync | job | introduced v25.10.0 |
 | cloudsync.sync_onetime | job | introduced v25.10.0 |
 | cloudsync.update | call | introduced v25.10.0; changed v26.0.0 |
-| config.reset | job | introduced v25.04.0 |
-| config.save | job | introduced v25.04.0 |
+| config.reset | job | introduced v25.04.0; changed v25.10.0 |
+| config.save | job | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | config.upload | job | introduced v25.04.0 |
 | container.create | job | introduced v26.0.0; changed v27.0.0 |
 | container.delete | call | introduced v26.0.0 |
@@ -220,22 +220,22 @@ greppable record: an entry exists in every version from its introduction until
 | core.set_options | call | introduced v25.04.0; changed v25.04.1, v25.10.0 |
 | core.subscribe | call | introduced v25.04.0 |
 | core.unsubscribe | call | introduced v25.04.0 |
-| cronjob.create | call | introduced v25.04.0; changed v26.0.0 |
+| cronjob.create | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | cronjob.delete | call | introduced v25.04.0 |
-| cronjob.get_instance | call | introduced v25.04.0 |
-| cronjob.query | call | introduced v25.04.0; changed v25.10.0 |
+| cronjob.get_instance | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| cronjob.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
 | cronjob.query | event | introduced v25.04.0; changed v26.0.0 |
 | cronjob.run | job | introduced v25.04.0 |
-| cronjob.update | call | introduced v25.04.0; changed v26.0.0 |
+| cronjob.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | device.get_info | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
 | directoryservices.cache_refresh | job | introduced v25.10.0 |
 | directoryservices.certificate_choices | call | introduced v25.10.0 |
-| directoryservices.config | call | introduced v25.10.0 |
+| directoryservices.config | call | introduced v25.10.0; changed v26.0.0 |
 | directoryservices.leave | job | introduced v25.10.0 |
 | directoryservices.status | call | introduced v25.10.0; changed v26.0.0 |
 | directoryservices.status | event | introduced v25.10.0 |
 | directoryservices.sync_keytab | job | introduced v25.10.1 |
-| directoryservices.update | job | introduced v25.10.0 |
+| directoryservices.update | job | introduced v25.10.0; changed v26.0.0 |
 | disk.details | call | introduced v25.10.0; changed v26.0.0 |
 | disk.get_instance | call | introduced v27.0.0 |
 | disk.get_used | call | introduced v25.10.0 |
@@ -244,7 +244,7 @@ greppable record: an entry exists in every version from its introduction until
 | disk.reset_sed | call | introduced v26.0.0 |
 | disk.setup_sed | call | introduced v26.0.0 |
 | disk.temperature_agg | call | introduced v25.10.0 |
-| disk.temperature_alerts | call | introduced v25.04.0; changed v26.0.0, v27.0.0 |
+| disk.temperature_alerts | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | disk.temperatures | call | introduced v25.10.0 |
 | disk.unlock_sed | call | introduced v26.0.0 |
 | disk.update | call | introduced v25.10.0; changed v26.0.0 |
@@ -255,9 +255,9 @@ greppable record: an entry exists in every version from its introduction until
 | docker.config | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | docker.delete_backup | call | introduced v25.04.0 |
 | docker.events | event | introduced v25.04.0 |
-| docker.list_backups | call | introduced v25.04.0; changed v27.0.0 |
-| docker.network.get_instance | call | introduced v25.04.0 |
-| docker.network.query | call | introduced v25.04.0; changed v25.10.0 |
+| docker.list_backups | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| docker.network.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| docker.network.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | docker.network.query | event | introduced v25.04.0; changed v25.10.0 |
 | docker.nvidia_present | call | introduced v25.04.0 |
 | docker.restore_backup | job | introduced v25.04.0 |
@@ -274,66 +274,66 @@ greppable record: an entry exists in every version from its introduction until
 | failover.get_ips | call | introduced v25.10.0 |
 | failover.licensed | call | introduced v25.10.0 |
 | failover.node | call | introduced v25.10.0 |
-| failover.reboot.info | call | introduced v25.04.0; changed v26.0.0 |
+| failover.reboot.info | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | failover.reboot.info | event | introduced v25.04.0; changed v25.10.0 |
 | failover.reboot.other_node | job | introduced v25.04.0; changed v25.10.0 |
 | failover.status | call | introduced v25.10.0 |
 | failover.status | event | introduced v25.10.0 |
 | failover.sync_from_peer | call | introduced v25.10.0 |
-| failover.sync_to_peer | call | introduced v25.10.0 |
+| failover.sync_to_peer | call | introduced v25.10.0; changed v27.0.0 |
 | failover.update | call | introduced v25.10.0 |
-| failover.upgrade | job | introduced v25.10.0 |
+| failover.upgrade | job | introduced v25.10.0; changed v27.0.0 |
 | fc.capable | call | introduced v25.04.0 |
-| fc.fc_host.create | call | introduced v25.04.0 |
+| fc.fc_host.create | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | fc.fc_host.delete | call | introduced v25.04.0 |
-| fc.fc_host.get_instance | call | introduced v25.04.0 |
-| fc.fc_host.query | call | introduced v25.04.0; changed v25.10.0 |
+| fc.fc_host.get_instance | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| fc.fc_host.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
 | fc.fc_host.query | event | introduced v25.04.0; changed v27.0.0 |
-| fc.fc_host.update | call | introduced v25.04.0 |
-| fcport.create | call | introduced v25.04.0 |
+| fc.fc_host.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| fcport.create | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | fcport.delete | call | introduced v25.04.0 |
-| fcport.get_instance | call | introduced v25.04.0 |
-| fcport.port_choices | call | introduced v25.04.0 |
-| fcport.query | call | introduced v25.04.0; changed v25.10.0 |
+| fcport.get_instance | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| fcport.port_choices | call | introduced v25.04.0; changed v25.10.0 |
+| fcport.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
 | fcport.query | event | introduced v25.04.0; changed v27.0.0 |
-| fcport.status | call | introduced v25.04.0; changed v25.10.0 |
-| fcport.update | call | introduced v25.04.0 |
+| fcport.status | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
+| fcport.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | filesystem.acltemplate.by_path | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
 | filesystem.acltemplate.create | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | filesystem.acltemplate.delete | call | introduced v25.04.0 |
-| filesystem.acltemplate.get_instance | call | introduced v25.04.0; changed v25.04.2 |
+| filesystem.acltemplate.get_instance | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | filesystem.acltemplate.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | filesystem.acltemplate.query | event | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | filesystem.acltemplate.update | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
-| filesystem.chown | job | introduced v25.04.0 |
+| filesystem.chown | job | introduced v25.04.0; changed v25.10.0 |
 | filesystem.file_tail_follow | event | introduced v25.04.0 |
 | filesystem.get | job | introduced v25.04.0 |
 | filesystem.get_zfs_attributes | call | introduced v25.04.0 |
-| filesystem.getacl | call | introduced v25.04.0; changed v25.04.2 |
+| filesystem.getacl | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | filesystem.listdir | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
-| filesystem.mkdir | call | introduced v25.04.0; changed v25.04.2, v27.0.0 |
-| filesystem.put | job | introduced v25.04.0 |
-| filesystem.set_zfs_attributes | job | introduced v25.04.0; changed v26.0.0, v27.0.0 |
-| filesystem.setacl | job | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
-| filesystem.setperm | job | introduced v25.04.0 |
-| filesystem.stat | call | introduced v25.04.0; changed v25.04.2 |
-| filesystem.statfs | call | introduced v25.04.0 |
-| ftp.config | call | introduced v25.04.0 |
-| ftp.update | call | introduced v25.04.0; changed v27.0.0 |
-| group.create | call | introduced v25.04.0; changed v25.04.2 |
+| filesystem.mkdir | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
+| filesystem.put | job | introduced v25.04.0; changed v25.10.0 |
+| filesystem.set_zfs_attributes | job | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
+| filesystem.setacl | job | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
+| filesystem.setperm | job | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| filesystem.stat | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
+| filesystem.statfs | call | introduced v25.04.0; changed v25.10.0 |
+| ftp.config | call | introduced v25.04.0; changed v25.10.0 |
+| ftp.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| group.create | call | introduced v25.04.0; changed v25.04.1, v25.04.2, v25.10.0 |
 | group.delete | call | introduced v25.04.0 |
-| group.get_group_obj | call | introduced v25.04.0 |
-| group.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| group.get_group_obj | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
+| group.get_instance | call | introduced v25.04.0; changed v25.04.1, v25.10.0 |
 | group.get_next_gid | call | introduced v25.04.0 |
 | group.has_password_enabled_user | call | introduced v25.04.0 |
-| group.query | call | introduced v25.04.0; changed v25.10.0 |
+| group.query | call | introduced v25.04.0; changed v25.04.1, v25.04.2, v25.10.0 |
 | group.query | event | introduced v25.04.0; changed v25.10.0 |
-| group.update | call | introduced v25.04.0; changed v25.04.2 |
+| group.update | call | introduced v25.04.0; changed v25.04.1, v25.04.2, v25.10.0 |
 | hardware.virtualization.variant | call | introduced v25.10.0 |
 | idmap.clear_idmap_cache | job | introduced v25.10.0 |
 | initshutdownscript.create | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | initshutdownscript.delete | call | introduced v25.04.0 |
-| initshutdownscript.get_instance | call | introduced v25.04.0; changed v25.04.2 |
+| initshutdownscript.get_instance | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | initshutdownscript.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | initshutdownscript.query | event | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | initshutdownscript.update | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
@@ -366,56 +366,56 @@ greppable record: an entry exists in every version from its introduction until
 | ipmi.chassis.info | call | introduced v25.10.0; changed v25.10.2 |
 | ipmi.is_loaded | call | introduced v25.04.0 |
 | ipmi.lan.channels | call | introduced v25.10.0 |
-| ipmi.lan.query | call | introduced v25.10.0 |
+| ipmi.lan.query | call | introduced v25.10.0; changed v26.0.0 |
 | ipmi.lan.update | call | introduced v25.10.0 |
 | ipmi.sel.clear | job | introduced v25.10.0 |
 | ipmi.sel.elist | job | introduced v25.10.0 |
 | ipmi.sel.info | job | introduced v25.10.0 |
-| iscsi.auth.create | call | introduced v25.04.0 |
+| iscsi.auth.create | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | iscsi.auth.delete | call | introduced v25.04.0 |
-| iscsi.auth.get_instance | call | introduced v25.04.0 |
-| iscsi.auth.query | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.auth.get_instance | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| iscsi.auth.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
 | iscsi.auth.query | event | introduced v25.04.0; changed v27.0.0 |
-| iscsi.auth.update | call | introduced v25.04.0 |
-| iscsi.extent.create | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
+| iscsi.auth.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| iscsi.extent.create | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
 | iscsi.extent.delete | call | introduced v25.04.0 |
 | iscsi.extent.disk_choices | call | introduced v25.04.0 |
-| iscsi.extent.get_instance | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
-| iscsi.extent.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
+| iscsi.extent.get_instance | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
+| iscsi.extent.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
 | iscsi.extent.query | event | introduced v25.04.0; changed v25.04.2, v25.10.0 |
-| iscsi.extent.update | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
+| iscsi.extent.update | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
 | iscsi.global.alua_enabled | call | introduced v25.04.0 |
 | iscsi.global.client_count | call | introduced v25.04.0 |
-| iscsi.global.config | call | introduced v25.04.0; changed v26.0.0 |
+| iscsi.global.config | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | iscsi.global.iser_enabled | call | introduced v25.04.0 |
-| iscsi.global.sessions | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| iscsi.global.update | call | introduced v25.04.0; changed v26.0.0 |
-| iscsi.initiator.create | call | introduced v25.04.0 |
+| iscsi.global.sessions | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
+| iscsi.global.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| iscsi.initiator.create | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | iscsi.initiator.delete | call | introduced v25.04.0 |
-| iscsi.initiator.get_instance | call | introduced v25.04.0 |
-| iscsi.initiator.query | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.initiator.get_instance | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| iscsi.initiator.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
 | iscsi.initiator.query | event | introduced v25.04.0; changed v27.0.0 |
-| iscsi.initiator.update | call | introduced v25.04.0 |
-| iscsi.portal.create | call | introduced v25.04.0 |
+| iscsi.initiator.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| iscsi.portal.create | call | introduced v25.04.0; changed v25.10.0 |
 | iscsi.portal.delete | call | introduced v25.04.0 |
-| iscsi.portal.get_instance | call | introduced v25.04.0 |
+| iscsi.portal.get_instance | call | introduced v25.04.0; changed v25.10.0 |
 | iscsi.portal.listen_ip_choices | call | introduced v25.04.0 |
-| iscsi.portal.query | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.portal.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | iscsi.portal.query | event | introduced v25.04.0; changed v25.10.0 |
-| iscsi.portal.update | call | introduced v25.04.0 |
-| iscsi.target.create | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.portal.update | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.target.create | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | iscsi.target.delete | call | introduced v25.04.0 |
-| iscsi.target.get_instance | call | introduced v25.04.0 |
-| iscsi.target.query | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.target.get_instance | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
+| iscsi.target.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
 | iscsi.target.query | event | introduced v25.04.0; changed v25.10.0 |
-| iscsi.target.update | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.target.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | iscsi.target.validate_name | call | introduced v25.04.0 |
-| iscsi.targetextent.create | call | introduced v25.04.0 |
+| iscsi.targetextent.create | call | introduced v25.04.0; changed v25.10.0 |
 | iscsi.targetextent.delete | call | introduced v25.04.0 |
-| iscsi.targetextent.get_instance | call | introduced v25.04.0 |
-| iscsi.targetextent.query | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.targetextent.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| iscsi.targetextent.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | iscsi.targetextent.query | event | introduced v25.04.0; changed v25.10.0 |
-| iscsi.targetextent.update | call | introduced v25.04.0 |
+| iscsi.targetextent.update | call | introduced v25.04.0; changed v25.10.0 |
 | jbof.create | call | introduced v25.10.0 |
 | jbof.delete | call | introduced v25.10.0 |
 | jbof.get_instance | call | introduced v25.10.0 |
@@ -439,18 +439,18 @@ greppable record: an entry exists in every version from its introduction until
 | kerberos.realm.update | call | introduced v25.10.0 |
 | kerberos.update | call | introduced v25.10.0 |
 | keychaincredential.create | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
-| keychaincredential.delete | call | introduced v25.04.0 |
-| keychaincredential.generate_ssh_key_pair | call | introduced v25.04.0; changed v27.0.0 |
+| keychaincredential.delete | call | introduced v25.04.0; changed v25.10.0 |
+| keychaincredential.generate_ssh_key_pair | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | keychaincredential.get_instance | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
 | keychaincredential.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
 | keychaincredential.query | event | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
-| keychaincredential.remote_ssh_host_key_scan | call | introduced v25.04.0 |
-| keychaincredential.remote_ssh_semiautomatic_setup | call | introduced v25.04.0 |
-| keychaincredential.setup_ssh_connection | call | introduced v25.04.0 |
+| keychaincredential.remote_ssh_host_key_scan | call | introduced v25.04.0; changed v25.10.0 |
+| keychaincredential.remote_ssh_semiautomatic_setup | call | introduced v25.04.0; changed v25.10.0 |
+| keychaincredential.setup_ssh_connection | call | introduced v25.04.0; changed v25.10.0 |
 | keychaincredential.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
-| keychaincredential.used_by | call | introduced v25.04.0 |
+| keychaincredential.used_by | call | introduced v25.04.0; changed v25.10.0 |
 | kmip.clear_sync_pending_keys | call | introduced v25.10.0 |
-| kmip.config | call | introduced v25.10.0 |
+| kmip.config | call | introduced v25.10.0; changed v27.0.0 |
 | kmip.kmip_sync_pending | call | introduced v25.10.0 |
 | kmip.sync_keys | call | introduced v25.10.0 |
 | kmip.update | job | introduced v25.10.0; changed v27.0.0 |
@@ -467,28 +467,28 @@ greppable record: an entry exists in every version from its introduction until
 | network.general.summary | call | introduced v25.10.0 |
 | nfs.bindip_choices | call | introduced v25.04.0 |
 | nfs.client_count | call | introduced v25.10.0 |
-| nfs.config | call | introduced v25.04.0 |
+| nfs.config | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | nfs.get_nfs3_clients | call | introduced v25.10.0 |
 | nfs.get_nfs4_clients | call | introduced v25.10.0 |
-| nfs.update | call | introduced v25.04.0 |
+| nfs.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | nvmet.global.config | call | introduced v25.10.0 |
 | nvmet.global.sessions | call | introduced v27.0.0 |
 | nvmet.global.update | call | introduced v25.10.0 |
-| nvmet.host_subsys.create | call | introduced v25.10.0 |
+| nvmet.host_subsys.create | call | introduced v25.10.0; changed v26.0.0 |
 | nvmet.host_subsys.delete | call | introduced v25.10.0 |
-| nvmet.host_subsys.get_instance | call | introduced v25.10.0 |
-| nvmet.host_subsys.query | call | introduced v25.10.0 |
+| nvmet.host_subsys.get_instance | call | introduced v25.10.0; changed v26.0.0 |
+| nvmet.host_subsys.query | call | introduced v25.10.0; changed v26.0.0 |
 | nvmet.host_subsys.query | event | introduced v25.10.0; changed v26.0.0 |
-| nvmet.host_subsys.update | call | introduced v25.10.0 |
-| nvmet.host.create | call | introduced v25.10.0 |
+| nvmet.host_subsys.update | call | introduced v25.10.0; changed v26.0.0 |
+| nvmet.host.create | call | introduced v25.10.0; changed v26.0.0 |
 | nvmet.host.delete | call | introduced v25.10.0 |
 | nvmet.host.dhchap_dhgroup_choices | call | introduced v25.10.0 |
 | nvmet.host.dhchap_hash_choices | call | introduced v25.10.0 |
 | nvmet.host.generate_key | call | introduced v25.10.0 |
-| nvmet.host.get_instance | call | introduced v25.10.0 |
-| nvmet.host.query | call | introduced v25.10.0 |
+| nvmet.host.get_instance | call | introduced v25.10.0; changed v26.0.0 |
+| nvmet.host.query | call | introduced v25.10.0; changed v26.0.0 |
 | nvmet.host.query | event | introduced v25.10.0; changed v26.0.0 |
-| nvmet.host.update | call | introduced v25.10.0 |
+| nvmet.host.update | call | introduced v25.10.0; changed v26.0.0 |
 | nvmet.namespace.create | call | introduced v25.10.0; changed v26.0.0 |
 | nvmet.namespace.delete | call | introduced v25.10.0 |
 | nvmet.namespace.get_instance | call | introduced v25.10.0; changed v26.0.0 |
@@ -514,7 +514,7 @@ greppable record: an entry exists in every version from its introduction until
 | nvmet.subsys.query | call | introduced v25.10.0 |
 | nvmet.subsys.query | event | introduced v25.10.0 |
 | nvmet.subsys.update | call | introduced v25.10.0 |
-| pool.attach | job | introduced v25.10.0 |
+| pool.attach | job | introduced v25.10.0; changed v25.10.2, v26.0.0 |
 | pool.attachments | call | introduced v25.10.0 |
 | pool.create | job | introduced v25.10.0; changed v26.0.0 |
 | pool.dataset.attachments | call | introduced v25.10.0 |
@@ -539,13 +539,13 @@ greppable record: an entry exists in every version from its introduction until
 | pool.dataset.query | event | introduced v25.10.0 |
 | pool.dataset.recommended_zvol_blocksize | call | introduced v25.10.0 |
 | pool.dataset.recordsize_choices | call | introduced v25.10.0 |
-| pool.dataset.rename | call | introduced v25.10.0 |
+| pool.dataset.rename | call | introduced v25.10.0; changed v26.0.0 |
 | pool.dataset.set_quota | call | introduced v25.10.0 |
 | pool.dataset.snapshot_count | call | introduced v25.04.0 |
 | pool.dataset.unlock | job | introduced v25.10.0 |
-| pool.dataset.update | call | introduced v25.10.0 |
+| pool.dataset.update | call | introduced v25.10.0; changed v26.0.0 |
 | pool.ddt_prefetch | job | introduced v25.04.0 |
-| pool.ddt_prune | job | introduced v25.04.0 |
+| pool.ddt_prune | job | introduced v25.04.0; changed v25.10.0 |
 | pool.detach | call | introduced v25.10.0 |
 | pool.expand | job | introduced v25.10.0 |
 | pool.export | job | introduced v25.10.0 |
@@ -564,14 +564,14 @@ greppable record: an entry exists in every version from its introduction until
 | pool.reimport | job | introduced v26.0.0 |
 | pool.remove | job | introduced v25.10.0 |
 | pool.replace | job | introduced v25.10.0 |
-| pool.resilver.config | call | introduced v25.04.0 |
-| pool.resilver.update | call | introduced v25.04.0 |
+| pool.resilver.config | call | introduced v25.04.0; changed v25.10.0 |
+| pool.resilver.update | call | introduced v25.04.0; changed v25.10.0 |
 | pool.scan | event | introduced v25.04.0; changed v25.10.0, v26.0.0 |
 | pool.scrub | job | introduced v25.10.0; changed v26.0.0 |
 | pool.scrub.create | call | introduced v25.04.0; changed v25.10.0 |
 | pool.scrub.delete | call | introduced v25.04.0 |
-| pool.scrub.get_instance | call | introduced v25.04.0 |
-| pool.scrub.query | call | introduced v25.04.0; changed v25.10.0 |
+| pool.scrub.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| pool.scrub.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | pool.scrub.query | event | introduced v25.04.0; changed v25.10.0 |
 | pool.scrub.run | call | introduced v25.04.0 |
 | pool.scrub.scrub | job | introduced v25.04.0; changed v26.0.0 |
@@ -587,62 +587,62 @@ greppable record: an entry exists in every version from its introduction until
 | pool.snapshot.rename | call | introduced v25.10.0; changed v26.0.0 |
 | pool.snapshot.rollback | call | introduced v25.10.0 |
 | pool.snapshot.update | call | introduced v25.10.0; changed v26.0.0 |
-| pool.snapshottask.create | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| pool.snapshottask.delete | call | introduced v25.04.0 |
+| pool.snapshottask.create | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
+| pool.snapshottask.delete | call | introduced v25.04.0; changed v25.10.0 |
 | pool.snapshottask.delete_will_change_retention_for | call | introduced v25.04.0 |
-| pool.snapshottask.get_instance | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| pool.snapshottask.get_instance | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | pool.snapshottask.max_count | call | introduced v25.04.0 |
 | pool.snapshottask.max_total_count | call | introduced v25.04.0 |
-| pool.snapshottask.query | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| pool.snapshottask.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
 | pool.snapshottask.query | event | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | pool.snapshottask.run | job | introduced v25.04.0 |
-| pool.snapshottask.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| pool.snapshottask.update_will_change_retention_for | call | introduced v25.04.0; changed v25.10.0 |
+| pool.snapshottask.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
+| pool.snapshottask.update_will_change_retention_for | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | pool.update | job | introduced v25.10.0; changed v26.0.0 |
 | pool.upgrade | call | introduced v25.10.0 |
 | pool.validate_name | call | introduced v25.10.0 |
 | privilege.become_readonly | call | introduced v26.0.0 |
-| privilege.create | call | introduced v25.04.0; changed v25.10.0 |
+| privilege.create | call | introduced v25.04.0; changed v25.04.1, v25.10.0, v27.0.0 |
 | privilege.delete | call | introduced v25.04.0 |
-| privilege.get_instance | call | introduced v25.04.0; changed v25.10.0 |
-| privilege.query | call | introduced v25.04.0; changed v25.10.0 |
+| privilege.get_instance | call | introduced v25.04.0; changed v25.04.1, v25.10.0, v27.0.0 |
+| privilege.query | call | introduced v25.04.0; changed v25.04.1, v25.04.2, v25.10.0, v27.0.0 |
 | privilege.query | event | introduced v25.04.0; changed v25.10.0, v27.0.0 |
-| privilege.roles | call | introduced v25.04.0; changed v25.10.0 |
-| privilege.update | call | introduced v25.04.0; changed v25.10.0 |
+| privilege.roles | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v27.0.0 |
+| privilege.update | call | introduced v25.04.0; changed v25.04.1, v25.10.0, v27.0.0 |
 | rdma.capable_protocols | call | introduced v25.04.0; changed v25.10.0 |
-| rdma.get_card_choices | call | introduced v25.04.0 |
+| rdma.get_card_choices | call | introduced v25.04.0; changed v25.10.0 |
 | replication.config.config | call | introduced v25.10.0 |
 | replication.config.update | call | introduced v25.10.0 |
 | replication.count_eligible_manual_snapshots | call | introduced v25.10.0 |
-| replication.create | call | introduced v25.10.0; changed v26.0.0 |
+| replication.create | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | replication.create_dataset | call | introduced v25.10.0 |
 | replication.delete | call | introduced v25.10.0 |
-| replication.get_instance | call | introduced v25.10.0; changed v26.0.0 |
+| replication.get_instance | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | replication.list_datasets | call | introduced v25.10.0 |
 | replication.list_naming_schemas | call | introduced v25.10.0 |
-| replication.query | call | introduced v25.10.0; changed v26.0.0 |
+| replication.query | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | replication.query | event | introduced v25.10.0; changed v26.0.0, v27.0.0 |
-| replication.restore | call | introduced v25.10.0; changed v26.0.0 |
+| replication.restore | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | replication.run | job | introduced v25.10.0 |
 | replication.run_onetime | job | introduced v25.10.0; changed v26.0.0 |
 | replication.target_unmatched_snapshots | call | introduced v25.10.0; changed v26.0.0 |
-| replication.update | call | introduced v25.10.0; changed v26.0.0 |
-| reporting.config | call | introduced v25.04.0 |
+| replication.update | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
+| reporting.config | call | introduced v25.04.0; changed v25.10.0 |
 | reporting.exporters.create | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | reporting.exporters.delete | call | introduced v25.04.0 |
 | reporting.exporters.exporter_schemas | call | introduced v25.04.0; changed v25.10.0 |
-| reporting.exporters.get_instance | call | introduced v25.04.0 |
-| reporting.exporters.query | call | introduced v25.04.0; changed v25.10.0 |
+| reporting.exporters.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| reporting.exporters.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | reporting.exporters.query | event | introduced v25.04.0; changed v25.10.0 |
 | reporting.exporters.update | call | introduced v25.04.0; changed v25.10.0 |
 | reporting.get_data | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | reporting.graph | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | reporting.graphs | call | introduced v27.0.0 |
 | reporting.netdata_get_data | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
-| reporting.netdata_graph | call | introduced v25.04.0; changed v26.0.0, v27.0.0 |
+| reporting.netdata_graph | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | reporting.netdata_graphs | call | introduced v27.0.0 |
 | reporting.realtime | event | introduced v25.04.0 |
-| reporting.update | call | introduced v25.04.0; changed v27.0.0 |
+| reporting.update | call | introduced v25.04.0; changed v25.10.0, v27.0.0 |
 | route.ipv4gw_reachable | call | introduced v25.10.0 |
 | route.system_routes | call | introduced v25.10.0 |
 | rsynctask.create | call | introduced v25.10.0; changed v26.0.0 |
@@ -659,22 +659,22 @@ greppable record: an entry exists in every version from its introduction until
 | service.started | call | introduced v25.10.0 |
 | service.started_or_enabled | call | introduced v25.10.0 |
 | service.update | call | introduced v25.10.0 |
-| sharing.nfs.create | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| sharing.nfs.create | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | sharing.nfs.delete | call | introduced v25.04.0 |
-| sharing.nfs.get_instance | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| sharing.nfs.query | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| sharing.nfs.get_instance | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
+| sharing.nfs.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
 | sharing.nfs.query | event | introduced v25.04.0; changed v25.04.1, v25.10.0, v26.0.0 |
-| sharing.nfs.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| sharing.smb.create | call | introduced v25.10.0; changed v25.10.1, v26.0.0 |
+| sharing.nfs.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
+| sharing.smb.create | call | introduced v25.10.0; changed v25.10.1, v26.0.0, v27.0.0 |
 | sharing.smb.delete | call | introduced v25.10.0 |
-| sharing.smb.get_instance | call | introduced v25.10.0; changed v25.10.1, v26.0.0 |
-| sharing.smb.getacl | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| sharing.smb.get_instance | call | introduced v25.10.0; changed v25.10.1, v26.0.0, v27.0.0 |
+| sharing.smb.getacl | call | introduced v25.04.0; changed v25.10.0, v25.10.1, v26.0.0, v27.0.0 |
 | sharing.smb.presets | call | introduced v25.04.0 |
-| sharing.smb.query | call | introduced v25.10.0; changed v25.10.1, v26.0.0 |
+| sharing.smb.query | call | introduced v25.10.0; changed v25.10.1, v26.0.0, v27.0.0 |
 | sharing.smb.query | event | introduced v25.10.0; changed v25.10.1, v26.0.0 |
-| sharing.smb.setacl | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| sharing.smb.setacl | call | introduced v25.04.0; changed v25.10.0, v25.10.1, v26.0.0, v27.0.0 |
 | sharing.smb.share_precheck | call | introduced v25.10.0 |
-| sharing.smb.update | call | introduced v25.10.0; changed v25.10.1, v26.0.0 |
+| sharing.smb.update | call | introduced v25.10.0; changed v25.10.1, v26.0.0, v27.0.0 |
 | sharing.webshare.create | call | introduced v26.0.0 |
 | sharing.webshare.delete | call | introduced v26.0.0 |
 | sharing.webshare.get_instance | call | introduced v26.0.0 |
@@ -682,21 +682,21 @@ greppable record: an entry exists in every version from its introduction until
 | sharing.webshare.query | event | introduced v26.0.0 |
 | sharing.webshare.update | call | introduced v26.0.0 |
 | smb.bindip_choices | call | introduced v25.04.0 |
-| smb.config | call | introduced v25.04.0; changed v26.0.0 |
+| smb.config | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | smb.status | call | introduced v26.0.0 |
 | smb.unixcharset_choices | call | introduced v25.04.0 |
-| smb.update | call | introduced v25.04.0; changed v26.0.0 |
-| snmp.config | call | introduced v25.04.0; changed v25.10.1, v27.0.0 |
-| snmp.update | call | introduced v25.04.0; changed v25.10.1, v27.0.0 |
+| smb.update | call | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
+| snmp.config | call | introduced v25.04.0; changed v25.10.0, v25.10.1, v26.0.0, v27.0.0 |
+| snmp.update | call | introduced v25.04.0; changed v25.10.0, v25.10.1, v26.0.0, v27.0.0 |
 | ssh.bindiface_choices | call | introduced v25.10.0 |
 | ssh.config | call | introduced v25.10.0 |
 | ssh.update | call | introduced v25.10.0 |
-| staticroute.create | call | introduced v25.04.0; changed v25.10.1 |
+| staticroute.create | call | introduced v25.04.0; changed v25.10.0, v25.10.1 |
 | staticroute.delete | call | introduced v25.04.0 |
-| staticroute.get_instance | call | introduced v25.04.0 |
-| staticroute.query | call | introduced v25.04.0; changed v25.10.0 |
+| staticroute.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| staticroute.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | staticroute.query | event | introduced v25.04.0; changed v25.10.0 |
-| staticroute.update | call | introduced v25.04.0; changed v25.10.1 |
+| staticroute.update | call | introduced v25.04.0; changed v25.10.0, v25.10.1 |
 | support.attach_ticket | job | introduced v25.10.0; changed v27.0.0 |
 | support.attach_ticket_max_size | call | introduced v25.10.0 |
 | support.config | call | introduced v25.10.0 |
@@ -737,25 +737,25 @@ greppable record: an entry exists in every version from its introduction until
 | system.host_id | call | introduced v25.10.0 |
 | system.info | call | introduced v25.10.0 |
 | system.license_update | call | introduced v25.10.0 |
-| system.ntpserver.create | call | introduced v25.04.0 |
+| system.ntpserver.create | call | introduced v25.04.0; changed v25.10.0 |
 | system.ntpserver.delete | call | introduced v25.04.0 |
-| system.ntpserver.get_instance | call | introduced v25.04.0 |
-| system.ntpserver.query | call | introduced v25.04.0; changed v25.10.0 |
+| system.ntpserver.get_instance | call | introduced v25.04.0; changed v25.10.0 |
+| system.ntpserver.query | call | introduced v25.04.0; changed v25.04.2, v25.10.0 |
 | system.ntpserver.query | event | introduced v25.04.0; changed v25.10.0 |
-| system.ntpserver.update | call | introduced v25.04.0 |
+| system.ntpserver.update | call | introduced v25.04.0; changed v25.10.0 |
 | system.product_type | call | introduced v25.10.0 |
 | system.ready | call | introduced v25.10.0 |
 | system.ready | event | introduced v25.10.0 |
-| system.reboot | job | introduced v25.04.0 |
+| system.reboot | job | introduced v25.04.0; changed v25.10.0 |
 | system.reboot | event | introduced v25.04.0 |
-| system.reboot.info | call | introduced v25.04.0 |
+| system.reboot.info | call | introduced v25.04.0; changed v25.10.0 |
 | system.reboot.info | event | introduced v25.04.0; changed v25.10.0 |
 | system.release_notes_url | call | introduced v25.10.0 |
 | system.security.config | call | introduced v25.04.0; changed v25.04.1, v25.10.0 |
 | system.security.info.fips_available | call | introduced v25.04.0 |
 | system.security.info.fips_enabled | call | introduced v25.04.0 |
 | system.security.update | job | introduced v25.04.0; changed v25.04.1, v25.10.0, v27.0.0 |
-| system.shutdown | job | introduced v25.04.0 |
+| system.shutdown | job | introduced v25.04.0; changed v25.10.0 |
 | system.shutdown | event | introduced v25.04.0 |
 | system.state | call | introduced v25.10.0 |
 | system.version | call | introduced v25.10.0 |
@@ -800,43 +800,43 @@ greppable record: an entry exists in every version from its introduction until
 | update.status | call | introduced v25.10.0 |
 | update.status | event | introduced v25.10.0 |
 | update.update | call | introduced v25.10.0 |
-| ups.config | call | introduced v25.10.0 |
+| ups.config | call | introduced v25.10.0; changed v27.0.0 |
 | ups.driver_choices | call | introduced v25.10.0 |
 | ups.port_choices | call | introduced v25.10.0 |
-| ups.update | call | introduced v25.10.0; changed v26.0.0 |
+| ups.update | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | user.create | call | introduced v25.04.0; changed v25.04.1, v25.10.0, v26.0.0 |
-| user.delete | call | introduced v25.04.0 |
+| user.delete | call | introduced v25.04.0; changed v25.10.0 |
 | user.get_instance | call | introduced v25.04.0; changed v25.04.1, v25.10.0, v26.0.0 |
 | user.get_next_uid | call | introduced v25.04.0 |
 | user.get_user_obj | call | introduced v25.04.0; changed v25.10.0 |
 | user.has_local_administrator_set_up | call | introduced v25.04.0 |
-| user.query | call | introduced v25.04.0; changed v25.04.1, v25.10.0, v26.0.0 |
+| user.query | call | introduced v25.04.0; changed v25.04.1, v25.04.2, v25.10.0, v26.0.0 |
 | user.query | event | introduced v25.04.0; changed v26.0.0 |
 | user.renew_2fa_secret | call | introduced v25.04.0; changed v25.04.1, v25.10.0, v26.0.0 |
-| user.set_password | call | introduced v25.04.0 |
-| user.setup_local_administrator | call | introduced v25.04.0 |
+| user.set_password | call | introduced v25.04.0; changed v25.10.0 |
+| user.setup_local_administrator | call | introduced v25.04.0; changed v25.10.0 |
 | user.shell_choices | call | introduced v25.04.0 |
 | user.unset_2fa_secret | call | introduced v25.04.0 |
 | user.update | call | introduced v25.04.0; changed v25.04.1, v25.10.0, v26.0.0 |
 | user.web_ui_login_disabled | event | introduced v25.04.0 |
 | vm.bootloader_aavmf_choices | call | introduced v27.0.0 |
-| vm.bootloader_options | call | introduced v25.04.2; changed v27.0.0 |
+| vm.bootloader_options | call | introduced v25.04.2; changed v25.10.0, v27.0.0 |
 | vm.bootloader_ovmf_choices | call | introduced v25.10.0; changed v27.0.0 |
 | vm.clone | call | introduced v25.04.2 |
 | vm.cpu_model_choices | call | introduced v25.10.0; changed v27.0.0 |
 | vm.create | call | introduced v25.04.2; changed v25.10.0, v26.0.0, v27.0.0 |
-| vm.delete | call | introduced v25.04.2; changed v26.0.0 |
+| vm.delete | call | introduced v25.04.2; changed v25.10.0, v26.0.0, v27.0.0 |
 | vm.device.bind_choices | call | introduced v25.04.2; changed v27.0.0 |
 | vm.device.convert | job | introduced v25.10.0; changed v27.0.0 |
 | vm.device.create | call | introduced v25.04.2; changed v25.10.0, v27.0.0 |
-| vm.device.delete | call | introduced v25.04.2 |
+| vm.device.delete | call | introduced v25.04.2; changed v25.10.0 |
 | vm.device.disk_choices | call | introduced v25.04.2; changed v27.0.0 |
 | vm.device.get_instance | call | introduced v25.04.2; changed v25.10.0, v27.0.0 |
 | vm.device.iommu_enabled | call | introduced v25.10.0 |
 | vm.device.iotype_choices | call | introduced v25.10.0; changed v27.0.0 |
 | vm.device.nic_attach_choices | call | introduced v25.10.0; changed v26.0.0, v27.0.0 |
-| vm.device.passthrough_device | call | introduced v25.04.2 |
-| vm.device.passthrough_device_choices | call | introduced v25.04.2 |
+| vm.device.passthrough_device | call | introduced v25.04.2; changed v25.10.0 |
+| vm.device.passthrough_device_choices | call | introduced v25.04.2; changed v25.10.0 |
 | vm.device.query | call | introduced v25.04.2; changed v25.10.0, v27.0.0 |
 | vm.device.query | event | introduced v25.04.2; changed v25.10.0, v27.0.0 |
 | vm.device.update | call | introduced v25.04.2; changed v25.10.0, v27.0.0 |
@@ -844,7 +844,7 @@ greppable record: an entry exists in every version from its introduction until
 | vm.device.usb_passthrough_choices | call | introduced v25.10.0; changed v26.0.0 |
 | vm.device.usb_passthrough_device | call | introduced v25.10.0; changed v26.0.0 |
 | vm.device.virtual_size | call | introduced v25.10.1; changed v27.0.0 |
-| vm.flags | call | introduced v25.04.2; changed v27.0.0 |
+| vm.flags | call | introduced v25.04.2; changed v25.10.0, v27.0.0 |
 | vm.get_available_memory | call | introduced v25.04.2 |
 | vm.get_console | call | introduced v25.04.2 |
 | vm.get_display_devices | call | introduced v25.04.2; changed v25.10.0, v26.0.0, v27.0.0 |
@@ -866,13 +866,13 @@ greppable record: an entry exists in every version from its introduction until
 | vm.resolution_choices | call | introduced v25.04.2 |
 | vm.restart | job | introduced v25.04.2 |
 | vm.resume | call | introduced v25.04.2 |
-| vm.start | call | introduced v25.04.2 |
-| vm.status | call | introduced v25.04.2; changed v26.0.0 |
-| vm.stop | job | introduced v25.04.2 |
+| vm.start | call | introduced v25.04.2; changed v25.10.0 |
+| vm.status | call | introduced v25.04.2; changed v25.10.0, v26.0.0 |
+| vm.stop | job | introduced v25.04.2; changed v25.10.0 |
 | vm.supports_virtualization | call | introduced v25.04.2 |
 | vm.suspend | call | introduced v25.04.2 |
 | vm.update | call | introduced v25.04.2; changed v25.10.0, v26.0.0, v27.0.0 |
-| vm.virtualization_details | call | introduced v25.04.2; changed v27.0.0 |
+| vm.virtualization_details | call | introduced v25.04.2; changed v25.10.0, v27.0.0 |
 | vmware.create | call | introduced v25.10.0; changed v26.0.0 |
 | vmware.dataset_has_vms | call | introduced v25.10.0 |
 | vmware.delete | call | introduced v25.10.0 |
@@ -885,11 +885,11 @@ greppable record: an entry exists in every version from its introduction until
 | webshare.bindip_choices | call | introduced v26.0.0 |
 | webshare.config | call | introduced v26.0.0 |
 | webshare.update | call | introduced v26.0.0 |
-| webui.crypto.csr_profiles | call | introduced v25.04.0 |
+| webui.crypto.csr_profiles | call | introduced v25.04.0; changed v25.10.0 |
 | webui.crypto.get_certificate_domain_names | call | introduced v25.10.0 |
 | webui.enclosure.dashboard | call | introduced v25.04.0 |
 | webui.main.dashboard.sys_info | call | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| zfs.resource.destroy | call | introduced v26.0.0 |
+| zfs.resource.destroy | call | introduced v26.0.0; changed v27.0.0 |
 | zfs.resource.query | call | introduced v25.10.0; changed v26.0.0 |
 | zfs.resource.snapshot.clone | call | introduced v26.0.0 |
 | zfs.resource.snapshot.count | call | introduced v26.0.0 |
@@ -912,6 +912,6 @@ greppable record: an entry exists in every version from its introduction until
 | zfs.tier.rewrite_job_status | call | introduced v26.0.0 |
 | zfs.tier.rewrite_job_status | event | introduced v26.0.0 |
 | zfs.tier.update | call | introduced v26.0.0 |
-| zpool.query | call | introduced v26.0.0 |
+| zpool.query | call | introduced v26.0.0; changed v27.0.0 |
 | zpool.query | event | introduced v26.0.0 |
 | zpool.scrub.run | job | introduced v26.0.0 |

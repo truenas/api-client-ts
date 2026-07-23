@@ -4,6 +4,7 @@
  */
 
 import type {
+  AclTemplateFormatOptions,
   Acltype,
   AzureBlobCredentialsModel,
   AzureBlobCredentialsModelInput2,
@@ -57,6 +58,7 @@ import type {
   SSHCredentialsInput,
   SSHKeyPair,
   SSHKeyPairInput,
+  Source,
   SwiftCredentialsModel,
   SwiftCredentialsModelInput2,
   Tag,
@@ -313,6 +315,55 @@ export interface NFS4ACEInput {
   who?: string | null;
 }
 /**
+ * Used by: filesystem.acltemplate.by_path (params)
+ */
+export interface ACLTemplateByPathArgs {
+  path?: string;
+  "query-filters"?: unknown[];
+  "query-options"?: QueryOptionsModel2;
+  "format-options"?: AclTemplateFormatOptions;
+}
+/**
+ * Used by: acme.dns.authenticator.query (params), alertservice.query (params), api_key.query (params), app.image.query (params), app.ix_volume.query (params), app.query (params), app.registry.query (params), auth.sessions (params), boot.environment.query (params), cloud_backup.query (params) … and 30 more
+ */
+export interface QueryOptionsModel2 {
+  relationships?: boolean;
+  extend?: string | null;
+  extend_context?: string | null;
+  prefix?: string | null;
+  /**
+   * Extra options are defined on a per-endpoint basis and are described in the documentation for the associated query method.
+   */
+  extra?: {
+    [k: string]: unknown;
+  };
+  /**
+   * An array of field names describing the manner in which query results should be ordered. The field names may also have one of more of the following special prefixes: `-` (reverse sort direction), `nulls_first:` (place any null values at the head of the results list), `nulls_last:` (place any null values at the tail of the results list).
+   */
+  order_by?: string[];
+  /**
+   * An array of field names specifying the exact fields to include in the query return. The dot character `.` may be used to explicitly select only subkeys of the query result.
+   */
+  select?: (string | unknown[])[];
+  /**
+   * Return a numeric value representing the number of items that match the specified `query-filters`.
+   */
+  count?: boolean;
+  /**
+   * Return the JSON object of the first result matching the specified `query-filters`. The query fails if there specified `query-filters` return no results.
+   */
+  get?: boolean;
+  /**
+   * This specifies the beginning offset of the results array. When combined with the `limit` query-option it may be used to implement pagination of large results arrays. WARNING: some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
+   */
+  offset?: number;
+  /**
+   * This specifies the maximum number of results matching the specified `query-filters` to return. When combined wtih the `offset` query-option it may be used to implement pagination of large results arrays. WARNING: some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
+   */
+  limit?: number;
+  force_sql_filters?: boolean;
+}
+/**
  * Used by: filesystem.acltemplate.query (event)
  */
 export interface ACLTemplateChangedEvent {
@@ -343,26 +394,11 @@ export interface NFS4ACEInput2 {
  * Used by: filesystem.acltemplate.by_path (response), filesystem.acltemplate.create (response), filesystem.acltemplate.get_instance (params), filesystem.acltemplate.get_instance (response), filesystem.acltemplate.query (params), filesystem.acltemplate.query (response), filesystem.acltemplate.update (response)
  */
 export interface ACLTemplateEntry {
-  /**
-   * Unique identifier for the ACL template.
-   */
   id: number;
-  /**
-   * Whether this is a built-in system template or user-created.
-   */
   builtin: boolean;
-  /**
-   * Human-readable name for the ACL template.
-   */
   name: string;
   acltype: Acltype;
-  /**
-   * Array of Access Control Entries defined by this template.
-   */
   acl: NFS4ACE[] | POSIXACE[];
-  /**
-   * Optional descriptive comment about the template's purpose.
-   */
   comment?: string;
 }
 /**
@@ -371,21 +407,9 @@ export interface ACLTemplateEntry {
 export interface NFS4ACE {
   tag: Tag;
   type: Type2;
-  /**
-   * Permissions granted or denied by this ACE.
-   */
   perms: NFS4ACE_AdvancedPerms | NFS4ACE_BasicPerms;
-  /**
-   * Inheritance and other behavioral flags for this ACE.
-   */
   flags: NFS4ACE_AdvancedFlags | NFS4ACE_BasicFlags;
-  /**
-   * UID or GID when `tag` is "USER" or "GROUP". `null` for special entries.
-   */
   id?: number | null;
-  /**
-   * Username or group name when `tag` is "USER" or "GROUP". `null` for special entries.
-   */
   who?: string | null;
 }
 /**
@@ -508,24 +532,12 @@ export interface CredentialsEntry {
     | YandexCredentialsModel;
 }
 /**
- * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response), cloudsync.create (response), cloudsync.credentials.create (response), cloudsync.credentials.get_instance (params), cloudsync.credentials.get_instance (response) … and 9 more
+ * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response), cloudsync.credentials.create (response), cloudsync.credentials.get_instance (params), cloudsync.credentials.get_instance (response), cloudsync.credentials.query (params) … and 2 more
  */
 export interface StorjIxCredentialsModel {
-  /**
-   * Cloud provider type identifier for Storj decentralized storage.
-   */
   type: "STORJ_IX";
-  /**
-   * Storj S3-compatible access key ID for authentication.
-   */
   access_key_id: string;
-  /**
-   * Storj S3-compatible secret access key for authentication.
-   */
   secret_access_key: string;
-  /**
-   * Storj gateway endpoint URL for S3-compatible access.
-   */
   endpoint?: string;
 }
 /**
@@ -533,20 +545,20 @@ export interface StorjIxCredentialsModel {
  */
 export interface CloudBackupSnapshotItem {
   /**
-   * Name of the item.
+   * Name of the item
    */
   name: string;
   /**
-   * Item's path in the snapshot.
+   * Item's path in the snapshot
    */
   path: string;
   type: Type4;
   /**
-   * Size of the file in bytes.
+   * Size of the file in bytes
    */
   size: number | null;
   /**
-   * Last modified time.
+   * Last modified time
    */
   mtime: string;
   [k: string]: unknown;
@@ -653,12 +665,12 @@ export interface FilesystemDirEntry {
    */
   path: string;
   /**
-   * Canonical path of the entry, eliminating any symbolic links.
+   * Canonical path of the entry, eliminating any symbolic links
    */
   realpath: string;
   type: Type5;
   /**
-   * Size of the file in bytes. For directories, this may not represent total content size. Corresonds with stx_size.
+   * Size in bytes of a plain file. This corresonds with stx_size.
    */
   size: number;
   /**
@@ -744,7 +756,7 @@ export interface FilesystemSetaclArgs {
  */
 export interface FilesystemStatData {
   /**
-   * Canonical path of the entry, eliminating any symbolic links.
+   * Canonical path of the entry, eliminating any symbolic links
    */
   realpath: string;
   type: Type5;
@@ -761,7 +773,7 @@ export interface FilesystemStatData {
    */
   mode: number;
   /**
-   * The mount ID of the mount containing the entry. This corresponds to the number in first field of /proc/self/mountinfo and stx_mnt_id. Bind mounts share the same device ID but have different mount IDs, so this value uniquely identifies the particular mount and can be used to identify children of a given mountpoint.
+   * The mount ID of the mount containing the entry. This corresponds to the number in first field of /proc/self/mountinfo and stx_mnt_id.
    */
   mount_id: number;
   /**
@@ -785,15 +797,15 @@ export interface FilesystemStatData {
    */
   ctime: number;
   /**
-   * Time of creation. Corresponds with stx_btime. Depending on the platform, this may be mutable from userspace.
+   * Time of creation. Corresponds with stx_btime.
    */
   btime: number;
   /**
-   * The ID of the device containing the filesystem where the file resides. Within the TrueNAS API this is sufficient to uniquely identify a given dataset, but it is not sufficient to uniquely identify a particular filesystem mount (bind mounts of the same dataset share a dev). mount_id must be used for that purpose. This corresponds with st_dev.
+   * The ID of the device containing the filesystem where the file resides. This is not sufficient to uniquely identify a particular filesystem mount. mount_id must be used for that purpose. This corresponds with st_dev.
    */
   dev: number;
   /**
-   * The inode number of the file. This corresponds with stx_ino. It uniquely identifies the file on the given device, but once a file is deleted its inode number may be reused.
+   * The inode number of the file. This corresponds with stx_ino.
    */
   inode: number;
   /**
@@ -836,61 +848,68 @@ export interface GroupCreate {
    */
   gid?: number | null;
   name: string;
-  /**
-   * A list of commands that group members may execute with elevated privileges. User is prompted for password when executing any command from the list.
-   */
   sudo_commands?: string[];
-  /**
-   * A list of commands that group members may execute with elevated privileges. User is not prompted for password when executing any command from the list.
-   */
   sudo_commands_nopasswd?: string[];
   /**
-   * If set to `True`, the group can be used for SMB share ACL entries. The group is mapped to an NT group account on the TrueNAS SMB server and has a `sid` value.
+   * Specifies whether the group should be mapped into an NT group.
    */
   smb?: boolean;
   /**
-   * Specifies the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If null, then the GID will not be mapped.
+   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
    *
-   * **NOTE: This field will be ignored for groups that have been assigned TrueNAS roles.**
+   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
    */
   userns_idmap?: "DIRECT" | number | null;
   /**
-   * A list a API user identifiers for local users who are members of this group. These IDs match the `id` field from `user.query`.
-   *
-   * NOTE: This field is empty for groups that come from directory services (`local` is `False`).
+   * A list of user ids (`id` attribute from `user.query`).
    */
   users?: number[];
+}
+/**
+ * Used by: group.get_group_obj (response)
+ */
+export interface GroupGetGroupObjResult {
+  /**
+   * Name of the group.
+   */
+  gr_name: string;
+  /**
+   * Group ID of the group.
+   */
+  gr_gid: number;
+  /**
+   * List of group names that are members of the group.
+   */
+  gr_mem: string[];
+  /**
+   * Optional SID value for the account that is present if `sid_info` is specified in payload.
+   */
+  sid?: string | null;
+  source: Source;
+  /**
+   * Boolean indicating whether this group is local to the NAS or provided by a directory service.
+   */
+  local: boolean;
 }
 /**
  * Used by: group.update (params)
  */
 export interface GroupUpdate {
-  /**
-   * A string used to identify a group.
-   */
   name?: string;
-  /**
-   * A list of commands that group members may execute with elevated privileges. User is prompted for password when executing any command from the list.
-   */
   sudo_commands?: string[];
-  /**
-   * A list of commands that group members may execute with elevated privileges. User is not prompted for password when executing any command from the list.
-   */
   sudo_commands_nopasswd?: string[];
   /**
-   * If set to `True`, the group can be used for SMB share ACL entries. The group is mapped to an NT group account on the TrueNAS SMB server and has a `sid` value.
+   * Specifies whether the group should be mapped into an NT group.
    */
   smb?: boolean;
   /**
-   * Specifies the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If null, then the GID will not be mapped.
+   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
    *
-   * **NOTE: This field will be ignored for groups that have been assigned TrueNAS roles.**
+   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
    */
   userns_idmap?: "DIRECT" | number | null;
   /**
-   * A list a API user identifiers for local users who are members of this group. These IDs match the `id` field from `user.query`.
-   *
-   * NOTE: This field is empty for groups that come from directory services (`local` is `False`).
+   * A list of user ids (`id` attribute from `user.query`).
    */
   users?: number[];
 }
@@ -978,9 +997,6 @@ export interface InitShutdownScriptEntry {
    */
   script?: string | null;
   when: When;
-  /**
-   * Whether the init/shutdown script is enabled to execute.
-   */
   enabled?: boolean;
   /**
    * An integer time in seconds that the system should wait for the execution of the script/command.
@@ -988,13 +1004,7 @@ export interface InitShutdownScriptEntry {
    * A hard limit for a timeout is configured by the base OS, so when a script/command is set to execute on SHUTDOWN, the hard limit configured by the base OS is changed adding the timeout specified by script/command so it can be ensured that it executes as desired and is not interrupted by the base OS's limit.
    */
   timeout?: number;
-  /**
-   * Optional comment describing the purpose of this script.
-   */
   comment?: string;
-  /**
-   * Unique identifier for the init/shutdown script.
-   */
   id: number;
 }
 /**
@@ -1234,50 +1244,26 @@ export interface KeychainCredentialEntry {
  * Used by: filesystem.getacl (response), filesystem.setacl (response)
  */
 export interface NFS4ACLResult {
-  /**
-   * Absolute filesystem path this ACL information applies to.
-   */
   path: string;
-  /**
-   * Username of the file/directory owner or `null` if unresolved.
-   */
   user: string | null;
-  /**
-   * Group name of the file/directory group or `null` if unresolved.
-   */
   group: string | null;
-  /**
-   * Numeric user ID for file/directory ownership or `null` to preserve existing.
-   */
   uid: number | null;
-  /**
-   * Numeric group ID for file/directory ownership or `null` to preserve existing.
-   */
   gid: number | null;
-  /**
-   * ACL type identifier for NFS4 access control lists.
-   */
   acltype: "NFS4";
-  /**
-   * Array of NFS4 Access Control Entries defining permissions.
-   */
   acl: NFS4ACE[];
   aclflags: NFS4ACL_Flags;
-  /**
-   * Whether this ACL is a simple/trivial ACL equivalent to POSIX permissions.
-   */
   trivial: boolean;
 }
 /**
- * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 20 more
+ * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
  */
 export interface USBAttributes {
   /**
-   * USB vendor identifier in hexadecimal format (e.g., '0x1d6b' for Linux Foundation).
+   * Vendor id must start with "0x" prefix e.g 0x16a8.
    */
   vendor_id: string;
   /**
-   * USB product identifier in hexadecimal format (e.g., '0x0002' for 2.0 root hub).
+   * Product id must start with "0x" prefix e.g 0x16a8.
    */
   product_id: string;
 }
@@ -1748,13 +1734,7 @@ export interface VMStatusInput {
  * Used by: vm.bootloader_options (response)
  */
 export interface VMBootloaderOptionsResult {
-  /**
-   * Modern UEFI firmware with secure boot support.
-   */
   UEFI?: "UEFI";
-  /**
-   * UEFI with Compatibility Support Module for legacy BIOS compatibility.
-   */
   UEFI_CSM?: "Legacy BIOS";
 }
 /**
@@ -1821,13 +1801,7 @@ export interface VMCreateArgs {
  * Used by: vm.delete (params)
  */
 export interface VMDeleteOptions {
-  /**
-   * Delete associated ZFS volumes when deleting the VM.
-   */
   zvols?: boolean;
-  /**
-   * Delete a running or suspended VM by stopping it first. Without this, deleting an active VM is rejected. Also causes failures to destroy associated ZFS volumes to be logged and ignored rather than aborting the deletion.
-   */
   force?: boolean;
 }
 /**
@@ -1841,33 +1815,12 @@ export interface VMDeviceAddedEvent {
  * Used by: vm.device.passthrough_device (response), vm.device.passthrough_device_choices (response)
  */
 export interface VMDeviceCapability {
-  /**
-   * PCI device class identifier. `null` if not available.
-   */
   class: string | null;
-  /**
-   * PCI domain number. `null` if not available.
-   */
   domain: string | null;
-  /**
-   * PCI bus number. `null` if not available.
-   */
   bus: string | null;
-  /**
-   * PCI slot number. `null` if not available.
-   */
   slot: string | null;
-  /**
-   * PCI function number. `null` if not available.
-   */
   function: string | null;
-  /**
-   * Product name of the PCI device. `null` if not available.
-   */
   product: string | null;
-  /**
-   * Vendor name of the PCI device. `null` if not available.
-   */
   vendor: string | null;
 }
 /**
@@ -1970,17 +1923,8 @@ export interface VMUSBDeviceInput2 {
  * Used by: vm.device.delete (params)
  */
 export interface VMDeviceDeleteOptions {
-  /**
-   * Force deletion even if the device is in use.
-   */
   force?: boolean;
-  /**
-   * Delete the underlying raw disk file when removing the device.
-   */
   raw_file?: boolean;
-  /**
-   * Delete the underlying ZFS volume when removing the device.
-   */
   zvol?: boolean;
 }
 /**
@@ -2010,172 +1954,76 @@ export interface VMDisplayDevice {
  * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
  */
 export interface VMNICDevice {
-  /**
-   * Device type identifier for network interface cards.
-   */
   dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
   trust_guest_rx_filters?: boolean;
-  /**
-   * Network interface controller type. `E1000` for Intel compatibility, `VIRTIO` for performance.
-   */
   type?: "E1000" | "VIRTIO";
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
   nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
   mac?: string | null;
 }
 /**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
+ * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
  */
 export interface VMPCIDevice {
-  /**
-   * Device type identifier for PCI passthrough devices.
-   */
   dtype: "PCI";
-  /**
-   * Host PCI device identifier to pass through to the VM.
-   */
   pptdev: string;
 }
 /**
  * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
  */
 export interface VMRAWDevice {
-  /**
-   * Device type identifier for raw disk devices.
-   */
   dtype: "RAW";
   /**
-   * Filesystem path to the raw disk device or image file.
+   * Path must not contain "{", "}" characters.
    */
   path: string;
   type?: Type;
-  /**
-   * Whether the disk file already exists or should be created.
-   */
   exists?: boolean;
-  /**
-   * Whether this disk should be marked as bootable.
-   */
   boot?: boolean;
-  /**
-   * Size of the disk in bytes. Required if creating a new disk file.
-   */
   size?: number | null;
-  /**
-   * Logical sector size for the disk. `null` for default.
-   */
   logical_sectorsize?: (null | 512 | 4096) | null;
-  /**
-   * Physical sector size for the disk. `null` for default.
-   */
   physical_sectorsize?: (null | 512 | 4096) | null;
   iotype?: Iotype;
-  /**
-   * Serial number to assign to the virtual disk. `null` for auto-generated.
-   */
   serial?: string | null;
 }
 /**
  * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
  */
 export interface VMDiskDevice {
-  /**
-   * Device type identifier for virtual disk devices.
-   */
   dtype: "DISK";
-  /**
-   * Path to existing disk file or ZFS volume. `null` if creating a new ZFS volume.
-   */
   path?: string | null;
   type?: Type;
-  /**
-   * Whether to create a new ZFS volume for this disk.
-   */
   create_zvol?: boolean;
-  /**
-   * Name for the new ZFS volume. Required if `create_zvol` is true.
-   */
   zvol_name?: string | null;
-  /**
-   * Size of the new ZFS volume in bytes. Required if `create_zvol` is true.
-   */
   zvol_volsize?: number | null;
-  /**
-   * Logical sector size for the disk. `null` for default.
-   */
   logical_sectorsize?: (null | 512 | 4096) | null;
-  /**
-   * Physical sector size for the disk. `null` for default.
-   */
   physical_sectorsize?: (null | 512 | 4096) | null;
   iotype?: Iotype;
-  /**
-   * Serial number to assign to the virtual disk. `null` for auto-generated.
-   */
   serial?: string | null;
 }
 /**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
+ * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
  */
 export interface VMUSBDevice {
-  /**
-   * Device type identifier for USB devices.
-   */
   dtype: "USB";
-  /**
-   * USB device attributes for identification. `null` for USB host controller only.
-   */
   usb?: USBAttributes | null;
-  /**
-   * USB controller type for the virtual machine.
-   */
   controller_type?:
     "piix3-uhci" | "piix4-uhci" | "ehci" | "ich9-ehci1" | "vt82c686b-uhci" | "pci-ohci" | "nec-xhci" | "qemu-xhci";
-  /**
-   * Host USB device path to pass through. `null` for controller only.
-   */
   device?: string | null;
 }
 /**
  * Used by: vm.device.passthrough_device (response), vm.device.passthrough_device_choices (response)
  */
 export interface VMDeviceIOMMUGroup {
-  /**
-   * IOMMU group number for device isolation.
-   */
   number: number;
-  /**
-   * Array of PCI addresses in this IOMMU group.
-   */
   addresses: VMDeviceIOMMUGroupAddress[];
 }
 /**
  * Used by: vm.device.passthrough_device (response), vm.device.passthrough_device_choices (response)
  */
 export interface VMDeviceIOMMUGroupAddress {
-  /**
-   * PCI domain number for this IOMMU group address.
-   */
   domain: string;
-  /**
-   * PCI bus number for this IOMMU group address.
-   */
   bus: string;
-  /**
-   * PCI slot number for this IOMMU group address.
-   */
   slot: string;
-  /**
-   * PCI function number for this IOMMU group address.
-   */
   function: string;
 }
 /**
@@ -2183,41 +2031,14 @@ export interface VMDeviceIOMMUGroupAddress {
  */
 export interface VMDevicePassthroughDevice {
   capability: VMDeviceCapability;
-  /**
-   * Type of controller this device provides. `null` if not a controller.
-   */
   controller_type: string | null;
-  /**
-   * IOMMU group information for device isolation. `null` if IOMMU not available.
-   */
   iommu_group?: VMDeviceIOMMUGroup | null;
-  /**
-   * Whether the device is available for passthrough to virtual machines.
-   */
   available: boolean;
-  /**
-   * Array of kernel drivers currently bound to this device.
-   */
   drivers: string[];
-  /**
-   * Error message if the device cannot be used for passthrough. `null` if no error.
-   */
   error: string | null;
-  /**
-   * Whether the device supports proper reset mechanisms for passthrough.
-   */
   reset_mechanism_defined: boolean;
-  /**
-   * Human-readable description of the PCI device.
-   */
   description: string;
-  /**
-   * Whether this device is critical to host system operation.
-   */
   critical: boolean;
-  /**
-   * Device filesystem path. `null` if not available.
-   */
   device_path: string | null;
 }
 /**
@@ -2282,38 +2103,17 @@ export interface VMEntry {
  * Used by: vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (params), vm.query (response), vm.status (response), vm.update (response)
  */
 export interface VMStatus {
-  /**
-   * Current state of the virtual machine.
-   */
   state: string;
-  /**
-   * Process ID of the running VM. `null` if not running.
-   */
   pid: number | null;
-  /**
-   * Hypervisor-specific domain state.
-   */
   domain_state: string;
 }
 /**
  * Used by: vm.flags (response)
  */
 export interface VMFlagsResult {
-  /**
-   * Whether Intel VT-x (VMX) virtualization is available.
-   */
   intel_vmx: boolean;
-  /**
-   * Whether Intel unrestricted guest mode is supported.
-   */
   unrestricted_guest: boolean;
-  /**
-   * Whether AMD Rapid Virtualization Indexing (RVI/NPT) is available.
-   */
   amd_rvi: boolean;
-  /**
-   * Whether AMD Address Space Identifiers (ASIDs) are supported.
-   */
   amd_asids: boolean;
 }
 /**
@@ -2339,22 +2139,13 @@ export interface VMRemovedEvent {
  * Used by: vm.start (params)
  */
 export interface VMStartOptions {
-  /**
-   * Whether to allow memory overcommitment when starting the VM.
-   */
   overcommit?: boolean;
 }
 /**
  * Used by: vm.stop (params)
  */
 export interface VMStopOptions {
-  /**
-   * Whether to force immediate shutdown without graceful shutdown attempt.
-   */
   force?: boolean;
-  /**
-   * Whether to force shutdown if graceful shutdown times out.
-   */
   force_after_timeout?: boolean;
 }
 /**
@@ -2394,12 +2185,6 @@ export interface VMUpdate {
  * Used by: vm.virtualization_details (response)
  */
 export interface VMVirtualizationDetailsResult {
-  /**
-   * Whether hardware virtualization is supported and available.
-   */
   supported: boolean;
-  /**
-   * Error message if virtualization is not available. `null` if supported.
-   */
   error: string | null;
 }

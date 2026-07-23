@@ -8,25 +8,15 @@ import type { ApiJobDirectory as SourceApiJobDirectory } from '../v25_04_0/api-j
 /** The entries whose signature (and referenced types) are identical in every generated version. */
 export type ApiJobDirectoryBase = Pick<
   SourceApiJobDirectory,
-  | 'app.delete'
-  | 'app.pull_images'
   | 'app.start'
   | 'app.stop'
   | 'catalog.sync'
   | 'cloud_backup.delete_snapshot'
-  | 'config.reset'
-  | 'config.save'
   | 'config.upload'
   | 'cronjob.run'
   | 'docker.backup'
   | 'docker.restore_backup'
-  | 'filesystem.chown'
   | 'filesystem.get'
-  | 'filesystem.put'
-  | 'filesystem.setperm'
   | 'pool.ddt_prefetch'
-  | 'pool.ddt_prune'
   | 'pool.snapshottask.run'
-  | 'system.reboot'
-  | 'system.shutdown'
 >;

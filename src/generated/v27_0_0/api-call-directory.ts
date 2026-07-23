@@ -11,55 +11,78 @@ import type {
 } from '../shared/query-types';
 
 import type {
+  AuthSessionsQueryResultItem,
+  FCHostQueryResultItem,
+  FCPortQueryResultItem,
+  FilesystemDirQueryResultItem,
+  ISCSITargetAuthCredentialQueryResultItem,
+  ISCSITargetAuthorizedInitiatorQueryResultItem,
+  ISCSITargetExtentQueryResultItem,
+  ISCSITargetQueryResultItem,
+  MegaCredentialsModel,
+  PeriodicSnapshotTaskQueryResultItem,
+  PrivilegeQueryResultItem,
+  PrivilegeRolesQueryResultItem,
+  SharingNFSQueryResultItem,
+  StorjIxCredentialsModelInput,
+} from '../v25_04_0/api-types';
+import type {
+  VMDeviceQueryResultItem,
+  VMQueryResultItem,
+} from '../v25_04_2/api-types';
+import type {
+  ACLTemplateEntry,
+  AppAvailableItem,
   AppsIxVolumeEntry,
+  AuthRespAuthErr,
+  AuthRespAuthRedirect,
+  AuthRespExpired,
+  AuthRespOTPRequired,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
   BootEnvironmentEntry,
   BoxCredentialsModel,
   DNSAuthenticatorEntry,
+  DiskEntry,
   DropboxCredentialsModel,
+  Enclosure2SetSlotStatusArgs,
   FTPCredentialsModel,
   FTPEntry,
-  FilesystemDirQueryResultItem,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
-  MegaCredentialsModel,
+  KeychainCredentialCreateSSHCredentialsEntry,
+  KeychainCredentialCreateSSHKeyPairEntry,
+  KeychainCredentialUpdateSSHCredentialsEntry,
+  KeychainCredentialUpdateSSHKeyPairEntry,
+  NfsShareCreate,
+  NfsShareUpdate,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
+  QueryOptionsModel,
+  ReplicationQueryResultItem,
+  ReplicationRestoreOptions,
   ReportingEntry,
   ReportingExportsEntry,
   ReportingQuery,
   SFTPCredentialsModel,
   SSHKeyPair,
-  StorjIxCredentialsModelInput,
+  SharingSMBGetaclArgs,
+  SharingSMBQueryResultItem,
   SwiftCredentialsModel,
-  WebDavCredentialsModel,
-  YandexCredentialsModel,
-} from '../v25_04_0/api-types';
-import type {
-  ACLTemplateEntry,
-  VMDeviceQueryResultItem,
-  VMQueryResultItem,
-} from '../v25_04_2/api-types';
-import type {
-  AppAvailableItem,
-  DiskEntry,
-  Enclosure2SetSlotStatusArgs,
-  KeychainCredentialCreateSSHCredentialsEntry,
-  KeychainCredentialCreateSSHKeyPairEntry,
-  KeychainCredentialUpdateSSHCredentialsEntry,
-  KeychainCredentialUpdateSSHKeyPairEntry,
-  QueryOptionsModel,
   TunableQueryResultItem,
   VMDeviceUpdate,
-  VMUpdate,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
 } from '../v25_10_0/api-types';
 import type {
   AuditQueryResultItem,
   AuditQueryResultItemQueryResultItem,
+  AuthRespDenied,
+  AuthRespScram,
+  AuthSCRAM,
   ContainerDeviceQueryResultItem,
   ContainerDeviceUpdate,
   ContainerQueryResultItem,
@@ -67,9 +90,14 @@ import type {
   GraphIdentifier,
   KeychainCredentialEntry,
   LXCConfigEntry,
+  ReplicationCreate,
+  ReplicationUpdate,
   S3CredentialsModel,
+  SmbShareCreate,
+  SmbShareUpdate,
   TrueNASConnectEntry,
   TruecommandEntry,
+  ZPoolEntry,
   ZfsTierRewriteJobEntry,
   ZfsTierRewriteJobFailureEntry,
   ZfsTierRewriteJobFailureQueryResultItem,
@@ -86,6 +114,12 @@ import type {
   AppUpgradeSummary,
   AppUpgradeSummaryOptions,
   AuditQuery,
+  AuthApiKeyPlain,
+  AuthOTPToken,
+  AuthPasswordPlain,
+  AuthRespSuccess,
+  AuthSessionsEntry,
+  AuthTokenPlain,
   BootEnvironmentActivate,
   BootEnvironmentClone,
   BootEnvironmentDestroy,
@@ -99,14 +133,46 @@ import type {
   DockerBackupMap,
   DockerEntry,
   DockerStatusInfo,
+  FCHostCreate,
+  FCHostEntry,
+  FCHostUpdate,
+  FCPortCreate,
+  FCPortEntry,
+  FCPortUpdate,
   FTPUpdate,
+  FailoverSyncToPeer,
   FilesystemDirEntry,
   FilesystemMkdirData,
+  FilesystemStatData,
+  ISCSITargetAuthCredentialEntry,
+  ISCSITargetAuthorizedInitiatorEntry,
+  ISCSITargetEntry,
+  ISCSITargetExtentEntry,
+  IscsiAuthCreate,
+  IscsiAuthUpdate,
+  IscsiExtentCreate,
+  IscsiExtentUpdate,
+  IscsiInitiatorCreate,
+  IscsiInitiatorUpdate,
+  IscsiTargetCreate,
+  IscsiTargetUpdate,
+  KMIPEntry,
   LXCConfigUpdate,
   MailEntry,
   MailUpdate,
+  NFSEntry,
+  NFSUpdateArgs,
   NVMetGlobalSessionsItem,
   NVMetGlobalSessionsItemQueryResultItem,
+  PeriodicSnapshotTaskEntry,
+  PoolSnapshotTaskCreate,
+  PoolSnapshotTaskUpdate,
+  PoolSnapshotTaskUpdateWillChangeRetentionFor,
+  PrivilegeCreate,
+  PrivilegeEntry,
+  PrivilegeRolesEntry,
+  PrivilegeUpdate,
+  ReplicationEntry,
   ReportingExportsCreate,
   ReportingGetDataResponse,
   ReportingGraphsItem,
@@ -114,13 +180,22 @@ import type {
   ReportingNetdataGraphsItem,
   ReportingNetdataGraphsItemQueryResultItem,
   ReportingUpdate,
+  SMBEntry,
+  SMBShareAcl,
+  SMBUpdateArgs,
   SNMPEntry,
   SNMPUpdate,
+  SharingNFSEntry,
+  SharingSMBEntry,
+  SharingSMBSetaclArgs,
   TrueNASConnectUpdate,
   TruecommandUpdate,
   TunableEntry,
+  UPSEntry,
+  UPSUpdate,
   VMBootloaderOptions,
   VMCreate,
+  VMDeleteOptions,
   VMDeviceCreate,
   VMDeviceEntry,
   VMDeviceIotypeChoices,
@@ -135,7 +210,10 @@ import type {
   VMGetVmemoryInUse,
   VMGuestNetworkInterface,
   VMPortWizard,
+  VMUpdate,
   VMVirtualizationDetails,
+  ZFSResourceDestroyArgsData,
+  ZPoolQuery,
   ZfsTierRewriteJobFailuresArgs,
   ZfsTierRewriteJobQueryArgs,
 } from './api-types';
@@ -218,6 +296,79 @@ export interface ApiCallDirectoryDelta {
   'audit.query': {
     params: [data?: AuditQuery];
     response: AuditQueryResultItem[] | AuditQueryResultItem | AuditQueryResultItemQueryResultItem[] | AuditQueryResultItemQueryResultItem | number;
+  };
+
+  /**
+   * Authenticate using one of a variety of mechanisms.
+   *
+   * The mechanism is selected by the ``mechanism`` field of the request, and the set of supported mechanisms will be expanded in future releases.
+   *
+   * .. warning::
+   *
+   *     Mechanisms with a ``_PLAIN`` suffix involve passing plain-text passwords or
+   *     password-equivalent strings and should not be used over untrusted or insecure
+   *     transport.
+   *
+   * The ``response_type`` of the result indicates the outcome of the current authentication step and whether further action is required to complete authentication:
+   *
+   * - ``SUCCESS`` -- authentication completed and a session was established.
+   * - ``OTP_REQUIRED`` -- the account requires a one-time password; the client must continue
+   *   authentication by submitting the token via the ``OTP_TOKEN`` mechanism.
+   * - ``AUTH_ERR`` -- generic authentication failure corresponding to ``PAM_AUTH_ERR`` and
+   *   ``PAM_USER_UNKNOWN`` from libpam. Returned when the account does not exist or the
+   *   credential is incorrect.
+   * - ``EXPIRED`` -- the supplied credential is expired and not suitable for authentication.
+   * - ``REDIRECT`` -- authentication must be performed on a different server.
+   *
+   * A JSON-RPC ``error`` response (code ``-32001``, *Method call error*) is returned instead of a result in the following cases:
+   *
+   * - a multistep challenge-response mechanism is in progress and the supplied ``mechanism``
+   *   does not match the expected next step (errno ``EBUSY``)
+   * - the ``OTP_TOKEN`` mechanism is used without a preceding step having requested it
+   *   (errno ``EINVAL``)
+   * - the current authenticator assurance level prohibits the supplied mechanism
+   *   (errno ``EOPNOTSUPP``)
+   */
+  'auth.login_ex': {
+    params: [login_data: AuthApiKeyPlain | AuthPasswordPlain | AuthTokenPlain | AuthOTPToken | AuthSCRAM];
+    response: AuthRespSuccess | AuthRespAuthErr | AuthRespExpired | AuthRespOTPRequired | AuthRespAuthRedirect | AuthRespScram | AuthRespDenied;
+  };
+
+  /**
+   * Continue an in-progress authentication attempt. This endpoint should be called to continue an :doc:`auth.login_ex <api_methods_auth.login_ex>` attempt that returned a ``response_type`` of ``OTP_REQUIRED``, submitting the one-time password via the ``OTP_TOKEN`` mechanism.
+   *
+   * This is a convenience wrapper around :doc:`auth.login_ex <api_methods_auth.login_ex>` for API consumers.
+   *
+   * The ``response_type`` of the result indicates the outcome of this authentication step:
+   *
+   * - ``SUCCESS`` -- authentication completed and a session was established.
+   * - ``OTP_REQUIRED`` -- the one-time password token was rejected; the client may call this
+   *   endpoint again with a correct token.
+   * - ``AUTH_ERR`` -- an invalid one-time password token was submitted too many times.
+   */
+  'auth.login_ex_continue': {
+    params: [login_data: AuthOTPToken];
+    response: AuthRespSuccess | AuthRespAuthErr | AuthRespExpired | AuthRespOTPRequired | AuthRespAuthRedirect | AuthRespDenied;
+  };
+
+  /**
+   * Returns a list of active auth sessions.
+   *
+   * The ``credentials_data`` object varies by ``credentials`` type: password and socket sessions include ``username``; API key sessions additionally include ``api_key`` (id and name); token sessions include ``parent`` (the originating credential) and optionally ``username``.
+   *
+   * Example::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "auth.sessions",
+   *         "params": []
+   *     }
+   * @roles AUTH_SESSIONS_READ
+   */
+  'auth.sessions': {
+    params: [filters?: QueryFilters<AuthSessionsEntry>, options?: QueryOptions<AuthSessionsEntry>];
+    response: AuthSessionsEntry[] | AuthSessionsEntry | AuthSessionsQueryResultItem[] | AuthSessionsQueryResultItem | number;
   };
 
   /**
@@ -432,6 +583,91 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Sync database and files to the other controller.
+   * @roles FAILOVER_WRITE
+   */
+  'failover.sync_to_peer': {
+    params: [options?: FailoverSyncToPeer];
+    response: null;
+  };
+
+  /**
+   * Create an FC host (pairing).
+   *
+   * This associates an ``alias`` with a corresponding Fibre Channel WWPN. For HA systems, the alias is associated with a pair of WWPNs, one per node.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'fc.fc_host.create': {
+    params: [fc_host_create: FCHostCreate];
+    response: FCHostEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fc.fc_host.get_instance': {
+    params: [id: number, options?: QueryOptions<FCHostEntry>];
+    response: FCHostEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fc.fc_host.query': {
+    params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptions<FCHostEntry>];
+    response: FCHostEntry[] | FCHostEntry | FCHostQueryResultItem[] | FCHostQueryResultItem | number;
+  };
+
+  /**
+   * Update FC host ``id``.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'fc.fc_host.update': {
+    params: [id: number, fc_host_update: FCHostUpdate];
+    response: FCHostEntry;
+  };
+
+  /**
+   * Creates mapping between a FC port and a target.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'fcport.create': {
+    params: [fc_Port_create: FCPortCreate];
+    response: FCPortEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fcport.get_instance': {
+    params: [id: number, options?: QueryOptions<FCPortEntry>];
+    response: FCPortEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fcport.query': {
+    params: [filters?: QueryFilters<FCPortEntry>, options?: QueryOptions<FCPortEntry>];
+    response: FCPortEntry[] | FCPortEntry | FCPortQueryResultItem[] | FCPortQueryResultItem | number;
+  };
+
+  /**
+   * Update FC port mapping ``id``.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'fcport.update': {
+    params: [id: number, fc_Port_update: FCPortUpdate];
+    response: FCPortEntry;
+  };
+
+  /**
    * Retrieve list of available ACL templates for a given ``path``. Supports ``query-filters`` and ``query-options``.
    *
    * ACL entries in the returned templates are always in canonical order.
@@ -472,12 +708,179 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Return filesystem information for a given path.
+   *
+   * The reported timestamps reflect ``statx()`` values. The ``atime`` and ``mtime`` timestamps are mutable from userspace, and ``btime`` may also be mutable from userspace depending on the platform.
+   *
+   * The returned ``attributes`` list contains the ``statx()`` file attributes that apply to the file (see the ``statx(2)`` manpage for details). ZFS flags set via :doc:`filesystem.set_zfs_attributes <api_methods_filesystem.set_zfs_attributes>` are surfaced here: an immutable file reports ``IMMUTABLE`` and an append-only file reports ``APPEND``.
+   *
+   * .. note::
+   *
+   *     ``mount_id`` uniquely identifies the particular mount underlying the path. Bind mounts
+   *     share the same ``dev`` (device id) but have distinct ``mount_id`` values, so ``mount_id``
+   *     (not ``dev``) must be used to identify children of a given mountpoint.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.stat': {
+    params: [path: string];
+    response: FilesystemStatData;
+  };
+
+  /**
    * Update ftp service configuration.
    * @roles SHARING_FTP_WRITE
    */
   'ftp.update': {
     params: [data: FTPUpdate];
     response: FTPEntry;
+  };
+
+  /**
+   * Create an iSCSI Authorized Access.
+   * @roles SHARING_ISCSI_AUTH_WRITE
+   */
+  'iscsi.auth.create': {
+    params: [data: IscsiAuthCreate];
+    response: ISCSITargetAuthCredentialEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_AUTH_READ
+   */
+  'iscsi.auth.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetAuthCredentialEntry>];
+    response: ISCSITargetAuthCredentialEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_AUTH_READ
+   */
+  'iscsi.auth.query': {
+    params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptions<ISCSITargetAuthCredentialEntry>];
+    response: ISCSITargetAuthCredentialEntry[] | ISCSITargetAuthCredentialEntry | ISCSITargetAuthCredentialQueryResultItem[] | ISCSITargetAuthCredentialQueryResultItem | number;
+  };
+
+  /**
+   * Update iSCSI Authorized Access of ``id``.
+   * @roles SHARING_ISCSI_AUTH_WRITE
+   */
+  'iscsi.auth.update': {
+    params: [id: number, data: IscsiAuthUpdate];
+    response: ISCSITargetAuthCredentialEntry;
+  };
+
+  /**
+   * Create an iSCSI Extent.
+   * @roles SHARING_ISCSI_EXTENT_WRITE
+   */
+  'iscsi.extent.create': {
+    params: [iscsi_extent_create: IscsiExtentCreate];
+    response: ISCSITargetExtentEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_EXTENT_READ
+   */
+  'iscsi.extent.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetExtentEntry>];
+    response: ISCSITargetExtentEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_EXTENT_READ
+   */
+  'iscsi.extent.query': {
+    params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptions<ISCSITargetExtentEntry>];
+    response: ISCSITargetExtentEntry[] | ISCSITargetExtentEntry | ISCSITargetExtentQueryResultItem[] | ISCSITargetExtentQueryResultItem | number;
+  };
+
+  /**
+   * Update iSCSI Extent of ``id``.
+   * @roles SHARING_ISCSI_EXTENT_WRITE
+   */
+  'iscsi.extent.update': {
+    params: [id: number, iscsi_extent_update: IscsiExtentUpdate];
+    response: ISCSITargetExtentEntry;
+  };
+
+  /**
+   * Create an iSCSI Initiator.
+   * @roles SHARING_ISCSI_INITIATOR_WRITE
+   */
+  'iscsi.initiator.create': {
+    params: [iscsi_initiator_create: IscsiInitiatorCreate];
+    response: ISCSITargetAuthorizedInitiatorEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_INITIATOR_READ
+   */
+  'iscsi.initiator.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetAuthorizedInitiatorEntry>];
+    response: ISCSITargetAuthorizedInitiatorEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_INITIATOR_READ
+   */
+  'iscsi.initiator.query': {
+    params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: QueryOptions<ISCSITargetAuthorizedInitiatorEntry>];
+    response: ISCSITargetAuthorizedInitiatorEntry[] | ISCSITargetAuthorizedInitiatorEntry | ISCSITargetAuthorizedInitiatorQueryResultItem[] | ISCSITargetAuthorizedInitiatorQueryResultItem | number;
+  };
+
+  /**
+   * Update iSCSI initiator of ``id``.
+   * @roles SHARING_ISCSI_INITIATOR_WRITE
+   */
+  'iscsi.initiator.update': {
+    params: [id: number, iscsi_initiator_update: IscsiInitiatorUpdate];
+    response: ISCSITargetAuthorizedInitiatorEntry;
+  };
+
+  /**
+   * Create an iSCSI Target.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'iscsi.target.create': {
+    params: [iscsi_target_create: IscsiTargetCreate];
+    response: ISCSITargetEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'iscsi.target.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetEntry>];
+    response: ISCSITargetEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'iscsi.target.query': {
+    params: [filters?: QueryFilters<ISCSITargetEntry>, options?: QueryOptions<ISCSITargetEntry>];
+    response: ISCSITargetEntry[] | ISCSITargetEntry | ISCSITargetQueryResultItem[] | ISCSITargetQueryResultItem | number;
+  };
+
+  /**
+   * Update iSCSI Target of ``id``.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'iscsi.target.update': {
+    params: [id: number, iscsi_target_update: IscsiTargetUpdate];
+    response: ISCSITargetEntry;
   };
 
   /**
@@ -510,6 +913,14 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles KMIP_READ
+   */
+  'kmip.config': {
+    params: [];
+    response: KMIPEntry;
+  };
+
+  /**
    * Update container config.
    * @roles LXC_CONFIG_WRITE
    */
@@ -536,6 +947,25 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles SHARING_NFS_READ
+   */
+  'nfs.config': {
+    params: [];
+    response: NFSEntry;
+  };
+
+  /**
+   * Update the NFS service configuration.
+   *
+   * At least one protocol must remain enabled in ``protocols``; the ``showmount`` command is available only while NFSv3 is enabled. When ``servers`` is ``null``, the number of nfsd is determined automatically from the system's capabilities (between 1 and 32); otherwise it is set to the requested value (1 to 256). The number of mountd processes is always one quarter of the number of nfsd. When ``bindip`` is empty, NFS listens on all active server addresses. NFS over RDMA, enabled with ``rdma``, is only available on supported platforms with an RDMA-capable NIC and uses port 20049.
+   * @roles SHARING_NFS_WRITE
+   */
+  'nfs.update': {
+    params: [nfs_update?: NFSUpdateArgs];
+    response: NFSEntry;
+  };
+
+  /**
    * Return the NVMe-oF host sessions currently connected to this TrueNAS.
    *
    * On an HA system with ANA enabled, sessions from both controllers are included.
@@ -544,6 +974,145 @@ export interface ApiCallDirectoryDelta {
   'nvmet.global.sessions': {
     params: [filters?: QueryFilters<NVMetGlobalSessionsItem>, options?: QueryOptions<NVMetGlobalSessionsItem>];
     response: NVMetGlobalSessionsItem[] | NVMetGlobalSessionsItem | NVMetGlobalSessionsItemQueryResultItem[] | NVMetGlobalSessionsItemQueryResultItem | number;
+  };
+
+  /**
+   * Create a periodic snapshot task.
+   *
+   * Snapshots are automatically destroyed after their configured lifetime. If multiple periodic tasks create a snapshot at the same time (for example, an hourly and a daily task at 00:00), the snapshot is kept until the last of those tasks reaches its expiry time.
+   * @roles SNAPSHOT_TASK_WRITE
+   */
+  'pool.snapshottask.create': {
+    params: [data: PoolSnapshotTaskCreate];
+    response: PeriodicSnapshotTaskEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SNAPSHOT_TASK_READ
+   */
+  'pool.snapshottask.get_instance': {
+    params: [id: number, options?: QueryOptions<PeriodicSnapshotTaskEntry>];
+    response: PeriodicSnapshotTaskEntry;
+  };
+
+  /**
+   * @roles SNAPSHOT_TASK_READ
+   */
+  'pool.snapshottask.query': {
+    params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptions<PeriodicSnapshotTaskEntry>];
+    response: PeriodicSnapshotTaskEntry[] | PeriodicSnapshotTaskEntry | PeriodicSnapshotTaskQueryResultItem[] | PeriodicSnapshotTaskQueryResultItem | number;
+  };
+
+  /**
+   * Update a Periodic Snapshot Task with specific ``id``.
+   * @roles SNAPSHOT_TASK_WRITE
+   */
+  'pool.snapshottask.update': {
+    params: [id: number, data: PoolSnapshotTaskUpdate];
+    response: PeriodicSnapshotTaskEntry;
+  };
+
+  /**
+   * Returns a list of snapshots which will change the retention if periodic snapshot task ``id`` is updated with ``data``.
+   * @roles SNAPSHOT_TASK_READ
+   */
+  'pool.snapshottask.update_will_change_retention_for': {
+    params: [id: number, data: PoolSnapshotTaskUpdateWillChangeRetentionFor];
+    response: Record<string, string[]>;
+  };
+
+  /**
+   * Create a privilege.
+   * @roles PRIVILEGE_WRITE
+   */
+  'privilege.create': {
+    params: [privilege_create: PrivilegeCreate];
+    response: PrivilegeEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles PRIVILEGE_READ
+   */
+  'privilege.get_instance': {
+    params: [id: number, options?: QueryOptions<PrivilegeEntry>];
+    response: PrivilegeEntry;
+  };
+
+  /**
+   * @roles PRIVILEGE_READ
+   */
+  'privilege.query': {
+    params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptions<PrivilegeEntry>];
+    response: PrivilegeEntry[] | PrivilegeEntry | PrivilegeQueryResultItem[] | PrivilegeQueryResultItem | number;
+  };
+
+  /**
+   * Get all available roles.
+   */
+  'privilege.roles': {
+    params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: QueryOptions<PrivilegeRolesEntry>];
+    response: PrivilegeRolesEntry[] | PrivilegeRolesEntry | PrivilegeRolesQueryResultItem[] | PrivilegeRolesQueryResultItem | number;
+  };
+
+  /**
+   * Update the privilege ``id``.
+   * @roles PRIVILEGE_WRITE
+   */
+  'privilege.update': {
+    params: [id: number, privilege_update: PrivilegeUpdate];
+    response: PrivilegeEntry;
+  };
+
+  /**
+   * Create a Replication Task that will push or pull ZFS snapshots to or from remote host.
+   * @roles REPLICATION_TASK_WRITE
+   */
+  'replication.create': {
+    params: [replication_create: ReplicationCreate];
+    response: ReplicationEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles REPLICATION_TASK_READ
+   */
+  'replication.get_instance': {
+    params: [id: number, options?: QueryOptions<ReplicationEntry>];
+    response: ReplicationEntry;
+  };
+
+  /**
+   * @roles REPLICATION_TASK_READ
+   */
+  'replication.query': {
+    params: [filters?: QueryFilters<ReplicationEntry>, options?: QueryOptions<ReplicationEntry>];
+    response: ReplicationEntry[] | ReplicationEntry | ReplicationQueryResultItem[] | ReplicationQueryResultItem | number;
+  };
+
+  /**
+   * Create the opposite of replication task ``id`` (PULL if it was PUSH and vice versa).
+   * @roles REPLICATION_TASK_WRITE
+   */
+  'replication.restore': {
+    params: [id: number, replication_restore: ReplicationRestoreOptions];
+    response: ReplicationEntry;
+  };
+
+  /**
+   * Update a Replication Task with specific ``id``.
+   * @roles REPLICATION_TASK_WRITE
+   */
+  'replication.update': {
+    params: [id: number, replication_update: ReplicationUpdate];
+    response: ReplicationEntry;
   };
 
   /**
@@ -625,6 +1194,149 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Create a NFS Share.
+   * @roles SHARING_NFS_WRITE
+   */
+  'sharing.nfs.create': {
+    params: [data: NfsShareCreate];
+    response: SharingNFSEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_NFS_READ
+   */
+  'sharing.nfs.get_instance': {
+    params: [id: number, options?: QueryOptions<SharingNFSEntry>];
+    response: SharingNFSEntry;
+  };
+
+  /**
+   * @roles SHARING_NFS_READ
+   */
+  'sharing.nfs.query': {
+    params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptions<SharingNFSEntry>];
+    response: SharingNFSEntry[] | SharingNFSEntry | SharingNFSQueryResultItem[] | SharingNFSQueryResultItem | number;
+  };
+
+  /**
+   * Update NFS Share of ``id``.
+   * @roles SHARING_NFS_WRITE
+   */
+  'sharing.nfs.update': {
+    params: [id: number, data: NfsShareUpdate];
+    response: SharingNFSEntry;
+  };
+
+  /**
+   * Create an SMB share.
+   *
+   * The behavior and available options of the share are determined by its ``purpose``; most deployments should use ``DEFAULT_SHARE``. Before creating a share, the server should be joined to a directory service or have at least one local SMB user; :doc:`sharing.smb.share_precheck <api_methods_sharing.smb.share_precheck>` can be used to validate this and the share name in advance.
+   *
+   * .. note::
+   *
+   *     Setting raw ``smb.conf`` auxiliary parameters (``options.auxsmbconf``) is restricted to callers
+   *     with full administrative privileges. Auxiliary parameters that would break the SMB server are
+   *     rejected, returning a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*).
+   * @roles SHARING_SMB_WRITE
+   */
+  'sharing.smb.create': {
+    params: [data: SmbShareCreate];
+    response: SharingSMBEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_SMB_READ
+   */
+  'sharing.smb.get_instance': {
+    params: [id: number, options?: QueryOptions<SharingSMBEntry>];
+    response: SharingSMBEntry;
+  };
+
+  /**
+   * Retrieve the share-level ACL for the SMB share named ``share_name``.
+   *
+   * This is the access control list enforced by the SMB protocol on connections to the share; it is distinct from the filesystem ACL on the share ``path``. Each entry's SID is resolved to a Unix ID and name where possible. The special share name ``HOMES`` refers to the auto-generated home-directory share.
+   *
+   * A JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned when the named share does not exist.
+   * @roles SHARING_SMB_READ
+   */
+  'sharing.smb.getacl': {
+    params: [smb_getacl: SharingSMBGetaclArgs];
+    response: SMBShareAcl;
+  };
+
+  /**
+   * @roles SHARING_SMB_READ
+   */
+  'sharing.smb.query': {
+    params: [filters?: QueryFilters<SharingSMBEntry>, options?: QueryOptions<SharingSMBEntry>];
+    response: SharingSMBEntry[] | SharingSMBEntry | SharingSMBQueryResultItem[] | SharingSMBQueryResultItem | number;
+  };
+
+  /**
+   * Set an ACL on ``share_name``. This only impacts access through the SMB protocol.
+   * @roles SHARING_SMB_WRITE
+   */
+  'sharing.smb.setacl': {
+    params: [smb_setacl: SharingSMBSetaclArgs];
+    response: SMBShareAcl;
+  };
+
+  /**
+   * Update the SMB share identified by ``id``.
+   *
+   * Renaming a share or changing its ``path`` is disruptive: existing SMB sessions on the affected share are forcibly closed so that the change can take effect.
+   *
+   * .. note::
+   *
+   *     Setting raw ``smb.conf`` auxiliary parameters (``options.auxsmbconf``) is restricted to callers
+   *     with full administrative privileges. Auxiliary parameters that would break the SMB server are
+   *     rejected and the original configuration is restored.
+   * @roles SHARING_SMB_WRITE
+   */
+  'sharing.smb.update': {
+    params: [id: number, data: SmbShareUpdate];
+    response: SharingSMBEntry;
+  };
+
+  /**
+   * @roles SHARING_SMB_READ
+   */
+  'smb.config': {
+    params: [];
+    response: SMBEntry;
+  };
+
+  /**
+   * Update the SMB service configuration.
+   *
+   * The group specified as the SMB ``admin_group`` is automatically added as a foreign group member of ``S-1-5-32-544`` (the builtin administrators group), affording the group all privileges granted to a local administrator. Any SMB group may be selected, including Active Directory groups.
+   *
+   * Mandatory SMB encryption (``encryption`` set to ``REQUIRED``) is not compatible with ``SMB1`` server support.
+   *
+   * .. note::
+   *
+   *     ``workgroup`` and ``netbiosname`` must have different values.
+   *
+   * .. important::
+   *
+   *     ``smb_options`` are raw ``smb.conf`` parameters that are not covered by the supported configuration
+   *     options. Not all options are tested or supported, and their behavior may change between releases.
+   *     Stability of ``smb.conf`` options is not guaranteed.
+   * @roles SHARING_SMB_WRITE
+   */
+  'smb.update': {
+    params: [smb_update?: SMBUpdateArgs];
+    response: SMBEntry;
+  };
+
+  /**
    * @roles SYSTEM_GENERAL_READ
    */
   'snmp.config': {
@@ -685,6 +1397,23 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'ups.config': {
+    params: [];
+    response: UPSEntry;
+  };
+
+  /**
+   * Update UPS Service Configuration.
+   * @roles SYSTEM_GENERAL_WRITE
+   */
+  'ups.update': {
+    params: [data: UPSUpdate];
+    response: UPSEntry;
+  };
+
+  /**
    * Retrieve bootloader AAVMF (aarch64) firmware choices.
    * @roles READONLY_ADMIN, VM_READ
    */
@@ -729,6 +1458,15 @@ export interface ApiCallDirectoryDelta {
   'vm.create': {
     params: [vm_create: VMCreate];
     response: VMEntry;
+  };
+
+  /**
+   * Delete a VM.
+   * @roles VM_WRITE
+   */
+  'vm.delete': {
+    params: [id: number, options?: VMDeleteOptions];
+    response: null;
   };
 
   /**
@@ -949,6 +1687,48 @@ export interface ApiCallDirectoryDelta {
   };
 
   /**
+   * Destroy a ZFS resource (filesystem or volume), optionally recursing into its descendants.
+   *
+   * To destroy snapshots, use :doc:`zfs.resource.snapshot.destroy <api_methods_zfs.resource.snapshot.destroy>` instead.
+   *
+   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
+   *
+   * - a snapshot path (containing ``@``) is supplied
+   *   (use :doc:`zfs.resource.snapshot.destroy <api_methods_zfs.resource.snapshot.destroy>`)
+   * - the resource does not exist (``ENOENT``)
+   * - the resource has children and ``recursive`` is ``false`` (``EBUSY``)
+   * - the resource has snapshots and ``recursive`` is ``false``
+   * - the target is the pool's root filesystem
+   * - the path is absolute or ends with ``/``
+   * - the path references a protected internal resource
+   *
+   * Examples:
+   *
+   * Destroy a single filesystem:
+   *
+   * .. code:: json
+   *
+   *     {"path": "tank/temp"}
+   *
+   * Recursively destroy a filesystem and all of its descendants:
+   *
+   * .. code:: json
+   *
+   *     {"path": "tank/parent", "recursive": true}
+   *
+   * .. note::
+   *
+   *     - Root filesystem destruction is not allowed for safety
+   *     - Protected system paths cannot be destroyed via API
+   *     - Datasets with snapshots require ``recursive`` to be ``true``
+   * @roles ZFS_RESOURCE_DELETE
+   */
+  'zfs.resource.destroy': {
+    params: [data: ZFSResourceDestroyArgsData];
+    response: null;
+  };
+
+  /**
    * List files that failed to be rewritten during a rewrite job.
    * @roles DATASET_READ
    */
@@ -964,6 +1744,46 @@ export interface ApiCallDirectoryDelta {
   'zfs.tier.rewrite_job_query': {
     params: [zfs_tier_rewrite_job_query?: ZfsTierRewriteJobQueryArgs];
     response: ZfsTierRewriteJobEntry[] | ZfsTierRewriteJobEntry | ZfsTierRewriteJobQueryResultItem[] | ZfsTierRewriteJobQueryResultItem | number;
+  };
+
+  /**
+   * Query ZFS pools with flexible options for properties, topology, scan, and features.
+   *
+   * Returns information about both imported and non-imported pools. By default, only minimal data is returned (name, guid, status, health); additional sections like topology, scan, properties, etc. must be opted into via their respective flags. Pools that exist in the database but are not currently imported are returned with an OFFLINE status.
+   *
+   * The boot pool can be queried by explicitly passing its name in ``pool_names``. It is excluded from results when ``pool_names`` is null (query-all mode).
+   *
+   * Examples::
+   *
+   *     # Query all pools (minimal info: name, guid, status, health)
+   *     {}
+   *
+   *     # Query specific pools with properties
+   *     {
+   *         "pool_names": ["tank", "boot-pool"],
+   *         "properties": ["size", "capacity"]
+   *     }
+   *
+   *     # Query with full topology and scan information
+   *     {
+   *         "pool_names": ["tank"],
+   *         "topology": true,
+   *         "scan": true
+   *     }
+   *
+   *     # Query everything
+   *     {
+   *         "topology": true,
+   *         "scan": true,
+   *         "expand": true,
+   *         "features": true,
+   *         "properties": ["size", "capacity", "health"]
+   *     }
+   * @roles POOL_READ
+   */
+  'zpool.query': {
+    params: [data?: ZPoolQuery];
+    response: ZPoolEntry[];
   };
 }
 

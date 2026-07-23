@@ -4,56 +4,91 @@
  */
 
 import type {
-  AppImageAuthConfig,
-  AppVersionInfo,
-  CloudFlareSchema,
-  DigitalOceanSchema,
-  FCHostEntry,
-  FCPortEntry,
-  FilesystemMkdirOptions,
-  GraphiteExporter,
-  ISCSITargetAuthCredentialEntry,
-  ISCSITargetAuthorizedInitiatorEntry,
-  Maintainer,
-  OVHSchema,
-  Route53Schema,
-  ShellSchema,
+  Authenticator,
+  BaseCredentialData,
+  Blocksize,
+  Credentials,
+  Encryption,
+  EncryptionInput,
+  Mode,
+  Rpm,
+  STIGType,
+  Unixcharset,
   ZFSFileAttrsData,
 } from '../v25_04_0/api-types';
 import type {
   Bootloader,
   Time,
   Type5,
-  VMDiskDevice,
+  Type6,
   VMDiskDeviceInput,
   VMISCSIDiskDevice,
   VMNICPciAddress,
-  VMPCIDevice,
-  VMRAWDevice,
   VMRAWDeviceInput,
-  VMUSBDevice,
 } from '../v25_04_2/api-types';
 import type {
-  AuthSessionsEntry,
+  APIKeyCredentialData,
+  AppVersionInfo,
+  AuthUserInfo,
   CertificateExtensions,
+  CloudFlareSchema,
   CloudTaskAttributesInput,
+  DigitalOceanSchema,
+  Direction2,
   DirectionInput2,
+  ExternalOpt,
+  GraphiteExporter,
+  GroupEntry,
+  IscsiGroup,
+  IscsiTargetParameters,
+  LegacyOpt,
   MailEntryOAuth,
-  PrivilegeEntry,
+  Maintainer,
+  Mode2,
+  ModeInput,
+  ModeInput2,
+  NFS4ACEInput,
+  NFS4ACL_Flags,
+  OVHSchema,
+  POSIXACE,
+  PoolSnapshotTaskCron,
   Protocol,
   QueryOptionsModel,
+  Readonly,
   ReadonlyInput2,
   ReplicationLifetimeModel,
-  ReplicationTimeCronModel,
+  Route53Schema,
+  SMBShareAclEntryWhoId,
   Security,
+  ShellSchema,
+  Shutdown,
   StatusInput4,
+  TokenCredentialData,
+  Transport,
   TransportInput,
+  TypeInput6,
+  UnmappedGroupEntry,
+  UserCredentialData,
   VMCDROMDevice,
+  VMDiskDevice,
   VMDisplayDevice,
+  VMPCIDevice,
+  VMRAWDevice,
+  VMUSBDevice,
 } from '../v25_10_0/api-types';
 import type {
+  DefaultOpt,
+  FCPStorageOpt,
+  MultiprotocolOpt,
+  PrivateDatasetOpt,
+  Purpose,
+  TimeLockedOpt,
+  TimeMachineOpt,
+  VeeamRepositoryOpt,
+} from '../v25_10_1/api-types';
+import type {
   ACLTemplateByPathQueryOptions,
-  AclTemplateFormatOptions,
+  AppImageAuthConfig,
   AuditExportQueryOptions,
   ContainerCreateImage,
   ContainerFilesystemDevice,
@@ -62,13 +97,14 @@ import type {
   ContainerStatusInput,
   ContainerUSBDevice,
   DefaultIdmapConfiguration,
-  FilesystemSetZfsAttributesOptions,
   GetDisplayDevice,
   IsolatedIdmapConfiguration,
+  KeychainCredentialEntry,
   KeychainCredentialEntryInput,
-  PeriodicSnapshotTaskEntry,
-  PoolSnapshotTaskDBEntry,
+  ReplicationTimeCronModel,
+  SmbAuditConfig,
   Status3,
+  TierInfo,
   Type11,
   Type7,
   TypeInput7,
@@ -119,6 +155,19 @@ export interface ACLTemplateByPathArgs {
   "query-filters"?: unknown[];
   "query-options"?: ACLTemplateByPathQueryOptions;
   "format-options"?: AclTemplateFormatOptions;
+}
+/**
+ * Used by: filesystem.acltemplate.by_path (params)
+ */
+export interface AclTemplateFormatOptions {
+  /**
+   * Whether to ensure every result contains ACL entries for the `builtin_users` and `builtin_administrators` groups.
+   */
+  ensure_builtins?: boolean;
+  /**
+   * Whether to resolve numeric user/group IDs to names in ACL entries.
+   */
+  resolve_names?: boolean;
 }
 /**
  * Used by: acme.dns.authenticator.create (params)
@@ -532,10 +581,151 @@ export interface AuditQuery {
   remote_controller?: boolean;
 }
 /**
+ * Used by: auth.login_ex (params)
+ */
+export interface AuthApiKeyPlain {
+  /**
+   * Authentication mechanism identifier for plain API key authentication.
+   */
+  mechanism: "API_KEY_PLAIN";
+  /**
+   * Username associated with the API key.
+   */
+  username: string;
+  /**
+   * API key for authentication.
+   */
+  api_key: string;
+  login_options?: AuthCommonOptions;
+}
+/**
+ * Used by: auth.login_ex (params), auth.login_ex_continue (params)
+ */
+export interface AuthCommonOptions {
+  /**
+   * Whether to include detailed user information (the output of `auth.me`) in the authentication response.
+   */
+  user_info?: boolean;
+  /**
+   * Whether to include a reauthentication token in the authentication response. The `ttl` for the generated token depends on the TrueNAS webui setting for preferences->lifetime, with a default value of 600 seconds.
+   */
+  reconnect_token?: boolean;
+}
+/**
+ * Used by: auth.login_ex (params), auth.login_ex_continue (params)
+ */
+export interface AuthOTPToken {
+  /**
+   * Authentication mechanism identifier for one-time password tokens.
+   */
+  mechanism: "OTP_TOKEN";
+  /**
+   * One-time password token for authentication.
+   */
+  otp_token: string;
+  login_options?: AuthCommonOptions;
+}
+/**
+ * Used by: auth.login_ex (params)
+ */
+export interface AuthPasswordPlain {
+  /**
+   * Authentication mechanism identifier for plain password authentication.
+   */
+  mechanism: "PASSWORD_PLAIN";
+  /**
+   * Username for authentication.
+   */
+  username: string;
+  /**
+   * Password for authentication.
+   */
+  password: string;
+  login_options?: AuthCommonOptions;
+}
+/**
+ * Used by: auth.login_ex (response), auth.login_ex_continue (response)
+ */
+export interface AuthRespSuccess {
+  /**
+   * Authentication response type indicating successful login.
+   */
+  response_type: "SUCCESS";
+  /**
+   * Authenticated user information (the output of `auth.me`), or `null` if not requested.
+   */
+  user_info: AuthUserInfo | null;
+  authenticator: Authenticator;
+  /**
+   * Single-use token that can be used to reauthenticate to the truenas server in case websocket session is interrupted. This will be `null` in the following situations:
+   *
+   * 1) The initiating authentication request set `reconnect_token` to `false` (default).
+   * 2) The user authenticated via a one-time password, which does not support reconnect token creation.
+   */
+  reconnect_token: string | null;
+}
+/**
  * Used by: auth.sessions (event)
  */
 export interface AuthSessionsAddedEvent {
   fields: AuthSessionsEntry;
+}
+/**
+ * Used by: auth.sessions (event), auth.sessions (params), auth.sessions (response)
+ */
+export interface AuthSessionsEntry {
+  /**
+   * Unique identifier for the authentication session.
+   */
+  id: string;
+  /**
+   * Whether this is the current active session.
+   */
+  current: boolean;
+  /**
+   * Whether this is an internal system session. Pass `[["internal", "=", false]]` as `query-filters` to exclude internal sessions from the list.
+   */
+  internal: boolean;
+  /**
+   * Origin information for the session (IP address, hostname, etc.).
+   */
+  origin: string;
+  credentials: Credentials;
+  /**
+   * Detailed credential information specific to the authentication method.
+   */
+  credentials_data: BaseCredentialData | UserCredentialData | APIKeyCredentialData | TokenCredentialData;
+  /**
+   * Timestamp when the session was created.
+   */
+  created_at: string;
+  /**
+   * Whether the session was established over a secure transport (HTTPS/WSS).
+   */
+  secure_transport: boolean;
+}
+/**
+ * Used by: auth.login_ex (params)
+ */
+export interface AuthTokenPlain {
+  /**
+   * Authentication mechanism type for plain token login.
+   */
+  mechanism: "TOKEN_PLAIN";
+  /**
+   * Authentication token (masked for security).
+   */
+  token: string;
+  login_options?: AuthCommonOptions;
+}
+/**
+ * Used by: boot.attach (params)
+ */
+export interface BootAttachOptions {
+  /**
+   * When `true`, size the new disk's partition to the maximum available space. When `false`, size it to match the existing boot pool partition to avoid a size mismatch if a disk later fails.
+   */
+  expand?: boolean;
 }
 /**
  * Used by: boot.environment.activate (params)
@@ -718,6 +908,23 @@ export interface CloudSyncListDirectory {
    * Additional arguments for the directory listing command.
    */
   args?: string;
+}
+/**
+ * Used by: config.save (params)
+ */
+export interface ConfigSave {
+  /**
+   * Whether to include the secret seed in the configuration backup.
+   */
+  secretseed?: boolean;
+  /**
+   * Whether to include encryption keys for storage pools in the backup. IGNORED and deprecated; it does not apply on SCALE systems.
+   */
+  pool_keys?: boolean;
+  /**
+   * Whether to include root user's SSH authorized keys in the backup.
+   */
+  root_authorized_keys?: boolean;
 }
 /**
  * Used by: container.query (event)
@@ -1262,11 +1469,66 @@ export interface DockerUpdate {
   migrate_applications?: boolean;
 }
 /**
+ * Used by: failover.sync_to_peer (params)
+ */
+export interface FailoverSyncToPeer {
+  /**
+   * Reboot the other controller after syncing.
+   */
+  reboot?: boolean;
+}
+/**
+ * Used by: failover.upgrade (params)
+ */
+export interface FailoverUpgrade {
+  /**
+   * Update train to use for the upgrade or `null` for default.
+   */
+  train?: string | null;
+  /**
+   * Specific version to upgrade to or `null` for latest.
+   */
+  version?: string | null;
+  /**
+   * Should be set to `true` if a previous call to this method returned a `CallError` with `errno=EAGAIN` meaning that an upgrade can be performed with a warning and that warning is accepted. In that case, you also have to set `resume_manual` to `true` if a previous call to this method was performed using update file upload.
+   */
+  resume?: boolean;
+  /**
+   * Whether to resume a manual upgrade operation.
+   */
+  resume_manual?: boolean;
+}
+/**
  * Used by: fc.fc_host.query (event)
  */
 export interface FCHostAddedEvent {
   id: number;
   fields: FCHostEntry;
+}
+/**
+ * Used by: fc.fc_host.create (response), fc.fc_host.get_instance (params), fc.fc_host.get_instance (response), fc.fc_host.query (event), fc.fc_host.query (params), fc.fc_host.query (response), fc.fc_host.update (response)
+ */
+export interface FCHostEntry {
+  /**
+   * Unique identifier for the Fibre Channel host configuration.
+   */
+  id: number;
+  /**
+   * Human-readable alias for the Fibre Channel host.
+   */
+  alias: string;
+  /**
+   * World Wide Port Name (NAA format) for Controller A, or `null` if not configured.
+   */
+  wwpn?: string | null;
+  /**
+   * World Wide Port Name (NAA format) for Controller B, or `null` if not configured. Only applicable to HA systems.
+   */
+  wwpn_b?: string | null;
+  /**
+   * Number of N_Port ID Virtualization (NPIV) virtual ports to create.
+   */
+  npiv?: number;
 }
 /**
  * Used by: fc.fc_host.query (event)
@@ -1276,6 +1538,48 @@ export interface FCHostChangedEvent {
   fields: FCHostEntry;
 }
 /**
+ * Used by: fc.fc_host.create (params)
+ */
+export interface FCHostCreate {
+  /**
+   * Human-readable alias for the Fibre Channel host.
+   */
+  alias: string;
+  /**
+   * World Wide Port Name (NAA format) for Controller A, or `null` if not configured.
+   */
+  wwpn?: string | null;
+  /**
+   * World Wide Port Name (NAA format) for Controller B, or `null` if not configured. Only applicable to HA systems.
+   */
+  wwpn_b?: string | null;
+  /**
+   * Number of N_Port ID Virtualization (NPIV) virtual ports to create.
+   */
+  npiv?: number;
+}
+/**
+ * Used by: fc.fc_host.update (params)
+ */
+export interface FCHostUpdate {
+  /**
+   * Human-readable alias for the Fibre Channel host.
+   */
+  alias?: string;
+  /**
+   * World Wide Port Name (NAA format) for Controller A, or `null` if not configured.
+   */
+  wwpn?: string | null;
+  /**
+   * World Wide Port Name (NAA format) for Controller B, or `null` if not configured. Only applicable to HA systems.
+   */
+  wwpn_b?: string | null;
+  /**
+   * Number of N_Port ID Virtualization (NPIV) virtual ports to create.
+   */
+  npiv?: number;
+}
+/**
  * Used by: fcport.query (event)
  */
 export interface FCPortAddedEvent {
@@ -1283,11 +1587,64 @@ export interface FCPortAddedEvent {
   fields: FCPortEntry;
 }
 /**
+ * Used by: fcport.create (response), fcport.get_instance (params), fcport.get_instance (response), fcport.query (event), fcport.query (params), fcport.query (response), fcport.update (response)
+ */
+export interface FCPortEntry {
+  /**
+   * Unique identifier for the Fibre Channel port configuration.
+   */
+  id: number;
+  /**
+   * Alias name for the Fibre Channel port, or `alias/number` for an NPIV port.
+   */
+  port: string;
+  /**
+   * World Wide Port Name for port A or `null` if not configured.
+   */
+  wwpn: string | null;
+  /**
+   * World Wide Port Name for port B or `null` if not configured.
+   */
+  wwpn_b: string | null;
+  /**
+   * Target configuration object or `null` if not configured.
+   */
+  target: {
+    [k: string]: unknown;
+  } | null;
+}
+/**
  * Used by: fcport.query (event)
  */
 export interface FCPortChangedEvent {
   id: number;
   fields: FCPortEntry;
+}
+/**
+ * Used by: fcport.create (params)
+ */
+export interface FCPortCreate {
+  /**
+   * Alias name for the Fibre Channel port, or `alias/number` for an NPIV port.
+   */
+  port: string;
+  /**
+   * ID of the target to associate with this FC port.
+   */
+  target_id: number;
+}
+/**
+ * Used by: fcport.update (params)
+ */
+export interface FCPortUpdate {
+  /**
+   * Alias name for the Fibre Channel port, or `alias/number` for an NPIV port.
+   */
+  port?: string;
+  /**
+   * ID of the target to associate with this FC port.
+   */
+  target_id?: number;
 }
 /**
  * Used by: filesystem.listdir (response), filesystem.mkdir (response)
@@ -1385,6 +1742,122 @@ export interface FilesystemMkdirData {
   options?: FilesystemMkdirOptions;
 }
 /**
+ * Used by: filesystem.mkdir (params)
+ */
+export interface FilesystemMkdirOptions {
+  /**
+   * Unix permissions for the new directory.
+   */
+  mode?: string;
+  /**
+   * Whether to raise an error if chmod fails. When it does, the newly created directory is removed to prevent its use with unintended permissions.
+   */
+  raise_chmod_error?: boolean;
+}
+/**
+ * Used by: filesystem.setacl (params)
+ */
+export interface FilesystemSetaclArgs {
+  /**
+   * Absolute filesystem path to set ACL on.
+   */
+  path: string;
+  /**
+   * Array of Access Control Entries to apply to the filesystem object. Formatting depends on the underlying `acltype`: an NFS4 ACL requires NFSv4 entries, while a POSIX1e ACL requires POSIX1e entries.
+   */
+  dacl: NFS4ACEInput[] | POSIXACE[];
+  options?: FilesystemSetAclOptions;
+  nfs41_flags?: NFS4ACL_Flags;
+  /**
+   * Numeric user ID to set as owner or `null` to preserve existing. Set one and only one of `uid`/`user`, and only to change the owning user.
+   */
+  uid?: number | null;
+  /**
+   * Username to set as owner or `null` to preserve existing. Set one and only one of `uid`/`user`.
+   */
+  user?: string | null;
+  /**
+   * Numeric group ID to set as group or `null` to preserve existing. Set one and only one of `gid`/`group`, and only to change the owning group.
+   */
+  gid?: number | null;
+  /**
+   * Group name to set as group or `null` to preserve existing. Set one and only one of `gid`/`group`.
+   */
+  group?: string | null;
+  /**
+   * ACL type to use or `null` to auto-detect from filesystem capabilities.
+   */
+  acltype?: ("NFS4" | "POSIX1E") | null;
+}
+/**
+ * Used by: filesystem.setacl (params)
+ */
+export interface FilesystemSetAclOptions {
+  /**
+   * Whether to remove the ACL entirely and revert to basic POSIX permissions.
+   */
+  stripacl?: boolean;
+  /**
+   * Whether to apply ACL changes recursively to all child files and directories.
+   */
+  recursive?: boolean;
+  /**
+   * Whether to traverse filesystem boundaries (ZFS datasets) during recursive operations.
+   */
+  traverse?: boolean;
+  /**
+   * Whether to validate that the users/groups granted access in the ACL can actually access the path or parent path.
+   */
+  validate_effective_acl?: boolean;
+}
+/**
+ * Used by: filesystem.setperm (params)
+ */
+export interface FilesystemSetpermArgs {
+  /**
+   * Filesystem path to modify.
+   */
+  path: string;
+  /**
+   * Numeric user ID to set as owner. `null` to leave unchanged.
+   */
+  uid?: number | null;
+  /**
+   * Username to set as owner. `null` to leave unchanged.
+   */
+  user?: string | null;
+  /**
+   * Numeric group ID to set as group owner. `null` to leave unchanged.
+   */
+  gid?: number | null;
+  /**
+   * Group name to set as group owner. `null` to leave unchanged.
+   */
+  group?: string | null;
+  /**
+   * Unix permissions to set (octal format). `null` to leave unchanged.
+   */
+  mode?: string | null;
+  options?: FilesystemSetpermOptions;
+}
+/**
+ * Used by: filesystem.setperm (params)
+ */
+export interface FilesystemSetpermOptions {
+  /**
+   * Whether to apply the operation recursively to subdirectories.
+   */
+  recursive?: boolean;
+  /**
+   * If set do not limit to single dataset / filesystem.
+   */
+  traverse?: boolean;
+  /**
+   * Whether to remove existing Access Control Lists when setting permissions. `filesystem.setperm` fails if an extended ACL is present on the path unless this is set. When no `mode` is set and this is `true`, non-trivial ACLs are converted to trivial ACLs.
+   */
+  stripacl?: boolean;
+}
+/**
  * Used by: filesystem.set_zfs_attributes (params)
  */
 export interface FilesystemSetZfsAttributesData {
@@ -1394,6 +1867,103 @@ export interface FilesystemSetZfsAttributesData {
   path: string;
   zfs_file_attributes: ZFSFileAttrsData;
   options?: FilesystemSetZfsAttributesOptions;
+}
+/**
+ * Used by: filesystem.set_zfs_attributes (params)
+ */
+export interface FilesystemSetZfsAttributesOptions {
+  /**
+   * If set, walk the tree under `path` and apply attributes to entries whose type appears in the list (`FILES`, `DIRECTORIES`, or both). The root `path` is included only if its type matches the filter. `null` means no recursion (operate on `path` only). An empty list is rejected. Recursion stops at dataset boundaries.
+   */
+  recursive?: ("FILES" | "DIRECTORIES")[] | null;
+}
+/**
+ * Used by: filesystem.stat (response)
+ */
+export interface FilesystemStatData {
+  /**
+   * Canonical path of the entry, eliminating any symbolic links.
+   */
+  realpath: string;
+  type: Type5;
+  /**
+   * Size in bytes of a plain file. This corresonds with stx_size.
+   */
+  size: number;
+  /**
+   * Allocated size of file. Calculated by multiplying stx_blocks by 512.
+   */
+  allocation_size: number;
+  /**
+   * Entry's mode including file type information and file permission bits. This corresponds with stx_mode.
+   */
+  mode: number;
+  /**
+   * The mount ID of the mount containing the entry. This corresponds to the number in first field of /proc/self/mountinfo and stx_mnt_id. Bind mounts share the same device ID but have different mount IDs, so this value uniquely identifies the particular mount and can be used to identify children of a given mountpoint.
+   */
+  mount_id: number;
+  /**
+   * User ID of the entry's owner. This corresponds with stx_uid.
+   */
+  uid: number;
+  /**
+   * Group ID of the entry's owner. This corresponds with stx_gid.
+   */
+  gid: number;
+  /**
+   * Time of last access. Corresponds with stx_atime. This is mutable from userspace.
+   */
+  atime: number;
+  /**
+   * Time of last modification. Corresponds with stx_mtime. This is mutable from userspace.
+   */
+  mtime: number;
+  /**
+   * Time of last status change. Corresponds with stx_ctime.
+   */
+  ctime: number;
+  /**
+   * Time of creation. Corresponds with stx_btime. Depending on the platform, this may be mutable from userspace.
+   */
+  btime: number;
+  /**
+   * The ID of the device containing the filesystem where the file resides. Within the TrueNAS API this is sufficient to uniquely identify a given dataset, but it is not sufficient to uniquely identify a particular filesystem mount (bind mounts of the same dataset share a dev). mount_id must be used for that purpose. This corresponds with st_dev.
+   */
+  dev: number;
+  /**
+   * The inode number of the file. This corresponds with stx_ino. It uniquely identifies the file on the given device, but once a file is deleted its inode number may be reused.
+   */
+  inode: number;
+  /**
+   * Number of hard links. Corresponds with stx_nlinks.
+   */
+  nlink: number;
+  /**
+   * Specifies whether ACL is present on the entry. If this is the case then file permission bits as reported in `mode` may not be representative of the actual permissions.
+   */
+  acl: boolean;
+  /**
+   * Specifies whether the entry is also the mountpoint of a filesystem.
+   */
+  is_mountpoint: boolean;
+  /**
+   * Specifies whether the entry is located within the ZFS ctldir (for example a snapshot).
+   */
+  is_ctldir: boolean;
+  /**
+   * Extra file attribute indicators for entry as returned by statx. Expanded from stx_attributes.
+   */
+  attributes: (
+    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
+  )[];
+  /**
+   * Username associated with `uid`. Will be None if the User ID does not map to existing user.
+   */
+  user: string | null;
+  /**
+   * Groupname associated with `gid`. Will be None if the Group ID does not map to existing group.
+   */
+  group: string | null;
 }
 /**
  * Used by: ftp.update (params)
@@ -1558,11 +2128,252 @@ export interface FTPUpdate {
   options?: string;
 }
 /**
+ * Used by: iscsi.auth.create (params)
+ */
+export interface IscsiAuthCreate {
+  /**
+   * Numeric tag used to associate this credential with iSCSI targets. Must be unique among iSCSI Authorized Accesses.
+   */
+  tag: number;
+  /**
+   * Username for iSCSI CHAP authentication.
+   */
+  user: string;
+  /**
+   * Password/secret for iSCSI CHAP authentication. Must be 12-16 characters.
+   */
+  secret: string;
+  /**
+   * Username for mutual CHAP authentication or empty string if not configured.
+   */
+  peeruser?: string;
+  /**
+   * Password/secret for mutual CHAP authentication, or empty string if not configured. Must be 12-16 characters when set and must differ from `secret`.
+   */
+  peersecret?: string;
+  /**
+   * Authentication method for target discovery. If "CHAP_MUTUAL" is selected for target discovery, it is only permitted for a single entry systemwide.
+   */
+  discovery_auth?: "NONE" | "CHAP" | "CHAP_MUTUAL";
+}
+/**
+ * Used by: iscsi.auth.update (params)
+ */
+export interface IscsiAuthUpdate {
+  /**
+   * Numeric tag used to associate this credential with iSCSI targets. Must be unique among iSCSI Authorized Accesses.
+   */
+  tag?: number;
+  /**
+   * Username for iSCSI CHAP authentication.
+   */
+  user?: string;
+  /**
+   * Password/secret for iSCSI CHAP authentication. Must be 12-16 characters.
+   */
+  secret?: string;
+  /**
+   * Username for mutual CHAP authentication or empty string if not configured.
+   */
+  peeruser?: string;
+  /**
+   * Password/secret for mutual CHAP authentication, or empty string if not configured. Must be 12-16 characters when set and must differ from `secret`.
+   */
+  peersecret?: string;
+  /**
+   * Authentication method for target discovery. If "CHAP_MUTUAL" is selected for target discovery, it is only permitted for a single entry systemwide.
+   */
+  discovery_auth?: "NONE" | "CHAP" | "CHAP_MUTUAL";
+}
+/**
+ * Used by: iscsi.extent.create (params)
+ */
+export interface IscsiExtentCreate {
+  /**
+   * Name of the iSCSI extent.
+   */
+  name: string;
+  type?: TypeInput6;
+  /**
+   * Disk device to use for the extent or `null` if using a file.
+   */
+  disk?: string | null;
+  /**
+   * Serial number for the extent or `null` to auto-generate.
+   */
+  serial?: string | null;
+  /**
+   * File path for file-based extents or `null` if using a disk.
+   */
+  path?: string | null;
+  /**
+   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
+   */
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  /**
+   * Whether to use physical block size reporting.
+   */
+  pblocksize?: boolean;
+  /**
+   * Available space threshold percentage or `null` to disable.
+   */
+  avail_threshold?: number | null;
+  /**
+   * Optional comment describing the extent.
+   */
+  comment?: string;
+  /**
+   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
+   */
+  insecure_tpc?: boolean;
+  /**
+   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
+   */
+  xen?: boolean;
+  rpm?: Rpm;
+  /**
+   * Whether the extent is read-only.
+   */
+  ro?: boolean;
+  /**
+   * Whether the extent is enabled and available for use.
+   */
+  enabled?: boolean;
+  /**
+   * Product ID string for the extent or `null` for default.
+   */
+  product_id?: string | null;
+}
+/**
+ * Used by: iscsi.extent.update (params)
+ */
+export interface IscsiExtentUpdate {
+  /**
+   * Name of the iSCSI extent.
+   */
+  name?: string;
+  type?: TypeInput6;
+  /**
+   * Disk device to use for the extent or `null` if using a file.
+   */
+  disk?: string | null;
+  /**
+   * Serial number for the extent or `null` to auto-generate.
+   */
+  serial?: string | null;
+  /**
+   * File path for file-based extents or `null` if using a disk.
+   */
+  path?: string | null;
+  /**
+   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
+   */
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  /**
+   * Whether to use physical block size reporting.
+   */
+  pblocksize?: boolean;
+  /**
+   * Available space threshold percentage or `null` to disable.
+   */
+  avail_threshold?: number | null;
+  /**
+   * Optional comment describing the extent.
+   */
+  comment?: string;
+  /**
+   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
+   */
+  insecure_tpc?: boolean;
+  /**
+   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
+   */
+  xen?: boolean;
+  rpm?: Rpm;
+  /**
+   * Whether the extent is read-only.
+   */
+  ro?: boolean;
+  /**
+   * Whether the extent is enabled and available for use.
+   */
+  enabled?: boolean;
+  /**
+   * Product ID string for the extent or `null` for default.
+   */
+  product_id?: string | null;
+}
+/**
+ * Used by: iscsi.initiator.create (params)
+ */
+export interface IscsiInitiatorCreate {
+  /**
+   * Array of iSCSI Qualified Names (IQNs) or IP addresses of authorized initiators. An empty list allows all initiators.
+   */
+  initiators?: string[];
+  /**
+   * Optional comment describing the authorized initiator group.
+   */
+  comment?: string;
+}
+/**
+ * Used by: iscsi.initiator.update (params)
+ */
+export interface IscsiInitiatorUpdate {
+  /**
+   * Unique identifier for the authorized initiator group.
+   */
+  id?: number;
+  /**
+   * Array of iSCSI Qualified Names (IQNs) or IP addresses of authorized initiators. An empty list allows all initiators.
+   */
+  initiators?: string[];
+  /**
+   * Optional comment describing the authorized initiator group.
+   */
+  comment?: string;
+}
+/**
  * Used by: iscsi.auth.query (event)
  */
 export interface ISCSITargetAuthCredentialAddedEvent {
   id: number;
   fields: ISCSITargetAuthCredentialEntry;
+}
+/**
+ * Used by: iscsi.auth.create (response), iscsi.auth.get_instance (params), iscsi.auth.get_instance (response), iscsi.auth.query (event), iscsi.auth.query (params), iscsi.auth.query (response), iscsi.auth.update (response)
+ */
+export interface ISCSITargetAuthCredentialEntry {
+  /**
+   * Unique identifier for the iSCSI authentication credential.
+   */
+  id: number;
+  /**
+   * Numeric tag used to associate this credential with iSCSI targets. Must be unique among iSCSI Authorized Accesses.
+   */
+  tag: number;
+  /**
+   * Username for iSCSI CHAP authentication.
+   */
+  user: string;
+  /**
+   * Password/secret for iSCSI CHAP authentication. Must be 12-16 characters.
+   */
+  secret: string;
+  /**
+   * Username for mutual CHAP authentication or empty string if not configured.
+   */
+  peeruser?: string;
+  /**
+   * Password/secret for mutual CHAP authentication, or empty string if not configured. Must be 12-16 characters when set and must differ from `secret`.
+   */
+  peersecret?: string;
+  /**
+   * Authentication method for target discovery. If "CHAP_MUTUAL" is selected for target discovery, it is only permitted for a single entry systemwide.
+   */
+  discovery_auth?: "NONE" | "CHAP" | "CHAP_MUTUAL";
 }
 /**
  * Used by: iscsi.auth.query (event)
@@ -1579,11 +2390,243 @@ export interface ISCSITargetAuthorizedInitiatorAddedEvent {
   fields: ISCSITargetAuthorizedInitiatorEntry;
 }
 /**
+ * Used by: iscsi.initiator.create (response), iscsi.initiator.get_instance (params), iscsi.initiator.get_instance (response), iscsi.initiator.query (event), iscsi.initiator.query (params), iscsi.initiator.query (response), iscsi.initiator.update (response)
+ */
+export interface ISCSITargetAuthorizedInitiatorEntry {
+  /**
+   * Unique identifier for the authorized initiator group.
+   */
+  id: number;
+  /**
+   * Array of iSCSI Qualified Names (IQNs) or IP addresses of authorized initiators. An empty list allows all initiators.
+   */
+  initiators?: string[];
+  /**
+   * Optional comment describing the authorized initiator group.
+   */
+  comment?: string;
+}
+/**
  * Used by: iscsi.initiator.query (event)
  */
 export interface ISCSITargetAuthorizedInitiatorChangedEvent {
   id: number;
   fields: ISCSITargetAuthorizedInitiatorEntry;
+}
+/**
+ * Used by: iscsi.target.create (params)
+ */
+export interface IscsiTargetCreate {
+  /**
+   * Name of the iSCSI target (maximum 120 characters).
+   */
+  name: string;
+  /**
+   * Optional alias name for the iSCSI target.
+   */
+  alias?: string | null;
+  mode?: ModeInput;
+  /**
+   * Array of portal-initiator group associations for this target.
+   */
+  groups?: IscsiGroup[];
+  /**
+   * Array of network addresses (CIDR notation) allowed to access this target. An empty list allows access from all networks.
+   */
+  auth_networks?: string[];
+  /**
+   * Optional iSCSI-specific parameters for this target.
+   */
+  iscsi_parameters?: IscsiTargetParameters | null;
+}
+/**
+ * Used by: iscsi.target.create (response), iscsi.target.get_instance (params), iscsi.target.get_instance (response), iscsi.target.query (params), iscsi.target.query (response), iscsi.target.update (response)
+ */
+export interface ISCSITargetEntry {
+  /**
+   * Unique identifier for the iSCSI target.
+   */
+  id: number;
+  /**
+   * Name of the iSCSI target (maximum 120 characters).
+   */
+  name: string;
+  /**
+   * Optional alias name for the iSCSI target.
+   */
+  alias?: string | null;
+  mode?: Mode;
+  /**
+   * Array of portal-initiator group associations for this target.
+   */
+  groups?: IscsiGroup[];
+  /**
+   * Array of network addresses (CIDR notation) allowed to access this target. An empty list allows access from all networks.
+   */
+  auth_networks?: string[];
+  /**
+   * Relative target ID number assigned by the system.
+   */
+  rel_tgt_id: number;
+  /**
+   * Optional iSCSI-specific parameters for this target.
+   */
+  iscsi_parameters?: IscsiTargetParameters | null;
+}
+/**
+ * Used by: iscsi.extent.create (response), iscsi.extent.get_instance (params), iscsi.extent.get_instance (response), iscsi.extent.query (params), iscsi.extent.query (response), iscsi.extent.update (response)
+ */
+export interface ISCSITargetExtentEntry {
+  /**
+   * Unique identifier for the iSCSI extent.
+   */
+  id: number;
+  /**
+   * Name of the iSCSI extent.
+   */
+  name: string;
+  type?: Type6;
+  /**
+   * Disk device to use for the extent or `null` if using a file.
+   */
+  disk?: string | null;
+  /**
+   * Serial number for the extent or `null` to auto-generate.
+   */
+  serial?: string | null;
+  /**
+   * File path for file-based extents or `null` if using a disk.
+   */
+  path?: string | null;
+  /**
+   * The ZFS dataset containing the file-based extent (e.g., 'tank/iscsi'). Returns `null` for non-FILE extent types (DISK, ZVOL) or if the FILE path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
+   */
+  dataset: string | null;
+  /**
+   * The path of the file-based extent relative to the dataset mountpoint (e.g., 'extents/lun0.img'). An empty string indicates the file is at the dataset root. Returns `null` for non-FILE types or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
+   */
+  relative_path: string | null;
+  /**
+   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
+   */
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  /**
+   * Whether to use physical block size reporting.
+   */
+  pblocksize?: boolean;
+  /**
+   * Available space threshold percentage or `null` to disable.
+   */
+  avail_threshold?: number | null;
+  /**
+   * Optional comment describing the extent.
+   */
+  comment?: string;
+  /**
+   * Network Address Authority (NAA) identifier for the extent.
+   */
+  naa: string;
+  /**
+   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
+   */
+  insecure_tpc?: boolean;
+  /**
+   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
+   */
+  xen?: boolean;
+  rpm?: Rpm;
+  /**
+   * Whether the extent is read-only.
+   */
+  ro?: boolean;
+  /**
+   * Whether the extent is enabled and available for use.
+   */
+  enabled?: boolean;
+  /**
+   * Vendor string reported by the extent.
+   */
+  vendor: string;
+  /**
+   * Product ID string for the extent or `null` for default.
+   */
+  product_id?: string | null;
+  /**
+   * Read-only value indicating whether the iscsi extent is located on a locked dataset.
+   *
+   * - `true`: The extent is in a locked dataset.
+   * - `false`: The extent is not in a locked dataset.
+   * - `null`: Lock status is not available because path locking information was not requested.
+   */
+  locked: boolean | null;
+}
+/**
+ * Used by: iscsi.target.update (params)
+ */
+export interface IscsiTargetUpdate {
+  /**
+   * Name of the iSCSI target (maximum 120 characters).
+   */
+  name?: string;
+  /**
+   * Optional alias name for the iSCSI target.
+   */
+  alias?: string | null;
+  mode?: ModeInput;
+  /**
+   * Array of portal-initiator group associations for this target.
+   */
+  groups?: IscsiGroup[];
+  /**
+   * Array of network addresses (CIDR notation) allowed to access this target. An empty list allows access from all networks.
+   */
+  auth_networks?: string[];
+  /**
+   * Optional iSCSI-specific parameters for this target.
+   */
+  iscsi_parameters?: IscsiTargetParameters | null;
+}
+/**
+ * Used by: kmip.config (response), kmip.update (response)
+ */
+export interface KMIPEntry {
+  /**
+   * Unique identifier for the KMIP configuration.
+   */
+  id: number;
+  /**
+   * Whether KMIP (Key Management Interoperability Protocol) is enabled.
+   */
+  enabled: boolean;
+  /**
+   * Whether to use KMIP for managing SED (Self-Encrypting Drive) keys. When enabled, SED keys are synced from the local database to the remote KMIP server. When disabled, any SED keys still held on the KMIP server are synced back to the local database.
+   */
+  manage_sed_disks: boolean;
+  /**
+   * Whether to use KMIP for managing ZFS encryption keys. When enabled, ZFS keys are synced from the local database to the remote KMIP server. When disabled, any ZFS keys still held on the KMIP server are synced back to the local database.
+   */
+  manage_zfs_keys: boolean;
+  /**
+   * ID of the client certificate used to initiate the TLS handshake with the KMIP `server`, or `null`.
+   */
+  certificate: number | null;
+  /**
+   * ID of the certificate authority used to verify the KMIP `server` during the TLS handshake, or `null`.
+   */
+  certificate_authority: number | null;
+  /**
+   * TCP port number for the KMIP server connection.
+   */
+  port: number;
+  /**
+   * Hostname or IP address of the KMIP server or `null` if not configured.
+   */
+  server: string | null;
+  /**
+   * SSL/TLS protocol version to use for KMIP connections. Specify this to match the SSL configuration used by the KMIP server.
+   */
+  ssl_version: "PROTOCOL_TLSv1" | "PROTOCOL_TLSv1_1" | "PROTOCOL_TLSv1_2";
 }
 /**
  * Used by: kmip.update (params)
@@ -1806,6 +2849,136 @@ export interface MailUpdate {
   oauth?: MailEntryOAuth | null;
 }
 /**
+ * Used by: nfs.config (response), nfs.update (response)
+ */
+export interface NFSEntry {
+  /**
+   * Placeholder identifier.  Not used as there is only one.
+   */
+  id: number;
+  /**
+   * Specify the number of nfsd. Set `1..256`, or `null`/unset to have the server determine the count automatically. When automatic, the count equals the number of CPU cores, clamped to no less than 1 and no more than 32. The number of mountd processes is always one quarter of the number of nfsd.
+   */
+  servers: number | null;
+  /**
+   * Allow non-root mount requests.  This equates to 'insecure' share option.
+   */
+  allow_nonroot: boolean;
+  /**
+   * Specify supported NFS protocols:  NFSv3, NFSv4 or both can be listed. At least one must be enabled. The `showmount` command is available only while NFSv3 is enabled.
+   */
+  protocols: ("NFSV3" | "NFSV4")[];
+  /**
+   * Force Kerberos authentication on NFS shares. When enabled, NFS shares will be inaccessible if a valid Kerberos ticket is not available.
+   */
+  v4_krb: boolean;
+  /**
+   * Specify a DNS domain (NFSv4 only). Overrides the DNS domain for NFSv4 (sets the `Domain` setting in idmapd.conf).
+   */
+  v4_domain: string;
+  /**
+   * Limit the server IP addresses available for NFS. When empty, NFS listens on all active server addresses.
+   */
+  bindip?: string[];
+  /**
+   * Specify the mountd port binding.
+   */
+  mountd_port: number | null;
+  /**
+   * Specify the rpc.statd port binding.
+   */
+  rpcstatd_port: number | null;
+  /**
+   * Specify the rpc.lockd port binding.
+   */
+  rpclockd_port: number | null;
+  /**
+   * Enable or disable mountd logging.
+   */
+  mountd_log: boolean;
+  /**
+   * Enable or disable statd and lockd logging.
+   */
+  statd_lockd_log: boolean;
+  /**
+   * Status of NFSv4 authentication requirement (status only).
+   */
+  v4_krb_enabled: boolean;
+  /**
+   * Enable to allow server to manage gids.
+   */
+  userd_manage_gids: boolean;
+  /**
+   * Report status of NFS Principal Name in keytab (status only).
+   */
+  keytab_has_nfs_spn: boolean;
+  /**
+   * Report status of 'servers' field. If true, the number of nfsd is managed by the server (status only).
+   */
+  managed_nfsd: boolean;
+  /**
+   * Enable or disable NFS over RDMA.  Available on supported platforms with an installed RDMA-capable NIC. NFS over RDMA uses port 20049.
+   */
+  rdma: boolean;
+}
+/**
+ * Used by: nfs.update (params)
+ */
+export interface NFSUpdateArgs {
+  /**
+   * Specify the number of nfsd. Set `1..256`, or `null`/unset to have the server determine the count automatically. When automatic, the count equals the number of CPU cores, clamped to no less than 1 and no more than 32. The number of mountd processes is always one quarter of the number of nfsd.
+   */
+  servers?: number | null;
+  /**
+   * Allow non-root mount requests.  This equates to 'insecure' share option.
+   */
+  allow_nonroot?: boolean;
+  /**
+   * Specify supported NFS protocols:  NFSv3, NFSv4 or both can be listed. At least one must be enabled. The `showmount` command is available only while NFSv3 is enabled.
+   */
+  protocols?: ("NFSV3" | "NFSV4")[];
+  /**
+   * Force Kerberos authentication on NFS shares. When enabled, NFS shares will be inaccessible if a valid Kerberos ticket is not available.
+   */
+  v4_krb?: boolean;
+  /**
+   * Specify a DNS domain (NFSv4 only). Overrides the DNS domain for NFSv4 (sets the `Domain` setting in idmapd.conf).
+   */
+  v4_domain?: string;
+  /**
+   * Limit the server IP addresses available for NFS. When empty, NFS listens on all active server addresses.
+   */
+  bindip?: string[];
+  /**
+   * Specify the mountd port binding.
+   */
+  mountd_port?: number | null;
+  /**
+   * Specify the rpc.statd port binding.
+   */
+  rpcstatd_port?: number | null;
+  /**
+   * Specify the rpc.lockd port binding.
+   */
+  rpclockd_port?: number | null;
+  /**
+   * Enable or disable mountd logging.
+   */
+  mountd_log?: boolean;
+  /**
+   * Enable or disable statd and lockd logging.
+   */
+  statd_lockd_log?: boolean;
+  /**
+   * Enable to allow server to manage gids.
+   */
+  userd_manage_gids?: boolean;
+  /**
+   * Enable or disable NFS over RDMA.  Available on supported platforms with an installed RDMA-capable NIC. NFS over RDMA uses port 20049.
+   */
+  rdma?: boolean;
+}
+/**
  * Used by: nvmet.global.sessions (params), nvmet.global.sessions (response)
  */
 export interface NVMetGlobalSessionsItem {
@@ -1838,11 +3011,224 @@ export interface PeriodicSnapshotTaskAddedEvent {
   fields: PeriodicSnapshotTaskEntry;
 }
 /**
+ * Used by: pool.snapshottask.create (response), pool.snapshottask.get_instance (params), pool.snapshottask.get_instance (response), pool.snapshottask.query (event), pool.snapshottask.query (params), pool.snapshottask.query (response), pool.snapshottask.update (response)
+ */
+export interface PeriodicSnapshotTaskEntry {
+  /**
+   * Unique identifier for the periodic snapshot task.
+   */
+  id: number;
+  /**
+   * The dataset to take snapshots of.
+   */
+  dataset: string;
+  /**
+   * Whether to recursively snapshot child datasets.
+   */
+  recursive?: boolean;
+  /**
+   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
+   */
+  lifetime_value?: number;
+  /**
+   * Unit of time for snapshot retention.
+   */
+  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
+  /**
+   * Whether this periodic snapshot task is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Array of dataset patterns to exclude from recursive snapshots.
+   */
+  exclude?: string[];
+  /**
+   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
+   */
+  naming_schema?: string;
+  /**
+   * Whether to take snapshots even if no data has changed.
+   */
+  allow_empty?: boolean;
+  schedule?: PoolSnapshotTaskCron;
+  /**
+   * Whether VMware VMs are synced before taking snapshots.
+   */
+  vmware_sync: boolean;
+  /**
+   * Detailed state information for the task.
+   */
+  state: {
+    [k: string]: unknown;
+  };
+}
+/**
  * Used by: pool.snapshottask.query (event)
  */
 export interface PeriodicSnapshotTaskChangedEvent {
   id: number;
   fields: PeriodicSnapshotTaskEntry;
+}
+/**
+ * Used by: pool.snapshottask.create (params)
+ */
+export interface PoolSnapshotTaskCreate {
+  /**
+   * The dataset to take snapshots of.
+   */
+  dataset: string;
+  /**
+   * Whether to recursively snapshot child datasets.
+   */
+  recursive?: boolean;
+  /**
+   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
+   */
+  lifetime_value?: number;
+  /**
+   * Unit of time for snapshot retention.
+   */
+  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
+  /**
+   * Whether this periodic snapshot task is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Array of dataset patterns to exclude from recursive snapshots.
+   */
+  exclude?: string[];
+  /**
+   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
+   */
+  naming_schema?: string;
+  /**
+   * Whether to take snapshots even if no data has changed.
+   */
+  allow_empty?: boolean;
+  schedule?: PoolSnapshotTaskCron;
+}
+/**
+ * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
+ */
+export interface PoolSnapshotTaskDBEntry {
+  /**
+   * Unique identifier for the periodic snapshot task.
+   */
+  id: number;
+  /**
+   * The dataset to take snapshots of.
+   */
+  dataset: string;
+  /**
+   * Whether to recursively snapshot child datasets.
+   */
+  recursive?: boolean;
+  /**
+   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
+   */
+  lifetime_value?: number;
+  /**
+   * Unit of time for snapshot retention.
+   */
+  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
+  /**
+   * Whether this periodic snapshot task is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Array of dataset patterns to exclude from recursive snapshots.
+   */
+  exclude?: string[];
+  /**
+   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
+   */
+  naming_schema?: string;
+  /**
+   * Whether to take snapshots even if no data has changed.
+   */
+  allow_empty?: boolean;
+  schedule?: PoolSnapshotTaskCron;
+  state: string;
+}
+/**
+ * Used by: pool.snapshottask.update (params)
+ */
+export interface PoolSnapshotTaskUpdate {
+  /**
+   * The dataset to take snapshots of.
+   */
+  dataset?: string;
+  /**
+   * Whether to recursively snapshot child datasets.
+   */
+  recursive?: boolean;
+  /**
+   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
+   */
+  lifetime_value?: number;
+  /**
+   * Unit of time for snapshot retention.
+   */
+  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
+  /**
+   * Whether this periodic snapshot task is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Array of dataset patterns to exclude from recursive snapshots.
+   */
+  exclude?: string[];
+  /**
+   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
+   */
+  naming_schema?: string;
+  /**
+   * Whether to take snapshots even if no data has changed.
+   */
+  allow_empty?: boolean;
+  schedule?: PoolSnapshotTaskCron;
+  /**
+   * Whether to fix the removal date of existing snapshots when retention settings change.
+   */
+  fixate_removal_date?: boolean;
+}
+/**
+ * Used by: pool.snapshottask.update_will_change_retention_for (params)
+ */
+export interface PoolSnapshotTaskUpdateWillChangeRetentionFor {
+  /**
+   * The dataset to take snapshots of.
+   */
+  dataset?: string;
+  /**
+   * Whether to recursively snapshot child datasets.
+   */
+  recursive?: boolean;
+  /**
+   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
+   */
+  lifetime_value?: number;
+  /**
+   * Unit of time for snapshot retention.
+   */
+  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
+  /**
+   * Whether this periodic snapshot task is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Array of dataset patterns to exclude from recursive snapshots.
+   */
+  exclude?: string[];
+  /**
+   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
+   */
+  naming_schema?: string;
+  /**
+   * Whether to take snapshots even if no data has changed.
+   */
+  allow_empty?: boolean;
+  schedule?: PoolSnapshotTaskCron;
 }
 /**
  * Used by: privilege.query (event)
@@ -1852,11 +3238,115 @@ export interface PrivilegeAddedEvent {
   fields: PrivilegeEntry;
 }
 /**
+ * Used by: privilege.create (response), privilege.get_instance (params), privilege.get_instance (response), privilege.query (event), privilege.query (params), privilege.query (response), privilege.update (response)
+ */
+export interface PrivilegeEntry {
+  /**
+   * Unique identifier for the privilege.
+   */
+  id: number;
+  /**
+   * Name of the built-in privilege if this is a system privilege. `null` for custom privileges.
+   */
+  builtin_name: string | null;
+  /**
+   * Display name of the privilege. Must be unique.
+   */
+  name: string;
+  /**
+   * Array of local groups assigned to this privilege.
+   */
+  local_groups: (GroupEntry | UnmappedGroupEntry)[];
+  /**
+   * Array of directory service groups assigned to this privilege.
+   */
+  ds_groups: (GroupEntry | UnmappedGroupEntry)[];
+  /**
+   * Array of role names included in this privilege.
+   */
+  roles?: string[];
+  /**
+   * Whether this privilege grants access to the web shell.
+   */
+  web_shell: boolean;
+}
+/**
  * Used by: privilege.query (event)
  */
 export interface PrivilegeChangedEvent {
   id: number;
   fields: PrivilegeEntry;
+}
+/**
+ * Used by: privilege.create (params)
+ */
+export interface PrivilegeCreate {
+  /**
+   * Display name of the privilege. Must be unique.
+   */
+  name: string;
+  /**
+   * Array of local group IDs to assign to this privilege.
+   */
+  local_groups?: number[];
+  /**
+   * Array of directory service group IDs or SIDs to assign to this privilege.
+   */
+  ds_groups?: (number | string)[];
+  /**
+   * Array of role names included in this privilege.
+   */
+  roles?: string[];
+  /**
+   * Whether this privilege grants access to the web shell.
+   */
+  web_shell: boolean;
+}
+/**
+ * Used by: privilege.roles (params), privilege.roles (response)
+ */
+export interface PrivilegeRolesEntry {
+  /**
+   * Internal name of the role.
+   */
+  name: string;
+  /**
+   * Array of other role names that this role includes. Granting this role also grants the permissions of all included roles.
+   */
+  includes: string[];
+  /**
+   * Whether this is a built-in system role.
+   */
+  builtin: boolean;
+  /**
+   * STIG compliance type for this role. `null` if not STIG-related.
+   */
+  stig: STIGType | null;
+}
+/**
+ * Used by: privilege.update (params)
+ */
+export interface PrivilegeUpdate {
+  /**
+   * Display name of the privilege. Must be unique.
+   */
+  name?: string;
+  /**
+   * Array of local group IDs to assign to this privilege.
+   */
+  local_groups?: number[];
+  /**
+   * Array of directory service group IDs or SIDs to assign to this privilege.
+   */
+  ds_groups?: (number | string)[];
+  /**
+   * Array of role names included in this privilege.
+   */
+  roles?: string[];
+  /**
+   * Whether this privilege grants access to the web shell.
+   */
+  web_shell?: boolean;
 }
 /**
  * Used by: replication.query (event)
@@ -2089,6 +3579,222 @@ export interface ReplicationChangedEvent {
   fields: ReplicationEntryInput;
 }
 /**
+ * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
+ */
+export interface ReplicationEntry {
+  /**
+   * Unique identifier for this replication task.
+   */
+  id: number;
+  /**
+   * Name for replication task.
+   */
+  name: string;
+  direction: Direction2;
+  transport: Transport;
+  /**
+   * Keychain Credential of type `SSH_CREDENTIALS`.
+   */
+  ssh_credentials?: KeychainCredentialEntry | null;
+  /**
+   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
+   *
+   * * `LOCAL`: Local system initiates the connection
+   * * `REMOTE`: Remote system initiates the connection
+   * * `null`: Not applicable for other transport types
+   */
+  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
+  /**
+   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
+   */
+  netcat_active_side_listen_address?: string | null;
+  /**
+   * Minimum port number in the range for netcat connections. `null` if not applicable.
+   */
+  netcat_active_side_port_min?: number | null;
+  /**
+   * Maximum port number in the range for netcat connections. `null` if not applicable.
+   */
+  netcat_active_side_port_max?: number | null;
+  /**
+   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
+   */
+  netcat_passive_side_connect_address?: string | null;
+  /**
+   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
+   */
+  sudo?: boolean;
+  /**
+   * List of datasets to replicate snapshots from.
+   *
+   * @minItems 1
+   */
+  source_datasets: [string, ...string[]];
+  /**
+   * Dataset to put snapshots into.
+   */
+  target_dataset: string;
+  /**
+   * Whether to recursively replicate child datasets.
+   */
+  recursive: boolean;
+  /**
+   * Array of dataset patterns to exclude from replication.
+   */
+  exclude?: string[];
+  /**
+   * Send dataset properties along with snapshots.
+   */
+  properties?: boolean;
+  /**
+   * Array of dataset property names to exclude from replication.
+   */
+  properties_exclude?: string[];
+  /**
+   * Object mapping dataset property names to override values during replication.
+   */
+  properties_override?: {
+    [k: string]: string;
+  };
+  /**
+   * Whether to use full ZFS replication.
+   */
+  replicate?: boolean;
+  /**
+   * Whether to enable encryption for the replicated datasets.
+   */
+  encryption?: boolean;
+  /**
+   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
+   */
+  encryption_inherit?: boolean | null;
+  /**
+   * Encryption key for replicated datasets. `null` if not specified.
+   */
+  encryption_key?: string | null;
+  /**
+   * Format of the encryption key.
+   *
+   * * `HEX`: Hexadecimal-encoded key
+   * * `PASSPHRASE`: Text passphrase
+   * * `null`: Not applicable when encryption is disabled
+   */
+  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
+  /**
+   * Filesystem path where encryption key is stored. `null` if not using key file.
+   */
+  encryption_key_location?: string | null;
+  /**
+   * List of periodic snapshot tasks that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
+   */
+  periodic_snapshot_tasks: PoolSnapshotTaskDBEntry[];
+  /**
+   * List of naming schemas for pull replication.
+   */
+  naming_schema?: string[];
+  /**
+   * List of naming schemas for push replication.
+   */
+  also_include_naming_schema?: string[];
+  /**
+   * Replicate all snapshots which names match specified regular expression.
+   */
+  name_regex?: string | null;
+  /**
+   * Allow replication to run automatically on schedule or after bound periodic snapshot task.
+   */
+  auto: boolean;
+  /**
+   * Schedule to run replication task. Only `auto` replication tasks without bound periodic snapshot tasks can have a schedule.
+   */
+  schedule?: ReplicationTimeCronModel | null;
+  /**
+   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
+   */
+  restrict_schedule?: ReplicationTimeCronModel | null;
+  /**
+   * Will only replicate snapshots that match `schedule` or `restrict_schedule`.
+   */
+  only_matching_schedule?: boolean;
+  /**
+   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
+   */
+  allow_from_scratch?: boolean;
+  readonly?: Readonly;
+  /**
+   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
+   */
+  hold_pending_snapshots?: boolean;
+  /**
+   * How to delete old snapshots on target side:
+   *
+   * * `SOURCE`: Delete snapshots that are absent on source side.
+   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
+   * * `NONE`: Do not delete any snapshots.
+   */
+  retention_policy: "SOURCE" | "CUSTOM" | "NONE";
+  /**
+   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
+   */
+  lifetime_value?: number | null;
+  /**
+   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
+   */
+  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
+  /**
+   * Array of different retention schedules with their own cron schedules and lifetime settings.
+   */
+  lifetimes?: ReplicationLifetimeModel[];
+  /**
+   * Compresses SSH stream. Available only for SSH transport.
+   */
+  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
+  /**
+   * Limits speed of SSH stream. Available only for SSH transport.
+   */
+  speed_limit?: number | null;
+  /**
+   * Enable large block support for ZFS send streams.
+   */
+  large_block?: boolean;
+  /**
+   * Enable embedded block support for ZFS send streams.
+   */
+  embed?: boolean;
+  /**
+   * Enable compressed ZFS send streams.
+   */
+  compressed?: boolean;
+  /**
+   * Number of retries before considering replication failed.
+   */
+  retries?: number;
+  /**
+   * Log level for replication task execution. Controls verbosity of replication logs.
+   */
+  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
+  /**
+   * Whether this replication task is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Current state information for the replication task.
+   */
+  state: {
+    [k: string]: unknown;
+  };
+  /**
+   * Information about the currently running job. `null` if no job is running.
+   */
+  job: {
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Whether this replication task has encrypted dataset keys available.
+   */
+  has_encrypted_dataset_keys: boolean;
+}
+/**
  * Used by: reporting.exporters.create (params)
  */
 export interface ReportingExportsCreate {
@@ -2185,6 +3891,422 @@ export interface ReportingUpdate {
    * Interval in seconds for updating aggregated tier1 data.
    */
   tier1_update_interval?: number;
+}
+/**
+ * Used by: sharing.nfs.create (response), sharing.nfs.get_instance (params), sharing.nfs.get_instance (response), sharing.nfs.query (params), sharing.nfs.query (response), sharing.nfs.update (response)
+ */
+export interface SharingNFSEntry {
+  /**
+   * Unique identifier for the NFS share.
+   */
+  id: number;
+  /**
+   * Local path to be exported.
+   */
+  path: string;
+  /**
+   * Dataset name component of the path (e.g., 'tank/share'). Null if path cannot be resolved.
+   */
+  dataset: string | null;
+  /**
+   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
+   */
+  relative_path: string | null;
+  /**
+   * IGNORED for now.
+   */
+  aliases?: string[];
+  /**
+   * User comment associated with share.
+   */
+  comment?: string;
+  /**
+   * List of authorized networks that are allowed to access the share having format "network/mask" CIDR notation. Each entry must be unique. If empty, all networks are allowed. Excessively long lists should be avoided.
+   */
+  networks?: string[];
+  /**
+   * List of IP's/hostnames which are allowed to access the share. No quotes or spaces are allowed. Each entry must be unique. If empty, all IP's/hostnames are allowed. Excessively long lists should be avoided.
+   */
+  hosts?: string[];
+  /**
+   * Export the share as read only.
+   */
+  ro?: boolean;
+  /**
+   * Map root user client to a specified user.
+   */
+  maproot_user?: string | null;
+  /**
+   * Map root group client to a specified group.
+   */
+  maproot_group?: string | null;
+  /**
+   * Map all client users to a specified user.
+   */
+  mapall_user?: string | null;
+  /**
+   * Map all client groups to a specified group.
+   */
+  mapall_group?: string | null;
+  /**
+   * Specify the security schema.
+   */
+  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
+  /**
+   * Enable or disable the share.
+   */
+  enabled?: boolean;
+  /**
+   * Read-only value indicating whether the share is located on a locked dataset.
+   *
+   * Returns:
+   *     - True: The share is in a locked dataset.
+   *     - False: The share is not in a locked dataset.
+   *     - None: Lock status is not available because path locking information was not requested.
+   */
+  locked: boolean | null;
+  /**
+   * Enterprise feature to enable access to the ZFS snapshot directory for the export. Export path must be the root directory of a ZFS dataset.
+   */
+  expose_snapshots?: boolean;
+  /**
+   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
+   */
+  tier?: TierInfo | null;
+}
+/**
+ * SMB share entry on the TrueNAS server.
+ *
+ * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
+ */
+export interface SharingSMBEntry {
+  /**
+   * Unique identifier for this SMB share.
+   */
+  id: number;
+  purpose?: Purpose;
+  /**
+   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
+   *
+   * * A share name must be no more than 80 characters in length.
+   *
+   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
+   *
+   * * Unicode control characters are illegal in a share name.
+   *
+   * * The following share names are not allowed: global, printers, homes.
+   */
+  name: string;
+  /**
+   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
+   *
+   * Use the string `EXTERNAL` if the share works as a DFS proxy.
+   *
+   * WARNING: The TrueNAS server does not check if external paths are reachable.
+   */
+  path: string | "EXTERNAL";
+  /**
+   * The ZFS dataset containing this SMB share (e.g., 'tank/share'). Returns `null` for external shares or if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
+   */
+  dataset: string | null;
+  /**
+   * The path of the share relative to the dataset mountpoint (e.g., 'subfolder/data'). An empty string indicates the share is at the dataset root. Returns `null` for external shares or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
+   */
+  relative_path: string | null;
+  /**
+   * If unset, the SMB share is not available over the SMB protocol.
+   */
+  enabled?: boolean;
+  /**
+   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
+   */
+  comment?: string;
+  /**
+   * If set, SMB clients cannot create or change files and directories in the SMB share.
+   *
+   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
+   */
+  readonly?: boolean;
+  /**
+   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
+   */
+  browsable?: boolean;
+  /**
+   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
+   */
+  access_based_share_enumeration?: boolean;
+  /**
+   * Read-only value indicating whether the share is located on a locked dataset.
+   *
+   * Returns:
+   *     - True: The share is in a locked dataset.
+   *     - False: The share is not in a locked dataset.
+   *     - None: Lock status is not available because path locking information was not requested.
+   */
+  locked: boolean | null;
+  audit?: SmbAuditConfig;
+  /**
+   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
+   */
+  options?:
+    | (
+        | LegacyOpt
+        | DefaultOpt
+        | TimeMachineOpt
+        | MultiprotocolOpt
+        | TimeLockedOpt
+        | PrivateDatasetOpt
+        | ExternalOpt
+        | VeeamRepositoryOpt
+        | FCPStorageOpt
+      )
+    | null;
+  /**
+   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
+   */
+  tier?: TierInfo | null;
+}
+/**
+ * Used by: sharing.smb.setacl (params)
+ */
+export interface SharingSMBSetaclArgs {
+  /**
+   * Name of the SMB share.
+   */
+  share_name: string;
+  /**
+   * List of SMB share ACL entries.
+   */
+  share_acl?: SMBShareAclEntry[];
+}
+/**
+ * An SMB Share ACL Entry that grants or denies specific permissions to a principal.
+ * You can identify the principal by a SID (`ae_who_sid`), or Unix ID (`ae_who_id`).
+ *
+ * Used by: sharing.smb.getacl (response), sharing.smb.setacl (params), sharing.smb.setacl (response)
+ */
+export interface SMBShareAclEntry {
+  /**
+   * Permissions granted or denied to the principal: `FULL` grants read, write, execute, delete, write ACL, and change owner; `CHANGE` grants read, write, execute, and delete; `READ` grants read and execute. NOTE: this may appear as CUSTOM on read if user has manually edited the share ACL through unsupported means. In this case users will be required to set it to a supported value on update.
+   */
+  ae_perm: "FULL" | "CHANGE" | "READ" | "CUSTOM";
+  /**
+   * The type of SMB share ACL entry. This value determines whether the permissions (ae_perm) are granted (ALLOWED) or denied (DENIED).
+   */
+  ae_type: "ALLOWED" | "DENIED";
+  /**
+   * The SID of the principal to whom this ACL entry applies.
+   */
+  ae_who_sid?: string | null;
+  /**
+   * The Unix ID of the principal to whom this ACL entry applies.
+   */
+  ae_who_id?: SMBShareAclEntryWhoId | null;
+  /**
+   * The User or group name of the principal to whom this ACL entry applies.
+   */
+  ae_who_str?: string | null;
+}
+/**
+ * TrueNAS SMB server configuration.
+ *
+ * Used by: smb.config (response), smb.update (response)
+ */
+export interface SMBEntry {
+  /**
+   * Unique identifier for the SMB service configuration.
+   */
+  id: number;
+  /**
+   * The NetBIOS name of this server. Defaults to the original hostname of the system.
+   */
+  netbiosname: string;
+  /**
+   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain. When the server is joined to an AD domain, additional Kerberos Service Principal Names are generated for these aliases.
+   */
+  netbiosalias: string[];
+  /**
+   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain. This must differ from `netbiosname`.
+   */
+  workgroup: string;
+  /**
+   * Description of the SMB server. SMB clients may see this description during some operations.
+   */
+  description: string;
+  /**
+   * Minimum SMB protocol version permitted for client connections. `SMB1` enables legacy client support (not recommended). `SMB2` is the default. `SMB3` restricts access to modern clients only. NOTE: SMB2 and SMB3 are dialects of the same protocol family; setting `SMB3` as the minimum may break access for networked embedded devices that only support SMB2.
+   */
+  minimum_protocol: "SMB1" | "SMB2" | "SMB3";
+  unixcharset: Unixcharset;
+  /**
+   * When set to `true` the NetBIOS name server in TrueNAS participates in elections for the local master browser. When set to `false` the NetBIOS name server does not attempt to become a local master browser on a subnet and loses all browsing elections.
+   *
+   * NOTE: This parameter has no effect if the NetBIOS name server is disabled.
+   */
+  localmaster: boolean;
+  /**
+   * Send log messages to syslog. Enable this option if you want SMB server error logs to be included in information sent to a remote syslog server. NOTE: This requires that remote syslog is globally configured on TrueNAS.
+   */
+  syslog: boolean;
+  /**
+   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. This is not required for MacOS support generally but is currently required for Time Machine support.
+   */
+  aapl_extensions: boolean;
+  /**
+   * List of enabled search protocols for the SMB server. Currently the only support search protocol is SPOTLIGHT for MacOS clients. When SPOTLIGHT search protocol support is enabled, MacOS clients can send spotlight protocol requests to the TrueNAS samba server and receive results from indexed paths.
+   */
+  search_protocols?: "SPOTLIGHT"[];
+  /**
+   * The selected group has full administrator privileges on TrueNAS via the SMB protocol.
+   */
+  admin_group: string | null;
+  /**
+   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account. Defaults to "nobody".
+   */
+  guest: string;
+  /**
+   * `smb.conf` create mask. DEFAULT applies current server default which is 664.
+   */
+  filemask: string | "DEFAULT";
+  /**
+   * `smb.conf` directory mask. DEFAULT applies current server default which is 775.
+   */
+  dirmask: string | "DEFAULT";
+  /**
+   * Enable legacy and very insecure NTLMv1 authentication. This should never be done except in extreme edge cases and may be against regulations in non-home environments.
+   */
+  ntlmv1_auth: boolean;
+  /**
+   * Enable SMB3 multi-channel support.
+   */
+  multichannel: boolean;
+  encryption: Encryption;
+  /**
+   * List of IP addresses used by the TrueNAS SMB server.
+   */
+  bindip: string[];
+  /**
+   * The unique identifier for the TrueNAS SMB server. It also serves as the domain SID for all local SMB user and group accounts.
+   */
+  server_sid: string | null;
+  /**
+   * Additional unvalidated and unsupported configuration options for the SMB server. WARNING: Using `smb_options` may produce unexpected server behavior.
+   */
+  smb_options: string;
+  /**
+   * Set SMB log levels to debug. Use this setting only when troubleshooting a specific SMB issue. Do not use it in production environments.
+   */
+  debug: boolean;
+  /**
+   * Enterprise feature to ensure SMB state consistency across HA failover events. This feature is incompatible with the following share purposes: MULTIPROTOCOL_SHARE, LEGACY_SHARE. This feature is also incompatible with `minimum_protocol` set to `SMB1`.
+   */
+  stateful_failover: boolean;
+}
+/**
+ * The ACL that applies to a specific SMB share.
+ *
+ * NOTE: this is not the same as a filesystem ACL. It only affects access through the SMB protocol.
+ *
+ * Used by: sharing.smb.getacl (response), sharing.smb.setacl (response)
+ */
+export interface SMBShareAcl {
+  /**
+   * Name of the SMB share.
+   */
+  share_name: string;
+  /**
+   * List of SMB share ACL entries.
+   */
+  share_acl?: SMBShareAclEntry[];
+}
+/**
+ * Used by: smb.update (params)
+ */
+export interface SMBUpdateArgs {
+  /**
+   * The NetBIOS name of this server. Defaults to the original hostname of the system.
+   */
+  netbiosname?: string;
+  /**
+   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain. When the server is joined to an AD domain, additional Kerberos Service Principal Names are generated for these aliases.
+   */
+  netbiosalias?: string[];
+  /**
+   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain. This must differ from `netbiosname`.
+   */
+  workgroup?: string;
+  /**
+   * Description of the SMB server. SMB clients may see this description during some operations.
+   */
+  description?: string;
+  /**
+   * Minimum SMB protocol version permitted for client connections. `SMB1` enables legacy client support (not recommended). `SMB2` is the default. `SMB3` restricts access to modern clients only. NOTE: SMB2 and SMB3 are dialects of the same protocol family; setting `SMB3` as the minimum may break access for networked embedded devices that only support SMB2.
+   */
+  minimum_protocol?: "SMB1" | "SMB2" | "SMB3";
+  unixcharset?: Unixcharset;
+  /**
+   * When set to `true` the NetBIOS name server in TrueNAS participates in elections for the local master browser. When set to `false` the NetBIOS name server does not attempt to become a local master browser on a subnet and loses all browsing elections.
+   *
+   * NOTE: This parameter has no effect if the NetBIOS name server is disabled.
+   */
+  localmaster?: boolean;
+  /**
+   * Send log messages to syslog. Enable this option if you want SMB server error logs to be included in information sent to a remote syslog server. NOTE: This requires that remote syslog is globally configured on TrueNAS.
+   */
+  syslog?: boolean;
+  /**
+   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. This is not required for MacOS support generally but is currently required for Time Machine support.
+   */
+  aapl_extensions?: boolean;
+  /**
+   * List of enabled search protocols for the SMB server. Currently the only support search protocol is SPOTLIGHT for MacOS clients. When SPOTLIGHT search protocol support is enabled, MacOS clients can send spotlight protocol requests to the TrueNAS samba server and receive results from indexed paths.
+   */
+  search_protocols?: "SPOTLIGHT"[];
+  /**
+   * The selected group has full administrator privileges on TrueNAS via the SMB protocol.
+   */
+  admin_group?: string | null;
+  /**
+   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account. Defaults to "nobody".
+   */
+  guest?: string;
+  /**
+   * `smb.conf` create mask. DEFAULT applies current server default which is 664.
+   */
+  filemask?: string | "DEFAULT";
+  /**
+   * `smb.conf` directory mask. DEFAULT applies current server default which is 775.
+   */
+  dirmask?: string | "DEFAULT";
+  /**
+   * Enable legacy and very insecure NTLMv1 authentication. This should never be done except in extreme edge cases and may be against regulations in non-home environments.
+   */
+  ntlmv1_auth?: boolean;
+  /**
+   * Enable SMB3 multi-channel support.
+   */
+  multichannel?: boolean;
+  encryption?: EncryptionInput;
+  /**
+   * List of IP addresses used by the TrueNAS SMB server.
+   */
+  bindip?: string[];
+  /**
+   * The unique identifier for the TrueNAS SMB server. It also serves as the domain SID for all local SMB user and group accounts.
+   */
+  server_sid?: string | null;
+  /**
+   * Additional unvalidated and unsupported configuration options for the SMB server. WARNING: Using `smb_options` may produce unexpected server behavior.
+   */
+  smb_options?: string;
+  /**
+   * Set SMB log levels to debug. Use this setting only when troubleshooting a specific SMB issue. Do not use it in production environments.
+   */
+  debug?: boolean;
+  /**
+   * Enterprise feature to ensure SMB state consistency across HA failover events. This feature is incompatible with the following share purposes: MULTIPROTOCOL_SHARE, LEGACY_SHARE. This feature is also incompatible with `minimum_protocol` set to `SMB1`.
+   */
+  stateful_failover?: boolean;
 }
 /**
  * Used by: snmp.config (response), snmp.update (response)
@@ -2399,6 +4521,164 @@ export interface TunableEntry {
    * Original system value of the parameter before this tunable was applied.
    */
   orig_value: string;
+}
+/**
+ * Used by: ups.config (response), ups.update (response)
+ */
+export interface UPSEntry {
+  /**
+   * Whether the UPS should power down after completing the shutdown sequence.
+   */
+  powerdown: boolean;
+  /**
+   * Whether to enable remote monitoring of the UPS status over the network.
+   */
+  rmonitor: boolean;
+  /**
+   * Unique identifier for the UPS configuration.
+   */
+  id: number;
+  /**
+   * Seconds to wait before warning about communication loss with UPS. `null` for default.
+   */
+  nocommwarntime: number | null;
+  /**
+   * Network port for communicating with remote UPS monitoring systems.
+   */
+  remoteport: number;
+  /**
+   * Seconds to wait after initiating shutdown before forcing power off. Only applies when `shutdown` is `BATT`.
+   */
+  shutdowntimer: number;
+  /**
+   * Maximum seconds to wait for other systems to shutdown before continuing.
+   */
+  hostsync: number;
+  /**
+   * Human-readable description of this UPS configuration.
+   */
+  description: string;
+  /**
+   * UPS driver name that handles communication with the specific UPS hardware model.
+   */
+  driver: string;
+  /**
+   * Additional user configurations for UPS monitoring access.
+   */
+  extrausers: string;
+  /**
+   * Unique identifier name for this UPS device within the monitoring system.
+   */
+  identifier: string;
+  mode: Mode2;
+  /**
+   * Password for UPS monitoring authentication.
+   */
+  monpwd: string;
+  /**
+   * Username for UPS monitoring authentication.
+   */
+  monuser: string;
+  /**
+   * Additional configuration options passed to the UPS driver.
+   */
+  options: string;
+  /**
+   * Additional configuration options for the UPS daemon.
+   */
+  optionsupsd: string;
+  /**
+   * Serial port or device path for UPS communication.
+   */
+  port: string;
+  /**
+   * Hostname or IP address of remote UPS server when operating in SLAVE mode.
+   */
+  remotehost: string;
+  shutdown: Shutdown;
+  /**
+   * Custom command to execute during UPS shutdown sequence. `null` to use the default (`poweroff`).
+   */
+  shutdowncmd: string | null;
+  /**
+   * Complete UPS identifier including hostname for network monitoring.
+   */
+  complete_identifier: string;
+}
+/**
+ * Used by: ups.update (params)
+ */
+export interface UPSUpdate {
+  /**
+   * Whether the UPS should power down after completing the shutdown sequence.
+   */
+  powerdown?: boolean;
+  /**
+   * Whether to enable remote monitoring of the UPS status over the network.
+   */
+  rmonitor?: boolean;
+  /**
+   * Seconds to wait before warning about communication loss with UPS. `null` for default.
+   */
+  nocommwarntime?: number | null;
+  /**
+   * Network port for communicating with remote UPS monitoring systems.
+   */
+  remoteport?: number;
+  /**
+   * Seconds to wait after initiating shutdown before forcing power off. Only applies when `shutdown` is `BATT`.
+   */
+  shutdowntimer?: number;
+  /**
+   * Maximum seconds to wait for other systems to shutdown before continuing.
+   */
+  hostsync?: number;
+  /**
+   * Human-readable description of this UPS configuration.
+   */
+  description?: string;
+  /**
+   * UPS driver name that handles communication with the specific UPS hardware model.
+   */
+  driver?: string;
+  /**
+   * Additional user configurations for UPS monitoring access.
+   */
+  extrausers?: string;
+  /**
+   * Unique identifier name for this UPS device within the monitoring system.
+   */
+  identifier?: string;
+  mode?: ModeInput2;
+  /**
+   * Password for UPS monitoring authentication (required for updates).
+   */
+  monpwd?: string;
+  /**
+   * Username for UPS monitoring authentication.
+   */
+  monuser?: string;
+  /**
+   * Additional configuration options passed to the UPS driver.
+   */
+  options?: string;
+  /**
+   * Additional configuration options for the UPS daemon.
+   */
+  optionsupsd?: string;
+  /**
+   * Serial port or device path for UPS communication.
+   */
+  port?: string;
+  /**
+   * Hostname or IP address of remote UPS server when operating in SLAVE mode.
+   */
+  remotehost?: string;
+  shutdown?: Shutdown;
+  /**
+   * Custom command to execute during UPS shutdown sequence. `null` to use the default (`poweroff`).
+   */
+  shutdowncmd?: string | null;
 }
 /**
  * Used by: vm.query (event)
@@ -2727,6 +5007,19 @@ export interface VMCreate {
    * Whether to enable UEFI Secure Boot for enhanced security.
    */
   enable_secure_boot?: boolean;
+}
+/**
+ * Used by: vm.delete (params)
+ */
+export interface VMDeleteOptions {
+  /**
+   * Delete associated ZFS volumes when deleting the VM.
+   */
+  zvols?: boolean;
+  /**
+   * Delete a running or suspended VM by stopping it first. Without this, deleting an active VM is rejected. Also causes failures to destroy associated ZFS volumes to be logged and ignored rather than aborting the deletion.
+   */
+  force?: boolean;
 }
 /**
  * Used by: vm.device.query (event)
@@ -3140,6 +5433,113 @@ export interface VMPortWizard {
   web: number;
 }
 /**
+ * Used by: vm.update (params)
+ */
+export interface VMUpdate {
+  /**
+   * Additional command line arguments passed to the VM hypervisor.
+   */
+  command_line_args?: string;
+  /**
+   * CPU virtualization mode.
+   *
+   * * `CUSTOM`: Use specified model.
+   * * `HOST-MODEL`: Mirror host CPU.
+   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
+   */
+  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
+  /**
+   * Specific CPU model to emulate. `null` to use hypervisor default.
+   */
+  cpu_model?: string | null;
+  /**
+   * Display name of the virtual machine.
+   */
+  name?: string;
+  /**
+   * Optional description or notes about the virtual machine.
+   */
+  description?: string;
+  /**
+   * Number of virtual CPU sockets. The total number of guest vCPUs is `vcpus` * `cores` * `threads` (maximum 16).
+   */
+  vcpus?: number;
+  /**
+   * Number of CPU cores per socket.
+   */
+  cores?: number;
+  /**
+   * Number of threads per CPU core.
+   */
+  threads?: number;
+  /**
+   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
+   */
+  cpuset?: string | null;
+  /**
+   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
+   */
+  nodeset?: string | null;
+  /**
+   * Whether to expose detailed CPU topology information to the guest OS.
+   */
+  enable_cpu_topology_extension?: boolean;
+  /**
+   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
+   */
+  pin_vcpus?: boolean;
+  /**
+   * Whether to automatically suspend the VM when a periodic snapshot task runs. For manual snapshots, the VM is suspended only if explicitly included in the snapshot's VM pause list.
+   */
+  suspend_on_snapshot?: boolean;
+  /**
+   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
+   */
+  trusted_platform_module?: boolean;
+  /**
+   * Amount of memory allocated to the VM in mebibytes (MiB).
+   */
+  memory?: number;
+  /**
+   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
+   */
+  min_memory?: number | null;
+  /**
+   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
+   */
+  hyperv_enlightenments?: boolean;
+  bootloader?: Bootloader;
+  /**
+   * Whether to automatically start the VM when the host system boots.
+   */
+  autostart?: boolean;
+  /**
+   * Whether to hide the KVM hypervisor from standard MSR-based discovery. Useful when doing GPU passthrough.
+   */
+  hide_from_msr?: boolean;
+  /**
+   * Whether to ensure the guest always has access to a video device. Required for headless OS installations (e.g. Ubuntu Server). Set to `false` when using GPU passthrough without a separate display device.
+   */
+  ensure_display_device?: boolean;
+  time?: Time;
+  /**
+   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
+   */
+  shutdown_timeout?: number;
+  /**
+   * Guest architecture type. `null` to use hypervisor default.
+   */
+  arch_type?: string | null;
+  /**
+   * Virtual machine type/chipset. `null` to use hypervisor default.
+   */
+  machine_type?: string | null;
+  /**
+   * Unique UUID for the VM. `null` to auto-generate.
+   */
+  uuid?: string | null;
+}
+/**
  * Used by: vm.virtualization_details (response)
  */
 export interface VMVirtualizationDetails {
@@ -3151,6 +5551,19 @@ export interface VMVirtualizationDetails {
    * Error message if virtualization is not available. `null` if supported.
    */
   error: string | null;
+}
+/**
+ * Used by: zfs.resource.destroy (params)
+ */
+export interface ZFSResourceDestroyArgsData {
+  /**
+   * Path of the zfs resource (dataset or volume) to be destroyed. Must be of the form 'pool/name'; it cannot be an absolute path or end with '/'. Snapshot paths (containing '@') are not accepted - use `zfs.resource.snapshot.destroy` instead.
+   */
+  path: string;
+  /**
+   * Recursively destroy all descendants of the resource, including child datasets, snapshots, clones, and holds.
+   */
+  recursive?: boolean;
 }
 /**
  * Used by: zfs.tier.rewrite_job_failures (params)
@@ -3179,4 +5592,33 @@ export interface ZfsTierRewriteJobQueryArgs {
    */
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
+}
+/**
+ * Used by: zpool.query (params)
+ */
+export interface ZPoolQuery {
+  /**
+   * Pool names to query. `null` queries all imported pools.
+   */
+  pool_names?: string[] | null;
+  /**
+   * Property names to retrieve. `null` returns no properties.
+   */
+  properties?: string[] | null;
+  /**
+   * Include vdev topology.
+   */
+  topology?: boolean;
+  /**
+   * Include scan/scrub information.
+   */
+  scan?: boolean;
+  /**
+   * Include expansion information.
+   */
+  expand?: boolean;
+  /**
+   * Include feature flags.
+   */
+  features?: boolean;
 }

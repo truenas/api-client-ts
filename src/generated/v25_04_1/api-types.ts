@@ -5,6 +5,7 @@
 
 import type {
   AddressPool,
+  UnmappedGroupEntry,
   UserTwofactorConfigEntry,
 } from '../v25_04_0/api-types';
 
@@ -69,6 +70,96 @@ export interface DockerUpdateArgs {
   nvidia?: boolean;
   address_pools?: AddressPool[];
   cidr_v6?: string;
+}
+/**
+ * Used by: group.create (params)
+ */
+export interface GroupCreate {
+  /**
+   * If `null`, it is automatically filled with the next one available.
+   */
+  gid?: number | null;
+  name: string;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  /**
+   * Specifies whether the group should be mapped into an NT group.
+   */
+  smb?: boolean;
+  /**
+   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
+   *
+   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
+   */
+  userns_idmap?: "DIRECT" | number | null;
+  /**
+   * A list of user ids (`id` attribute from `user.query`).
+   */
+  users?: number[];
+}
+/**
+ * Used by: group.get_instance (params), group.get_instance (response), group.query (params), group.query (response), privilege.create (response), privilege.get_instance (params), privilege.get_instance (response), privilege.query (params), privilege.query (response), privilege.update (response)
+ */
+export interface GroupEntry {
+  id: number;
+  gid: number;
+  name: string;
+  builtin: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  /**
+   * Specifies whether the group should be mapped into an NT group.
+   */
+  smb?: boolean;
+  /**
+   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
+   *
+   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
+   */
+  userns_idmap?: "DIRECT" | number | null;
+  group: string;
+  id_type_both: boolean;
+  local: boolean;
+  sid: string | null;
+  roles: string[];
+  /**
+   * A list of user ids (`id` attribute from `user.query`).
+   */
+  users?: number[];
+}
+/**
+ * Used by: group.update (params)
+ */
+export interface GroupUpdate {
+  name?: string;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  /**
+   * Specifies whether the group should be mapped into an NT group.
+   */
+  smb?: boolean;
+  /**
+   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
+   *
+   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
+   */
+  userns_idmap?: "DIRECT" | number | null;
+  /**
+   * A list of user ids (`id` attribute from `user.query`).
+   */
+  users?: number[];
+}
+/**
+ * Used by: privilege.create (response), privilege.get_instance (params), privilege.get_instance (response), privilege.query (params), privilege.query (response), privilege.update (response)
+ */
+export interface PrivilegeEntry {
+  id: number;
+  builtin_name: string | null;
+  name: string;
+  local_groups: (GroupEntry | UnmappedGroupEntry)[];
+  ds_groups: (GroupEntry | UnmappedGroupEntry)[];
+  roles?: string[];
+  web_shell: boolean;
 }
 /**
  * Used by: sharing.nfs.query (event)
@@ -263,6 +354,58 @@ export interface SystemSecurityUpdateArgs {
    * The number of password generations to keep in history for checks against password reuse for local user accounts. The value of None means that history checks for password reuse are not performed.
    */
   password_history_length?: number | null;
+}
+/**
+ * Used by: user.create (params)
+ */
+export interface UserCreate {
+  /**
+   * UNIX UID. If not provided, it is automatically filled with the next one available.
+   */
+  uid?: number | null;
+  /**
+   * String used to uniquely identify the user on the server. In order to be portable across systems, local user names must be composed of characters from the POSIX portable filename character set (IEEE Std 1003.1-2024 section 3.265). This means alphanumeric characters, hyphens, underscores, and periods. Usernames also may not begin with a hyphen or a period.
+   */
+  username: string;
+  home?: string;
+  /**
+   * Available choices can be retrieved with `user.shell_choices`.
+   */
+  shell?: string;
+  full_name: string;
+  smb?: boolean;
+  /**
+   * Species the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If None, then the UID will not be mapped.
+   *
+   * NOTE: this field will be ignored for users that have been assigned TrueNAS roles.
+   */
+  userns_idmap?: "DIRECT" | number | null;
+  /**
+   * Required if `group_create` is `false`.
+   */
+  group?: number | null;
+  /**
+   * Specifies whether the user should be allowed access to SMB shares. User will also automatically be added to the `builtin_users` group.
+   */
+  groups?: number[];
+  password_disabled?: boolean;
+  /**
+   * Required if `password_disabled` is false.
+   */
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  group_create?: boolean;
+  home_create?: boolean;
+  home_mode?: string;
+  password?: string | null;
+  /**
+   * Generate a random 20 character password for the user
+   */
+  random_password?: boolean;
 }
 /**
  * Used by: user.create (response), user.update (response)
@@ -460,4 +603,51 @@ export interface UserRenew2FaSecretResult {
   roles: string[];
   api_keys: number[];
   twofactor_config: UserTwofactorConfigEntry;
+}
+/**
+ * Used by: user.update (params)
+ */
+export interface UserUpdate {
+  /**
+   * String used to uniquely identify the user on the server. In order to be portable across systems, local user names must be composed of characters from the POSIX portable filename character set (IEEE Std 1003.1-2024 section 3.265). This means alphanumeric characters, hyphens, underscores, and periods. Usernames also may not begin with a hyphen or a period.
+   */
+  username?: string;
+  home?: string;
+  /**
+   * Available choices can be retrieved with `user.shell_choices`.
+   */
+  shell?: string;
+  full_name?: string;
+  smb?: boolean;
+  /**
+   * Species the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If None, then the UID will not be mapped.
+   *
+   * NOTE: this field will be ignored for users that have been assigned TrueNAS roles.
+   */
+  userns_idmap?: "DIRECT" | number | null;
+  /**
+   * Required if `group_create` is `false`.
+   */
+  group?: number | null;
+  /**
+   * Specifies whether the user should be allowed access to SMB shares. User will also automatically be added to the `builtin_users` group.
+   */
+  groups?: number[];
+  password_disabled?: boolean;
+  /**
+   * Required if `password_disabled` is false.
+   */
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  home_create?: boolean;
+  home_mode?: string;
+  password?: string | null;
+  /**
+   * Generate a random 20 character password for the user
+   */
+  random_password?: boolean;
 }

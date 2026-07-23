@@ -11,9 +11,13 @@
  * directory churns), and each version directory reads as the pairwise
  * changelog against its predecessor.
  *
- * Shape comparison ignores documentation (description/examples/titles), so a
- * docs-only edit does not re-materialize a type; each run's declaration takes
- * its docs from the newest version of the run.
+ * Comparison covers everything consumers see — structure AND documentation
+ * (descriptions/examples ship as TSDoc). A docstring edit therefore
+ * re-declares a type in the version where it happened, which keeps two
+ * guarantees honest: released versions' files never change when master edits
+ * docs, and every version's declarations carry that version's own docs.
+ * Only non-emitted metadata is ignored: `title` (stripped before emission;
+ * definition identity is the name) and our `_usedBy` bookkeeping.
  *
  * A shape that changes and later reverts is re-materialized at the revert
  * point (comparison is strictly against the predecessor) — rare, and keeps
@@ -21,7 +25,7 @@
  */
 import type { DefSchema, VersionModel } from './types.mts';
 
-const DOC_KEYS = new Set(['description', 'examples', 'title', '_usedBy']);
+const NON_EMITTED_KEYS = new Set(['title', '_usedBy']);
 
 function canonical(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(canonical);
@@ -29,7 +33,7 @@ function canonical(node: unknown): unknown {
     const record = node as Record<string, unknown>;
     const out: Record<string, unknown> = {};
     for (const key of Object.keys(record).sort()) {
-      if (DOC_KEYS.has(key)) continue;
+      if (NON_EMITTED_KEYS.has(key)) continue;
       out[key] = canonical(record[key]);
     }
     return out;
@@ -100,19 +104,18 @@ export function chainAssign(models: VersionModel[]): ChainedDefs {
     homes.push(h);
   }
 
-  // Materialize each run once: docs from the run's newest version, usage
-  // metadata unioned across the run.
+  // Materialize each run once. Run members are emission-identical (comparison
+  // covers everything emitted), so the declaring version's body is the body;
+  // only the usage metadata is unioned across the run.
   const declared: Record<string, DefSchema>[] = models.map(() => ({}));
   for (let h = 0; h < models.length; h++) {
     for (const name of Object.keys(models[h].definitions)) {
       if (homes[h].get(name) !== h) continue;
-      let last = h;
       const usages = new Set<string>();
       for (let i = h; i < models.length && homes[i].get(name) === h; i++) {
-        last = i;
         for (const usage of models[i].definitions[name]._usedBy ?? []) usages.add(usage);
       }
-      declared[h][name] = { ...models[last].definitions[name], _usedBy: [...usages].sort() };
+      declared[h][name] = { ...models[h].definitions[name], _usedBy: [...usages].sort() };
     }
   }
 
