@@ -1,3 +1,6 @@
 # Local API dump caches (fetch fresh with --fetch docker)
 *.schema.json
 dump*.json
+
+# PR description scratch (paste into GitHub, not tracked)
+PR-BODY.md
