@@ -98,17 +98,20 @@ function fetchDumpViaDocker(): string {
 }
 
 let raw: string;
-if (args.fetch === 'docker') {
+if (args.fetch && args.fetch !== 'docker') {
+  console.error(`Unknown --fetch mode '${args.fetch}' (supported: docker).`);
+  process.exit(1);
+} else if (args.fetch === 'docker' || !args.schema) {
+  // Docker fetch is the default: with no --schema there is nothing to read
+  // locally, so a bare `yarn generate:api` fetches a fresh dump.
+  if (!args.fetch) console.error('No --schema given — fetching a fresh dump via docker (pass --schema <file> for offline use).');
   raw = fetchDumpViaDocker();
   if (args.schema) {
     await writeFile(args.schema, raw);
     console.error(`Cached dump to ${args.schema}`);
   }
-} else if (args.fetch) {
-  console.error(`Unknown --fetch mode '${args.fetch}' (supported: docker).`);
-  process.exit(1);
 } else {
-  raw = await readFile(args.schema ?? path.join(import.meta.dirname, '26.schema.json'), 'utf8');
+  raw = await readFile(args.schema, 'utf8');
 }
 
 const dump = JSON.parse(raw) as ApiDumpFile | ApiDumpVersion;
