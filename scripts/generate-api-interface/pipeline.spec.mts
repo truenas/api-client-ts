@@ -110,6 +110,15 @@ describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
     expect(files.get('v1_0_0/api-event-directory.ts')).toContain("'test.changed':");
   });
 
+  it('emits a greppable manifest recording each entry\'s history', async () => {
+    const manifest = (await generate()).get('MANIFEST.md') ?? '';
+    expect(manifest).toContain('| iscsi.fetch | call | introduced v1.0.0 |');
+    expect(manifest).toContain('| test.create | call | introduced v1.0.0; changed v2.0.0 |');
+    expect(manifest).toContain('| test.remove | call | introduced v2.0.0 |');
+    expect(manifest).toContain('| test.run | job | introduced v1.0.0 |');
+    expect(manifest).toContain('| test.remove | event | introduced v2.0.0 |');
+  });
+
   it('emits the version registry in the root index', async () => {
     const root = (await generate()).get('index.ts') ?? '';
     expect(root).toContain("'v1.0.0': ApiDirectoryV1_0_0;");

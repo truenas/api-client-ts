@@ -16,11 +16,13 @@ import {
   emitEventDirectory,
   emitDirectoryBase,
   emitIndex,
+  emitManifest,
   emitRootIndex,
   directoryEntry,
   eventEntry,
   type DirectoryChainLink,
   type Externals,
+  type ManifestRow,
 } from './emit.mts';
 import type { ApiDumpFile, ApiDumpVersion, MethodModel, VersionModel } from './types.mts';
 
@@ -246,6 +248,26 @@ export async function generateFromDump(
   }
 
   if (multi) {
+    const manifestRows: ManifestRow[] = [];
+    const collectRows = (kind: ManifestRow['kind'], delta: { own: { name: string }[][]; removed: string[][] }) => {
+      const byName = new Map<string, ManifestRow>();
+      delta.own.forEach((items, i) => {
+        for (const item of items) {
+          const row = byName.get(item.name) ?? { name: item.name, kind, declaredIn: [], removedIn: [] };
+          row.declaredIn.push(models[i].version);
+          byName.set(item.name, row);
+        }
+      });
+      delta.removed.forEach((names, i) => {
+        for (const name of names) byName.get(name)?.removedIn.push(models[i].version);
+      });
+      manifestRows.push(...byName.values());
+    };
+    collectRows('call', callDelta);
+    collectRows('job', jobDelta);
+    collectRows('event', eventDelta);
+    files.set('MANIFEST.md', emitManifest(manifestRows, models.map((m) => m.version)));
+
     files.set('index.ts', emitRootIndex(models.map((m) => m.version)));
     log(`Chain: root ${models[0].version} declares ${Object.keys(declared[0]).length} types; ${chainStable.size} stable across the whole chain`);
   }
