@@ -44,7 +44,7 @@ const { values: args } = parseArgs({
     'middleware-repo': { type: 'string', default: path.resolve(import.meta.dirname, '../../../middleware') },
     'api-version': { type: 'string' },
     include: { type: 'string', default: '' },
-    out: { type: 'string', default: path.join(import.meta.dirname, 'generated') },
+    out: { type: 'string', default: path.resolve(import.meta.dirname, '../../src/generated') },
   },
 });
 
