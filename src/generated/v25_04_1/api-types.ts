@@ -5,13 +5,9 @@
 
 import type {
   AddressPool,
-  UnmappedGroupEntry,
   UserTwofactorConfigEntry,
 } from '../v25_04_0/api-types';
 
-/**
- * Used by: sharing.nfs.query (event)
- */
 export const StatusInput = {
   Complete: 'COMPLETE',
   Running: 'RUNNING',
@@ -22,9 +18,6 @@ export const StatusInput = {
 } as const;
 export type StatusInput = (typeof StatusInput)[keyof typeof StatusInput];
 
-/**
- * Used by: docker.state (event)
- */
 export const StatusInput2 = {
   Pending: 'PENDING',
   Running: 'RUNNING',
@@ -38,32 +31,16 @@ export const StatusInput2 = {
 } as const;
 export type StatusInput2 = (typeof StatusInput2)[keyof typeof StatusInput2];
 
-/**
- * Used by: core.set_options (params)
- */
 export interface CoreSetOptionsOptions {
   py_exceptions?: boolean;
   [k: string]: unknown;
 }
-/**
- * Used by: docker.state (event)
- */
 export interface DockerStateChangedEvent {
   fields: DockerStatusInfo;
 }
-/**
- * Used by: docker.state (event)
- */
 export interface DockerStatusInfo {
-  /**
-   * Human-readable description of the current Docker service status.
-   */
-  description: string;
   status: StatusInput2;
 }
-/**
- * Used by: docker.update (params)
- */
 export interface DockerUpdateArgs {
   enable_image_updates?: boolean;
   pool?: string | null;
@@ -71,345 +48,63 @@ export interface DockerUpdateArgs {
   address_pools?: AddressPool[];
   cidr_v6?: string;
 }
-/**
- * Used by: group.create (params)
- */
-export interface GroupCreate {
-  /**
-   * If `null`, it is automatically filled with the next one available.
-   */
-  gid?: number | null;
-  name: string;
-  sudo_commands?: string[];
-  sudo_commands_nopasswd?: string[];
-  /**
-   * Specifies whether the group should be mapped into an NT group.
-   */
-  smb?: boolean;
-  /**
-   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
-   *
-   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
-   */
-  userns_idmap?: "DIRECT" | number | null;
-  /**
-   * A list of user ids (`id` attribute from `user.query`).
-   */
-  users?: number[];
-}
-/**
- * Used by: group.get_instance (params), group.get_instance (response), group.query (params), group.query (response), privilege.create (response), privilege.get_instance (params), privilege.get_instance (response), privilege.query (params), privilege.query (response), privilege.update (response)
- */
-export interface GroupEntry {
-  id: number;
-  gid: number;
-  name: string;
-  builtin: boolean;
-  sudo_commands?: string[];
-  sudo_commands_nopasswd?: string[];
-  /**
-   * Specifies whether the group should be mapped into an NT group.
-   */
-  smb?: boolean;
-  /**
-   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
-   *
-   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
-   */
-  userns_idmap?: "DIRECT" | number | null;
-  group: string;
-  id_type_both: boolean;
-  local: boolean;
-  sid: string | null;
-  roles: string[];
-  /**
-   * A list of user ids (`id` attribute from `user.query`).
-   */
-  users?: number[];
-}
-/**
- * Used by: group.update (params)
- */
-export interface GroupUpdate {
-  name?: string;
-  sudo_commands?: string[];
-  sudo_commands_nopasswd?: string[];
-  /**
-   * Specifies whether the group should be mapped into an NT group.
-   */
-  smb?: boolean;
-  /**
-   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
-   *
-   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
-   */
-  userns_idmap?: "DIRECT" | number | null;
-  /**
-   * A list of user ids (`id` attribute from `user.query`).
-   */
-  users?: number[];
-}
-/**
- * Used by: privilege.create (response), privilege.get_instance (params), privilege.get_instance (response), privilege.query (params), privilege.query (response), privilege.update (response)
- */
-export interface PrivilegeEntry {
-  id: number;
-  builtin_name: string | null;
-  name: string;
-  local_groups: (GroupEntry | UnmappedGroupEntry)[];
-  ds_groups: (GroupEntry | UnmappedGroupEntry)[];
-  roles?: string[];
-  web_shell: boolean;
-}
-/**
- * Used by: sharing.nfs.query (event)
- */
 export interface SharingNFSAddedEvent {
   id: number;
   fields: SharingNFSEntryInput;
 }
-/**
- * Used by: sharing.nfs.query (event)
- */
 export interface SharingNFSEntryInput {
-  /**
-   * Unique identifier for the NFS share.
-   */
   id: number;
-  /**
-   * Local path to be exported.
-   */
   path: string;
-  /**
-   * Dataset name component of the path (e.g., 'tank/share'). Null if path cannot be resolved.
-   */
   dataset: string | null;
-  /**
-   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
-   */
   relative_path: string | null;
-  /**
-   * IGNORED for now.
-   */
   aliases?: string[];
-  /**
-   * User comment associated with share.
-   */
   comment?: string;
-  /**
-   * List of authorized networks that are allowed to access the share having format "network/mask" CIDR notation. Each entry must be unique. If empty, all networks are allowed. Excessively long lists should be avoided.
-   */
   networks?: string[];
-  /**
-   * List of IP's/hostnames which are allowed to access the share. No quotes or spaces are allowed. Each entry must be unique. If empty, all IP's/hostnames are allowed. Excessively long lists should be avoided.
-   */
   hosts?: string[];
-  /**
-   * Export the share as read only.
-   */
   ro?: boolean;
-  /**
-   * Map root user client to a specified user.
-   */
   maproot_user?: string | null;
-  /**
-   * Map root group client to a specified group.
-   */
   maproot_group?: string | null;
-  /**
-   * Map all client users to a specified user.
-   */
   mapall_user?: string | null;
-  /**
-   * Map all client groups to a specified group.
-   */
   mapall_group?: string | null;
-  /**
-   * Specify the security schema.
-   */
   security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
-  /**
-   * Enable or disable the share.
-   */
   enabled?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
-  /**
-   * Enterprise feature to enable access to the ZFS snapshot directory for the export. Export path must be the root directory of a ZFS dataset.
-   */
   expose_snapshots?: boolean;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
   tier?: TierInfo | null;
 }
-/**
- * Used by: sharing.nfs.query (event)
- */
 export interface TierInfo {
-  /**
-   * Storage performance tier for this share.
-   */
   tier_type: "REGULAR" | "PERFORMANCE";
-  /**
-   * Most recent rewrite job for this share's dataset, or `null` if no job history exists.
-   */
   tier_job?: ZfsTierRewriteJobEntry | null;
 }
-/**
- * Used by: sharing.nfs.query (event)
- */
 export interface ZfsTierRewriteJobEntry {
-  /**
-   * Rewrite job identifier in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
-  /**
-   * ZFS dataset this job is operating on.
-   */
   dataset_name: string;
-  /**
-   * Unique identifier for this rewrite job.
-   */
   job_uuid: string;
   status: StatusInput;
 }
-/**
- * Used by: sharing.nfs.query (event)
- */
 export interface SharingNFSChangedEvent {
   id: number;
   fields: SharingNFSEntryInput;
 }
-/**
- * Used by: system.security.config (response), system.security.update (response)
- */
 export interface SystemSecurityEntry {
   id: number;
-  /**
-   * When set, enables FIPS mode.
-   */
   enable_fips: boolean;
-  /**
-   * When set, enables compatibility with the General Purpose Operating System STIG.
-   */
   enable_gpos_stig: boolean;
-  /**
-   * The number of days local users will have to wait before they will be allowed to change password again. One reason for setting this parameter is to prevent users from bypassing password history restrictions by rapidly changing their passwords. The value of None means that there is no minimum password age.
-   */
   min_password_age?: number | null;
-  /**
-   * The number of days after which a password is considered to be expired. After expiration no login will be possible for the user. The user should contact the administrator for a password reset. The value of None means that there is no maximum password age, and password aging is disabled. NOTE: user passwords will never expire if password aging is disabled.
-   */
   max_password_age?: number | null;
-  /**
-   * The password complexity ruleset defines what character types are required for passwords used by local accounts. The value of None means that there are no password complexity requirements. List items indicate a requirement for at least one character in the password to be of the specified character set type.
-   */
   password_complexity_ruleset?: ("UPPER" | "LOWER" | "NUMBER" | "SPECIAL")[] | null;
-  /**
-   * The minimum length of passwords used for local accounts. The value of None means that there is no minimum password length.
-   */
   min_password_length?: number | null;
-  /**
-   * The number of password generations to keep in history for checks against password reuse for local user accounts. The value of None means that history checks for password reuse are not performed.
-   */
   password_history_length?: number | null;
 }
-/**
- * Used by: system.security.update (params)
- */
 export interface SystemSecurityUpdateArgs {
-  /**
-   * When set, enables FIPS mode.
-   */
   enable_fips?: boolean;
-  /**
-   * When set, enables compatibility with the General Purpose Operating System STIG.
-   */
   enable_gpos_stig?: boolean;
-  /**
-   * The number of days local users will have to wait before they will be allowed to change password again. One reason for setting this parameter is to prevent users from bypassing password history restrictions by rapidly changing their passwords. The value of None means that there is no minimum password age.
-   */
   min_password_age?: number | null;
-  /**
-   * The number of days after which a password is considered to be expired. After expiration no login will be possible for the user. The user should contact the administrator for a password reset. The value of None means that there is no maximum password age, and password aging is disabled. NOTE: user passwords will never expire if password aging is disabled.
-   */
   max_password_age?: number | null;
-  /**
-   * The password complexity ruleset defines what character types are required for passwords used by local accounts. The value of None means that there are no password complexity requirements. List items indicate a requirement for at least one character in the password to be of the specified character set type.
-   */
   password_complexity_ruleset?: ("UPPER" | "LOWER" | "NUMBER" | "SPECIAL")[] | null;
-  /**
-   * The minimum length of passwords used for local accounts. The value of None means that there is no minimum password length.
-   */
   min_password_length?: number | null;
-  /**
-   * The number of password generations to keep in history for checks against password reuse for local user accounts. The value of None means that history checks for password reuse are not performed.
-   */
   password_history_length?: number | null;
 }
-/**
- * Used by: user.create (params)
- */
-export interface UserCreate {
-  /**
-   * UNIX UID. If not provided, it is automatically filled with the next one available.
-   */
-  uid?: number | null;
-  /**
-   * String used to uniquely identify the user on the server. In order to be portable across systems, local user names must be composed of characters from the POSIX portable filename character set (IEEE Std 1003.1-2024 section 3.265). This means alphanumeric characters, hyphens, underscores, and periods. Usernames also may not begin with a hyphen or a period.
-   */
-  username: string;
-  home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
-  shell?: string;
-  full_name: string;
-  smb?: boolean;
-  /**
-   * Species the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If None, then the UID will not be mapped.
-   *
-   * NOTE: this field will be ignored for users that have been assigned TrueNAS roles.
-   */
-  userns_idmap?: "DIRECT" | number | null;
-  /**
-   * Required if `group_create` is `false`.
-   */
-  group?: number | null;
-  /**
-   * Specifies whether the user should be allowed access to SMB shares. User will also automatically be added to the `builtin_users` group.
-   */
-  groups?: number[];
-  password_disabled?: boolean;
-  /**
-   * Required if `password_disabled` is false.
-   */
-  ssh_password_enabled?: boolean;
-  sshpubkey?: string | null;
-  locked?: boolean;
-  sudo_commands?: string[];
-  sudo_commands_nopasswd?: string[];
-  email?: string | null;
-  group_create?: boolean;
-  home_create?: boolean;
-  home_mode?: string;
-  password?: string | null;
-  /**
-   * Generate a random 20 character password for the user
-   */
-  random_password?: boolean;
-}
-/**
- * Used by: user.create (response), user.update (response)
- */
 export interface UserCreateUpdateResult {
   id: number;
   uid: number;
@@ -417,30 +112,16 @@ export interface UserCreateUpdateResult {
   unixhash: string | null;
   smbhash: string | null;
   home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
   shell?: string;
   full_name: string;
   builtin: boolean;
   smb?: boolean;
-  /**
-   * Species the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If None, then the UID will not be mapped.
-   *
-   * NOTE: this field will be ignored for users that have been assigned TrueNAS roles.
-   */
   userns_idmap?: "DIRECT" | number | null;
   group: {
     [k: string]: unknown;
   };
-  /**
-   * Specifies whether the user should be allowed access to SMB shares. User will also automatically be added to the `builtin_users` group.
-   */
   groups?: number[];
   password_disabled?: boolean;
-  /**
-   * Required if `password_disabled` is false.
-   */
   ssh_password_enabled?: boolean;
   sshpubkey?: string | null;
   locked?: boolean;
@@ -452,32 +133,14 @@ export interface UserCreateUpdateResult {
   immutable: boolean;
   twofactor_auth_configured: boolean;
   sid: string | null;
-  /**
-   * The date of the last password change for local user accounts.
-   */
   last_password_change: string | null;
-  /**
-   * The age in days of the password for local user accounts.
-   */
   password_age: number | null;
-  /**
-   * This contains hashes of the ten most recent passwords used by local user accounts, and is for enforcing password history requirements as defined in system.security.
-   */
   password_history: unknown[] | null;
-  /**
-   * Password change for local user account is required on next login.
-   */
   password_change_required: boolean;
   roles: string[];
   api_keys: number[];
-  /**
-   * Password if it was specified in create or update payload. If random_password was specified then this will be a 20 character random string.
-   */
   password: string | null;
 }
-/**
- * Used by: user.get_instance (params), user.get_instance (response), user.query (params), user.query (response)
- */
 export interface UserEntry {
   id: number;
   uid: number;
@@ -485,30 +148,16 @@ export interface UserEntry {
   unixhash: string | null;
   smbhash: string | null;
   home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
   shell?: string;
   full_name: string;
   builtin: boolean;
   smb?: boolean;
-  /**
-   * Species the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If None, then the UID will not be mapped.
-   *
-   * NOTE: this field will be ignored for users that have been assigned TrueNAS roles.
-   */
   userns_idmap?: "DIRECT" | number | null;
   group: {
     [k: string]: unknown;
   };
-  /**
-   * Specifies whether the user should be allowed access to SMB shares. User will also automatically be added to the `builtin_users` group.
-   */
   groups?: number[];
   password_disabled?: boolean;
-  /**
-   * Required if `password_disabled` is false.
-   */
   ssh_password_enabled?: boolean;
   sshpubkey?: string | null;
   locked?: boolean;
@@ -520,28 +169,13 @@ export interface UserEntry {
   immutable: boolean;
   twofactor_auth_configured: boolean;
   sid: string | null;
-  /**
-   * The date of the last password change for local user accounts.
-   */
   last_password_change: string | null;
-  /**
-   * The age in days of the password for local user accounts.
-   */
   password_age: number | null;
-  /**
-   * This contains hashes of the ten most recent passwords used by local user accounts, and is for enforcing password history requirements as defined in system.security.
-   */
   password_history: unknown[] | null;
-  /**
-   * Password change for local user account is required on next login.
-   */
   password_change_required: boolean;
   roles: string[];
   api_keys: number[];
 }
-/**
- * Used by: user.renew_2fa_secret (response)
- */
 export interface UserRenew2FaSecretResult {
   id: number;
   uid: number;
@@ -549,30 +183,16 @@ export interface UserRenew2FaSecretResult {
   unixhash: string | null;
   smbhash: string | null;
   home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
   shell?: string;
   full_name: string;
   builtin: boolean;
   smb?: boolean;
-  /**
-   * Species the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If None, then the UID will not be mapped.
-   *
-   * NOTE: this field will be ignored for users that have been assigned TrueNAS roles.
-   */
   userns_idmap?: "DIRECT" | number | null;
   group: {
     [k: string]: unknown;
   };
-  /**
-   * Specifies whether the user should be allowed access to SMB shares. User will also automatically be added to the `builtin_users` group.
-   */
   groups?: number[];
   password_disabled?: boolean;
-  /**
-   * Required if `password_disabled` is false.
-   */
   ssh_password_enabled?: boolean;
   sshpubkey?: string | null;
   locked?: boolean;
@@ -584,70 +204,11 @@ export interface UserRenew2FaSecretResult {
   immutable: boolean;
   twofactor_auth_configured: boolean;
   sid: string | null;
-  /**
-   * The date of the last password change for local user accounts.
-   */
   last_password_change: string | null;
-  /**
-   * The age in days of the password for local user accounts.
-   */
   password_age: number | null;
-  /**
-   * This contains hashes of the ten most recent passwords used by local user accounts, and is for enforcing password history requirements as defined in system.security.
-   */
   password_history: unknown[] | null;
-  /**
-   * Password change for local user account is required on next login.
-   */
   password_change_required: boolean;
   roles: string[];
   api_keys: number[];
   twofactor_config: UserTwofactorConfigEntry;
-}
-/**
- * Used by: user.update (params)
- */
-export interface UserUpdate {
-  /**
-   * String used to uniquely identify the user on the server. In order to be portable across systems, local user names must be composed of characters from the POSIX portable filename character set (IEEE Std 1003.1-2024 section 3.265). This means alphanumeric characters, hyphens, underscores, and periods. Usernames also may not begin with a hyphen or a period.
-   */
-  username?: string;
-  home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
-  shell?: string;
-  full_name?: string;
-  smb?: boolean;
-  /**
-   * Species the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If None, then the UID will not be mapped.
-   *
-   * NOTE: this field will be ignored for users that have been assigned TrueNAS roles.
-   */
-  userns_idmap?: "DIRECT" | number | null;
-  /**
-   * Required if `group_create` is `false`.
-   */
-  group?: number | null;
-  /**
-   * Specifies whether the user should be allowed access to SMB shares. User will also automatically be added to the `builtin_users` group.
-   */
-  groups?: number[];
-  password_disabled?: boolean;
-  /**
-   * Required if `password_disabled` is false.
-   */
-  ssh_password_enabled?: boolean;
-  sshpubkey?: string | null;
-  locked?: boolean;
-  sudo_commands?: string[];
-  sudo_commands_nopasswd?: string[];
-  email?: string | null;
-  home_create?: boolean;
-  home_mode?: string;
-  password?: string | null;
-  /**
-   * Generate a random 20 character password for the user
-   */
-  random_password?: boolean;
 }

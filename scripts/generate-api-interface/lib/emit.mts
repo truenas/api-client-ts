@@ -100,20 +100,6 @@ export function tsExpr(schema: Schema | boolean | undefined | null): string {
   }
 }
 
-function tsdoc(lines: (string | null | undefined)[], indent = '  '): string {
-  const content = lines.filter(Boolean).flatMap((l) => String(l).split('\n'));
-  if (content.length === 0) return '';
-  return `${indent}/**\n${content.map((l) => `${indent} * ${l}`.trimEnd()).join('\n')}\n${indent} */\n`;
-}
-
-function methodDoc(method: MethodModel): string {
-  return tsdoc([
-    method.doc,
-    method.roles.length ? `@roles ${method.roles.join(', ')}` : null,
-    method.removedIn ? `@deprecated Removed in API version ${method.removedIn}.` : null,
-  ]);
-}
-
 /**
  * Pydantic stamps a `title` on every field, and json-schema-to-typescript
  * hoists every titled subschema into a standalone named alias (Id1, Title2, …).
@@ -139,14 +125,6 @@ function stripNestedTitles(node: unknown, isRoot = true): unknown {
     return { ...(out.description && { description: out.description }), tsType: 'Record<string, never>' };
   }
   return out;
-}
-
-/** "Used by: user.create (params), …" doc line, capped so hub types stay readable. */
-function usedByLine(usedBy: string[] | undefined, cap = 10): string | null {
-  if (!usedBy?.length) return null;
-  const shown = usedBy.slice(0, cap).join(', ');
-  const extra = usedBy.length > cap ? ` … and ${usedBy.length - cap} more` : '';
-  return `Used by: ${shown}${extra}`;
 }
 
 /** name -> module path (relative to the emitting file) for inherited types. */
@@ -182,11 +160,7 @@ export async function emitTypes(definitions: Record<string, DefSchema>, external
   // so those are declared by us via tsExpr, like enums.
   const aliasDefs: Record<string, Schema> = {};
   for (const [name, def] of Object.entries(definitions)) {
-    const { _kind, _usedBy, ...schema } = def;
-    const usage = usedByLine(_usedBy);
-    if (usage) {
-      schema.description = schema.description ? `${schema.description}\n\n${usage}` : usage;
-    }
+    const { _kind, ...schema } = def;
     const bucket = _kind === 'enum' ? enumDefs : isDeclarableObject(schema) ? objectDefs : aliasDefs;
     bucket[name] = stripNestedTitles(schema) as Schema;
   }
@@ -236,11 +210,11 @@ export async function emitTypes(definitions: Record<string, DefSchema>, external
       used.add(member);
       return `  ${member}: ${literal(v)},`;
     }).join('\n');
-    return `${tsdoc([schema.description], '')}export const ${name} = {\n${members}\n} as const;\nexport type ${name} = (typeof ${name})[keyof typeof ${name}];`;
+    return `export const ${name} = {\n${members}\n} as const;\nexport type ${name} = (typeof ${name})[keyof typeof ${name}];`;
   });
 
   const aliases = Object.entries(aliasDefs).map(([name, schema]) => (
-    `${tsdoc([schema.description], '')}export type ${name} = ${tsExpr(schema)};`
+    `export type ${name} = ${tsExpr(schema)};`
   ));
 
   const importsBlock = referencedExternal.length
@@ -264,7 +238,7 @@ export function directoryEntry(method: MethodModel): string {
     const label = toIdentifier(p.name);
     return `${label}${p.optional && i > lastRequired ? '?' : ''}: ${tsExpr(p.schema)}`;
   });
-  return `${methodDoc(method)}  ${quote(method.name)}: {\n    params: [${params.join(', ')}];\n    response: ${tsExpr(method.returns)};\n  };`;
+  return `  ${quote(method.name)}: {\n    params: [${params.join(', ')}];\n    response: ${tsExpr(method.returns)};\n  };`;
 }
 
 function collectRefs(node: unknown, into: Set<string>): Set<string> {
@@ -302,7 +276,7 @@ export function eventEntry(event: EventModel): string {
       return `    ${isIdentifier(key) ? key : quote(key)}: ${tsExpr(schema)};`;
     })
     .join('\n');
-  return `${tsdoc([event.doc, event.roles.length ? `@roles ${event.roles.join(', ')}` : null])}  ${quote(event.name)}: {\n${variants}\n  };`;
+  return `  ${quote(event.name)}: {\n${variants}\n  };`;
 }
 
 /**
@@ -464,9 +438,10 @@ between those versions it is inherited unchanged through the chain — so
 absence from a version directory's text does NOT mean absence from that
 version's surface. This manifest is the greppable record: an entry exists in
 every version from its introduction until (if ever) listed as removed.
-Changes are labeled "(docs)" when only documentation changed and "(via
-referenced types)" when the entry itself is identical but a type it references
-was re-declared; unlabeled changes are structural.
+Changes are labeled "(via referenced types)" when the entry itself is
+identical but a type it references was re-declared; unlabeled changes are
+structural. Documentation is not part of the generated output and never
+causes a change.
 
 ## Methods and events
 

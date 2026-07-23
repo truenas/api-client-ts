@@ -4,54 +4,71 @@
  */
 
 import type {
+  AddressPool,
+  Aggregations,
+  AppImageParsedRepoTags,
+  AuthUserInfo,
   Authenticator,
+  AzureBlobCredentialsModel,
+  B2CredentialsModel,
   Blocksize,
+  BoxCredentialsModel,
+  CatalogTrainInfo,
   CloudCron,
+  DropboxCredentialsModel,
   Encryption,
   EncryptionInput,
+  FTPCredentialsModel,
   Function,
+  GoogleCloudStorageCredentialsModel,
+  GoogleDriveCredentialsModel,
+  GooglePhotosCredentialsModel,
+  HTTPCredentialsModel,
+  HubicCredentialsModel,
+  Maintainer,
   MegaCredentialsModel,
+  NFS4ACL_Flags,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
+  POSIXACE,
+  PoolSnapshotTaskCron,
   Rpm,
+  SFTPCredentialsModel,
+  SSHCredentials,
+  SSHKeyPair,
   StorjIxCredentialsModelInput,
+  SwiftCredentialsModel,
   Unixcharset,
+  UpgradeOptions,
+  UserTwofactorConfigEntry,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
   ZFSFileAttrsData,
 } from '../v25_04_0/api-types';
 import type {
   Bootloader,
+  NFS4ACEInput,
   Resolution,
+  StorjIxCredentialsModel,
   Time,
   Type6,
+  USBAttributes,
 } from '../v25_04_2/api-types';
 import type {
   Aclmode,
   AcltypeInput2,
-  ActiveDirectoryConfig,
-  ActiveDirectoryConfigInput,
-  AddressPool,
   Advpowermgmt,
-  Aggregations,
   Algorithm,
   AppActiveWorkloads,
-  AppImageParsedRepoTags,
   Atime,
-  AuthUserInfo,
   Autotrim,
-  AzureBlobCredentialsModel,
-  B2CredentialsModel,
-  BoxCredentialsModel,
   Casesensitivity,
-  CatalogTrainInfo,
   Checksum,
   Checksum2,
   CloudSyncBwlimit,
   CloudTaskAttributes,
   CloudTaskAttributesInput,
   Compression,
-  CredKRBPrincipal,
-  CredKRBUser,
-  CredLDAPAnonymous,
-  CredLDAPMTLS,
-  CredLDAPPlain,
   Deduplication,
   Deduplication2,
   DefaultOptInput,
@@ -60,45 +77,21 @@ import type {
   DirectionInput,
   DirectionInput2,
   DiskEntryEnclosure,
-  DropboxCredentialsModel,
   Exec,
   ExternalOpt,
   ExternalOptInput,
-  FTPCredentialsModel,
-  GoogleCloudStorageCredentialsModel,
-  GoogleDriveCredentialsModel,
-  GooglePhotosCredentialsModel,
-  HTTPCredentialsModel,
   Hddstandby,
-  HubicCredentialsModel,
-  IPAConfig,
-  IPAConfigInput,
-  IPMILanQueryOptions,
   InterfaceCreateAlias,
   InterfaceCreateFailoverAlias,
-  LDAPMapGroup,
-  LDAPMapPasswd,
-  LDAPMapShadow,
-  LDAPSearchBases,
   LegacyOpt,
   LegacyOptInput,
-  Maintainer,
   Mode3,
   ModeInput2,
   ModeInput3,
   MultiprotocolOptInput,
-  NFS4ACEInput,
-  NFS4ACL_Flags,
   NVMetSubsysEntry,
-  NVMetSubsysEntryInput,
-  OneDriveCredentialsModel,
-  PCloudCredentialsModel,
-  POSIXACE,
   PoolCreateTopologyCacheVdev,
   PoolDatasetCreateUserProperty,
-  PoolDatasetUpdateUserProperty,
-  PoolSnapshotTaskCron,
-  PoolSnapshotTaskDBEntryInput,
   PoolTopology,
   PrivateDatasetOptInput,
   QueryOptionsModel,
@@ -106,20 +99,16 @@ import type {
   ReadonlyInput,
   ReadonlyInput2,
   ReplicationLifetimeModel,
+  ReplicationTimeCronModel,
   RsyncTaskSchedule,
-  SFTPCredentialsModel,
   SMBShareAclEntryWhoId,
-  SSHCredentials,
-  SSHKeyPair,
-  Schema,
   Serialspeed,
   Shutdown,
+  SmbAuditConfig,
   Snapdev,
   Snapdir,
   StateInput2,
   StatusInput2,
-  StorjIxCredentialsModel,
-  SwiftCredentialsModel,
   Sync,
   SyslogServer,
   Sysloglevel,
@@ -127,17 +116,12 @@ import type {
   TimeMachineOptInput,
   Transport,
   TransportInput,
-  USBAttributes,
   USBCapability,
-  UpgradeOptions,
-  UserTwofactorConfigEntry,
   VMDeviceEntry,
   VMDeviceEntryInput,
   VMWareMatchDatastoresWithDatasetsResultDatastore,
   VeeamRepositoryOptInput,
   Volblocksize,
-  WebDavCredentialsModel,
-  YandexCredentialsModel,
   ZFSPropertiesEntry,
 } from '../v25_10_0/api-types';
 import type {
@@ -152,9 +136,6 @@ import type {
   VeeamRepositoryOpt,
 } from '../v25_10_1/api-types';
 
-/**
- * Used by: zpool.scrub.run (params)
- */
 export const Action = {
   Start: 'START',
   Pause: 'PAUSE',
@@ -162,9 +143,6 @@ export const Action = {
 } as const;
 export type Action = (typeof Action)[keyof typeof Action];
 
-/**
- * Used by: pool.scrub (params), pool.scrub.scrub (params)
- */
 export const Action2 = {
   Start: 'START',
   Stop: 'STOP',
@@ -172,9 +150,6 @@ export const Action2 = {
 } as const;
 export type Action2 = (typeof Action2)[keyof typeof Action2];
 
-/**
- * Used by: system.feature_enabled (params)
- */
 export const Feature = {
   Apps: 'APPS',
   Dedup: 'DEDUP',
@@ -186,18 +161,12 @@ export const Feature = {
 } as const;
 export type Feature = (typeof Feature)[keyof typeof Feature];
 
-/**
- * Used by: user.renew_2fa_secret (params)
- */
 export const Interval = {
   '30': 30,
   '60': 60,
 } as const;
 export type Interval = (typeof Interval)[keyof typeof Interval];
 
-/**
- * Used by: reporting.get_data (params), reporting.netdata_get_data (params)
- */
 export const Name = {
   Cpu: 'cpu',
   Cputemp: 'cputemp',
@@ -219,9 +188,6 @@ export const Name = {
 } as const;
 export type Name = (typeof Name)[keyof typeof Name];
 
-/**
- * Used by: webshare.config (response), webshare.update (params), webshare.update (response)
- */
 export const Passkey = {
   Enabled: 'ENABLED',
   Disabled: 'DISABLED',
@@ -229,9 +195,6 @@ export const Passkey = {
 } as const;
 export type Passkey = (typeof Passkey)[keyof typeof Passkey];
 
-/**
- * Used by: audit.query (response)
- */
 export const Service = {
   Middleware: 'MIDDLEWARE',
   Smb: 'SMB',
@@ -240,18 +203,12 @@ export const Service = {
 } as const;
 export type Service = (typeof Service)[keyof typeof Service];
 
-/**
- * Used by: container.create (response), container.get_instance (params), container.get_instance (response), container.query (params), container.query (response), container.update (response)
- */
 export const State2 = {
   Running: 'RUNNING',
   Stopped: 'STOPPED',
 } as const;
 export type State2 = (typeof State2)[keyof typeof State2];
 
-/**
- * Used by: boot.get_state (response), pool.create (response), pool.get_instance (params), pool.get_instance (response), pool.query (params), pool.query (response), pool.update (response), zpool.query (response)
- */
 export const State3 = {
   Scanning: 'SCANNING',
   Finished: 'FINISHED',
@@ -259,18 +216,12 @@ export const State3 = {
 } as const;
 export type State3 = (typeof State3)[keyof typeof State3];
 
-/**
- * Used by: container.query (event)
- */
 export const StateInput3 = {
   Running: 'RUNNING',
   Stopped: 'STOPPED',
 } as const;
 export type StateInput3 = (typeof StateInput3)[keyof typeof StateInput3];
 
-/**
- * Used by: pool.query (event), pool.scan (event), zpool.query (event)
- */
 export const StateInput4 = {
   Scanning: 'SCANNING',
   Finished: 'FINISHED',
@@ -278,9 +229,6 @@ export const StateInput4 = {
 } as const;
 export type StateInput4 = (typeof StateInput4)[keyof typeof StateInput4];
 
-/**
- * Used by: sharing.nfs.create (response), sharing.nfs.get_instance (params), sharing.nfs.get_instance (response), sharing.nfs.query (params), sharing.nfs.query (response), sharing.nfs.update (response), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params) … and 14 more
- */
 export const Status = {
   Complete: 'COMPLETE',
   Running: 'RUNNING',
@@ -291,9 +239,6 @@ export const Status = {
 } as const;
 export type Status = (typeof Status)[keyof typeof Status];
 
-/**
- * Used by: truecommand.config (response), truecommand.update (response)
- */
 export const Status2 = {
   Connected: 'CONNECTED',
   Connecting: 'CONNECTING',
@@ -302,9 +247,6 @@ export const Status2 = {
 } as const;
 export type Status2 = (typeof Status2)[keyof typeof Status2];
 
-/**
- * Used by: docker.status (response)
- */
 export const Status3 = {
   Pending: 'PENDING',
   Running: 'RUNNING',
@@ -318,18 +260,12 @@ export const Status3 = {
 } as const;
 export type Status3 = (typeof Status3)[keyof typeof Status3];
 
-/**
- * Used by: keychaincredential.create (response), keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response), keychaincredential.update (response), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params) … and 9 more
- */
 export const Type10 = {
   SshKeyPair: 'SSH_KEY_PAIR',
   SshCredentials: 'SSH_CREDENTIALS',
 } as const;
 export type Type10 = (typeof Type10)[keyof typeof Type10];
 
-/**
- * Used by: tunable.create (response), tunable.get_instance (params), tunable.get_instance (response), tunable.query (params), tunable.query (response), tunable.update (response)
- */
 export const Type11 = {
   Sysctl: 'SYSCTL',
   Udev: 'UDEV',
@@ -337,63 +273,42 @@ export const Type11 = {
 } as const;
 export type Type11 = (typeof Type11)[keyof typeof Type11];
 
-/**
- * Used by: container.create (response), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params), container.get_instance (response), container.query (params) … and 2 more
- */
 export const Type7 = {
   E1000: 'E1000',
   Virtio: 'VIRTIO',
 } as const;
 export type Type7 = (typeof Type7)[keyof typeof Type7];
 
-/**
- * Used by: vmware.match_datastores_with_datasets (response), zfs.resource.query (response)
- */
 export const Type8 = {
   Filesystem: 'FILESYSTEM',
   Volume: 'VOLUME',
 } as const;
 export type Type8 = (typeof Type8)[keyof typeof Type8];
 
-/**
- * Used by: vm.get_display_devices (response)
- */
 export const Type9 = {
   Spice: 'SPICE',
   Vnc: 'VNC',
 } as const;
 export type Type9 = (typeof Type9)[keyof typeof Type9];
 
-/**
- * Used by: pool.create (params), pool.update (params)
- */
 export const TypeInput10 = {
   Mirror: 'MIRROR',
   Stripe: 'STRIPE',
 } as const;
 export type TypeInput10 = (typeof TypeInput10)[keyof typeof TypeInput10];
 
-/**
- * Used by: device.get_info (params)
- */
 export const TypeInput11 = {
   Serial: 'SERIAL',
   Gpu: 'GPU',
 } as const;
 export type TypeInput11 = (typeof TypeInput11)[keyof typeof TypeInput11];
 
-/**
- * Used by: keychaincredential.query (event), replication.query (event), rsynctask.query (event)
- */
 export const TypeInput12 = {
   SshKeyPair: 'SSH_KEY_PAIR',
   SshCredentials: 'SSH_CREDENTIALS',
 } as const;
 export type TypeInput12 = (typeof TypeInput12)[keyof typeof TypeInput12];
 
-/**
- * Used by: tunable.create (params), tunable.query (event)
- */
 export const TypeInput13 = {
   Sysctl: 'SYSCTL',
   Udev: 'UDEV',
@@ -401,9 +316,6 @@ export const TypeInput13 = {
 } as const;
 export type TypeInput13 = (typeof TypeInput13)[keyof typeof TypeInput13];
 
-/**
- * Used by: disk.details (params)
- */
 export const TypeInput14 = {
   Used: 'USED',
   Unused: 'UNUSED',
@@ -411,1342 +323,399 @@ export const TypeInput14 = {
 } as const;
 export type TypeInput14 = (typeof TypeInput14)[keyof typeof TypeInput14];
 
-/**
- * Used by: container.device.create (params), container.device.query (event), container.query (event)
- */
 export const TypeInput7 = {
   E1000: 'E1000',
   Virtio: 'VIRTIO',
 } as const;
 export type TypeInput7 = (typeof TypeInput7)[keyof typeof TypeInput7];
 
-/**
- * Used by: audit.query (response)
- */
 export type AuditQueryResultItemQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: catalog.apps (response)
- */
 export type CatalogAppsResponse = Record<string, CatalogTrainInfo>;
 
-/**
- * Used by: catalog.trains (response)
- */
 export type CatalogTrainsResponse = string[];
 
-/**
- * Used by: container.device.query (response)
- */
 export type ContainerDeviceQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: container.query (response)
- */
 export type ContainerQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: iscsi.global.sessions (response)
- */
 export type ISCSIGlobalSessionsItemQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: sharing.webshare.query (response)
- */
 export type SharingWebshareQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: vm.device.usb_passthrough_choices (response)
- */
 export type USBPassthroughInfo = Record<string, USBPassthroughDevice>;
 
-/**
- * Used by: vmware.create (response), vmware.get_instance (params), vmware.get_instance (response), vmware.query (params), vmware.query (response), vmware.update (response)
- */
 export type VMWareEntryState = Record<string, unknown>;
 
-/**
- * Used by: zfs.resource.snapshot.create (response), zfs.resource.snapshot.query (response)
- */
 export type ZFSResourceSnapshotPropertiesEntry = Record<string, unknown>;
 
-/**
- * Used by: zfs.tier.rewrite_job_failures (response)
- */
 export type ZfsTierRewriteJobFailureQueryResultItem = Record<string, unknown>;
 
-/**
- * No arguments — subscribes to all rewrite job lifecycle events.
- *
- * Used by: zfs.tier.rewrite_job_query (event)
- */
 export type ZfsTierRewriteJobQueryEventSourceArgs = Record<string, never>;
 
-/**
- * Used by: zfs.tier.rewrite_job_query (response)
- */
 export type ZfsTierRewriteJobQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: filesystem.acltemplate.by_path (params)
- */
 export interface ACLTemplateByPathArgs {
-  /**
-   * Filesystem path to filter templates by compatibility or empty string for all.
-   */
   path?: string;
-  /**
-   * Query filters to apply when selecting templates.
-   */
   "query-filters"?: unknown[];
   "query-options"?: ACLTemplateByPathQueryOptions;
   "format-options"?: AclTemplateFormatOptions;
 }
-/**
- * Used by: filesystem.acltemplate.by_path (params)
- */
 export interface ACLTemplateByPathQueryOptions {
-  /**
-   * An array of field names describing the manner in which query results should be ordered. The field names may also have one of more of the following special prefixes: `-` (reverse sort direction), `nulls_first:` (place any null values at the head of the results list), `nulls_last:` (place any null values at the tail of the results list).
-   */
   order_by?: string[];
-  /**
-   * This specifies the beginning offset of the results array. When combined with the `limit` query-option it may be used to implement pagination of large results arrays. WARNING: some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
-   */
   offset?: number;
-  /**
-   * This specifies the maximum number of results matching the specified `query-filters` to return. When combined wtih the `offset` query-option it may be used to implement pagination of large results arrays.
-   *
-   * WARNING: Some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
-   */
   limit?: number;
-  /**
-   * Force use of SQL for result filtering to reduce response time. May not work for all methods.
-   */
   force_sql_filters?: boolean;
 }
-/**
- * Used by: filesystem.acltemplate.by_path (params)
- */
 export interface AclTemplateFormatOptions {
-  /**
-   * Whether to ensure built-in templates are included in the response.
-   */
   ensure_builtins?: boolean;
-  /**
-   * Whether to resolve numeric user/group IDs to names in ACL entries.
-   */
   resolve_names?: boolean;
 }
-/**
- * Used by: alert.list (response), disk.temperature_alerts (response)
- */
 export interface Alert {
-  /**
-   * Alert identifier used for API operations.
-   */
   id: string;
-  /**
-   * Unique identifier for the alert.
-   */
   uuid: string;
-  /**
-   * Source component that generated the alert.
-   */
   source: string;
-  /**
-   * Alert class identifier for categorization.
-   */
   klass: string;
-  /**
-   * Arguments and parameters specific to the alert type.
-   */
-  args: {
-    [k: string]: unknown;
-  };
-  /**
-   * Node identifier in HA systems or hostname for single-node systems.
-   */
+  args: unknown;
   node: string;
-  /**
-   * Unique key used for alert deduplication and identification.
-   */
   key: string;
-  /**
-   * Timestamp when the alert was first created.
-   */
   datetime: string;
-  /**
-   * Timestamp of the most recent occurrence of this alert.
-   */
   last_occurrence: string;
-  /**
-   * Whether the alert has been manually dismissed by a user.
-   */
   dismissed: boolean;
-  /**
-   * Email notification configuration and status for this alert.
-   */
-  mail: {
-    [k: string]: unknown;
-  };
-  /**
-   * Human-readable description of the alert.
-   */
+  mail: unknown;
   text: string;
-  /**
-   * Severity level of the alert (INFO, WARNING, ERROR, etc.).
-   */
   level: string;
-  /**
-   * Formatted alert message with HTML.
-   */
   formatted: string | null;
-  /**
-   * Whether this alert will not be dismissed automatically.
-   */
   one_shot: boolean;
 }
-/**
- * Used by: alert.list_categories (response)
- */
 export interface AlertCategory {
-  /**
-   * Unique identifier for the alert category.
-   */
   id: string;
-  /**
-   * Array of alert classes within this category.
-   */
   classes: AlertCategoryClass[];
 }
-/**
- * Used by: alert.list_categories (response)
- */
 export interface AlertCategoryClass {
-  /**
-   * Unique identifier for the alert class.
-   */
   id: string;
-  /**
-   * Default severity level for alerts in this class.
-   */
   level: string;
-  /**
-   * Product types where this alert class is available.
-   */
   product_types: ("COMMUNITY_EDITION" | "ENTERPRISE")[];
-  /**
-   * Whether this alert class is included in proactive support monitoring.
-   */
   proactive_support: boolean;
 }
-/**
- * Used by: alert.list (event)
- */
 export interface AlertInput {
-  /**
-   * Unique identifier for the alert.
-   */
   uuid: string;
-  /**
-   * Source component that generated the alert.
-   */
   source: string;
-  /**
-   * Alert class identifier for categorization.
-   */
   klass: string;
-  /**
-   * Arguments and parameters specific to the alert type.
-   */
-  args: {
-    [k: string]: unknown;
-  };
-  /**
-   * Node identifier in HA systems or hostname for single-node systems.
-   */
+  args: unknown;
   node: string;
-  /**
-   * Unique key used for alert deduplication and identification.
-   */
   key: string;
-  /**
-   * Timestamp when the alert was first created.
-   */
   datetime: string;
-  /**
-   * Timestamp of the most recent occurrence of this alert.
-   */
   last_occurrence: string;
-  /**
-   * Whether the alert has been manually dismissed by a user.
-   */
   dismissed: boolean;
-  /**
-   * Email notification configuration and status for this alert.
-   */
-  mail: {
-    [k: string]: unknown;
-  };
-  /**
-   * Human-readable description of the alert.
-   */
+  mail: unknown;
   text: string;
-  /**
-   * Alert identifier used for API operations.
-   */
   id: string;
-  /**
-   * Severity level of the alert (INFO, WARNING, ERROR, etc.).
-   */
   level: string;
-  /**
-   * Formatted alert message with HTML.
-   */
   formatted: string | null;
-  /**
-   * Whether this alert will not be dismissed automatically.
-   */
   one_shot: boolean;
 }
-/**
- * Used by: alert.list (event)
- */
 export interface AlertListAddedEvent {
-  /**
-   * Event identifier for the added alert.
-   */
   id: number;
   fields: AlertInput;
 }
-/**
- * Used by: alert.list_categories (params)
- */
 export interface AlertListCategoriesOptions {
-  /**
-   * Include alert classes for all products, not just the current one.
-   */
   include_all_products?: boolean;
-  /**
-   * Include hidden alert classes.
-   */
   include_hidden_classes?: boolean;
 }
-/**
- * Used by: alert.list (event)
- */
 export interface AlertListChangedEvent {
-  /**
-   * Event identifier for the changed alert.
-   */
   id: number;
   fields: AlertInput;
 }
-/**
- * Used by: api_key.query (event)
- */
 export interface ApiKeyAddedEvent {
   id: number;
   fields: ApiKeyEntry;
 }
-/**
- * Used by: api_key.get_instance (params), api_key.get_instance (response), api_key.my_keys (response), api_key.query (event), api_key.query (params), api_key.query (response), api_key.update (response)
- */
 export interface ApiKeyEntry {
-  /**
-   * Unique identifier for the API key.
-   */
   id: number;
-  /**
-   * Human-readable name for the API key.
-   */
   name: string;
-  /**
-   * Username associated with the API key or `null` for system keys.
-   */
   username: string | null;
-  /**
-   * User ID (numeric) or SID (string) that owns this API key.
-   */
   user_identifier: number | string;
-  /**
-   * Number of iterations of PBKDF2-SHA512.
-   */
   iterations: number;
-  /**
-   * Base64 encoded salt for API key.
-   */
   salt: string;
-  /**
-   * SCRAM StoredKey for API key.
-   */
   stored_key: string;
-  /**
-   * SCRAM ServerKey for API key.
-   */
   server_key: string;
-  /**
-   * Timestamp when the API key was created.
-   */
   created_at: string;
-  /**
-   * Expiration timestamp for the API key or `null` for no expiration.
-   */
   expires_at?: string | null;
-  /**
-   * Whether this API key is for local system use only.
-   */
   local: boolean;
-  /**
-   * Whether the API key has been revoked and is no longer valid.
-   */
   revoked: boolean;
-  /**
-   * Reason for API key revocation or `null` if not revoked.
-   */
   revoked_reason: string | null;
 }
-/**
- * Used by: api_key.query (event)
- */
 export interface ApiKeyChangedEvent {
   id: number;
   fields: ApiKeyEntry;
 }
-/**
- * Used by: api_key.create (response), api_key.update (response)
- */
 export interface ApiKeyEntryWithKey {
-  /**
-   * Unique identifier for the API key.
-   */
   id: number;
-  /**
-   * Human-readable name for the API key.
-   */
   name: string;
-  /**
-   * Username associated with the API key or `null` for system keys.
-   */
   username: string | null;
-  /**
-   * User ID (numeric) or SID (string) that owns this API key.
-   */
   user_identifier: number | string;
-  /**
-   * Number of iterations of PBKDF2-SHA512.
-   */
   iterations: number;
-  /**
-   * Base64 encoded salt for API key.
-   */
   salt: string;
-  /**
-   * SCRAM StoredKey for API key.
-   */
   stored_key: string;
-  /**
-   * SCRAM ServerKey for API key.
-   */
   server_key: string;
-  /**
-   * Timestamp when the API key was created.
-   */
   created_at: string;
-  /**
-   * Expiration timestamp for the API key or `null` for no expiration.
-   */
   expires_at?: string | null;
-  /**
-   * Whether this API key is for local system use only.
-   */
   local: boolean;
-  /**
-   * Whether the API key has been revoked and is no longer valid.
-   */
   revoked: boolean;
-  /**
-   * Reason for API key revocation or `null` if not revoked.
-   */
   revoked_reason: string | null;
-  /**
-   * The actual API key value (only returned on creation).
-   */
   key: string;
-  /**
-   * Pre-computed SCRAM ClientKey.
-   */
   client_key: string;
 }
-/**
- * Used by: api_key.convert_raw_key (response)
- */
 export interface ApiKeyScramData {
-  /**
-   * API key ID.
-   */
   api_key_id: number;
-  /**
-   * Number of iterations of PBKDF2-SHA512.
-   */
   iterations: number;
-  /**
-   * Base64 encoded salt for API key.
-   */
   salt: string;
-  /**
-   * Pre-computed SCRAM ClientKey.
-   */
   client_key: string;
-  /**
-   * SCRAM StoredKey for API key.
-   */
   stored_key: string;
-  /**
-   * SCRAM ServerKey for API key.
-   */
   server_key: string;
 }
-/**
- * Used by: app.upgrade_bulk (response)
- */
 export interface AppBulkUpgradeJobResult {
-  /**
-   * Name of the application.
-   */
   app_name: string;
-  /**
-   * Error message if the upgrade failed, or `null` on success.
-   */
   error: string | null;
-  /**
-   * The application entry after upgrade, or `null` if the upgrade failed.
-   */
   result: AppEntry | null;
 }
-/**
- * Used by: app.convert_to_custom (response), app.create (response), app.get_instance (params), app.get_instance (response), app.query (params), app.query (response), app.redeploy (response), app.rollback (response), app.update (response), app.upgrade (response) … and 1 more
- */
 export interface AppEntry {
-  /**
-   * The display name of the application.
-   */
   name: string;
-  /**
-   * Unique identifier for the application instance.
-   */
   id: string;
-  /**
-   * Current operational state of the application.
-   */
   state: "CRASHED" | "DEPLOYING" | "RUNNING" | "STOPPED" | "STOPPING";
-  /**
-   * Whether a newer version of the application is available for upgrade.
-   */
   upgrade_available: boolean;
-  /**
-   * The latest available version string, or `null` if unable to determine latest version.
-   */
   latest_version: string | null;
-  /**
-   * The latest application version string, or `null` if unable to determine latest version.
-   */
   latest_app_version: string | null;
-  /**
-   * Whether newer Docker images are available for the containers in this application.
-   */
   image_updates_available: boolean;
-  /**
-   * Whether this is a custom application (`true`) or from a catalog (`false`).
-   */
   custom_app: boolean;
-  /**
-   * Whether this application has been migrated from kubernetes.
-   */
   migrated: boolean;
-  /**
-   * Human-readable version string for display purposes.
-   */
   human_version: string;
-  /**
-   * Technical version identifier of the currently installed application.
-   */
   version: string;
-  /**
-   * Application metadata including description, category, and other catalog information.
-   */
   metadata: {
     [k: string]: unknown;
   };
   active_workloads: AppActiveWorkloads;
-  /**
-   * User-provided notes or comments about this application instance.
-   */
   notes: string | null;
-  /**
-   * Whether this application requires user action (e.g., configuration migration or deprecation handling).
-   */
   action_required: boolean;
-  /**
-   * Web portals and access points provided by the application (URLs, ports, etc.).
-   */
   portals: {
     [k: string]: unknown;
   };
-  /**
-   * Detailed version information including changelog and upgrade notes. `null` if not available.
-   */
   version_details?: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Current configuration values for the application. `null` if configuration is not requested.
-   */
   config?: {
     [k: string]: unknown;
   } | null;
 }
-/**
- * Used by: app.image.pull (params)
- */
-export interface AppImageAuthConfig {
-  /**
-   * Username for container registry authentication (masked for security).
-   */
-  username: string;
-  /**
-   * Password or access token for container registry authentication (masked for security).
-   */
-  password: string;
-  /**
-   * Container registry URI or `null` to use default registry.
-   */
-  registry_uri?: string | null;
-}
-/**
- * Used by: app.image.get_instance (params), app.image.get_instance (response), app.image.query (params), app.image.query (response)
- */
 export interface AppImageEntry {
-  /**
-   * Unique identifier for the container image (usually SHA256 hash).
-   */
   id: string;
-  /**
-   * Array of repository tags associated with this image.
-   */
   repo_tags: string[];
-  /**
-   * Array of repository digests (content-addressable identifiers) for this image.
-   */
   repo_digests: string[];
-  /**
-   * Size of the container image in bytes.
-   */
   size: number;
-  /**
-   * Whether this is a dangling image (no tags or references).
-   */
   dangling: boolean;
-  /**
-   * Whether a newer version of this image is available for download.
-   */
   update_available: boolean;
-  /**
-   * Timestamp when the container image was created (ISO format) or `null` if not available.
-   */
   created: string | null;
-  /**
-   * Author or maintainer of the container image or `null` if not specified.
-   */
   author: string | null;
-  /**
-   * Comment or description provided by the image author or `null` if not provided.
-   */
   comment: string | null;
-  /**
-   * Parsed repository tag information or `null` if not available.
-   */
   parsed_repo_tags?: AppImageParsedRepoTags[] | null;
 }
-/**
- * Used by: app.image.pull (params)
- */
-export interface AppImagePullArgs {
-  /**
-   * Authentication configuration for private registries or `null` for public images.
-   */
-  auth_config?: AppImageAuthConfig | null;
-  /**
-   * Container image reference to pull (registry/repository:tag).
-   */
-  image: string;
-}
-/**
- * Used by: app.upgrade_bulk (params)
- */
 export interface AppUpgradeBulkEntry {
-  /**
-   * Name of the application to upgrade.
-   */
   app_name: string;
   options?: UpgradeOptions;
 }
-/**
- * Used by: audit.export (params)
- */
 export interface AuditExport {
-  /**
-   * Array of services to include in the audit query.
-   */
   services?: ("MIDDLEWARE" | "SMB" | "SUDO" | "SYSTEM")[];
-  /**
-   * Array of filters to apply to the audit query results.
-   */
   "query-filters"?: unknown[];
   "query-options"?: AuditExportQueryOptions;
-  /**
-   * HA systems may direct the query to the 'remote' controller by including 'remote_controller=True'. The default is the 'current' controller.
-   */
   remote_controller?: boolean;
-  /**
-   * Format for exporting audit data.
-   */
   export_format?: "CSV" | "JSON" | "YAML";
 }
-/**
- * Used by: audit.export (params)
- */
 export interface AuditExportQueryOptions {
-  /**
-   * An array of field names describing the manner in which query results should be ordered. The field names may also have one of more of the following special prefixes: `-` (reverse sort direction), `nulls_first:` (place any null values at the head of the results list), `nulls_last:` (place any null values at the tail of the results list).
-   */
   order_by?: string[];
-  /**
-   * An array of field names specifying the exact fields to include in the query return. The dot character `.` may be used to explicitly select only subkeys of the query result.
-   */
   select?: (string | unknown[])[];
-  /**
-   * This specifies the beginning offset of the results array. When combined with the `limit` query-option it may be used to implement pagination of large results arrays. WARNING: some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
-   */
   offset?: number;
-  /**
-   * This specifies the maximum number of results matching the specified `query-filters` to return. When combined wtih the `offset` query-option it may be used to implement pagination of large results arrays.
-   *
-   * WARNING: Some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
-   */
   limit?: number;
-  /**
-   * Force use of SQL for result filtering to reduce response time. May not work for all methods.
-   */
   force_sql_filters?: boolean;
 }
-/**
- * Used by: audit.query (params)
- */
 export interface AuditQuery {
-  /**
-   * Array of services to include in the audit query.
-   */
   services?: ("MIDDLEWARE" | "SMB" | "SUDO" | "SYSTEM")[];
-  /**
-   * Array of filters to apply to the audit query results.
-   */
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
-  /**
-   * HA systems may direct the query to the 'remote' controller by including 'remote_controller=True'. The default is the 'current' controller.
-   */
   remote_controller?: boolean;
 }
-/**
- * Used by: audit.query (response)
- */
 export interface AuditQueryResultItem {
-  /**
-   * GUID uniquely identifying this specific audit event.
-   */
   audit_id: string | number | null;
-  /**
-   * Unix timestamp for when the audit event was written to the auditing database.
-   */
   message_timestamp: number;
-  /**
-   * Converted ISO-8601 timestamp from application recording when event occurred.
-   */
   timestamp: string;
-  /**
-   * IP address of client performing action that generated the audit message.
-   */
   address: string;
-  /**
-   * Username used by client performing action.
-   */
   username: string;
-  /**
-   * GUID uniquely identifying the client session.
-   */
   session: string | number | null;
   service: Service;
-  /**
-   * JSON object containing variable data depending on the particular service. See TrueNAS auditing documentation for the service in question.
-   */
   service_data: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Name of the event type that generated the audit record. Each service has its own unique event identifiers.
-   */
   event: string;
-  /**
-   * JSON object containing variable data depending on the particular event type. See TrueNAS auditing documentation for the service in question.
-   */
   event_data: {
     [k: string]: unknown;
   } | null;
-  /**
-   * The action generating the event message succeeded.
-   */
   success: boolean;
   [k: string]: unknown;
 }
-/**
- * Used by: auth.login_ex (params)
- */
 export interface AuthApiKeyPlain {
-  /**
-   * Authentication mechanism identifier for plain API key authentication.
-   */
   mechanism: "API_KEY_PLAIN";
-  /**
-   * Username associated with the API key.
-   */
   username: string;
-  /**
-   * API key for authentication.
-   */
   api_key: string;
   login_options?: AuthCommonOptions;
 }
-/**
- * Used by: auth.login_ex (params), auth.login_ex_continue (params)
- */
 export interface AuthCommonOptions {
-  /**
-   * Whether to include detailed user information in the authentication response.
-   */
   user_info?: boolean;
-  /**
-   * Whether to include a reauthentication token in the authentication response. The `ttl` for the generated token depends on the TrueNAS webui setting for preferences->lifetime, with a default value of 600 seconds.
-   */
   reconnect_token?: boolean;
 }
-/**
- * Used by: auth.login_ex (params), auth.login_ex_continue (params)
- */
 export interface AuthOTPToken {
-  /**
-   * Authentication mechanism identifier for one-time password tokens.
-   */
   mechanism: "OTP_TOKEN";
-  /**
-   * One-time password token for authentication.
-   */
   otp_token: string;
   login_options?: AuthCommonOptions;
 }
-/**
- * Used by: auth.login_ex (params)
- */
 export interface AuthPasswordPlain {
-  /**
-   * Authentication mechanism identifier for plain password authentication.
-   */
   mechanism: "PASSWORD_PLAIN";
-  /**
-   * Username for authentication.
-   */
   username: string;
-  /**
-   * Password for authentication.
-   */
   password: string;
   login_options?: AuthCommonOptions;
 }
-/**
- * Used by: auth.login_ex (response), auth.login_ex_continue (response)
- */
 export interface AuthRespDenied {
-  /**
-   * Authentication response type indicating that the credential lacks API access.
-   */
   response_type: "DENIED";
 }
-/**
- * Used by: auth.login_ex (response)
- */
 export interface AuthRespScram {
-  /**
-   * Authentication response type indicating a SCRAM server response.
-   */
   response_type: "SCRAM_RESPONSE";
-  /**
-   * The type of server response. The SERVER_FIRST_RESPONSE will contain nonce, salt, and iterations. The SERVER_FINAL_RESPONSE will contain the server verification proof for client mutual validation.
-   */
   scram_type: "SERVER_FIRST_RESPONSE" | "SERVER_FINAL_RESPONSE";
-  /**
-   * Server authentication response containing string per RFC5802.
-   */
   rfc_str: string;
-  /**
-   * Authenticated user information on SERVER_FINAL_RESPONSE or null on SERVER_FIRST_RESPONSE.
-   */
   user_info: AuthUserInfo | null;
 }
-/**
- * Used by: auth.login_ex (response), auth.login_ex_continue (response)
- */
 export interface AuthRespSuccess {
-  /**
-   * Authentication response type indicating successful login.
-   */
   response_type: "SUCCESS";
-  /**
-   * Authenticated user information or `null` if not available.
-   */
   user_info: AuthUserInfo | null;
   authenticator: Authenticator;
-  /**
-   * Single-use token that can be used to reauthenticate to the truenas server in case websocket session is interrupted. This will be `null` in the following situations:
-   *
-   * 1) The initiating authentication request set `reconnect_token` to `false` (default).
-   * 2) The user authenticated via a one-time password, which does not support reconnect token creation.
-   */
   reconnect_token: string | null;
 }
-/**
- * Used by: auth.login_ex (params)
- */
 export interface AuthSCRAM {
-  /**
-   * Authentication mechanism that implements SHA512-based RFC5802 authentication. The authentication mechanism provides replay resistence and capability for mutual validation of server and client sessions.
-   *
-   * The authentication mechanism is currently limited to API key credentials, but at a future point will be expanded to cover local user authentication.
-   *
-   * Channel binding (RFC 5929 tls-server-end-point) is supported and negotiated per exchange. A client that requires it sends a `p=tls-server-end-point` gs2 header over a TLS connection (see `rfc_str`) and the server verifies it against the certificate it serves; binding is only honored over TLS and remains optional, so clients that do not request it still authenticate.
-   *
-   * C and python libraries to for managing the client-side portion of the authentication exchanges are provided at https://github.com/truenas/truenas_scram.
-   */
   mechanism: "SCRAM";
-  /**
-   * Scram message type from client. The scram types indicate the message type that is represented by the `rfc_str` field. CLIENT_FIRST_MESSAGE - this corresponds with the client-first-message as defined in RFC5802. CLIENT_FINAL_MESSAGE - this corresponds with the client-final-message as defined in RFC5802.
-   */
   scram_type: "CLIENT_FIRST_MESSAGE" | "CLIENT_FINAL_MESSAGE";
-  /**
-   * This field contains the SCRAM authentication exchange message as defined in RFC5802. The expected format and contents depends on the `scram_type`. CLIENT_FIRST_MESSAGE: `n,,n=user:10,r=fyko+d2lbbFgONRv9qkxdawL` The `n,,` component indicates that client does not support channel bindings. `n=user:10` specifies the username and API key id (separated by `:` character). `r=fyko+d2lbbFgONRv9qkxdawL` specifies a base64-encoded nonce generated client-side. CLIENT_FINAL_MESSAGE: c=biws,r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j, p=v0X8v3Bz2T0CJGbJQyF0X+HI4Ts= `c=biws` contains channel binding information. In this example it's the base64-encoded string `n,,` (no channel binding support). `r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j` contains the combined client and server nonce as returned by the response to the CLIENT_FIRST_MESSAGE. `p=v0X8v3Bz2T0CJGbJQyF0X+HI4Ts=` contains the base64-encoded client proof generated based on client-side key material and client + server nonce.
-   */
   rfc_str: string;
 }
-/**
- * Used by: auth.login_ex (params)
- */
 export interface AuthTokenPlain {
-  /**
-   * Authentication mechanism type for plain token login.
-   */
   mechanism: "TOKEN_PLAIN";
-  /**
-   * Authentication token (masked for security).
-   */
   token: string;
   login_options?: AuthCommonOptions;
 }
-/**
- * Used by: boot.get_state (response)
- */
 export interface BootGetState {
-  /**
-   * Name of the storage pool.
-   */
   name: string;
-  /**
-   * Set when pool is made up of SED disks.
-   */
   all_sed: boolean | null;
-  /**
-   * Current status of the pool.
-   */
   status: string;
-  /**
-   * Filesystem path where the pool is mounted.
-   */
   path: string;
-  /**
-   * Information about the most recent scrub or resilver operation. `null` if no scan data is available.
-   */
   scan: PoolScan | null;
-  /**
-   * Information about any active pool expansion operation. `null` if no expansion is running.
-   */
   expand: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Whether this pool has been upgraded to the latest feature flags.
-   */
   is_upgraded?: boolean;
-  /**
-   * Whether the pool is in a healthy state with no errors or warnings.
-   */
   healthy: boolean;
-  /**
-   * Whether the pool has warning conditions that require attention.
-   */
   warning: boolean;
-  /**
-   * Detailed status code for the pool condition. `null` if not applicable.
-   */
   status_code: string | null;
-  /**
-   * Human-readable description of the pool status. `null` if not available.
-   */
   status_detail: string | null;
-  /**
-   * Total size of the pool in bytes. `null` if not available.
-   */
   size: number | null;
-  /**
-   * Amount of space currently allocated in the pool in bytes. `null` if not available.
-   */
   allocated: number | null;
-  /**
-   * Amount of free space available in the pool in bytes. `null` if not available.
-   */
   free: number | null;
-  /**
-   * Amount of space being freed (in bytes) by ongoing operations. `null` if not available.
-   */
   freeing: number | null;
-  /**
-   * Size of the deduplication table in bytes. `null` if deduplication is not enabled.
-   */
   dedup_table_size: number | null;
-  /**
-   * Quota limit for the deduplication table. `null` if no quota is set.
-   */
   dedup_table_quota: string | null;
-  /**
-   * Percentage of pool fragmentation as a string. `null` if not available.
-   */
   fragmentation: string | null;
-  /**
-   * Human-readable string representation of the pool size. `null` if not available.
-   */
   size_str: string | null;
-  /**
-   * Human-readable string representation of allocated space. `null` if not available.
-   */
   allocated_str: string | null;
-  /**
-   * Human-readable string representation of free space. `null` if not available.
-   */
   free_str: string | null;
-  /**
-   * Human-readable string representation of space being freed. `null` if not available.
-   */
   freeing_str: string | null;
-  /**
-   * Auto-trim configuration for the pool indicating whether automatic TRIM operations are enabled.
-   */
   autotrim: {
     [k: string]: unknown;
   };
-  /**
-   * Physical topology and structure of the pool including vdevs. `null` if not available.
-   */
   topology: PoolTopology | null;
 }
-/**
- * Used by: boot.get_state (response), pool.create (response), pool.get_instance (params), pool.get_instance (response), pool.query (params), pool.query (response), pool.update (response)
- */
 export interface PoolScan {
   function: Function;
   state: State3;
-  /**
-   * Scan start time.
-   */
   start_time: string;
-  /**
-   * Scan end time (`null` while the scan is still running).
-   */
   end_time: string | null;
-  /**
-   * Scan progress (between 0 and 100%).
-   */
   percentage: number;
-  /**
-   * Total bytes located by scanner.
-   */
   bytes_to_process: number;
-  /**
-   * Total bytes to scan.
-   */
   bytes_processed: number;
-  /**
-   * Issued bytes per scan pass.
-   */
   bytes_issued: number;
-  /**
-   * Pause time of a scrub pass (`null` if the scan is not paused).
-   */
   pause: string | null;
-  /**
-   * Number of scan errors.
-   */
   errors: number;
-  /**
-   * Number of seconds left (`null` if the scan is not running).
-   */
   total_secs_left: number | null;
 }
-/**
- * Used by: catalog.get_app_details (response)
- */
 export interface CatalogAppDetails {
-  /**
-   * HTML content of the app README.
-   */
   app_readme: string | null;
-  /**
-   * List of categories for the app.
-   */
   categories: string[];
-  /**
-   * Short description of the app.
-   */
-  description: string;
-  /**
-   * Health status of the app.
-   */
   healthy: boolean;
-  /**
-   * Error if app is not healthy.
-   */
   healthy_error?: string | null;
-  /**
-   * Homepage URL of the app.
-   */
   home: string;
-  /**
-   * Local path to the app's location.
-   */
   location: string;
-  /**
-   * Latest available app version.
-   */
   latest_version: string | null;
-  /**
-   * Latest available app version in repository.
-   */
   latest_app_version: string | null;
-  /**
-   * Human-readable version of the app.
-   */
   latest_human_version: string | null;
-  /**
-   * Timestamp of the last update in ISO format.
-   */
   last_update: string | null;
-  /**
-   * Name of the app.
-   */
   name: string;
-  /**
-   * Indicates if the app is recommended.
-   */
   recommended: boolean;
-  /**
-   * List of app maintainers.
-   */
   maintainers: Maintainer[];
-  /**
-   * Tags associated with the app.
-   */
   tags: string[];
-  /**
-   * List of screenshot URLs.
-   */
   screenshots: string[];
-  /**
-   * List of source URLs.
-   */
   sources: string[];
-  /**
-   * URL of the app icon.
-   */
   icon_url?: string | null;
-  /**
-   * Mapping of version strings.
-   */
   versions: {
     [k: string]: unknown;
   };
   [k: string]: unknown;
 }
-/**
- * Used by: catalog.apps (params)
- */
 export interface CatalogApps {
-  /**
-   * Whether to use cached catalog data if available.
-   */
   cache?: boolean;
-  /**
-   * Whether to only return cached data without fetching updates.
-   */
   cache_only?: boolean;
-  /**
-   * Whether to retrieve apps from all available trains.
-   */
   retrieve_all_trains?: boolean;
-  /**
-   * Specific train names to retrieve apps from (empty array means all trains).
-   */
   trains?: string[];
 }
-/**
- * Used by: catalog.update (params)
- */
 export interface CatalogUpdate {
-  /**
-   * Updated array of preferred train names for the catalog.
-   */
   preferred_trains?: string[];
 }
-/**
- * Used by: cloud_backup.query (event)
- */
 export interface CloudBackupAddedEvent {
   id: number;
   fields: CloudBackupEntryInput;
 }
-/**
- * Used by: cloud_backup.query (event)
- */
 export interface CloudBackupEntryInput {
-  /**
-   * Unique identifier for this cloud storage configuration.
-   */
   id: number;
-  /**
-   * The name of the task to display in the UI.
-   */
-  description?: string;
-  /**
-   * The local path to back up beginning with `/mnt` or `/dev/zvol`.
-   */
   path: string;
-  /**
-   * The ZFS dataset containing this path (e.g., 'tank/backup'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
   dataset: string | null;
-  /**
-   * The path relative to the dataset mountpoint (e.g., 'subdir/data'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
   relative_path: string | null;
   credentials: CredentialsEntryInput;
   attributes: CloudTaskAttributesInput;
   schedule?: CloudCron;
-  /**
-   * A Bash script to run immediately before every backup.
-   */
   pre_script?: string;
-  /**
-   * A Bash script to run immediately after every backup if it succeeds.
-   */
   post_script?: string;
-  /**
-   * Whether to create a temporary snapshot of the dataset before every backup.
-   */
   snapshot?: boolean;
-  /**
-   * Paths to pass to `restic backup --include`.
-   */
   include?: string[];
-  /**
-   * Paths to pass to `restic backup --exclude`.
-   */
   exclude?: string[];
-  /**
-   * (Slated for removal).
-   */
   args?: string;
-  /**
-   * Can enable/disable the task.
-   */
   enabled?: boolean;
-  /**
-   * Information regarding the task's job state, e.g. progress.
-   */
   job: {
     [k: string]: unknown;
   } | null;
-  /**
-   * A locked task cannot run.
-   */
   locked: boolean;
-  /**
-   * Password for the remote repository.
-   */
   password: string;
-  /**
-   * How many of the most recent backup snapshots to keep after each backup.
-   */
   keep_last: number;
-  /**
-   * * DEFAULT:
-   *     * pack size given by `$RESTIC_PACK_SIZE` (default 16 MiB)
-   *     * read concurrency given by `$RESTIC_READ_CONCURRENCY` (default 2 files)
-   *
-   * * PERFORMANCE:
-   *     * pack size = 29 MiB
-   *     * read concurrency given by `$RESTIC_READ_CONCURRENCY` (default 2 files)
-   *
-   * * FAST_STORAGE:
-   *     * pack size = 58 MiB
-   *     * read concurrency = 100 files
-   */
   transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
-  /**
-   * Preserve absolute paths in each backup (cannot be set when `snapshot=True`).
-   */
   absolute_paths?: boolean;
-  /**
-   * Cache path. If not set, performance may degrade.
-   */
   cache_path?: string | null;
-  /**
-   * Maximum upload/download rate in KiB/s. Passed to `restic --limit-upload` on `cloud_backup.sync` and `restic --limit-download` on `cloud_backup.restore`. `null` indicates no rate limit will be imposed.
-   *
-   * Can be overridden on a sync or restore call.
-   */
   rate_limit?: number | null;
 }
-/**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
- */
 export interface CredentialsEntryInput {
-  /**
-   * Unique identifier for the cloud credential.
-   */
   id: number;
-  /**
-   * Human-readable name for the cloud credential.
-   */
   name: string;
-  /**
-   * Cloud provider configuration including type and authentication details.
-   */
   provider:
     | AzureBlobCredentialsModel
     | B2CredentialsModel
@@ -1768,179 +737,52 @@ export interface CredentialsEntryInput {
     | WebDavCredentialsModel
     | YandexCredentialsModel;
 }
-/**
- * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (event), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response), cloudsync.create (response), cloudsync.credentials.create (params), cloudsync.credentials.create (response) … and 15 more
- */
 export interface S3CredentialsModel {
-  /**
-   * Cloud provider type identifier for S3-compatible storage.
-   */
   type: "S3";
-  /**
-   * S3 access key ID for authentication.
-   */
   access_key_id: string;
-  /**
-   * S3 secret access key for authentication.
-   */
   secret_access_key: string;
-  /**
-   * S3-compatible endpoint URL or empty string for AWS S3.
-   */
   endpoint?: "" | string;
-  /**
-   * S3 region or empty string for default.
-   */
   region?: string;
-  /**
-   * Whether to skip region validation.
-   */
   skip_region?: boolean & string;
-  /**
-   * Whether to use AWS Signature Version 2.
-   */
   signatures_v2?: boolean & string;
-  /**
-   * Maximum number of parts for multipart uploads.
-   */
   max_upload_parts?: number & string;
-  /**
-   * S3 provider. See `cloudsync.credentials.s3_provider_choices` for possible values.
-   */
   provider?: string;
-  /**
-   * If true use path style access if false use virtual hosted style.
-   */
   force_path_style?: boolean;
-  /**
-   * Set this to `false` if your S3 server is behind a proxy that modified HTTP headers and you are experiencing `SignatureDoesNotMatch` error.
-   */
   sign_accept_encoding?: boolean;
 }
-/**
- * Used by: cloud_backup.query (event)
- */
 export interface CloudBackupChangedEvent {
   id: number;
   fields: CloudBackupEntryInput;
 }
-/**
- * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response)
- */
 export interface CloudBackupEntry {
-  /**
-   * Unique identifier for this cloud storage configuration.
-   */
   id: number;
-  /**
-   * The name of the task to display in the UI.
-   */
-  description?: string;
-  /**
-   * The local path to back up beginning with `/mnt` or `/dev/zvol`.
-   */
   path: string;
-  /**
-   * The ZFS dataset containing this path (e.g., 'tank/backup'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
   dataset: string | null;
-  /**
-   * The path relative to the dataset mountpoint (e.g., 'subdir/data'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
   relative_path: string | null;
   credentials: CredentialsEntry;
   attributes: CloudTaskAttributes;
   schedule?: CloudCron;
-  /**
-   * A Bash script to run immediately before every backup.
-   */
   pre_script?: string;
-  /**
-   * A Bash script to run immediately after every backup if it succeeds.
-   */
   post_script?: string;
-  /**
-   * Whether to create a temporary snapshot of the dataset before every backup.
-   */
   snapshot?: boolean;
-  /**
-   * Paths to pass to `restic backup --include`.
-   */
   include?: string[];
-  /**
-   * Paths to pass to `restic backup --exclude`.
-   */
   exclude?: string[];
-  /**
-   * (Slated for removal).
-   */
   args?: string;
-  /**
-   * Can enable/disable the task.
-   */
   enabled?: boolean;
-  /**
-   * Information regarding the task's job state, e.g. progress.
-   */
   job: {
     [k: string]: unknown;
   } | null;
-  /**
-   * A locked task cannot run.
-   */
   locked: boolean;
-  /**
-   * Password for the remote repository.
-   */
   password: string;
-  /**
-   * How many of the most recent backup snapshots to keep after each backup.
-   */
   keep_last: number;
-  /**
-   * * DEFAULT:
-   *     * pack size given by `$RESTIC_PACK_SIZE` (default 16 MiB)
-   *     * read concurrency given by `$RESTIC_READ_CONCURRENCY` (default 2 files)
-   *
-   * * PERFORMANCE:
-   *     * pack size = 29 MiB
-   *     * read concurrency given by `$RESTIC_READ_CONCURRENCY` (default 2 files)
-   *
-   * * FAST_STORAGE:
-   *     * pack size = 58 MiB
-   *     * read concurrency = 100 files
-   */
   transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
-  /**
-   * Preserve absolute paths in each backup (cannot be set when `snapshot=True`).
-   */
   absolute_paths?: boolean;
-  /**
-   * Cache path. If not set, performance may degrade.
-   */
   cache_path?: string | null;
-  /**
-   * Maximum upload/download rate in KiB/s. Passed to `restic --limit-upload` on `cloud_backup.sync` and `restic --limit-download` on `cloud_backup.restore`. `null` indicates no rate limit will be imposed.
-   *
-   * Can be overridden on a sync or restore call.
-   */
   rate_limit?: number | null;
 }
-/**
- * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response), cloudsync.create (response), cloudsync.credentials.create (response), cloudsync.credentials.get_instance (params), cloudsync.credentials.get_instance (response) … and 9 more
- */
 export interface CredentialsEntry {
-  /**
-   * Unique identifier for the cloud credential.
-   */
   id: number;
-  /**
-   * Human-readable name for the cloud credential.
-   */
   name: string;
-  /**
-   * Cloud provider configuration including type and authentication details.
-   */
   provider:
     | AzureBlobCredentialsModel
     | B2CredentialsModel
@@ -1962,17 +804,8 @@ export interface CredentialsEntry {
     | WebDavCredentialsModel
     | YandexCredentialsModel;
 }
-/**
- * Used by: cloudsync.credentials.create (params)
- */
 export interface CloudCredentialCreate {
-  /**
-   * Human-readable name for the cloud credential.
-   */
   name: string;
-  /**
-   * Cloud provider configuration including type and authentication details.
-   */
   provider:
     | AzureBlobCredentialsModel
     | B2CredentialsModel
@@ -1994,17 +827,8 @@ export interface CloudCredentialCreate {
     | WebDavCredentialsModel
     | YandexCredentialsModel;
 }
-/**
- * Used by: cloudsync.credentials.update (params)
- */
 export interface CloudCredentialUpdate {
-  /**
-   * Human-readable name for the cloud credential.
-   */
   name?: string;
-  /**
-   * Cloud provider configuration including type and authentication details.
-   */
   provider?:
     | AzureBlobCredentialsModel
     | B2CredentialsModel
@@ -2026,4949 +850,1137 @@ export interface CloudCredentialUpdate {
     | WebDavCredentialsModel
     | YandexCredentialsModel;
 }
-/**
- * Used by: cloudsync.query (event)
- */
 export interface CloudSyncAddedEvent {
   id: number;
   fields: CloudSyncEntryInput;
 }
-/**
- * Used by: cloudsync.query (event)
- */
 export interface CloudSyncEntryInput {
-  /**
-   * Unique identifier for this cloud storage configuration.
-   */
   id: number;
-  /**
-   * The name of the task to display in the UI.
-   */
-  description?: string;
-  /**
-   * The local path to back up beginning with `/mnt` or `/dev/zvol`.
-   */
   path: string;
-  /**
-   * The ZFS dataset containing this path (e.g., 'tank/backup'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
   dataset: string | null;
-  /**
-   * The path relative to the dataset mountpoint (e.g., 'subdir/data'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
   relative_path: string | null;
   credentials: CredentialsEntryInput;
   attributes: CloudTaskAttributesInput;
   schedule?: CloudCron;
-  /**
-   * A Bash script to run immediately before every backup.
-   */
   pre_script?: string;
-  /**
-   * A Bash script to run immediately after every backup if it succeeds.
-   */
   post_script?: string;
-  /**
-   * Whether to create a temporary snapshot of the dataset before every backup.
-   */
   snapshot?: boolean;
-  /**
-   * Paths to pass to `restic backup --include`.
-   */
   include?: string[];
-  /**
-   * Paths to pass to `restic backup --exclude`.
-   */
   exclude?: string[];
-  /**
-   * (Slated for removal).
-   */
   args?: string;
-  /**
-   * Can enable/disable the task.
-   */
   enabled?: boolean;
-  /**
-   * Information regarding the task's job state, e.g. progress.
-   */
   job: {
     [k: string]: unknown;
   } | null;
-  /**
-   * A locked task cannot run.
-   */
   locked: boolean;
-  /**
-   * Schedule of bandwidth limits.
-   */
   bwlimit?: CloudSyncBwlimit[];
-  /**
-   * Maximum number of parallel file transfers. `null` for default.
-   */
   transfers?: number | null;
   direction: DirectionInput2;
-  /**
-   * How files are transferred between local and cloud storage.
-   *
-   * * `SYNC`: Synchronize directories (add new, update changed, remove deleted)
-   * * `COPY`: Copy files without removing any existing files
-   * * `MOVE`: Move files (copy then delete from source)
-   */
   transfer_mode: "SYNC" | "COPY" | "MOVE";
-  /**
-   * Whether to encrypt files before uploading to cloud storage.
-   */
   encryption?: boolean;
-  /**
-   * Whether to encrypt filenames in addition to file contents.
-   */
   filename_encryption?: boolean;
-  /**
-   * Password for client-side encryption. Empty string if encryption is disabled.
-   */
   encryption_password?: string;
-  /**
-   * Salt value for encryption key derivation. Empty string if encryption is disabled.
-   */
   encryption_salt?: string;
-  /**
-   * Whether to create empty directories in the destination that exist in the source.
-   */
   create_empty_src_dirs?: boolean;
-  /**
-   * Whether to follow symbolic links and sync the files they point to.
-   */
   follow_symlinks?: boolean;
 }
-/**
- * Used by: cloudsync.query (event)
- */
 export interface CloudSyncChangedEvent {
   id: number;
   fields: CloudSyncEntryInput;
 }
-/**
- * Used by: cloudsync.create (response), cloudsync.get_instance (params), cloudsync.get_instance (response), cloudsync.query (params), cloudsync.query (response), cloudsync.restore (response), cloudsync.update (response)
- */
 export interface CloudSyncEntry {
-  /**
-   * Unique identifier for this cloud storage configuration.
-   */
   id: number;
-  /**
-   * The name of the task to display in the UI.
-   */
-  description?: string;
-  /**
-   * The local path to back up beginning with `/mnt` or `/dev/zvol`.
-   */
   path: string;
-  /**
-   * The ZFS dataset containing this path (e.g., 'tank/backup'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
   dataset: string | null;
-  /**
-   * The path relative to the dataset mountpoint (e.g., 'subdir/data'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
   relative_path: string | null;
   credentials: CredentialsEntry;
   attributes: CloudTaskAttributes;
   schedule?: CloudCron;
-  /**
-   * A Bash script to run immediately before every backup.
-   */
   pre_script?: string;
-  /**
-   * A Bash script to run immediately after every backup if it succeeds.
-   */
   post_script?: string;
-  /**
-   * Whether to create a temporary snapshot of the dataset before every backup.
-   */
   snapshot?: boolean;
-  /**
-   * Paths to pass to `restic backup --include`.
-   */
   include?: string[];
-  /**
-   * Paths to pass to `restic backup --exclude`.
-   */
   exclude?: string[];
-  /**
-   * (Slated for removal).
-   */
   args?: string;
-  /**
-   * Can enable/disable the task.
-   */
   enabled?: boolean;
-  /**
-   * Information regarding the task's job state, e.g. progress.
-   */
   job: {
     [k: string]: unknown;
   } | null;
-  /**
-   * A locked task cannot run.
-   */
   locked: boolean;
-  /**
-   * Schedule of bandwidth limits.
-   */
   bwlimit?: CloudSyncBwlimit[];
-  /**
-   * Maximum number of parallel file transfers. `null` for default.
-   */
   transfers?: number | null;
   direction: Direction2;
-  /**
-   * How files are transferred between local and cloud storage.
-   *
-   * * `SYNC`: Synchronize directories (add new, update changed, remove deleted)
-   * * `COPY`: Copy files without removing any existing files
-   * * `MOVE`: Move files (copy then delete from source)
-   */
   transfer_mode: "SYNC" | "COPY" | "MOVE";
-  /**
-   * Whether to encrypt files before uploading to cloud storage.
-   */
   encryption?: boolean;
-  /**
-   * Whether to encrypt filenames in addition to file contents.
-   */
   filename_encryption?: boolean;
-  /**
-   * Password for client-side encryption. Empty string if encryption is disabled.
-   */
   encryption_password?: string;
-  /**
-   * Salt value for encryption key derivation. Empty string if encryption is disabled.
-   */
   encryption_salt?: string;
-  /**
-   * Whether to create empty directories in the destination that exist in the source.
-   */
   create_empty_src_dirs?: boolean;
-  /**
-   * Whether to follow symbolic links and sync the files they point to.
-   */
   follow_symlinks?: boolean;
 }
-/**
- * Used by: container.query (event)
- */
 export interface ContainerAddedEvent {
   id: number;
   fields: ContainerEntryInput;
 }
-/**
- * Used by: container.query (event)
- */
 export interface ContainerEntryInput {
-  /**
-   * Container ID.
-   */
   id: number;
-  /**
-   * Container UUID (for libvirt).
-   */
   uuid: string;
-  /**
-   * Container name.
-   */
   name: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * Container's devices.
-   */
   devices?: ContainerDeviceEntryInput[];
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
   cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
   autostart?: boolean;
   time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
   shutdown_timeout?: number;
-  /**
-   * Which dataset to use as the container root filesystem.
-   */
   dataset: string;
-  /**
-   * "init" process commandline.
-   */
   init?: string;
-  /**
-   * "init" process working dir.
-   */
   initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
   initenv?: {
     [k: string]: string;
   };
-  /**
-   * "init" process username.
-   */
   inituser?: string | null;
-  /**
-   * "init" process group.
-   */
   initgroup?: string | null;
-  /**
-   * Idmap configuration for the container There are three two possible values: DEFAULT: This applies the standard TrueNAS idmap namespace configuration. It changes user ID (UID) 0 (root) in the container to UID 2147000001 (truenas_container_unpriv_root). It offsets the other container UIDs by the same amount. For example, UID 1000 in the container becomes UID 2147001001 in the host. ISOLATED: Same as `DEFAULT`, but UID will be calculated as `2147000001 + 65536 * slice`. This will ensure unique ID for each container (provided that the `slice` is also unique). None: The container does not apply any idmap namespace. Container UIDs map directly to host UIDs. For example, UID 0 in the container is UID 0 in the host. WARNING: For security, use the DEFAULT value. Security best practice is to run containers with idmap namespaces.
-   */
   idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
   capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
   capabilities_state?: {
     [k: string]: boolean;
   };
-  /**
-   * The default network bridge this container will use when no NIC devices are explicitly attached. When the container has explicitly configured NIC devices, this is `null` because the NIC configuration is visible in the `devices` list.
-   */
   default_network?: string | null;
   status: ContainerStatusInput;
 }
-/**
- * Used by: container.device.query (event), container.query (event)
- */
 export interface ContainerDeviceEntryInput {
-  /**
-   * Unique identifier for the containers device.
-   */
   id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput2 | ContainerUSBDevice;
-  /**
-   * ID of the container this device belongs to.
-   */
   container: number;
 }
-/**
- * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 5 more
- */
 export interface ContainerFilesystemDevice {
-  /**
-   * Device type identifier for FILESYSTEM devices.
-   */
   dtype: "FILESYSTEM";
-  /**
-   * Path inside the container to mount the source at. Must not contain braces.
-   */
   target: string;
-  /**
-   * Host path to bind-mount into the container. Must reside within a pool (under `/mnt`) and must not contain braces.
-   */
   source: string;
 }
-/**
- * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 5 more
- */
 export interface ContainerGPUDevice {
-  /**
-   * Device type identifier for GPU devices.
-   */
   dtype: "GPU";
-  /**
-   * GPU device type.
-   */
   gpu_type: "AMD" | "INTEL" | "NVIDIA";
-  /**
-   * PCI address of the GPU device on the host system.
-   */
   pci_address: string;
 }
-/**
- * Used by: container.device.query (event), container.query (event)
- */
 export interface ContainerNICDeviceInput2 {
-  /**
-   * Device type identifier for network interface cards.
-   */
   dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
   trust_guest_rx_filters?: boolean;
   type?: TypeInput7;
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
   nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
   mac?: string | null;
 }
-/**
- * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 5 more
- */
 export interface ContainerUSBDevice {
-  /**
-   * Device type identifier for USB devices.
-   */
   dtype: "USB";
-  /**
-   * USB device attributes for identification. `null` for USB host controller only.
-   */
   usb?: USBAttributes | null;
-  /**
-   * Host USB device path to pass through. `null` for controller only.
-   */
   device?: string | null;
 }
-/**
- * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (response)
- */
 export interface DefaultIdmapConfiguration {
-  /**
-   * Configuration type for default ID mapping.
-   */
   type: "DEFAULT";
 }
-/**
- * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (response)
- */
 export interface IsolatedIdmapConfiguration {
-  /**
-   * Configuration type for isolated ID mapping.
-   */
   type: "ISOLATED";
-  /**
-   * `null` when creating means we'll look up an unused slice on backend.
-   */
   slice: number | null;
 }
-/**
- * Used by: container.query (event)
- */
 export interface ContainerStatusInput {
   state: StateInput3;
-  /**
-   * Container host PID (if running). Informational only do not rely on this value to identify the container's init process.
-   */
   pid: number | null;
-  /**
-   * Domain state reported by libvirt.
-   */
   domain_state: string | null;
 }
-/**
- * Used by: container.query (event)
- */
 export interface ContainerChangedEvent {
   id: number;
   fields: ContainerEntryInput;
 }
-/**
- * Used by: container.create (params)
- */
 export interface ContainerCreateArgs {
-  /**
-   * Container UUID (for libvirt). Auto-generated if not provided.
-   */
   uuid?: string | null;
-  /**
-   * Container name.
-   */
   name: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
   cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
   autostart?: boolean;
   time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
   shutdown_timeout?: number;
-  /**
-   * "init" process commandline.
-   */
   init?: string;
-  /**
-   * "init" process working dir.
-   */
   initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
   initenv?: {
     [k: string]: string;
   };
-  /**
-   * "init" process username.
-   */
   inituser?: string | null;
-  /**
-   * "init" process group.
-   */
   initgroup?: string | null;
-  /**
-   * Idmap configuration for the container There are three two possible values: DEFAULT: This applies the standard TrueNAS idmap namespace configuration. It changes user ID (UID) 0 (root) in the container to UID 2147000001 (truenas_container_unpriv_root). It offsets the other container UIDs by the same amount. For example, UID 1000 in the container becomes UID 2147001001 in the host. ISOLATED: Same as `DEFAULT`, but UID will be calculated as `2147000001 + 65536 * slice`. This will ensure unique ID for each container (provided that the `slice` is also unique). None: The container does not apply any idmap namespace. Container UIDs map directly to host UIDs. For example, UID 0 in the container is UID 0 in the host. WARNING: For security, use the DEFAULT value. Security best practice is to run containers with idmap namespaces.
-   */
   idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
   capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
   capabilities_state?: {
     [k: string]: boolean;
   };
-  /**
-   * Pool to use for this container. Leave it null to use container preferred pool instead.
-   */
   pool?: string | null;
   image: ContainerCreateImage;
 }
-/**
- * Used by: container.create (params)
- */
 export interface ContainerCreateImage {
-  /**
-   * Image name. Use `container.image.query_registry` to list all available images.
-   */
   name: string;
-  /**
-   * Image version. Use `container.image.query_registry` to list all available images.
-   */
   version: string;
 }
-/**
- * Used by: container.device.query (event)
- */
 export interface ContainerDeviceAddedEvent {
   id: number;
   fields: ContainerDeviceEntryInput;
 }
-/**
- * Used by: container.device.query (event)
- */
 export interface ContainerDeviceChangedEvent {
   id: number;
   fields: ContainerDeviceEntryInput;
 }
-/**
- * Used by: container.device.create (params)
- */
 export interface ContainerDeviceCreateArgs {
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
-  /**
-   * ID of the container this device belongs to.
-   */
   container: number;
 }
-/**
- * Used by: container.device.create (params)
- */
 export interface ContainerNICDeviceInput {
-  /**
-   * Device type identifier for network interface cards.
-   */
   dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
   trust_guest_rx_filters?: boolean;
   type?: TypeInput7;
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
   nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
   mac?: string | null;
 }
-/**
- * Used by: container.device.delete (params)
- */
 export interface ContainerDeviceDeleteOptions {
-  /**
-   * Force deletion even if the device is in use.
-   */
   force?: boolean;
-  /**
-   * Delete the underlying raw disk file when removing the device.
-   */
   raw_file?: boolean;
-  /**
-   * Delete the underlying ZFS volume when removing the device.
-   */
   zvol?: boolean;
 }
-/**
- * Used by: container.create (response), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params), container.get_instance (response), container.query (params) … and 2 more
- */
 export interface ContainerDeviceEntry {
-  /**
-   * Unique identifier for the containers device.
-   */
   id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDevice | ContainerUSBDevice;
-  /**
-   * ID of the container this device belongs to.
-   */
   container: number;
 }
-/**
- * Used by: container.create (response), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params), container.get_instance (response), container.query (params) … and 2 more
- */
 export interface ContainerNICDevice {
-  /**
-   * Device type identifier for network interface cards.
-   */
   dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
   trust_guest_rx_filters?: boolean;
   type?: Type7;
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
   nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
   mac?: string | null;
 }
-/**
- * Used by: container.device.nic_attach_choices (response)
- */
 export interface ContainerDeviceNicAttachChoicesResult {
-  /**
-   * Available bridge interfaces for NIC attachment.
-   */
   BRIDGE: string[];
-  /**
-   * Available parent interfaces for creating MACVLAN NIC devices.
-   */
   MACVLAN: string[];
 }
-/**
- * Used by: container.device.query (event)
- */
 export interface ContainerDeviceRemovedEvent {
   id: number;
 }
-/**
- * Used by: container.device.update (params)
- */
 export interface ContainerDeviceUpdate {
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes?: {
     [k: string]: unknown;
   };
-  /**
-   * ID of the container this device belongs to.
-   */
   container?: number;
 }
-/**
- * Used by: container.create (response), container.get_instance (params), container.get_instance (response), container.query (params), container.query (response), container.update (response)
- */
 export interface ContainerEntry {
-  /**
-   * Container ID.
-   */
   id: number;
-  /**
-   * Container UUID (for libvirt).
-   */
   uuid: string;
-  /**
-   * Container name.
-   */
   name: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * Container's devices.
-   */
   devices?: ContainerDeviceEntry[];
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
   cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
   autostart?: boolean;
   time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
   shutdown_timeout?: number;
-  /**
-   * Which dataset to use as the container root filesystem.
-   */
   dataset: string;
-  /**
-   * "init" process commandline.
-   */
   init?: string;
-  /**
-   * "init" process working dir.
-   */
   initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
   initenv?: {
     [k: string]: string;
   };
-  /**
-   * "init" process username.
-   */
   inituser?: string | null;
-  /**
-   * "init" process group.
-   */
   initgroup?: string | null;
-  /**
-   * Idmap configuration for the container There are three two possible values: DEFAULT: This applies the standard TrueNAS idmap namespace configuration. It changes user ID (UID) 0 (root) in the container to UID 2147000001 (truenas_container_unpriv_root). It offsets the other container UIDs by the same amount. For example, UID 1000 in the container becomes UID 2147001001 in the host. ISOLATED: Same as `DEFAULT`, but UID will be calculated as `2147000001 + 65536 * slice`. This will ensure unique ID for each container (provided that the `slice` is also unique). None: The container does not apply any idmap namespace. Container UIDs map directly to host UIDs. For example, UID 0 in the container is UID 0 in the host. WARNING: For security, use the DEFAULT value. Security best practice is to run containers with idmap namespaces.
-   */
   idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
   capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
   capabilities_state?: {
     [k: string]: boolean;
   };
-  /**
-   * The default network bridge this container will use when no NIC devices are explicitly attached. When the container has explicitly configured NIC devices, this is `null` because the NIC configuration is visible in the `devices` list.
-   */
   default_network?: string | null;
   status: ContainerStatus;
 }
-/**
- * Used by: container.create (response), container.get_instance (params), container.get_instance (response), container.query (params), container.query (response), container.update (response)
- */
 export interface ContainerStatus {
   state: State2;
-  /**
-   * Container host PID (if running). Informational only do not rely on this value to identify the container's init process.
-   */
   pid: number | null;
-  /**
-   * Domain state reported by libvirt.
-   */
   domain_state: string | null;
 }
-/**
- * Used by: container.image.query_registry (response)
- */
 export interface ContainerImageQueryRegistryResultImage {
-  /**
-   * Image name.
-   */
   name: string;
-  /**
-   * Available image versions.
-   */
   versions: ContainerImageQueryRegistryResultImageVersion[];
 }
-/**
- * Used by: container.image.query_registry (response)
- */
 export interface ContainerImageQueryRegistryResultImageVersion {
-  /**
-   * Image version name.
-   */
   version: string;
 }
-/**
- * Used by: container.query (event)
- */
 export interface ContainerRemovedEvent {
   id: number;
 }
-/**
- * Used by: container.stop (params)
- */
 export interface ContainerStopOptions {
-  /**
-   * Kill the container.
-   */
   force?: boolean;
-  /**
-   * Kill the container if it does not stop within the `shutdown_timeout`.
-   */
   force_after_timeout?: boolean;
 }
-/**
- * Used by: container.update (params)
- */
 export interface ContainerUpdate {
-  /**
-   * Container UUID (for libvirt). Auto-generated if not provided.
-   */
   uuid?: string | null;
-  /**
-   * Container name.
-   */
   name?: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
   cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
   autostart?: boolean;
   time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
   shutdown_timeout?: number;
-  /**
-   * "init" process commandline.
-   */
   init?: string;
-  /**
-   * "init" process working dir.
-   */
   initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
   initenv?: {
     [k: string]: string;
   };
-  /**
-   * "init" process username.
-   */
   inituser?: string | null;
-  /**
-   * "init" process group.
-   */
   initgroup?: string | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
   capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
   capabilities_state?: {
     [k: string]: boolean;
   };
 }
-/**
- * Used by: cloudsync.credentials.query (event)
- */
 export interface CredentialsAddedEvent {
   id: number;
   fields: CredentialsEntryInput;
 }
-/**
- * Used by: cloudsync.credentials.query (event)
- */
 export interface CredentialsChangedEvent {
   id: number;
   fields: CredentialsEntryInput;
 }
-/**
- * Used by: cronjob.query (event)
- */
-export interface CronJobAddedEvent {
-  id: number;
-  fields: CronJobEntry;
-}
-/**
- * Used by: cronjob.create (response), cronjob.get_instance (params), cronjob.get_instance (response), cronjob.query (event), cronjob.query (params), cronjob.query (response), cronjob.update (response)
- */
-export interface CronJobEntry {
-  /**
-   * Whether the cron job is active and will be executed.
-   */
-  enabled?: boolean;
-  /**
-   * Whether to IGNORE standard error (if `false`, it will be added to email).
-   */
-  stderr?: boolean;
-  /**
-   * Whether to IGNORE standard output (if `false`, it will be added to email).
-   */
-  stdout?: boolean;
-  schedule?: CronJobSchedule;
-  /**
-   * Shell command or script to execute.
-   */
-  command: string;
-  /**
-   * Human-readable description of what this cron job does.
-   */
-  description?: string;
-  /**
-   * System user account to run the command as.
-   */
-  user: string;
-  /**
-   * Unique identifier for the cron job.
-   */
-  id: number;
-}
-/**
- * Used by: cronjob.create (params), cronjob.create (response), cronjob.get_instance (params), cronjob.get_instance (response), cronjob.query (event), cronjob.query (params), cronjob.query (response), cronjob.update (params), cronjob.update (response)
- */
-export interface CronJobSchedule {
-  /**
-   * "00" - "59".
-   */
-  minute?: string;
-  /**
-   * "00" - "23".
-   */
-  hour?: string;
-  /**
-   * "1" - "31".
-   */
-  dom?: string;
-  /**
-   * "1" (January) - "12" (December).
-   */
-  month?: string;
-  /**
-   * "1" (Monday) - "7" (Sunday).
-   */
-  dow?: string;
-}
-/**
- * Used by: cronjob.query (event)
- */
-export interface CronJobChangedEvent {
-  id: number;
-  fields: CronJobEntry;
-}
-/**
- * Used by: cronjob.create (params)
- */
-export interface CronJobCreate {
-  /**
-   * Whether the cron job is active and will be executed.
-   */
-  enabled?: boolean;
-  /**
-   * Whether to IGNORE standard error (if `false`, it will be added to email).
-   */
-  stderr?: boolean;
-  /**
-   * Whether to IGNORE standard output (if `false`, it will be added to email).
-   */
-  stdout?: boolean;
-  schedule?: CronJobSchedule;
-  /**
-   * Shell command or script to execute.
-   */
-  command: string;
-  /**
-   * Human-readable description of what this cron job does.
-   */
-  description?: string;
-  /**
-   * System user account to run the command as.
-   */
-  user: string;
-}
-/**
- * Used by: cronjob.update (params)
- */
-export interface CronJobUpdate {
-  /**
-   * Whether the cron job is active and will be executed.
-   */
-  enabled?: boolean;
-  /**
-   * Whether to IGNORE standard error (if `false`, it will be added to email).
-   */
-  stderr?: boolean;
-  /**
-   * Whether to IGNORE standard output (if `false`, it will be added to email).
-   */
-  stdout?: boolean;
-  schedule?: CronJobSchedule;
-  /**
-   * Shell command or script to execute.
-   */
-  command?: string;
-  /**
-   * Human-readable description of what this cron job does.
-   */
-  description?: string;
-  /**
-   * System user account to run the command as.
-   */
-  user?: string;
-}
-/**
- * Used by: device.get_info (params)
- */
 export interface DeviceGetInfoOther {
   type: TypeInput11;
 }
-/**
- * Used by: directoryservices.config (response), directoryservices.update (response)
- */
-export interface DirectoryServicesEntry {
-  /**
-   * Unique identifier for the directory services configuration.
-   */
-  id: number;
-  /**
-   * The pre-existing directory service type to which to bind TrueNAS. Select ACTIVEDIRECTORY to join an Active Directory domain. Select IPA to join a FreeIPA domain. Select LDAP to bind to one or more OpenLDAP-compatible servers.
-   */
-  service_type: ("ACTIVEDIRECTORY" | "IPA" | "LDAP") | null;
-  /**
-   * Credential used to bind to the specified directory service. Kerberos credentials are required for Active Directory or IPA domains. Generic LDAP environments support various authentication methods. Available methods depend on the remote LDAP server configuration. If Kerberos credentials are selected for LDAP, GSSAPI binds replace plain LDAP binds. Use Kerberos or mutual TLS authentication when possible for better security.
-   *
-   * The following credential types are supported based on `service_type`:
-   *
-   * `ACTIVEDIRECTORY` service_type: `KERBEROS_USER` and `KERBEROS_PRINCIPAL`.
-   *
-   * `LDAP` service_type: `LDAP_PLAIN`, `LDAP_ANONYMOUS`, `LDAP_MTLS`, `KERBEROS_USER`, and `KERBEROS_PRINCIPAL`. NOTE: prior configuration of kerberos realm is required in order to use kerberos credentials with the `LDAP` `service_type`.
-   *
-   * `IPA` service_type: `KERBEROS_USER` and `KERBEROS_PRINCIPAL`. NOTE: `KERBEROS_USER` should be used when initially joining an IPA domain.
-   */
-  credential: (CredKRBUser | CredKRBPrincipal | CredLDAPPlain | CredLDAPAnonymous | CredLDAPMTLS) | null;
-  /**
-   * Enable the directory service.
-   *
-   * If TrueNAS has never joined the specified domain (IPA or Active Directory), setting this to True causes TrueNAS to attempt to join the domain.
-   *
-   * NOTE: The domain join process for Active Directory and IPA will make changes to the domain such as creating a new computer account for the TrueNAS server and creating DNS records for TrueNAS.
-   */
-  enable: boolean;
-  /**
-   * Enable backend caching for user and group lists. If enabled, then directory services users and groups will be presented as choices in the UI dropdowns and in API responses for user and group queries. This setting also controls whether users and groups appear in getent results. Disable this setting to reduce load on the directory server when necessary.
-   */
-  enable_account_cache?: boolean;
-  /**
-   * Enable automatic DNS updates for the TrueNAS server in the domain via nsupdate and gssapi / TSIG.
-   */
-  enable_dns_updates?: boolean;
-  /**
-   * The timeout value for DNS queries that are performed as part of the join process and NETWORK_TIMEOUT for LDAP requests.
-   */
-  timeout?: number;
-  /**
-   * Name of kerberos realm used for authentication to the directory service. If set to null, then Kerberos is not used for binding to the directory service. When joining an Active Directory or IPA domain for the first time, the realm is detected and configured automatically if not specified.
-   */
-  kerberos_realm?: string | null;
-  /**
-   * The service_type specific configuration for the directory sevices plugin.
-   */
-  configuration?: (ActiveDirectoryConfig | IPAConfig | LDAPConfig) | null;
-}
-/**
- * Used by: directoryservices.config (response), directoryservices.update (response)
- */
-export interface LDAPConfig {
-  /**
-   * List of LDAP server URIs used for LDAP binds. Each URI must begin with ldap:// or ldaps:// and may use either a DNS name or an IP address. Example: `['ldaps://myldap.domain.internal']`.
-   */
-  server_urls: string[];
-  /**
-   * The base DN to use when performing LDAP operations. Example: `"dc=domain,dc=internal"`.
-   */
-  basedn: string;
-  /**
-   * Establish TLS by transmitting a StartTLS request to the server.
-   */
-  starttls?: boolean;
-  /**
-   * If `False`, TrueNAS does not validate certificates from the remote LDAP server. It is better to use valid certificates or import them into the TrueNAS server's trusted certificate store.
-   */
-  validate_certificates?: boolean;
-  schema?: Schema;
-  search_bases?: LDAPSearchBases;
-  attribute_maps?: LDAPAttributeMaps;
-  /**
-   * Additional paramaters to add to the SSSD configuration.
-   *
-   * WARNING: TrueNAS does not check the validity of these parameters. Incorrect values can cause production outages when they are applied or after an operating system upgrade.
-   */
-  auxiliary_parameters?: string | null;
-}
-/**
- * Used by: directoryservices.config (response), directoryservices.update (params), directoryservices.update (response)
- */
-export interface LDAPAttributeMaps {
-  passwd?: LDAPMapPasswd;
-  shadow?: LDAPMapShadow;
-  group?: LDAPMapGroup;
-  netgroup?: LDAPMapNetgroup;
-}
-/**
- * Optional attribute mappings for non-compliant LDAP servers to generate netgroup entries.
- *
- * Used by: directoryservices.config (response), directoryservices.update (params), directoryservices.update (response)
- */
-export interface LDAPMapNetgroup {
-  /**
-   * The LDAP object class for netgroup entries.
-   */
-  netgroup_object_class?: string | null;
-  /**
-   * The LDAP attribute for the netgroup's members.
-   */
-  netgroup_member?: string | null;
-  /**
-   * The LDAP attribute for netgroup triples (host, user, domain).
-   */
-  netgroup_triple?: string | null;
-}
-/**
- * Update the directory services configuration with the specified payload. If service_type is set to null and     enable is false, then the all existing directory service configuration will be cleared.
- *
- * About domain joins:
- * When you enable IPA or Active Directory for the first time, TrueNAS joins the domain. This requires     a KERBEROS_USER credential type for an account with administrator privileges to the domain. This creates     a domain account for the TrueNAS server. TrueNAS stores the account credentials in a machine account keytab     and uses them for all domain-related actions.
- *
- * About disabling directory services or leaving a domain:
- * To temporarily disable directory services, set `enable` to `false` with the full configuration.     This disables directory services but keeps the settings, so you can enable them later.
- *
- * To remove all directory service settings, set `enable` to `false and `service_type` to `null`. NOTE: This     does not remove the TrueNAS computer account from an Active Directory or IPA domain. If the domain status     is `HEALTHY`, use `directoryservices.leave` to remove the account and clear the directory services     configuration.
- *
- * Used by: directoryservices.update (params)
- */
-export interface DirectoryServicesUpdateArgs {
-  /**
-   * The pre-existing directory service type to which to bind TrueNAS. Select ACTIVEDIRECTORY to join an Active Directory domain. Select IPA to join a FreeIPA domain. Select LDAP to bind to one or more OpenLDAP-compatible servers.
-   */
-  service_type?: ("ACTIVEDIRECTORY" | "IPA" | "LDAP") | null;
-  /**
-   * Credential used to bind to the specified directory service. Kerberos credentials are required for Active Directory or IPA domains. Generic LDAP environments support various authentication methods. Available methods depend on the remote LDAP server configuration. If Kerberos credentials are selected for LDAP, GSSAPI binds replace plain LDAP binds. Use Kerberos or mutual TLS authentication when possible for better security.
-   *
-   * The following credential types are supported based on `service_type`:
-   *
-   * `ACTIVEDIRECTORY` service_type: `KERBEROS_USER` and `KERBEROS_PRINCIPAL`.
-   *
-   * `LDAP` service_type: `LDAP_PLAIN`, `LDAP_ANONYMOUS`, `LDAP_MTLS`, `KERBEROS_USER`, and `KERBEROS_PRINCIPAL`. NOTE: prior configuration of kerberos realm is required in order to use kerberos credentials with the `LDAP` `service_type`.
-   *
-   * `IPA` service_type: `KERBEROS_USER` and `KERBEROS_PRINCIPAL`. NOTE: `KERBEROS_USER` should be used when initially joining an IPA domain.
-   */
-  credential?: (CredKRBUser | CredKRBPrincipal | CredLDAPPlain | CredLDAPAnonymous | CredLDAPMTLS) | null;
-  /**
-   * Enable the directory service.
-   *
-   * If TrueNAS has never joined the specified domain (IPA or Active Directory), setting this to True causes TrueNAS to attempt to join the domain.
-   *
-   * NOTE: The domain join process for Active Directory and IPA will make changes to the domain such as creating a new computer account for the TrueNAS server and creating DNS records for TrueNAS.
-   */
-  enable?: boolean;
-  /**
-   * Enable backend caching for user and group lists. If enabled, then directory services users and groups will be presented as choices in the UI dropdowns and in API responses for user and group queries. This setting also controls whether users and groups appear in getent results. Disable this setting to reduce load on the directory server when necessary.
-   */
-  enable_account_cache?: boolean;
-  /**
-   * Enable automatic DNS updates for the TrueNAS server in the domain via nsupdate and gssapi / TSIG.
-   */
-  enable_dns_updates?: boolean;
-  /**
-   * The timeout value for DNS queries that are performed as part of the join process and NETWORK_TIMEOUT for LDAP requests.
-   */
-  timeout?: number;
-  /**
-   * Name of kerberos realm used for authentication to the directory service. If set to null, then Kerberos is not used for binding to the directory service. When joining an Active Directory or IPA domain for the first time, the realm is detected and configured automatically if not specified.
-   */
-  kerberos_realm?: string | null;
-  /**
-   * The service_type specific configuration for the directory sevices plugin.
-   */
-  configuration?: (ActiveDirectoryConfigInput | IPAConfigInput | LDAPConfigInput) | null;
-  /**
-   * Bypass validation to check if a server with this hostname and NetBIOS name is already registered in an IPA or Active Directory domain. Use this option, for example, to replace an existing server with a TrueNAS server. Do not use the force parameter indiscriminately. Using it may cause production outages for clients that rely on the existing server.
-   */
-  force?: boolean;
-}
-/**
- * Used by: directoryservices.update (params)
- */
-export interface LDAPConfigInput {
-  service_type: "LDAP";
-  /**
-   * List of LDAP server URIs used for LDAP binds. Each URI must begin with ldap:// or ldaps:// and may use either a DNS name or an IP address. Example: `['ldaps://myldap.domain.internal']`.
-   */
-  server_urls: string[];
-  /**
-   * The base DN to use when performing LDAP operations. Example: `"dc=domain,dc=internal"`.
-   */
-  basedn: string;
-  /**
-   * Establish TLS by transmitting a StartTLS request to the server.
-   */
-  starttls?: boolean;
-  /**
-   * If `False`, TrueNAS does not validate certificates from the remote LDAP server. It is better to use valid certificates or import them into the TrueNAS server's trusted certificate store.
-   */
-  validate_certificates?: boolean;
-  schema?: Schema;
-  search_bases?: LDAPSearchBases;
-  attribute_maps?: LDAPAttributeMaps;
-  /**
-   * Additional paramaters to add to the SSSD configuration.
-   *
-   * WARNING: TrueNAS does not check the validity of these parameters. Incorrect values can cause production outages when they are applied or after an operating system upgrade.
-   */
-  auxiliary_parameters?: string | null;
-}
-/**
- * Used by: disk.details (params)
- */
 export interface DiskDetails {
-  /**
-   * Return all partitions currently written to disk.
-   *
-   * **NOTE: This is an expensive operation.**
-   */
   join_partitions?: boolean;
   type?: TypeInput14;
 }
-/**
- * Used by: disk.reset_sed (params)
- */
 export interface DiskResetSedArgs {
-  /**
-   * Name of disk to reset.
-   */
   name: string;
-  /**
-   * PID of disk to reset.
-   */
   psid: string;
 }
-/**
- * Used by: disk.setup_sed (params)
- */
 export interface DiskSetupSedArgs {
-  /**
-   * Name of disk to setup.
-   */
   name: string;
-  /**
-   * Password to use to setup the disk. If this is not set, first if a password on disk is set, it will be used else global configured SED password will be used.
-   */
   password?: string | null;
 }
-/**
- * Used by: disk.unlock_sed (params)
- */
 export interface DiskUnlockSedArgs {
-  /**
-   * Name of disk to unlock.
-   */
   name: string;
-  /**
-   * Password for disk to unlock.
-   */
   password?: string | null;
 }
-/**
- * Used by: disk.update (params)
- */
 export interface DiskUpdate {
-  /**
-   * Numeric identifier assigned to the disk.
-   */
   number?: number;
-  /**
-   * Logical unit number identifier or `null` if not applicable.
-   */
   lunid?: string | null;
-  /**
-   * Human-readable description of the disk device.
-   */
-  description?: string;
   hddstandby?: Hddstandby;
   advpowermgmt?: Advpowermgmt;
-  /**
-   * System bus type the disk is connected to.
-   */
   bus?: string;
-  /**
-   * Physical enclosure information or `null` if not in an enclosure.
-   */
   enclosure?: DiskEntryEnclosure | null;
-  /**
-   * Name of the storage pool this disk belongs to. `null` if not part of any pool.
-   */
   pool?: string | null;
-  /**
-   * Disk encryption password (masked for security).
-   */
   passwd?: string;
-  /**
-   * Whether the disk is SED (Self-Encrypting Drive) capable. `null` if not yet determined.
-   */
   sed?: boolean | null;
-  /**
-   * SED Status of the disk. `null` if not yet determined.
-   */
   sed_status?: string | null;
 }
-/**
- * Used by: vm.get_display_devices (response)
- */
 export interface DisplayDevice {
-  /**
-   * Unique identifier for the VM device.
-   */
   id: number;
   attributes: GetDisplayDevice;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
   vm: number;
-  /**
-   * Boot order priority for this device (lower numbers boot first).
-   */
   order: number;
 }
-/**
- * Used by: vm.get_display_devices (response)
- */
 export interface GetDisplayDevice {
-  /**
-   * Device type identifier for display/graphics devices.
-   */
   dtype: "DISPLAY";
   resolution?: Resolution;
-  /**
-   * VNC/SPICE port number for remote display access. `null` for auto-assignment.
-   */
   port?: number | null;
-  /**
-   * Web-based display access port number. `null` for auto-assignment.
-   */
   web_port?: number | null;
-  /**
-   * IP address to bind the display server to.
-   */
   bind?: string;
-  /**
-   * Whether to wait for a client connection before starting the VM.
-   */
   wait?: boolean;
-  /**
-   * Password for display server authentication.
-   */
   password?: string | null;
-  /**
-   * Whether to enable web-based display access.
-   */
   web?: boolean;
   type?: Type9;
-  /**
-   * Whether a password has been configured for display access.
-   */
   password_configured: boolean;
 }
-/**
- * Used by: docker.config (response), docker.update (response)
- */
 export interface DockerEntry {
-  /**
-   * Unique identifier for the Docker configuration.
-   */
   id: number;
-  /**
-   * Whether automatic Docker image updates are enabled.
-   */
   enable_image_updates: boolean;
-  /**
-   * ZFS dataset used for Docker data storage or `null`.
-   */
   dataset: string | null;
-  /**
-   * Storage pool used for Docker or `null` if not configured.
-   */
   pool: string | null;
-  /**
-   * Array of network address pools for container networking.
-   */
   address_pools: {
     [k: string]: unknown;
   }[];
-  /**
-   * IPv6 CIDR block for Docker container networking.
-   */
   cidr_v6: string;
-  /**
-   * Array of registry mirrors.
-   */
   registry_mirrors: RegistryMirror[];
 }
-/**
- * Used by: docker.config (response), docker.update (params), docker.update (response)
- */
 export interface RegistryMirror {
-  /**
-   * URL of the registry mirror.
-   */
   url: string;
-  /**
-   * Whether the registry mirror uses an insecure (HTTP) connection.
-   */
   insecure: boolean;
 }
-/**
- * Used by: docker.update (params)
- */
 export interface DockerUpdateArgs {
-  /**
-   * Whether automatic Docker image updates are enabled.
-   */
   enable_image_updates?: boolean;
-  /**
-   * Storage pool used for Docker or `null` if not configured.
-   */
   pool?: string | null;
-  /**
-   * Array of network address pools for container networking.
-   */
   address_pools?: AddressPool[];
-  /**
-   * IPv6 CIDR block for Docker container networking.
-   */
   cidr_v6?: string;
-  /**
-   * Array of registry mirrors.
-   */
   registry_mirrors?: RegistryMirror[];
-  /**
-   * Whether to migrate existing applications when changing pools.
-   */
   migrate_applications?: boolean;
 }
-/**
- * Used by: filesystem.setacl (params)
- */
 export interface FilesystemSetaclArgs {
-  /**
-   * Absolute filesystem path to set ACL on.
-   */
   path: string;
-  /**
-   * Array of Access Control Entries to apply to the filesystem object.
-   */
   dacl: NFS4ACEInput[] | POSIXACE[];
   options?: FilesystemSetAclOptions;
   nfs41_flags?: NFS4ACL_Flags;
-  /**
-   * Numeric user ID to set as owner or `null` to preserve existing.
-   */
   uid?: number | null;
-  /**
-   * Username to set as owner or `null` to preserve existing.
-   */
   user?: string | null;
-  /**
-   * Numeric group ID to set as group or `null` to preserve existing.
-   */
   gid?: number | null;
-  /**
-   * Group name to set as group or `null` to preserve existing.
-   */
   group?: string | null;
-  /**
-   * ACL type to use or `null` to auto-detect from filesystem capabilities.
-   */
   acltype?: ("NFS4" | "POSIX1E") | null;
 }
-/**
- * Used by: filesystem.setacl (params)
- */
 export interface FilesystemSetAclOptions {
-  /**
-   * Whether to remove the ACL entirely and revert to basic POSIX permissions.
-   */
   stripacl?: boolean;
-  /**
-   * Whether to apply ACL changes recursively to all child files and directories.
-   */
   recursive?: boolean;
-  /**
-   * Whether to traverse filesystem boundaries during recursive operations.
-   */
   traverse?: boolean;
-  /**
-   * Whether to validate that the users/groups granted access in the ACL can actually access the path or parent path.
-   */
   validate_effective_acl?: boolean;
 }
-/**
- * Used by: filesystem.set_zfs_attributes (params)
- */
 export interface FilesystemSetZfsAttributesArgs {
-  /**
-   * Path to the file or directory to set ZFS attributes on.
-   */
   path: string;
   zfs_file_attributes: ZFSFileAttrsData;
   options?: FilesystemSetZfsAttributesOptions;
 }
-/**
- * Used by: filesystem.set_zfs_attributes (params)
- */
 export interface FilesystemSetZfsAttributesOptions {
-  /**
-   * If set, walk the tree under `path` and apply attributes to entries whose type appears in the list (`FILES`, `DIRECTORIES`, or both). The root `path` is included only if its type matches the filter. `null` means no recursion (operate on `path` only). An empty list is rejected.
-   */
   recursive?: ("FILES" | "DIRECTORIES")[] | null;
 }
-/**
- * Used by: reporting.get_data (params), reporting.netdata_get_data (params)
- */
 export interface GraphIdentifier {
   name: Name;
-  /**
-   * Specific instance identifier for the metric (e.g., device name, interface name). `null` for system-wide metrics.
-   */
   identifier?: string | null;
 }
-/**
- * Used by: interface.update (params)
- */
 export interface InterfaceUpdate {
-  /**
-   * Generate a name if not provided based on `type`, e.g. "br0", "bond1", "vlan0".
-   */
   name?: string;
-  /**
-   * Human-readable description of the interface.
-   */
-  description?: string;
-  /**
-   * Enable IPv4 DHCP for automatic IP address assignment.
-   */
   ipv4_dhcp?: boolean;
-  /**
-   * Enable IPv6 autoconfiguration.
-   */
   ipv6_auto?: boolean;
-  /**
-   * List of IP address aliases to configure on the interface.
-   */
   aliases?: InterfaceCreateAlias[];
-  /**
-   * Whether this interface is critical for failover functionality. Critical interfaces are monitored for failover events and can trigger failover when they fail.
-   */
   failover_critical?: boolean;
-  /**
-   * Failover group identifier for clustering. Interfaces in the same group fail over together during failover events.
-   */
   failover_group?: number | null;
-  /**
-   * Virtual Host ID for VRRP failover configuration. Must be unique within the VRRP group and match between failover nodes.
-   */
   failover_vhid?: number | null;
-  /**
-   * List of IP aliases for failover configuration. These IPs are assigned to the interface during normal operation and migrate during failover.
-   */
   failover_aliases?: InterfaceCreateFailoverAlias[];
-  /**
-   * List of virtual IP aliases for failover configuration. These are shared IPs that float between nodes during failover events.
-   */
   failover_virtual_aliases?: InterfaceCreateFailoverAlias[];
-  /**
-   * List of interfaces to add as members of this bridge.
-   */
   bridge_members?: unknown[];
-  /**
-   * Enable MAC address learning for bridge interfaces. When enabled, the bridge learns MAC addresses from incoming frames and builds a forwarding table to optimize traffic flow.
-   */
   enable_learning?: boolean;
-  /**
-   * Enable Spanning Tree Protocol for bridge interfaces. STP prevents network loops by blocking redundant paths and enables automatic failover when the primary path fails.
-   */
   stp?: boolean;
-  /**
-   * Link aggregation protocol to use for bonding interfaces. LACP uses 802.3ad dynamic negotiation, FAILOVER provides active-backup, LOADBALANCE and ROUNDROBIN distribute traffic across links.
-   */
   lag_protocol?: "LACP" | "FAILOVER" | "LOADBALANCE" | "ROUNDROBIN" | "NONE";
-  /**
-   * Transmit hash policy for load balancing in link aggregation. LAYER2 uses MAC addresses, LAYER2+3 adds IP addresses, and LAYER3+4 includes TCP/UDP ports for distribution.
-   */
   xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
-  /**
-   * LACP data unit transmission rate. SLOW sends LACPDUs every 30 seconds, FAST sends every 1 second for quicker link failure detection.
-   */
   lacpdu_rate?: "SLOW" | "FAST" | null;
-  /**
-   * List of interface names to include in the link aggregation group.
-   */
   lag_ports?: string[];
-  /**
-   * Parent interface for VLAN configuration.
-   */
   vlan_parent_interface?: string;
-  /**
-   * VLAN tag number (1-4094).
-   */
   vlan_tag?: number;
-  /**
-   * Priority Code Point for VLAN traffic prioritization (0-7). Values 0-7 map to different QoS priority levels, with 0 being lowest and 7 highest priority.
-   */
   vlan_pcp?: number | null;
-  /**
-   * Maximum transmission unit size for the interface (68-9216 bytes).
-   */
   mtu?: number | null;
-  /**
-   * Forward Error Correction (FEC) mode. Only valid for physical interfaces.
-   *
-   * Configuring this field is only available on enterprise systems. It should be used as directed by TrueNAS Support for resolving link negotiation failures due to FEC mismatches with the upstream switch. Improper configuration of this field can cause a healthy interface to go down.
-   *
-   * * "AUTO": Selects the best FEC mode based on cable/port capabilities
-   * * "RS": RS-FEC (Reed-Solomon), often used for 25GbE/100GbE+ NICs
-   * * "BASER": BaseR-FEC (FireCode)
-   * * "OFF": Disables FEC
-   * * "LLRS": Low Latency Reed-Solomon FEC, used for 25GBASE-KR/CR
-   */
   fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
 }
-/**
- * Used by: ipmi.lan.query (params)
- */
-export interface IPMILanQuery {
-  /**
-   * Query filters to apply to IPMI LAN configuration results.
-   */
-  "query-filters"?: unknown[];
-  "query-options"?: QueryOptionsModel;
-  "ipmi-options"?: IPMILanQueryOptions;
-}
-/**
- * Used by: iscsi.global.config (response), iscsi.global.update (response)
- */
 export interface ISCSIGlobalEntry {
-  /**
-   * Unique identifier for the global iSCSI configuration.
-   */
   id: number;
-  /**
-   * Base name prefix for iSCSI target IQNs.
-   */
   basename: string;
-  /**
-   * Array of iSNS (Internet Storage Name Service) server addresses.
-   */
   isns_servers: string[];
-  /**
-   * TCP port number for iSCSI connections.
-   */
   listen_port?: number;
-  /**
-   * Pool available space threshold percentage or `null` to disable.
-   */
   pool_avail_threshold?: number | null;
-  /**
-   * Whether Asymmetric Logical Unit Access (ALUA) is enabled. Enabling is limited to TrueNAS Enterprise-licensed high availability systems. ALUA only works when configured on both the client and server.
-   */
   alua: boolean;
-  /**
-   * Whether iSCSI Extensions for RDMA (iSER) are enabled. Enabling is limited to TrueNAS Enterprise-licensed systems and requires the system and network environment have Remote Direct Memory Access (RDMA)-capable hardware.
-   */
   iser: boolean;
-  /**
-   * Whether configuration is written into the kernel directly by middlewared.
-   */
   direct_config: boolean | null;
-  /**
-   * Internal iSCSI operational mode.
-   */
   mode: number;
 }
-/**
- * Used by: iscsi.global.sessions (params), iscsi.global.sessions (response)
- */
 export interface ISCSIGlobalSessionsItem {
-  /**
-   * iSCSI Qualified Name (IQN) of the initiator.
-   */
   initiator: string;
-  /**
-   * IP address of the initiator.
-   */
   initiator_addr: string;
-  /**
-   * Alias name of the initiator or `null` if not set.
-   */
   initiator_alias: string | null;
-  /**
-   * iSCSI Qualified Name (IQN) of the target.
-   */
   target: string;
-  /**
-   * Alias name of the target.
-   */
   target_alias: string;
-  /**
-   * Header digest algorithm used for the session or `null`.
-   */
   header_digest: string | null;
-  /**
-   * Data digest algorithm used for the session or `null`.
-   */
   data_digest: string | null;
-  /**
-   * Maximum data segment length for the session or `null`.
-   */
   max_data_segment_length: number | null;
-  /**
-   * Maximum receive data segment length or `null`.
-   */
   max_receive_data_segment_length: number | null;
-  /**
-   * Maximum transmit data segment length or `null`.
-   */
   max_xmit_data_segment_length: number | null;
-  /**
-   * Maximum burst length for the session or `null`.
-   */
   max_burst_length: number | null;
-  /**
-   * First burst length for the session or `null`.
-   */
   first_burst_length: number | null;
-  /**
-   * Whether immediate data transfer is enabled.
-   */
   immediate_data: boolean;
-  /**
-   * Whether this session is using iSER (iSCSI Extensions for RDMA).
-   */
   iser: boolean;
-  /**
-   * Whether hardware offload is enabled for this session.
-   */
   offload: boolean;
 }
-/**
- * Used by: iscsi.global.update (params)
- */
 export interface ISCSIGlobalUpdateArgs {
-  /**
-   * Base name prefix for iSCSI target IQNs.
-   */
   basename?: string;
-  /**
-   * Array of iSNS (Internet Storage Name Service) server addresses.
-   */
   isns_servers?: string[];
-  /**
-   * TCP port number for iSCSI connections.
-   */
   listen_port?: number;
-  /**
-   * Pool available space threshold percentage or `null` to disable.
-   */
   pool_avail_threshold?: number | null;
-  /**
-   * Whether Asymmetric Logical Unit Access (ALUA) is enabled. Enabling is limited to TrueNAS Enterprise-licensed high availability systems. ALUA only works when configured on both the client and server.
-   */
   alua?: boolean;
-  /**
-   * Whether iSCSI Extensions for RDMA (iSER) are enabled. Enabling is limited to TrueNAS Enterprise-licensed systems and requires the system and network environment have Remote Direct Memory Access (RDMA)-capable hardware.
-   */
   iser?: boolean;
-  /**
-   * Whether configuration is written into the kernel directly by middlewared.
-   */
   direct_config?: boolean | null;
-  /**
-   * Internal iSCSI operational mode.
-   */
   mode?: number;
 }
-/**
- * Used by: iscsi.extent.create (response), iscsi.extent.get_instance (params), iscsi.extent.get_instance (response), iscsi.extent.query (params), iscsi.extent.query (response), iscsi.extent.update (response)
- */
 export interface ISCSITargetExtentEntry {
-  /**
-   * Unique identifier for the iSCSI extent.
-   */
   id: number;
-  /**
-   * Name of the iSCSI extent.
-   */
   name: string;
   type?: Type6;
-  /**
-   * Disk device to use for the extent or `null` if using a file.
-   */
   disk?: string | null;
-  /**
-   * Serial number for the extent or `null` to auto-generate.
-   */
   serial?: string | null;
-  /**
-   * File path for file-based extents or `null` if using a disk.
-   */
   path?: string | null;
-  /**
-   * The ZFS dataset containing the file-based extent (e.g., 'tank/iscsi'). Returns `null` for non-FILE extent types (DISK, ZVOL) or if the FILE path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
   dataset: string | null;
-  /**
-   * The path of the file-based extent relative to the dataset mountpoint (e.g., 'extents/lun0.img'). An empty string indicates the file is at the dataset root. Returns `null` for non-FILE types or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
   relative_path: string | null;
-  /**
-   * Size of the file-based extent in bytes.
-   */
   filesize?: string | number;
   blocksize?: Blocksize;
-  /**
-   * Whether to use physical block size reporting.
-   */
   pblocksize?: boolean;
-  /**
-   * Available space threshold percentage or `null` to disable.
-   */
   avail_threshold?: number | null;
-  /**
-   * Optional comment describing the extent.
-   */
   comment?: string;
-  /**
-   * Network Address Authority (NAA) identifier for the extent.
-   */
   naa: string;
-  /**
-   * Whether to enable insecure Third Party Copy (TPC) operations.
-   */
   insecure_tpc?: boolean;
-  /**
-   * Whether to enable Xen compatibility mode.
-   */
   xen?: boolean;
   rpm?: Rpm;
-  /**
-   * Whether the extent is read-only.
-   */
   ro?: boolean;
-  /**
-   * Whether the extent is enabled and available for use.
-   */
   enabled?: boolean;
-  /**
-   * Vendor string reported by the extent.
-   */
   vendor: string;
-  /**
-   * Product ID string for the extent or `null` for default.
-   */
   product_id?: string | null;
-  /**
-   * Read-only value indicating whether the iscsi extent is located on a locked dataset.
-   *
-   * - `true`: The extent is in a locked dataset.
-   * - `false`: The extent is not in a locked dataset.
-   * - `null`: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
 }
-/**
- * Used by: keychaincredential.query (event)
- */
 export interface KeychainCredentialAddedEvent {
   id: number;
   fields: KeychainCredentialEntryInput;
 }
-/**
- * Used by: keychaincredential.query (event), replication.query (event), rsynctask.query (event)
- */
 export interface KeychainCredentialEntryInput {
-  /**
-   * Unique identifier for this keychain credential.
-   */
   id: number;
-  /**
-   * Distinguishes this Keychain Credential from others.
-   */
   name: string;
   type: TypeInput12;
-  /**
-   * Credential-specific configuration and authentication data.
-   */
   attributes: SSHKeyPair | SSHCredentials;
 }
-/**
- * Used by: keychaincredential.query (event)
- */
 export interface KeychainCredentialChangedEvent {
   id: number;
   fields: KeychainCredentialEntryInput;
 }
-/**
- * Used by: keychaincredential.create (response), keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response), keychaincredential.update (response), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params) … and 9 more
- */
 export interface KeychainCredentialEntry {
-  /**
-   * Unique identifier for this keychain credential.
-   */
   id: number;
-  /**
-   * Distinguishes this Keychain Credential from others.
-   */
   name: string;
   type: Type10;
-  /**
-   * Credential-specific configuration and authentication data.
-   */
   attributes: SSHKeyPair | SSHCredentials;
 }
-/**
- * Used by: lxc.config (response), lxc.update (response)
- */
 export interface LXCConfigEntry {
-  /**
-   * Configuration ID.
-   */
   id: number;
-  /**
-   * Default pool used by containers and image datasets.
-   */
   preferred_pool?: string | null;
-  /**
-   * Network bridge interface for virtualized instance networking. `null` if not configured.
-   */
   bridge?: string | null;
-  /**
-   * IPv4 network CIDR for the container bridge network.
-   */
   v4_network: string;
-  /**
-   * IPv6 network CIDR for the container bridge network.
-   */
   v6_network: string;
 }
-/**
- * Used by: lxc.update (params)
- */
 export interface LXCConfigUpdateArgs {
-  /**
-   * Default pool used by containers and image datasets.
-   */
   preferred_pool?: string | null;
-  /**
-   * Network bridge interface for virtualized instance networking. `null` if not configured.
-   */
   bridge?: string | null;
-  /**
-   * IPv4 network CIDR for the container bridge network.
-   */
   v4_network?: string;
-  /**
-   * IPv6 network CIDR for the container bridge network.
-   */
   v6_network?: string;
 }
-/**
- * Used by: nvmet.host.query (event)
- */
-export interface NVMetHostAddedEvent {
-  id: number;
-  fields: NVMetHostEntry;
-}
-/**
- * Used by: nvmet.host.create (response), nvmet.host.get_instance (params), nvmet.host.get_instance (response), nvmet.host.query (event), nvmet.host.query (params), nvmet.host.query (response), nvmet.host.update (response), nvmet.host_subsys.create (response), nvmet.host_subsys.get_instance (params), nvmet.host_subsys.get_instance (response) … and 4 more
- */
-export interface NVMetHostEntry {
-  /**
-   * Unique identifier for the NVMe-oF host.
-   */
-  id: number;
-  /**
-   * NQN of the host that will connect to this TrueNAS.
-   */
-  hostnqn: string;
-  /**
-   * Description of the NVMet host.
-   */
-  description?: string;
-  /**
-   * If set, the secret that the host must present when connecting.
-   *
-   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
-   */
-  dhchap_key?: string | null;
-  /**
-   * If set, the secret that this TrueNAS will present to the host when the host is connecting (Bi-Directional Authentication).
-   *
-   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
-   */
-  dhchap_ctrl_key?: string | null;
-  /**
-   * If selected, the DH (Diffie-Hellman) key exchange built on top of CHAP to be used for authentication.
-   */
-  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
-  /**
-   * HMAC (Hashed Message Authentication Code) to be used in conjunction if a `dhchap_dhgroup` is selected.
-   */
-  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
-}
-/**
- * Used by: nvmet.host.query (event)
- */
-export interface NVMetHostChangedEvent {
-  id: number;
-  fields: NVMetHostEntry;
-}
-/**
- * Used by: nvmet.host.create (params)
- */
-export interface NVMetHostCreate {
-  hostnqn: string;
-  /**
-   * Description of the NVMet host.
-   */
-  description?: string;
-  /**
-   * If set, the secret that the host must present when connecting.
-   *
-   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
-   */
-  dhchap_key?: string | null;
-  /**
-   * If set, the secret that this TrueNAS will present to the host when the host is connecting (Bi-Directional Authentication).
-   *
-   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
-   */
-  dhchap_ctrl_key?: string | null;
-  /**
-   * If selected, the DH (Diffie-Hellman) key exchange built on top of CHAP to be used for authentication.
-   */
-  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
-  /**
-   * HMAC (Hashed Message Authentication Code) to be used in conjunction if a `dhchap_dhgroup` is selected.
-   */
-  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
-}
-/**
- * Used by: nvmet.host_subsys.query (event)
- */
-export interface NVMetHostSubsysAddedEvent {
-  id: number;
-  fields: NVMetHostSubsysEntryInput;
-}
-/**
- * Used by: nvmet.host_subsys.query (event)
- */
-export interface NVMetHostSubsysEntryInput {
-  /**
-   * Unique identifier for the host-subsystem association.
-   */
-  id: number;
-  host: NVMetHostEntry;
-  subsys: NVMetSubsysEntryInput;
-}
-/**
- * Used by: nvmet.host_subsys.query (event)
- */
-export interface NVMetHostSubsysChangedEvent {
-  id: number;
-  fields: NVMetHostSubsysEntryInput;
-}
-/**
- * Used by: nvmet.host_subsys.create (response), nvmet.host_subsys.get_instance (params), nvmet.host_subsys.get_instance (response), nvmet.host_subsys.query (params), nvmet.host_subsys.query (response), nvmet.host_subsys.update (response)
- */
-export interface NVMetHostSubsysEntry {
-  /**
-   * Unique identifier for the host-subsystem association.
-   */
-  id: number;
-  host: NVMetHostEntry;
-  subsys: NVMetSubsysEntry;
-}
-/**
- * Used by: nvmet.host.update (params)
- */
-export interface NVMetHostUpdate {
-  /**
-   * NQN of the host that will connect to this TrueNAS.
-   */
-  hostnqn?: string;
-  /**
-   * Description of the NVMet host.
-   */
-  description?: string;
-  /**
-   * If set, the secret that the host must present when connecting.
-   *
-   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
-   */
-  dhchap_key?: string | null;
-  /**
-   * If set, the secret that this TrueNAS will present to the host when the host is connecting (Bi-Directional Authentication).
-   *
-   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
-   */
-  dhchap_ctrl_key?: string | null;
-  /**
-   * If selected, the DH (Diffie-Hellman) key exchange built on top of CHAP to be used for authentication.
-   */
-  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
-  /**
-   * HMAC (Hashed Message Authentication Code) to be used in conjunction if a `dhchap_dhgroup` is selected.
-   */
-  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
-}
-/**
- * Used by: nvmet.namespace.create (response), nvmet.namespace.get_instance (params), nvmet.namespace.get_instance (response), nvmet.namespace.query (params), nvmet.namespace.query (response), nvmet.namespace.update (response)
- */
 export interface NVMetNamespaceEntry {
-  /**
-   * Unique identifier for the NVMe-oF namespace.
-   */
   id: number;
-  /**
-   * Namespace ID (NSID).
-   *
-   * Each namespace within a subsystem has an associated NSID, unique within that subsystem.
-   *
-   * If not supplied during `namespace` creation then the next available NSID will be used.
-   */
   nsid?: number | null;
   subsys: NVMetSubsysEntry;
-  /**
-   * Type of device (or file) used to implement the namespace.
-   */
   device_type: "ZVOL" | "FILE";
-  /**
-   * Path to the device or file being used to implement the namespace.
-   *
-   * When `device_type` is:
-   *
-   * * "ZVOL": `device_path` is e.g. "zvol/poolname/zvolname"
-   * * "FILE": `device_path` is e.g. "/mnt/poolmnt/path/to/file". The file will be created if necessary.
-   */
   device_path: string;
-  /**
-   * The ZFS dataset containing the file-based namespace (e.g., 'tank/nvmet'). Returns `null` for ZVOL-based namespaces or if the FILE path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "device_path".
-   */
   dataset: string | null;
-  /**
-   * The path of the file-based namespace relative to the dataset mountpoint (e.g., 'namespaces/ns1.img'). An empty string indicates the file is at the dataset root. Returns `null` for ZVOL-based namespaces or if the path cannot be resolved yet. This is a read-only field automatically populated from "device_path".
-   */
   relative_path: string | null;
-  /**
-   * When `device_type` is "FILE" then this will be the size of the file in bytes.
-   */
   filesize?: number | null;
-  /**
-   * Unique device identifier for the namespace.
-   */
   device_uuid: string;
-  /**
-   * Namespace Globally Unique Identifier for the namespace.
-   */
   device_nguid: string;
-  /**
-   * If `enabled` is `False` then the namespace will not be accessible.
-   *
-   * Some namespace configuration changes are blocked when that namespace is enabled.
-   */
   enabled?: boolean;
-  /**
-   * Reflect the locked state of the namespace.
-   *
-   * The underlying `device_path` could be an encrypted ZVOL, or a file on an encrypted dataset. In either case `locked` will be `True` if the underlying entity is locked.
-   */
   locked: boolean | null;
 }
-/**
- * Used by: pool.snapshottask.create (response), pool.snapshottask.get_instance (params), pool.snapshottask.get_instance (response), pool.snapshottask.query (params), pool.snapshottask.query (response), pool.snapshottask.update (response)
- */
-export interface PeriodicSnapshotTaskEntry {
-  /**
-   * Unique identifier for the periodic snapshot task.
-   */
+export interface PeriodicSnapshotTaskAddedEvent {
   id: number;
-  /**
-   * The dataset to take snapshots of.
-   */
+  fields: PeriodicSnapshotTaskEntry;
+}
+export interface PeriodicSnapshotTaskEntry {
+  id: number;
   dataset: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
   recursive?: boolean;
-  /**
-   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
-   */
   lifetime_value?: number;
-  /**
-   * Unit of time for snapshot retention.
-   */
   lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-  /**
-   * Whether this periodic snapshot task is enabled.
-   */
   enabled?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
   exclude?: string[];
-  /**
-   * Naming pattern for generated snapshots using strftime format.
-   */
   naming_schema?: string;
-  /**
-   * Whether to take snapshots even if no data has changed.
-   */
   allow_empty?: boolean;
   schedule?: PoolSnapshotTaskCron;
-  /**
-   * Whether VMware VMs are synced before taking snapshots.
-   */
   vmware_sync: boolean;
-  /**
-   * Detailed state information for the task.
-   */
-  state: {
-    [k: string]: unknown;
-  };
+  state: unknown;
 }
-/**
- * Used by: pool.query (event)
- */
+export interface PeriodicSnapshotTaskChangedEvent {
+  id: number;
+  fields: PeriodicSnapshotTaskEntry;
+}
 export interface PoolAddedEvent {
   id: number;
   fields: PoolEntryInput;
 }
-/**
- * Used by: pool.query (event)
- */
 export interface PoolEntryInput {
-  /**
-   * Unique identifier for this storage pool.
-   */
   id: number;
-  /**
-   * Name of the storage pool.
-   */
   name: string;
-  /**
-   * Globally unique identifier (GUID) for this pool.
-   */
   guid: string;
-  /**
-   * Set when pool is made up of SED disks.
-   */
   all_sed: boolean | null;
-  /**
-   * Current status of the pool.
-   */
   status: string;
-  /**
-   * Filesystem path where the pool is mounted.
-   */
   path: string;
-  /**
-   * Information about the most recent scrub or resilver operation. `null` if no scan data is available.
-   */
   scan: PoolScanInput | null;
-  /**
-   * Information about any active pool expansion operation. `null` if no expansion is running.
-   */
   expand: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Whether this pool has been upgraded to the latest feature flags.
-   */
   is_upgraded?: boolean;
-  /**
-   * Whether the pool is in a healthy state with no errors or warnings.
-   */
   healthy: boolean;
-  /**
-   * Whether the pool has warning conditions that require attention.
-   */
   warning: boolean;
-  /**
-   * Detailed status code for the pool condition. `null` if not applicable.
-   */
   status_code: string | null;
-  /**
-   * Human-readable description of the pool status. `null` if not available.
-   */
   status_detail: string | null;
-  /**
-   * Total size of the pool in bytes. `null` if not available.
-   */
   size: number | null;
-  /**
-   * Amount of space currently allocated in the pool in bytes. `null` if not available.
-   */
   allocated: number | null;
-  /**
-   * Amount of free space available in the pool in bytes. `null` if not available.
-   */
   free: number | null;
-  /**
-   * Amount of space being freed (in bytes) by ongoing operations. `null` if not available.
-   */
   freeing: number | null;
-  /**
-   * Size of the deduplication table in bytes. `null` if deduplication is not enabled.
-   */
   dedup_table_size: number | null;
-  /**
-   * Quota limit for the deduplication table. `null` if no quota is set.
-   */
   dedup_table_quota: string | null;
-  /**
-   * Percentage of pool fragmentation as a string. `null` if not available.
-   */
   fragmentation: string | null;
-  /**
-   * Human-readable string representation of the pool size. `null` if not available.
-   */
   size_str: string | null;
-  /**
-   * Human-readable string representation of allocated space. `null` if not available.
-   */
   allocated_str: string | null;
-  /**
-   * Human-readable string representation of free space. `null` if not available.
-   */
   free_str: string | null;
-  /**
-   * Human-readable string representation of space being freed. `null` if not available.
-   */
   freeing_str: string | null;
-  /**
-   * Auto-trim configuration for the pool indicating whether automatic TRIM operations are enabled.
-   */
   autotrim: {
     [k: string]: unknown;
   };
-  /**
-   * Physical topology and structure of the pool including vdevs. `null` if not available.
-   */
   topology: PoolTopology | null;
 }
-/**
- * Used by: pool.query (event), pool.scan (event)
- */
 export interface PoolScanInput {
   function: Function;
   state: StateInput4;
-  /**
-   * Scan start time.
-   */
   start_time: string;
-  /**
-   * Scan end time (`null` while the scan is still running).
-   */
   end_time: string | null;
-  /**
-   * Scan progress (between 0 and 100%).
-   */
   percentage: number;
-  /**
-   * Total bytes located by scanner.
-   */
   bytes_to_process: number;
-  /**
-   * Total bytes to scan.
-   */
   bytes_processed: number;
-  /**
-   * Issued bytes per scan pass.
-   */
   bytes_issued: number;
-  /**
-   * Pause time of a scrub pass (`null` if the scan is not paused).
-   */
   pause: string | null;
-  /**
-   * Number of scan errors.
-   */
   errors: number;
-  /**
-   * Number of seconds left (`null` if the scan is not running).
-   */
   total_secs_left: number | null;
 }
-/**
- * Used by: pool.attach (params)
- */
-export interface PoolAttach {
-  /**
-   * GUID or device name of the target vdev to attach to.
-   */
-  target_vdev: string;
-  /**
-   * Name of the new disk to attach.
-   */
-  new_disk: string;
-  /**
-   * Whether to allow attaching disks with duplicate serial numbers.
-   */
-  allow_duplicate_serials?: boolean;
-}
-/**
- * Used by: pool.query (event)
- */
 export interface PoolChangedEvent {
   id: number;
   fields: PoolEntryInput;
 }
-/**
- * Used by: pool.create (params)
- */
 export interface PoolCreate {
-  /**
-   * Name for the new storage pool.
-   */
   name: string;
-  /**
-   * If set, create a ZFS encrypted root dataset for this pool.
-   */
   encryption?: boolean;
-  /**
-   * How to manage the deduplication table quota allocation.
-   */
   dedup_table_quota?: "AUTO" | "CUSTOM" | null;
-  /**
-   * Custom quota value in bytes when `dedup_table_quota` is set to CUSTOM.
-   */
   dedup_table_quota_value?: number | null;
   deduplication?: Deduplication2;
   checksum?: Checksum2;
   encryption_options?: PoolCreateEncryptionOptions;
   topology: PoolCreateTopology;
-  /**
-   * Whether to allow disks with duplicate serial numbers in the pool.
-   */
   allow_duplicate_serials?: boolean;
-  /**
-   * When set, all disks in the pool must be SED based.
-   */
   all_sed?: boolean;
-  /**
-   * Bypass topology policy validation. Allows data vdevs that differ in type or width from the rest of the pool, RAIDZ/mirror vdevs wider than the recommended maximum, and special or dedup vdevs whose redundancy does not match the data vdevs. Structural requirements (minimum disks per vdev type, dRAID configuration) still apply. This option is not permitted on Enterprise-licensed systems.
-   */
   force_topology?: boolean;
 }
-/**
- * Encryption options for pool creation. Keys are stored by the system for automatic locking/unlocking on     import/export of encrypted datasets. If that is not desired, datasets should be created with a passphrase as a     key.
- *
- * Used by: pool.create (params), pool.dataset.create (params)
- */
 export interface PoolCreateEncryptionOptions {
-  /**
-   * Automatically generate the key to be used for dataset encryption.
-   */
   generate_key?: boolean;
-  /**
-   * Number of PBKDF2 iterations for key derivation from passphrase. Higher iterations improve security against brute force attacks but increase unlock time.
-   */
   pbkdf2iters?: number;
   algorithm?: Algorithm;
-  /**
-   * Must be specified if encryption for root dataset is desired with a passphrase as a key.
-   */
   passphrase?: string | null;
-  /**
-   * A hex-encoded key specified as an alternative to using `passphrase`.
-   */
   key?: string | null;
 }
-/**
- * Used by: pool.create (params)
- */
 export interface PoolCreateTopology {
   /**
-   * All vdevs must be of the same `type`.
-   *
    * @minItems 1
    */
   data: [
     PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID,
     ...(PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID)[]
   ];
-  /**
-   * Array of special vdev configurations for metadata storage.
-   */
   special?: (PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID)[];
-  /**
-   * Array of deduplication table vdev configurations.
-   */
   dedup?: PoolCreateTopologyDedupVdev[];
-  /**
-   * Array of L2ARC cache vdev configurations.
-   */
   cache?: PoolCreateTopologyCacheVdev[];
-  /**
-   * Array of ZFS Intent Log (ZIL) vdev configurations.
-   */
   log?: PoolCreateTopologyLogVdev[];
-  /**
-   * Array of spare disk names for the pool.
-   */
   spares?: string[];
 }
-/**
- * Used by: pool.create (params), pool.update (params)
- */
 export interface PoolCreateTopologyVdevDRAID {
-  /**
-   * Type of distributed RAID configuration.
-   */
   type: "DRAID1" | "DRAID2" | "DRAID3";
-  /**
-   * Array of disk names to use in this DRAID vdev.
-   */
   disks: string[];
-  /**
-   * Defaults to `zfs.VDEV_DRAID_MAX_CHILDREN`.
-   */
   draid_data_disks?: number | null;
-  /**
-   * Number of distributed spare disks in the DRAID configuration.
-   */
   draid_spare_disks?: number;
 }
-/**
- * Used by: pool.create (params), pool.update (params)
- */
 export interface PoolCreateTopologyVdevNonDRAID {
-  /**
-   * Type of vdev configuration.
-   */
   type: "RAIDZ1" | "RAIDZ2" | "RAIDZ3" | "MIRROR" | "STRIPE";
-  /**
-   * Array of disk names to use in this vdev.
-   */
   disks: string[];
 }
-/**
- * Used by: pool.create (params), pool.update (params)
- */
 export interface PoolCreateTopologyDedupVdev {
   type: TypeInput10;
-  /**
-   * Array of disk names to use in this dedup vdev.
-   */
   disks: string[];
 }
-/**
- * Used by: pool.create (params), pool.update (params)
- */
 export interface PoolCreateTopologyLogVdev {
   type: TypeInput10;
-  /**
-   * Array of disk names to use in this log vdev.
-   */
   disks: string[];
 }
-/**
- * Used by: pool.dataset.change_key (params)
- */
 export interface PoolDatasetChangeKeyOptions {
-  /**
-   * Generate a new random encryption key instead of using a provided key or passphrase.
-   */
   generate_key?: boolean;
-  /**
-   * Whether the provided key is from a key file rather than entered directly.
-   */
   key_file?: boolean;
-  /**
-   * Number of PBKDF2 iterations for passphrase-based keys. Higher values improve security against brute force attacks but increase unlock time.
-   */
   pbkdf2iters?: number;
-  /**
-   * Passphrase to use for encryption key derivation.
-   */
   passphrase?: string | null;
-  /**
-   * Raw hex-encoded encryption key.
-   */
   key?: string | null;
 }
-/**
- * Used by: pool.dataset.create (params)
- */
 export interface PoolDatasetCreateFilesystem {
-  /**
-   * The name of the dataset to create.
-   */
   name: string;
-  /**
-   * Comments or description for the dataset.
-   */
   comments?: string;
   sync?: Sync;
   snapdev?: Snapdev;
   compression?: Compression;
   exec?: Exec;
-  /**
-   * Identifies which service or system manages this dataset.
-   */
   managedby?: string;
-  /**
-   * Percentage of dataset quota at which to issue a warning. 0-100 or 'INHERIT'.
-   */
   quota_warning?: number | "INHERIT";
-  /**
-   * Percentage of dataset quota at which to issue a critical alert. 0-100 or 'INHERIT'.
-   */
   quota_critical?: number | "INHERIT";
-  /**
-   * Percentage of reference quota at which to issue a warning. 0-100 or 'INHERIT'.
-   */
   refquota_warning?: number | "INHERIT";
-  /**
-   * Percentage of reference quota at which to issue a critical alert. 0-100 or 'INHERIT'.
-   */
   refquota_critical?: number | "INHERIT";
-  /**
-   * Minimum disk space guaranteed to this dataset and its children in bytes.
-   */
   reservation?: number;
-  /**
-   * Minimum disk space guaranteed to this dataset itself in bytes.
-   */
   refreservation?: number;
-  /**
-   * Size threshold below which blocks are stored on special vdevs in bytes.
-   */
   special_small_block_size?: number | "INHERIT";
-  /**
-   * Number of copies of data blocks to maintain for redundancy.
-   */
   copies?: number | "INHERIT";
   snapdir?: Snapdir;
   deduplication?: Deduplication;
   checksum?: Checksum;
   readonly?: ReadonlyInput;
-  /**
-   * Optimization type for the dataset based on its intended use.
-   */
   share_type?: "GENERIC" | "MULTIPROTOCOL" | "NFS" | "SMB" | "APPS";
   encryption_options?: PoolCreateEncryptionOptions;
-  /**
-   * Create a ZFS encrypted root dataset for `name` pool.
-   * There is 1 case where ZFS encryption is not allowed for a dataset:
-   * 1) If the parent dataset is encrypted with a passphrase and `name` is being created with a key for encrypting the dataset.
-   */
   encryption?: boolean;
-  /**
-   * Whether to inherit encryption settings from the parent dataset.
-   */
   inherit_encryption?: boolean;
-  /**
-   * Custom user-defined properties to set on the dataset.
-   */
   user_properties?: PoolDatasetCreateUserProperty[];
-  /**
-   * Whether to create any missing parent datasets.
-   */
   create_ancestors?: boolean;
-  /**
-   * Type of dataset to create - filesystem.
-   */
   type?: "FILESYSTEM";
   aclmode?: Aclmode;
   acltype?: AcltypeInput2;
   atime?: Atime;
   casesensitivity?: Casesensitivity;
-  /**
-   * Maximum disk space this dataset and its children can consume in bytes.
-   */
   quota?: number | (0 | null);
-  /**
-   * Maximum disk space this dataset itself can consume in bytes.
-   */
   refquota?: number | (0 | null);
-  /**
-   * The suggested block size for files in this filesystem dataset.
-   */
   recordsize?: string;
 }
-/**
- * Used by: pool.dataset.create (params)
- */
 export interface PoolDatasetCreateVolume {
-  /**
-   * The name of the dataset to create.
-   */
   name: string;
-  /**
-   * Comments or description for the dataset.
-   */
   comments?: string;
   sync?: Sync;
   snapdev?: Snapdev;
   compression?: Compression;
   exec?: Exec;
-  /**
-   * Identifies which service or system manages this dataset.
-   */
   managedby?: string;
-  /**
-   * Percentage of dataset quota at which to issue a warning. 0-100 or 'INHERIT'.
-   */
   quota_warning?: number | "INHERIT";
-  /**
-   * Percentage of dataset quota at which to issue a critical alert. 0-100 or 'INHERIT'.
-   */
   quota_critical?: number | "INHERIT";
-  /**
-   * Percentage of reference quota at which to issue a warning. 0-100 or 'INHERIT'.
-   */
   refquota_warning?: number | "INHERIT";
-  /**
-   * Percentage of reference quota at which to issue a critical alert. 0-100 or 'INHERIT'.
-   */
   refquota_critical?: number | "INHERIT";
-  /**
-   * Minimum disk space guaranteed to this dataset and its children in bytes.
-   */
   reservation?: number;
-  /**
-   * Minimum disk space guaranteed to this dataset itself in bytes.
-   */
   refreservation?: number;
-  /**
-   * Size threshold below which blocks are stored on special vdevs in bytes.
-   */
   special_small_block_size?: number | "INHERIT";
-  /**
-   * Number of copies of data blocks to maintain for redundancy.
-   */
   copies?: number | "INHERIT";
   snapdir?: Snapdir;
   deduplication?: Deduplication;
   checksum?: Checksum;
   readonly?: ReadonlyInput;
-  /**
-   * Optimization type for the dataset based on its intended use.
-   */
   share_type?: "GENERIC" | "MULTIPROTOCOL" | "NFS" | "SMB" | "APPS";
   encryption_options?: PoolCreateEncryptionOptions;
-  /**
-   * Create a ZFS encrypted root dataset for `name` pool.
-   * There is 1 case where ZFS encryption is not allowed for a dataset:
-   * 1) If the parent dataset is encrypted with a passphrase and `name` is being created with a key for encrypting the dataset.
-   */
   encryption?: boolean;
-  /**
-   * Whether to inherit encryption settings from the parent dataset.
-   */
   inherit_encryption?: boolean;
-  /**
-   * Custom user-defined properties to set on the dataset.
-   */
   user_properties?: PoolDatasetCreateUserProperty[];
-  /**
-   * Whether to create any missing parent datasets.
-   */
   create_ancestors?: boolean;
-  /**
-   * Type of dataset to create - volume (zvol).
-   */
   type?: "VOLUME";
-  /**
-   * Force creation even if the size is not optimal.
-   */
   force_size?: boolean;
-  /**
-   * Whether to use sparse (thin) provisioning for the volume.
-   */
   sparse?: boolean;
-  /**
-   * The volume size in bytes; supposed to be a multiple of the block size.
-   */
   volsize: number;
   volblocksize?: Volblocksize;
 }
-/**
- * Used by: pool.dataset.rename (params)
- */
-export interface PoolDatasetRenameOptions {
-  /**
-   * The new name for the dataset.
-   */
-  new_name: string;
-  /**
-   * Whether to recursively rename snapshots.
-   */
-  recursive?: boolean;
-  /**
-   * This operation does not check whether the dataset is currently in use. Renaming an active dataset may disrupt SMB shares, iSCSI targets, snapshots, replication, and other services.
-   *
-   * Set Force only if you understand and accept the risks.
-   */
-  force?: boolean;
-}
-/**
- * Used by: pool.dataset.update (params)
- */
-export interface PoolDatasetUpdate {
-  /**
-   * Comments or description for the dataset.
-   */
-  comments?: string;
-  sync?: Sync;
-  snapdev?: Snapdev;
-  compression?: Compression;
-  exec?: Exec;
-  /**
-   * Identifies which service or system manages this dataset.
-   */
-  managedby?: string;
-  /**
-   * Percentage of dataset quota at which to issue a warning. 0-100 or 'INHERIT'.
-   */
-  quota_warning?: number | "INHERIT";
-  /**
-   * Percentage of dataset quota at which to issue a critical alert. 0-100 or 'INHERIT'.
-   */
-  quota_critical?: number | "INHERIT";
-  /**
-   * Percentage of reference quota at which to issue a warning. 0-100 or 'INHERIT'.
-   */
-  refquota_warning?: number | "INHERIT";
-  /**
-   * Percentage of reference quota at which to issue a critical alert. 0-100 or 'INHERIT'.
-   */
-  refquota_critical?: number | "INHERIT";
-  /**
-   * Minimum disk space guaranteed to this dataset and its children in bytes.
-   */
-  reservation?: number;
-  /**
-   * Minimum disk space guaranteed to this dataset itself in bytes.
-   */
-  refreservation?: number;
-  /**
-   * Size threshold below which blocks are stored on special vdevs in bytes.
-   */
-  special_small_block_size?: number | "INHERIT";
-  /**
-   * Number of copies of data blocks to maintain for redundancy.
-   */
-  copies?: number | "INHERIT";
-  snapdir?: Snapdir;
-  deduplication?: Deduplication;
-  checksum?: Checksum;
-  readonly?: ReadonlyInput;
-  /**
-   * Custom user-defined properties to set on the dataset.
-   */
-  user_properties?: PoolDatasetCreateUserProperty[];
-  /**
-   * Whether to create any missing parent datasets.
-   */
-  create_ancestors?: boolean;
-  /**
-   * Force creation even if the size is not optimal.
-   */
-  force_size?: boolean;
-  /**
-   * The volume size in bytes; supposed to be a multiple of the block size.
-   */
-  volsize?: number;
-  aclmode?: Aclmode;
-  acltype?: AcltypeInput2;
-  atime?: Atime;
-  /**
-   * Maximum disk space this dataset and its children can consume in bytes.
-   */
-  quota?: number | (0 | null);
-  /**
-   * Maximum disk space this dataset itself can consume in bytes.
-   */
-  refquota?: number | (0 | null);
-  /**
-   * The suggested block size for files in this filesystem dataset.
-   */
-  recordsize?: string;
-  /**
-   * Array of user property updates to apply to the dataset.
-   */
-  user_properties_update?: PoolDatasetUpdateUserProperty[];
-}
-/**
- * Used by: pool.create (response), pool.get_instance (params), pool.get_instance (response), pool.query (params), pool.query (response), pool.update (response)
- */
 export interface PoolEntry {
-  /**
-   * Unique identifier for this storage pool.
-   */
   id: number;
-  /**
-   * Name of the storage pool.
-   */
   name: string;
-  /**
-   * Globally unique identifier (GUID) for this pool.
-   */
   guid: string;
-  /**
-   * Set when pool is made up of SED disks.
-   */
   all_sed: boolean | null;
-  /**
-   * Current status of the pool.
-   */
   status: string;
-  /**
-   * Filesystem path where the pool is mounted.
-   */
   path: string;
-  /**
-   * Information about the most recent scrub or resilver operation. `null` if no scan data is available.
-   */
   scan: PoolScan | null;
-  /**
-   * Information about any active pool expansion operation. `null` if no expansion is running.
-   */
   expand: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Whether this pool has been upgraded to the latest feature flags.
-   */
   is_upgraded?: boolean;
-  /**
-   * Whether the pool is in a healthy state with no errors or warnings.
-   */
   healthy: boolean;
-  /**
-   * Whether the pool has warning conditions that require attention.
-   */
   warning: boolean;
-  /**
-   * Detailed status code for the pool condition. `null` if not applicable.
-   */
   status_code: string | null;
-  /**
-   * Human-readable description of the pool status. `null` if not available.
-   */
   status_detail: string | null;
-  /**
-   * Total size of the pool in bytes. `null` if not available.
-   */
   size: number | null;
-  /**
-   * Amount of space currently allocated in the pool in bytes. `null` if not available.
-   */
   allocated: number | null;
-  /**
-   * Amount of free space available in the pool in bytes. `null` if not available.
-   */
   free: number | null;
-  /**
-   * Amount of space being freed (in bytes) by ongoing operations. `null` if not available.
-   */
   freeing: number | null;
-  /**
-   * Size of the deduplication table in bytes. `null` if deduplication is not enabled.
-   */
   dedup_table_size: number | null;
-  /**
-   * Quota limit for the deduplication table. `null` if no quota is set.
-   */
   dedup_table_quota: string | null;
-  /**
-   * Percentage of pool fragmentation as a string. `null` if not available.
-   */
   fragmentation: string | null;
-  /**
-   * Human-readable string representation of the pool size. `null` if not available.
-   */
   size_str: string | null;
-  /**
-   * Human-readable string representation of allocated space. `null` if not available.
-   */
   allocated_str: string | null;
-  /**
-   * Human-readable string representation of free space. `null` if not available.
-   */
   free_str: string | null;
-  /**
-   * Human-readable string representation of space being freed. `null` if not available.
-   */
   freeing_str: string | null;
-  /**
-   * Auto-trim configuration for the pool indicating whether automatic TRIM operations are enabled.
-   */
   autotrim: {
     [k: string]: unknown;
   };
-  /**
-   * Physical topology and structure of the pool including vdevs. `null` if not available.
-   */
   topology: PoolTopology | null;
 }
-/**
- * Used by: pool.import_pool (params)
- */
 export interface PoolImportPoolArgs {
-  /**
-   * GUID of the pool to import.
-   */
   guid: string;
-  /**
-   * If specified, import the pool using this name.
-   */
   name?: string | null;
 }
-/**
- * Used by: pool.scan (event)
- */
 export interface PoolScanChangedEvent {
-  /**
-   * Pool name.
-   */
   name: string;
   scan: PoolScanInput;
 }
-/**
- * Used by: pool.snapshot.create (params)
- */
 export interface PoolSnapshotCreateWithName {
-  /**
-   * Name of the dataset to create a snapshot of.
-   */
   dataset: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
   recursive?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
   exclude?: string[];
-  /**
-   * Whether to sync VMware VMs before taking the snapshot.
-   */
   vmware_sync?: boolean;
-  /**
-   * Temporarily suspend VMs before taking snapshot.
-   */
   suspend_vms?: boolean;
-  /**
-   * Object mapping ZFS property names to values to set on the snapshot.
-   */
   properties?: {
     [k: string]: unknown;
   };
-  /**
-   * Explicit name for the snapshot.
-   */
   name: string;
 }
-/**
- * Used by: pool.snapshot.create (params)
- */
 export interface PoolSnapshotCreateWithSchema {
-  /**
-   * Name of the dataset to create a snapshot of.
-   */
   dataset: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
   recursive?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
   exclude?: string[];
-  /**
-   * Whether to sync VMware VMs before taking the snapshot.
-   */
   vmware_sync?: boolean;
-  /**
-   * Temporarily suspend VMs before taking snapshot.
-   */
   suspend_vms?: boolean;
-  /**
-   * Object mapping ZFS property names to values to set on the snapshot.
-   */
   properties?: {
     [k: string]: unknown;
   };
-  /**
-   * Naming schema pattern to generate the snapshot name automatically.
-   */
   naming_schema: string;
 }
-/**
- * Used by: pool.snapshot.rename (params)
- */
 export interface PoolSnapshotRenameOptions {
-  /**
-   * The new name for the snapshot.
-   */
   new_name: string;
-  /**
-   * This operation does not check whether the dataset is currently in use. Renaming an active dataset may disrupt SMB shares, iSCSI targets, snapshots, replication, and other services.
-   *
-   * Set Force only if you understand and accept the risks.
-   */
   force?: boolean;
-  /**
-   * Recursively rename the snapshots of all descendant resources.
-   */
   recursive?: boolean;
 }
-/**
- * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
- */
 export interface PoolSnapshotTaskDBEntry {
-  /**
-   * Unique identifier for the periodic snapshot task.
-   */
   id: number;
-  /**
-   * The dataset to take snapshots of.
-   */
   dataset: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
   recursive?: boolean;
-  /**
-   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
-   */
   lifetime_value?: number;
-  /**
-   * Unit of time for snapshot retention.
-   */
   lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-  /**
-   * Whether this periodic snapshot task is enabled.
-   */
   enabled?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
   exclude?: string[];
-  /**
-   * Naming pattern for generated snapshots using strftime format.
-   */
   naming_schema?: string;
-  /**
-   * Whether to take snapshots even if no data has changed.
-   */
   allow_empty?: boolean;
   schedule?: PoolSnapshotTaskCron;
   state: string;
 }
-/**
- * Used by: pool.snapshot.update (params)
- */
 export interface PoolSnapshotUpdate {
-  /**
-   * Properties to update.
-   */
   user_properties_update?: PoolSnapshotUserPropertyUpdate[];
-  /**
-   * Properties to remove.
-   */
   user_properties_remove?: string[];
 }
-/**
- * Used by: pool.snapshot.update (params)
- */
 export interface PoolSnapshotUserPropertyUpdate {
-  /**
-   * The property name in namespace:property format.
-   */
   key: string;
-  /**
-   * The new value to assign to the user property.
-   */
   value: string;
 }
-/**
- * Used by: pool.update (params)
- */
 export interface PoolUpdate {
-  /**
-   * How to manage the deduplication table quota allocation.
-   */
   dedup_table_quota?: "AUTO" | "CUSTOM" | null;
-  /**
-   * Custom quota value in bytes when `dedup_table_quota` is set to CUSTOM.
-   */
   dedup_table_quota_value?: number | null;
   topology?: PoolUpdateTopology;
-  /**
-   * Whether to allow disks with duplicate serial numbers in the pool.
-   */
   allow_duplicate_serials?: boolean;
-  /**
-   * When set, all disks in the pool must be SED based.
-   */
   all_sed?: boolean;
-  /**
-   * Bypass topology policy validation. Allows data vdevs that differ in type or width from the rest of the pool, RAIDZ/mirror vdevs wider than the recommended maximum, and special or dedup vdevs whose redundancy does not match the data vdevs. Structural requirements (minimum disks per vdev type, dRAID configuration) still apply. This option is not permitted on Enterprise-licensed systems.
-   */
   force_topology?: boolean;
   autotrim?: Autotrim;
 }
-/**
- * Cannot change type of existing vdevs.
- *
- * Used by: pool.update (params)
- */
 export interface PoolUpdateTopology {
-  /**
-   * All vdevs must be of the same `type`.
-   */
   data?: (PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID)[];
-  /**
-   * Array of special vdev configurations for metadata storage.
-   */
   special?: (PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID)[];
-  /**
-   * Array of deduplication table vdev configurations.
-   */
   dedup?: PoolCreateTopologyDedupVdev[];
-  /**
-   * Array of L2ARC cache vdev configurations.
-   */
   cache?: PoolCreateTopologyCacheVdev[];
-  /**
-   * Array of ZFS Intent Log (ZIL) vdev configurations.
-   */
   log?: PoolCreateTopologyLogVdev[];
-  /**
-   * Array of spare disk names for the pool.
-   */
   spares?: string[];
 }
-/**
- * Used by: webui.main.dashboard.sys_info (response)
- */
 export interface RemoteInfo {
-  /**
-   * Platform type (e.g., 'FREENAS', 'TRUENAS-SCALE').
-   */
   platform: string;
-  /**
-   * Software version string.
-   */
   version: string;
-  /**
-   * License information object. `null` if no license is installed.
-   */
   license: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Hardware serial number of the system.
-   */
   system_serial: string;
-  /**
-   * System hostname.
-   */
   hostname: string;
-  /**
-   * System uptime in seconds since last boot.
-   */
   uptime_seconds: number;
-  /**
-   * Current system date and time.
-   */
   datetime: string;
 }
-/**
- * Used by: replication.query (event)
- */
 export interface ReplicationAddedEvent {
   id: number;
   fields: ReplicationEntryInput;
 }
-/**
- * Used by: replication.query (event)
- */
 export interface ReplicationEntryInput {
-  /**
-   * Unique identifier for this replication task.
-   */
   id: number;
-  /**
-   * Name for replication task.
-   */
   name: string;
   direction: DirectionInput2;
   transport: TransportInput;
-  /**
-   * Keychain Credential of type `SSH_CREDENTIALS`.
-   */
   ssh_credentials?: KeychainCredentialEntryInput | null;
-  /**
-   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
-   *
-   * * `LOCAL`: Local system initiates the connection
-   * * `REMOTE`: Remote system initiates the connection
-   * * `null`: Not applicable for other transport types
-   */
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
-  /**
-   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
-   */
   netcat_active_side_listen_address?: string | null;
-  /**
-   * Minimum port number in the range for netcat connections. `null` if not applicable.
-   */
   netcat_active_side_port_min?: number | null;
-  /**
-   * Maximum port number in the range for netcat connections. `null` if not applicable.
-   */
   netcat_active_side_port_max?: number | null;
-  /**
-   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
-   */
   netcat_passive_side_connect_address?: string | null;
-  /**
-   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
-   */
   sudo?: boolean;
   /**
-   * List of datasets to replicate snapshots from.
-   *
    * @minItems 1
    */
   source_datasets: [string, ...string[]];
-  /**
-   * Dataset to put snapshots into.
-   */
   target_dataset: string;
-  /**
-   * Whether to recursively replicate child datasets.
-   */
   recursive: boolean;
-  /**
-   * Array of dataset patterns to exclude from replication.
-   */
   exclude?: string[];
-  /**
-   * Send dataset properties along with snapshots.
-   */
   properties?: boolean;
-  /**
-   * Array of dataset property names to exclude from replication.
-   */
   properties_exclude?: string[];
-  /**
-   * Object mapping dataset property names to override values during replication.
-   */
   properties_override?: {
     [k: string]: string;
   };
-  /**
-   * Whether to use full ZFS replication.
-   */
   replicate?: boolean;
-  /**
-   * Whether to enable encryption for the replicated datasets.
-   */
   encryption?: boolean;
-  /**
-   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
-   */
   encryption_inherit?: boolean | null;
-  /**
-   * Encryption key for replicated datasets. `null` if not specified.
-   */
   encryption_key?: string | null;
-  /**
-   * Format of the encryption key.
-   *
-   * * `HEX`: Hexadecimal-encoded key
-   * * `PASSPHRASE`: Text passphrase
-   * * `null`: Not applicable when encryption is disabled
-   */
   encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
-  /**
-   * Filesystem path where encryption key is stored. `null` if not using key file.
-   */
   encryption_key_location?: string | null;
-  /**
-   * List of periodic snapshot tasks that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
-   */
-  periodic_snapshot_tasks: PoolSnapshotTaskDBEntryInput[];
-  /**
-   * List of naming schemas for pull replication.
-   */
+  periodic_snapshot_tasks: PoolSnapshotTaskDBEntry[];
   naming_schema?: string[];
-  /**
-   * List of naming schemas for push replication.
-   */
   also_include_naming_schema?: string[];
-  /**
-   * Replicate all snapshots which names match specified regular expression.
-   */
   name_regex?: string | null;
-  /**
-   * Allow replication to run automatically on schedule or after bound periodic snapshot task.
-   */
   auto: boolean;
-  /**
-   * Schedule to run replication task. Only `auto` replication tasks without bound periodic snapshot tasks can have a schedule.
-   */
   schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
-   */
   restrict_schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Will only replicate snapshots that match `schedule` or `restrict_schedule`.
-   */
   only_matching_schedule?: boolean;
-  /**
-   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
-   */
   allow_from_scratch?: boolean;
   readonly?: ReadonlyInput2;
-  /**
-   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
-   */
   hold_pending_snapshots?: boolean;
-  /**
-   * How to delete old snapshots on target side:
-   *
-   * * `SOURCE`: Delete snapshots that are absent on source side.
-   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
-   * * `NONE`: Do not delete any snapshots.
-   */
   retention_policy: "SOURCE" | "CUSTOM" | "NONE";
-  /**
-   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
   lifetime_value?: number | null;
-  /**
-   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
   lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
-  /**
-   * Array of different retention schedules with their own cron schedules and lifetime settings.
-   */
   lifetimes?: ReplicationLifetimeModel[];
-  /**
-   * Compresses SSH stream. Available only for SSH transport.
-   */
   compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
-  /**
-   * Limits speed of SSH stream. Available only for SSH transport.
-   */
   speed_limit?: number | null;
-  /**
-   * Enable large block support for ZFS send streams.
-   */
   large_block?: boolean;
-  /**
-   * Enable embedded block support for ZFS send streams.
-   */
   embed?: boolean;
-  /**
-   * Enable compressed ZFS send streams.
-   */
   compressed?: boolean;
-  /**
-   * Number of retries before considering replication failed.
-   */
   retries?: number;
-  /**
-   * Log level for replication task execution. Controls verbosity of replication logs.
-   */
   logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
-  /**
-   * Whether this replication task is enabled.
-   */
   enabled?: boolean;
-  /**
-   * Current state information for the replication task.
-   */
   state: {
     [k: string]: unknown;
   };
-  /**
-   * Information about the currently running job. `null` if no job is running.
-   */
   job: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Whether this replication task has encrypted dataset keys available.
-   */
   has_encrypted_dataset_keys: boolean;
 }
-/**
- * Used by: replication.create (params), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.run_onetime (params), replication.update (params) … and 1 more
- */
-export interface ReplicationTimeCronModel {
-  /**
-   * "00" - "59".
-   */
-  minute?: string;
-  /**
-   * "00" - "23".
-   */
-  hour?: string;
-  /**
-   * "1" - "31".
-   */
-  dom?: string;
-  /**
-   * "1" (January) - "12" (December).
-   */
-  month?: string;
-  /**
-   * "1" (Monday) - "7" (Sunday).
-   */
-  dow?: string;
-  /**
-   * Start time for the time window in HH:MM format.
-   */
-  begin?: string;
-  /**
-   * End time for the time window in HH:MM format.
-   */
-  end?: string;
-}
-/**
- * Used by: replication.query (event)
- */
 export interface ReplicationChangedEvent {
   id: number;
   fields: ReplicationEntryInput;
 }
-/**
- * Used by: replication.create (params)
- */
-export interface ReplicationCreate {
-  /**
-   * Name for replication task.
-   */
-  name: string;
-  direction: DirectionInput2;
-  transport: TransportInput;
-  /**
-   * Keychain Credential ID of type `SSH_CREDENTIALS`.
-   */
-  ssh_credentials?: number | null;
-  /**
-   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
-   *
-   * * `LOCAL`: Local system initiates the connection
-   * * `REMOTE`: Remote system initiates the connection
-   * * `null`: Not applicable for other transport types
-   */
-  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
-  /**
-   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_active_side_listen_address?: string | null;
-  /**
-   * Minimum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_min?: number | null;
-  /**
-   * Maximum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_max?: number | null;
-  /**
-   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_passive_side_connect_address?: string | null;
-  /**
-   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
-   */
-  sudo?: boolean;
-  /**
-   * List of datasets to replicate snapshots from.
-   *
-   * @minItems 1
-   */
-  source_datasets: [string, ...string[]];
-  /**
-   * Dataset to put snapshots into.
-   */
-  target_dataset: string;
-  /**
-   * Whether to recursively replicate child datasets.
-   */
-  recursive: boolean;
-  /**
-   * Array of dataset patterns to exclude from replication.
-   */
-  exclude?: string[];
-  /**
-   * Send dataset properties along with snapshots.
-   */
-  properties?: boolean;
-  /**
-   * Array of dataset property names to exclude from replication.
-   */
-  properties_exclude?: string[];
-  /**
-   * Object mapping dataset property names to override values during replication.
-   */
-  properties_override?: {
-    [k: string]: string;
-  };
-  /**
-   * Whether to use full ZFS replication.
-   */
-  replicate?: boolean;
-  /**
-   * Whether to enable encryption for the replicated datasets.
-   */
-  encryption?: boolean;
-  /**
-   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
-   */
-  encryption_inherit?: boolean | null;
-  /**
-   * Encryption key for replicated datasets. `null` if not specified.
-   */
-  encryption_key?: string | null;
-  /**
-   * Format of the encryption key.
-   *
-   * * `HEX`: Hexadecimal-encoded key
-   * * `PASSPHRASE`: Text passphrase
-   * * `null`: Not applicable when encryption is disabled
-   */
-  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
-  /**
-   * Filesystem path where encryption key is stored. `null` if not using key file.
-   */
-  encryption_key_location?: string | null;
-  /**
-   * List of periodic snapshot task IDs that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
-   */
-  periodic_snapshot_tasks?: number[];
-  /**
-   * List of naming schemas for pull replication.
-   */
-  naming_schema?: string[];
-  /**
-   * List of naming schemas for push replication.
-   */
-  also_include_naming_schema?: string[];
-  /**
-   * Replicate all snapshots which names match specified regular expression.
-   */
-  name_regex?: string | null;
-  /**
-   * Allow replication to run automatically on schedule or after bound periodic snapshot task.
-   */
-  auto: boolean;
-  /**
-   * Schedule to run replication task. Only `auto` replication tasks without bound periodic snapshot tasks can have a schedule.
-   */
-  schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
-   */
-  restrict_schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Will only replicate snapshots that match `schedule` or `restrict_schedule`.
-   */
-  only_matching_schedule?: boolean;
-  /**
-   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
-   */
-  allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
-  /**
-   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
-   */
-  hold_pending_snapshots?: boolean;
-  /**
-   * How to delete old snapshots on target side:
-   *
-   * * `SOURCE`: Delete snapshots that are absent on source side.
-   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
-   * * `NONE`: Do not delete any snapshots.
-   */
-  retention_policy: "SOURCE" | "CUSTOM" | "NONE";
-  /**
-   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_value?: number | null;
-  /**
-   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
-  /**
-   * Array of different retention schedules with their own cron schedules and lifetime settings.
-   */
-  lifetimes?: ReplicationLifetimeModel[];
-  /**
-   * Compresses SSH stream. Available only for SSH transport.
-   */
-  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
-  /**
-   * Limits speed of SSH stream. Available only for SSH transport.
-   */
-  speed_limit?: number | null;
-  /**
-   * Enable large block support for ZFS send streams.
-   */
-  large_block?: boolean;
-  /**
-   * Enable embedded block support for ZFS send streams.
-   */
-  embed?: boolean;
-  /**
-   * Enable compressed ZFS send streams.
-   */
-  compressed?: boolean;
-  /**
-   * Number of retries before considering replication failed.
-   */
-  retries?: number;
-  /**
-   * Log level for replication task execution. Controls verbosity of replication logs.
-   */
-  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
-  /**
-   * Whether this replication task is enabled.
-   */
-  enabled?: boolean;
-}
-/**
- * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
- */
 export interface ReplicationEntry {
-  /**
-   * Unique identifier for this replication task.
-   */
   id: number;
-  /**
-   * Name for replication task.
-   */
   name: string;
   direction: Direction2;
   transport: Transport;
-  /**
-   * Keychain Credential of type `SSH_CREDENTIALS`.
-   */
   ssh_credentials?: KeychainCredentialEntry | null;
-  /**
-   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
-   *
-   * * `LOCAL`: Local system initiates the connection
-   * * `REMOTE`: Remote system initiates the connection
-   * * `null`: Not applicable for other transport types
-   */
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
-  /**
-   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
-   */
   netcat_active_side_listen_address?: string | null;
-  /**
-   * Minimum port number in the range for netcat connections. `null` if not applicable.
-   */
   netcat_active_side_port_min?: number | null;
-  /**
-   * Maximum port number in the range for netcat connections. `null` if not applicable.
-   */
   netcat_active_side_port_max?: number | null;
-  /**
-   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
-   */
   netcat_passive_side_connect_address?: string | null;
-  /**
-   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
-   */
   sudo?: boolean;
   /**
-   * List of datasets to replicate snapshots from.
-   *
    * @minItems 1
    */
   source_datasets: [string, ...string[]];
-  /**
-   * Dataset to put snapshots into.
-   */
   target_dataset: string;
-  /**
-   * Whether to recursively replicate child datasets.
-   */
   recursive: boolean;
-  /**
-   * Array of dataset patterns to exclude from replication.
-   */
   exclude?: string[];
-  /**
-   * Send dataset properties along with snapshots.
-   */
   properties?: boolean;
-  /**
-   * Array of dataset property names to exclude from replication.
-   */
   properties_exclude?: string[];
-  /**
-   * Object mapping dataset property names to override values during replication.
-   */
   properties_override?: {
     [k: string]: string;
   };
-  /**
-   * Whether to use full ZFS replication.
-   */
   replicate?: boolean;
-  /**
-   * Whether to enable encryption for the replicated datasets.
-   */
   encryption?: boolean;
-  /**
-   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
-   */
   encryption_inherit?: boolean | null;
-  /**
-   * Encryption key for replicated datasets. `null` if not specified.
-   */
   encryption_key?: string | null;
-  /**
-   * Format of the encryption key.
-   *
-   * * `HEX`: Hexadecimal-encoded key
-   * * `PASSPHRASE`: Text passphrase
-   * * `null`: Not applicable when encryption is disabled
-   */
   encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
-  /**
-   * Filesystem path where encryption key is stored. `null` if not using key file.
-   */
   encryption_key_location?: string | null;
-  /**
-   * List of periodic snapshot tasks that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
-   */
   periodic_snapshot_tasks: PoolSnapshotTaskDBEntry[];
-  /**
-   * List of naming schemas for pull replication.
-   */
   naming_schema?: string[];
-  /**
-   * List of naming schemas for push replication.
-   */
   also_include_naming_schema?: string[];
-  /**
-   * Replicate all snapshots which names match specified regular expression.
-   */
   name_regex?: string | null;
-  /**
-   * Allow replication to run automatically on schedule or after bound periodic snapshot task.
-   */
   auto: boolean;
-  /**
-   * Schedule to run replication task. Only `auto` replication tasks without bound periodic snapshot tasks can have a schedule.
-   */
   schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
-   */
   restrict_schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Will only replicate snapshots that match `schedule` or `restrict_schedule`.
-   */
   only_matching_schedule?: boolean;
-  /**
-   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
-   */
   allow_from_scratch?: boolean;
   readonly?: Readonly;
-  /**
-   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
-   */
   hold_pending_snapshots?: boolean;
-  /**
-   * How to delete old snapshots on target side:
-   *
-   * * `SOURCE`: Delete snapshots that are absent on source side.
-   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
-   * * `NONE`: Do not delete any snapshots.
-   */
   retention_policy: "SOURCE" | "CUSTOM" | "NONE";
-  /**
-   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
   lifetime_value?: number | null;
-  /**
-   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
   lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
-  /**
-   * Array of different retention schedules with their own cron schedules and lifetime settings.
-   */
   lifetimes?: ReplicationLifetimeModel[];
-  /**
-   * Compresses SSH stream. Available only for SSH transport.
-   */
   compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
-  /**
-   * Limits speed of SSH stream. Available only for SSH transport.
-   */
   speed_limit?: number | null;
-  /**
-   * Enable large block support for ZFS send streams.
-   */
   large_block?: boolean;
-  /**
-   * Enable embedded block support for ZFS send streams.
-   */
   embed?: boolean;
-  /**
-   * Enable compressed ZFS send streams.
-   */
   compressed?: boolean;
-  /**
-   * Number of retries before considering replication failed.
-   */
   retries?: number;
-  /**
-   * Log level for replication task execution. Controls verbosity of replication logs.
-   */
   logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
-  /**
-   * Whether this replication task is enabled.
-   */
   enabled?: boolean;
-  /**
-   * Current state information for the replication task.
-   */
   state: {
     [k: string]: unknown;
   };
-  /**
-   * Information about the currently running job. `null` if no job is running.
-   */
   job: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Whether this replication task has encrypted dataset keys available.
-   */
   has_encrypted_dataset_keys: boolean;
 }
-/**
- * Used by: replication.run_onetime (params)
- */
-export interface ReplicationRunOnetimeArgs {
-  direction: DirectionInput2;
-  transport: TransportInput;
-  /**
-   * Keychain Credential ID of type `SSH_CREDENTIALS`.
-   */
-  ssh_credentials?: number | null;
-  /**
-   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
-   *
-   * * `LOCAL`: Local system initiates the connection
-   * * `REMOTE`: Remote system initiates the connection
-   * * `null`: Not applicable for other transport types
-   */
-  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
-  /**
-   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_active_side_listen_address?: string | null;
-  /**
-   * Minimum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_min?: number | null;
-  /**
-   * Maximum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_max?: number | null;
-  /**
-   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_passive_side_connect_address?: string | null;
-  /**
-   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
-   */
-  sudo?: boolean;
-  /**
-   * List of datasets to replicate snapshots from.
-   *
-   * @minItems 1
-   */
-  source_datasets: [string, ...string[]];
-  /**
-   * Dataset to put snapshots into.
-   */
-  target_dataset: string;
-  /**
-   * Whether to recursively replicate child datasets.
-   */
-  recursive: boolean;
-  /**
-   * Array of dataset patterns to exclude from replication.
-   */
-  exclude?: string[];
-  /**
-   * Send dataset properties along with snapshots.
-   */
-  properties?: boolean;
-  /**
-   * Array of dataset property names to exclude from replication.
-   */
-  properties_exclude?: string[];
-  /**
-   * Object mapping dataset property names to override values during replication.
-   */
-  properties_override?: {
-    [k: string]: string;
-  };
-  /**
-   * Whether to use full ZFS replication.
-   */
-  replicate?: boolean;
-  /**
-   * Whether to enable encryption for the replicated datasets.
-   */
-  encryption?: boolean;
-  /**
-   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
-   */
-  encryption_inherit?: boolean | null;
-  /**
-   * Encryption key for replicated datasets. `null` if not specified.
-   */
-  encryption_key?: string | null;
-  /**
-   * Format of the encryption key.
-   *
-   * * `HEX`: Hexadecimal-encoded key
-   * * `PASSPHRASE`: Text passphrase
-   * * `null`: Not applicable when encryption is disabled
-   */
-  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
-  /**
-   * Filesystem path where encryption key is stored. `null` if not using key file.
-   */
-  encryption_key_location?: string | null;
-  /**
-   * List of periodic snapshot task IDs that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
-   */
-  periodic_snapshot_tasks?: number[];
-  /**
-   * List of naming schemas for pull replication.
-   */
-  naming_schema?: string[];
-  /**
-   * List of naming schemas for push replication.
-   */
-  also_include_naming_schema?: string[];
-  /**
-   * Replicate all snapshots which names match specified regular expression.
-   */
-  name_regex?: string | null;
-  /**
-   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
-   */
-  restrict_schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
-   */
-  allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
-  /**
-   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
-   */
-  hold_pending_snapshots?: boolean;
-  /**
-   * How to delete old snapshots on target side:
-   *
-   * * `SOURCE`: Delete snapshots that are absent on source side.
-   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
-   * * `NONE`: Do not delete any snapshots.
-   */
-  retention_policy: "SOURCE" | "CUSTOM" | "NONE";
-  /**
-   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_value?: number | null;
-  /**
-   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
-  /**
-   * Array of different retention schedules with their own cron schedules and lifetime settings.
-   */
-  lifetimes?: ReplicationLifetimeModel[];
-  /**
-   * Compresses SSH stream. Available only for SSH transport.
-   */
-  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
-  /**
-   * Limits speed of SSH stream. Available only for SSH transport.
-   */
-  speed_limit?: number | null;
-  /**
-   * Enable large block support for ZFS send streams.
-   */
-  large_block?: boolean;
-  /**
-   * Enable embedded block support for ZFS send streams.
-   */
-  embed?: boolean;
-  /**
-   * Enable compressed ZFS send streams.
-   */
-  compressed?: boolean;
-  /**
-   * Number of retries before considering replication failed.
-   */
-  retries?: number;
-  /**
-   * Log level for replication task execution. Controls verbosity of replication logs.
-   */
-  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
-  /**
-   * Whether to exclude the mountpoint property from replication.
-   */
-  exclude_mountpoint_property?: boolean;
-  /**
-   * If `true` then replication will fail if target dataset already exists.
-   */
-  only_from_scratch?: boolean;
-  /**
-   * Mount destination file system.
-   */
-  mount?: boolean;
-}
-/**
- * Used by: replication.update (params)
- */
-export interface ReplicationUpdate {
-  /**
-   * Name for replication task.
-   */
-  name?: string;
-  direction?: DirectionInput2;
-  transport?: TransportInput;
-  /**
-   * Keychain Credential ID of type `SSH_CREDENTIALS`.
-   */
-  ssh_credentials?: number | null;
-  /**
-   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
-   *
-   * * `LOCAL`: Local system initiates the connection
-   * * `REMOTE`: Remote system initiates the connection
-   * * `null`: Not applicable for other transport types
-   */
-  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
-  /**
-   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_active_side_listen_address?: string | null;
-  /**
-   * Minimum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_min?: number | null;
-  /**
-   * Maximum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_max?: number | null;
-  /**
-   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_passive_side_connect_address?: string | null;
-  /**
-   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
-   */
-  sudo?: boolean;
-  /**
-   * List of datasets to replicate snapshots from.
-   *
-   * @minItems 1
-   */
-  source_datasets?: [string, ...string[]];
-  /**
-   * Dataset to put snapshots into.
-   */
-  target_dataset?: string;
-  /**
-   * Whether to recursively replicate child datasets.
-   */
-  recursive?: boolean;
-  /**
-   * Array of dataset patterns to exclude from replication.
-   */
-  exclude?: string[];
-  /**
-   * Send dataset properties along with snapshots.
-   */
-  properties?: boolean;
-  /**
-   * Array of dataset property names to exclude from replication.
-   */
-  properties_exclude?: string[];
-  /**
-   * Object mapping dataset property names to override values during replication.
-   */
-  properties_override?: {
-    [k: string]: string;
-  };
-  /**
-   * Whether to use full ZFS replication.
-   */
-  replicate?: boolean;
-  /**
-   * Whether to enable encryption for the replicated datasets.
-   */
-  encryption?: boolean;
-  /**
-   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
-   */
-  encryption_inherit?: boolean | null;
-  /**
-   * Encryption key for replicated datasets. `null` if not specified.
-   */
-  encryption_key?: string | null;
-  /**
-   * Format of the encryption key.
-   *
-   * * `HEX`: Hexadecimal-encoded key
-   * * `PASSPHRASE`: Text passphrase
-   * * `null`: Not applicable when encryption is disabled
-   */
-  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
-  /**
-   * Filesystem path where encryption key is stored. `null` if not using key file.
-   */
-  encryption_key_location?: string | null;
-  /**
-   * List of periodic snapshot task IDs that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
-   */
-  periodic_snapshot_tasks?: number[];
-  /**
-   * List of naming schemas for pull replication.
-   */
-  naming_schema?: string[];
-  /**
-   * List of naming schemas for push replication.
-   */
-  also_include_naming_schema?: string[];
-  /**
-   * Replicate all snapshots which names match specified regular expression.
-   */
-  name_regex?: string | null;
-  /**
-   * Allow replication to run automatically on schedule or after bound periodic snapshot task.
-   */
-  auto?: boolean;
-  /**
-   * Schedule to run replication task. Only `auto` replication tasks without bound periodic snapshot tasks can have a schedule.
-   */
-  schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
-   */
-  restrict_schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Will only replicate snapshots that match `schedule` or `restrict_schedule`.
-   */
-  only_matching_schedule?: boolean;
-  /**
-   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
-   */
-  allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
-  /**
-   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
-   */
-  hold_pending_snapshots?: boolean;
-  /**
-   * How to delete old snapshots on target side:
-   *
-   * * `SOURCE`: Delete snapshots that are absent on source side.
-   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
-   * * `NONE`: Do not delete any snapshots.
-   */
-  retention_policy?: "SOURCE" | "CUSTOM" | "NONE";
-  /**
-   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_value?: number | null;
-  /**
-   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
-  /**
-   * Array of different retention schedules with their own cron schedules and lifetime settings.
-   */
-  lifetimes?: ReplicationLifetimeModel[];
-  /**
-   * Compresses SSH stream. Available only for SSH transport.
-   */
-  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
-  /**
-   * Limits speed of SSH stream. Available only for SSH transport.
-   */
-  speed_limit?: number | null;
-  /**
-   * Enable large block support for ZFS send streams.
-   */
-  large_block?: boolean;
-  /**
-   * Enable embedded block support for ZFS send streams.
-   */
-  embed?: boolean;
-  /**
-   * Enable compressed ZFS send streams.
-   */
-  compressed?: boolean;
-  /**
-   * Number of retries before considering replication failed.
-   */
-  retries?: number;
-  /**
-   * Log level for replication task execution. Controls verbosity of replication logs.
-   */
-  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
-  /**
-   * Whether this replication task is enabled.
-   */
-  enabled?: boolean;
-}
-/**
- * Used by: reporting.get_data (response), reporting.graph (response), reporting.netdata_get_data (response), reporting.netdata_graph (response)
- */
 export interface ReportingGetDataResponse {
-  /**
-   * Name of the performance metric.
-   */
   name: string;
-  /**
-   * Specific instance identifier for the metric. `null` for system-wide metrics.
-   */
   identifier: string | null;
-  /**
-   * Array of time-series data points for the requested time period.
-   */
   data: unknown[];
-  /**
-   * Statistical aggregations of the data over the time period.
-   */
   aggregations: Aggregations | null;
-  /**
-   * Actual start timestamp of the returned data.
-   */
   start: number;
-  /**
-   * Actual end timestamp of the returned data.
-   */
   end: number;
-  /**
-   * Array of labels describing each data series in the results.
-   */
   legend: string[];
 }
-/**
- * Used by: rsynctask.query (event)
- */
 export interface RsyncTaskAddedEvent {
   id: number;
   fields: RsyncTaskEntryInput;
 }
-/**
- * Used by: rsynctask.query (event)
- */
 export interface RsyncTaskEntryInput {
-  /**
-   * Unique identifier for the rsync task.
-   */
   id: number;
-  /**
-   * Local filesystem path to synchronize.
-   */
   path: string;
-  /**
-   * The ZFS dataset containing the rsync task path (e.g., 'tank/data'). Returns `null` if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
   dataset: string | null;
-  /**
-   * The path of the rsync task relative to the dataset mountpoint (e.g., 'backups/daily'). An empty string indicates the task path is at the dataset root. Returns `null` if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
   relative_path: string | null;
-  /**
-   * Username to run the rsync task as.
-   */
   user: string;
   mode?: ModeInput3;
-  /**
-   * IP address or hostname of the remote system. If username differs on the remote host, "username@remote_host" format should be used.
-   */
   remotehost?: string | null;
-  /**
-   * Port number for SSH connection. Only applies when `mode` is SSH.
-   */
   remoteport?: number | null;
-  /**
-   * Name of remote module, this attribute should be specified when `mode` is set to MODULE.
-   */
   remotemodule?: string | null;
-  /**
-   * In SSH mode, if `ssh_credentials` (a keychain credential of `SSH_CREDENTIALS` type) is specified then it is used to connect to the remote host. If it is not specified, then keys in `user`'s .ssh directory are used.
-   */
   ssh_credentials?: KeychainCredentialEntryInput | null;
-  /**
-   * Path on the remote system to synchronize with.
-   */
   remotepath?: string;
   direction?: DirectionInput;
-  /**
-   * Description of the rsync task.
-   */
   desc?: string;
   schedule?: RsyncTaskSchedule;
-  /**
-   * Recursively transfer subdirectories.
-   */
   recursive?: boolean;
-  /**
-   * Preserve modification times of files.
-   */
   times?: boolean;
-  /**
-   * Reduce the size of the data to be transmitted.
-   */
   compress?: boolean;
-  /**
-   * Make rsync run recursively, preserving symlinks, permissions, modification times, group, and special files.
-   */
   archive?: boolean;
-  /**
-   * Delete files in the destination directory that do not exist in the source directory.
-   */
   delete?: boolean;
-  /**
-   * Suppress informational messages from rsync.
-   */
   quiet?: boolean;
-  /**
-   * Preserve original file permissions.
-   */
   preserveperm?: boolean;
-  /**
-   * Preserve extended attributes of files.
-   */
   preserveattr?: boolean;
-  /**
-   * Delay updating destination files until all transfers are complete.
-   */
   delayupdates?: boolean;
-  /**
-   * Array of additional rsync command-line options.
-   */
   extra?: string[];
-  /**
-   * Whether this rsync task is enabled.
-   */
   enabled?: boolean;
-  /**
-   * Whether this rsync task is currently locked (running).
-   */
   locked: boolean;
-  /**
-   * Information about the currently running job. `null` if no job is running.
-   */
   job: {
     [k: string]: unknown;
   } | null;
 }
-/**
- * Used by: rsynctask.query (event)
- */
 export interface RsyncTaskChangedEvent {
   id: number;
   fields: RsyncTaskEntryInput;
 }
-/**
- * Used by: rsynctask.create (response), rsynctask.get_instance (params), rsynctask.get_instance (response), rsynctask.query (params), rsynctask.query (response), rsynctask.update (response)
- */
 export interface RsyncTaskEntry {
-  /**
-   * Unique identifier for the rsync task.
-   */
   id: number;
-  /**
-   * Local filesystem path to synchronize.
-   */
   path: string;
-  /**
-   * The ZFS dataset containing the rsync task path (e.g., 'tank/data'). Returns `null` if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
   dataset: string | null;
-  /**
-   * The path of the rsync task relative to the dataset mountpoint (e.g., 'backups/daily'). An empty string indicates the task path is at the dataset root. Returns `null` if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
   relative_path: string | null;
-  /**
-   * Username to run the rsync task as.
-   */
   user: string;
   mode?: Mode3;
-  /**
-   * IP address or hostname of the remote system. If username differs on the remote host, "username@remote_host" format should be used.
-   */
   remotehost?: string | null;
-  /**
-   * Port number for SSH connection. Only applies when `mode` is SSH.
-   */
   remoteport?: number | null;
-  /**
-   * Name of remote module, this attribute should be specified when `mode` is set to MODULE.
-   */
   remotemodule?: string | null;
-  /**
-   * In SSH mode, if `ssh_credentials` (a keychain credential of `SSH_CREDENTIALS` type) is specified then it is used to connect to the remote host. If it is not specified, then keys in `user`'s .ssh directory are used.
-   */
   ssh_credentials?: KeychainCredentialEntry | null;
-  /**
-   * Path on the remote system to synchronize with.
-   */
   remotepath?: string;
   direction?: Direction;
-  /**
-   * Description of the rsync task.
-   */
   desc?: string;
   schedule?: RsyncTaskSchedule;
-  /**
-   * Recursively transfer subdirectories.
-   */
   recursive?: boolean;
-  /**
-   * Preserve modification times of files.
-   */
   times?: boolean;
-  /**
-   * Reduce the size of the data to be transmitted.
-   */
   compress?: boolean;
-  /**
-   * Make rsync run recursively, preserving symlinks, permissions, modification times, group, and special files.
-   */
   archive?: boolean;
-  /**
-   * Delete files in the destination directory that do not exist in the source directory.
-   */
   delete?: boolean;
-  /**
-   * Suppress informational messages from rsync.
-   */
   quiet?: boolean;
-  /**
-   * Preserve original file permissions.
-   */
   preserveperm?: boolean;
-  /**
-   * Preserve extended attributes of files.
-   */
   preserveattr?: boolean;
-  /**
-   * Delay updating destination files until all transfers are complete.
-   */
   delayupdates?: boolean;
-  /**
-   * Array of additional rsync command-line options.
-   */
   extra?: string[];
-  /**
-   * Whether this rsync task is enabled.
-   */
   enabled?: boolean;
-  /**
-   * Whether this rsync task is currently locked (running).
-   */
   locked: boolean;
-  /**
-   * Information about the currently running job. `null` if no job is running.
-   */
   job: {
     [k: string]: unknown;
   } | null;
 }
-/**
- * Used by: sharing.nfs.query (event)
- */
 export interface SharingNFSAddedEvent {
   id: number;
   fields: SharingNFSEntryInput;
 }
-/**
- * Used by: sharing.nfs.query (event)
- */
 export interface SharingNFSEntryInput {
-  /**
-   * Unique identifier for the NFS share.
-   */
   id: number;
-  /**
-   * Local path to be exported.
-   */
   path: string;
-  /**
-   * Dataset name component of the path (e.g., 'tank/share'). Null if path cannot be resolved.
-   */
   dataset: string | null;
-  /**
-   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
-   */
   relative_path: string | null;
-  /**
-   * IGNORED for now.
-   */
   aliases?: string[];
-  /**
-   * User comment associated with share.
-   */
   comment?: string;
-  /**
-   * List of authorized networks that are allowed to access the share having format "network/mask" CIDR notation. Each entry must be unique. If empty, all networks are allowed. Excessively long lists should be avoided.
-   */
   networks?: string[];
-  /**
-   * List of IP's/hostnames which are allowed to access the share. No quotes or spaces are allowed. Each entry must be unique. If empty, all IP's/hostnames are allowed. Excessively long lists should be avoided.
-   */
   hosts?: string[];
-  /**
-   * Export the share as read only.
-   */
   ro?: boolean;
-  /**
-   * Map root user client to a specified user.
-   */
   maproot_user?: string | null;
-  /**
-   * Map root group client to a specified group.
-   */
   maproot_group?: string | null;
-  /**
-   * Map all client users to a specified user.
-   */
   mapall_user?: string | null;
-  /**
-   * Map all client groups to a specified group.
-   */
   mapall_group?: string | null;
-  /**
-   * Specify the security schema.
-   */
   security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
-  /**
-   * Enable or disable the share.
-   */
   enabled?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
-  /**
-   * Enterprise feature to enable access to the ZFS snapshot directory for the export. Export path must be the root directory of a ZFS dataset.
-   */
   expose_snapshots?: boolean;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
   tier?: TierInfoInput | null;
 }
-/**
- * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event)
- */
 export interface TierInfoInput {
-  /**
-   * Storage performance tier for this share.
-   */
   tier_type: "REGULAR" | "PERFORMANCE";
-  /**
-   * Most recent rewrite job for this share's dataset, or `null` if no job history exists.
-   */
   tier_job?: ZfsTierRewriteJobEntryInput | null;
 }
-/**
- * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event), zfs.tier.rewrite_job_query (event)
- */
 export interface ZfsTierRewriteJobEntryInput {
-  /**
-   * Rewrite job identifier in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
-  /**
-   * ZFS dataset this job is operating on.
-   */
   dataset_name: string;
-  /**
-   * Unique identifier for this rewrite job.
-   */
   job_uuid: string;
   status: StatusInput2;
 }
-/**
- * Used by: sharing.nfs.query (event)
- */
 export interface SharingNFSChangedEvent {
   id: number;
   fields: SharingNFSEntryInput;
 }
-/**
- * Used by: sharing.nfs.create (response), sharing.nfs.get_instance (params), sharing.nfs.get_instance (response), sharing.nfs.query (params), sharing.nfs.query (response), sharing.nfs.update (response)
- */
 export interface SharingNFSEntry {
-  /**
-   * Unique identifier for the NFS share.
-   */
   id: number;
-  /**
-   * Local path to be exported.
-   */
   path: string;
-  /**
-   * Dataset name component of the path (e.g., 'tank/share'). Null if path cannot be resolved.
-   */
   dataset: string | null;
-  /**
-   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
-   */
   relative_path: string | null;
-  /**
-   * IGNORED for now.
-   */
   aliases?: string[];
-  /**
-   * User comment associated with share.
-   */
   comment?: string;
-  /**
-   * List of authorized networks that are allowed to access the share having format "network/mask" CIDR notation. Each entry must be unique. If empty, all networks are allowed. Excessively long lists should be avoided.
-   */
   networks?: string[];
-  /**
-   * List of IP's/hostnames which are allowed to access the share. No quotes or spaces are allowed. Each entry must be unique. If empty, all IP's/hostnames are allowed. Excessively long lists should be avoided.
-   */
   hosts?: string[];
-  /**
-   * Export the share as read only.
-   */
   ro?: boolean;
-  /**
-   * Map root user client to a specified user.
-   */
   maproot_user?: string | null;
-  /**
-   * Map root group client to a specified group.
-   */
   maproot_group?: string | null;
-  /**
-   * Map all client users to a specified user.
-   */
   mapall_user?: string | null;
-  /**
-   * Map all client groups to a specified group.
-   */
   mapall_group?: string | null;
-  /**
-   * Specify the security schema.
-   */
   security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
-  /**
-   * Enable or disable the share.
-   */
   enabled?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
-  /**
-   * Enterprise feature to enable access to the ZFS snapshot directory for the export. Export path must be the root directory of a ZFS dataset.
-   */
   expose_snapshots?: boolean;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
-   *
-   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
   tier?: TierInfo | null;
 }
-/**
- * Used by: sharing.nfs.create (response), sharing.nfs.get_instance (params), sharing.nfs.get_instance (response), sharing.nfs.query (params), sharing.nfs.query (response), sharing.nfs.update (response), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params) … and 10 more
- */
 export interface TierInfo {
-  /**
-   * Storage performance tier for this share.
-   */
   tier_type: "REGULAR" | "PERFORMANCE";
-  /**
-   * Most recent rewrite job for this share's dataset, or `null` if no job history exists.
-   */
   tier_job?: ZfsTierRewriteJobEntry | null;
 }
-/**
- * Used by: sharing.nfs.create (response), sharing.nfs.get_instance (params), sharing.nfs.get_instance (response), sharing.nfs.query (params), sharing.nfs.query (response), sharing.nfs.update (response), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params) … and 13 more
- */
 export interface ZfsTierRewriteJobEntry {
-  /**
-   * Rewrite job identifier in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
-  /**
-   * ZFS dataset this job is operating on.
-   */
   dataset_name: string;
-  /**
-   * Unique identifier for this rewrite job.
-   */
   job_uuid: string;
   status: Status;
 }
-/**
- * Used by: sharing.smb.query (event)
- */
 export interface SharingSMBAddedEvent {
   id: number;
   fields: SharingSMBEntryInput;
 }
-/**
- * SMB share entry on the TrueNAS server.
- *
- * Used by: sharing.smb.query (event)
- */
 export interface SharingSMBEntryInput {
-  /**
-   * Unique identifier for this SMB share.
-   */
   id: number;
   purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
   name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
   path: string | "EXTERNAL";
-  /**
-   * The ZFS dataset containing this SMB share (e.g., 'tank/share'). Returns `null` for external shares or if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
   dataset: string | null;
-  /**
-   * The path of the share relative to the dataset mountpoint (e.g., 'subfolder/data'). An empty string indicates the share is at the dataset root. Returns `null` for external shares or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
   relative_path: string | null;
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
   enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
   readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
   access_based_share_enumeration?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
   audit?: SmbAuditConfig;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
   options?:
     | (
         | LegacyOptInput
@@ -6982,113 +1994,26 @@ export interface SharingSMBEntryInput {
         | FCPStorageOptInput
       )
     | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
   tier?: TierInfoInput | null;
 }
-/**
- * Settings for auditing SMB shares.
- *
- * NOTE: If a user is a member of groups in the `watch_list` and the `ignore_list`, the `watch_list`     has priority, and the SMB session is audited.
- *
- * Used by: sharing.smb.create (params), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (event), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (params), sharing.smb.update (response)
- */
-export interface SmbAuditConfig {
-  /**
-   * Turn on auditing for the SMB share. SMB share auditing may not be enabled if `minimum_protocol` is `SMB1` in the SMB service configuration.
-   */
-  enable?: boolean;
-  /**
-   * Only audit the listed group accounts. If the list is empty, all groups will be audited.
-   */
-  watch_list?: string[];
-  /**
-   * List of groups that will not be audited.
-   */
-  ignore_list?: string[];
-}
-/**
- * Used by: sharing.smb.query (event)
- */
 export interface SharingSMBChangedEvent {
   id: number;
   fields: SharingSMBEntryInput;
 }
-/**
- * SMB share entry on the TrueNAS server.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface SharingSMBEntry {
-  /**
-   * Unique identifier for this SMB share.
-   */
   id: number;
   purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
   name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
   path: string | "EXTERNAL";
-  /**
-   * The ZFS dataset containing this SMB share (e.g., 'tank/share'). Returns `null` for external shares or if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
   dataset: string | null;
-  /**
-   * The path of the share relative to the dataset mountpoint (e.g., 'subfolder/data'). An empty string indicates the share is at the dataset root. Returns `null` for external shares or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
   relative_path: string | null;
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
   enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
   readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
   access_based_share_enumeration?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
   audit?: SmbAuditConfig;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
   options?:
     | (
         | LegacyOpt
@@ -7102,960 +2027,203 @@ export interface SharingSMBEntry {
         | FCPStorageOpt
       )
     | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
-   *
-   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
   tier?: TierInfo | null;
 }
-/**
- * Used by: sharing.smb.setacl (params)
- */
 export interface SharingSMBSetaclArgs {
-  /**
-   * Name of the SMB share.
-   */
   share_name: string;
-  /**
-   * List of SMB share ACL entries.
-   */
   share_acl?: SMBShareAclEntry[];
 }
-/**
- * An SMB Share ACL Entry that grants or denies specific permissions to a principal.
- * You can identify the principal by a SID (`ae_who_sid`), or Unix ID (`ae_who_id`).
- *
- * Used by: sharing.smb.getacl (response), sharing.smb.setacl (params), sharing.smb.setacl (response)
- */
 export interface SMBShareAclEntry {
-  /**
-   * Permissions granted or denied to the principal. NOTE: this may appear as CUSTOM on read if user has manually edited the share ACL through unsupported means. In this case users will be required to set it to a supported value on update.
-   */
   ae_perm: "FULL" | "CHANGE" | "READ" | "CUSTOM";
-  /**
-   * The type of SMB share ACL entry. This value determines whether the permissions (ae_perm) are granted (ALLOWED) or denied (DENIED).
-   */
   ae_type: "ALLOWED" | "DENIED";
-  /**
-   * The SID of the principal to whom this ACL entry applies.
-   */
   ae_who_sid?: string | null;
-  /**
-   * The Unix ID of the principal to whom this ACL entry applies.
-   */
   ae_who_id?: SMBShareAclEntryWhoId | null;
-  /**
-   * The User or group name of the principal to whom this ACL entry applies.
-   */
   ae_who_str?: string | null;
 }
-/**
- * Used by: sharing.webshare.query (event)
- */
 export interface SharingWebshareAddedEvent {
   id: number;
   fields: SharingWebshareEntryInput;
 }
-/**
- * Webshare share entry on the TrueNAS server.
- *
- * Used by: sharing.webshare.query (event)
- */
 export interface SharingWebshareEntryInput {
-  /**
-   * Unique identifier for this Webshare share.
-   */
   id: number;
-  /**
-   * Webshare share name.
-   */
   name: string;
-  /**
-   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   */
   path: string;
-  /**
-   * Dataset name component of the path (e.g., 'tank/webshare'). Null if path cannot be resolved.
-   */
   dataset: string | null;
-  /**
-   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
-   */
   relative_path: string | null;
-  /**
-   * If unset, the Webshare share is not available.
-   */
   enabled?: boolean;
-  /**
-   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
-   */
   is_home_base?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
-   *
-   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
   tier?: TierInfoInput | null;
 }
-/**
- * Used by: sharing.webshare.query (event)
- */
 export interface SharingWebshareChangedEvent {
   id: number;
   fields: SharingWebshareEntryInput;
 }
-/**
- * Used by: sharing.webshare.create (params)
- */
 export interface SharingWebshareCreate {
-  /**
-   * Webshare share name.
-   */
   name: string;
-  /**
-   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   */
   path: string;
-  /**
-   * If unset, the Webshare share is not available.
-   */
   enabled?: boolean;
-  /**
-   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
-   */
   is_home_base?: boolean;
 }
-/**
- * Webshare share entry on the TrueNAS server.
- *
- * Used by: sharing.webshare.create (response), sharing.webshare.get_instance (params), sharing.webshare.get_instance (response), sharing.webshare.query (params), sharing.webshare.query (response), sharing.webshare.update (response)
- */
 export interface SharingWebshareEntry {
-  /**
-   * Unique identifier for this Webshare share.
-   */
   id: number;
-  /**
-   * Webshare share name.
-   */
   name: string;
-  /**
-   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   */
   path: string;
-  /**
-   * Dataset name component of the path (e.g., 'tank/webshare'). Null if path cannot be resolved.
-   */
   dataset: string | null;
-  /**
-   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
-   */
   relative_path: string | null;
-  /**
-   * If unset, the Webshare share is not available.
-   */
   enabled?: boolean;
-  /**
-   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
-   */
   is_home_base?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
-   *
-   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
   tier?: TierInfo | null;
 }
-/**
- * Used by: sharing.webshare.query (event)
- */
 export interface SharingWebshareRemovedEvent {
   id: number;
 }
-/**
- * Used by: sharing.webshare.update (params)
- */
 export interface SharingWebshareUpdate {
-  /**
-   * Webshare share name.
-   */
   name?: string;
-  /**
-   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   */
   path?: string;
-  /**
-   * If unset, the Webshare share is not available.
-   */
   enabled?: boolean;
-  /**
-   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
-   */
   is_home_base?: boolean;
 }
-/**
- * TrueNAS SMB server configuration.
- *
- * Used by: smb.config (response), smb.update (response)
- */
 export interface SMBEntry {
-  /**
-   * Unique identifier for the SMB service configuration.
-   */
   id: number;
-  /**
-   * The NetBIOS name of this server.
-   */
   netbiosname: string;
-  /**
-   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain.
-   */
   netbiosalias: string[];
-  /**
-   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain.
-   */
   workgroup: string;
-  /**
-   * Description of the SMB server. SMB clients may see this description during some operations.
-   */
-  description: string;
-  /**
-   * Minimum SMB protocol version permitted for client connections. `SMB1` enables legacy client support (not recommended). `SMB2` is the default. `SMB3` restricts access to modern clients only. NOTE: SMB2 and SMB3 are dialects of the same protocol family; setting `SMB3` as the minimum may break access for networked embedded devices that only support SMB2.
-   */
   minimum_protocol: "SMB1" | "SMB2" | "SMB3";
   unixcharset: Unixcharset;
-  /**
-   * When set to `true` the NetBIOS name server in TrueNAS participates in elections for the local master browser. When set to `false` the NetBIOS name server does not attempt to become a local master browser on a subnet and loses all browsing elections.
-   *
-   * NOTE: This parameter has no effect if the NetBIOS name server is disabled.
-   */
   localmaster: boolean;
-  /**
-   * Send log messages to syslog. Enable this option if you want SMB server error logs to be included in information sent to a remote syslog server. NOTE: This requires that remote syslog is globally configured on TrueNAS.
-   */
   syslog: boolean;
-  /**
-   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. Enabling this is required for Time Machine support.
-   */
   aapl_extensions: boolean;
-  /**
-   * List of enabled search protocols for the SMB server. Currently the only support search protocol is SPOTLIGHT for MacOS clients. When SPOTLIGHT search protocol support is enabled, MacOS clients can send spotlight protocol requests to the TrueNAS samba server and receive results from indexed paths.
-   */
   search_protocols?: "SPOTLIGHT"[];
-  /**
-   * The selected group has full administrator privileges on TrueNAS via the SMB protocol.
-   */
   admin_group: string | null;
-  /**
-   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account.
-   */
   guest: string;
-  /**
-   * `smb.conf` create mask. DEFAULT applies current server default which is 664.
-   */
   filemask: string | "DEFAULT";
-  /**
-   * `smb.conf` directory mask. DEFAULT applies current server default which is 775.
-   */
   dirmask: string | "DEFAULT";
-  /**
-   * Enable legacy and very insecure NTLMv1 authentication. This should never be done except in extreme edge cases and may be against regulations in non-home environments.
-   */
   ntlmv1_auth: boolean;
-  /**
-   * Enable SMB3 multi-channel support.
-   */
   multichannel: boolean;
   encryption: Encryption;
-  /**
-   * List of IP addresses used by the TrueNAS SMB server.
-   */
   bindip: string[];
-  /**
-   * The unique identifier for the TrueNAS SMB server. It also serves as the domain SID for all local SMB user and group accounts.
-   */
   server_sid: string | null;
-  /**
-   * Additional unvalidated and unsupported configuration options for the SMB server. WARNING: Using `smb_options` may produce unexpected server behavior.
-   */
   smb_options: string;
-  /**
-   * Set SMB log levels to debug. Use this setting only when troubleshooting a specific SMB issue. Do not use it in production environments.
-   */
   debug: boolean;
-  /**
-   * Enterprise feature to ensure SMB state consistency across HA failover events. This feature is incompatible with the following share purposes: MULTIPROTOCOL_SHARE, LEGACY_SHARE. This feature is also incompatible with `minimum_protocol` set to `SMB1`.
-   */
   stateful_failover: boolean;
 }
-/**
- * The ACL that applies to a specific SMB share.
- *
- * NOTE: this is not the same as a filesystem ACL. It only affects access through the SMB protocol.
- *
- * Used by: sharing.smb.getacl (response), sharing.smb.setacl (response)
- */
 export interface SMBShareAcl {
-  /**
-   * Name of the SMB share.
-   */
   share_name: string;
-  /**
-   * List of SMB share ACL entries.
-   */
   share_acl?: SMBShareAclEntry[];
 }
-/**
- * Used by: sharing.smb.create (params)
- */
-export interface SmbShareCreate {
-  purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
-  name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
-  path: string | "EXTERNAL";
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
-  enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
-  readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
-  access_based_share_enumeration?: boolean;
-  audit?: SmbAuditConfig;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
-  options?:
-    | (
-        | LegacyOptInput
-        | DefaultOptInput
-        | TimeMachineOptInput
-        | MultiprotocolOptInput
-        | TimeLockedOptInput
-        | PrivateDatasetOptInput
-        | ExternalOptInput
-        | VeeamRepositoryOptInput
-        | FCPStorageOptInput
-      )
-    | null;
-}
-/**
- * Used by: sharing.smb.update (params)
- */
-export interface SmbShareUpdate {
-  purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
-  name?: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
-  path?: string | "EXTERNAL";
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
-  enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
-  readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
-  access_based_share_enumeration?: boolean;
-  audit?: SmbAuditConfig;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
-  options?:
-    | (
-        | LegacyOptInput
-        | DefaultOptInput
-        | TimeMachineOptInput
-        | MultiprotocolOptInput
-        | TimeLockedOptInput
-        | PrivateDatasetOptInput
-        | ExternalOptInput
-        | VeeamRepositoryOptInput
-        | FCPStorageOptInput
-      )
-    | null;
-}
-/**
- * Used by: smb.status (params)
- */
 export interface SMBStatusOptions {
-  /**
-   * Return verbose status output.
-   */
   verbose?: boolean;
-  /**
-   * Do not check if the status data is valid by checking if the processes that the status data refer to all still exist. This option decreases execution time on busy systems and clusters but may display stale data of processes that died without cleaning up properly.
-   */
   fast?: boolean;
-  /**
-   * Limit results to the specified user.
-   */
   restrict_user?: string;
-  /**
-   * Limit results to the specified SMB session ID.
-   */
   restrict_session?: string;
-  /**
-   * Resolve Unix user IDs and group IDs to usernames and group names in the status output.
-   */
   resolve_uids?: boolean;
 }
-/**
- * Used by: smb.update (params)
- */
 export interface SMBUpdateArgs {
-  /**
-   * The NetBIOS name of this server.
-   */
   netbiosname?: string;
-  /**
-   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain.
-   */
   netbiosalias?: string[];
-  /**
-   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain.
-   */
   workgroup?: string;
-  /**
-   * Description of the SMB server. SMB clients may see this description during some operations.
-   */
-  description?: string;
-  /**
-   * Minimum SMB protocol version permitted for client connections. `SMB1` enables legacy client support (not recommended). `SMB2` is the default. `SMB3` restricts access to modern clients only. NOTE: SMB2 and SMB3 are dialects of the same protocol family; setting `SMB3` as the minimum may break access for networked embedded devices that only support SMB2.
-   */
   minimum_protocol?: "SMB1" | "SMB2" | "SMB3";
   unixcharset?: Unixcharset;
-  /**
-   * When set to `true` the NetBIOS name server in TrueNAS participates in elections for the local master browser. When set to `false` the NetBIOS name server does not attempt to become a local master browser on a subnet and loses all browsing elections.
-   *
-   * NOTE: This parameter has no effect if the NetBIOS name server is disabled.
-   */
   localmaster?: boolean;
-  /**
-   * Send log messages to syslog. Enable this option if you want SMB server error logs to be included in information sent to a remote syslog server. NOTE: This requires that remote syslog is globally configured on TrueNAS.
-   */
   syslog?: boolean;
-  /**
-   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. Enabling this is required for Time Machine support.
-   */
   aapl_extensions?: boolean;
-  /**
-   * List of enabled search protocols for the SMB server. Currently the only support search protocol is SPOTLIGHT for MacOS clients. When SPOTLIGHT search protocol support is enabled, MacOS clients can send spotlight protocol requests to the TrueNAS samba server and receive results from indexed paths.
-   */
   search_protocols?: "SPOTLIGHT"[];
-  /**
-   * The selected group has full administrator privileges on TrueNAS via the SMB protocol.
-   */
   admin_group?: string | null;
-  /**
-   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account.
-   */
   guest?: string;
-  /**
-   * `smb.conf` create mask. DEFAULT applies current server default which is 664.
-   */
   filemask?: string | "DEFAULT";
-  /**
-   * `smb.conf` directory mask. DEFAULT applies current server default which is 775.
-   */
   dirmask?: string | "DEFAULT";
-  /**
-   * Enable legacy and very insecure NTLMv1 authentication. This should never be done except in extreme edge cases and may be against regulations in non-home environments.
-   */
   ntlmv1_auth?: boolean;
-  /**
-   * Enable SMB3 multi-channel support.
-   */
   multichannel?: boolean;
   encryption?: EncryptionInput;
-  /**
-   * List of IP addresses used by the TrueNAS SMB server.
-   */
   bindip?: string[];
-  /**
-   * The unique identifier for the TrueNAS SMB server. It also serves as the domain SID for all local SMB user and group accounts.
-   */
   server_sid?: string | null;
-  /**
-   * Additional unvalidated and unsupported configuration options for the SMB server. WARNING: Using `smb_options` may produce unexpected server behavior.
-   */
   smb_options?: string;
-  /**
-   * Set SMB log levels to debug. Use this setting only when troubleshooting a specific SMB issue. Do not use it in production environments.
-   */
   debug?: boolean;
-  /**
-   * Enterprise feature to ensure SMB state consistency across HA failover events. This feature is incompatible with the following share purposes: MULTIPROTOCOL_SHARE, LEGACY_SHARE. This feature is also incompatible with `minimum_protocol` set to `SMB1`.
-   */
   stateful_failover?: boolean;
 }
-/**
- * Used by: snmp.config (response), snmp.update (response)
- */
-export interface SNMPEntry {
-  /**
-   * A comment describing the physical location of the server.
-   */
-  location: string;
-  /**
-   * Contact information for the system administrator (email or name).
-   */
-  contact: string;
-  /**
-   * Whether SNMP traps are enabled.
-   */
-  traps: boolean;
-  /**
-   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
-   */
-  v3: boolean;
-  /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
-   */
-  community?: string;
-  /**
-   * Username for SNMP version 3 authentication.
-   */
-  v3_username: string;
-  /**
-   * Authentication type for SNMP version 3 (empty string means no authentication).
-   */
-  v3_authtype: "" | "MD5" | "SHA";
-  /**
-   * Password for SNMP version 3 authentication.
-   */
-  v3_password: string;
-  /**
-   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
-   */
-  v3_privproto: (null | "AES" | "DES") | null;
-  /**
-   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
-   */
-  v3_privpassphrase?: string | null;
-  /**
-   * Logging level for SNMP daemon (0=emergency to 7=debug).
-   */
-  loglevel: number;
-  /**
-   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
-   */
-  options: string;
-  /**
-   * Whether to enable ZFS dataset statistics collection for SNMP.
-   */
-  zilstat: boolean;
-  /**
-   * Placeholder identifier.  Not used as there is only one.
-   */
-  id: number;
-}
-/**
- * Used by: snmp.update (params)
- */
-export interface SNMPUpdateArgs {
-  /**
-   * A comment describing the physical location of the server.
-   */
-  location?: string;
-  /**
-   * Contact information for the system administrator (email or name).
-   */
-  contact?: string;
-  /**
-   * Whether SNMP traps are enabled.
-   */
-  traps?: boolean;
-  /**
-   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
-   */
-  v3?: boolean;
-  /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
-   */
-  community?: string;
-  /**
-   * Username for SNMP version 3 authentication.
-   */
-  v3_username?: string;
-  /**
-   * Authentication type for SNMP version 3 (empty string means no authentication).
-   */
-  v3_authtype?: "" | "MD5" | "SHA";
-  /**
-   * Password for SNMP version 3 authentication.
-   */
-  v3_password?: string;
-  /**
-   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
-   */
-  v3_privproto?: (null | "AES" | "DES") | null;
-  /**
-   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
-   */
-  v3_privpassphrase?: string | null;
-  /**
-   * Logging level for SNMP daemon (0=emergency to 7=debug).
-   */
-  loglevel?: number;
-  /**
-   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
-   */
-  options?: string;
-  /**
-   * Whether to enable ZFS dataset statistics collection for SNMP.
-   */
-  zilstat?: boolean;
-}
-/**
- * Used by: docker.status (response)
- */
 export interface StatusResult {
-  /**
-   * Human-readable description of the current Docker service status.
-   */
-  description: string;
   status: Status3;
 }
-/**
- * Used by: support.new_ticket (response), truenas.set_production (response)
- */
 export interface SupportNewTicket {
-  /**
-   * Ticket number if successfully created. `null` if creation failed.
-   */
   ticket: number | null;
-  /**
-   * URL to view the created ticket. `null` if not available.
-   */
   url: string | null;
-  /**
-   * Whether debug information was attached to the ticket.
-   */
   has_debug: boolean;
-  /**
-   * If attaching debug information failed, the error message will appear here.
-   */
   debug_attach_error: string | null;
 }
-/**
- * Used by: webui.main.dashboard.sys_info (response)
- */
 export interface SysInfo {
-  /**
-   * Platform type (e.g., 'FREENAS', 'TRUENAS-SCALE').
-   */
   platform: string;
-  /**
-   * Software version string.
-   */
   version: string;
-  /**
-   * License information object. `null` if no license is installed.
-   */
   license: {
     [k: string]: unknown;
   } | null;
-  /**
-   * Hardware serial number of the system.
-   */
   system_serial: string;
-  /**
-   * System hostname.
-   */
   hostname: string;
-  /**
-   * System uptime in seconds since last boot.
-   */
   uptime_seconds: number;
-  /**
-   * Current system date and time.
-   */
   datetime: string;
-  /**
-   * Information about the remote system in HA configurations. `null` for standalone systems.
-   */
   remote_info: RemoteInfo | null;
 }
-/**
- * Used by: system.advanced.update (params)
- */
 export interface SystemAdvancedUpdate {
-  /**
-   * Enable advanced mode to show additional configuration options in the web interface.
-   */
   advancedmode?: boolean;
-  /**
-   * Execute autotune script which attempts to optimize the system based on the installed hardware.
-   */
   autotune?: boolean;
-  /**
-   * Enable kernel crash dumps for debugging system crashes.
-   */
   kdump_enabled?: boolean;
-  /**
-   * Number of days between automatic boot pool scrubs.
-   */
   boot_scrub?: number;
-  /**
-   * Enable console menu. Default to standard login in the console if disabled.
-   */
   consolemenu?: boolean;
-  /**
-   * Deprecated: Please use `consolemsg` attribute in the `system.general` plugin instead.
-   */
   consolemsg?: boolean;
-  /**
-   * Enable debug kernel for additional logging and debugging capabilities.
-   */
   debugkernel?: boolean;
-  /**
-   * Include the full domain name in syslog messages.
-   */
   fqdn_syslog?: boolean;
-  /**
-   * Message of the day displayed after login.
-   */
   motd?: string;
-  /**
-   * Banner message displayed before login prompt.
-   */
   login_banner?: string;
-  /**
-   * Enable the power management daemon for automatic power management.
-   */
   powerdaemon?: boolean;
-  /**
-   * Enable serial console access.
-   */
   serialconsole?: boolean;
-  /**
-   * Serial port device for console access.
-   */
   serialport?: string;
   serialspeed?: Serialspeed;
-  /**
-   * Percentage of SSD overprovisioning to reserve for wear leveling.
-   */
   overprovision?: number | null;
-  /**
-   * Enable generation and saving of tracebacks for debugging.
-   */
   traceback?: boolean;
-  /**
-   * Automatically upload crash reports to iXsystems for analysis.
-   */
   uploadcrash?: boolean;
-  /**
-   * Enable anonymous usage statistics reporting to help improve TrueNAS.
-   */
   anonstats?: boolean;
-  /**
-   * SED (Self-Encrypting Drive) user type for drive encryption.
-   */
   sed_user?: "USER" | "MASTER";
   sysloglevel?: Sysloglevel;
   /**
-   * Configurations for up to two remote syslog servers.
-   *
-   * **If provided, will overwrite the entire array in the existing entry.**
-   *
    * @maxItems 2
    */
   syslogservers?: [] | [SyslogServer] | [SyslogServer, SyslogServer];
-  /**
-   * The remote syslog server(s) will also receive audit messages.
-   */
   syslog_audit?: boolean;
-  /**
-   * Additional kernel boot parameters to pass to the Linux kernel.
-   */
   kernel_extra_options?: string;
-  /**
-   * Whether NVIDIA GPU support is enabled.
-   */
   nvidia?: boolean;
-  /**
-   * Password for SED (Self-Encrypting Drive) global unlock.
-   */
   sed_passwd?: string;
 }
-/**
- * Used by: system.general.config (response), system.general.update (response)
- */
 export interface SystemGeneralEntry {
-  /**
-   * Unique identifier for the system general configuration.
-   */
   id: number;
-  /**
-   * Used to enable HTTPS access to the system. If `ui_certificate` is not configured on boot, it is automatically created by the system.
-   */
   ui_certificate: number | null;
-  /**
-   * HTTPS port for the web UI.
-   */
   ui_httpsport: number;
-  /**
-   * When set, makes sure that all HTTP requests are converted to HTTPS requests to better enhance security.
-   */
   ui_httpsredirect: boolean;
-  /**
-   * Array of TLS protocol versions enabled for HTTPS connections.
-   */
   ui_httpsprotocols: ("TLSv1" | "TLSv1.1" | "TLSv1.2" | "TLSv1.3")[];
-  /**
-   * HTTP port for the web UI.
-   */
   ui_port: number;
   /**
-   * A list of valid IPv4 addresses which the system will listen on.
-   *
    * @minItems 1
    */
   ui_address: [string, ...string[]];
   /**
-   * A list of valid IPv6 addresses which the system will listen on.
-   *
    * @minItems 1
    */
   ui_v6address: [string, ...string[]];
-  /**
-   * A list of IP addresses and networks that are allow to use API and UI. If this list is empty, then all IP addresses are allowed to use API and UI.
-   */
   ui_allowlist: string[];
-  /**
-   * Whether to show console messages on the web UI.
-   */
   ui_consolemsg: boolean;
-  /**
-   * X-Frame-Options header policy for web UI security.
-   */
   ui_x_frame_options: "SAMEORIGIN" | "DENY" | "ALLOW_ALL";
-  /**
-   * System keyboard layout mapping.
-   */
   kbdmap: string;
-  /**
-   * System timezone identifier.
-   */
   timezone: string;
-  /**
-   * Whether usage data collection is enabled. `null` if not set.
-   */
   usage_collection: boolean | null;
-  /**
-   * Whether the initial setup wizard has been shown.
-   */
   wizardshown: boolean;
-  /**
-   * Whether the usage collection preference has been explicitly set.
-   */
   usage_collection_is_set: boolean;
-  /**
-   * Controls whether configured Directory Service users that are granted with Privileges are allowed to log in to the Web UI or use TrueNAS API.
-   */
   ds_auth: boolean;
-  /**
-   * Name of the certificate used for HTTPS access. `null` if no certificate is configured.
-   */
   ui_certificate_name: string | null;
 }
-/**
- * Used by: truecommand.config (response), truecommand.update (response)
- */
 export interface TruecommandEntry {
-  /**
-   * Unique identifier for the TrueCommand configuration.
-   */
   id: number;
-  /**
-   * API key for authenticating with TrueCommand services. `null` if not configured.
-   */
   api_key: string | null;
   status: Status2;
-  /**
-   * Explanation of the current TrueCommand connection status.
-   */
   status_reason:
     | "Truecommand service is connected."
     | "Pending Confirmation From iX Portal for Truecommand API Key."
@@ -8063,2586 +2231,740 @@ export interface TruecommandEntry {
     | "Truecommand API Key Disabled by iX Portal."
     | "Waiting for connection from Truecommand."
     | "Truecommand service is disabled on standby controller";
-  /**
-   * URL of the connected TrueCommand instance. `null` if not connected.
-   */
   remote_url: string | null;
-  /**
-   * IP address of the connected TrueCommand instance. `null` if not connected.
-   */
   remote_ip_address: string | null;
-  /**
-   * Whether TrueCommand integration is enabled.
-   */
   enabled: boolean;
 }
-/**
- * Used by: tn_connect.config (response), tn_connect.update (response)
- */
 export interface TrueNASConnectEntry {
-  /**
-   * Unique identifier for the TrueNAS Connect configuration.
-   */
   id: number;
-  /**
-   * Whether TrueNAS Connect service is enabled.
-   */
   enabled: boolean;
-  /**
-   * Object containing registration information and credentials for TrueNAS Connect.
-   */
   registration_details: {
     [k: string]: unknown;
   };
-  /**
-   * Current operational status of the TrueNAS Connect service.
-   */
   status: string;
-  /**
-   * Detailed explanation of the current status, including any error conditions.
-   */
   status_reason: string;
-  /**
-   * ID of the SSL certificate used for TrueNAS Connect communications. `null` if using default.
-   */
   certificate: number | null;
-  /**
-   * Base URL for the TrueNAS Connect account service API.
-   */
   account_service_base_url: string;
-  /**
-   * Base URL for the Let's Encrypt Certificate Authority service used by TrueNAS Connect.
-   */
   leca_service_base_url: string;
-  /**
-   * Base URL for the TrueNAS Connect service.
-   */
   tnc_base_url: string;
-  /**
-   * URL endpoint for sending heartbeat signals to maintain connection status.
-   */
   heartbeat_url: string;
-  /**
-   * TrueNAS Connect tier.
-   */
   tier: ("FOUNDATION" | "PLUS" | "BUSINESS") | null;
-  /**
-   * Datetime of when the current heartbeat failure streak began. Null if heartbeat is not currently failing.
-   */
   last_heartbeat_failure_datetime: string | null;
 }
-/**
- * Used by: tn_connect.update (params)
- */
 export interface TrueNASConnectUpdateArgs {
-  /**
-   * Whether to enable the TrueNAS Connect service.
-   */
   enabled?: boolean;
 }
-/**
- * Used by: truenas.license.upload (params)
- */
 export interface TrueNASLicenseUploadOptions {
-  /**
-   * Propagate to another HA system.
-   */
   ha_propagate?: boolean;
 }
-/**
- * Used by: tunable.query (event)
- */
 export interface TunableAddedEvent {
   id: number;
   fields: TunableEntryInput;
 }
-/**
- * Used by: tunable.query (event)
- */
 export interface TunableEntryInput {
   type?: TypeInput13;
-  /**
-   * Name or identifier of the system parameter to tune.
-   */
   var: string;
-  /**
-   * Value to assign to the tunable parameter.
-   */
   value: string;
-  /**
-   * Optional descriptive comment explaining the purpose of this tunable.
-   */
   comment?: string;
-  /**
-   * Whether this tunable is active and should be applied.
-   */
   enabled?: boolean;
-  /**
-   * Unique identifier for the tunable configuration.
-   */
   id: number;
-  /**
-   * Original system value of the parameter before this tunable was applied.
-   */
   orig_value: string;
 }
-/**
- * Used by: tunable.query (event)
- */
 export interface TunableChangedEvent {
   id: number;
   fields: TunableEntryInput;
 }
-/**
- * Used by: tunable.create (params)
- */
 export interface TunableCreate {
   type?: TypeInput13;
-  /**
-   * Name or identifier of the system parameter to tune.
-   */
   var: string;
-  /**
-   * Value to assign to the tunable parameter.
-   */
   value: string;
-  /**
-   * Optional descriptive comment explaining the purpose of this tunable.
-   */
   comment?: string;
-  /**
-   * Whether this tunable is active and should be applied.
-   */
   enabled?: boolean;
-  /**
-   * If `false`, then initramfs will not be updated after creating a ZFS tunable and you will need to run `system boot update_initramfs` manually.
-   */
   update_initramfs?: boolean;
 }
-/**
- * Used by: tunable.create (response), tunable.get_instance (params), tunable.get_instance (response), tunable.query (params), tunable.query (response), tunable.update (response)
- */
 export interface TunableEntry {
   type?: Type11;
-  /**
-   * Name or identifier of the system parameter to tune.
-   */
   var: string;
-  /**
-   * Value to assign to the tunable parameter.
-   */
   value: string;
-  /**
-   * Optional descriptive comment explaining the purpose of this tunable.
-   */
   comment?: string;
-  /**
-   * Whether this tunable is active and should be applied.
-   */
   enabled?: boolean;
-  /**
-   * If `false`, then initramfs will not be updated after creating a ZFS tunable and you will need to run `system boot update_initramfs` manually.
-   */
   update_initramfs?: boolean;
-  /**
-   * Unique identifier for the tunable configuration.
-   */
   id: number;
-  /**
-   * Original system value of the parameter before this tunable was applied.
-   */
   orig_value: string;
 }
-/**
- * Used by: user.renew_2fa_secret (params)
- */
 export interface TwofactorOptions {
-  /**
-   * Represents number of allowed digits in the OTP.
-   */
   otp_digits?: number;
   interval?: Interval;
 }
-/**
- * Used by: ups.update (params)
- */
 export interface UPSUpdate {
-  /**
-   * Whether the UPS should power down after completing the shutdown sequence.
-   */
   powerdown?: boolean;
-  /**
-   * Whether to enable remote monitoring of the UPS status over the network.
-   */
   rmonitor?: boolean;
-  /**
-   * Seconds to wait before warning about communication loss with UPS. `null` for default.
-   */
   nocommwarntime?: number | null;
-  /**
-   * Network port for communicating with remote UPS monitoring systems.
-   */
   remoteport?: number;
-  /**
-   * Seconds to wait after initiating shutdown before forcing power off.
-   */
   shutdowntimer?: number;
-  /**
-   * Maximum seconds to wait for other systems to shutdown before continuing.
-   */
   hostsync?: number;
-  /**
-   * Human-readable description of this UPS configuration.
-   */
-  description?: string;
-  /**
-   * UPS driver name that handles communication with the specific UPS hardware model.
-   */
   driver?: string;
-  /**
-   * Additional user configurations for UPS monitoring access.
-   */
   extrausers?: string;
-  /**
-   * Unique identifier name for this UPS device within the monitoring system.
-   */
   identifier?: string;
   mode?: ModeInput2;
-  /**
-   * Password for UPS monitoring authentication (required for updates).
-   */
   monpwd?: string;
-  /**
-   * Username for UPS monitoring authentication.
-   */
   monuser?: string;
-  /**
-   * Additional configuration options passed to the UPS driver.
-   */
   options?: string;
-  /**
-   * Additional configuration options for the UPS daemon.
-   */
   optionsupsd?: string;
-  /**
-   * Serial port or device path for UPS communication.
-   */
   port?: string;
-  /**
-   * Hostname or IP address of remote UPS server when operating in SLAVE mode.
-   */
   remotehost?: string;
   shutdown?: Shutdown;
-  /**
-   * Custom command to execute during UPS shutdown sequence. `null` for default.
-   */
   shutdowncmd?: string | null;
 }
-/**
- * Used by: container.device.usb_choices (response), vm.device.usb_passthrough_choices (response), vm.device.usb_passthrough_device (response)
- */
 export interface USBPassthroughDevice {
   capability: USBCapability;
-  /**
-   * Whether the USB device is available for passthrough to virtual machines.
-   */
   available: boolean;
-  /**
-   * Error message if the device cannot be used for passthrough. `null` if no error.
-   */
   error: string | null;
-  /**
-   * Human-readable description of the USB device.
-   */
-  description: string;
 }
-/**
- * Used by: user.query (event)
- */
 export interface UserAddedEvent {
   id: number;
   fields: UserEntry;
 }
-/**
- * Used by: user.get_instance (params), user.get_instance (response), user.query (event), user.query (params), user.query (response)
- */
 export interface UserEntry {
-  /**
-   * This is the API identifier for the user. Use this ID for `user.update` and `user.delete` API calls. This ID also appears in the `users` array for each group entry in `group.query` results.
-   *
-   * NOTE: For users from a directory service, the `id` is calculated by adding 100000000 to the `uid`. This ensures consistent API results. You cannot change directory service accounts through TrueNAS.
-   */
   id: number;
-  /**
-   * A non-negative integer used to identify a system user. TrueNAS uses this value for permission checks and many other system purposes.
-   */
   uid: number;
-  /**
-   * A string used to identify a user. Local accounts must use characters from the POSIX portable filename character set.
-   */
   username: string;
-  /**
-   * Hashed password for local accounts. This value is `null` for accounts provided by directory services.
-   */
   unixhash: string | null;
-  /**
-   * NT hash of the local account password for `smb` users. This value is `null` for accounts provided by directory services or non-SMB accounts.
-   */
   smbhash: string | null;
-  /**
-   * The local file system path for the user account's home directory. Typically, this is required only if the account has shell access (local or SSH) to TrueNAS. This is not required for accounts used only for SMB share access.
-   */
   home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
   shell?: string;
-  /**
-   * Comment field to provide additional information about the user account. Typically, this is the full name of the user or a short description of a service account. There are no character set restrictions for this field. This field is for information only.
-   */
   full_name: string;
-  /**
-   * If `true`, the user account is an internal system account for the TrueNAS server. Typically, one should create dedicated user accounts for access to the TrueNAS server webui and shares.
-   */
   builtin: boolean;
-  /**
-   * The user account may be used to access SMB shares. If set to `true` then TrueNAS stores an NT hash of the user account's password for local accounts. This feature is unavailable for local accounts when General Purpose OS STIG compatibility mode is enabled. If set to `true` the user is automatically added to the `builtin_users` group.
-   */
   smb?: boolean;
-  /**
-   * The user account may be used to access WebShare shares. If set to `true` the user is automatically added to the `webshare` group.
-   */
   webshare?: boolean;
-  /**
-   * Specifies the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If `null`, then the UID will not be mapped.
-   *
-   * NOTE: This field will be ignored for users that have been assigned TrueNAS roles.
-   */
   userns_idmap?: ("DIRECT" | null) | number;
-  /**
-   * The primary group of the user account.
-   */
   group: {
     [k: string]: unknown;
   };
-  /**
-   * Array of additional groups to which the user belongs. NOTE: Groups are identified by their group entry `id`, not their Unix group ID (`gid`).
-   */
   groups?: number[];
-  /**
-   * If set to `true` password authentication for the user account is disabled.
-   *
-   * NOTE: Users with password authentication disabled may still authenticate to the TrueNAS server by other methods, such as SSH key-based authentication.
-   *
-   * NOTE: Password authentication is required for `smb` users.
-   */
   password_disabled?: boolean;
-  /**
-   * Allow the user to authenticate to the TrueNAS SSH server using a password.
-   *
-   * WARNING: The established best practice is to use only key-based authentication for SSH servers.
-   */
   ssh_password_enabled?: boolean;
-  /**
-   * SSH public keys corresponding to private keys that authenticate this user to the TrueNAS SSH server.
-   */
   sshpubkey?: string | null;
-  /**
-   * If set to `true` the account is locked. The account cannot be used to authenticate to the TrueNAS server.
-   */
   locked?: boolean;
-  /**
-   * An array of commands the user may execute with elevated privileges. User is prompted for password when executing any command from the array.
-   */
   sudo_commands?: string[];
-  /**
-   * An array of commands the user may execute with elevated privileges. User is *not* prompted for password when executing any command from the array.
-   */
   sudo_commands_nopasswd?: string[];
-  /**
-   * Email address of the user. If the user has the `FULL_ADMIN` role, they will receive email alerts and notifications.
-   */
   email?: string | null;
-  /**
-   * If `true`, the account is local to the TrueNAS server. If `false`, the account is provided by a directory service.
-   */
   local: boolean;
-  /**
-   * If `true`, the account is system-provided and most fields related to it may not be changed.
-   */
   immutable: boolean;
-  /**
-   * If `true`, the account has been configured for two-factor authentication. Users are prompted for a second factor when authenticating to the TrueNAS web UI and API. They may also be prompted when signing in to the TrueNAS SSH server using a password (depending on global two-factor authentication settings).
-   */
   twofactor_auth_configured: boolean;
-  /**
-   * The Security Identifier (SID) of the user if the account an `smb` account. The SMB server uses this value to check share access and for other purposes.
-   */
   sid: string | null;
-  /**
-   * The date of the last password change for local user accounts.
-   */
   last_password_change: string | null;
-  /**
-   * The age in days of the password for local user accounts.
-   */
   password_age: number | null;
-  /**
-   * This contains hashes of the ten most recent passwords used by local user accounts, and is for enforcing password history requirements as defined in system.security.
-   */
   password_history: unknown[] | null;
-  /**
-   * Password change for local user account is required on next login.
-   */
   password_change_required: boolean;
-  /**
-   * Array of roles assigned to this user's groups. Roles control administrative access to TrueNAS through the web UI and API.
-   */
   roles: string[];
-  /**
-   * Array of API key IDs associated with this user account for programmatic access.
-   */
   api_keys: number[];
 }
-/**
- * Used by: user.query (event)
- */
 export interface UserChangedEvent {
   id: number;
   fields: UserEntry;
 }
-/**
- * Used by: user.create (params)
- */
 export interface UserCreate {
-  /**
-   * UNIX UID. If not provided, it is automatically filled with the next one available.
-   */
   uid?: number | null;
-  /**
-   * String used to uniquely identify the user on the server. In order to be portable across systems, local user names must be composed of characters from the POSIX portable filename character set (IEEE Std 1003.1-2024 section 3.265). This means alphanumeric characters, hyphens, underscores, and periods. Usernames also may not begin with a hyphen or a period.
-   */
   username: string;
-  /**
-   * The local file system path for the user account's home directory. Typically, this is required only if the account has shell access (local or SSH) to TrueNAS. This is not required for accounts used only for SMB share access.
-   */
   home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
   shell?: string;
-  /**
-   * Comment field to provide additional information about the user account. Typically, this is the full name of the user or a short description of a service account. There are no character set restrictions for this field. This field is for information only.
-   */
   full_name: string;
-  /**
-   * The user account may be used to access SMB shares. If set to `true` then TrueNAS stores an NT hash of the user account's password for local accounts. This feature is unavailable for local accounts when General Purpose OS STIG compatibility mode is enabled. If set to `true` the user is automatically added to the `builtin_users` group.
-   */
   smb?: boolean;
-  /**
-   * The user account may be used to access WebShare shares. If set to `true` the user is automatically added to the `webshare` group.
-   */
   webshare?: boolean;
-  /**
-   * Specifies the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If `null`, then the UID will not be mapped.
-   *
-   * NOTE: This field will be ignored for users that have been assigned TrueNAS roles.
-   */
   userns_idmap?: ("DIRECT" | null) | number;
-  /**
-   * The group entry `id` for the user's primary group. This is not the same as the Unix group `gid` value. This is required if `group_create` is `false`.
-   */
   group?: number | null;
-  /**
-   * Array of additional groups to which the user belongs. NOTE: Groups are identified by their group entry `id`, not their Unix group ID (`gid`).
-   */
   groups?: number[];
-  /**
-   * If set to `true` password authentication for the user account is disabled.
-   *
-   * NOTE: Users with password authentication disabled may still authenticate to the TrueNAS server by other methods, such as SSH key-based authentication.
-   *
-   * NOTE: Password authentication is required for `smb` users.
-   */
   password_disabled?: boolean;
-  /**
-   * Allow the user to authenticate to the TrueNAS SSH server using a password.
-   *
-   * WARNING: The established best practice is to use only key-based authentication for SSH servers.
-   */
   ssh_password_enabled?: boolean;
-  /**
-   * SSH public keys corresponding to private keys that authenticate this user to the TrueNAS SSH server.
-   */
   sshpubkey?: string | null;
-  /**
-   * If set to `true` the account is locked. The account cannot be used to authenticate to the TrueNAS server.
-   */
   locked?: boolean;
-  /**
-   * An array of commands the user may execute with elevated privileges. User is prompted for password when executing any command from the array.
-   */
   sudo_commands?: string[];
-  /**
-   * An array of commands the user may execute with elevated privileges. User is *not* prompted for password when executing any command from the array.
-   */
   sudo_commands_nopasswd?: string[];
-  /**
-   * Email address of the user. If the user has the `FULL_ADMIN` role, they will receive email alerts and notifications.
-   */
   email?: string | null;
-  /**
-   * If set to `true`, the TrueNAS server automatically creates a new local group as the user's primary group.
-   */
   group_create?: boolean;
-  /**
-   * Create a new home directory for the user in the specified `home` path.
-   */
   home_create?: boolean;
-  /**
-   * Filesystem permission to set on the user's home directory.
-   */
   home_mode?: string;
-  /**
-   * The password for the user account. This is required if `random_password` is not set.
-   */
   password?: string | null;
-  /**
-   * Generate a random 20 character password for the user.
-   */
   random_password?: boolean;
 }
-/**
- * Used by: user.create (response), user.update (response)
- */
 export interface UserCreateUpdateResult {
-  /**
-   * This is the API identifier for the user. Use this ID for `user.update` and `user.delete` API calls. This ID also appears in the `users` array for each group entry in `group.query` results.
-   *
-   * NOTE: For users from a directory service, the `id` is calculated by adding 100000000 to the `uid`. This ensures consistent API results. You cannot change directory service accounts through TrueNAS.
-   */
   id: number;
-  /**
-   * A non-negative integer used to identify a system user. TrueNAS uses this value for permission checks and many other system purposes.
-   */
   uid: number;
-  /**
-   * A string used to identify a user. Local accounts must use characters from the POSIX portable filename character set.
-   */
   username: string;
-  /**
-   * Hashed password for local accounts. This value is `null` for accounts provided by directory services.
-   */
   unixhash: string | null;
-  /**
-   * NT hash of the local account password for `smb` users. This value is `null` for accounts provided by directory services or non-SMB accounts.
-   */
   smbhash: string | null;
-  /**
-   * The local file system path for the user account's home directory. Typically, this is required only if the account has shell access (local or SSH) to TrueNAS. This is not required for accounts used only for SMB share access.
-   */
   home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
   shell?: string;
-  /**
-   * Comment field to provide additional information about the user account. Typically, this is the full name of the user or a short description of a service account. There are no character set restrictions for this field. This field is for information only.
-   */
   full_name: string;
-  /**
-   * If `true`, the user account is an internal system account for the TrueNAS server. Typically, one should create dedicated user accounts for access to the TrueNAS server webui and shares.
-   */
   builtin: boolean;
-  /**
-   * The user account may be used to access SMB shares. If set to `true` then TrueNAS stores an NT hash of the user account's password for local accounts. This feature is unavailable for local accounts when General Purpose OS STIG compatibility mode is enabled. If set to `true` the user is automatically added to the `builtin_users` group.
-   */
   smb?: boolean;
-  /**
-   * The user account may be used to access WebShare shares. If set to `true` the user is automatically added to the `webshare` group.
-   */
   webshare?: boolean;
-  /**
-   * Specifies the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If `null`, then the UID will not be mapped.
-   *
-   * NOTE: This field will be ignored for users that have been assigned TrueNAS roles.
-   */
   userns_idmap?: ("DIRECT" | null) | number;
-  /**
-   * The primary group of the user account.
-   */
   group: {
     [k: string]: unknown;
   };
-  /**
-   * Array of additional groups to which the user belongs. NOTE: Groups are identified by their group entry `id`, not their Unix group ID (`gid`).
-   */
   groups?: number[];
-  /**
-   * If set to `true` password authentication for the user account is disabled.
-   *
-   * NOTE: Users with password authentication disabled may still authenticate to the TrueNAS server by other methods, such as SSH key-based authentication.
-   *
-   * NOTE: Password authentication is required for `smb` users.
-   */
   password_disabled?: boolean;
-  /**
-   * Allow the user to authenticate to the TrueNAS SSH server using a password.
-   *
-   * WARNING: The established best practice is to use only key-based authentication for SSH servers.
-   */
   ssh_password_enabled?: boolean;
-  /**
-   * SSH public keys corresponding to private keys that authenticate this user to the TrueNAS SSH server.
-   */
   sshpubkey?: string | null;
-  /**
-   * If set to `true` the account is locked. The account cannot be used to authenticate to the TrueNAS server.
-   */
   locked?: boolean;
-  /**
-   * An array of commands the user may execute with elevated privileges. User is prompted for password when executing any command from the array.
-   */
   sudo_commands?: string[];
-  /**
-   * An array of commands the user may execute with elevated privileges. User is *not* prompted for password when executing any command from the array.
-   */
   sudo_commands_nopasswd?: string[];
-  /**
-   * Email address of the user. If the user has the `FULL_ADMIN` role, they will receive email alerts and notifications.
-   */
   email?: string | null;
-  /**
-   * If `true`, the account is local to the TrueNAS server. If `false`, the account is provided by a directory service.
-   */
   local: boolean;
-  /**
-   * If `true`, the account is system-provided and most fields related to it may not be changed.
-   */
   immutable: boolean;
-  /**
-   * If `true`, the account has been configured for two-factor authentication. Users are prompted for a second factor when authenticating to the TrueNAS web UI and API. They may also be prompted when signing in to the TrueNAS SSH server using a password (depending on global two-factor authentication settings).
-   */
   twofactor_auth_configured: boolean;
-  /**
-   * The Security Identifier (SID) of the user if the account an `smb` account. The SMB server uses this value to check share access and for other purposes.
-   */
   sid: string | null;
-  /**
-   * The date of the last password change for local user accounts.
-   */
   last_password_change: string | null;
-  /**
-   * The age in days of the password for local user accounts.
-   */
   password_age: number | null;
-  /**
-   * This contains hashes of the ten most recent passwords used by local user accounts, and is for enforcing password history requirements as defined in system.security.
-   */
   password_history: unknown[] | null;
-  /**
-   * Password change for local user account is required on next login.
-   */
   password_change_required: boolean;
-  /**
-   * Array of roles assigned to this user's groups. Roles control administrative access to TrueNAS through the web UI and API.
-   */
   roles: string[];
-  /**
-   * Array of API key IDs associated with this user account for programmatic access.
-   */
   api_keys: number[];
-  /**
-   * Password if it was specified in create or update payload. If random_password was specified then this will be a 20 character random string.
-   */
   password: string | null;
 }
-/**
- * Used by: user.renew_2fa_secret (response)
- */
 export interface UserRenew2FaSecretResult {
-  /**
-   * This is the API identifier for the user. Use this ID for `user.update` and `user.delete` API calls. This ID also appears in the `users` array for each group entry in `group.query` results.
-   *
-   * NOTE: For users from a directory service, the `id` is calculated by adding 100000000 to the `uid`. This ensures consistent API results. You cannot change directory service accounts through TrueNAS.
-   */
   id: number;
-  /**
-   * A non-negative integer used to identify a system user. TrueNAS uses this value for permission checks and many other system purposes.
-   */
   uid: number;
-  /**
-   * A string used to identify a user. Local accounts must use characters from the POSIX portable filename character set.
-   */
   username: string;
-  /**
-   * Hashed password for local accounts. This value is `null` for accounts provided by directory services.
-   */
   unixhash: string | null;
-  /**
-   * NT hash of the local account password for `smb` users. This value is `null` for accounts provided by directory services or non-SMB accounts.
-   */
   smbhash: string | null;
-  /**
-   * The local file system path for the user account's home directory. Typically, this is required only if the account has shell access (local or SSH) to TrueNAS. This is not required for accounts used only for SMB share access.
-   */
   home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
   shell?: string;
-  /**
-   * Comment field to provide additional information about the user account. Typically, this is the full name of the user or a short description of a service account. There are no character set restrictions for this field. This field is for information only.
-   */
   full_name: string;
-  /**
-   * If `true`, the user account is an internal system account for the TrueNAS server. Typically, one should create dedicated user accounts for access to the TrueNAS server webui and shares.
-   */
   builtin: boolean;
-  /**
-   * The user account may be used to access SMB shares. If set to `true` then TrueNAS stores an NT hash of the user account's password for local accounts. This feature is unavailable for local accounts when General Purpose OS STIG compatibility mode is enabled. If set to `true` the user is automatically added to the `builtin_users` group.
-   */
   smb?: boolean;
-  /**
-   * The user account may be used to access WebShare shares. If set to `true` the user is automatically added to the `webshare` group.
-   */
   webshare?: boolean;
-  /**
-   * Specifies the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If `null`, then the UID will not be mapped.
-   *
-   * NOTE: This field will be ignored for users that have been assigned TrueNAS roles.
-   */
   userns_idmap?: ("DIRECT" | null) | number;
-  /**
-   * The primary group of the user account.
-   */
   group: {
     [k: string]: unknown;
   };
-  /**
-   * Array of additional groups to which the user belongs. NOTE: Groups are identified by their group entry `id`, not their Unix group ID (`gid`).
-   */
   groups?: number[];
-  /**
-   * If set to `true` password authentication for the user account is disabled.
-   *
-   * NOTE: Users with password authentication disabled may still authenticate to the TrueNAS server by other methods, such as SSH key-based authentication.
-   *
-   * NOTE: Password authentication is required for `smb` users.
-   */
   password_disabled?: boolean;
-  /**
-   * Allow the user to authenticate to the TrueNAS SSH server using a password.
-   *
-   * WARNING: The established best practice is to use only key-based authentication for SSH servers.
-   */
   ssh_password_enabled?: boolean;
-  /**
-   * SSH public keys corresponding to private keys that authenticate this user to the TrueNAS SSH server.
-   */
   sshpubkey?: string | null;
-  /**
-   * If set to `true` the account is locked. The account cannot be used to authenticate to the TrueNAS server.
-   */
   locked?: boolean;
-  /**
-   * An array of commands the user may execute with elevated privileges. User is prompted for password when executing any command from the array.
-   */
   sudo_commands?: string[];
-  /**
-   * An array of commands the user may execute with elevated privileges. User is *not* prompted for password when executing any command from the array.
-   */
   sudo_commands_nopasswd?: string[];
-  /**
-   * Email address of the user. If the user has the `FULL_ADMIN` role, they will receive email alerts and notifications.
-   */
   email?: string | null;
-  /**
-   * If `true`, the account is local to the TrueNAS server. If `false`, the account is provided by a directory service.
-   */
   local: boolean;
-  /**
-   * If `true`, the account is system-provided and most fields related to it may not be changed.
-   */
   immutable: boolean;
-  /**
-   * If `true`, the account has been configured for two-factor authentication. Users are prompted for a second factor when authenticating to the TrueNAS web UI and API. They may also be prompted when signing in to the TrueNAS SSH server using a password (depending on global two-factor authentication settings).
-   */
   twofactor_auth_configured: boolean;
-  /**
-   * The Security Identifier (SID) of the user if the account an `smb` account. The SMB server uses this value to check share access and for other purposes.
-   */
   sid: string | null;
-  /**
-   * The date of the last password change for local user accounts.
-   */
   last_password_change: string | null;
-  /**
-   * The age in days of the password for local user accounts.
-   */
   password_age: number | null;
-  /**
-   * This contains hashes of the ten most recent passwords used by local user accounts, and is for enforcing password history requirements as defined in system.security.
-   */
   password_history: unknown[] | null;
-  /**
-   * Password change for local user account is required on next login.
-   */
   password_change_required: boolean;
-  /**
-   * Array of roles assigned to this user's groups. Roles control administrative access to TrueNAS through the web UI and API.
-   */
   roles: string[];
-  /**
-   * Array of API key IDs associated with this user account for programmatic access.
-   */
   api_keys: number[];
   twofactor_config: UserTwofactorConfigEntry;
 }
-/**
- * Used by: user.update (params)
- */
 export interface UserUpdate {
-  /**
-   * String used to uniquely identify the user on the server. In order to be portable across systems, local user names must be composed of characters from the POSIX portable filename character set (IEEE Std 1003.1-2024 section 3.265). This means alphanumeric characters, hyphens, underscores, and periods. Usernames also may not begin with a hyphen or a period.
-   */
   username?: string;
-  /**
-   * The local file system path for the user account's home directory. Typically, this is required only if the account has shell access (local or SSH) to TrueNAS. This is not required for accounts used only for SMB share access.
-   */
   home?: string;
-  /**
-   * Available choices can be retrieved with `user.shell_choices`.
-   */
   shell?: string;
-  /**
-   * Comment field to provide additional information about the user account. Typically, this is the full name of the user or a short description of a service account. There are no character set restrictions for this field. This field is for information only.
-   */
   full_name?: string;
-  /**
-   * The user account may be used to access SMB shares. If set to `true` then TrueNAS stores an NT hash of the user account's password for local accounts. This feature is unavailable for local accounts when General Purpose OS STIG compatibility mode is enabled. If set to `true` the user is automatically added to the `builtin_users` group.
-   */
   smb?: boolean;
-  /**
-   * The user account may be used to access WebShare shares. If set to `true` the user is automatically added to the `webshare` group.
-   */
   webshare?: boolean;
-  /**
-   * Specifies the subuid mapping for this user. If DIRECT then the UID will be directly mapped to all containers. Alternatively, the target UID may be explicitly specified. If `null`, then the UID will not be mapped.
-   *
-   * NOTE: This field will be ignored for users that have been assigned TrueNAS roles.
-   */
   userns_idmap?: ("DIRECT" | null) | number;
-  /**
-   * The group entry `id` for the user's primary group. This is not the same as the Unix group `gid` value. This is required if `group_create` is `false`.
-   */
   group?: number | null;
-  /**
-   * Array of additional groups to which the user belongs. NOTE: Groups are identified by their group entry `id`, not their Unix group ID (`gid`).
-   */
   groups?: number[];
-  /**
-   * If set to `true` password authentication for the user account is disabled.
-   *
-   * NOTE: Users with password authentication disabled may still authenticate to the TrueNAS server by other methods, such as SSH key-based authentication.
-   *
-   * NOTE: Password authentication is required for `smb` users.
-   */
   password_disabled?: boolean;
-  /**
-   * Allow the user to authenticate to the TrueNAS SSH server using a password.
-   *
-   * WARNING: The established best practice is to use only key-based authentication for SSH servers.
-   */
   ssh_password_enabled?: boolean;
-  /**
-   * SSH public keys corresponding to private keys that authenticate this user to the TrueNAS SSH server.
-   */
   sshpubkey?: string | null;
-  /**
-   * If set to `true` the account is locked. The account cannot be used to authenticate to the TrueNAS server.
-   */
   locked?: boolean;
-  /**
-   * An array of commands the user may execute with elevated privileges. User is prompted for password when executing any command from the array.
-   */
   sudo_commands?: string[];
-  /**
-   * An array of commands the user may execute with elevated privileges. User is *not* prompted for password when executing any command from the array.
-   */
   sudo_commands_nopasswd?: string[];
-  /**
-   * Email address of the user. If the user has the `FULL_ADMIN` role, they will receive email alerts and notifications.
-   */
   email?: string | null;
-  /**
-   * Create a new home directory for the user in the specified `home` path.
-   */
   home_create?: boolean;
-  /**
-   * Filesystem permission to set on the user's home directory.
-   */
   home_mode?: string;
-  /**
-   * The password for the user account. This is required if `random_password` is not set.
-   */
   password?: string | null;
-  /**
-   * Generate a random 20 character password for the user.
-   */
   random_password?: boolean;
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMAddedEvent {
   id: number;
   fields: VMEntryInput;
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMEntryInput {
-  /**
-   * Additional command line arguments passed to the VM hypervisor.
-   */
   command_line_args?: string;
-  /**
-   * CPU virtualization mode.
-   *
-   * * `CUSTOM`: Use specified model.
-   * * `HOST-MODEL`: Mirror host CPU.
-   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
-   */
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  /**
-   * Specific CPU model to emulate. `null` to use hypervisor default.
-   */
   cpu_model?: string | null;
-  /**
-   * Display name of the virtual machine.
-   */
   name: string;
-  /**
-   * Optional description or notes about the virtual machine.
-   */
-  description?: string;
-  /**
-   * Number of virtual CPU sockets. The total number of guest vCPUs is `vcpus` * `cores` * `threads` (maximum 16).
-   */
   vcpus?: number;
-  /**
-   * Number of CPU cores per socket.
-   */
   cores?: number;
-  /**
-   * Number of threads per CPU core.
-   */
   threads?: number;
-  /**
-   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
-   */
   cpuset?: string | null;
-  /**
-   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
-   */
   nodeset?: string | null;
-  /**
-   * Whether to expose detailed CPU topology information to the guest OS.
-   */
   enable_cpu_topology_extension?: boolean;
-  /**
-   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
-   */
   pin_vcpus?: boolean;
-  /**
-   * Whether to automatically suspend the VM when a periodic snapshot task runs. For manual snapshots, the VM is suspended only if explicitly included in the snapshot's VM pause list.
-   */
   suspend_on_snapshot?: boolean;
-  /**
-   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
-   */
   trusted_platform_module?: boolean;
-  /**
-   * Amount of memory allocated to the VM in mebibytes (MiB).
-   */
   memory: number;
-  /**
-   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
-   */
   min_memory?: number | null;
-  /**
-   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
-   */
   hyperv_enlightenments?: boolean;
   bootloader?: Bootloader;
-  /**
-   * OVMF firmware file to use for UEFI boot.
-   */
   bootloader_ovmf?: string;
-  /**
-   * Whether to automatically start the VM when the host system boots.
-   */
   autostart?: boolean;
-  /**
-   * Whether to hide the KVM hypervisor from standard MSR-based discovery. Useful when doing GPU passthrough.
-   */
   hide_from_msr?: boolean;
-  /**
-   * Whether to ensure the guest always has access to a video device. Required for headless OS installations (e.g. Ubuntu Server). Set to `false` when using GPU passthrough without a separate display device.
-   */
   ensure_display_device?: boolean;
   time?: Time;
-  /**
-   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
-   */
   shutdown_timeout?: number;
-  /**
-   * Guest architecture type. `null` to use hypervisor default.
-   */
   arch_type?: string | null;
-  /**
-   * Virtual machine type/chipset. `null` to use hypervisor default.
-   */
   machine_type?: string | null;
-  /**
-   * Unique UUID for the VM.
-   */
   uuid: string;
-  /**
-   * Array of virtual devices attached to this VM.
-   */
   devices: VMDeviceEntryInput[];
-  /**
-   * Whether at least one display device is available for this VM.
-   */
   display_available: boolean;
-  /**
-   * Unique identifier for the virtual machine.
-   */
   id: number;
   status: VMStatus;
-  /**
-   * Whether to enable UEFI Secure Boot for enhanced security.
-   */
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (event), vm.query (params), vm.query (response), vm.status (response), vm.update (response)
- */
 export interface VMStatus {
-  /**
-   * Current state of the virtual machine.
-   */
   state: string;
-  /**
-   * Process ID of the running VM. `null` if not running.
-   */
   pid: number | null;
-  /**
-   * Hypervisor-specific domain state.
-   */
   domain_state: string | null;
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
 }
-/**
- * Used by: vm.device.nic_attach_choices (response)
- */
 export interface VMDeviceNicAttachChoicesResult {
-  /**
-   * Available bridge interfaces for NIC attachment.
-   */
   BRIDGE: string[];
-  /**
-   * Available parent interfaces for creating MACVLAN NIC devices.
-   */
   MACVLAN: string[];
 }
-/**
- * Used by: vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (params), vm.query (response), vm.update (response)
- */
 export interface VMEntry {
-  /**
-   * Additional command line arguments passed to the VM hypervisor.
-   */
   command_line_args?: string;
-  /**
-   * CPU virtualization mode.
-   *
-   * * `CUSTOM`: Use specified model.
-   * * `HOST-MODEL`: Mirror host CPU.
-   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
-   */
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  /**
-   * Specific CPU model to emulate. `null` to use hypervisor default.
-   */
   cpu_model?: string | null;
-  /**
-   * Display name of the virtual machine.
-   */
   name: string;
-  /**
-   * Optional description or notes about the virtual machine.
-   */
-  description?: string;
-  /**
-   * Number of virtual CPUs allocated to the VM.
-   */
   vcpus?: number;
-  /**
-   * Number of CPU cores per socket.
-   */
   cores?: number;
-  /**
-   * Number of threads per CPU core.
-   */
   threads?: number;
-  /**
-   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
-   */
   cpuset?: string | null;
-  /**
-   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
-   */
   nodeset?: string | null;
-  /**
-   * Whether to expose detailed CPU topology information to the guest OS.
-   */
   enable_cpu_topology_extension?: boolean;
-  /**
-   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
-   */
   pin_vcpus?: boolean;
-  /**
-   * Whether to suspend the VM when taking snapshots.
-   */
   suspend_on_snapshot?: boolean;
-  /**
-   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
-   */
   trusted_platform_module?: boolean;
-  /**
-   * Amount of memory allocated to the VM in mebibytes (MiB).
-   */
   memory: number;
-  /**
-   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
-   */
   min_memory?: number | null;
-  /**
-   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
-   */
   hyperv_enlightenments?: boolean;
   bootloader?: Bootloader;
-  /**
-   * OVMF firmware file to use for UEFI boot.
-   */
   bootloader_ovmf?: string;
-  /**
-   * Whether to automatically start the VM when the host system boots.
-   */
   autostart?: boolean;
-  /**
-   * Whether to hide hypervisor signatures from guest OS MSR access.
-   */
   hide_from_msr?: boolean;
-  /**
-   * Whether to ensure at least one display device is configured for the VM.
-   */
   ensure_display_device?: boolean;
   time?: Time;
-  /**
-   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
-   */
   shutdown_timeout?: number;
-  /**
-   * Guest architecture type. `null` to use hypervisor default.
-   */
   arch_type?: string | null;
-  /**
-   * Virtual machine type/chipset. `null` to use hypervisor default.
-   */
   machine_type?: string | null;
-  /**
-   * Unique UUID for the VM. `null` to auto-generate.
-   */
   uuid?: string | null;
-  /**
-   * Array of virtual devices attached to this VM.
-   */
   devices: VMDeviceEntry[];
-  /**
-   * Whether at least one display device is available for this VM.
-   */
   display_available: boolean;
-  /**
-   * Unique identifier for the virtual machine.
-   */
   id: number;
   status: VMStatus;
-  /**
-   * Whether to enable UEFI Secure Boot for enhanced security.
-   */
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vmware.query (event)
- */
 export interface VMWareAddedEvent {
   id: number;
   fields: VMWareEntryInput;
 }
-/**
- * Used by: vmware.query (event)
- */
 export interface VMWareEntryInput {
-  /**
-   * Unique identifier for the VMware configuration.
-   */
   id: number;
-  /**
-   * Valid datastore name which exists on the VMWare host.
-   */
   datastore: string;
-  /**
-   * ZFS filesystem or dataset to use for VMware storage.
-   */
   filesystem: string;
-  /**
-   * Valid IP address / hostname of a VMWare host. When clustering, this is the vCenter server for the cluster.
-   */
   hostname: string;
-  /**
-   * Credentials used to authorize access to the VMWare host.
-   */
   username: string;
-  /**
-   * Password for VMware host authentication.
-   */
   password: string;
   state: VMWareEntryStateInput;
 }
-/**
- * Used by: vmware.query (event)
- */
 export interface VMWareEntryStateInput {
   state?: StateInput2;
-  /**
-   * Error text (if any).
-   */
   error?: string;
-  /**
-   * State update datetime.
-   */
   datetime?: string;
 }
-/**
- * Used by: vmware.query (event)
- */
 export interface VMWareChangedEvent {
   id: number;
   fields: VMWareEntryInput;
 }
-/**
- * Used by: vmware.create (response), vmware.get_instance (params), vmware.get_instance (response), vmware.query (params), vmware.query (response), vmware.update (response)
- */
 export interface VMWareEntry {
-  /**
-   * Unique identifier for the VMware configuration.
-   */
   id: number;
-  /**
-   * Valid datastore name which exists on the VMWare host.
-   */
   datastore: string;
-  /**
-   * ZFS filesystem or dataset to use for VMware storage.
-   */
   filesystem: string;
-  /**
-   * Valid IP address / hostname of a VMWare host. When clustering, this is the vCenter server for the cluster.
-   */
   hostname: string;
-  /**
-   * Credentials used to authorize access to the VMWare host.
-   */
   username: string;
-  /**
-   * Password for VMware host authentication.
-   */
   password: string;
   state: VMWareEntryState;
 }
-/**
- * Used by: vmware.match_datastores_with_datasets (response)
- */
 export interface VMWareMatchDatastoresWithDatasetsResult {
-  /**
-   * Array of VMware datastores with their matching local filesystems.
-   */
   datastores: VMWareMatchDatastoresWithDatasetsResultDatastore[];
-  /**
-   * Array of local filesystems that can be used for VMware storage.
-   */
   filesystems: VMWareMatchDatastoresWithDatasetsResultFilesystem[];
 }
-/**
- * Used by: vmware.match_datastores_with_datasets (response)
- */
 export interface VMWareMatchDatastoresWithDatasetsResultFilesystem {
   type: Type8;
-  /**
-   * Name of the local filesystem or volume.
-   */
   name: string;
-  /**
-   * Human-readable description of the filesystem or volume.
-   */
-  description: string;
 }
-/**
- * TrueNAS Webshare server configuration.
- *
- * Used by: webshare.config (response), webshare.update (response)
- */
 export interface WebshareEntry {
-  /**
-   * Unique identifier for the Webshare service configuration.
-   */
   id: number;
-  /**
-   * List of IP addresses used by the TrueNAS Webshare server.
-   */
   bindip: string[];
-  /**
-   * Search indexing is enabled.
-   */
   search: boolean;
   passkey: Passkey;
-  /**
-   * A list of AD/LDAP group names whose members will be granted access to Webshare.
-   */
   groups: string[];
 }
-/**
- * Used by: webshare.update (params)
- */
 export interface WebshareUpdate {
-  /**
-   * List of IP addresses used by the TrueNAS Webshare server.
-   */
   bindip?: string[];
-  /**
-   * Search indexing is enabled.
-   */
   search?: boolean;
   passkey?: Passkey;
-  /**
-   * A list of AD/LDAP group names whose members will be granted access to Webshare.
-   */
   groups?: string[];
 }
-/**
- * Used by: zfs.resource.destroy (params)
- */
 export interface ZFSResourceDestroyArgsData {
-  /**
-   * Path of the zfs resource (dataset or volume) to be destroyed. Snapshot paths (containing '@') are not accepted - use `zfs.resource.snapshot.destroy` instead.
-   */
   path: string;
-  /**
-   * Recursively destroy all descendants of the resource, including child datasets, snapshots, clones, and holds.
-   */
   recursive?: boolean;
 }
-/**
- * Used by: zfs.resource.query (response)
- */
 export interface ZFSResourceEntry {
-  /**
-   * Transaction group when resource was created.
-   */
   createtxg: number;
-  /**
-   * Globally unique identifier for the resource.
-   */
   guid: number;
-  /**
-   * The name of the zfs resource.
-   */
   name: string;
-  /**
-   * The name of the zpool that the zfs resouce is associated to.
-   */
   pool: string;
-  /**
-   * The zfs properties for the resource.
-   */
   properties: ZFSPropertiesEntry | null;
   type: Type8;
-  /**
-   * Custom metadata properties with colon-separated names (max 256 chars).
-   */
   user_properties: {
     [k: string]: string;
   } | null;
-  /**
-   * The children of this zfs resource.
-   */
   children: unknown[] | null;
-  /**
-   * Tier classification for FILESYSTEM resources. None if not requested or not applicable.
-   */
   tier?: TierInfo | null;
 }
-/**
- * Used by: zfs.resource.query (params)
- */
 export interface ZFSResourceQuery {
-  /**
-   * A list of zfs filesystem or volume paths to be queried. In almost all scenarios, you should provide a path of what you want to query. By providing path(s) here, it allows the API to apply optimizations so that the requested information is retrieved as efficiently and quickly as possible.
-   *
-   * Example 1:
-   *     {"paths": ["tank/foo"]} will query the relevant information for this resource only.
-   * Example 2:
-   *     {"paths": ["tank/foo", "dozer/test"]} will query the relevant information for these resources only.
-   *
-   * NOTE:
-   *     paths must be non-overlapping if `get_children` is True.
-   *     (i.e. this won't work and will raise a validation error)
-   *         {
-   *             "paths": ["tank/foo1", "tank/foo1/foo2"],
-   *             "get_children": True
-   *         }
-   */
   paths?: string[];
-  /**
-   * A list of zfs properties to be retrieved. Defaults to an empty list which will return a default set of zfs properties. Setting this to None will retrieve no zfs properties.
-   */
   properties?: string[] | null;
-  /**
-   * Retrieve user properties for zfs resource(s).
-   */
   get_user_properties?: boolean;
-  /**
-   * Retrieve source information for a zfs property.
-   */
   get_source?: boolean;
-  /**
-   * Return a nested object that associates all children to their respective parents in the filesystem. By default, each zfs resource is returned as a separate item in the array and is not associated to its parent.
-   */
   nest_results?: boolean;
-  /**
-   * Retrieve children information for the zfs resource.
-   */
   get_children?: boolean;
-  /**
-   * Maximum depth to recurse when retrieving children. A value of 0 means unlimited recursion (default behavior). A value greater than 0 limits the recursion to that many levels deep.
-   *
-   * When max_depth > 0, get_children is automatically enabled if not already set.
-   *
-   * Examples:
-   *     max_depth=0: Retrieve all descendants (unlimited depth).
-   *     max_depth=1: Retrieve only immediate children.
-   *     max_depth=2: Retrieve children and grandchildren.
-   *     max_depth=3: Retrieve up to great-grandchildren.
-   *
-   * Note: When max_depth > 0 is specified, it takes priority over get_children. The depth is measured from the specified path(s), not from the pool root.
-   */
   max_depth?: number;
-  /**
-   * Retrieve tier classification (REGULAR/PERFORMANCE) for FILESYSTEM resources. Requires an active Enterprise license with ZFS tiering enabled.
-   */
   get_tier?: boolean;
 }
-/**
- * Used by: zfs.resource.snapshot.clone (params)
- */
 export interface ZFSResourceSnapshotCloneQuery {
-  /**
-   * Source snapshot path to clone (e.g., 'pool/dataset@snapshot').
-   */
   snapshot: string;
-  /**
-   * Destination dataset path for the clone (e.g., 'pool/clone').
-   */
   dataset: string;
-  /**
-   * ZFS properties to set on the cloned dataset.
-   */
   properties?: {
     [k: string]: string | number;
   };
 }
-/**
- * Used by: zfs.resource.snapshot.count (params)
- */
 export interface ZFSResourceSnapshotCountQuery {
-  /**
-   * Dataset paths to count snapshots for. If empty, counts all snapshots.
-   */
   paths?: string[];
-  /**
-   * Include snapshots from child datasets when counting.
-   */
   recursive?: boolean;
 }
-/**
- * Used by: zfs.resource.snapshot.create (params)
- */
 export interface ZFSResourceSnapshotCreateQuery {
-  /**
-   * Dataset path to snapshot (e.g., 'pool/dataset').
-   */
   dataset: string;
-  /**
-   * Snapshot name (the part after @).
-   */
   name: string;
-  /**
-   * Create snapshots recursively for child datasets.
-   */
   recursive?: boolean;
-  /**
-   * Datasets to exclude when creating recursive snapshots.
-   */
   exclude?: string[];
-  /**
-   * User properties to set on the snapshot. Only user-defined properties are supported (e.g., 'com.company:backup_type'). Regular ZFS properties cannot be set on snapshots at creation time.
-   */
   user_properties?: {
     [k: string]: string;
   };
 }
-/**
- * Used by: zfs.resource.snapshot.destroy (params)
- */
 export interface ZFSResourceSnapshotDestroyQuery {
-  /**
-   * Path to destroy. Either a snapshot path (e.g., 'pool/dataset@snapshot') or a dataset path when all_snapshots=True (e.g., 'pool/dataset').
-   */
   path: string;
-  /**
-   * Recursively destroy matching snapshots in child datasets.
-   */
   recursive?: boolean;
-  /**
-   * If True, path should be a dataset path and all its snapshots will be destroyed.
-   */
   all_snapshots?: boolean;
-  /**
-   * Defer destruction if snapshot is in use (e.g., has clones).
-   */
   defer?: boolean;
 }
-/**
- * Used by: zfs.resource.snapshot.create (response), zfs.resource.snapshot.query (response)
- */
 export interface ZFSResourceSnapshotEntry {
-  /**
-   * The TXG in which the snapshot was created.
-   */
   createtxg: number;
-  /**
-   * A GUID for the snapshot.
-   */
   guid: number;
-  /**
-   * The zfs resource for the given snapshot.
-   */
   name: string;
-  /**
-   * The zpool of the snapshot.
-   */
   pool: string;
-  /**
-   * The zfs resource for the given snapshot.
-   */
   dataset: string;
-  /**
-   * The name of the snapshot.
-   */
   snapshot_name: string;
-  /**
-   * The type of zfs resource.
-   */
   type?: "SNAPSHOT";
-  /**
-   * A list of tags that hold the snapshot.
-   */
   holds: unknown[] | null;
-  /**
-   * Requested properties for the snapshot.
-   */
   properties: ZFSResourceSnapshotPropertiesEntry | null;
-  /**
-   * User-defined properties for snapshots.
-   */
   user_properties: {
     [k: string]: string;
   } | null;
 }
-/**
- * Used by: zfs.resource.snapshot.hold (params)
- */
 export interface ZFSResourceSnapshotHoldQuery {
-  /**
-   * Snapshot path to hold (e.g., 'pool/dataset@snapshot').
-   */
   path: string;
-  /**
-   * Hold tag name to apply.
-   */
   tag?: string;
-  /**
-   * Apply hold recursively to matching snapshots in child datasets.
-   */
   recursive?: boolean;
 }
-/**
- * Used by: zfs.resource.snapshot.holds (params)
- */
 export interface ZFSResourceSnapshotHoldsQuery {
-  /**
-   * Snapshot path to query holds for (e.g., 'pool/dataset@snapshot').
-   */
   path: string;
 }
-/**
- * Used by: zfs.resource.snapshot.query (params)
- */
 export interface ZFSResourceSnapshotQuery {
-  /**
-   * Dataset paths to count snapshots for. If empty, counts all snapshots.
-   */
   paths?: string[];
-  /**
-   * Include snapshots from child datasets when counting.
-   */
   recursive?: boolean;
-  /**
-   * List of ZFS properties to retrieve. Empty list returns default properties. None returns no properties.
-   */
   properties?: string[] | null;
-  /**
-   * Retrieve user-defined properties for snapshots.
-   */
   get_user_properties?: boolean;
-  /**
-   * Include source information for each property value.
-   */
   get_source?: boolean;
-  /**
-   * Include holds information (if any) for the snapshot.
-   */
   get_holds?: boolean;
-  /**
-   * Minimum transaction group for filtering snapshots. 0 means no minimum.
-   */
   min_txg?: number;
-  /**
-   * Maximum transaction group for filtering snapshots. 0 means no maximum.
-   */
   max_txg?: number;
 }
-/**
- * Used by: zfs.resource.snapshot.release (params)
- */
 export interface ZFSResourceSnapshotReleaseQuery {
-  /**
-   * Snapshot path to release holds from (e.g., 'pool/dataset@snapshot').
-   */
   path: string;
-  /**
-   * Specific tag to release. If None, releases all hold tags.
-   */
   tag?: string | null;
-  /**
-   * Release holds recursively from matching snapshots in child datasets.
-   */
   recursive?: boolean;
 }
-/**
- * Used by: zfs.resource.snapshot.rename (params)
- */
 export interface ZFSResourceSnapshotRenameQuery {
-  /**
-   * Current snapshot path (e.g., 'pool/dataset@old_name').
-   */
   current_name: string;
-  /**
-   * New snapshot path (e.g., 'pool/dataset@new_name').
-   */
   new_name: string;
-  /**
-   * Recursively rename matching snapshots in child datasets.
-   */
   recursive?: boolean;
 }
-/**
- * Used by: zfs.resource.snapshot.rollback (params)
- */
 export interface ZFSResourceSnapshotRollbackQuery {
-  /**
-   * Snapshot path to rollback to (e.g., 'pool/dataset@snapshot').
-   */
   path: string;
-  /**
-   * Destroy any snapshots and bookmarks more recent than the one specified.
-   */
   recursive?: boolean;
-  /**
-   * Like recursive, but also destroy any clones.
-   */
   recursive_clones?: boolean;
-  /**
-   * Force unmount of any clones.
-   */
   force?: boolean;
-  /**
-   * Do a complete recursive rollback of each child snapshot. Fails if any child lacks the snapshot.
-   */
   recursive_rollback?: boolean;
 }
-/**
- * Used by: zfs.tier.dataset_set_tier (params)
- */
 export interface ZfsTierDatasetSetTierArgs {
-  /**
-   * ZFS dataset to configure (e.g. `tank/data`).
-   */
   dataset_name: string;
-  /**
-   * Storage performance tier for this dataset.
-   */
   tier_type: "REGULAR" | "PERFORMANCE";
-  /**
-   * When `true`, immediately create a rewrite job to physically migrate existing data to match the new tier.
-   */
   move_existing_data?: boolean;
 }
-/**
- * Used by: zfs.tier.config (response), zfs.tier.update (response)
- */
 export interface ZfsTierEntry {
-  /**
-   * Placeholder identifier. Not used; there is only one configuration instance.
-   */
   id: number;
-  /**
-   * Whether the ZFS tier service is enabled.
-   */
   enabled: boolean;
-  /**
-   * Maximum number of rewrite jobs that execute simultaneously. Jobs submitted beyond this limit are held in a QUEUED state until a slot becomes available (1-10).
-   */
   max_concurrent_jobs: number;
-  /**
-   * Abort rewrites when filesystem usage reaches this percentage threshold (70-95).
-   */
   max_used_percentage: number;
-  /**
-   * Percentage of PERFORMANCE tier space reserved for metadata. Metadata is always written to the PERFORMANCE tier, but data is only placed there while allocated space stays below `100 - special_class_metadata_reserve_pct` percent of total PERFORMANCE tier capacity. Beyond that threshold data falls back to the REGULAR tier. Corresponds to the ZFS kernel parameter `zfs_special_class_metadata_reserve_pct` (default: 25).
-   */
   special_class_metadata_reserve_pct: number;
 }
-/**
- * Used by: zfs.tier.rewrite_job_cancel (params)
- */
 export interface ZfsTierRewriteJobCancelArgs {
-  /**
-   * Rewrite job to cancel, in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
 }
-/**
- * Used by: zfs.tier.rewrite_job_create (params)
- */
 export interface ZfsTierRewriteJobCreateArgs {
-  /**
-   * ZFS dataset to rewrite (e.g. `tank/data`). Only one job may exist per dataset at a time; creating a second returns an error.
-   */
   dataset_name: string;
 }
-/**
- * Used by: zfs.tier.rewrite_job_failures (response)
- */
 export interface ZfsTierRewriteJobFailureEntry {
-  /**
-   * Name of the file that failed to migrate storage tier.
-   */
   filename: string;
   error: ZfsTierRewriteJobFailureError;
-  /**
-   * Absolute path of the file resolved via its file handle, or `null` if the file no longer exists on the filesystem.
-   */
   path: string | null;
 }
-/**
- * Used by: zfs.tier.rewrite_job_failures (response)
- */
 export interface ZfsTierRewriteJobFailureError {
-  /**
-   * Error number from the failed storage tier migration.
-   */
   errno: number;
-  /**
-   * Human-readable description of the error.
-   */
   strerror: string;
 }
-/**
- * Used by: zfs.tier.rewrite_job_failures (params)
- */
 export interface ZfsTierRewriteJobFailuresArgs {
-  /**
-   * Rewrite job to query, in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
-  /**
-   * Additional filters to apply to the results.
-   */
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
 }
-/**
- * Used by: zfs.tier.rewrite_job_query (params)
- */
 export interface ZfsTierRewriteJobQueryArgs {
-  /**
-   * Limit results to jobs in the specified states. Pass `null` or omit to return all jobs.
-   */
   status?: ("COMPLETE" | "RUNNING" | "QUEUED" | "CANCELLED" | "STOPPED" | "ERROR")[] | null;
-  /**
-   * Additional filters to apply to the results.
-   */
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
 }
-/**
- * Used by: zfs.tier.rewrite_job_query (event)
- */
 export interface ZfsTierRewriteJobQueryEventSourceEvent {
   fields: ZfsTierRewriteJobEntryInput;
 }
-/**
- * Used by: zfs.tier.rewrite_job_query (event)
- */
 export interface ZfsTierRewriteJobQueryEventSourceEvent2 {
   fields: ZfsTierRewriteJobQueryEventSourceEvent;
 }
-/**
- * Used by: zfs.tier.rewrite_job_recover (params)
- */
 export interface ZfsTierRewriteJobRecoverArgs {
-  /**
-   * Rewrite job to recover, in `dataset_name@job_uuid` format. The job must be in `ERROR` state.
-   */
   tier_job_id: string;
 }
-/**
- * Used by: zfs.tier.rewrite_job_status (event), zfs.tier.rewrite_job_status (response)
- */
 export interface ZfsTierRewriteJobStats {
-  /**
-   * Unix timestamp (seconds) when the current run started. Reset each time the job is resumed or recovered.
-   */
   start_time: number;
-  /**
-   * Unix timestamp (seconds) when the job was first created. Preserved across resumes.
-   */
   initial_time: number;
-  /**
-   * Unix timestamp (seconds) of the most recent statistics update.
-   */
   update_time: number;
-  /**
-   * Number of files processed in the current run. Reset to zero on each resume.
-   */
   count_items: number;
-  /**
-   * Bytes processed in the current run. Reset to zero on each resume.
-   */
   count_bytes: number;
-  /**
-   * Total number of files to process across the entire dataset.
-   */
   total_items: number;
-  /**
-   * Total bytes to process across the entire dataset.
-   */
   total_bytes: number;
-  /**
-   * Cumulative count of files that failed rewriting across all runs of this job.
-   */
   failures: number;
-  /**
-   * Cumulative count of files successfully rewritten across all runs of this job.
-   */
   success: number;
-  /**
-   * Directory path of the file currently being processed. Also used as the resume checkpoint if the job is interrupted.
-   */
   parent: string;
-  /**
-   * Name of the file currently being processed.
-   */
   name: string;
 }
-/**
- * Used by: zfs.tier.rewrite_job_status (params)
- */
 export interface ZfsTierRewriteJobStatusArgs {
-  /**
-   * Rewrite job to query, in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
 }
-/**
- * Used by: zfs.tier.rewrite_job_status (response)
- */
 export interface ZfsTierRewriteJobStatusEntry {
-  /**
-   * Rewrite job identifier in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
-  /**
-   * ZFS dataset this job is operating on.
-   */
   dataset_name: string;
-  /**
-   * Unique identifier for this rewrite job.
-   */
   job_uuid: string;
   status: Status;
-  /**
-   * Progress statistics, or `null` if no statistics have been recorded yet.
-   */
   stats: ZfsTierRewriteJobStats | null;
-  /**
-   * Error message describing why the job entered `ERROR` state, otherwise `null`.
-   */
   error: string | null;
 }
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
 export interface ZfsTierRewriteJobStatusEntryInput {
-  /**
-   * Rewrite job identifier in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
-  /**
-   * ZFS dataset this job is operating on.
-   */
   dataset_name: string;
-  /**
-   * Unique identifier for this rewrite job.
-   */
   job_uuid: string;
   status: StatusInput2;
-  /**
-   * Progress statistics, or `null` if no statistics have been recorded yet.
-   */
   stats: ZfsTierRewriteJobStats | null;
-  /**
-   * Error message describing why the job entered `ERROR` state, otherwise `null`.
-   */
   error: string | null;
 }
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
 export interface ZfsTierRewriteJobStatusEventSourceArgs {
-  /**
-   * Rewrite job to subscribe to, in `dataset_name@job_uuid` format. Receives updates whenever the job status or statistics change.
-   */
   tier_job_id: string;
 }
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
 export interface ZfsTierRewriteJobStatusEventSourceEvent {
   fields: ZfsTierRewriteJobStatusEntryInput;
 }
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
 export interface ZfsTierRewriteJobStatusEventSourceEvent2 {
   fields: ZfsTierRewriteJobStatusEventSourceEvent;
 }
-/**
- * Used by: zfs.tier.update (params)
- */
 export interface ZfsTierUpdateArgs {
-  /**
-   * Whether the ZFS tier service is enabled.
-   */
   enabled?: boolean;
-  /**
-   * Maximum number of rewrite jobs that execute simultaneously. Jobs submitted beyond this limit are held in a QUEUED state until a slot becomes available (1-10).
-   */
   max_concurrent_jobs?: number;
-  /**
-   * Abort rewrites when filesystem usage reaches this percentage threshold (70-95).
-   */
   max_used_percentage?: number;
-  /**
-   * Percentage of PERFORMANCE tier space reserved for metadata. Metadata is always written to the PERFORMANCE tier, but data is only placed there while allocated space stays below `100 - special_class_metadata_reserve_pct` percent of total PERFORMANCE tier capacity. Beyond that threshold data falls back to the REGULAR tier. Corresponds to the ZFS kernel parameter `zfs_special_class_metadata_reserve_pct` (default: 25).
-   */
   special_class_metadata_reserve_pct?: number;
 }
-/**
- * Used by: zpool.query (response)
- */
 export interface ZPoolEntry {
-  /**
-   * Database id from `storage.volume`. `null` for the boot pool and for any pool not present in the database.
-   */
   id?: number | null;
-  /**
-   * Name of the zpool.
-   */
   name: string;
-  /**
-   * Globally unique identifier for the pool.
-   */
   guid: number;
-  /**
-   * Current pool status (ONLINE, DEGRADED, FAULTED, OFFLINE, etc.).
-   */
   status: string;
-  /**
-   * Whether the pool is in a healthy state.
-   */
   healthy: boolean;
-  /**
-   * Whether the pool has warning conditions.
-   */
   warning: boolean;
-  /**
-   * Detailed status code (e.g., OK, ERRATA, FEAT_DISABLED, LOCKED_SED_DISKS).
-   */
   status_code: string | null;
-  /**
-   * Human-readable status description.
-   */
   status_detail: string | null;
-  /**
-   * Whether every ZFS feature flag on the pool is enabled. `null` for OFFLINE pools.
-   */
   is_upgraded?: boolean | null;
-  /**
-   * `true` when every disk backing the pool is a Self-Encrypting Drive, `false` when at least one is not. `null` when the SED status of the pool has not yet been determined or does not apply.
-   */
   all_sed?: boolean | null;
-  /**
-   * Pool properties, keyed by property name.
-   */
   properties?: {
     [k: string]: ZPoolPropertyValue;
   } | null;
-  /**
-   * Pool vdev topology.
-   */
   topology?: ZPoolTopology | null;
-  /**
-   * Most recent scrub or resilver information.
-   */
   scan?: ZPoolScan | null;
-  /**
-   * RAIDZ expansion information.
-   */
   expand?: ZPoolExpand | null;
-  /**
-   * Pool feature flags.
-   */
   features?: ZPoolFeature[] | null;
 }
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
 export interface ZPoolPropertyValue {
-  /**
-   * The raw string representation of the property.
-   */
   raw: string;
-  /**
-   * The source from where this property received its value (DEFAULT, LOCAL, NONE, etc.).
-   */
   source: string | null;
-  /**
-   * The native Python value of the property.
-   */
   value: number | string | boolean | null;
 }
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
 export interface ZPoolTopology {
-  /**
-   * Array of data vdev configurations.
-   */
   data: ZPoolVdev[];
-  /**
-   * Array of ZFS Intent Log (ZIL) vdev configurations.
-   */
   log: ZPoolVdev[];
-  /**
-   * Array of L2ARC cache vdev configurations.
-   */
   cache: ZPoolVdev[];
-  /**
-   * Array of spare disk configurations.
-   */
   spares: ZPoolVdev[];
-  /**
-   * Array of special vdev configurations for metadata.
-   */
   special: ZPoolVdev[];
-  /**
-   * Array of deduplication table vdev configurations.
-   */
   dedup: ZPoolVdev[];
 }
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
 export interface ZPoolVdev {
-  /**
-   * Vdev name (e.g., 'mirror-0', '/dev/sda1').
-   */
   name: string;
-  /**
-   * Vdev type (e.g., 'mirror', 'raidz1', 'disk').
-   */
   vdev_type: string;
-  /**
-   * Globally unique identifier for this vdev.
-   */
   guid: number;
-  /**
-   * Current state (ONLINE, DEGRADED, FAULTED, OFFLINE, UNAVAIL, etc.).
-   */
   state: string;
   stats: ZPoolVdevStats;
-  /**
-   * Child vdevs.
-   */
   children: ZPoolVdev[];
-  /**
-   * GUID of the top-level vdev this belongs to.
-   */
   top_guid?: number | null;
-  /**
-   * Device path stored in the vdev config (e.g. '/dev/disk/by-partuuid/<uuid>'). Unlike `name`, this is preserved for devices that were missing at pool import time. dRAID distributed spares store their synthetic spare name as the config path. `null` for interior vdevs (mirror, raidz, draid) that have no config path.
-   */
   path?: string | null;
 }
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
 export interface ZPoolVdevStats {
-  /**
-   * High-resolution timestamp (nanoseconds).
-   */
   timestamp?: number;
-  /**
-   * Allocated space in bytes.
-   */
   allocated?: number;
-  /**
-   * Total space in bytes.
-   */
   space?: number;
-  /**
-   * Deflated (compressed) space.
-   */
   dspace?: number;
-  /**
-   * Physical space.
-   */
   pspace?: number;
-  /**
-   * Replaceable dev size.
-   */
   rsize?: number;
-  /**
-   * Expandable dev size.
-   */
   esize?: number;
-  /**
-   * Number of read errors.
-   */
   read_errors?: number;
-  /**
-   * Number of write errors.
-   */
   write_errors?: number;
-  /**
-   * Number of checksum errors.
-   */
   checksum_errors?: number;
-  /**
-   * Number of initialize errors.
-   */
   initialize_errors?: number;
-  /**
-   * Number of direct I/O verify errors.
-   */
   dio_verify_errors?: number;
-  /**
-   * Number of slow I/Os.
-   */
   slow_ios?: number | null;
-  /**
-   * Self-healed bytes.
-   */
   self_healed_bytes?: number;
-  /**
-   * Fragmentation percentage.
-   */
   fragmentation?: number;
-  /**
-   * Bytes processed by scan.
-   */
   scan_processed?: number;
-  /**
-   * Bytes processed by removal.
-   */
   scan_removing?: number;
-  /**
-   * Bytes processed by rebuild.
-   */
   rebuild_processed?: number;
-  /**
-   * Allocations halted.
-   */
   noalloc?: number;
-  /**
-   * Read operations.
-   */
   ops_read?: number;
-  /**
-   * Write operations.
-   */
   ops_write?: number;
-  /**
-   * Bytes read.
-   */
   bytes_read?: number;
-  /**
-   * Bytes written.
-   */
   bytes_write?: number;
-  /**
-   * Configured ashift value.
-   */
   configured_ashift?: number | null;
-  /**
-   * Logical ashift value.
-   */
   logical_ashift?: number | null;
-  /**
-   * Physical ashift value.
-   */
   physical_ashift?: number | null;
 }
-/**
- * Used by: zpool.query (response)
- */
 export interface ZPoolScan {
   function: Function;
   state: State3;
-  /**
-   * Scan start time (unix timestamp).
-   */
   start_time: number;
-  /**
-   * Scan end time as unix timestamp (`null` while the scan is still running).
-   */
   end_time: number | null;
-  /**
-   * Scan progress (between 0 and 100%).
-   */
   percentage: number;
-  /**
-   * Total bytes located by scanner.
-   */
   bytes_to_process: number;
-  /**
-   * Total bytes to scan.
-   */
   bytes_processed: number;
-  /**
-   * Issued bytes per scan pass.
-   */
   bytes_issued: number;
-  /**
-   * Pause time as unix timestamp (`null` if the scan is not paused).
-   */
   pause: number | null;
-  /**
-   * Number of scan errors.
-   */
   errors: number;
-  /**
-   * Number of seconds left (`null` if the scan is not running).
-   */
   total_secs_left: number | null;
 }
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
 export interface ZPoolExpand {
-  /**
-   * Expansion state (e.g., SCANNING, FINISHED).
-   */
   state: string;
-  /**
-   * Index of the vdev being expanded.
-   */
   expanding_vdev: number;
-  /**
-   * Expansion start time (unix timestamp).
-   */
   start_time: number;
-  /**
-   * Expansion end time as unix timestamp (`null` while expanding).
-   */
   end_time: number | null;
-  /**
-   * Total bytes that need to be reflowed.
-   */
   bytes_to_reflow: number;
-  /**
-   * Total bytes reflowed so far.
-   */
   bytes_reflowed: number;
-  /**
-   * Non-zero if expansion is waiting for a resilver to complete.
-   */
   waiting_for_resilver: number;
-  /**
-   * Estimated seconds remaining (`null` if not expanding).
-   */
   total_secs_left: number | null;
-  /**
-   * Expansion progress (between 0 and 100%).
-   */
   percentage: number;
 }
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
 export interface ZPoolFeature {
-  /**
-   * Feature name.
-   */
   name: string;
-  /**
-   * Feature GUID.
-   */
   guid: string;
-  /**
-   * Feature description.
-   */
-  description: string;
-  /**
-   * Feature state.
-   */
   state: string;
 }
-/**
- * Used by: zpool.query (event)
- */
 export interface ZPoolEntryInput {
-  /**
-   * Database id from `storage.volume`. `null` for the boot pool and for any pool not present in the database.
-   */
   id?: number | null;
-  /**
-   * Name of the zpool.
-   */
   name: string;
-  /**
-   * Globally unique identifier for the pool.
-   */
   guid: number;
-  /**
-   * Current pool status (ONLINE, DEGRADED, FAULTED, OFFLINE, etc.).
-   */
   status: string;
-  /**
-   * Whether the pool is in a healthy state.
-   */
   healthy: boolean;
-  /**
-   * Whether the pool has warning conditions.
-   */
   warning: boolean;
-  /**
-   * Detailed status code (e.g., OK, ERRATA, FEAT_DISABLED, LOCKED_SED_DISKS).
-   */
   status_code: string | null;
-  /**
-   * Human-readable status description.
-   */
   status_detail: string | null;
-  /**
-   * Whether every ZFS feature flag on the pool is enabled. `null` for OFFLINE pools.
-   */
   is_upgraded?: boolean | null;
-  /**
-   * `true` when every disk backing the pool is a Self-Encrypting Drive, `false` when at least one is not. `null` when the SED status of the pool has not yet been determined or does not apply.
-   */
   all_sed?: boolean | null;
-  /**
-   * Pool properties, keyed by property name.
-   */
   properties?: {
     [k: string]: ZPoolPropertyValue;
   } | null;
-  /**
-   * Pool vdev topology.
-   */
   topology?: ZPoolTopology | null;
-  /**
-   * Most recent scrub or resilver information.
-   */
   scan?: ZPoolScanInput | null;
-  /**
-   * RAIDZ expansion information.
-   */
   expand?: ZPoolExpand | null;
-  /**
-   * Pool feature flags.
-   */
   features?: ZPoolFeature[] | null;
 }
-/**
- * Used by: zpool.query (event)
- */
 export interface ZPoolScanInput {
   function: Function;
   state: StateInput4;
-  /**
-   * Scan start time (unix timestamp).
-   */
   start_time: number;
-  /**
-   * Scan end time as unix timestamp (`null` while the scan is still running).
-   */
   end_time: number | null;
-  /**
-   * Scan progress (between 0 and 100%).
-   */
   percentage: number;
-  /**
-   * Total bytes located by scanner.
-   */
   bytes_to_process: number;
-  /**
-   * Total bytes to scan.
-   */
   bytes_processed: number;
-  /**
-   * Issued bytes per scan pass.
-   */
   bytes_issued: number;
-  /**
-   * Pause time as unix timestamp (`null` if the scan is not paused).
-   */
   pause: number | null;
-  /**
-   * Number of scan errors.
-   */
   errors: number;
-  /**
-   * Number of seconds left (`null` if the scan is not running).
-   */
   total_secs_left: number | null;
 }
-/**
- * Used by: zpool.query (params)
- */
 export interface ZPoolQuery {
-  /**
-   * Pool names to query. None queries all imported pools.
-   */
   pool_names?: string[] | null;
-  /**
-   * Property names to retrieve. None returns no properties.
-   */
   properties?: string[] | null;
-  /**
-   * Include vdev topology.
-   */
   topology?: boolean;
-  /**
-   * Include scan/scrub information.
-   */
   scan?: boolean;
-  /**
-   * Include expansion information.
-   */
   expand?: boolean;
-  /**
-   * Include feature flags.
-   */
   features?: boolean;
 }
-/**
- * Used by: zpool.query (event)
- */
 export interface ZPoolQueryAddedEvent {
-  /**
-   * Database id of the pool.
-   */
   id: number;
   fields: ZPoolEntryInput;
 }
-/**
- * Used by: zpool.query (event)
- */
 export interface ZPoolQueryChangedEvent {
-  /**
-   * Database id of the pool.
-   */
   id: number;
   fields: ZPoolEntryInput;
 }
-/**
- * Used by: zpool.query (event)
- */
 export interface ZPoolQueryRemovedEvent {
-  /**
-   * Database id of the pool.
-   */
   id: number;
 }
-/**
- * Used by: zpool.scrub.run (params)
- */
 export interface ZpoolScrubRun {
-  /**
-   * Name of the zpool.
-   */
   pool_name: string;
-  /**
-   * SCRUB: full data integrity scan. ERRORSCRUB: targeted scan of blocks with known errors.
-   */
   scan_type?: "SCRUB" | "ERRORSCRUB";
   action?: Action;
-  /**
-   * Days before a scrub is due when the scrub should start.
-   */
   threshold?: number;
 }

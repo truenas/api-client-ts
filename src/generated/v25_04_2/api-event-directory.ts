@@ -30,60 +30,36 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiEventDirectoryDelta {
-  /**
-   * Sent on filesystem.acltemplate changes.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.acltemplate.query': {
     added: ACLTemplateAddedEvent;
     changed: ACLTemplateChangedEvent;
     removed: ACLTemplateRemovedEvent;
   };
 
-  /**
-   * Sent on initshutdownscript changes.
-   * @roles SYSTEM_CRON_READ
-   */
   'initshutdownscript.query': {
     added: InitShutdownScriptAddedEvent;
     changed: InitShutdownScriptChangedEvent;
     removed: InitShutdownScriptRemovedEvent;
   };
 
-  /**
-   * Sent on iscsi.extent changes.
-   * @roles SHARING_ISCSI_EXTENT_READ
-   */
   'iscsi.extent.query': {
     added: ISCSITargetExtentAddedEvent;
     changed: ISCSITargetExtentChangedEvent;
     removed: ISCSITargetExtentRemovedEvent;
   };
 
-  /**
-   * Sent on keychaincredential changes.
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.query': {
     added: KeychainCredentialAddedEvent;
     changed: KeychainCredentialChangedEvent;
     removed: KeychainCredentialRemovedEvent;
   };
 
-  /**
-   * Sent on vm.device changes.
-   * @roles VM_DEVICE_READ
-   */
   'vm.device.query': {
     added: VMDeviceAddedEvent;
     changed: VMDeviceChangedEvent;
     removed: VMDeviceRemovedEvent;
   };
 
-  /**
-   * Sent on vm changes.
-   * @roles VM_READ
-   */
   'vm.query': {
     added: VMAddedEvent;
     changed: VMChangedEvent;

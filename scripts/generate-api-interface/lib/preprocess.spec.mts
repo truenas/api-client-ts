@@ -34,7 +34,7 @@ describe('preprocess', () => {
     ]));
     expect(methods[0].params.map((p) => p.name)).toEqual(['first', 'second']);
     expect(methods[0].params.map((p) => p.optional)).toEqual([false, true]);
-    expect(methods[0].params[1].doc).toBe('Optional one.');
+    expect(methods[0].params[1].doc).toBeNull(); // docs are stripped at intake
     expect(methods[0].returns).toEqual({ type: 'null' });
   });
 

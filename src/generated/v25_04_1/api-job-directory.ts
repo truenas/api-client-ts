@@ -16,25 +16,11 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiJobDirectoryDelta {
-  /**
-   * Update Docker service configuration.
-   *
-   * This method is a job.
-   * @roles DOCKER_WRITE
-   */
   'docker.update': {
     params: [docker_update?: DockerUpdateArgs];
     response: DockerEntry;
   };
 
-  /**
-   * Update System Security Service Configuration.
-   *
-   * This method is used to change the FIPS, STIG, and local account policies for TrueNAS Enterprise. These features are not available in community editions of TrueNAS.
-   *
-   * This method is a job.
-   * @roles SYSTEM_SECURITY_WRITE
-   */
   'system.security.update': {
     params: [system_security_update?: SystemSecurityUpdateArgs];
     response: SystemSecurityEntry;

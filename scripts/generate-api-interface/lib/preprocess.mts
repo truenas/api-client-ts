@@ -315,7 +315,7 @@ const ENUM_USE_SITE_KEYS = ['description', 'default', 'examples'];
  * `$defs` (mutating the document) so they flow through the normal definition
  * machinery and get emitted as named const-object enums.
  */
-function hoistInlineEnums(node: unknown, doc: Schema): unknown {
+function hoistInlineEnums(node: unknown, doc: Schema, isDefRoot = false): unknown {
   if (Array.isArray(node)) return node.map((n) => hoistInlineEnums(n, doc));
   if (node === null || typeof node !== 'object') return node;
   const schema = node as Schema;
@@ -323,7 +323,9 @@ function hoistInlineEnums(node: unknown, doc: Schema): unknown {
   for (const [key, value] of Object.entries(schema)) {
     out[key] = key === '$defs' ? value : hoistInlineEnums(value, doc);
   }
-  if (Array.isArray(out.enum) && out.enum.length > 1 && isPascalTitle(out.title) && !out.$ref) {
+  // A def body is already named — hoisting it would replace the definition
+  // with a self-referential $ref.
+  if (!isDefRoot && Array.isArray(out.enum) && out.enum.length > 1 && isPascalTitle(out.title) && !out.$ref) {
     const body: Schema = { ...out };
     const useSite: Schema = {};
     for (const key of ENUM_USE_SITE_KEYS) {
@@ -342,11 +344,29 @@ function hoistInlineEnums(node: unknown, doc: Schema): unknown {
   return out;
 }
 
+/**
+ * Remove documentation prose from a schema document. By team decision the
+ * generated output carries no docstring metadata (descriptions/examples):
+ * api.truenas.com is the documentation home, and prose edits are not API
+ * drift. Semantic annotations (roles, removed_in, usage cross-references)
+ * are kept — they are not docstrings.
+ */
+function stripDocs(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(stripDocs);
+  if (node === null || typeof node !== 'object') return node;
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'description' || key === 'examples') continue;
+    out[key] = stripDocs(value);
+  }
+  return out;
+}
+
 /** Apply enum hoisting to a whole document: def bodies first, then the root. */
 function hoistDocEnums(doc: Schema): Schema {
   doc.$defs ??= {};
   for (const name of Object.keys(doc.$defs)) {
-    doc.$defs[name] = hoistInlineEnums(doc.$defs[name], doc) as Schema;
+    doc.$defs[name] = hoistInlineEnums(doc.$defs[name], doc, true) as Schema;
   }
   const transformed = hoistInlineEnums(doc, doc) as Schema;
   transformed.$defs = doc.$defs;
@@ -358,29 +378,6 @@ function recordDoc(table: DefTable, doc: Schema, mode: Mode): void {
   const docDefs = (doc.$defs ?? {}) as Record<string, Schema>;
   for (const [name, schema] of Object.entries(docDefs)) {
     table.record(name, schema, mode, docDefs);
-  }
-}
-
-/** Tag every definition reachable from a method/event with its usage site. */
-function tagUsage(roots: unknown, usage: string, definitions: Record<string, DefSchema>): void {
-  const seen = new Set<string>();
-  const queue: string[] = [];
-  const collect = (node: unknown) => {
-    if (Array.isArray(node)) node.forEach(collect);
-    else if (node !== null && typeof node === 'object') {
-      const record = node as Record<string, unknown>;
-      if (typeof record['$ref'] === 'string') queue.push(record['$ref'].replace('#/definitions/', ''));
-      Object.values(record).forEach(collect);
-    }
-  };
-  collect(roots);
-  while (queue.length) {
-    const name = queue.pop();
-    if (!name || seen.has(name) || !(name in definitions)) continue;
-    seen.add(name);
-    const def = definitions[name];
-    def._usedBy = [...new Set([...(def._usedBy ?? []), usage])].sort();
-    collect(def);
   }
 }
 
@@ -397,14 +394,14 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
 
   const table = new DefTable();
   for (const method of methods) {
-    method.schemas.accepts = hoistDocEnums(method.schemas.accepts);
-    method.schemas.returns = hoistDocEnums(method.schemas.returns);
+    method.schemas.accepts = hoistDocEnums(stripDocs(method.schemas.accepts) as Schema);
+    method.schemas.returns = hoistDocEnums(stripDocs(method.schemas.returns) as Schema);
     recordDoc(table, method.schemas.accepts, 'input');
     recordDoc(table, method.schemas.returns, 'output');
   }
   for (const event of events) {
     for (const [variant, rawDoc] of Object.entries(event.schemas)) {
-      const doc = hoistDocEnums(rawDoc);
+      const doc = hoistDocEnums(stripDocs(rawDoc) as Schema);
       event.schemas[variant] = doc;
       recordDoc(table, doc, 'input');
       // The event root itself is a named model; hoist it like a $defs entry.
@@ -462,13 +459,6 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
 
   applyQueryTyping(methodModels, definitions);
 
-  for (const method of methodModels) {
-    tagUsage(method.params.map((p) => p.schema), `${method.name} (params)`, definitions);
-    tagUsage(method.returns, `${method.name} (response)`, definitions);
-  }
-  for (const event of eventModels) {
-    tagUsage(event.models, `${event.name} (event)`, definitions);
-  }
 
   return {
     version: versionDump.version,

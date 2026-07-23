@@ -10,8 +10,8 @@ import type {
   ApiKeyRemovedEvent,
   CloudBackupRemovedEvent,
   CredentialsRemovedEvent,
-  CronJobRemovedEvent,
   KeychainCredentialRemovedEvent,
+  PeriodicSnapshotTaskRemovedEvent,
   SharingNFSRemovedEvent,
   UserRemovedEvent,
 } from '../v25_04_0/api-types';
@@ -20,8 +20,6 @@ import type {
 } from '../v25_04_2/api-types';
 import type {
   CloudSyncRemovedEvent,
-  NVMetHostRemovedEvent,
-  NVMetHostSubsysRemovedEvent,
   PoolRemovedEvent,
   ReplicationRemovedEvent,
   RsyncTaskRemovedEvent,
@@ -46,14 +44,10 @@ import type {
   ContainerRemovedEvent,
   CredentialsAddedEvent,
   CredentialsChangedEvent,
-  CronJobAddedEvent,
-  CronJobChangedEvent,
   KeychainCredentialAddedEvent,
   KeychainCredentialChangedEvent,
-  NVMetHostAddedEvent,
-  NVMetHostChangedEvent,
-  NVMetHostSubsysAddedEvent,
-  NVMetHostSubsysChangedEvent,
+  PeriodicSnapshotTaskAddedEvent,
+  PeriodicSnapshotTaskChangedEvent,
   PoolAddedEvent,
   PoolChangedEvent,
   PoolScanChangedEvent,
@@ -87,254 +81,134 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiEventDirectoryDelta {
-  /**
-   * Sent on alert changes.
-   * @roles ALERT_LIST_READ
-   */
   'alert.list': {
     added: AlertListAddedEvent;
     changed: AlertListChangedEvent;
     removed: AlertListRemovedEvent;
   };
 
-  /**
-   * Sent on api_key changes.
-   * @roles API_KEY_READ
-   */
   'api_key.query': {
     added: ApiKeyAddedEvent;
     changed: ApiKeyChangedEvent;
     removed: ApiKeyRemovedEvent;
   };
 
-  /**
-   * Sent on cloud_backup changes.
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.query': {
     added: CloudBackupAddedEvent;
     changed: CloudBackupChangedEvent;
     removed: CloudBackupRemovedEvent;
   };
 
-  /**
-   * Sent on cloudsync.credentials changes.
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.credentials.query': {
     added: CredentialsAddedEvent;
     changed: CredentialsChangedEvent;
     removed: CredentialsRemovedEvent;
   };
 
-  /**
-   * Sent on cloudsync changes.
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.query': {
     added: CloudSyncAddedEvent;
     changed: CloudSyncChangedEvent;
     removed: CloudSyncRemovedEvent;
   };
 
-  /**
-   * Sent on container.device changes.
-   * @roles CONTAINER_DEVICE_READ
-   */
   'container.device.query': {
     added: ContainerDeviceAddedEvent;
     changed: ContainerDeviceChangedEvent;
     removed: ContainerDeviceRemovedEvent;
   };
 
-  /**
-   * Sent on container changes.
-   * @roles CONTAINER_READ
-   */
   'container.query': {
     added: ContainerAddedEvent;
     changed: ContainerChangedEvent;
     removed: ContainerRemovedEvent;
   };
 
-  /**
-   * Sent on cronjob changes.
-   * @roles SYSTEM_CRON_READ
-   */
-  'cronjob.query': {
-    added: CronJobAddedEvent;
-    changed: CronJobChangedEvent;
-    removed: CronJobRemovedEvent;
-  };
-
-  /**
-   * Sent on keychaincredential changes.
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.query': {
     added: KeychainCredentialAddedEvent;
     changed: KeychainCredentialChangedEvent;
     removed: KeychainCredentialRemovedEvent;
   };
 
-  /**
-   * Sent on nvmet.host changes.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.host.query': {
-    added: NVMetHostAddedEvent;
-    changed: NVMetHostChangedEvent;
-    removed: NVMetHostRemovedEvent;
-  };
-
-  /**
-   * Sent on nvmet.host_subsys changes.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.host_subsys.query': {
-    added: NVMetHostSubsysAddedEvent;
-    changed: NVMetHostSubsysChangedEvent;
-    removed: NVMetHostSubsysRemovedEvent;
-  };
-
-  /**
-   * Sent on pool changes.
-   * @roles POOL_READ
-   */
   'pool.query': {
     added: PoolAddedEvent;
     changed: PoolChangedEvent;
     removed: PoolRemovedEvent;
   };
 
-  /**
-   * Progress of pool resilver/scrub.
-   * @roles POOL_SCRUB_READ
-   */
   'pool.scan': {
     changed: PoolScanChangedEvent;
   };
 
-  /**
-   * Sent on replication changes.
-   * @roles REPLICATION_TASK_READ
-   */
+  'pool.snapshottask.query': {
+    added: PeriodicSnapshotTaskAddedEvent;
+    changed: PeriodicSnapshotTaskChangedEvent;
+    removed: PeriodicSnapshotTaskRemovedEvent;
+  };
+
   'replication.query': {
     added: ReplicationAddedEvent;
     changed: ReplicationChangedEvent;
     removed: ReplicationRemovedEvent;
   };
 
-  /**
-   * Sent on rsynctask changes.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'rsynctask.query': {
     added: RsyncTaskAddedEvent;
     changed: RsyncTaskChangedEvent;
     removed: RsyncTaskRemovedEvent;
   };
 
-  /**
-   * Sent on sharing.nfs changes.
-   * @roles SHARING_NFS_READ
-   */
   'sharing.nfs.query': {
     added: SharingNFSAddedEvent;
     changed: SharingNFSChangedEvent;
     removed: SharingNFSRemovedEvent;
   };
 
-  /**
-   * Sent on sharing.smb changes.
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.query': {
     added: SharingSMBAddedEvent;
     changed: SharingSMBChangedEvent;
     removed: SharingSMBRemovedEvent;
   };
 
-  /**
-   * Sent on sharing.webshare changes.
-   * @roles SHARING_WEBSHARE_READ
-   */
   'sharing.webshare.query': {
     added: SharingWebshareAddedEvent;
     changed: SharingWebshareChangedEvent;
     removed: SharingWebshareRemovedEvent;
   };
 
-  /**
-   * Sent on tunable changes.
-   * @roles SYSTEM_TUNABLE_READ
-   */
   'tunable.query': {
     added: TunableAddedEvent;
     changed: TunableChangedEvent;
     removed: TunableRemovedEvent;
   };
 
-  /**
-   * Sent on user changes.
-   * @roles ACCOUNT_READ
-   */
   'user.query': {
     added: UserAddedEvent;
     changed: UserChangedEvent;
     removed: UserRemovedEvent;
   };
 
-  /**
-   * Sent on vm changes.
-   * @roles VM_READ
-   */
   'vm.query': {
     added: VMAddedEvent;
     changed: VMChangedEvent;
     removed: VMRemovedEvent;
   };
 
-  /**
-   * Sent on vmware changes.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'vmware.query': {
     added: VMWareAddedEvent;
     changed: VMWareChangedEvent;
     removed: VMWareRemovedEvent;
   };
 
-  /**
-   * Subscribe to ZFS rewrite job collection events (ADDED, CHANGED, REMOVED).
-   * On subscribe, sends ADDED for all existing jobs, then polls every 5 seconds
-   * and fires CHANGED when a job transitions state or REMOVED when it disappears.
-   *
-   * This event is generated by a dynamic source. If you want to specify subscription params, subscribe to it using the name in the following format `zfs.tier.rewrite_job_query:{"param": "value"}`
-   * @roles DATASET_READ
-   */
   'zfs.tier.rewrite_job_query': {
     subscriptionParams: ZfsTierRewriteJobQueryEventSourceArgs;
     added: ZfsTierRewriteJobQueryEventSourceEvent2;
   };
 
-  /**
-   * Subscribe to real-time status updates for a specific ZFS rewrite job, identified by
-   * its ``dataset_name@job_uuid`` tier job id. Polls every 2 seconds and emits a CHANGED
-   * event when status or statistics change.
-   *
-   * This event is generated by a dynamic source. If you want to specify subscription params, subscribe to it using the name in the following format `zfs.tier.rewrite_job_status:{"param": "value"}`
-   * @roles DATASET_READ
-   */
   'zfs.tier.rewrite_job_status': {
     subscriptionParams: ZfsTierRewriteJobStatusEventSourceArgs;
     added: ZfsTierRewriteJobStatusEventSourceEvent2;
   };
 
-  /**
-   * Sent on zpool changes.
-   * @roles POOL_READ
-   */
   'zpool.query': {
     added: ZPoolQueryAddedEvent;
     changed: ZPoolQueryChangedEvent;

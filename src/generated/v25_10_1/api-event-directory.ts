@@ -15,10 +15,6 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiEventDirectoryDelta {
-  /**
-   * Sent on sharing.smb changes.
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.query': {
     added: SharingSMBAddedEvent;
     changed: SharingSMBChangedEvent;

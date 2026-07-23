@@ -46,16 +46,6 @@ describe('directoryEntry', () => {
     expect(entry).toContain('params: [a: string, b: string, c: string, d?: string];');
   });
 
-  it('emits roles and deprecation tags in the docblock', () => {
-    const entry = directoryEntry({
-      ...makeMethod([]),
-      doc: 'Does the thing.',
-      roles: ['THING_WRITE'],
-      removedIn: 'v9.0.0',
-    });
-    expect(entry).toContain('@roles THING_WRITE');
-    expect(entry).toContain('@deprecated Removed in API version v9.0.0.');
-  });
 });
 
 describe('emitTypes enum emission', () => {

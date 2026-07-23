@@ -6,45 +6,42 @@
 import type { ApiJobDirectory as PreviousApiJobDirectory } from '../v25_10_5/api-job-directory';
 
 import type {
-  ZFSFileAttrsData,
-} from '../v25_04_0/api-types';
-import type {
   AppCreateArgs,
   AppRollbackOptions,
   AppUpdate,
   DISABLED_ACLResult,
+  POSIXACLResult,
+  UpgradeOptions,
+  ZFSFileAttrsData,
+} from '../v25_04_0/api-types';
+import type {
+  NFS4ACLResult,
+} from '../v25_04_2/api-types';
+import type {
   MailSendMessage,
   MailUpdate,
-  NFS4ACLResult,
-  POSIXACLResult,
   SupportNewTicketCommunity,
   SupportNewTicketEnterprise,
   TunableUpdate,
-  UpgradeOptions,
 } from '../v25_10_0/api-types';
 import type {
   Action2,
   AppBulkUpgradeJobResult,
   AppEntry,
-  AppImagePullArgs,
   AppUpgradeBulkEntry,
   AuditExport,
   ContainerCreateArgs,
   ContainerEntry,
   ContainerStopOptions,
-  DirectoryServicesEntry,
-  DirectoryServicesUpdateArgs,
   DockerEntry,
   DockerUpdateArgs,
   FilesystemSetZfsAttributesArgs,
   FilesystemSetaclArgs,
-  PoolAttach,
   PoolCreate,
   PoolDatasetChangeKeyOptions,
   PoolEntry,
   PoolImportPoolArgs,
   PoolUpdate,
-  ReplicationRunOnetimeArgs,
   SupportNewTicket,
   TunableCreate,
   TunableEntry,
@@ -53,483 +50,141 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiJobDirectoryDelta {
-  /**
-   * Convert ``app_name`` to a custom app.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.convert_to_custom': {
     params: [app_name: string];
     response: AppEntry;
   };
 
-  /**
-   * Create an app with ``app_name`` using ``catalog_app`` with ``train`` and ``version``.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.create': {
     params: [app_create: AppCreateArgs];
     response: AppEntry;
   };
 
-  /**
-   * Pull a docker image.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
-  'app.image.pull': {
-    params: [image_pull: AppImagePullArgs];
-    response: null;
-  };
-
-  /**
-   * Redeploy ``app_name`` app.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.redeploy': {
     params: [app_name: string];
     response: AppEntry;
   };
 
-  /**
-   * Rollback ``app_name`` app to previous version.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.rollback': {
     params: [app_name: string, options: AppRollbackOptions];
     response: AppEntry;
   };
 
-  /**
-   * Update ``app_name`` app with new configuration.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.update': {
     params: [app_name: string, update?: AppUpdate];
     response: AppEntry;
   };
 
-  /**
-   * Upgrade ``app_name`` app to ``app_version``.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.upgrade': {
     params: [app_name: string, options?: UpgradeOptions];
     response: AppEntry;
   };
 
-  /**
-   * Upgrade multiple apps sequentially, each with its own options, emitting a single consolidated alert once all upgrades have completed.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.upgrade_bulk': {
     params: [apps: AppUpgradeBulkEntry[]];
     response: AppBulkUpgradeJobResult[];
   };
 
-  /**
-   * Generate an audit report based on the specified ``query-filters`` and ``query-options`` for the specified ``services`` in the specified ``export_format``.
-   *
-   * Supported export_formats are CSV, JSON, and YAML. The endpoint returns a local filesystem path where the resulting audit report is located.
-   *
-   * This method is a job.
-   * @roles SYSTEM_AUDIT_READ
-   */
   'audit.export': {
     params: [data?: AuditExport];
     response: string;
   };
 
-  /**
-   * Create a Container.
-   *
-   * This method is a job.
-   * @roles CONTAINER_WRITE
-   */
   'container.create': {
     params: [container_create: ContainerCreateArgs];
     response: ContainerEntry;
   };
 
-  /**
-   * Migrate incus containers to new API.
-   *
-   * This method is a job.
-   * @roles CONTAINER_WRITE
-   */
   'container.migrate': {
     params: [];
     response: null;
   };
 
-  /**
-   * Stop ``id`` container.
-   *
-   * This method is a job.
-   * @roles CONTAINER_WRITE
-   */
   'container.stop': {
     params: [id: number, options?: ContainerStopOptions];
     response: null;
   };
 
-  /**
-   * Update the directory services configuration that binds TrueNAS to an Active Directory, IPA, or OpenLDAP domain.
-   *
-   * When IPA or Active Directory is enabled for the first time, TrueNAS joins the domain which creates a computer account and DNS records on the domain controller. Setting ``enable`` to ``false`` while keeping the rest of the configuration temporarily disables directory services without discarding the settings. Setting both ``enable`` to ``false`` and ``service_type`` to ``null`` clears the configuration but does not remove the TrueNAS computer account from the domain; use :doc:`directoryservices.leave <api_methods_directoryservices.leave>` to leave a domain cleanly.
-   *
-   * This method is a job.
-   * @roles DIRECTORY_SERVICE_WRITE
-   */
-  'directoryservices.update': {
-    params: [directoryservices_update?: DirectoryServicesUpdateArgs];
-    response: DirectoryServicesEntry;
-  };
-
-  /**
-   * Update Docker service configuration.
-   *
-   * This method is a job.
-   * @roles DOCKER_WRITE
-   */
   'docker.update': {
     params: [docker_update?: DockerUpdateArgs];
     response: DockerEntry;
   };
 
-  /**
-   * Set special ZFS-related file flags (MS-DOS attributes and the BSD-style ``immutable``/``nounlink``/``appendonly`` flags) on the specified path.
-   *
-   * Several of these flags are also surfaced elsewhere. The ``immutable`` flag appears as ``IMMUTABLE`` in the ``attributes`` of :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_IMMUTABLE`` in the ``statx()`` response; ``appendonly`` appears as ``APPEND`` in :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_APPEND`` in ``statx()``.
-   *
-   * When recursion is requested, the path is treated as the root of a tree walk, and attributes are applied to descendants of the matching type. Recursion stops at dataset boundaries.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.set_zfs_attributes': {
     params: [set_zfs_file_attributes: FilesystemSetZfsAttributesArgs];
     response: ZFSFileAttrsData;
   };
 
-  /**
-   * Set the ACL of a given path.
-   *
-   * The ``dacl`` entry formatting depends on the underlying ``acltype``: an ``NFS4`` ACL requires NFSv4 entries, while a ``POSIX1E`` ACL requires POSIX1e entries. When ``stripacl`` is set, the ACL is converted to a trivial ACL; an ACL is trivial if it can be expressed as a file mode without losing any access rules.
-   *
-   * .. note::
-   *
-   *     For each owner change, set one and only one of ``uid`` or ``user`` (and likewise one of
-   *     ``gid`` or ``group``), and only if the caller wishes to change the owning user or group of
-   *     the file or directory.
-   *
-   * .. warning::
-   *
-   *     If ``user``, ``uid``, ``group``, or ``gid`` is specified in a recursive operation, then the
-   *     owning user, group, or both for *all* files will be changed.
-   *
-   * The following notes about ACL entries are necessarily terse. If more detail is required, please consult relevant TrueNAS documentation.
-   *
-   * .. rubric:: NFSv4 ACL entry semantics
-   *
-   * The ``tag`` identifies the principal to whom the entry applies. ``USER`` and ``GROUP`` have conventional meanings: ``owner@`` refers to the owning user of the file, ``group@`` to the owning group, and ``everyone@`` to all users (including the owning user and group). The ``type`` may be ``ALLOW`` or ``DENY``, and ``DENY`` entries take precedence over ``ALLOW`` when the ACL is evaluated. The ``flags`` inheritance flags determine how an entry is presented (if at all) on newly-created files or directories within the specified path and are only valid for directories.
-   *
-   * .. rubric:: POSIX1e ACL entry semantics
-   *
-   * When ``default`` is ``true``, the entry belongs to the POSIX default ACL and is copied to new files and directories created within the directory where it is set; default entries are *not* evaluated when determining access to the file on which they are set. When ``default`` is ``false``, the entry applies to the POSIX access ACL which is used to determine access to the directory but is not inherited.
-   *
-   * For the ``tag``, ``USER_OBJ`` refers to the owning user (denoted "user" in conventional POSIX UGO permissions), ``GROUP_OBJ`` refers to the owning group (denoted "group"), and ``OTHER`` applies to all users and groups who are not ``USER_OBJ`` or ``GROUP_OBJ``. ``MASK`` sets the maximum permissions granted to all ``USER`` and ``GROUP`` entries. A valid POSIX1e ACL contains precisely one ``USER_OBJ``, ``GROUP_OBJ``, ``OTHER``, and ``MASK`` entry for each of the default and access lists.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.setacl': {
     params: [filesystem_acl: FilesystemSetaclArgs];
     response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
   };
 
-  /**
-   * Sends mail using configured mail settings.
-   *
-   * This method is a job.
-   * @roles MAIL_WRITE
-   */
   'mail.send': {
     params: [message: MailSendMessage, config?: MailUpdate];
     response: null;
   };
 
-  /**
-   * Attach a disk to an existing vdev in a pool, converting a striped vdev to a mirror or extending an existing mirror to an n-way mirror.
-   *
-   * This operation will format the new disk, attach it to the target vdev, and wait for resilvering to complete if the target is a RAIDZ vdev undergoing expansion.
-   *
-   * Locking behavior:
-   *
-   * - If another attach operation is already using the same disk, this call will fail immediately
-   *   with EBUSY rather than queueing.
-   * - If another attach operation is running on the same pool (but with a different disk), this
-   *   call will queue and wait for the previous operation to complete.
-   * - Operations on different pools with different disks can run concurrently.
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
-  'pool.attach': {
-    params: [oid: number, options: PoolAttach];
-    response: null;
-  };
-
-  /**
-   * Create a new ZFS Pool.
-   *
-   * Create a pool named "tank": RAIDZ1 with three disks, one cache disk, one ZIL/log disk, and one hot spare disk::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "pool.create",
-   *         "params": [{
-   *             "name": "tank",
-   *             "topology": {
-   *                 "data": [
-   *                     {"type": "RAIDZ1", "disks": ["da1", "da2", "da3"]}
-   *                 ],
-   *                 "cache": [
-   *                     {"type": "STRIPE", "disks": ["da4"]}
-   *                 ],
-   *                 "log": [
-   *                     {"type": "RAIDZ1", "disks": ["da5"]}
-   *                 ],
-   *                 "spares": ["da6"]
-   *             }
-   *         }]
-   *     }
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.create': {
     params: [data: PoolCreate];
     response: PoolEntry;
   };
 
-  /**
-   * Change encryption properties for the ``id`` encrypted dataset.
-   *
-   * Changing dataset encryption to use a passphrase instead of a key is not allowed if:
-   *
-   * 1. It has encrypted roots as children that are encrypted with a key.
-   * 2. It is a root dataset where the system dataset is located.
-   *
-   * This method is a job.
-   * @roles DATASET_WRITE
-   */
   'pool.dataset.change_key': {
     params: [id: string, options?: PoolDatasetChangeKeyOptions];
     response: null;
   };
 
-  /**
-   * Import a pool found with :doc:`pool.import_find <api_methods_pool.import_find>`.
-   *
-   * Errors:
-   *     ENOENT - Pool not found
-   *
-   * Import pool of guid 5571830764813710860::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "pool.import_pool",
-   *         "params": [{
-   *             "guid": "5571830764813710860"
-   *         }]
-   *     }
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.import_pool': {
     params: [pool_import: PoolImportPoolArgs];
     response: true;
   };
 
-  /**
-   * Prefetch pool metadata (DDT and BRT) into ARC.
-   *
-   * Loads both the Deduplication Table (DDT) and Block Reference Table (BRT) into the ARC to reduce latency of subsequent operations. This is useful for warming up the cache before performing operations that benefit from having this metadata readily available.
-   *
-   * The DDT tracks deduplication metadata, while the BRT tracks block cloning metadata used for efficient copy-on-write operations.
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.prefetch': {
     params: [pool_name: string];
     response: null;
   };
 
-  /**
-   * Attempt to import a pool that exists in database but is currently OFFLINE.
-   *
-   * This is useful after SED disks have been unlocked and the pool can now be imported.
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.reimport': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Performs a scrub action to pool of ``id``.
-   *
-   * Start scrub on pool of id 1::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "pool.scrub",
-   *         "params": [1, "START"]
-   *     }
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.scrub': {
     params: [id: number, action: Action2];
     response: null;
   };
 
-  /**
-   * Start, stop, or pause a scrub on pool ``name``.
-   *
-   * START begins a regular scrub and blocks until it finishes, is paused, or is canceled. STOP cancels an in-progress scrub. PAUSE pauses it.
-   *
-   * .. deprecated:: 26.0.0
-   *     Use :doc:`zpool.scrub.run <api_methods_zpool.scrub.run>` instead.
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.scrub.scrub': {
     params: [name: string, action?: Action2];
     response: null;
   };
 
-  /**
-   * Update pool of ``id``, adding the new topology.
-   *
-   * Add a new set of raidz1 to pool of id 1::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "pool.update",
-   *         "params": [1, {
-   *             "topology": {
-   *                 "data": [
-   *                     {"type": "RAIDZ1", "disks": ["da7", "da8", "da9"]}
-   *                 ]
-   *             }
-   *         }]
-   *     }
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.update': {
     params: [id: number, data: PoolUpdate];
     response: PoolEntry;
   };
 
-  /**
-   * Run replication task without creating it.
-   *
-   * This method is a job.
-   * @roles REPLICATION_TASK_WRITE
-   */
-  'replication.run_onetime': {
-    params: [replication_run_onetime: ReplicationRunOnetimeArgs];
-    response: null;
-  };
-
-  /**
-   * Creates a new ticket for support. This is done using the support proxy API. For TrueNAS Community Edition it will be created on JIRA and for TrueNAS Enterprise on Salesforce.
-   *
-   * This method is a job.
-   * @roles READONLY_ADMIN, SUPPORT_WRITE
-   */
   'support.new_ticket': {
     params: [data: SupportNewTicketEnterprise | SupportNewTicketCommunity];
     response: SupportNewTicket;
   };
 
-  /**
-   * Sets system production state and optionally sends initial debug.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'truenas.set_production': {
     params: [production: boolean, attach_debug?: boolean];
     response: SupportNewTicket | null;
   };
 
-  /**
-   * Create a tunable.
-   *
-   * This method is a job.
-   * @roles SYSTEM_TUNABLE_WRITE
-   */
   'tunable.create': {
     params: [data: TunableCreate];
     response: TunableEntry;
   };
 
-  /**
-   * Update Tunable of ``id``.
-   *
-   * This method is a job.
-   * @roles SYSTEM_TUNABLE_WRITE
-   */
   'tunable.update': {
     params: [id: number, data: TunableUpdate];
     response: TunableEntry;
   };
 
-  /**
-   * Start, pause, or cancel a scrub on a ZFS pool.
-   *
-   * When ``action`` is START, the pool is validated before the scrub begins: the pool must be ONLINE or DEGRADED, must not have an active resilver, and the most recent scrub must be older than ``threshold`` days. If any of these checks fail the call returns silently (no error, no alert). The job blocks until the scrub finishes, is paused, or is canceled.
-   *
-   * PAUSE and CANCEL skip validation entirely and operate on the pool directly.
-   *
-   * At most 10 scrubs may run concurrently across all pools. Attempting to start an 11th raises an error.
-   *
-   * On a successful START a ``ScrubStarted`` alert is created. If the start fails for a reason other than the threshold or HA checks, a ``ScrubNotStarted`` alert is created instead.
-   *
-   * .. versionadded:: 26.0.0
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'zpool.scrub.run': {
     params: [data: ZpoolScrubRun];
     response: null;

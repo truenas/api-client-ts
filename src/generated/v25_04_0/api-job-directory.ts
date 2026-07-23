@@ -36,484 +36,186 @@ import type {
 } from './api-types';
 
 export interface ApiJobDirectory {
-  /**
-   * Convert ``app_name`` to a custom app.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.convert_to_custom': {
     params: [app_name: string];
     response: AppEntry;
   };
 
-  /**
-   * Create an app with ``app_name`` using ``catalog_app`` with ``train`` and ``version``.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.create': {
     params: [app_create: AppCreateArgs];
     response: AppEntry;
   };
 
-  /**
-   * Delete ``app_name`` app.
-   *
-   * ``force_remove_ix_volumes`` should be set when the ix-volumes were created by the system for apps which were migrated from k8s to docker and the user wants to remove them. This is to prevent accidental deletion of the original ix-volumes which were created in dragonfish and before for kubernetes based apps. When this is set, it will result in the deletion of ix-volumes from both docker based apps and k8s based apps and should be carefully set.
-   *
-   * ``force_remove_custom_app`` should be set when the app being deleted is a custom app and the user wants to forcefully remove the app. A use-case for this attribute is that the user had an invalid yaml in their custom app and there are no actual docker resources (network/containers/volumes) in place for the custom app, then docker compose down will fail as the yaml itself is invalid. In this case this flag can be set to proceed with the deletion of the custom app. However if this app had any docker resources in place, then this flag will have no effect.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.delete': {
     params: [app_name: string, options?: AppDelete];
     response: true;
   };
 
-  /**
-   * Pull a docker image.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.image.pull': {
     params: [image_pull: AppImagePullArgs];
     response: null;
   };
 
-  /**
-   * Pulls docker images for the specified app ``name``.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.pull_images': {
     params: [app_name: string, options?: AppPullImages];
     response: null;
   };
 
-  /**
-   * Redeploy ``app_name`` app.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.redeploy': {
     params: [app_name: string];
     response: AppEntry;
   };
 
-  /**
-   * Rollback ``app_name`` app to previous version.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.rollback': {
     params: [app_name: string, options: AppRollbackOptions];
     response: AppEntry;
   };
 
-  /**
-   * Start ``app_name`` app.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.start': {
     params: [app_name: string];
     response: null;
   };
 
-  /**
-   * Stop ``app_name`` app.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.stop': {
     params: [app_name: string];
     response: null;
   };
 
-  /**
-   * Update ``app_name`` app with new configuration.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.update': {
     params: [app_name: string, update?: AppUpdate];
     response: AppEntry;
   };
 
-  /**
-   * Upgrade ``app_name`` app to ``app_version``.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.upgrade': {
     params: [app_name: string, options?: UpgradeOptions];
     response: AppEntry;
   };
 
-  /**
-   * Sync truenas catalog to retrieve latest changes from upstream.
-   *
-   * This method is a job.
-   * @roles CATALOG_WRITE
-   */
   'catalog.sync': {
     params: [];
     response: null;
   };
 
-  /**
-   * Delete snapshot ``snapshot_id`` created by the cloud backup job ``id``.
-   *
-   * This method is a job.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.delete_snapshot': {
     params: [id: number, snapshot_id: string];
     response: null;
   };
 
-  /**
-   * Restore files to the directory ``destination_path`` from the ``snapshot_id`` subfolder ``subfolder`` created by the cloud backup job ``id``.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_DATA_WRITE
-   */
   'cloud_backup.restore': {
     params: [id: number, snapshot_id: string, subfolder: string, destination_path: string, options?: CloudBackupRestoreOptions];
     response: null;
   };
 
-  /**
-   * Run the cloud backup job ``id``.
-   *
-   * This method is a job.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.sync': {
     params: [id: number, options?: CloudBackupSyncOptions];
     response: null;
   };
 
-  /**
-   * Reset database to configuration defaults.
-   *
-   * When configured to reboot, this job reboots the system after it has completed with a delay of 10 seconds.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'config.reset': {
     params: [options?: ConfigReset];
     response: null;
   };
 
-  /**
-   * Create a tar file of security-sensitive information.
-   *
-   * If none of these options are set, the tar file is not generated and the database file is returned.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'config.save': {
     params: [options?: ConfigSave];
     response: null;
   };
 
-  /**
-   * Accepts a configuration file via job pipe.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'config.upload': {
     params: [];
     response: null;
   };
 
-  /**
-   * Job to run cronjob task of ``id``.
-   *
-   * This method is a job.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'cronjob.run': {
     params: [id: number, skip_disabled?: boolean];
     response: null;
   };
 
-  /**
-   * Create a backup of existing apps.
-   *
-   * This creates a backup of existing apps on the same pool in which docker is initialized.
-   *
-   * This method is a job.
-   * @roles DOCKER_WRITE
-   */
   'docker.backup': {
     params: [backup_name?: string | null];
     response: string;
   };
 
-  /**
-   * Restore a backup of existing apps.
-   *
-   * This method is a job.
-   * @roles DOCKER_WRITE
-   */
   'docker.restore_backup': {
     params: [backup_name: string];
     response: null;
   };
 
-  /**
-   * Update Docker service configuration.
-   *
-   * This method is a job.
-   * @roles DOCKER_WRITE
-   */
   'docker.update': {
     params: [docker_update?: DockerUpdateArgs];
     response: DockerEntry;
   };
 
-  /**
-   * Reboot the other node and wait for it to come back online.
-   *
-   * .. warning::
-   *
-   *     This makes very few checks on HA systems. You need to know what you're doing before
-   *     calling this.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'failover.reboot.other_node': {
     params: [];
     response: null;
   };
 
-  /**
-   * Change owner or group of file at ``path``.
-   *
-   * ``uid`` and ``gid`` specify new owner of the file. If either key is absent or None, then existing value on the file is not changed.
-   *
-   * ``user`` and ``group`` alternatively allow specifying a uid gid by user name or group name.
-   *
-   * ``recursive`` performs action recursively, but does not traverse filesystem mount points.
-   *
-   * If ``traverse`` and ``recursive`` are specified, then the chown operation will traverse filesystem mount points.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.chown': {
     params: [filesystem_chown: FilesystemChownArgs];
     response: null;
   };
 
-  /**
-   * Job to get contents of ``path``.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'filesystem.get': {
     params: [path: string];
     response: null;
   };
 
-  /**
-   * Job to put contents to ``path``.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'filesystem.put': {
     params: [path: string, options?: FilesystemPutOptions];
     response: true;
   };
 
-  /**
-   * Set special ZFS-related file flags (MS-DOS attributes and the BSD-style ``immutable``/``nounlink``/``appendonly`` flags) on the specified path.
-   *
-   * Several of these flags are also surfaced elsewhere. The ``immutable`` flag appears as ``IMMUTABLE`` in the ``attributes`` of :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_IMMUTABLE`` in the ``statx()`` response; ``appendonly`` appears as ``APPEND`` in :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_APPEND`` in ``statx()``.
-   *
-   * When recursion is requested, the path is treated as the root of a tree walk, and attributes are applied to descendants of the matching type. Recursion stops at dataset boundaries.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.set_zfs_attributes': {
     params: [set_zfs_file_attributes: FilesystemSetZfsAttributesArgs];
     response: ZFSFileAttrsData;
   };
 
-  /**
-   * Set the ACL of a given path.
-   *
-   * The ``dacl`` entry formatting depends on the underlying ``acltype``: an ``NFS4`` ACL requires NFSv4 entries, while a ``POSIX1E`` ACL requires POSIX1e entries. When ``stripacl`` is set, the ACL is converted to a trivial ACL; an ACL is trivial if it can be expressed as a file mode without losing any access rules.
-   *
-   * .. note::
-   *
-   *     For each owner change, set one and only one of ``uid`` or ``user`` (and likewise one of
-   *     ``gid`` or ``group``), and only if the caller wishes to change the owning user or group of
-   *     the file or directory.
-   *
-   * .. warning::
-   *
-   *     If ``user``, ``uid``, ``group``, or ``gid`` is specified in a recursive operation, then the
-   *     owning user, group, or both for *all* files will be changed.
-   *
-   * The following notes about ACL entries are necessarily terse. If more detail is required, please consult relevant TrueNAS documentation.
-   *
-   * .. rubric:: NFSv4 ACL entry semantics
-   *
-   * The ``tag`` identifies the principal to whom the entry applies. ``USER`` and ``GROUP`` have conventional meanings: ``owner@`` refers to the owning user of the file, ``group@`` to the owning group, and ``everyone@`` to all users (including the owning user and group). The ``type`` may be ``ALLOW`` or ``DENY``, and ``DENY`` entries take precedence over ``ALLOW`` when the ACL is evaluated. The ``flags`` inheritance flags determine how an entry is presented (if at all) on newly-created files or directories within the specified path and are only valid for directories.
-   *
-   * .. rubric:: POSIX1e ACL entry semantics
-   *
-   * When ``default`` is ``true``, the entry belongs to the POSIX default ACL and is copied to new files and directories created within the directory where it is set; default entries are *not* evaluated when determining access to the file on which they are set. When ``default`` is ``false``, the entry applies to the POSIX access ACL which is used to determine access to the directory but is not inherited.
-   *
-   * For the ``tag``, ``USER_OBJ`` refers to the owning user (denoted "user" in conventional POSIX UGO permissions), ``GROUP_OBJ`` refers to the owning group (denoted "group"), and ``OTHER`` applies to all users and groups who are not ``USER_OBJ`` or ``GROUP_OBJ``. ``MASK`` sets the maximum permissions granted to all ``USER`` and ``GROUP`` entries. A valid POSIX1e ACL contains precisely one ``USER_OBJ``, ``GROUP_OBJ``, ``OTHER``, and ``MASK`` entry for each of the default and access lists.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.setacl': {
     params: [filesystem_acl: FilesystemSetaclArgs];
     response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
   };
 
-  /**
-   * Set Unix permissions on the given ``path``.
-   *
-   * If ``mode`` is specified then the mode is applied to the path, and to files and subdirectories depending on which ``options`` are selected.
-   *
-   * This method will fail if an extended ACL is present on ``path`` unless ``stripacl`` is set. If no ``mode`` is set and ``stripacl`` is ``true``, then non-trivial ACLs are converted to trivial ACLs. An ACL is trivial if it can be expressed as a file mode without losing any access rules.
-   *
-   * .. important::
-   *
-   *     ``uid``, ``gid``, ``user``, and ``group`` *should* remain unset *unless* the
-   *     administrator wishes to change the owner or group of files.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.setperm': {
     params: [filesystem_setperm: FilesystemSetpermArgs];
     response: null;
   };
 
-  /**
-   * Prefetch DDT entries in pool ``pool_name``.
-   *
-   * .. versionremoved:: 26
-   *     Use :doc:`pool.prefetch <api_methods_pool.prefetch>` instead, which prefetches both DDT and BRT metadata.
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   * @deprecated Removed in API version v26.
-   */
   'pool.ddt_prefetch': {
     params: [pool_name: string];
     response: null;
   };
 
-  /**
-   * Prune DDT entries in pool ``pool_name`` based on the specified options.
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.ddt_prune': {
     params: [options: PoolDdtPruneArgs];
     response: null;
   };
 
-  /**
-   * Start, stop, or pause a scrub on pool ``name``.
-   *
-   * START begins a regular scrub and blocks until it finishes, is paused, or is canceled. STOP cancels an in-progress scrub. PAUSE pauses it.
-   *
-   * .. deprecated:: 26.0.0
-   *     Use :doc:`zpool.scrub.run <api_methods_zpool.scrub.run>` instead.
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
   'pool.scrub.scrub': {
     params: [name: string, action?: Action];
     response: null;
   };
 
-  /**
-   * Execute a Periodic Snapshot Task of ``id``.
-   *
-   * This method is a job.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'pool.snapshottask.run': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Reboots the operating system.
-   *
-   * Emits an "added" event of name "system" and id "reboot".
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'system.reboot': {
     params: [reason: string, options?: SystemRebootOptions];
     response: null;
   };
 
-  /**
-   * Update System Security Service Configuration.
-   *
-   * This method is used to change the FIPS, STIG, and local account policies for TrueNAS Enterprise. These features are not available in community editions of TrueNAS.
-   *
-   * This method is a job.
-   * @roles SYSTEM_SECURITY_WRITE
-   */
   'system.security.update': {
     params: [system_security_update?: SystemSecurityUpdateArgs];
     response: SystemSecurityEntry;
   };
 
-  /**
-   * Shuts down the operating system.
-   *
-   * An "added" event of name "system" and id "shutdown" is emitted when shutdown is initiated.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'system.shutdown': {
     params: [reason: string, options?: SystemShutdownOptions];
     response: null;
   };
 
-  /**
-   * Sets system production state and optionally sends initial debug.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
   'truenas.set_production': {
     params: [production: boolean, attach_debug?: boolean];
     response: Record<string, unknown> | null;

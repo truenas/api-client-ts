@@ -11,13 +11,10 @@
  * directory churns), and each version directory reads as the pairwise
  * changelog against its predecessor.
  *
- * Comparison covers everything consumers see — structure AND documentation
- * (descriptions/examples ship as TSDoc). A docstring edit therefore
- * re-declares a type in the version where it happened, which keeps two
- * guarantees honest: released versions' files never change when master edits
- * docs, and every version's declarations carry that version's own docs.
- * Only non-emitted metadata is ignored: `title` (stripped before emission;
- * definition identity is the name) and our `_usedBy` bookkeeping.
+ * Comparison is purely structural — fields and field types. The generated
+ * output carries no documentation metadata (the preprocessor strips it at
+ * intake), so there is nothing non-structural to compare; `title` is ignored
+ * (stripped before emission; definition identity is the name).
  *
  * A shape that changes and later reverts is re-materialized at the revert
  * point (comparison is strictly against the predecessor) — rare, and keeps
@@ -25,7 +22,7 @@
  */
 import type { DefSchema, VersionModel } from './types.mts';
 
-const NON_EMITTED_KEYS = new Set(['title', '_usedBy']);
+const NON_EMITTED_KEYS = new Set(['title', '_usedBy']);  // _usedBy: legacy key, defensively ignored
 
 function canonical(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(canonical);
@@ -58,28 +55,11 @@ export interface ChainedDefs {
   /** Parallel to models: for every name in that version's surface, the model index of its declaration. */
   homes: Map<string, number>[];
   /**
-   * Parallel to models: why a re-declared name changed — 'docs' (structure
-   * identical, documentation differs) or 'refs' (body byte-identical, pulled
-   * in because a referenced definition changed). Absent = structural change
-   * or first appearance.
+   * Parallel to models: 'refs' marks a re-declared name whose own body is
+   * byte-identical — pulled in because a referenced definition changed.
+   * Absent = structural change or first appearance.
    */
-  changeKind: Map<string, 'docs' | 'refs'>[];
-}
-
-/** Structure-only canonical (documentation stripped), used to label change reasons. */
-const DOC_KEYS = new Set(['title', '_usedBy', 'description', 'examples']);
-function structural(node: unknown): unknown {
-  if (Array.isArray(node)) return node.map(structural);
-  if (node !== null && typeof node === 'object') {
-    const record = node as Record<string, unknown>;
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(record).sort()) {
-      if (DOC_KEYS.has(key)) continue;
-      out[key] = structural(record[key]);
-    }
-    return out;
-  }
-  return node;
+  changeKind: Map<string, 'refs'>[];
 }
 
 export function chainAssign(models: VersionModel[]): ChainedDefs {
@@ -94,7 +74,7 @@ export function chainAssign(models: VersionModel[]): ChainedDefs {
   };
 
   const homes: Map<string, number>[] = [];
-  const changeKind: Map<string, 'docs' | 'refs'>[] = [];
+  const changeKind: Map<string, 'refs'>[] = [];
   for (let i = 0; i < models.length; i++) {
     const defs = models[i].definitions;
     const prev = i > 0 ? models[i - 1].definitions : {};
@@ -121,14 +101,10 @@ export function chainAssign(models: VersionModel[]): ChainedDefs {
       }
     }
 
-    const kinds = new Map<string, 'docs' | 'refs'>();
+    const kinds = new Map<string, 'refs'>();
     for (const name of changed) {
       if (!(name in prev)) continue; // first appearance, not a change
-      if (shape(defs[name]) === shape(prev[name])) {
-        kinds.set(name, 'refs');
-      } else if (JSON.stringify(structural(defs[name])) === JSON.stringify(structural(prev[name]))) {
-        kinds.set(name, 'docs');
-      }
+      if (shape(defs[name]) === shape(prev[name])) kinds.set(name, 'refs');
     }
     changeKind.push(kinds);
 
@@ -139,18 +115,12 @@ export function chainAssign(models: VersionModel[]): ChainedDefs {
     homes.push(h);
   }
 
-  // Materialize each run once. Run members are emission-identical (comparison
-  // covers everything emitted), so the declaring version's body is the body;
-  // only the usage metadata is unioned across the run.
+  // Materialize each run once; run members are emission-identical, so the
+  // declaring version's body is the body.
   const declared: Record<string, DefSchema>[] = models.map(() => ({}));
   for (let h = 0; h < models.length; h++) {
     for (const name of Object.keys(models[h].definitions)) {
-      if (homes[h].get(name) !== h) continue;
-      const usages = new Set<string>();
-      for (let i = h; i < models.length && homes[i].get(name) === h; i++) {
-        for (const usage of models[i].definitions[name]._usedBy ?? []) usages.add(usage);
-      }
-      declared[h][name] = { ...models[h].definitions[name], _usedBy: [...usages].sort() };
+      if (homes[h].get(name) === h) declared[h][name] = models[h].definitions[name];
     }
   }
 

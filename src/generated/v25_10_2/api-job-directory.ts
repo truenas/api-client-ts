@@ -11,61 +11,18 @@ import type {
 } from '../v25_10_0/api-types';
 import type {
   CertificateEntry,
-  PoolAttach,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiJobDirectoryDelta {
-  /**
-   * Create a new certificate.
-   *
-   * The ``create_type`` attribute selects which kind of certificate is created:
-   *
-   * 1. ``CERTIFICATE_CREATE_IMPORTED`` - imported certificate.
-   * 2. ``CERTIFICATE_CREATE_CSR`` - certificate signing request.
-   * 3. ``CERTIFICATE_CREATE_IMPORTED_CSR`` - imported certificate signing request.
-   * 4. ``CERTIFICATE_CREATE_ACME`` - ACME certificate.
-   *
-   * The remaining values in ``data`` are validated according to the selected type.
-   *
-   * This method is a job.
-   * @roles CERTIFICATE_WRITE
-   */
   'certificate.create': {
     params: [certificate_create: CertificateCreateArgs];
     response: CertificateEntry;
   };
 
-  /**
-   * Update certificate of ``id``.
-   *
-   * This method is a job.
-   * @roles CERTIFICATE_WRITE
-   */
   'certificate.update': {
     params: [id: number, certificate_update?: CertificateUpdate];
     response: CertificateEntry;
-  };
-
-  /**
-   * Attach a disk to an existing vdev in a pool, converting a striped vdev to a mirror or extending an existing mirror to an n-way mirror.
-   *
-   * This operation will format the new disk, attach it to the target vdev, and wait for resilvering to complete if the target is a RAIDZ vdev undergoing expansion.
-   *
-   * Locking behavior:
-   *
-   * - If another attach operation is already using the same disk, this call will fail immediately
-   *   with EBUSY rather than queueing.
-   * - If another attach operation is running on the same pool (but with a different disk), this
-   *   call will queue and wait for the previous operation to complete.
-   * - Operations on different pools with different disks can run concurrently.
-   *
-   * This method is a job.
-   * @roles POOL_WRITE
-   */
-  'pool.attach': {
-    params: [oid: number, options: PoolAttach];
-    response: null;
   };
 }
 

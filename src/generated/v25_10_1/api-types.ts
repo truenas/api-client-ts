@@ -11,19 +11,13 @@ import type {
   LegacyOptInput,
   MultiprotocolOptInput,
   PrivateDatasetOptInput,
-  SMBShareAclEntryWhoId,
   SmbAuditConfig,
-  SmbAuditConfigInput,
-  SmbAuditConfigInput2,
   TierInfo,
   TimeLockedOptInput,
   TimeMachineOptInput,
   VeeamRepositoryOptInput,
 } from '../v25_10_0/api-types';
 
-/**
- * Used by: sharing.smb.create (params), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (event), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (params), sharing.smb.update (response)
- */
 export const Purpose = {
   DefaultShare: 'DEFAULT_SHARE',
   LegacyShare: 'LEGACY_SHARE',
@@ -37,9 +31,6 @@ export const Purpose = {
 } as const;
 export type Purpose = (typeof Purpose)[keyof typeof Purpose];
 
-/**
- * Used by: docker.status (response)
- */
 export const Status2 = {
   Pending: 'PENDING',
   Running: 'RUNNING',
@@ -53,219 +44,52 @@ export const Status2 = {
 } as const;
 export type Status2 = (typeof Status2)[keyof typeof Status2];
 
-/**
- * These configuration options apply to shares with the `DEFAULT_SHARE` purpose.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface DefaultOpt {
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
   aapl_name_mangling?: boolean;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
   hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
   hostsdeny?: string[];
 }
-/**
- * These configuration options apply to shares with the `FCP_SHARE` purpose as a storage location     for Final Cut Pro data.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface FCPStorageOpt {
-  /**
-   * Illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   */
   aapl_name_mangling?: true;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
   hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
   hostsdeny?: string[];
 }
-/**
- * These configuration options apply to shares with the `FCP_SHARE` purpose as a storage location     for Final Cut Pro data.
- *
- * Used by: sharing.smb.create (params), sharing.smb.query (event), sharing.smb.update (params)
- */
 export interface FCPStorageOptInput {
   purpose: "FCP_SHARE";
-  /**
-   * Illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   */
   aapl_name_mangling?: true;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
   hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
   hostsdeny?: string[];
 }
-/**
- * These configuration options apply to shares with the `MULTIPROTOCOL_SHARE` purpose.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface MultiprotocolOpt {
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
   aapl_name_mangling?: boolean;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
   hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
   hostsdeny?: string[];
 }
-/**
- * These configuration options apply to shares with the `PRIVATE_DATASETS_SHARE` purpose.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface PrivateDatasetOpt {
-  /**
-   * The naming schema to use. If you do not set a schema, the server uses `%U` (username) if it is not joined to Active Directory. If the server is joined to Active Directory it uses `%D/%U` (domain/username).
-   *
-   * WARNING: ZFS dataset naming rules are more restrictive than normal path rules.
-   */
   dataset_naming_schema?: string | null;
-  /**
-   * Set the specified ZFS quota (in gibibytes) on new datasets. If the value is zero, TrueNAS disables automatic quotas for the share.
-   */
   auto_quota?: number;
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
   aapl_name_mangling?: boolean;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
   hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
   hostsdeny?: string[];
 }
-/**
- * Used by: sharing.smb.query (event)
- */
 export interface SharingSMBAddedEvent {
   id: number;
   fields: SharingSMBEntryInput;
 }
-/**
- * SMB share entry on the TrueNAS server.
- *
- * Used by: sharing.smb.query (event)
- */
 export interface SharingSMBEntryInput {
-  /**
-   * Unique identifier for this SMB share.
-   */
   id: number;
   purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
   name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
   path: string | "EXTERNAL";
-  /**
-   * The ZFS dataset containing this SMB share (e.g., 'tank/share'). Returns `null` for external shares or if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
   dataset: string | null;
-  /**
-   * The path of the share relative to the dataset mountpoint (e.g., 'subfolder/data'). An empty string indicates the share is at the dataset root. Returns `null` for external shares or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
   relative_path: string | null;
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
   enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
   readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
   access_based_share_enumeration?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
-  audit?: SmbAuditConfigInput2;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
+  audit?: SmbAuditConfig;
   options?:
     | (
         | LegacyOptInput
@@ -279,84 +103,24 @@ export interface SharingSMBEntryInput {
         | FCPStorageOptInput
       )
     | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
   tier?: TierInfo | null;
 }
-/**
- * Used by: sharing.smb.query (event)
- */
 export interface SharingSMBChangedEvent {
   id: number;
   fields: SharingSMBEntryInput;
 }
-/**
- * SMB share entry on the TrueNAS server.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface SharingSMBEntry {
-  /**
-   * Unique identifier for this SMB share.
-   */
   id: number;
   purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
   name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
   path: string | "EXTERNAL";
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
   enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
   readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
   access_based_share_enumeration?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
   audit?: SmbAuditConfig;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
   options?:
     | (
         | LegacyOpt
@@ -371,204 +135,35 @@ export interface SharingSMBEntry {
       )
     | null;
 }
-/**
- * These configuration options apply to shares with the `TIMEMACHINE_SHARE` purpose.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface TimeMachineOpt {
-  /**
-   * If set, it defines the maximum size in bytes of a single time machine sparsebundle volume by limiting the reported disk size to the SMB client. A value of zero means no quota is set.
-   *
-   * NOTE: Modern MacOS versions you set Time Machine quotas client-side. This gives more predictable server and client behavior.
-   */
   timemachine_quota?: number;
-  /**
-   * If set, the server makes a ZFS snapshot of the share dataset when the client makes a new Time Machine backup.
-   */
   auto_snapshot?: boolean;
-  /**
-   * If set, the server uses the `dataset_naming_schema` to make a new ZFS dataset when the client connects. The server uses this dataset as the share path during the SMB session.
-   *
-   * NOTE: this setting requires the share path to be a dataset mountpoint.
-   */
   auto_dataset_creation?: boolean;
-  /**
-   * The naming schema to use when `auto_dataset_creation` is specified. If you do not set a schema, the server uses `%U` (username) if it is not joined to Active Directory. If the server is joined to Active Directory it uses `%D/%U` (domain/username). See the `VARIABLE SUBSTITUTIONS` section in the smb.conf manpage for valid strings.
-   *
-   * WARNING: ZFS dataset naming rules are more restrictive than normal path rules. For example, if `%u` is specified then the character `\` may be inserted in the username (which is not supported in ZFS).
-   */
   dataset_naming_schema?: string | null;
-  /**
-   * This value is the Time Machine volume UUID for the SMB share. The TrueNAS server uses this value in the mDNS advertisement for the Time Machine share. MacOS clients may use it to identify the volume. When you create or update a share, setting this value to null makes the TrueNAS server generate a new UUID for the share.
-   */
   vuid?: string | null;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
   hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
   hostsdeny?: string[];
 }
-/**
- * These configuration options apply to shares with the `TIME_LOCKED_SHARE` purpose.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface TimeLockedOpt {
-  /**
-   * Time in seconds when write access to the file or directory is allowed.
-   */
   grace_period?: number;
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
   aapl_name_mangling?: boolean;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
   hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
   hostsdeny?: string[];
 }
-/**
- * These configuration options apply to shares with the `VEEAM_REPOSITORY_SHARE` purpose.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
 export interface VeeamRepositoryOpt {
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
   hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
   hostsdeny?: string[];
 }
-/**
- * Used by: sharing.smb.setacl (params)
- */
-export interface SharingSMBSetaclArgs {
-  /**
-   * Name of the SMB share.
-   */
-  share_name: string;
-  /**
-   * List of SMB share ACL entries.
-   */
-  share_acl?: SMBShareAclEntry[];
-}
-/**
- * An SMB Share ACL Entry that grants or denies specific permissions to a principal.
- * You can identify the principal by a SID (`ae_who_sid`) or Unix ID (`ae_who_id`).
- *
- * Used by: sharing.smb.getacl (response), sharing.smb.setacl (params), sharing.smb.setacl (response)
- */
-export interface SMBShareAclEntry {
-  /**
-   * Permissions granted or denied to the principal.
-   */
-  ae_perm: "FULL" | "CHANGE" | "READ";
-  /**
-   * The type of SMB share ACL entry. This value determines whether the permissions (ae_perm) are granted (ALLOWED) or denied (DENIED).
-   */
-  ae_type: "ALLOWED" | "DENIED";
-  /**
-   * The SID of the principal to whom this ACL entry applies.
-   */
-  ae_who_sid?: string | null;
-  /**
-   * The Unix ID of the principal to whom this ACL entry applies.
-   */
-  ae_who_id?: SMBShareAclEntryWhoId | null;
-  /**
-   * The User or group name of the principal to whom this ACL entry applies.
-   */
-  ae_who_str?: string | null;
-}
-/**
- * The ACL that applies to a specific SMB share.
- *
- * NOTE: this is not the same as a filesystem ACL. It only affects access through the SMB protocol.
- *
- * Used by: sharing.smb.getacl (response), sharing.smb.setacl (response)
- */
-export interface SMBShareAcl {
-  /**
-   * Name of the SMB share.
-   */
-  share_name: string;
-  /**
-   * List of SMB share ACL entries.
-   */
-  share_acl?: SMBShareAclEntry[];
-}
-/**
- * Used by: sharing.smb.create (params)
- */
 export interface SmbShareCreate {
   purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
   name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
   path: string | "EXTERNAL";
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
   enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
   readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
   access_based_share_enumeration?: boolean;
-  audit?: SmbAuditConfigInput;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
+  audit?: SmbAuditConfig;
   options?:
     | (
         | LegacyOptInput
@@ -583,57 +178,16 @@ export interface SmbShareCreate {
       )
     | null;
 }
-/**
- * Used by: sharing.smb.update (params)
- */
 export interface SmbShareUpdate {
   purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
   name?: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
   path?: string | "EXTERNAL";
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
   enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
   readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
   browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
   access_based_share_enumeration?: boolean;
-  audit?: SmbAuditConfigInput;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
+  audit?: SmbAuditConfig;
   options?:
     | (
         | LegacyOptInput
@@ -648,174 +202,48 @@ export interface SmbShareUpdate {
       )
     | null;
 }
-/**
- * Used by: snmp.config (response), snmp.update (response)
- */
 export interface SNMPEntry {
-  /**
-   * A comment describing the physical location of the server.
-   */
   location: string;
-  /**
-   * Contact information for the system administrator (email or name).
-   */
   contact: string;
-  /**
-   * Whether SNMP traps are enabled.
-   */
   traps: boolean;
-  /**
-   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
-   */
   v3: boolean;
-  /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @
-   */
   community?: string;
-  /**
-   * Username for SNMP version 3 authentication.
-   */
   v3_username: string;
-  /**
-   * Authentication type for SNMP version 3 (empty string means no authentication).
-   */
   v3_authtype: "" | "MD5" | "SHA";
-  /**
-   * Password for SNMP version 3 authentication.
-   */
   v3_password: string;
-  /**
-   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
-   */
   v3_privproto: (null | "AES" | "DES") | null;
-  /**
-   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
-   */
   v3_privpassphrase?: string | null;
-  /**
-   * Logging level for SNMP daemon (0=emergency to 7=debug).
-   */
   loglevel: number;
-  /**
-   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
-   */
   options: string;
-  /**
-   * Whether to enable ZFS dataset statistics collection for SNMP.
-   */
   zilstat: boolean;
-  /**
-   * Placeholder identifier.  Not used as there is only one.
-   */
   id: number;
 }
-/**
- * Used by: snmp.update (params)
- */
 export interface SNMPUpdateArgs {
-  /**
-   * A comment describing the physical location of the server.
-   */
   location?: string;
-  /**
-   * Contact information for the system administrator (email or name).
-   */
   contact?: string;
-  /**
-   * Whether SNMP traps are enabled.
-   */
   traps?: boolean;
-  /**
-   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
-   */
   v3?: boolean;
-  /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @
-   */
   community?: string;
-  /**
-   * Username for SNMP version 3 authentication.
-   */
   v3_username?: string;
-  /**
-   * Authentication type for SNMP version 3 (empty string means no authentication).
-   */
   v3_authtype?: "" | "MD5" | "SHA";
-  /**
-   * Password for SNMP version 3 authentication.
-   */
   v3_password?: string;
-  /**
-   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
-   */
   v3_privproto?: (null | "AES" | "DES") | null;
-  /**
-   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
-   */
   v3_privpassphrase?: string | null;
-  /**
-   * Logging level for SNMP daemon (0=emergency to 7=debug).
-   */
   loglevel?: number;
-  /**
-   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
-   */
   options?: string;
-  /**
-   * Whether to enable ZFS dataset statistics collection for SNMP.
-   */
   zilstat?: boolean;
 }
-/**
- * Used by: staticroute.create (params)
- */
 export interface StaticRouteCreate {
-  /**
-   * Destination network or host for this static route.
-   */
   destination: string;
-  /**
-   * Gateway IP address for this static route.
-   */
   gateway: string;
-  /**
-   * Optional description for this static route.
-   */
-  description?: string;
 }
-/**
- * Used by: staticroute.update (params)
- */
 export interface StaticRouteUpdate {
-  /**
-   * Destination network or host for this static route.
-   */
   destination?: string;
-  /**
-   * Gateway IP address for this static route.
-   */
   gateway?: string;
-  /**
-   * Optional description for this static route.
-   */
-  description?: string;
 }
-/**
- * Used by: docker.status (response)
- */
 export interface StatusResult {
-  /**
-   * Human-readable description of the current Docker service status.
-   */
-  description: string;
   status: Status2;
 }
-/**
- * Used by: vm.device.virtual_size (params)
- */
 export interface VMDeviceVirtualSizeArgs {
-  /**
-   * Absolute path to the disk image.
-   */
   path: string;
 }

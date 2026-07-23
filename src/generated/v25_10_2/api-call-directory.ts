@@ -22,42 +22,21 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiCallDirectoryDelta {
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CERTIFICATE_READ
-   */
   'certificate.get_instance': {
     params: [id: number, options?: QueryOptions<CertificateEntry>];
     response: CertificateEntry;
   };
 
-  /**
-   * @roles CERTIFICATE_READ
-   */
   'certificate.query': {
     params: [filters?: QueryFilters<CertificateEntry>, options?: QueryOptions<CertificateEntry>];
     response: CertificateEntry[] | CertificateEntry | CertificateQueryResultItem[] | CertificateQueryResultItem | number;
   };
 
-  /**
-   * Toggle the chassis identify light on or off.
-   *
-   * On an HA system, set ``apply_remote`` to ``true`` to apply the change to the remote controller instead of the local one.
-   * @roles IPMI_WRITE
-   */
   'ipmi.chassis.identify': {
     params: [data?: IpmiChassisIdentifyRequest];
     response: null;
   };
 
-  /**
-   * Return IPMI chassis info.
-   *
-   * On an HA system, set ``query-remote`` to ``true`` to return the chassis info from the remote controller instead of the local one.
-   * @roles IPMI_READ
-   */
   'ipmi.chassis.info': {
     params: [data?: IpmiChassisInfoRequest];
     response: IPMIChassisInfo | Record<string, unknown>;

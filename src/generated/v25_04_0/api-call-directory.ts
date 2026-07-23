@@ -59,15 +59,15 @@ import type {
   AuthSessionsEntry,
   AuthSessionsQueryResultItem,
   AuthTokenPlain,
-  AzureBlobCredentialsModelInput2,
-  B2CredentialsModelInput2,
+  AzureBlobCredentialsModel,
+  B2CredentialsModel,
   BootEnvironmentActivateArgs,
   BootEnvironmentCloneArgs,
   BootEnvironmentDestroyArgs,
   BootEnvironmentEntry,
   BootEnvironmentKeepArgs,
   BootEnvironmentQueryResultItem,
-  BoxCredentialsModelInput2,
+  BoxCredentialsModel,
   CSRProfilesModel,
   CatalogAppInfo,
   CatalogAppVersionDetails,
@@ -103,7 +103,7 @@ import type {
   DockerEntry,
   DockerNetworkEntry,
   DockerNetworkQueryResultItem,
-  DropboxCredentialsModelInput2,
+  DropboxCredentialsModel,
   Enclosure2Entry,
   Enclosure2QueryResultItem,
   Enclosure2SetSlotStatusArgs,
@@ -116,7 +116,7 @@ import type {
   FCPortEntry,
   FCPortQueryResultItem,
   FCPortUpdate,
-  FTPCredentialsModelInput2,
+  FTPCredentialsModel,
   FTPEntry,
   FTPUpdateArgs,
   FailoverRebootInfoResult,
@@ -126,9 +126,9 @@ import type {
   FilesystemStatData,
   FilesystemStatfsData,
   GPUInfo,
-  GoogleCloudStorageCredentialsModelInput2,
-  GoogleDriveCredentialsModelInput2,
-  GooglePhotosCredentialsModelInput2,
+  GoogleCloudStorageCredentialsModel,
+  GoogleDriveCredentialsModel,
+  GooglePhotosCredentialsModel,
   GroupCreate,
   GroupDeleteOptions,
   GroupEntry,
@@ -136,8 +136,8 @@ import type {
   GroupGetGroupObjResult,
   GroupQueryResultItem,
   GroupUpdate,
-  HTTPCredentialsModelInput2,
-  HubicCredentialsModelInput2,
+  HTTPCredentialsModel,
+  HubicCredentialsModel,
   ISCSIGlobalEntry,
   ISCSIGlobalUpdateArgs,
   ISCSIPortalEntry,
@@ -189,8 +189,8 @@ import type {
   NTPServerUpdate,
   NfsShareCreate,
   NfsShareUpdate,
-  OneDriveCredentialsModelInput2,
-  PCloudCredentialsModelInput2,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
   POSIXACLResult,
   PeriodicSnapshotTaskEntry,
   PeriodicSnapshotTaskQueryResultItem,
@@ -210,7 +210,7 @@ import type {
   PrivilegeRolesEntry,
   PrivilegeRolesQueryResultItem,
   PrivilegeUpdate,
-  QueryOptionsModel2,
+  QueryOptionsModel,
   RdmaCardConfig,
   RebootInfo,
   ReportingEntry,
@@ -223,7 +223,7 @@ import type {
   ReportingQuery,
   ReportingUpdateArgs,
   S3CredentialsModelInput2,
-  SFTPCredentialsModelInput2,
+  SFTPCredentialsModel,
   SMBEntry,
   SMBShareAcl,
   SMBUpdateArgs,
@@ -244,7 +244,7 @@ import type {
   StaticRouteUpdate,
   StatusResult,
   StorjIxCredentialsModelInput2,
-  SwiftCredentialsModelInput2,
+  SwiftCredentialsModel,
   SysInfo,
   SystemSecurityEntry,
   TrueNASConnectEntry,
@@ -264,3064 +264,1502 @@ import type {
   UserSetupLocalAdministratorOptions,
   UserUpdate,
   Username,
-  WebDavCredentialsModelInput2,
-  YandexCredentialsModelInput2,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
   ZFSFileAttrsData,
 } from './api-types';
 
 export interface ApiCallDirectory {
-  /**
-   * Get the schemas for all DNS providers we support for ACME DNS Challenge and the respective attributes required for connecting to them while validating a DNS Challenge.
-   * @roles READONLY_ADMIN
-   */
   'acme.dns.authenticator.authenticator_schemas': {
     params: [];
     response: ACMEDNSAuthenticatorSchema[];
   };
 
-  /**
-   * Create a DNS Authenticator.
-   *
-   * Create a specific DNS Authenticator containing required authentication details for the said provider to successfully connect with it.
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'acme.dns.authenticator.create': {
     params: [dns_authenticator_create: DNSAuthenticatorCreateArgs];
     response: DNSAuthenticatorEntry;
   };
 
-  /**
-   * Delete DNS Authenticator of ``id``.
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'acme.dns.authenticator.delete': {
     params: [id: number];
     response: boolean;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles NETWORK_INTERFACE_READ
-   */
   'acme.dns.authenticator.get_instance': {
     params: [id: number, options?: QueryOptions<DNSAuthenticatorEntry>];
     response: DNSAuthenticatorEntry;
   };
 
-  /**
-   * @roles NETWORK_INTERFACE_READ
-   */
   'acme.dns.authenticator.query': {
-    params: [filters?: QueryFilters<DNSAuthenticatorEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<DNSAuthenticatorEntry>, options?: QueryOptionsModel];
     response: DNSAuthenticatorEntry[] | DNSAuthenticatorEntry | DNSAuthenticatorQueryResultItem[] | DNSAuthenticatorQueryResultItem | number;
   };
 
-  /**
-   * Update DNS Authenticator of ``id``.
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'acme.dns.authenticator.update': {
     params: [id: number, dns_authenticator_update: ACMEDNSAuthenticatorUpdate];
     response: DNSAuthenticatorEntry;
   };
 
-  /**
-   * Dismiss ``id`` alert.
-   * @roles ALERT_LIST_WRITE
-   */
   'alert.dismiss': {
     params: [uuid: string];
     response: null;
   };
 
-  /**
-   * List all types of alerts including active/dismissed currently in the system.
-   * @roles ALERT_LIST_READ
-   */
   'alert.list': {
     params: [];
     response: Alert[];
   };
 
-  /**
-   * List all types of alerts which the system can issue.
-   * @roles ALERT_LIST_READ
-   */
   'alert.list_categories': {
     params: [];
     response: AlertCategory[];
   };
 
-  /**
-   * List all alert policies which indicate the frequency of the alerts.
-   * @roles ALERT_LIST_READ
-   */
   'alert.list_policies': {
     params: [];
     response: string[];
   };
 
-  /**
-   * Restore ``id`` alert which had been dismissed.
-   * @roles ALERT_LIST_WRITE
-   */
   'alert.restore': {
     params: [uuid: string];
     response: null;
   };
 
-  /**
-   * @roles ALERT_READ
-   */
   'alertclasses.config': {
     params: [];
     response: AlertClassesEntry;
   };
 
-  /**
-   * Update default Alert settings.
-   * @roles ALERT_WRITE
-   */
   'alertclasses.update': {
     params: [data: AlertClassesUpdate];
     response: AlertClassesEntry;
   };
 
-  /**
-   * Create an Alert Service of specified ``type``.
-   *
-   * If ``enabled``, it sends alerts to the configured ``type`` of Alert Service.
-   * @roles ALERT_WRITE
-   */
   'alertservice.create': {
     params: [alert_service_create: AlertServiceCreate];
     response: AlertServiceEntry;
   };
 
-  /**
-   * Delete Alert Service of ``id``.
-   * @roles ALERT_WRITE
-   */
   'alertservice.delete': {
     params: [id: number];
     response: boolean;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles ALERT_READ
-   */
   'alertservice.get_instance': {
     params: [id: number, options?: QueryOptions<AlertServiceEntry>];
     response: AlertServiceEntry;
   };
 
-  /**
-   * @roles ALERT_READ
-   */
   'alertservice.query': {
-    params: [filters?: QueryFilters<AlertServiceEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<AlertServiceEntry>, options?: QueryOptionsModel];
     response: AlertServiceEntry[] | AlertServiceEntry | AlertServiceQueryResultItem[] | AlertServiceQueryResultItem | number;
   };
 
-  /**
-   * Send a test alert using ``type`` of Alert Service.
-   * @roles ALERT_WRITE
-   */
   'alertservice.test': {
     params: [alert_service_create: AlertServiceCreate];
     response: boolean;
   };
 
-  /**
-   * Update Alert Service of ``id``.
-   * @roles ALERT_WRITE
-   */
   'alertservice.update': {
     params: [id: number, alert_service_update: AlertServiceCreate];
     response: AlertServiceEntry;
   };
 
-  /**
-   * Create an API key.
-   * @roles API_KEY_WRITE, READONLY_ADMIN
-   */
   'api_key.create': {
     params: [api_key_create: ApiKeyCreate];
     response: ApiKeyEntryWithKey;
   };
 
-  /**
-   * Delete API Key ``id``.
-   * @roles API_KEY_WRITE, READONLY_ADMIN
-   */
   'api_key.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles API_KEY_READ
-   */
   'api_key.get_instance': {
     params: [id: number, options?: QueryOptions<ApiKeyEntry>];
     response: ApiKeyEntry;
   };
 
-  /**
-   * Get the existing API keys for the currently authenticated user.
-   * @roles API_KEY_READ, READONLY_ADMIN
-   */
   'api_key.my_keys': {
     params: [];
     response: ApiKeyEntry[];
   };
 
-  /**
-   * @roles API_KEY_READ
-   */
   'api_key.query': {
-    params: [filters?: QueryFilters<ApiKeyEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ApiKeyEntry>, options?: QueryOptionsModel];
     response: ApiKeyEntry[] | ApiKeyEntry | ApiKeyQueryResultItem[] | ApiKeyQueryResultItem | number;
   };
 
-  /**
-   * Update API Key ``id``.
-   *
-   * Specify ``reset: true`` to reset this API Key.
-   * @roles API_KEY_WRITE, READONLY_ADMIN
-   */
   'api_key.update': {
     params: [id: number, api_key_update: ApiKeyUpdate];
     response: ApiKeyEntryWithKey | ApiKeyEntry;
   };
 
-  /**
-   * Returns space available in bytes in the configured apps pool which apps can consume.
-   * @roles CATALOG_READ
-   */
   'app.available_space': {
     params: [];
     response: number;
   };
 
-  /**
-   * Retrieve list of valid categories which have associated applications.
-   * @roles CATALOG_READ
-   */
   'app.categories': {
     params: [];
     response: string[];
   };
 
-  /**
-   * Returns certificates which can be used by applications.
-   * @roles APPS_READ, READONLY_ADMIN
-   */
   'app.certificate_choices': {
     params: [];
     response: AppCertificate[];
   };
 
-  /**
-   * Retrieve user specified configuration of ``app_name``.
-   * @roles APPS_READ
-   */
   'app.config': {
     params: [app_name: string];
     response: Record<string, unknown>;
   };
 
-  /**
-   * Returns container console choices for ``app_name``.
-   * @roles APPS_READ, READONLY_ADMIN
-   */
   'app.container_console_choices': {
     params: [app_name: string];
     response: AppContainerResponse;
   };
 
-  /**
-   * Returns container IDs for ``app_name``.
-   * @roles APPS_READ
-   */
   'app.container_ids': {
     params: [app_name: string, options?: AppContainerIDOptions];
     response: AppContainerResponse;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles APPS_READ
-   */
   'app.get_instance': {
     params: [id: string, options?: QueryOptions<AppEntry>];
     response: AppEntry;
   };
 
-  /**
-   * Returns GPU choices which can be used by applications.
-   * @roles APPS_READ, READONLY_ADMIN
-   */
   'app.gpu_choices': {
     params: [];
     response: AppGPUResponse;
   };
 
-  /**
-   * Delete docker image ``image_id``.
-   * @roles APPS_WRITE
-   */
   'app.image.delete': {
     params: [image_id: string, options?: AppImageDeleteOptions];
     response: true;
   };
 
-  /**
-   * Returns the current rate-limit information for the Docker Hub registry.
-   *
-   * Please refer to https://docs.docker.com/docker-hub/download-rate-limit/ for more information.
-   * @roles APPS_READ
-   */
   'app.image.dockerhub_rate_limit': {
     params: [];
     response: AppImageDockerhubRateLimitResult;
   };
 
-  /**
-   * Returns instance matching `id_`. Raises InstanceNotFound if missing.
-   * @roles APPS_READ
-   */
   'app.image.get_instance': {
     params: [id: string, options?: QueryOptions<AppImageEntry>];
     response: AppImageEntry;
   };
 
-  /**
-   * Query all docker images with ``query-filters`` and ``query-options``.
-   *
-   * The following ``query-options.extra`` options are supported:
-   *
-   * ``parse_tags`` *(bool)*:
-   *     Include normalized tags on each entry.
-   * @roles APPS_READ
-   */
   'app.image.query': {
-    params: [filters?: QueryFilters<AppImageEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<AppImageEntry>, options?: QueryOptionsModel];
     response: AppImageEntry[] | AppImageEntry | AppImageQueryResultItem[] | AppImageQueryResultItem | number;
   };
 
-  /**
-   * Returns IP choices which can be used by applications.
-   * @roles APPS_READ, READONLY_ADMIN
-   */
   'app.ip_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Check if ix-volumes exist for ``name`` application.
-   * @roles APPS_READ
-   */
   'app.ix_volume.exists': {
     params: [name: string];
     response: boolean;
   };
 
-  /**
-   * Query ix-volumes with `filters` and `options`.
-   * @roles APPS_READ
-   */
   'app.ix_volume.query': {
-    params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: QueryOptionsModel];
     response: AppsIxVolumeEntry[] | AppsIxVolumeEntry | AppsIxVolumeQueryResultItem[] | AppsIxVolumeQueryResultItem | number;
   };
 
-  /**
-   * Returns a list of outdated docker images for the specified app ``name``.
-   * @roles APPS_READ
-   */
   'app.outdated_docker_images': {
     params: [app_name: string];
     response: string[];
   };
 
-  /**
-   * Query all apps with ``query-filters`` and ``query-options``.
-   *
-   * The following ``query-options.extra`` options are supported:
-   *
-   * ``host_ip`` *(str)*:
-   *     Override the portal IP address when it is a wildcard.
-   *
-   * ``include_app_schema`` *(bool)*:
-   *     Include the app schema in the response.
-   *
-   * ``retrieve_config`` *(bool)*:
-   *     Include the app configuration used to install or manage the app.
-   * @roles APPS_READ
-   */
   'app.query': {
-    params: [filters?: QueryFilters<AppEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<AppEntry>, options?: QueryOptionsModel];
     response: AppEntry[] | AppEntry | AppQueryResultItem[] | AppQueryResultItem | number;
   };
 
-  /**
-   * Create an app registry entry.
-   * @roles APPS_WRITE
-   */
   'app.registry.create': {
     params: [app_registry_create: AppRegistryCreate];
     response: AppRegistryEntry;
   };
 
-  /**
-   * Delete an app registry entry.
-   * @roles APPS_WRITE
-   */
   'app.registry.delete': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles APPS_READ
-   */
   'app.registry.get_instance': {
     params: [id: number, options?: QueryOptions<AppRegistryEntry>];
     response: AppRegistryEntry;
   };
 
-  /**
-   * @roles APPS_READ
-   */
   'app.registry.query': {
-    params: [filters?: QueryFilters<AppRegistryEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<AppRegistryEntry>, options?: QueryOptionsModel];
     response: AppRegistryEntry[] | AppRegistryEntry | AppRegistryQueryResultItem[] | AppRegistryQueryResultItem | number;
   };
 
-  /**
-   * Update an app registry entry.
-   * @roles APPS_WRITE
-   */
   'app.registry.update': {
     params: [id: number, data: AppRegistryUpdate];
     response: AppRegistryEntry;
   };
 
-  /**
-   * Retrieve versions available for rollback for ``app_name`` app.
-   * @roles APPS_READ
-   */
   'app.rollback_versions': {
     params: [app_name: string];
     response: string[];
   };
 
-  /**
-   * Retrieve applications which are similar to ``app_name``.
-   * @roles CATALOG_READ
-   */
   'app.similar': {
     params: [app_name: string, train: string];
     response: AppAvailableItem[];
   };
 
-  /**
-   * Retrieve upgrade summary for ``app_name``.
-   * @roles APPS_READ
-   */
   'app.upgrade_summary': {
     params: [app_name: string, options?: UpgradeSummaryOptions];
     response: AppUpgradeSummaryResult;
   };
 
-  /**
-   * Returns ports in use by applications.
-   * @roles APPS_READ
-   */
   'app.used_ports': {
     params: [];
     response: number[];
   };
 
-  /**
-   * Generate a password for the specified username that may be used only a single time to authenticate to TrueNAS. This may be used by server administrators to allow users authenticate and then set a proper password and two-factor authentication token.
-   * @roles ACCOUNT_WRITE
-   */
   'auth.generate_onetime_password': {
     params: [generate_single_use_password: AuthGenerateOnetimePasswordArgs];
     response: string;
   };
 
-  /**
-   * Generate a token to be used for authentication.
-   *
-   * .. note::
-   *
-   *     This method is not supported when server security requires replay-resistant
-   *     authentication as part of GPOS STIG requirements.
-   */
   'auth.generate_token': {
     params: [ttl?: number | null, attrs?: Record<string, unknown>, match_origin?: boolean, single_use?: boolean];
     response: string;
   };
 
-  /**
-   * Authenticate session using username and password.
-   *
-   * Deprecated and removed in v27. Use :doc:`auth.login_ex <api_methods_auth.login_ex>` with ``mechanism="PASSWORD_PLAIN"`` (and :doc:`auth.login_ex_continue <api_methods_auth.login_ex_continue>` with ``mechanism="OTP_TOKEN"`` for the second factor).
-   * @deprecated Removed in API version v27.
-   */
   'auth.login': {
     params: [username: string, password: string, otp_token?: string | null];
     response: boolean;
   };
 
-  /**
-   * Authenticate using one of a variety of mechanisms.
-   *
-   * The mechanism is selected by the ``mechanism`` field of the request, and the set of supported mechanisms will be expanded in future releases.
-   *
-   * .. warning::
-   *
-   *     Mechanisms with a ``_PLAIN`` suffix involve passing plain-text passwords or
-   *     password-equivalent strings and should not be used over untrusted or insecure
-   *     transport.
-   *
-   * The ``response_type`` of the result indicates the outcome of the current authentication step and whether further action is required to complete authentication:
-   *
-   * - ``SUCCESS`` -- authentication completed and a session was established.
-   * - ``OTP_REQUIRED`` -- the account requires a one-time password; the client must continue
-   *   authentication by submitting the token via the ``OTP_TOKEN`` mechanism.
-   * - ``AUTH_ERR`` -- generic authentication failure corresponding to ``PAM_AUTH_ERR`` and
-   *   ``PAM_USER_UNKNOWN`` from libpam. Returned when the account does not exist or the
-   *   credential is incorrect.
-   * - ``EXPIRED`` -- the supplied credential is expired and not suitable for authentication.
-   * - ``REDIRECT`` -- authentication must be performed on a different server.
-   *
-   * A JSON-RPC ``error`` response (code ``-32001``, *Method call error*) is returned instead of a result in the following cases:
-   *
-   * - a multistep challenge-response mechanism is in progress and the supplied ``mechanism``
-   *   does not match the expected next step (errno ``EBUSY``)
-   * - the ``OTP_TOKEN`` mechanism is used without a preceding step having requested it
-   *   (errno ``EINVAL``)
-   * - the current authenticator assurance level prohibits the supplied mechanism
-   *   (errno ``EOPNOTSUPP``)
-   */
   'auth.login_ex': {
     params: [login_data: AuthApiKeyPlain | AuthPasswordPlain | AuthTokenPlain | AuthOTPToken];
     response: AuthRespSuccess | AuthRespAuthErr | AuthRespExpired | AuthRespOTPRequired | AuthRespAuthRedirect;
   };
 
-  /**
-   * Deauthenticates an app and if a token exists, removes that from the session.
-   */
   'auth.logout': {
     params: [];
     response: true;
   };
 
-  /**
-   * Returns currently logged-in user.
-   */
   'auth.me': {
     params: [];
     response: AuthMeResult;
   };
 
-  /**
-   * Get the list of authentication mechanisms available for :doc:`auth.login_ex <api_methods_auth.login_ex>`.
-   * @roles READONLY_ADMIN
-   */
   'auth.mechanism_choices': {
     params: [];
     response: string[];
   };
 
-  /**
-   * Returns a list of active auth sessions.
-   *
-   * The ``credentials_data`` object varies by ``credentials`` type: password and socket sessions include ``username``; API key sessions additionally include ``api_key`` (id and name); token sessions include ``parent`` (the originating credential) and optionally ``username``.
-   *
-   * Example::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "auth.sessions",
-   *         "params": []
-   *     }
-   * @roles AUTH_SESSIONS_READ
-   */
   'auth.sessions': {
-    params: [filters?: QueryFilters<AuthSessionsEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<AuthSessionsEntry>, options?: QueryOptionsModel];
     response: AuthSessionsEntry[] | AuthSessionsEntry | AuthSessionsQueryResultItem[] | AuthSessionsQueryResultItem | number;
   };
 
-  /**
-   * Set current user's ``attributes`` dictionary ``key`` to ``value``.
-   *
-   * e.g. Setting ``key="foo"`` ``value="var"`` will result in ``{"attributes": {"foo": "bar"}}``.
-   *
-   * Attributes set here will appear in the :doc:`auth.me <api_methods_auth.me>` response under the ``attributes`` field.
-   *
-   * .. important::
-   *
-   *     This endpoint exists solely for the use of the TrueNAS UX team. The data stored in these
-   *     attributes *must* be considered opaque from the perspective of the middleware backend,
-   *     with specific documented exceptions. This endpoint should not be used or relied on by any
-   *     third-party scripts or workflows.
-   *
-   * .. warning::
-   *
-   *     This endpoint is not intended for storing security-sensitive information. The backend
-   *     storage for this data is not encrypted, and it is indexed by unix user id rather than
-   *     database ID which exposes a risk of stale settings being reused if a new user gets
-   *     assigned the same unix user id as a previously-existing one. This is of particular
-   *     concern when users are provided by directory services.
-   */
   'auth.set_attribute': {
     params: [key: string, value: unknown];
     response: null;
   };
 
-  /**
-   * Terminates all other sessions (except the current one).
-   * @roles AUTH_SESSIONS_WRITE
-   */
   'auth.terminate_other_sessions': {
     params: [];
     response: true;
   };
 
-  /**
-   * Terminates session ``id``.
-   * @roles AUTH_SESSIONS_WRITE
-   */
   'auth.terminate_session': {
     params: [id: string];
     response: boolean;
   };
 
-  /**
-   * Activate the boot environment identified by ``id`` so that it becomes the default selection on the next boot. The currently running boot environment is unaffected until the system is rebooted.
-   *
-   * Activating the already-activated boot environment is allowed and regenerates the boot menu, which is how a caller retries after a failed menu regeneration.
-   *
-   * An ``EINVAL`` error is typically returned when the boot environment cannot be activated (for example, when it has no associated kernel); a refusal detected at the ZFS layer carries the errno of the underlying failure instead.
-   * @roles BOOT_ENV_WRITE
-   */
   'boot.environment.activate': {
     params: [boot_environment_activate: BootEnvironmentActivateArgs];
     response: BootEnvironmentEntry;
   };
 
-  /**
-   * Create a new boot environment named ``target`` as a clone of the existing boot environment identified by ``id``. The clone is not activated; use :doc:`boot.environment.activate <api_methods_boot.environment.activate>` to boot into it.
-   *
-   * An ``EINVAL`` error is returned when ``id`` does not exist or has no associated kernel, or when ``target`` is not a valid boot environment name; an ``EEXIST`` error when a boot environment named ``target`` already exists.
-   * @roles BOOT_ENV_WRITE
-   */
   'boot.environment.clone': {
     params: [boot_environment_clone: BootEnvironmentCloneArgs];
     response: BootEnvironmentEntry;
   };
 
-  /**
-   * Permanently destroy the boot environment identified by ``id``, freeing the space it consumes.
-   *
-   * The active (currently running) and activated (next boot) boot environments cannot be destroyed; attempting to do so returns an ``EINVAL`` error.
-   * @roles BOOT_ENV_WRITE
-   */
   'boot.environment.destroy': {
     params: [boot_environment_destroy: BootEnvironmentDestroyArgs];
     response: null;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles BOOT_ENV_READ
-   */
   'boot.environment.get_instance': {
     params: [id: string, options?: QueryOptions<BootEnvironmentEntry>];
     response: BootEnvironmentEntry;
   };
 
-  /**
-   * Set or clear the "keep" flag on the boot environment identified by ``id``. When ``value`` is ``true``, the boot environment is protected from automatic deletion by the updater when it needs space for an update; when ``false``, the boot environment becomes eligible for such automatic pruning.
-   * @roles BOOT_ENV_WRITE
-   */
   'boot.environment.keep': {
     params: [boot_environment_destroy: BootEnvironmentKeepArgs];
     response: BootEnvironmentEntry;
   };
 
-  /**
-   * @roles BOOT_ENV_READ
-   */
   'boot.environment.query': {
-    params: [filters?: QueryFilters<BootEnvironmentEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<BootEnvironmentEntry>, options?: QueryOptionsModel];
     response: BootEnvironmentEntry[] | BootEnvironmentEntry | BootEnvironmentQueryResultItem[] | BootEnvironmentQueryResultItem | number;
   };
 
-  /**
-   * Retrieve apps details for ``label`` catalog.
-   * @roles CATALOG_READ
-   */
   'catalog.apps': {
     params: [catalog_apps_options?: CatalogAppsArgs];
     response: Record<string, CatalogTrainInfo>;
   };
 
-  /**
-   * @roles CATALOG_READ
-   */
   'catalog.config': {
     params: [];
     response: CatalogEntry;
   };
 
-  /**
-   * Retrieve information of ``app_name`` ``app_version_details.catalog`` catalog app.
-   * @roles CATALOG_READ
-   */
   'catalog.get_app_details': {
     params: [app_name: string, app_version_details: CatalogAppVersionDetails];
     response: CatalogAppInfo;
   };
 
-  /**
-   * Retrieve available trains.
-   * @roles CATALOG_READ
-   */
   'catalog.trains': {
     params: [];
     response: string[];
   };
 
-  /**
-   * Update catalog preferences.
-   * @roles CATALOG_WRITE
-   */
   'catalog.update': {
     params: [catalog_update?: CatalogUpdateArgs];
     response: CatalogEntry;
   };
 
-  /**
-   * Dictionary of popular ACME Servers with their directory URI endpoints which we display automatically in the UI.
-   * @roles CERTIFICATE_READ, READONLY_ADMIN
-   */
   'certificate.acme_server_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Dictionary of supported EC curves.
-   * @roles CERTIFICATE_READ, READONLY_ADMIN
-   */
   'certificate.ec_curve_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Dictionary of names that can be used in the ExtendedKeyUsage attribute of a certificate request.
-   * @roles CERTIFICATE_READ, READONLY_ADMIN
-   */
   'certificate.extended_key_usage_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Abort a running cloud backup task.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.abort': {
     params: [id: number];
     response: boolean;
   };
 
-  /**
-   * Create a new cloud backup task.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.create': {
     params: [cloud_backup: CloudBackupCreate];
     response: CloudBackupEntry;
   };
 
-  /**
-   * Delete cloud backup entry ``id``.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.get_instance': {
     params: [id: number, options?: QueryOptions<CloudBackupEntry>];
     response: CloudBackupEntry;
   };
 
-  /**
-   * List files in the directory ``path`` of the ``snapshot_id`` created by the cloud backup job ``id``.
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.list_snapshot_directory': {
     params: [id: number, snapshot_id: string, path: string];
     response: CloudBackupSnapshotItem[];
   };
 
-  /**
-   * List existing snapshots for the cloud backup job ``id``.
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.list_snapshots': {
     params: [id: number];
     response: CloudBackupSnapshot[];
   };
 
-  /**
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.query': {
-    params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptionsModel];
     response: CloudBackupEntry[] | CloudBackupEntry | CloudBackupQueryResultItem[] | CloudBackupQueryResultItem | number;
   };
 
-  /**
-   * Return all possible choices for ``cloud_backup.create.transfer_setting``.
-   * @roles CLOUD_BACKUP_READ, READONLY_ADMIN
-   */
   'cloud_backup.transfer_setting_choices': {
     params: [];
     response: ('DEFAULT' | 'PERFORMANCE' | 'FAST_STORAGE')[];
   };
 
-  /**
-   * Update the cloud backup entry ``id`` with ``data``.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.update': {
     params: [id: number, data: CloudBackupUpdate];
     response: CloudBackupEntry;
   };
 
-  /**
-   * Create Cloud Sync Credentials.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.create': {
     params: [cloud_sync_credentials_create: CloudCredentialCreate];
     response: CredentialsEntry;
   };
 
-  /**
-   * Delete Cloud Sync Credentials of ``id``.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.delete': {
     params: [id: number];
     response: boolean;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.credentials.get_instance': {
     params: [id: number, options?: QueryOptions<CredentialsEntry>];
     response: CredentialsEntry;
   };
 
-  /**
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.credentials.query': {
-    params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptionsModel];
     response: CredentialsEntry[] | CredentialsEntry | CredentialsQueryResultItem[] | CredentialsQueryResultItem | number;
   };
 
-  /**
-   * Update Cloud Sync Credentials of ``id``.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.update': {
     params: [id: number, cloud_sync_credentials_update: CloudCredentialUpdate];
     response: CredentialsEntry;
   };
 
-  /**
-   * Verify if ``attributes`` provided for ``provider`` are authorized by the ``provider``.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.verify': {
-    params: [cloud_sync_credentials_create: AzureBlobCredentialsModelInput2 | B2CredentialsModelInput2 | BoxCredentialsModelInput2 | DropboxCredentialsModelInput2 | FTPCredentialsModelInput2 | GoogleCloudStorageCredentialsModelInput2 | GoogleDriveCredentialsModelInput2 | GooglePhotosCredentialsModelInput2 | HTTPCredentialsModelInput2 | HubicCredentialsModelInput2 | OneDriveCredentialsModelInput2 | PCloudCredentialsModelInput2 | S3CredentialsModelInput2 | SFTPCredentialsModelInput2 | StorjIxCredentialsModelInput2 | SwiftCredentialsModelInput2 | WebDavCredentialsModelInput2 | YandexCredentialsModelInput2];
+    params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | S3CredentialsModelInput2 | SFTPCredentialsModel | StorjIxCredentialsModelInput2 | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
     response: CredentialsVerifyResult;
   };
 
-  /**
-   * Lists all available drives and their types for given Microsoft OneDrive credentials.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.onedrive_list_drives': {
     params: [onedrive_list_drives: CloudSyncOneDriveListDrivesArgs];
     response: CloudSyncOneDriveListDrivesDrive[];
   };
 
-  /**
-   * Respond to WebSocket ping frames with "pong".
-   *
-   * This endpoint can be used to keep connections alive as outlined in the WebSocket specification. It does not require authentication but is rate limited to prevent abuse.
-   */
   'core.ping': {
     params: [];
     response: 'pong';
   };
 
-  /**
-   * Set per-connection options for the current API session and return the resulting option values.
-   *
-   * Options such as ``legacy_jobs``, ``private_methods``, and ``py_exceptions`` change how the middleware formats responses and errors for this connection only; they are not persisted beyond the session.
-   */
   'core.set_options': {
     params: [options: CoreSetOptionsOptions];
     response: null;
   };
 
-  /**
-   * Subscribe the current connection to the named ``event`` and return a subscription identifier.
-   *
-   * Matching event notifications are pushed to this connection until the subscription is removed with :doc:`core.unsubscribe <api_methods_core.unsubscribe>`. A JSON-RPC ``error`` response (code ``-32001``, *Method call error*) is returned if the caller is not authorized to subscribe to the event.
-   */
   'core.subscribe': {
     params: [event: string];
     response: string;
   };
 
-  /**
-   * Remove the event subscription identified by ``ident`` (as returned by :doc:`core.subscribe <api_methods_core.subscribe>`) so the current connection no longer receives notifications for it.
-   */
   'core.unsubscribe': {
     params: [id_: string];
     response: null;
   };
 
-  /**
-   * Create a new cron job.
-   *
-   * ``stderr`` and ``stdout`` are boolean values which, if ``true``, represent that we would like to suppress standard error / standard output respectively.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'cronjob.create': {
     params: [data: CronJobCreate];
     response: CronJobEntry;
   };
 
-  /**
-   * Delete cronjob of ``id``.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'cronjob.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SYSTEM_CRON_READ
-   */
   'cronjob.get_instance': {
     params: [id: number, options?: QueryOptions<CronJobEntry>];
     response: CronJobEntry;
   };
 
-  /**
-   * @roles SYSTEM_CRON_READ
-   */
   'cronjob.query': {
-    params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptionsModel];
     response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
   };
 
-  /**
-   * Update cronjob of ``id``.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'cronjob.update': {
     params: [id: number, data: CronJobUpdate];
     response: CronJobEntry;
   };
 
-  /**
-   * Get info for ``type`` device.
-   * @roles READONLY_ADMIN
-   */
   'device.get_info': {
     params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
     response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
   };
 
-  /**
-   * Returns existing temperature alerts for specified disks.
-   * @roles REPORTING_READ
-   */
   'disk.temperature_alerts': {
     params: [names: string[]];
     response: Alert[];
   };
 
-  /**
-   * @roles DOCKER_READ
-   */
   'docker.config': {
     params: [];
     response: DockerEntry;
   };
 
-  /**
-   * Delete ``backup_name`` app backup.
-   * @roles DOCKER_WRITE
-   */
   'docker.delete_backup': {
     params: [backup_name: string];
     response: null;
   };
 
-  /**
-   * List existing app backups.
-   * @roles DOCKER_READ
-   */
   'docker.list_backups': {
     params: [];
     response: DockerBackupInfo;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles DOCKER_READ
-   */
   'docker.network.get_instance': {
     params: [id: string | null, options?: QueryOptions<DockerNetworkEntry>];
     response: DockerNetworkEntry;
   };
 
-  /**
-   * @roles DOCKER_READ
-   */
   'docker.network.query': {
-    params: [filters?: QueryFilters<DockerNetworkEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<DockerNetworkEntry>, options?: QueryOptionsModel];
     response: DockerNetworkEntry[] | DockerNetworkEntry | DockerNetworkQueryResultItem[] | DockerNetworkQueryResultItem | number;
   };
 
-  /**
-   * Returns whether a non-isolated NVIDIA GPU is present in the system.
-   * @roles DOCKER_READ
-   */
   'docker.nvidia_present': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Returns the status of the docker service.
-   * @roles DOCKER_READ
-   */
   'docker.status': {
     params: [];
     response: StatusResult;
   };
 
-  /**
-   * Set a user-defined label for the enclosure identified by ``id``.
-   *
-   * A JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned when no enclosure with the given ``id`` exists.
-   * @roles ENCLOSURE_WRITE
-   */
   'enclosure.label.set': {
     params: [id: string, label: string];
     response: null;
   };
 
-  /**
-   * Query detected enclosures on TrueNAS hardware.
-   *
-   * Returns an array of enclosure objects representing the head unit (controller) and any attached JBODs or JBOFs. Each entry contains hardware identification, physical layout information, and per-slot element details including disk mappings and status.
-   *
-   * .. note::
-   *     This method only returns results on TrueNAS-sold hardware.
-   *     An empty array is returned on generic or non-TrueNAS systems.
-   *
-   * Results are sorted with controller enclosures first, then by enclosure ID.
-   *
-   * Examples:
-   *
-   * Query all enclosures::
-   *
-   *     []
-   *
-   * Query only the controller (head unit)::
-   *
-   *     [
-   *         [["controller", "=", true]]
-   *     ]
-   *
-   * Query a specific enclosure by ID::
-   *
-   *     [
-   *         [["id", "=", "5b0bd6d1a30714bf"]],
-   *         {"get": true}
-   *     ]
-   * @roles ENCLOSURE_READ
-   */
   'enclosure2.query': {
-    params: [filters?: QueryFilters<Enclosure2Entry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<Enclosure2Entry>, options?: QueryOptionsModel];
     response: Enclosure2Entry[] | Enclosure2Entry | Enclosure2QueryResultItem[] | Enclosure2QueryResultItem | number;
   };
 
-  /**
-   * Set enclosure bay number ``slot`` to ``status`` for ``enclosure_id``.
-   * @roles ENCLOSURE_WRITE
-   */
   'enclosure2.set_slot_status': {
     params: [Enclosure2SetSlotStatus: Enclosure2SetSlotStatusArgs];
     response: null;
   };
 
-  /**
-   * Return reboot information for both nodes of the failover pair.
-   *
-   * The response reports, for the local node and for the other node, whether a reboot is required and the reasons for it. The ``other_node`` field is ``null`` when the remote node cannot be reached.
-   * @roles FAILOVER_READ
-   */
   'failover.reboot.info': {
     params: [];
     response: FailoverRebootInfoResult;
   };
 
-  /**
-   * Returns ``true`` if the system is licensed for FIBRECHANNEL and contains one or more Fibre Channel cards. ``false`` otherwise.
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
   'fc.capable': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Create an FC host (pairing).
-   *
-   * This associates an ``alias`` with a corresponding Fibre Channel WWPN. For HA systems, the alias is associated with a pair of WWPNs, one per node.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'fc.fc_host.create': {
     params: [fc_host_create: FCHostCreate];
     response: FCHostEntry;
   };
 
-  /**
-   * Delete FC host ``id``.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'fc.fc_host.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
   'fc.fc_host.get_instance': {
     params: [id: number, options?: QueryOptions<FCHostEntry>];
     response: FCHostEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
   'fc.fc_host.query': {
-    params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptionsModel];
     response: FCHostEntry[] | FCHostEntry | FCHostQueryResultItem[] | FCHostQueryResultItem | number;
   };
 
-  /**
-   * Update FC host ``id``.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'fc.fc_host.update': {
     params: [id: number, fc_host_update: FCHostUpdate];
     response: FCHostEntry;
   };
 
-  /**
-   * Creates mapping between a FC port and a target.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'fcport.create': {
     params: [fc_Port_create: FCPortCreate];
     response: FCPortEntry;
   };
 
-  /**
-   * Delete FC port mapping ``id``.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'fcport.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
   'fcport.get_instance': {
     params: [id: number, options?: QueryOptions<FCPortEntry>];
     response: FCPortEntry;
   };
 
-  /**
-   * Return the available Fibre Channel ports that can be assigned to a target.
-   *
-   * By default this includes ports that are already mapped to a target. Set ``include_used`` to ``false`` to exclude ports that are already in use.
-   * @roles READONLY_ADMIN, SHARING_ISCSI_TARGET_READ
-   */
   'fcport.port_choices': {
     params: [include_used?: boolean];
     response: Record<string, FCPortChoiceEntry>;
   };
 
-  /**
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
   'fcport.query': {
-    params: [filters?: QueryFilters<FCPortEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<FCPortEntry>, options?: QueryOptionsModel];
     response: FCPortEntry[] | FCPortEntry | FCPortQueryResultItem[] | FCPortQueryResultItem | number;
   };
 
-  /**
-   * Return the runtime status of Fibre Channel ports, including port state, type, speed, and connected sessions.
-   *
-   * On an HA system, status is gathered from both controllers and reported per node.
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
   'fcport.status': {
-    params: [filters?: QueryFilters<Record<string, unknown>>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<Record<string, unknown>>, options?: QueryOptionsModel];
     response: unknown[];
   };
 
-  /**
-   * Update FC port mapping ``id``.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'fcport.update': {
     params: [id: number, fc_Port_update: FCPortUpdate];
     response: FCPortEntry;
   };
 
-  /**
-   * Retrieve list of available ACL templates for a given ``path``. Supports ``query-filters`` and ``query-options``.
-   *
-   * ACL entries in the returned templates are always in canonical order.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
   };
 
-  /**
-   * Create a new filesystem ACL template.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.acltemplate.create': {
     params: [acltemplate_create: AclTemplateCreate];
     response: ACLTemplateEntry;
   };
 
-  /**
-   * Delete the ACL template identified by ``id``.
-   *
-   * Built-in ACL templates may not be deleted; attempting to delete one returns a JSON-RPC ``error`` response (code ``-32001``, *Method call error*).
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.acltemplate.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.acltemplate.get_instance': {
     params: [id: number, options?: QueryOptions<ACLTemplateEntry>];
     response: ACLTemplateEntry;
   };
 
-  /**
-   * Retrieve the available filesystem ACL templates.
-   *
-   * Built-in templates are returned with their access control list fully populated.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.acltemplate.query': {
-    params: [filters?: QueryFilters<ACLTemplateEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ACLTemplateEntry>, options?: QueryOptionsModel];
     response: ACLTemplateEntry[] | ACLTemplateEntry | ACLTemplateQueryResultItem[] | ACLTemplateQueryResultItem | number;
   };
 
-  /**
-   * Update filesystem ACL template with ``id``.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.acltemplate.update': {
     params: [id: number, acltemplate_update: AclTemplateUpdate];
     response: ACLTemplateEntry;
   };
 
-  /**
-   * Get the current ZFS attributes for the file at the given path.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.get_zfs_attributes': {
     params: [path: string];
     response: ZFSFileAttrsData;
   };
 
-  /**
-   * Return ACL of a given path. This may return a POSIX1e ACL or a NFSv4 ACL. The ACL type is indicated by the ``acltype`` key.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.getacl': {
     params: [path: string, simplified?: boolean, resolve_ids?: boolean];
     response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
   };
 
-  /**
-   * Get the contents of a directory.
-   *
-   * The select option may be used to optimize listdir performance. Metadata-related fields that are not selected will not be retrieved from the filesystem.
-   *
-   * For example {"select": ["path", "type"]} will avoid querying an xattr list and ZFS attributes for files in a directory.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.listdir': {
-    params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel2];
+    params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel];
     response: FilesystemDirEntry[] | FilesystemDirEntry | FilesystemDirQueryResultItem[] | FilesystemDirQueryResultItem | number;
   };
 
-  /**
-   * Create a directory at the specified path.
-   *
-   * If the requested ``mode`` cannot be applied and ``raise_chmod_error`` is set, the newly created directory is removed to prevent its use with unintended permissions.
-   *
-   * .. note::
-   *
-   *     If the chmod error is skipped, the ``mode`` key in the response will indicate the current
-   *     permissions on the directory and not the permissions specified in the request payload.
-   * @roles FILESYSTEM_DATA_WRITE
-   */
   'filesystem.mkdir': {
     params: [filesystem_mkdir: FilesystemMkdirArgs];
     response: FilesystemDirEntry;
   };
 
-  /**
-   * Return filesystem information for a given path.
-   *
-   * The reported timestamps reflect ``statx()`` values. The ``atime`` and ``mtime`` timestamps are mutable from userspace, and ``btime`` may also be mutable from userspace depending on the platform.
-   *
-   * The returned ``attributes`` list contains the ``statx()`` file attributes that apply to the file (see the ``statx(2)`` manpage for details). ZFS flags set via :doc:`filesystem.set_zfs_attributes <api_methods_filesystem.set_zfs_attributes>` are surfaced here: an immutable file reports ``IMMUTABLE`` and an append-only file reports ``APPEND``.
-   *
-   * .. note::
-   *
-   *     ``mount_id`` uniquely identifies the particular mount underlying the path. Bind mounts
-   *     share the same ``dev`` (device id) but have distinct ``mount_id`` values, so ``mount_id``
-   *     (not ``dev``) must be used to identify children of a given mountpoint.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.stat': {
     params: [path: string];
     response: FilesystemStatData;
   };
 
-  /**
-   * Return stats from the filesystem of a given path.
-   *
-   * If ``path`` does not exist, the method raises a ``CallError`` (code ``-32001``, *Method call error*).
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.statfs': {
     params: [path: string];
     response: FilesystemStatfsData;
   };
 
-  /**
-   * @roles SHARING_FTP_READ
-   */
   'ftp.config': {
     params: [];
     response: FTPEntry;
   };
 
-  /**
-   * Update ftp service configuration.
-   * @roles SHARING_FTP_WRITE
-   */
   'ftp.update': {
     params: [ftp_update?: FTPUpdateArgs];
     response: FTPEntry;
   };
 
-  /**
-   * Create a new group.
-   * @roles ACCOUNT_WRITE
-   */
   'group.create': {
     params: [group_create: GroupCreate];
     response: number;
   };
 
-  /**
-   * Delete group ``id``.
-   * @roles ACCOUNT_WRITE
-   */
   'group.delete': {
     params: [id: number, options?: GroupDeleteOptions];
     response: number;
   };
 
-  /**
-   * Returns dictionary containing information from struct grp for the group specified by either the ``groupname`` or ``gid``.
-   *
-   * If ``sid_info`` is specified, additional SMB / domain information is returned for the group.
-   * @roles ACCOUNT_READ
-   */
   'group.get_group_obj': {
     params: [get_group_obj?: GroupGetGroupObjArgs];
     response: GroupGetGroupObjResult;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles ACCOUNT_READ
-   */
   'group.get_instance': {
     params: [id: number, options?: QueryOptions<GroupEntry>];
     response: GroupEntry;
   };
 
-  /**
-   * Get the next available/free gid.
-   * @roles ACCOUNT_READ
-   */
   'group.get_next_gid': {
     params: [];
     response: number;
   };
 
-  /**
-   * Checks whether at least one local user with a password is a member of any of the ``group_ids``.
-   * @roles ACCOUNT_READ
-   */
   'group.has_password_enabled_user': {
     params: [gids: number[], exclude_user_ids?: number[]];
     response: boolean;
   };
 
-  /**
-   * Query groups with `query-filters` and `query-options`.
-   * @roles ACCOUNT_READ
-   */
   'group.query': {
-    params: [filters?: QueryFilters<GroupEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<GroupEntry>, options?: QueryOptionsModel];
     response: GroupEntry[] | GroupEntry | GroupQueryResultItem[] | GroupQueryResultItem | number;
   };
 
-  /**
-   * Update attributes of an existing group.
-   * @roles ACCOUNT_WRITE
-   */
   'group.update': {
     params: [id: number, group_update: GroupUpdate];
     response: number;
   };
 
-  /**
-   * Create an initshutdown script task.
-   *
-   * .. note::
-   *
-   *     When a script or command is scheduled to run on ``SHUTDOWN``, its ``timeout`` is added to the hard
-   *     shutdown limit imposed by the base OS so that it can run to completion without being interrupted.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'initshutdownscript.create': {
     params: [data: InitShutdownScriptCreate];
     response: InitShutdownScriptEntry;
   };
 
-  /**
-   * Delete init/shutdown task of ``id``.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'initshutdownscript.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SYSTEM_CRON_READ
-   */
   'initshutdownscript.get_instance': {
     params: [id: number, options?: QueryOptions<InitShutdownScriptEntry>];
     response: InitShutdownScriptEntry;
   };
 
-  /**
-   * @roles SYSTEM_CRON_READ
-   */
   'initshutdownscript.query': {
-    params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptionsModel];
     response: InitShutdownScriptEntry[] | InitShutdownScriptEntry | InitShutdownScriptQueryResultItem[] | InitShutdownScriptQueryResultItem | number;
   };
 
-  /**
-   * Update initshutdown script task of ``id``.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'initshutdownscript.update': {
     params: [id: number, data: InitShutdownScriptUpdate];
     response: InitShutdownScriptEntry;
   };
 
-  /**
-   * Returns a boolean value indicating if /dev/ipmi0 is loaded.
-   * @roles READONLY_ADMIN
-   */
   'ipmi.is_loaded': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Create an iSCSI Authorized Access.
-   * @roles SHARING_ISCSI_AUTH_WRITE
-   */
   'iscsi.auth.create': {
     params: [data: IscsiAuthCreate];
     response: ISCSITargetAuthCredentialEntry;
   };
 
-  /**
-   * Delete iSCSI Authorized Access of ``id``.
-   * @roles SHARING_ISCSI_AUTH_WRITE
-   */
   'iscsi.auth.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_AUTH_READ
-   */
   'iscsi.auth.get_instance': {
     params: [id: number, options?: QueryOptions<ISCSITargetAuthCredentialEntry>];
     response: ISCSITargetAuthCredentialEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_AUTH_READ
-   */
   'iscsi.auth.query': {
-    params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptionsModel];
     response: ISCSITargetAuthCredentialEntry[] | ISCSITargetAuthCredentialEntry | ISCSITargetAuthCredentialQueryResultItem[] | ISCSITargetAuthCredentialQueryResultItem | number;
   };
 
-  /**
-   * Update iSCSI Authorized Access of ``id``.
-   * @roles SHARING_ISCSI_AUTH_WRITE
-   */
   'iscsi.auth.update': {
     params: [id: number, data: IscsiAuthUpdate];
     response: ISCSITargetAuthCredentialEntry;
   };
 
-  /**
-   * Create an iSCSI Extent.
-   * @roles SHARING_ISCSI_EXTENT_WRITE
-   */
   'iscsi.extent.create': {
     params: [iscsi_extent_create: IscsiExtentCreate];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * Delete iSCSI Extent of ``id``.
-   *
-   * If ``id`` iSCSI Extent's ``type`` was configured to FILE, ``remove`` can be set to remove the configured file.
-   * @roles SHARING_ISCSI_EXTENT_WRITE
-   */
   'iscsi.extent.delete': {
     params: [id: number, remove?: boolean, force?: boolean];
     response: true;
   };
 
-  /**
-   * Return a dict of available zvols that can be used when creating an extent.
-   * @roles READONLY_ADMIN, SHARING_ISCSI_EXTENT_READ
-   */
   'iscsi.extent.disk_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_EXTENT_READ
-   */
   'iscsi.extent.get_instance': {
     params: [id: number, options?: QueryOptions<ISCSITargetExtentEntry>];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_EXTENT_READ
-   */
   'iscsi.extent.query': {
-    params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptionsModel];
     response: ISCSITargetExtentEntry[] | ISCSITargetExtentEntry | ISCSITargetExtentQueryResultItem[] | ISCSITargetExtentQueryResultItem | number;
   };
 
-  /**
-   * Update iSCSI Extent of ``id``.
-   * @roles SHARING_ISCSI_EXTENT_WRITE
-   */
   'iscsi.extent.update': {
     params: [id: number, iscsi_extent_update: IscsiExtentUpdate];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * Returns whether iSCSI ALUA is enabled or not.
-   * @roles SHARING_ISCSI_GLOBAL_READ
-   */
   'iscsi.global.alua_enabled': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Return currently connected clients count.
-   * @roles SHARING_ISCSI_GLOBAL_READ
-   */
   'iscsi.global.client_count': {
     params: [];
     response: number;
   };
 
-  /**
-   * @roles SHARING_ISCSI_GLOBAL_READ
-   */
   'iscsi.global.config': {
     params: [];
     response: ISCSIGlobalEntry;
   };
 
-  /**
-   * Returns whether iSER is enabled or not.
-   * @roles SHARING_ISCSI_GLOBAL_READ
-   */
   'iscsi.global.iser_enabled': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Get a list of currently running iSCSI sessions. This includes initiator and target names and the unique connection IDs.
-   * @roles SHARING_ISCSI_GLOBAL_READ
-   */
   'iscsi.global.sessions': {
-    params: [filters?: QueryFilters<IscsiSession>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<IscsiSession>, options?: QueryOptionsModel];
     response: IscsiSession[] | IscsiSession | IscsiSessionQueryResultItem[] | IscsiSessionQueryResultItem | number;
   };
 
-  /**
-   * Update the iSCSI global configuration.
-   * @roles SHARING_ISCSI_GLOBAL_WRITE
-   */
   'iscsi.global.update': {
     params: [iscsi_update?: ISCSIGlobalUpdateArgs];
     response: ISCSIGlobalEntry;
   };
 
-  /**
-   * Create an iSCSI Initiator.
-   * @roles SHARING_ISCSI_INITIATOR_WRITE
-   */
   'iscsi.initiator.create': {
     params: [iscsi_initiator_create: IscsiInitiatorCreate];
     response: ISCSITargetAuthorizedInitiatorEntry;
   };
 
-  /**
-   * Delete iSCSI initiator of ``id``.
-   * @roles SHARING_ISCSI_INITIATOR_WRITE
-   */
   'iscsi.initiator.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_INITIATOR_READ
-   */
   'iscsi.initiator.get_instance': {
     params: [id: number, options?: QueryOptions<ISCSITargetAuthorizedInitiatorEntry>];
     response: ISCSITargetAuthorizedInitiatorEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_INITIATOR_READ
-   */
   'iscsi.initiator.query': {
-    params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: QueryOptionsModel];
     response: ISCSITargetAuthorizedInitiatorEntry[] | ISCSITargetAuthorizedInitiatorEntry | ISCSITargetAuthorizedInitiatorQueryResultItem[] | ISCSITargetAuthorizedInitiatorQueryResultItem | number;
   };
 
-  /**
-   * Update iSCSI initiator of ``id``.
-   * @roles SHARING_ISCSI_INITIATOR_WRITE
-   */
   'iscsi.initiator.update': {
     params: [id: number, iscsi_initiator_update: IscsiInitiatorUpdate];
     response: ISCSITargetAuthorizedInitiatorEntry;
   };
 
-  /**
-   * Create a new iSCSI Portal.
-   * @roles SHARING_ISCSI_PORTAL_WRITE
-   */
   'iscsi.portal.create': {
     params: [iscsi_portal_create: IscsiPortalCreate];
     response: ISCSIPortalEntry;
   };
 
-  /**
-   * Delete iSCSI Portal ``id``.
-   * @roles SHARING_ISCSI_PORTAL_WRITE
-   */
   'iscsi.portal.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_PORTAL_READ
-   */
   'iscsi.portal.get_instance': {
     params: [id: number, options?: QueryOptions<ISCSIPortalEntry>];
     response: ISCSIPortalEntry;
   };
 
-  /**
-   * Returns possible choices for ``listen.ip`` attribute of portal create and update.
-   * @roles READONLY_ADMIN, SHARING_ISCSI_PORTAL_READ
-   */
   'iscsi.portal.listen_ip_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * @roles SHARING_ISCSI_PORTAL_READ
-   */
   'iscsi.portal.query': {
-    params: [filters?: QueryFilters<ISCSIPortalEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ISCSIPortalEntry>, options?: QueryOptionsModel];
     response: ISCSIPortalEntry[] | ISCSIPortalEntry | ISCSIPortalQueryResultItem[] | ISCSIPortalQueryResultItem | number;
   };
 
-  /**
-   * Update iSCSI Portal ``id``.
-   * @roles SHARING_ISCSI_PORTAL_WRITE
-   */
   'iscsi.portal.update': {
     params: [id: number, iscsi_portal_update: IscsiPortalUpdate];
     response: ISCSIPortalEntry;
   };
 
-  /**
-   * Create an iSCSI Target.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'iscsi.target.create': {
     params: [iscsi_target_create: IscsiTargetCreate];
     response: ISCSITargetEntry;
   };
 
-  /**
-   * Delete iSCSI Target of ``id``.
-   *
-   * Deleting an iSCSI Target makes sure we delete all Associated Targets which use ``id`` iSCSI Target.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'iscsi.target.delete': {
     params: [id: number, force?: boolean, delete_extents?: boolean];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
   'iscsi.target.get_instance': {
     params: [id: number, options?: QueryOptions<ISCSITargetEntry>];
     response: ISCSITargetEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
   'iscsi.target.query': {
-    params: [filters?: QueryFilters<ISCSITargetEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ISCSITargetEntry>, options?: QueryOptionsModel];
     response: ISCSITargetEntry[] | ISCSITargetEntry | ISCSITargetQueryResultItem[] | ISCSITargetQueryResultItem | number;
   };
 
-  /**
-   * Update iSCSI Target of ``id``.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'iscsi.target.update': {
     params: [id: number, iscsi_target_update: IscsiTargetUpdate];
     response: ISCSITargetEntry;
   };
 
-  /**
-   * Return a validation error message for the given iSCSI target name or ``null`` if the name is valid.
-   * @roles SHARING_ISCSI_TARGET_WRITE
-   */
   'iscsi.target.validate_name': {
     params: [name: string, existing_id?: number | null];
     response: string | null;
   };
 
-  /**
-   * Create an Associated Target.
-   * @roles SHARING_ISCSI_TARGETEXTENT_WRITE
-   */
   'iscsi.targetextent.create': {
     params: [iscsi_target_to_extent_create: IscsiTargetToExtentCreate];
     response: ISCSITargetToExtentEntry;
   };
 
-  /**
-   * Delete Associated Target of ``id``.
-   * @roles SHARING_ISCSI_TARGETEXTENT_WRITE
-   */
   'iscsi.targetextent.delete': {
     params: [id: number, force?: boolean];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_TARGETEXTENT_READ
-   */
   'iscsi.targetextent.get_instance': {
     params: [id: number, options?: QueryOptions<ISCSITargetToExtentEntry>];
     response: ISCSITargetToExtentEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_TARGETEXTENT_READ
-   */
   'iscsi.targetextent.query': {
-    params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: QueryOptionsModel];
     response: ISCSITargetToExtentEntry[] | ISCSITargetToExtentEntry | ISCSITargetToExtentQueryResultItem[] | ISCSITargetToExtentQueryResultItem | number;
   };
 
-  /**
-   * Update Associated Target of ``id``.
-   * @roles SHARING_ISCSI_TARGETEXTENT_WRITE
-   */
   'iscsi.targetextent.update': {
     params: [id: number, iscsi_target_to_extent_update: IscsiTargetToExtentUpdate];
     response: ISCSITargetToExtentEntry;
   };
 
-  /**
-   * Create a Keychain Credential.
-   * @roles KEYCHAIN_CREDENTIAL_WRITE
-   */
   'keychaincredential.create': {
     params: [keychain_credential_create: KeychainCredentialCreateSSHKeyPairEntry | KeychainCredentialCreateSSHCredentialsEntry];
     response: SSHKeyPairEntry | SSHCredentialsEntry;
   };
 
-  /**
-   * Delete Keychain Credential with specific ``id``.
-   * @roles KEYCHAIN_CREDENTIAL_WRITE
-   */
   'keychaincredential.delete': {
     params: [id: number, options?: KeychainCredentialDeleteOptions];
     response: null;
   };
 
-  /**
-   * Generate a public/private key pair (useful for ``SSH_KEY_PAIR`` type).
-   * @roles KEYCHAIN_CREDENTIAL_WRITE
-   */
   'keychaincredential.generate_ssh_key_pair': {
     params: [];
     response: KeychainCredentialGenerateSshKeyPairResult;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.get_instance': {
     params: [id: number, options?: QueryOptions<KeychainCredentialEntry>];
     response: KeychainCredentialEntry;
   };
 
-  /**
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.query': {
-    params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptionsModel];
     response: KeychainCredentialEntry[] | KeychainCredentialEntry | KeychainCredentialQueryResultItem[] | KeychainCredentialQueryResultItem | number;
   };
 
-  /**
-   * Discover a remote host key (useful for ``SSH_CREDENTIALS``).
-   * @roles KEYCHAIN_CREDENTIAL_WRITE
-   */
   'keychaincredential.remote_ssh_host_key_scan': {
     params: [keychain_remote_ssh_host_key_scan: KeychainCredentialRemoteSshHostKeyScanArgs];
     response: string;
   };
 
-  /**
-   * Perform semi-automatic SSH connection setup with other TrueNAS machine.
-   *
-   * It creates an ``SSH_CREDENTIALS`` credential with specified ``name`` that can be used to connect to TrueNAS machine with specified ``url`` and temporary auth ``token``. Other TrueNAS machine adds ``private_key`` to allowed ``username``'s private keys. Other ``SSH_CREDENTIALS`` attributes such as ``connect_timeout`` can be specified as well.
-   * @roles KEYCHAIN_CREDENTIAL_WRITE
-   */
   'keychaincredential.remote_ssh_semiautomatic_setup': {
     params: [data: KeychainCredentialRemoteSSHSemiautomaticSetup];
     response: SSHCredentialsEntry;
   };
 
-  /**
-   * Create an SSH connection by performing the following steps:
-   *
-   * 1. Generate an SSH key pair if required.
-   * 2. Set up SSH credentials based on ``setup_type``.
-   *
-   * If step 2 fails, any SSH key pair generated in the process is removed.
-   * @roles KEYCHAIN_CREDENTIAL_WRITE
-   */
   'keychaincredential.setup_ssh_connection': {
     params: [options: SetupSSHConnectionManual | SetupSSHConnectionSemiautomatic];
     response: SSHCredentialsEntry;
   };
 
-  /**
-   * Update a Keychain Credential with specific ``id``.
-   *
-   * Please note that you can't change ``type``. You must specify full ``attributes`` value.
-   * @roles KEYCHAIN_CREDENTIAL_WRITE
-   */
   'keychaincredential.update': {
     params: [id: number, keychain_credential_update: KeychainCredentialUpdateSSHKeyPairEntry | KeychainCredentialUpdateSSHCredentialsEntry];
     response: SSHKeyPairEntry | SSHCredentialsEntry;
   };
 
-  /**
-   * Returns list of objects that use this credential.
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.used_by': {
     params: [id: number];
     response: UsedKeychainCredential[];
   };
 
-  /**
-   * Returns ip choices for NFS service to use.
-   * @roles READONLY_ADMIN, SHARING_NFS_READ
-   */
   'nfs.bindip_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * @roles SHARING_NFS_READ
-   */
   'nfs.config': {
     params: [];
     response: NFSEntry;
   };
 
-  /**
-   * Update the NFS service configuration.
-   *
-   * At least one protocol must remain enabled in ``protocols``; the ``showmount`` command is available only while NFSv3 is enabled. When ``servers`` is ``null``, the number of nfsd is determined automatically from the system's capabilities (between 1 and 32); otherwise it is set to the requested value (1 to 256). The number of mountd processes is always one quarter of the number of nfsd. When ``bindip`` is empty, NFS listens on all active server addresses. NFS over RDMA, enabled with ``rdma``, is only available on supported platforms with an RDMA-capable NIC and uses port 20049.
-   * @roles SHARING_NFS_WRITE
-   */
   'nfs.update': {
     params: [nfs_update?: NFSUpdateArgs];
     response: NFSEntry;
   };
 
-  /**
-   * Retrieve all dataset(s) details outlining any services/tasks which might be consuming them.
-   * @roles DATASET_READ
-   */
   'pool.dataset.details': {
     params: [];
     response: (Record<string, unknown>)[];
   };
 
-  /**
-   * Returns snapshot count for specified ``dataset``.
-   * @roles DATASET_READ
-   */
   'pool.dataset.snapshot_count': {
     params: [dataset: string];
     response: number;
   };
 
-  /**
-   * @roles POOL_READ
-   */
   'pool.resilver.config': {
     params: [];
     response: PoolResilverEntry;
   };
 
-  /**
-   * Configure Pool Resilver Priority.
-   *
-   * If ``begin`` time is greater than ``end`` time it means it will rollover the day, e.g. begin = "19:00", end = "05:00" will increase pool resilver priority from 19:00 of one day until 05:00 of the next day.
-   *
-   * ``weekday`` follows crontab(5) values 0-7 (0 or 7 is Sun).
-   *
-   * Enable pool resilver priority all business days from 7PM to 5AM::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "pool.resilver.update",
-   *         "params": [{
-   *             "enabled": true,
-   *             "begin": "19:00",
-   *             "end": "05:00",
-   *             "weekday": [1, 2, 3, 4, 5]
-   *         }]
-   *     }
-   * @roles POOL_WRITE
-   */
   'pool.resilver.update': {
     params: [data: PoolResilverUpdate];
     response: PoolResilverEntry;
   };
 
-  /**
-   * Create a scrub task for a pool.
-   *
-   * Create a scrub task for pool of id 1, to run every Sunday at 3AM with a threshold of 35 days::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "pool.scrub.create",
-   *         "params": [{
-   *             "pool": 1,
-   *             "threshold": 35,
-   *             "description": "Monthly scrub for tank",
-   *             "schedule": "0 3 * * 7",
-   *             "enabled": true
-   *         }]
-   *     }
-   * @roles POOL_SCRUB_WRITE
-   */
   'pool.scrub.create': {
     params: [data: PoolScrubCreate];
     response: PoolScrubEntry;
   };
 
-  /**
-   * Delete scrub task of ``id``.
-   * @roles POOL_SCRUB_WRITE
-   */
   'pool.scrub.delete': {
     params: [id_: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles POOL_SCRUB_READ
-   */
   'pool.scrub.get_instance': {
     params: [id: number, options?: QueryOptions<PoolScrubEntry>];
     response: PoolScrubEntry;
   };
 
-  /**
-   * @roles POOL_SCRUB_READ
-   */
   'pool.scrub.query': {
-    params: [filters?: QueryFilters<PoolScrubEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<PoolScrubEntry>, options?: QueryOptionsModel];
     response: PoolScrubEntry[] | PoolScrubEntry | PoolScrubQueryResultItem[] | PoolScrubQueryResultItem | number;
   };
 
-  /**
-   * Initiate a scrub of pool ``name`` if the most recent scrub finished more than ``threshold`` days ago. Does nothing if the scrub is not yet due or if this node is not the active controller on an HA system.
-   *
-   * .. deprecated:: 26.0.0
-   *     Use :doc:`zpool.scrub.run <api_methods_zpool.scrub.run>` instead.
-   * @roles POOL_WRITE
-   */
   'pool.scrub.run': {
     params: [name: string, threshold?: number];
     response: null;
   };
 
-  /**
-   * Update scrub task of ``id``.
-   * @roles POOL_SCRUB_WRITE
-   */
   'pool.scrub.update': {
     params: [id_: number, data: PoolScrubUpdate];
     response: PoolScrubEntry;
   };
 
-  /**
-   * Create a periodic snapshot task.
-   *
-   * Snapshots are automatically destroyed after their configured lifetime. If multiple periodic tasks create a snapshot at the same time (for example, an hourly and a daily task at 00:00), the snapshot is kept until the last of those tasks reaches its expiry time.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'pool.snapshottask.create': {
     params: [data: PoolSnapshotTaskCreate];
     response: PeriodicSnapshotTaskEntry;
   };
 
-  /**
-   * Delete a Periodic Snapshot Task with specific ``id``.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'pool.snapshottask.delete': {
     params: [id: number, options?: PoolSnapshotTaskDeleteOptions];
     response: true;
   };
 
-  /**
-   * Returns a list of snapshots which will change the retention if periodic snapshot task ``id`` is deleted.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'pool.snapshottask.delete_will_change_retention_for': {
     params: [id: number];
     response: Record<string, string[]>;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'pool.snapshottask.get_instance': {
     params: [id: number, options?: QueryOptions<PeriodicSnapshotTaskEntry>];
     response: PeriodicSnapshotTaskEntry;
   };
 
-  /**
-   * Returns a maximum amount of snapshots (per-dataset) the system can sustain.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'pool.snapshottask.max_count': {
     params: [];
     response: number;
   };
 
-  /**
-   * Returns a maximum amount of snapshots (total) the system can sustain.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'pool.snapshottask.max_total_count': {
     params: [];
     response: number;
   };
 
-  /**
-   * @roles SNAPSHOT_TASK_READ
-   */
   'pool.snapshottask.query': {
-    params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptionsModel];
     response: PeriodicSnapshotTaskEntry[] | PeriodicSnapshotTaskEntry | PeriodicSnapshotTaskQueryResultItem[] | PeriodicSnapshotTaskQueryResultItem | number;
   };
 
-  /**
-   * Update a Periodic Snapshot Task with specific ``id``.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'pool.snapshottask.update': {
     params: [id: number, data: PoolSnapshotTaskUpdate];
     response: PeriodicSnapshotTaskEntry;
   };
 
-  /**
-   * Returns a list of snapshots which will change the retention if periodic snapshot task ``id`` is updated with ``data``.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'pool.snapshottask.update_will_change_retention_for': {
     params: [id: number, data: PoolSnapshotTaskUpdateWillChangeRetentionFor];
     response: Record<string, string[]>;
   };
 
-  /**
-   * Create a privilege.
-   * @roles PRIVILEGE_WRITE
-   */
   'privilege.create': {
     params: [privilege_create: PrivilegeCreate];
     response: PrivilegeEntry;
   };
 
-  /**
-   * Delete the privilege ``id``.
-   * @roles PRIVILEGE_WRITE
-   */
   'privilege.delete': {
     params: [id: number];
     response: boolean;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles PRIVILEGE_READ
-   */
   'privilege.get_instance': {
     params: [id: number, options?: QueryOptions<PrivilegeEntry>];
     response: PrivilegeEntry;
   };
 
-  /**
-   * @roles PRIVILEGE_READ
-   */
   'privilege.query': {
-    params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptionsModel];
     response: PrivilegeEntry[] | PrivilegeEntry | PrivilegeQueryResultItem[] | PrivilegeQueryResultItem | number;
   };
 
-  /**
-   * Get all available roles.
-   */
   'privilege.roles': {
-    params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: QueryOptionsModel];
     response: PrivilegeRolesEntry[] | PrivilegeRolesEntry | PrivilegeRolesQueryResultItem[] | PrivilegeRolesQueryResultItem | number;
   };
 
-  /**
-   * Update the privilege ``id``.
-   * @roles PRIVILEGE_WRITE
-   */
   'privilege.update': {
     params: [id: number, privilege_update: PrivilegeUpdate];
     response: PrivilegeEntry;
   };
 
-  /**
-   * Return the list of RDMA-capable protocols supported by this system.
-   *
-   * Possible values are ``NFS``, ``ISER``, and ``NVMET``. An empty array is returned when the system is not enterprise, is a MINI, or has no RDMA-capable network cards installed.
-   * @roles NETWORK_INTERFACE_READ
-   */
   'rdma.capable_protocols': {
     params: [];
     response: ('ISER' | 'NFS')[];
   };
 
-  /**
-   * Return an array containing details about each RDMA card. Dual cards will contain two RDMA links.
-   * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN
-   */
   'rdma.get_card_choices': {
     params: [];
     response: RdmaCardConfig[];
   };
 
-  /**
-   * @roles REPORTING_READ
-   */
   'reporting.config': {
     params: [];
     response: ReportingEntry;
   };
 
-  /**
-   * Create a specific reporting exporter configuration containing required details for exporting reporting metrics.
-   * @roles REPORTING_WRITE
-   */
   'reporting.exporters.create': {
     params: [reporting_exporter_create: ReportingExportsCreateArgs];
     response: ReportingExportsEntry;
   };
 
-  /**
-   * Delete Reporting Exporter of ``id``.
-   * @roles REPORTING_WRITE
-   */
   'reporting.exporters.delete': {
     params: [id: number];
     response: boolean;
   };
 
-  /**
-   * Get the schemas for all the reporting export types we support with their respective attributes required for successfully exporting reporting metrics to them.
-   * @roles REPORTING_READ
-   */
   'reporting.exporters.exporter_schemas': {
     params: [];
     response: ReportingExporterSchema[];
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles REPORTING_READ
-   */
   'reporting.exporters.get_instance': {
     params: [id: number, options?: QueryOptions<ReportingExportsEntry>];
     response: ReportingExportsEntry;
   };
 
-  /**
-   * @roles REPORTING_READ
-   */
   'reporting.exporters.query': {
-    params: [filters?: QueryFilters<ReportingExportsEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ReportingExportsEntry>, options?: QueryOptionsModel];
     response: ReportingExportsEntry[] | ReportingExportsEntry | ReportingExportsQueryResultItem[] | ReportingExportsQueryResultItem | number;
   };
 
-  /**
-   * Update Reporting Exporter of ``id``.
-   * @roles REPORTING_WRITE
-   */
   'reporting.exporters.update': {
     params: [id: number, reporting_exporter_update: ReportingExporterUpdate];
     response: ReportingExportsEntry;
   };
 
-  /**
-   * Get reporting data for ``name`` graph.
-   * @roles REPORTING_READ
-   */
   'reporting.netdata_graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
   };
 
-  /**
-   * Update reporting configuration settings.
-   * @roles REPORTING_WRITE
-   */
   'reporting.update': {
     params: [reporting_update?: ReportingUpdateArgs];
     response: ReportingEntry;
   };
 
-  /**
-   * Create a NFS Share.
-   * @roles SHARING_NFS_WRITE
-   */
   'sharing.nfs.create': {
     params: [data: NfsShareCreate];
     response: SharingNFSEntry;
   };
 
-  /**
-   * Delete NFS Share of ``id``.
-   * @roles SHARING_NFS_WRITE
-   */
   'sharing.nfs.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_NFS_READ
-   */
   'sharing.nfs.get_instance': {
     params: [id: number, options?: QueryOptions<SharingNFSEntry>];
     response: SharingNFSEntry;
   };
 
-  /**
-   * @roles SHARING_NFS_READ
-   */
   'sharing.nfs.query': {
-    params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptionsModel];
     response: SharingNFSEntry[] | SharingNFSEntry | SharingNFSQueryResultItem[] | SharingNFSQueryResultItem | number;
   };
 
-  /**
-   * Update NFS Share of ``id``.
-   * @roles SHARING_NFS_WRITE
-   */
   'sharing.nfs.update': {
     params: [id: number, data: NfsShareUpdate];
     response: SharingNFSEntry;
   };
 
-  /**
-   * Retrieve the share-level ACL for the SMB share named ``share_name``.
-   *
-   * This is the access control list enforced by the SMB protocol on connections to the share; it is distinct from the filesystem ACL on the share ``path``. Each entry's SID is resolved to a Unix ID and name where possible. The special share name ``HOMES`` refers to the auto-generated home-directory share.
-   *
-   * A JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned when the named share does not exist.
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.getacl': {
     params: [smb_getacl: SharingSMBGetaclArgs];
     response: SMBShareAcl;
   };
 
-  /**
-   * Retrieve pre-defined configuration sets for specific use-cases. These parameter combinations are often non-obvious, but beneficial in these scenarios.
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.presets': {
     params: [];
     response: Record<string, Record<string, unknown>>;
   };
 
-  /**
-   * Set an ACL on ``share_name``. This only impacts access through the SMB protocol.
-   * @roles SHARING_SMB_WRITE
-   */
   'sharing.smb.setacl': {
     params: [smb_setacl: SharingSMBSetaclArgs];
     response: SMBShareAcl;
   };
 
-  /**
-   * List of valid choices for IP addresses to which to bind the SMB service. Addresses assigned by DHCP are excluded from the results.
-   * @roles READONLY_ADMIN, SHARING_SMB_READ
-   */
   'smb.bindip_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * @roles SHARING_SMB_READ
-   */
   'smb.config': {
     params: [];
     response: SMBEntry;
   };
 
-  /**
-   * Return the available UNIX character set choices for the ``unixcharset`` field in the SMB service configuration.
-   * @roles READONLY_ADMIN, SHARING_SMB_READ
-   */
   'smb.unixcharset_choices': {
     params: [];
     response: Record<string, 'UTF-8' | 'GB2312' | 'HZ-GB-2312' | 'CP1361' | 'BIG5' | 'BIG5HKSCS' | 'CP037' | 'CP273' | 'CP424' | 'CP437' | 'CP500' | 'CP775' | 'CP850' | 'CP852' | 'CP855' | 'CP857' | 'CP858' | 'CP860' | 'CP861' | 'CP862' | 'CP863' | 'CP864' | 'CP865' | 'CP866' | 'CP869' | 'CP932' | 'CP949' | 'CP950' | 'CP1026' | 'CP1125' | 'CP1140' | 'CP1250' | 'CP1251' | 'CP1252' | 'CP1253' | 'CP1254' | 'CP1255' | 'CP1256' | 'CP1257' | 'CP1258' | 'EUC_JIS_2004' | 'EUC_JISX0213' | 'EUC_JP' | 'EUC_KR' | 'GB18030' | 'GBK' | 'HZ' | 'ISO2022_JP' | 'ISO2022_JP_1' | 'ISO2022_JP_2' | 'ISO2022_JP_2004' | 'ISO2022_JP_3' | 'ISO2022_JP_EXT' | 'ISO2022_KR' | 'ISO8859_1' | 'ISO8859_2' | 'ISO8859_3' | 'ISO8859_4' | 'ISO8859_5' | 'ISO8859_6' | 'ISO8859_7' | 'ISO8859_8' | 'ISO8859_9' | 'ISO8859_10' | 'ISO8859_11' | 'ISO8859_13' | 'ISO8859_14' | 'ISO8859_15' | 'ISO8859_16' | 'JOHAB' | 'KOI8_R' | 'KZ1048' | 'LATIN_1' | 'MAC_CYRILLIC' | 'MAC_GREEK' | 'MAC_ICELAND' | 'MAC_LATIN2' | 'MAC_ROMAN' | 'MAC_TURKISH' | 'PTCP154' | 'SHIFT_JIS' | 'SHIFT_JIS_2004' | 'SHIFT_JISX0213' | 'TIS_620' | 'UTF_16' | 'UTF_16_BE' | 'UTF_16_LE'>;
   };
 
-  /**
-   * Update the SMB service configuration.
-   *
-   * The group specified as the SMB ``admin_group`` is automatically added as a foreign group member of ``S-1-5-32-544`` (the builtin administrators group), affording the group all privileges granted to a local administrator. Any SMB group may be selected, including Active Directory groups.
-   *
-   * Mandatory SMB encryption (``encryption`` set to ``REQUIRED``) is not compatible with ``SMB1`` server support.
-   *
-   * .. note::
-   *
-   *     ``workgroup`` and ``netbiosname`` must have different values.
-   *
-   * .. important::
-   *
-   *     ``smb_options`` are raw ``smb.conf`` parameters that are not covered by the supported configuration
-   *     options. Not all options are tested or supported, and their behavior may change between releases.
-   *     Stability of ``smb.conf`` options is not guaranteed.
-   * @roles SHARING_SMB_WRITE
-   */
   'smb.update': {
     params: [smb_update?: SMBUpdateArgs];
     response: SMBEntry;
   };
 
-  /**
-   * @roles SYSTEM_GENERAL_READ
-   */
   'snmp.config': {
     params: [];
     response: SNMPEntry;
   };
 
-  /**
-   * Update SNMP Service Configuration.
-   *
-   * The ``v3_*`` settings are valid and enforced only when ``v3`` is enabled.
-   *
-   * Enabling ``v3`` requires ``v3_username``, ``v3_authtype``, and ``v3_password``. Disabling ``v3`` alone retains the v3 user settings in the private config but removes the public config entry, blocking v3 access. Disabling ``v3`` and clearing ``v3_username`` additionally removes the user from the private config.
-   * @roles SYSTEM_GENERAL_WRITE
-   */
   'snmp.update': {
     params: [snmp_update?: SNMPUpdateArgs];
     response: SNMPEntry;
   };
 
-  /**
-   * Create a Static Route.
-   *
-   * Address families of ``gateway`` and ``destination`` should match when creating a static route.
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'staticroute.create': {
     params: [data: StaticRouteCreate];
     response: StaticRouteEntry;
   };
 
-  /**
-   * Delete Static Route of ``id``.
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'staticroute.delete': {
     params: [id: number];
     response: boolean;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles NETWORK_INTERFACE_READ
-   */
   'staticroute.get_instance': {
     params: [id: number, options?: QueryOptions<StaticRouteEntry>];
     response: StaticRouteEntry;
   };
 
-  /**
-   * @roles NETWORK_INTERFACE_READ
-   */
   'staticroute.query': {
-    params: [filters?: QueryFilters<StaticRouteEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<StaticRouteEntry>, options?: QueryOptionsModel];
     response: StaticRouteEntry[] | StaticRouteEntry | StaticRouteQueryResultItem[] | StaticRouteQueryResultItem | number;
   };
 
-  /**
-   * Update Static Route of ``id``.
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'staticroute.update': {
     params: [id: number, data: StaticRouteUpdate];
     response: StaticRouteEntry;
   };
 
-  /**
-   * Return a dictionary whose keys represent the ISO 3166-1 alpha 2 country code and values represent the English short name (used in ISO 3166/MA).
-   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
-   */
   'system.general.country_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Add an NTP Server.
-   * @roles NETWORK_GENERAL_WRITE
-   */
   'system.ntpserver.create': {
     params: [ntp_server_create: NTPServerCreate];
     response: NTPServerEntry;
   };
 
-  /**
-   * Delete NTP server of ``id``.
-   * @roles NETWORK_GENERAL_WRITE
-   */
   'system.ntpserver.delete': {
     params: [id: number];
     response: true;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles NETWORK_GENERAL_READ
-   */
   'system.ntpserver.get_instance': {
     params: [id: number, options?: QueryOptions<NTPServerEntry>];
     response: NTPServerEntry;
   };
 
-  /**
-   * @roles NETWORK_GENERAL_READ
-   */
   'system.ntpserver.query': {
-    params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptionsModel];
     response: NTPServerEntry[] | NTPServerEntry | NTPServerQueryResultItem[] | NTPServerQueryResultItem | number;
   };
 
-  /**
-   * Update NTP server of ``id``.
-   * @roles NETWORK_GENERAL_WRITE
-   */
   'system.ntpserver.update': {
     params: [id: number, ntp_server_update: NTPServerUpdate];
     response: NTPServerEntry;
   };
 
-  /**
-   * Return information about whether the system requires a reboot, including the current boot session identifier and the list of pending reasons a reboot is required (for example, a FIPS or STIG configuration change or a pending system upgrade). An empty list of reasons indicates no reboot is currently required.
-   *
-   * The :doc:`system.reboot.info <api_methods_system.reboot.info>` event is emitted whenever this information changes.
-   * @roles SYSTEM_GENERAL_READ
-   */
   'system.reboot.info': {
     params: [];
     response: RebootInfo;
   };
 
-  /**
-   * @roles SYSTEM_SECURITY_READ
-   */
   'system.security.config': {
     params: [];
     response: SystemSecurityEntry;
   };
 
-  /**
-   * Returns a boolean identifying whether FIPS mode may be toggled on this system.
-   * @roles SYSTEM_SECURITY_READ
-   */
   'system.security.info.fips_available': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Returns a boolean identifying whether FIPS mode has been enabled on this system.
-   * @roles SYSTEM_SECURITY_READ
-   */
   'system.security.info.fips_enabled': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * @roles TRUENAS_CONNECT_READ
-   */
   'tn_connect.config': {
     params: [];
     response: TrueNASConnectEntry;
   };
 
-  /**
-   * Generate a claim token for TrueNAS Connect.
-   *
-   * This is used to claim the system with TrueNAS Connect. When this endpoint will be called, a token will be generated which will be used to assist with initial setup with truenas connect.
-   * @roles TRUENAS_CONNECT_WRITE
-   */
   'tn_connect.generate_claim_token': {
     params: [];
     response: string;
   };
 
-  /**
-   * Return the registration URI for TrueNAS Connect.
-   *
-   * Before this endpoint is called, tn_connect must be enabled and a claim token must be generated - based off which this endpoint will return the registration URI for TrueNAS Connect.
-   * @roles TRUENAS_CONNECT_READ
-   */
   'tn_connect.get_registration_uri': {
     params: [];
     response: string;
   };
 
-  /**
-   * Update TrueNAS Connect configuration.
-   * @roles TRUENAS_CONNECT_WRITE
-   */
   'tn_connect.update': {
     params: [tn_connect_update?: TrueNASConnectUpdateArgs];
     response: TrueNASConnectEntry;
   };
 
-  /**
-   * Accept TrueNAS EULA.
-   * @roles FULL_ADMIN
-   */
   'truenas.accept_eula': {
     params: [];
     response: null;
   };
 
-  /**
-   * Returns what type of hardware this is, detected from SMBIOS strings.
-   * @roles READONLY_ADMIN
-   */
   'truenas.get_chassis_hardware': {
     params: [];
     response: string;
   };
 
-  /**
-   * Returns the TrueNAS End-User License Agreement (EULA).
-   * @roles READONLY_ADMIN
-   */
   'truenas.get_eula': {
     params: [];
     response: string | null;
   };
 
-  /**
-   * Returns whether the EULA is accepted or not.
-   * @roles READONLY_ADMIN
-   */
   'truenas.is_eula_accepted': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Return a boolean value on whether this is hardware that iXsystems sells.
-   * @roles READONLY_ADMIN
-   */
   'truenas.is_ix_hardware': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Returns if system is marked as production.
-   * @roles READONLY_ADMIN
-   */
   'truenas.is_production': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Returns whether TrueNAS is being managed by TrueCommand.
-   */
   'truenas.managed_by_truecommand': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Create a new user.
-   * @roles ACCOUNT_WRITE
-   */
   'user.create': {
     params: [user_create: UserCreate];
     response: UserCreateUpdateResult;
   };
 
-  /**
-   * Delete user ``id``.
-   * @roles ACCOUNT_WRITE
-   */
   'user.delete': {
     params: [id: number, options?: UserDeleteOptions];
     response: number;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles ACCOUNT_READ
-   */
   'user.get_instance': {
     params: [id: number, options?: QueryOptions<UserEntry>];
     response: UserEntry;
   };
 
-  /**
-   * Get the next available/free uid.
-   * @roles ACCOUNT_READ
-   */
   'user.get_next_uid': {
     params: [];
     response: number;
   };
 
-  /**
-   * Returns dictionary containing information from struct passwd for the user specified by either the ``username`` or ``uid``. Bypasses user cache.
-   *
-   * .. note::
-   *
-   *     Results will not include nested groups for Active Directory users.
-   * @roles ACCOUNT_READ
-   */
   'user.get_user_obj': {
     params: [get_user_obj?: UserGetUserObjArgs];
     response: UserGetUserObjResult;
   };
 
-  /**
-   * Return whether a local administrator with a valid password exists.
-   *
-   * This is used when the system is installed without a password and must be set on first use/login.
-   */
   'user.has_local_administrator_set_up': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Query users with `query-filters` and `query-options`.
-   *
-   * If users provided by Active Directory or LDAP are not desired, then "local", "=", True should be added to filters.
-   * @roles ACCOUNT_READ
-   */
   'user.query': {
-    params: [filters?: QueryFilters<UserEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<UserEntry>, options?: QueryOptionsModel];
     response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
   };
 
-  /**
-   * Renew ``username`` user's two-factor authentication secret.
-   *
-   * .. note::
-   *
-   *     This username must match the authenticated username unless authenticated
-   *     credentials have the ``FULL_ADMIN`` role.
-   */
   'user.renew_2fa_secret': {
     params: [username: string, twofactor_options: TwofactorOptions];
     response: UserRenew2FaSecretResult;
   };
 
-  /**
-   * Set the password of the specified ``username`` to the ``new_password`` specified in payload.
-   *
-   * A JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned in the following situations:
-   *
-   * - the user does not exist
-   * - the account is not local to the NAS (Active Directory, LDAP, etc.)
-   * - the account has password authentication disabled
-   * - the account is locked
-   *
-   * .. note::
-   *
-   *     When the authenticated session has less than the ``FULL_ADMIN`` role, password changes
-   *     will be rejected if the payload does not match the currently-authenticated user. Users
-   *     authenticated with a one-time password are exempt and may change the password without
-   *     submitting it a second time.
-   */
   'user.set_password': {
     params: [set_password_data: UserSetPasswordArgs];
     response: null;
   };
 
-  /**
-   * Set up local administrator (this method does not require authentication if local administrator is not already set up).
-   */
   'user.setup_local_administrator': {
     params: [username: Username, password: string, options?: UserSetupLocalAdministratorOptions];
     response: null;
   };
 
-  /**
-   * Return the available shell choices to be used in :doc:`user.create <api_methods_user.create>` and :doc:`user.update <api_methods_user.update>`.
-   * @roles ACCOUNT_READ, READONLY_ADMIN
-   */
   'user.shell_choices': {
     params: [group_ids?: number[]];
     response: Record<string, unknown>;
   };
 
-  /**
-   * Unset two-factor authentication secret for ``username``.
-   * @roles ACCOUNT_WRITE
-   */
   'user.unset_2fa_secret': {
     params: [username: string];
     response: null;
   };
 
-  /**
-   * Update attributes of an existing user.
-   * @roles ACCOUNT_WRITE
-   */
   'user.update': {
     params: [id: number, user_update: UserUpdate];
     response: UserCreateUpdateResult;
   };
 
-  /**
-   * Return predefined CSR profiles for common certificate types.
-   *
-   * Each profile provides recommended defaults for key type, key length or curve, lifetime, digest algorithm, and X.509 extensions (basic constraints, key usage, extended key usage).
-   * @roles CERTIFICATE_READ
-   */
   'webui.crypto.csr_profiles': {
     params: [];
     response: CSRProfilesModel;
   };
 
-  /**
-   * This endpoint is used by the webUI for the enclosure dashboard page for TrueNAS sold hardware.
-   *
-   * An example of what this returns looks like the following (some redundant information cut out for brevity)::
-   *
-   *     [{
-   *         "name": "iX 4024Sp c205",
-   *         "model": "M40",
-   *         "controller": true,
-   *         "dmi": "TRUENAS-M40-HA",
-   *         "status": ["OK"],
-   *         "id": "5b0bd6d1a30714bf",
-   *         "vendor": "iX",
-   *         "product": "4024Sp",
-   *         "revision": "c205",
-   *         "bsg": "/dev/bsg/0:0:23:0",
-   *         "sg": "/dev/sg25",
-   *         "pci": "0:0:23:0",
-   *         "rackmount": true,
-   *         "top_loaded": false,
-   *         "front_slots": 24,
-   *         "rear_slots": 0,
-   *         "internal_slots": 0,
-   *         "elements": {
-   *             "Array Device Slot": {
-   *                 "1": {
-   *                     "descriptor": "slot00",
-   *                     "status": "OK",
-   *                     "dev": "sda",
-   *                     "supports_identify_light": true,
-   *                     "name": "sda",
-   *                     "size": 12000138625024,
-   *                     "model": "HUH721212AL4200",
-   *                     "serial": "XXXXX",
-   *                     "advpowermgmt": "DISABLED",
-   *                     "transfermode": "Auto",
-   *                     "hddstandby": "ALWAYS ON",
-   *                     "description": "",
-   *                     "rotationrate": 7200,
-   *                     "pool_info": {
-   *                         "pool_name": "test",
-   *                         "disk_status": "ONLINE",
-   *                         "disk_read_errors": 0,
-   *                         "disk_write_errors": 0,
-   *                         "disk_checksum_errors": 0,
-   *                         "vdev_name": "mirror-0",
-   *                         "vdev_type": "data",
-   *                         "vdev_disks": [
-   *                             {
-   *                                 "enclosure_id": "5b0bd6d1a30714bf",
-   *                                 "slot": 1,
-   *                                 "dev": "sda"
-   *                             },
-   *                             {
-   *                                 "enclosure_id": "5b0bd6d1a30714bf",
-   *                                 "slot": 2,
-   *                                 "dev": "sdb"
-   *                             },
-   *                             {
-   *                                 "enclosure_id": "5b0bd6d1a30714bf",
-   *                                 "slot": 3,
-   *                                 "dev": "sdc"
-   *                             }
-   *                         ]
-   *                     }
-   *                 }
-   *             }
-   *         }
-   *     }]
-   * @roles ENCLOSURE_READ
-   */
   'webui.enclosure.dashboard': {
     params: [];
     response: (Record<string, unknown>)[];
   };
 
-  /**
-   * This endpoint was designed to be exclusively consumed by the webUI. This is what makes up the System Information card on the main dashboard after a user logs in.
-   * @roles READONLY_ADMIN
-   */
   'webui.main.dashboard.sys_info': {
     params: [];
     response: SysInfo;

@@ -11,103 +11,44 @@ import type {
 } from '../shared/query-types';
 
 import type {
+  ACLTemplateByPathArgs,
   ACLTemplateQueryResultItem,
-  AlertServiceEntry,
-  AlertServiceQueryResultItem,
-  ApiKeyEntry,
-  ApiKeyQueryResultItem,
-  AppEntry,
-  AppImageEntry,
-  AppImageQueryResultItem,
-  AppQueryResultItem,
-  AppRegistryEntry,
-  AppRegistryQueryResultItem,
-  AppsIxVolumeEntry,
-  AppsIxVolumeQueryResultItem,
-  AuthSessionsEntry,
-  AuthSessionsQueryResultItem,
-  AzureBlobCredentialsModelInput2,
-  B2CredentialsModelInput2,
-  BootEnvironmentEntry,
-  BootEnvironmentQueryResultItem,
-  BoxCredentialsModelInput2,
+  AzureBlobCredentialsModel,
+  B2CredentialsModel,
+  BoxCredentialsModel,
   CloudBackupCreate,
   CloudBackupQueryResultItem,
   CloudBackupUpdate,
   CredentialsQueryResultItem,
   CredentialsVerifyResult,
-  CronJobEntry,
-  CronJobQueryResultItem,
   DISABLED_ACLResult,
-  DNSAuthenticatorEntry,
-  DNSAuthenticatorQueryResultItem,
   DeviceGetInfoDisk,
-  DockerNetworkEntry,
-  DockerNetworkQueryResultItem,
-  DropboxCredentialsModelInput2,
-  FCHostEntry,
-  FCHostQueryResultItem,
-  FCPortEntry,
-  FCPortQueryResultItem,
-  FTPCredentialsModelInput2,
+  DropboxCredentialsModel,
+  FTPCredentialsModel,
   FilesystemDirQueryResultItem,
   FilesystemMkdirArgs,
   GPUInfo,
-  GoogleCloudStorageCredentialsModelInput2,
-  GoogleDriveCredentialsModelInput2,
-  GooglePhotosCredentialsModelInput2,
-  GroupGetGroupObjArgs,
-  GroupQueryResultItem,
-  HTTPCredentialsModelInput2,
-  HubicCredentialsModelInput2,
-  ISCSIPortalEntry,
-  ISCSIPortalQueryResultItem,
-  ISCSITargetAuthCredentialEntry,
-  ISCSITargetAuthCredentialQueryResultItem,
-  ISCSITargetAuthorizedInitiatorEntry,
-  ISCSITargetAuthorizedInitiatorQueryResultItem,
-  ISCSITargetEntry,
+  GoogleCloudStorageCredentialsModel,
+  GoogleDriveCredentialsModel,
+  GooglePhotosCredentialsModel,
+  HTTPCredentialsModel,
+  HubicCredentialsModel,
   ISCSITargetExtentQueryResultItem,
-  ISCSITargetQueryResultItem,
-  ISCSITargetToExtentEntry,
-  ISCSITargetToExtentQueryResultItem,
   InitShutdownScriptQueryResultItem,
-  IscsiSession,
-  IscsiSessionQueryResultItem,
   KeychainCredentialQueryResultItem,
-  NTPServerEntry,
-  NTPServerQueryResultItem,
-  OneDriveCredentialsModelInput2,
-  PCloudCredentialsModelInput2,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
   POSIXACLResult,
-  PeriodicSnapshotTaskEntry,
-  PeriodicSnapshotTaskQueryResultItem,
-  PoolScrubEntry,
-  PoolScrubQueryResultItem,
-  PrivilegeQueryResultItem,
-  PrivilegeRolesEntry,
-  PrivilegeRolesQueryResultItem,
-  ReportingExportsEntry,
-  ReportingExportsQueryResultItem,
+  QueryOptionsModel,
   S3CredentialsModelInput2,
-  SFTPCredentialsModelInput2,
+  SFTPCredentialsModel,
   SerialInfo,
-  SharingNFSEntry,
-  SharingNFSQueryResultItem,
-  StaticRouteEntry,
-  StaticRouteQueryResultItem,
-  SwiftCredentialsModelInput2,
-  UserQueryResultItem,
-  WebDavCredentialsModelInput2,
-  YandexCredentialsModelInput2,
+  StorjIxCredentialsModelInput,
+  SwiftCredentialsModel,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
 } from '../v25_04_0/api-types';
 import type {
-  GroupEntry,
-  PrivilegeEntry,
-  UserEntry,
-} from '../v25_04_1/api-types';
-import type {
-  ACLTemplateByPathArgs,
   ACLTemplateEntry,
   AclTemplateCreate,
   AclTemplateUpdate,
@@ -121,7 +62,6 @@ import type {
   FilesystemDirEntry,
   FilesystemStatData,
   GroupCreate,
-  GroupGetGroupObjResult,
   GroupUpdate,
   ISCSITargetExtentEntry,
   InitShutdownScriptCreate,
@@ -131,8 +71,6 @@ import type {
   IscsiExtentUpdate,
   KeychainCredentialEntry,
   NFS4ACLResult,
-  QueryOptionsModel2,
-  StorjIxCredentialsModelInput2,
   VMBootloaderOptionsResult,
   VMCreateArgs,
   VMDeleteOptions,
@@ -157,952 +95,321 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiCallDirectoryDelta {
-  /**
-   * @roles NETWORK_INTERFACE_READ
-   */
-  'acme.dns.authenticator.query': {
-    params: [filters?: QueryFilters<DNSAuthenticatorEntry>, options?: QueryOptionsModel2];
-    response: DNSAuthenticatorEntry[] | DNSAuthenticatorEntry | DNSAuthenticatorQueryResultItem[] | DNSAuthenticatorQueryResultItem | number;
-  };
-
-  /**
-   * @roles ALERT_READ
-   */
-  'alertservice.query': {
-    params: [filters?: QueryFilters<AlertServiceEntry>, options?: QueryOptionsModel2];
-    response: AlertServiceEntry[] | AlertServiceEntry | AlertServiceQueryResultItem[] | AlertServiceQueryResultItem | number;
-  };
-
-  /**
-   * @roles API_KEY_READ
-   */
-  'api_key.query': {
-    params: [filters?: QueryFilters<ApiKeyEntry>, options?: QueryOptionsModel2];
-    response: ApiKeyEntry[] | ApiKeyEntry | ApiKeyQueryResultItem[] | ApiKeyQueryResultItem | number;
-  };
-
-  /**
-   * Query all docker images with ``query-filters`` and ``query-options``.
-   *
-   * The following ``query-options.extra`` options are supported:
-   *
-   * ``parse_tags`` *(bool)*:
-   *     Include normalized tags on each entry.
-   * @roles APPS_READ
-   */
-  'app.image.query': {
-    params: [filters?: QueryFilters<AppImageEntry>, options?: QueryOptionsModel2];
-    response: AppImageEntry[] | AppImageEntry | AppImageQueryResultItem[] | AppImageQueryResultItem | number;
-  };
-
-  /**
-   * Query ix-volumes with `filters` and `options`.
-   * @roles APPS_READ
-   */
-  'app.ix_volume.query': {
-    params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: QueryOptionsModel2];
-    response: AppsIxVolumeEntry[] | AppsIxVolumeEntry | AppsIxVolumeQueryResultItem[] | AppsIxVolumeQueryResultItem | number;
-  };
-
-  /**
-   * Query all apps with ``query-filters`` and ``query-options``.
-   *
-   * The following ``query-options.extra`` options are supported:
-   *
-   * ``host_ip`` *(str)*:
-   *     Override the portal IP address when it is a wildcard.
-   *
-   * ``include_app_schema`` *(bool)*:
-   *     Include the app schema in the response.
-   *
-   * ``retrieve_config`` *(bool)*:
-   *     Include the app configuration used to install or manage the app.
-   * @roles APPS_READ
-   */
-  'app.query': {
-    params: [filters?: QueryFilters<AppEntry>, options?: QueryOptionsModel2];
-    response: AppEntry[] | AppEntry | AppQueryResultItem[] | AppQueryResultItem | number;
-  };
-
-  /**
-   * @roles APPS_READ
-   */
-  'app.registry.query': {
-    params: [filters?: QueryFilters<AppRegistryEntry>, options?: QueryOptionsModel2];
-    response: AppRegistryEntry[] | AppRegistryEntry | AppRegistryQueryResultItem[] | AppRegistryQueryResultItem | number;
-  };
-
-  /**
-   * Returns a list of active auth sessions.
-   *
-   * The ``credentials_data`` object varies by ``credentials`` type: password and socket sessions include ``username``; API key sessions additionally include ``api_key`` (id and name); token sessions include ``parent`` (the originating credential) and optionally ``username``.
-   *
-   * Example::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "auth.sessions",
-   *         "params": []
-   *     }
-   * @roles AUTH_SESSIONS_READ
-   */
-  'auth.sessions': {
-    params: [filters?: QueryFilters<AuthSessionsEntry>, options?: QueryOptionsModel2];
-    response: AuthSessionsEntry[] | AuthSessionsEntry | AuthSessionsQueryResultItem[] | AuthSessionsQueryResultItem | number;
-  };
-
-  /**
-   * @roles BOOT_ENV_READ
-   */
-  'boot.environment.query': {
-    params: [filters?: QueryFilters<BootEnvironmentEntry>, options?: QueryOptionsModel2];
-    response: BootEnvironmentEntry[] | BootEnvironmentEntry | BootEnvironmentQueryResultItem[] | BootEnvironmentQueryResultItem | number;
-  };
-
-  /**
-   * Create a new cloud backup task.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.create': {
     params: [cloud_backup: CloudBackupCreate];
     response: CloudBackupEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.get_instance': {
     params: [id: number, options?: QueryOptions<CloudBackupEntry>];
     response: CloudBackupEntry;
   };
 
-  /**
-   * List files in the directory ``path`` of the ``snapshot_id`` created by the cloud backup job ``id``.
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.list_snapshot_directory': {
     params: [id: number, snapshot_id: string, path: string];
     response: CloudBackupSnapshotItem[];
   };
 
-  /**
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.query': {
-    params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptionsModel];
     response: CloudBackupEntry[] | CloudBackupEntry | CloudBackupQueryResultItem[] | CloudBackupQueryResultItem | number;
   };
 
-  /**
-   * Update the cloud backup entry ``id`` with ``data``.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.update': {
     params: [id: number, data: CloudBackupUpdate];
     response: CloudBackupEntry;
   };
 
-  /**
-   * Create Cloud Sync Credentials.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.create': {
     params: [cloud_sync_credentials_create: CloudCredentialCreate];
     response: CredentialsEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.credentials.get_instance': {
     params: [id: number, options?: QueryOptions<CredentialsEntry>];
     response: CredentialsEntry;
   };
 
-  /**
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.credentials.query': {
-    params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptionsModel];
     response: CredentialsEntry[] | CredentialsEntry | CredentialsQueryResultItem[] | CredentialsQueryResultItem | number;
   };
 
-  /**
-   * Update Cloud Sync Credentials of ``id``.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.update': {
     params: [id: number, cloud_sync_credentials_update: CloudCredentialUpdate];
     response: CredentialsEntry;
   };
 
-  /**
-   * Verify if ``attributes`` provided for ``provider`` are authorized by the ``provider``.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.verify': {
-    params: [cloud_sync_credentials_create: AzureBlobCredentialsModelInput2 | B2CredentialsModelInput2 | BoxCredentialsModelInput2 | DropboxCredentialsModelInput2 | FTPCredentialsModelInput2 | GoogleCloudStorageCredentialsModelInput2 | GoogleDriveCredentialsModelInput2 | GooglePhotosCredentialsModelInput2 | HTTPCredentialsModelInput2 | HubicCredentialsModelInput2 | OneDriveCredentialsModelInput2 | PCloudCredentialsModelInput2 | S3CredentialsModelInput2 | SFTPCredentialsModelInput2 | StorjIxCredentialsModelInput2 | SwiftCredentialsModelInput2 | WebDavCredentialsModelInput2 | YandexCredentialsModelInput2];
+    params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | S3CredentialsModelInput2 | SFTPCredentialsModel | StorjIxCredentialsModelInput | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
     response: CredentialsVerifyResult;
   };
 
-  /**
-   * @roles SYSTEM_CRON_READ
-   */
-  'cronjob.query': {
-    params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptionsModel2];
-    response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
-  };
-
-  /**
-   * Get info for ``type`` device.
-   * @roles READONLY_ADMIN
-   */
   'device.get_info': {
     params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
     response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
   };
 
-  /**
-   * @roles DOCKER_READ
-   */
-  'docker.network.query': {
-    params: [filters?: QueryFilters<DockerNetworkEntry>, options?: QueryOptionsModel2];
-    response: DockerNetworkEntry[] | DockerNetworkEntry | DockerNetworkQueryResultItem[] | DockerNetworkQueryResultItem | number;
-  };
-
-  /**
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
-  'fc.fc_host.query': {
-    params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptionsModel2];
-    response: FCHostEntry[] | FCHostEntry | FCHostQueryResultItem[] | FCHostQueryResultItem | number;
-  };
-
-  /**
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
-  'fcport.query': {
-    params: [filters?: QueryFilters<FCPortEntry>, options?: QueryOptionsModel2];
-    response: FCPortEntry[] | FCPortEntry | FCPortQueryResultItem[] | FCPortQueryResultItem | number;
-  };
-
-  /**
-   * Return the runtime status of Fibre Channel ports, including port state, type, speed, and connected sessions.
-   *
-   * On an HA system, status is gathered from both controllers and reported per node.
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
-  'fcport.status': {
-    params: [filters?: QueryFilters<Record<string, unknown>>, options?: QueryOptionsModel2];
-    response: unknown[];
-  };
-
-  /**
-   * Retrieve list of available ACL templates for a given ``path``. Supports ``query-filters`` and ``query-options``.
-   *
-   * ACL entries in the returned templates are always in canonical order.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
   };
 
-  /**
-   * Create a new filesystem ACL template.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.acltemplate.create': {
     params: [acltemplate_create: AclTemplateCreate];
     response: ACLTemplateEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.acltemplate.get_instance': {
     params: [id: number, options?: QueryOptions<ACLTemplateEntry>];
     response: ACLTemplateEntry;
   };
 
-  /**
-   * Retrieve the available filesystem ACL templates.
-   *
-   * Built-in templates are returned with their access control list fully populated.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.acltemplate.query': {
-    params: [filters?: QueryFilters<ACLTemplateEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ACLTemplateEntry>, options?: QueryOptionsModel];
     response: ACLTemplateEntry[] | ACLTemplateEntry | ACLTemplateQueryResultItem[] | ACLTemplateQueryResultItem | number;
   };
 
-  /**
-   * Update filesystem ACL template with ``id``.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.acltemplate.update': {
     params: [id: number, acltemplate_update: AclTemplateUpdate];
     response: ACLTemplateEntry;
   };
 
-  /**
-   * Return ACL of a given path. This may return a POSIX1e ACL or a NFSv4 ACL. The ACL type is indicated by the ``acltype`` key.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.getacl': {
     params: [path: string, simplified?: boolean, resolve_ids?: boolean];
     response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
   };
 
-  /**
-   * Get the contents of a directory.
-   *
-   * The select option may be used to optimize listdir performance. Metadata-related fields that are not selected will not be retrieved from the filesystem.
-   *
-   * For example {"select": ["path", "type"]} will avoid querying an xattr list and ZFS attributes for files in a directory.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.listdir': {
-    params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel2];
+    params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel];
     response: FilesystemDirEntry[] | FilesystemDirEntry | FilesystemDirQueryResultItem[] | FilesystemDirQueryResultItem | number;
   };
 
-  /**
-   * Create a directory at the specified path.
-   *
-   * If the requested ``mode`` cannot be applied and ``raise_chmod_error`` is set, the newly created directory is removed to prevent its use with unintended permissions.
-   *
-   * .. note::
-   *
-   *     If the chmod error is skipped, the ``mode`` key in the response will indicate the current
-   *     permissions on the directory and not the permissions specified in the request payload.
-   * @roles FILESYSTEM_DATA_WRITE
-   */
   'filesystem.mkdir': {
     params: [filesystem_mkdir: FilesystemMkdirArgs];
     response: FilesystemDirEntry;
   };
 
-  /**
-   * Return filesystem information for a given path.
-   *
-   * The reported timestamps reflect ``statx()`` values. The ``atime`` and ``mtime`` timestamps are mutable from userspace, and ``btime`` may also be mutable from userspace depending on the platform.
-   *
-   * The returned ``attributes`` list contains the ``statx()`` file attributes that apply to the file (see the ``statx(2)`` manpage for details). ZFS flags set via :doc:`filesystem.set_zfs_attributes <api_methods_filesystem.set_zfs_attributes>` are surfaced here: an immutable file reports ``IMMUTABLE`` and an append-only file reports ``APPEND``.
-   *
-   * .. note::
-   *
-   *     ``mount_id`` uniquely identifies the particular mount underlying the path. Bind mounts
-   *     share the same ``dev`` (device id) but have distinct ``mount_id`` values, so ``mount_id``
-   *     (not ``dev``) must be used to identify children of a given mountpoint.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.stat': {
     params: [path: string];
     response: FilesystemStatData;
   };
 
-  /**
-   * Create a new group.
-   * @roles ACCOUNT_WRITE
-   */
   'group.create': {
     params: [group_create: GroupCreate];
     response: number;
   };
 
-  /**
-   * Returns dictionary containing information from struct grp for the group specified by either the ``groupname`` or ``gid``.
-   *
-   * If ``sid_info`` is specified, additional SMB / domain information is returned for the group.
-   * @roles ACCOUNT_READ
-   */
-  'group.get_group_obj': {
-    params: [get_group_obj?: GroupGetGroupObjArgs];
-    response: GroupGetGroupObjResult;
-  };
-
-  /**
-   * Query groups with `query-filters` and `query-options`.
-   * @roles ACCOUNT_READ
-   */
-  'group.query': {
-    params: [filters?: QueryFilters<GroupEntry>, options?: QueryOptionsModel2];
-    response: GroupEntry[] | GroupEntry | GroupQueryResultItem[] | GroupQueryResultItem | number;
-  };
-
-  /**
-   * Update attributes of an existing group.
-   * @roles ACCOUNT_WRITE
-   */
   'group.update': {
     params: [id: number, group_update: GroupUpdate];
     response: number;
   };
 
-  /**
-   * Create an initshutdown script task.
-   *
-   * .. note::
-   *
-   *     When a script or command is scheduled to run on ``SHUTDOWN``, its ``timeout`` is added to the hard
-   *     shutdown limit imposed by the base OS so that it can run to completion without being interrupted.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'initshutdownscript.create': {
     params: [data: InitShutdownScriptCreate];
     response: InitShutdownScriptEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SYSTEM_CRON_READ
-   */
   'initshutdownscript.get_instance': {
     params: [id: number, options?: QueryOptions<InitShutdownScriptEntry>];
     response: InitShutdownScriptEntry;
   };
 
-  /**
-   * @roles SYSTEM_CRON_READ
-   */
   'initshutdownscript.query': {
-    params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptionsModel];
     response: InitShutdownScriptEntry[] | InitShutdownScriptEntry | InitShutdownScriptQueryResultItem[] | InitShutdownScriptQueryResultItem | number;
   };
 
-  /**
-   * Update initshutdown script task of ``id``.
-   * @roles SYSTEM_CRON_WRITE
-   */
   'initshutdownscript.update': {
     params: [id: number, data: InitShutdownScriptUpdate];
     response: InitShutdownScriptEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_AUTH_READ
-   */
-  'iscsi.auth.query': {
-    params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptionsModel2];
-    response: ISCSITargetAuthCredentialEntry[] | ISCSITargetAuthCredentialEntry | ISCSITargetAuthCredentialQueryResultItem[] | ISCSITargetAuthCredentialQueryResultItem | number;
-  };
-
-  /**
-   * Create an iSCSI Extent.
-   * @roles SHARING_ISCSI_EXTENT_WRITE
-   */
   'iscsi.extent.create': {
     params: [iscsi_extent_create: IscsiExtentCreate];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_EXTENT_READ
-   */
   'iscsi.extent.get_instance': {
     params: [id: number, options?: QueryOptions<ISCSITargetExtentEntry>];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_EXTENT_READ
-   */
   'iscsi.extent.query': {
-    params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptionsModel];
     response: ISCSITargetExtentEntry[] | ISCSITargetExtentEntry | ISCSITargetExtentQueryResultItem[] | ISCSITargetExtentQueryResultItem | number;
   };
 
-  /**
-   * Update iSCSI Extent of ``id``.
-   * @roles SHARING_ISCSI_EXTENT_WRITE
-   */
   'iscsi.extent.update': {
     params: [id: number, iscsi_extent_update: IscsiExtentUpdate];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * Get a list of currently running iSCSI sessions. This includes initiator and target names and the unique connection IDs.
-   * @roles SHARING_ISCSI_GLOBAL_READ
-   */
-  'iscsi.global.sessions': {
-    params: [filters?: QueryFilters<IscsiSession>, options?: QueryOptionsModel2];
-    response: IscsiSession[] | IscsiSession | IscsiSessionQueryResultItem[] | IscsiSessionQueryResultItem | number;
-  };
-
-  /**
-   * @roles SHARING_ISCSI_INITIATOR_READ
-   */
-  'iscsi.initiator.query': {
-    params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: QueryOptionsModel2];
-    response: ISCSITargetAuthorizedInitiatorEntry[] | ISCSITargetAuthorizedInitiatorEntry | ISCSITargetAuthorizedInitiatorQueryResultItem[] | ISCSITargetAuthorizedInitiatorQueryResultItem | number;
-  };
-
-  /**
-   * @roles SHARING_ISCSI_PORTAL_READ
-   */
-  'iscsi.portal.query': {
-    params: [filters?: QueryFilters<ISCSIPortalEntry>, options?: QueryOptionsModel2];
-    response: ISCSIPortalEntry[] | ISCSIPortalEntry | ISCSIPortalQueryResultItem[] | ISCSIPortalQueryResultItem | number;
-  };
-
-  /**
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
-  'iscsi.target.query': {
-    params: [filters?: QueryFilters<ISCSITargetEntry>, options?: QueryOptionsModel2];
-    response: ISCSITargetEntry[] | ISCSITargetEntry | ISCSITargetQueryResultItem[] | ISCSITargetQueryResultItem | number;
-  };
-
-  /**
-   * @roles SHARING_ISCSI_TARGETEXTENT_READ
-   */
-  'iscsi.targetextent.query': {
-    params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: QueryOptionsModel2];
-    response: ISCSITargetToExtentEntry[] | ISCSITargetToExtentEntry | ISCSITargetToExtentQueryResultItem[] | ISCSITargetToExtentQueryResultItem | number;
-  };
-
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.get_instance': {
     params: [id: number, options?: QueryOptions<KeychainCredentialEntry>];
     response: KeychainCredentialEntry;
   };
 
-  /**
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.query': {
-    params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptionsModel];
     response: KeychainCredentialEntry[] | KeychainCredentialEntry | KeychainCredentialQueryResultItem[] | KeychainCredentialQueryResultItem | number;
   };
 
-  /**
-   * @roles POOL_SCRUB_READ
-   */
-  'pool.scrub.query': {
-    params: [filters?: QueryFilters<PoolScrubEntry>, options?: QueryOptionsModel2];
-    response: PoolScrubEntry[] | PoolScrubEntry | PoolScrubQueryResultItem[] | PoolScrubQueryResultItem | number;
-  };
-
-  /**
-   * @roles SNAPSHOT_TASK_READ
-   */
-  'pool.snapshottask.query': {
-    params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptionsModel2];
-    response: PeriodicSnapshotTaskEntry[] | PeriodicSnapshotTaskEntry | PeriodicSnapshotTaskQueryResultItem[] | PeriodicSnapshotTaskQueryResultItem | number;
-  };
-
-  /**
-   * @roles PRIVILEGE_READ
-   */
-  'privilege.query': {
-    params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptionsModel2];
-    response: PrivilegeEntry[] | PrivilegeEntry | PrivilegeQueryResultItem[] | PrivilegeQueryResultItem | number;
-  };
-
-  /**
-   * Get all available roles.
-   */
-  'privilege.roles': {
-    params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: QueryOptionsModel2];
-    response: PrivilegeRolesEntry[] | PrivilegeRolesEntry | PrivilegeRolesQueryResultItem[] | PrivilegeRolesQueryResultItem | number;
-  };
-
-  /**
-   * @roles REPORTING_READ
-   */
-  'reporting.exporters.query': {
-    params: [filters?: QueryFilters<ReportingExportsEntry>, options?: QueryOptionsModel2];
-    response: ReportingExportsEntry[] | ReportingExportsEntry | ReportingExportsQueryResultItem[] | ReportingExportsQueryResultItem | number;
-  };
-
-  /**
-   * @roles SHARING_NFS_READ
-   */
-  'sharing.nfs.query': {
-    params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptionsModel2];
-    response: SharingNFSEntry[] | SharingNFSEntry | SharingNFSQueryResultItem[] | SharingNFSQueryResultItem | number;
-  };
-
-  /**
-   * @roles NETWORK_INTERFACE_READ
-   */
-  'staticroute.query': {
-    params: [filters?: QueryFilters<StaticRouteEntry>, options?: QueryOptionsModel2];
-    response: StaticRouteEntry[] | StaticRouteEntry | StaticRouteQueryResultItem[] | StaticRouteQueryResultItem | number;
-  };
-
-  /**
-   * @roles NETWORK_GENERAL_READ
-   */
-  'system.ntpserver.query': {
-    params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptionsModel2];
-    response: NTPServerEntry[] | NTPServerEntry | NTPServerQueryResultItem[] | NTPServerQueryResultItem | number;
-  };
-
-  /**
-   * Query users with `query-filters` and `query-options`.
-   *
-   * If users provided by Active Directory or LDAP are not desired, then "local", "=", True should be added to filters.
-   * @roles ACCOUNT_READ
-   */
-  'user.query': {
-    params: [filters?: QueryFilters<UserEntry>, options?: QueryOptionsModel2];
-    response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
-  };
-
-  /**
-   * Supported motherboard firmware options.
-   * @roles VM_READ
-   */
   'vm.bootloader_options': {
     params: [];
     response: VMBootloaderOptionsResult;
   };
 
-  /**
-   * Clone the VM ``id``.
-   * @roles VM_WRITE
-   */
   'vm.clone': {
     params: [id: number, name?: string | null];
     response: boolean;
   };
 
-  /**
-   * Create a Virtual Machine (VM).
-   *
-   * A maximum of 16 guest virtual CPUs are allowed. The CPU topology is configured through the ``vcpus``, ``cores``, and ``threads`` attributes.
-   * @roles VM_WRITE
-   */
   'vm.create': {
     params: [vm_create: VMCreateArgs];
     response: VMEntry;
   };
 
-  /**
-   * Delete a VM.
-   * @roles VM_WRITE
-   */
   'vm.delete': {
     params: [id: number, options?: VMDeleteOptions];
     response: boolean;
   };
 
-  /**
-   * Available choices for Bind attribute.
-   * @roles READONLY_ADMIN, VM_DEVICE_READ
-   */
   'vm.device.bind_choices': {
     params: [];
     response: VMDeviceBindChoicesResult;
   };
 
-  /**
-   * Create a new device for the VM of id ``vm``.
-   *
-   * If ``attributes.dtype`` is the ``RAW`` type and a new raw file is to be created, ``attributes.exists`` will be passed as false. This means the API handles creating the raw file and raises the appropriate exception if file creation fails.
-   *
-   * If ``attributes.dtype`` is of ``DISK`` type and a new Zvol is to be created, ``attributes.create_zvol`` will be passed as true with valid ``attributes.zvol_name`` and ``attributes.zvol_volsize`` values.
-   * @roles VM_DEVICE_WRITE
-   */
   'vm.device.create': {
     params: [vm_device_create: VMDeviceCreateArgs];
     response: VMDeviceEntry;
   };
 
-  /**
-   * Delete a VM device of ``id``.
-   * @roles VM_DEVICE_WRITE
-   */
   'vm.device.delete': {
     params: [id: number, options?: VMDeviceDeleteOptions];
     response: boolean;
   };
 
-  /**
-   * Returns disk choices for device type "DISK".
-   * @roles READONLY_ADMIN, VM_DEVICE_READ
-   */
   'vm.device.disk_choices': {
     params: [];
     response: VMDeviceDiskChoices;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles VM_DEVICE_READ
-   */
   'vm.device.get_instance': {
     params: [id: number, options?: QueryOptions<VMDeviceEntry>];
     response: VMDeviceEntry;
   };
 
-  /**
-   * Retrieve details about ``device`` PCI device.
-   * @roles VM_DEVICE_READ
-   */
   'vm.device.passthrough_device': {
     params: [device: string];
     response: VMDevicePassthroughDevice;
   };
 
-  /**
-   * Available choices for PCI passthru devices.
-   * @roles READONLY_ADMIN, VM_DEVICE_READ
-   */
   'vm.device.passthrough_device_choices': {
     params: [];
     response: VMDevicePassthroughInfo;
   };
 
-  /**
-   * @roles VM_DEVICE_READ
-   */
   'vm.device.query': {
-    params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptionsModel];
     response: VMDeviceEntry[] | VMDeviceEntry | VMDeviceQueryResultItem[] | VMDeviceQueryResultItem | number;
   };
 
-  /**
-   * Update a VM device of ``id``.
-   *
-   * Pass ``attributes.size`` to resize a ``dtype`` ``RAW`` device. The raw file will be resized.
-   * @roles VM_DEVICE_WRITE
-   */
   'vm.device.update': {
     params: [id: number, vm_device_update: VMDeviceUpdate];
     response: VMDeviceEntry;
   };
 
-  /**
-   * Returns a dictionary with CPU flags for the hypervisor.
-   * @roles VM_READ
-   */
   'vm.flags': {
     params: [];
     response: VMFlagsResult;
   };
 
-  /**
-   * Get the current maximum amount of available memory to be allocated for VMs.
-   *
-   * In case of ``overcommit`` being ``true``, calculations are done in the following manner:
-   *
-   * 1. If a VM has requested 10G but is only consuming 5G, only 5G will be counted
-   *
-   * 2. System will consider shrinkable ZFS ARC as free memory ( shrinkable ZFS ARC is current ZFS ARC
-   *    minus ZFS ARC minimum )
-   *
-   * In case of ``overcommit`` being ``false``, calculations are done in the following manner:
-   *
-   * 1. Complete VM requested memory will be taken into account regardless of how much actual physical
-   *    memory the VM is consuming
-   *
-   * 2. System will not consider shrinkable ZFS ARC as free memory
-   *
-   * Memory is of course a very "volatile" resource, values may change abruptly between a second but I deem it good enough to give the user a clue about how much memory is available at the current moment and if a VM should be allowed to be launched.
-   * @roles VM_READ
-   */
   'vm.get_available_memory': {
     params: [overcommit?: boolean];
     response: number;
   };
 
-  /**
-   * Get the console device from a given guest.
-   * @roles VM_READ
-   */
   'vm.get_console': {
     params: [id: number];
     response: string;
   };
 
-  /**
-   * Get the display devices from a given guest.
-   * @roles VM_READ
-   */
   'vm.get_display_devices': {
     params: [id: number];
     response: DisplayDevice[];
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles VM_READ
-   */
   'vm.get_instance': {
     params: [id: number, options?: QueryOptions<VMEntry>];
     response: VMEntry;
   };
 
-  /**
-   * Get the memory usage of a given VM.
-   * @roles VM_READ
-   */
   'vm.get_memory_usage': {
     params: [id: number];
     response: number;
   };
 
-  /**
-   * Retrieve log file path of ``id`` VM.
-   *
-   * It will return path of the log file if it exists and ``null`` otherwise.
-   * @roles VM_READ
-   */
   'vm.log_file_path': {
     params: [id: number];
     response: string | null;
   };
 
-  /**
-   * It returns the next available Display Server Port and Web Port.
-   *
-   * Returns a dict with two keys ``port`` and ``web``.
-   * @roles VM_READ
-   */
   'vm.port_wizard': {
     params: [];
     response: VMPortWizardResult;
   };
 
-  /**
-   * Poweroff a VM.
-   * @roles VM_WRITE
-   */
   'vm.poweroff': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * @roles VM_READ
-   */
   'vm.query': {
-    params: [filters?: QueryFilters<VMEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<VMEntry>, options?: QueryOptionsModel];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
   };
 
-  /**
-   * Create a random mac address.
-   * @roles VM_READ
-   */
   'vm.random_mac': {
     params: [];
     response: string;
   };
 
-  /**
-   * Retrieve supported resolution choices for VM Display devices.
-   * @roles READONLY_ADMIN, VM_READ
-   */
   'vm.resolution_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Resume suspended ``id`` VM.
-   * @roles VM_WRITE
-   */
   'vm.resume': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Start a VM.
-   *
-   * options.overcommit defaults to false, meaning VMs are not allowed to start if there is not enough available memory to hold all configured VMs. If true, VM starts even if there is not enough memory for all configured VMs.
-   *
-   * Error codes:
-   *
-   *     ENOMEM(12): not enough free memory to run the VM without overcommit
-   * @roles VM_WRITE
-   */
   'vm.start': {
     params: [id: number, options?: VMStartOptions];
     response: null;
   };
 
-  /**
-   * Get the status of ``id`` VM.
-   *
-   * Returns a dict:
-   *     - state, RUNNING / STOPPED / SUSPENDED
-   *     - pid, process id if RUNNING
-   * @roles VM_READ
-   */
   'vm.status': {
     params: [id: number];
     response: VMStatus;
   };
 
-  /**
-   * Returns "true" if system supports virtualization, "false" otherwise.
-   * @roles VM_READ
-   */
   'vm.supports_virtualization': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Suspend ``id`` VM.
-   * @roles VM_WRITE
-   */
   'vm.suspend': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Update all information of a specific VM.
-   *
-   * ``devices`` is a list of virtualized hardware to attach to the virtual machine. If ``devices`` is not present, no change is made to devices. If either the device list order or the data stored by a device changes when the attribute is passed, these actions are taken:
-   *
-   * 1. If a device previously attached to the VM is no longer in the ``devices`` list, it is removed from the
-   *    virtual machine.
-   * 2. Devices in the ``devices`` list that contain a valid ``id`` attribute corresponding to an existing
-   *    device are updated.
-   * 3. Devices that do not have an ``id`` attribute are created and attached to the VM.
-   * @roles VM_WRITE
-   */
   'vm.update': {
     params: [id: number, vm_update: VMUpdate];
     response: VMEntry;
   };
 
-  /**
-   * Retrieve details if virtualization is supported on the system and in case why it's not supported if it isn't.
-   * @roles VM_READ
-   */
   'vm.virtualization_details': {
     params: [];
     response: VMVirtualizationDetailsResult;

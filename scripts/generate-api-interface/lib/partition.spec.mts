@@ -62,13 +62,6 @@ describe('chainAssign', () => {
     expect(homes[1].get('A')).toBe(0);
   });
 
-  it('unions usage metadata across a run', () => {
-    const { declared } = chainAssign([
-      model('v1', { A: str({ _usedBy: ['x.one (params)'] }) }),
-      model('v2', { A: str({ _usedBy: ['x.two (params)'] }) }),
-    ]);
-    expect(declared[0]['A']._usedBy).toEqual(['x.one (params)', 'x.two (params)']);
-  });
 
   it('re-materializes a reverted shape instead of skip-level inheriting', () => {
     const { homes, declared } = chainAssign([

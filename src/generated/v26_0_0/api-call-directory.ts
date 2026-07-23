@@ -11,27 +11,11 @@ import type {
 } from '../shared/query-types';
 
 import type {
+  ApiKeyCreate,
   ApiKeyQueryResultItem,
+  ApiKeyUpdate,
   AppImageQueryResultItem,
   AppQueryResultItem,
-  CloudBackupQueryResultItem,
-  CredentialsQueryResultItem,
-  CronJobQueryResultItem,
-  ISCSITargetExtentQueryResultItem,
-  KeychainCredentialQueryResultItem,
-  MegaCredentialsModel,
-  PeriodicSnapshotTaskQueryResultItem,
-  SharingNFSQueryResultItem,
-  StorjIxCredentialsModelInput,
-  UserQueryResultItem,
-} from '../v25_04_0/api-types';
-import type {
-  VMQueryResultItem,
-} from '../v25_04_2/api-types';
-import type {
-  ACLTemplateEntry,
-  ApiKeyCreate,
-  ApiKeyUpdate,
   AuthRespAuthErr,
   AuthRespAuthRedirect,
   AuthRespExpired,
@@ -41,16 +25,10 @@ import type {
   BoxCredentialsModel,
   CatalogAppVersionDetails,
   CatalogEntry,
-  CloudBackupCreate,
-  CloudBackupUpdate,
-  CloudSyncCreate,
-  CloudSyncQueryResultItem,
-  CloudSyncUpdate,
+  CloudBackupQueryResultItem,
+  CredentialsQueryResultItem,
   CredentialsVerifyResult,
   DeviceGetInfoDisk,
-  DirectionInput2,
-  DirectoryServicesStatus,
-  DiskEntry,
   DropboxCredentialsModel,
   FTPCredentialsModel,
   FailoverRebootInfo,
@@ -60,42 +38,62 @@ import type {
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
-  IPMILanEntry,
-  IPMILanQueryResultItem,
+  ISCSITargetExtentQueryResultItem,
+  KeychainCredentialQueryResultItem,
+  MegaCredentialsModel,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
+  PeriodicSnapshotTaskQueryResultItem,
+  PoolSnapshotTaskCreate,
+  PoolSnapshotTaskUpdate,
+  ReportingQuery,
+  SFTPCredentialsModel,
+  SerialInfo,
+  SharingNFSQueryResultItem,
+  SharingSMBGetaclArgs,
+  StorjIxCredentialsModelInput,
+  SwiftCredentialsModel,
+  UserQueryResultItem,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
+} from '../v25_04_0/api-types';
+import type {
+  ACLTemplateEntry,
+  VMDeleteOptions,
+  VMQueryResultItem,
+} from '../v25_04_2/api-types';
+import type {
+  CloudBackupCreate,
+  CloudBackupUpdate,
+  CloudSyncCreate,
+  CloudSyncQueryResultItem,
+  CloudSyncUpdate,
+  DirectionInput2,
+  DirectoryServicesStatus,
+  DiskEntry,
   InterfaceEntry,
   IscsiExtentCreate,
   IscsiExtentUpdate,
-  NVMetHostQueryResultItem,
-  NVMetHostSubsysCreate,
-  NVMetHostSubsysQueryResultItem,
-  NVMetHostSubsysUpdate,
   NVMetNamespaceCreate,
   NVMetNamespaceQueryResultItem,
   NVMetNamespaceUpdate,
   NfsShareCreate,
   NfsShareUpdate,
-  OneDriveCredentialsModel,
-  PCloudCredentialsModel,
   PoolDatasetDatasetQuota,
   PoolDatasetEntry,
   PoolDatasetProjectQuota,
   PoolDatasetUserGroupQuota,
   PoolQueryResultItem,
   PoolSnapshotCreateUpdateEntry,
-  PoolSnapshotTaskCreate,
-  PoolSnapshotTaskUpdate,
+  ReplicationCreate,
   ReplicationQueryResultItem,
   ReplicationRestoreOptions,
-  ReportingQuery,
+  ReplicationUpdate,
   RestoreOpts,
   RsyncTaskCreate,
   RsyncTaskQueryResultItem,
   RsyncTaskUpdate,
-  SFTPCredentialsModel,
-  SerialInfo,
-  SharingSMBGetaclArgs,
   SharingSMBQueryResultItem,
-  SwiftCredentialsModel,
   SystemAdvancedEntry,
   SystemGeneralUpdateArgs,
   TransportInput,
@@ -103,15 +101,16 @@ import type {
   TunableQueryResultItem,
   UPSEntry,
   VMCreateArgs,
-  VMDeleteOptions,
   VMUpdate,
   VMWareCreate,
   VMWareMatchDatastoresWithDatasetsArgs,
   VMWareQueryResultItem,
   VMWareUpdate,
-  WebDavCredentialsModel,
-  YandexCredentialsModel,
 } from '../v25_10_0/api-types';
+import type {
+  SmbShareCreate,
+  SmbShareUpdate,
+} from '../v25_10_1/api-types';
 import type {
   ACLTemplateByPathArgs,
   Alert,
@@ -154,11 +153,7 @@ import type {
   ContainerQueryResultItem,
   ContainerUpdate,
   CredentialsEntry,
-  CronJobCreate,
-  CronJobEntry,
-  CronJobUpdate,
   DeviceGetInfoOther,
-  DirectoryServicesEntry,
   DiskDetails,
   DiskResetSedArgs,
   DiskSetupSedArgs,
@@ -168,7 +163,6 @@ import type {
   DockerEntry,
   Feature,
   GraphIdentifier,
-  IPMILanQuery,
   ISCSIGlobalEntry,
   ISCSIGlobalSessionsItem,
   ISCSIGlobalSessionsItemQueryResultItem,
@@ -178,24 +172,16 @@ import type {
   KeychainCredentialEntry,
   LXCConfigEntry,
   LXCConfigUpdateArgs,
-  NVMetHostCreate,
-  NVMetHostEntry,
-  NVMetHostSubsysEntry,
-  NVMetHostUpdate,
   NVMetNamespaceEntry,
   PeriodicSnapshotTaskEntry,
   PoolDatasetCreateFilesystem,
   PoolDatasetCreateVolume,
-  PoolDatasetRenameOptions,
-  PoolDatasetUpdate,
   PoolEntry,
   PoolSnapshotCreateWithName,
   PoolSnapshotCreateWithSchema,
   PoolSnapshotRenameOptions,
   PoolSnapshotUpdate,
-  ReplicationCreate,
   ReplicationEntry,
-  ReplicationUpdate,
   ReportingGetDataResponse,
   RsyncTaskEntry,
   S3CredentialsModel,
@@ -203,8 +189,6 @@ import type {
   SMBShareAcl,
   SMBStatusOptions,
   SMBUpdateArgs,
-  SNMPEntry,
-  SNMPUpdateArgs,
   SharingNFSEntry,
   SharingSMBEntry,
   SharingSMBSetaclArgs,
@@ -212,8 +196,6 @@ import type {
   SharingWebshareEntry,
   SharingWebshareQueryResultItem,
   SharingWebshareUpdate,
-  SmbShareCreate,
-  SmbShareUpdate,
   StatusResult,
   SysInfo,
   SystemAdvancedUpdate,
@@ -274,2428 +256,941 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiCallDirectoryDelta {
-  /**
-   * List all types of alerts including active/dismissed currently in the system.
-   * @roles ALERT_LIST_READ
-   */
   'alert.list': {
     params: [];
     response: Alert[];
   };
 
-  /**
-   * List all types of alerts which the system can issue.
-   * @roles ALERT_LIST_READ
-   */
   'alert.list_categories': {
     params: [options?: AlertListCategoriesOptions];
     response: AlertCategory[];
   };
 
-  /**
-   * Convert a raw API key into its SCRAM authentication components.
-   *
-   * This allows API key consumers to transform a raw API key (format: ``id-key``) into the precomputed SCRAM authentication material for improved performance.
-   *
-   * .. note::
-   *
-   *     This is a convenience method for API consumers. It does not impact the API key stored
-   *     server-side.
-   * @roles API_KEY_READ
-   */
   'api_key.convert_raw_key': {
     params: [raw_key: string];
     response: ApiKeyScramData;
   };
 
-  /**
-   * Create an API key.
-   * @roles API_KEY_WRITE, READONLY_ADMIN
-   */
   'api_key.create': {
     params: [api_key_create: ApiKeyCreate];
     response: ApiKeyEntryWithKey;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles API_KEY_READ
-   */
   'api_key.get_instance': {
     params: [id: number, options?: QueryOptions<ApiKeyEntry>];
     response: ApiKeyEntry;
   };
 
-  /**
-   * Get the existing API keys for the currently authenticated user.
-   * @roles API_KEY_READ, READONLY_ADMIN
-   */
   'api_key.my_keys': {
     params: [];
     response: ApiKeyEntry[];
   };
 
-  /**
-   * @roles API_KEY_READ
-   */
   'api_key.query': {
     params: [filters?: QueryFilters<ApiKeyEntry>, options?: QueryOptions<ApiKeyEntry>];
     response: ApiKeyEntry[] | ApiKeyEntry | ApiKeyQueryResultItem[] | ApiKeyQueryResultItem | number;
   };
 
-  /**
-   * Update API Key ``id``.
-   *
-   * Specify ``reset: true`` to reset this API Key.
-   * @roles API_KEY_WRITE, READONLY_ADMIN
-   */
   'api_key.update': {
     params: [id: number, api_key_update: ApiKeyUpdate];
     response: ApiKeyEntryWithKey | ApiKeyEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles APPS_READ
-   */
   'app.get_instance': {
     params: [id: string, options?: QueryOptions<AppEntry>];
     response: AppEntry;
   };
 
-  /**
-   * Returns instance matching `id_`. Raises InstanceNotFound if missing.
-   * @roles APPS_READ
-   */
   'app.image.get_instance': {
     params: [id: string, options?: QueryOptions<AppImageEntry>];
     response: AppImageEntry;
   };
 
-  /**
-   * Query all docker images with ``query-filters`` and ``query-options``.
-   *
-   * The following ``query-options.extra`` options are supported:
-   *
-   * ``parse_tags`` *(bool)*:
-   *     Include normalized tags on each entry.
-   * @roles APPS_READ
-   */
   'app.image.query': {
     params: [filters?: QueryFilters<AppImageEntry>, options?: QueryOptions<AppImageEntry>];
     response: AppImageEntry[] | AppImageEntry | AppImageQueryResultItem[] | AppImageQueryResultItem | number;
   };
 
-  /**
-   * Query all apps with ``query-filters`` and ``query-options``.
-   *
-   * The following ``query-options.extra`` options are supported:
-   *
-   * ``host_ip`` *(str)*:
-   *     Override the portal IP address when it is a wildcard.
-   *
-   * ``include_app_schema`` *(bool)*:
-   *     Include the app schema in the response.
-   *
-   * ``retrieve_config`` *(bool)*:
-   *     Include the app configuration used to install or manage the app.
-   * @roles APPS_READ
-   */
   'app.query': {
     params: [filters?: QueryFilters<AppEntry>, options?: QueryOptions<AppEntry>];
     response: AppEntry[] | AppEntry | AppQueryResultItem[] | AppQueryResultItem | number;
   };
 
-  /**
-   * Query contents of audit databases specified by ``services``.
-   * @roles SYSTEM_AUDIT_READ
-   */
   'audit.query': {
     params: [data?: AuditQuery];
     response: AuditQueryResultItem[] | AuditQueryResultItem | AuditQueryResultItemQueryResultItem[] | AuditQueryResultItemQueryResultItem | number;
   };
 
-  /**
-   * Authenticate using one of a variety of mechanisms.
-   *
-   * The mechanism is selected by the ``mechanism`` field of the request, and the set of supported mechanisms will be expanded in future releases.
-   *
-   * .. warning::
-   *
-   *     Mechanisms with a ``_PLAIN`` suffix involve passing plain-text passwords or
-   *     password-equivalent strings and should not be used over untrusted or insecure
-   *     transport.
-   *
-   * The ``response_type`` of the result indicates the outcome of the current authentication step and whether further action is required to complete authentication:
-   *
-   * - ``SUCCESS`` -- authentication completed and a session was established.
-   * - ``OTP_REQUIRED`` -- the account requires a one-time password; the client must continue
-   *   authentication by submitting the token via the ``OTP_TOKEN`` mechanism.
-   * - ``AUTH_ERR`` -- generic authentication failure corresponding to ``PAM_AUTH_ERR`` and
-   *   ``PAM_USER_UNKNOWN`` from libpam. Returned when the account does not exist or the
-   *   credential is incorrect.
-   * - ``EXPIRED`` -- the supplied credential is expired and not suitable for authentication.
-   * - ``REDIRECT`` -- authentication must be performed on a different server.
-   *
-   * A JSON-RPC ``error`` response (code ``-32001``, *Method call error*) is returned instead of a result in the following cases:
-   *
-   * - a multistep challenge-response mechanism is in progress and the supplied ``mechanism``
-   *   does not match the expected next step (errno ``EBUSY``)
-   * - the ``OTP_TOKEN`` mechanism is used without a preceding step having requested it
-   *   (errno ``EINVAL``)
-   * - the current authenticator assurance level prohibits the supplied mechanism
-   *   (errno ``EOPNOTSUPP``)
-   */
   'auth.login_ex': {
     params: [login_data: AuthApiKeyPlain | AuthPasswordPlain | AuthTokenPlain | AuthOTPToken | AuthSCRAM];
     response: AuthRespSuccess | AuthRespAuthErr | AuthRespExpired | AuthRespOTPRequired | AuthRespAuthRedirect | AuthRespScram | AuthRespDenied;
   };
 
-  /**
-   * Continue an in-progress authentication attempt. This endpoint should be called to continue an :doc:`auth.login_ex <api_methods_auth.login_ex>` attempt that returned a ``response_type`` of ``OTP_REQUIRED``, submitting the one-time password via the ``OTP_TOKEN`` mechanism.
-   *
-   * This is a convenience wrapper around :doc:`auth.login_ex <api_methods_auth.login_ex>` for API consumers.
-   *
-   * The ``response_type`` of the result indicates the outcome of this authentication step:
-   *
-   * - ``SUCCESS`` -- authentication completed and a session was established.
-   * - ``OTP_REQUIRED`` -- the one-time password token was rejected; the client may call this
-   *   endpoint again with a correct token.
-   * - ``AUTH_ERR`` -- an invalid one-time password token was submitted too many times.
-   */
   'auth.login_ex_continue': {
     params: [login_data: AuthOTPToken];
     response: AuthRespSuccess | AuthRespAuthErr | AuthRespExpired | AuthRespOTPRequired | AuthRespAuthRedirect | AuthRespDenied;
   };
 
-  /**
-   * Returns the current state of the boot pool, including all vdevs, properties and datasets.
-   * @roles READONLY_ADMIN
-   */
   'boot.get_state': {
     params: [];
     response: BootGetState;
   };
 
-  /**
-   * Retrieve apps details for ``label`` catalog.
-   * @roles CATALOG_READ
-   */
   'catalog.apps': {
     params: [data: CatalogApps];
     response: CatalogAppsResponse;
   };
 
-  /**
-   * Retrieve information of ``app_name`` ``app_version_details.catalog`` catalog app.
-   * @roles CATALOG_READ
-   */
   'catalog.get_app_details': {
     params: [app_name: string, app_version_details: CatalogAppVersionDetails];
     response: CatalogAppDetails;
   };
 
-  /**
-   * Return whether the catalog has been synced at least once.
-   * @roles CATALOG_READ
-   */
   'catalog.synced': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Retrieve available trains.
-   * @roles CATALOG_READ
-   */
   'catalog.trains': {
     params: [];
     response: CatalogTrainsResponse;
   };
 
-  /**
-   * Update catalog preferences.
-   * @roles CATALOG_WRITE
-   */
   'catalog.update': {
     params: [data: CatalogUpdate];
     response: CatalogEntry;
   };
 
-  /**
-   * Create a new cloud backup task.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.create': {
     params: [cloud_backup: CloudBackupCreate];
     response: CloudBackupEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.get_instance': {
     params: [id: number, options?: QueryOptions<CloudBackupEntry>];
     response: CloudBackupEntry;
   };
 
-  /**
-   * @roles CLOUD_BACKUP_READ
-   */
   'cloud_backup.query': {
     params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptions<CloudBackupEntry>];
     response: CloudBackupEntry[] | CloudBackupEntry | CloudBackupQueryResultItem[] | CloudBackupQueryResultItem | number;
   };
 
-  /**
-   * Update the cloud backup entry ``id`` with ``data``.
-   * @roles CLOUD_BACKUP_WRITE
-   */
   'cloud_backup.update': {
     params: [id: number, data: CloudBackupUpdate];
     response: CloudBackupEntry;
   };
 
-  /**
-   * Creates a new cloud_sync entry.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.create': {
     params: [cloud_sync_create: CloudSyncCreate];
     response: CloudSyncEntry;
   };
 
-  /**
-   * Create Cloud Sync Credentials.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.create': {
     params: [cloud_sync_credentials_create: CloudCredentialCreate];
     response: CredentialsEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.credentials.get_instance': {
     params: [id: number, options?: QueryOptions<CredentialsEntry>];
     response: CredentialsEntry;
   };
 
-  /**
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.credentials.query': {
     params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptions<CredentialsEntry>];
     response: CredentialsEntry[] | CredentialsEntry | CredentialsQueryResultItem[] | CredentialsQueryResultItem | number;
   };
 
-  /**
-   * Provide choices for S3 provider ``provider`` field.
-   * @roles CLOUD_SYNC_READ, READONLY_ADMIN
-   */
   'cloudsync.credentials.s3_provider_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Update Cloud Sync Credentials of ``id``.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.update': {
     params: [id: number, cloud_sync_credentials_update: CloudCredentialUpdate];
     response: CredentialsEntry;
   };
 
-  /**
-   * Verify if ``attributes`` provided for ``provider`` are authorized by the ``provider``.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.credentials.verify': {
     params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | MegaCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | S3CredentialsModel | SFTPCredentialsModel | StorjIxCredentialsModelInput | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
     response: CredentialsVerifyResult;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.get_instance': {
     params: [id: number, options?: QueryOptions<CloudSyncEntry>];
     response: CloudSyncEntry;
   };
 
-  /**
-   * @roles CLOUD_SYNC_READ
-   */
   'cloudsync.query': {
     params: [filters?: QueryFilters<CloudSyncEntry>, options?: QueryOptions<CloudSyncEntry>];
     response: CloudSyncEntry[] | CloudSyncEntry | CloudSyncQueryResultItem[] | CloudSyncQueryResultItem | number;
   };
 
-  /**
-   * Create the opposite of cloud sync task ``id`` (PULL if it was PUSH and vice versa).
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.restore': {
     params: [id: number, opts: RestoreOpts];
     response: CloudSyncEntry;
   };
 
-  /**
-   * Updates the cloud_sync entry ``id`` with ``data``.
-   * @roles CLOUD_SYNC_WRITE
-   */
   'cloudsync.update': {
     params: [id: number, cloud_sync_update: CloudSyncUpdate];
     response: CloudSyncEntry;
   };
 
-  /**
-   * Delete a Container.
-   * @roles CONTAINER_WRITE
-   */
   'container.delete': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Create a new device for the container of id ``container``.
-   * @roles CONTAINER_DEVICE_WRITE
-   */
   'container.device.create': {
     params: [container_device_create: ContainerDeviceCreateArgs];
     response: ContainerDeviceEntry;
   };
 
-  /**
-   * Delete a container device of ``id``.
-   * @roles CONTAINER_DEVICE_WRITE
-   */
   'container.device.delete': {
     params: [id: number, options?: ContainerDeviceDeleteOptions];
     response: boolean;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CONTAINER_DEVICE_READ
-   */
   'container.device.get_instance': {
     params: [id: number, options?: QueryOptions<ContainerDeviceEntry>];
     response: ContainerDeviceEntry;
   };
 
-  /**
-   * Available choices for GPU devices.
-   * @roles CONTAINER_DEVICE_READ, READONLY_ADMIN
-   */
   'container.device.gpu_choices': {
     params: [];
     response: Record<string, unknown>;
   };
 
-  /**
-   * Available choices for NIC Attach attribute.
-   * @roles CONTAINER_DEVICE_READ, READONLY_ADMIN
-   */
   'container.device.nic_attach_choices': {
     params: [];
     response: ContainerDeviceNicAttachChoicesResult;
   };
 
-  /**
-   * @roles CONTAINER_DEVICE_READ
-   */
   'container.device.query': {
     params: [filters?: QueryFilters<ContainerDeviceEntry>, options?: QueryOptions<ContainerDeviceEntry>];
     response: ContainerDeviceEntry[] | ContainerDeviceEntry | ContainerDeviceQueryResultItem[] | ContainerDeviceQueryResultItem | number;
   };
 
-  /**
-   * Update a container device of ``id``.
-   * @roles CONTAINER_DEVICE_WRITE
-   */
   'container.device.update': {
     params: [id: number, container_device_update: ContainerDeviceUpdate];
     response: ContainerDeviceEntry;
   };
 
-  /**
-   * Available choices for USB passthrough devices.
-   * @roles CONTAINER_DEVICE_READ, READONLY_ADMIN
-   */
   'container.device.usb_choices': {
     params: [];
     response: Record<string, USBPassthroughDevice>;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles CONTAINER_READ
-   */
   'container.get_instance': {
     params: [id: number, options?: QueryOptions<ContainerEntry>];
     response: ContainerEntry;
   };
 
-  /**
-   * Query images available in the images registry.
-   * @roles CONTAINER_IMAGE_READ
-   */
   'container.image.query_registry': {
     params: [];
     response: ContainerImageQueryRegistryResultImage[];
   };
 
-  /**
-   * Pool choices for container creation.
-   * @roles CONTAINER_READ, READONLY_ADMIN
-   */
   'container.pool_choices': {
     params: [];
     response: Record<string, unknown>;
   };
 
-  /**
-   * @roles CONTAINER_READ
-   */
   'container.query': {
     params: [filters?: QueryFilters<ContainerEntry>, options?: QueryOptions<ContainerEntry>];
     response: ContainerEntry[] | ContainerEntry | ContainerQueryResultItem[] | ContainerQueryResultItem | number;
   };
 
-  /**
-   * Start container.
-   * @roles CONTAINER_WRITE
-   */
   'container.start': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Update a Container.
-   * @roles CONTAINER_WRITE
-   */
   'container.update': {
     params: [id: number, container_update: ContainerUpdate];
     response: ContainerEntry;
   };
 
-  /**
-   * Create a new cron job.
-   *
-   * ``stderr`` and ``stdout`` are boolean values which, if ``true``, represent that we would like to suppress standard error / standard output respectively.
-   * @roles SYSTEM_CRON_WRITE
-   */
-  'cronjob.create': {
-    params: [data: CronJobCreate];
-    response: CronJobEntry;
-  };
-
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SYSTEM_CRON_READ
-   */
-  'cronjob.get_instance': {
-    params: [id: number, options?: QueryOptions<CronJobEntry>];
-    response: CronJobEntry;
-  };
-
-  /**
-   * @roles SYSTEM_CRON_READ
-   */
-  'cronjob.query': {
-    params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptions<CronJobEntry>];
-    response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
-  };
-
-  /**
-   * Update cronjob of ``id``.
-   * @roles SYSTEM_CRON_WRITE
-   */
-  'cronjob.update': {
-    params: [id: number, data: CronJobUpdate];
-    response: CronJobEntry;
-  };
-
-  /**
-   * Get info for ``type`` device.
-   * @roles READONLY_ADMIN
-   */
   'device.get_info': {
     params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
     response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
   };
 
-  /**
-   * @roles DIRECTORY_SERVICE_READ
-   */
-  'directoryservices.config': {
-    params: [];
-    response: DirectoryServicesEntry;
-  };
-
-  /**
-   * Provide the type and status of the currently-enabled directory service.
-   */
   'directoryservices.status': {
     params: [];
     response: DirectoryServicesStatus;
   };
 
-  /**
-   * Return detailed information for all disks on the system.
-   * @roles REPORTING_READ
-   */
   'disk.details': {
     params: [data?: DiskDetails];
     response: unknown[] | Record<string, unknown>;
   };
 
-  /**
-   * Reset SED disk.
-   * @roles DISK_WRITE
-   */
   'disk.reset_sed': {
     params: [disk_sed_reset: DiskResetSedArgs];
     response: true;
   };
 
-  /**
-   * Setup specified ``options.name`` SED disk.
-   * @roles DISK_WRITE
-   */
   'disk.setup_sed': {
     params: [disk_sed_setup: DiskSetupSedArgs];
     response: true;
   };
 
-  /**
-   * Returns existing temperature alerts for specified disks.
-   * @roles REPORTING_READ
-   */
   'disk.temperature_alerts': {
     params: [names: string[]];
     response: Alert[];
   };
 
-  /**
-   * Unlock specified ``options.name`` SED disk.
-   * @roles DISK_WRITE
-   */
   'disk.unlock_sed': {
     params: [disk_sed_unlock: DiskUnlockSedArgs];
     response: true;
   };
 
-  /**
-   * Update disk of ``id``.
-   * @roles DISK_WRITE
-   */
   'disk.update': {
     params: [id: string, data: DiskUpdate];
     response: DiskEntry;
   };
 
-  /**
-   * @roles DOCKER_READ
-   */
   'docker.config': {
     params: [];
     response: DockerEntry;
   };
 
-  /**
-   * Returns the status of the docker service.
-   * @roles DOCKER_READ
-   */
   'docker.status': {
     params: [];
     response: StatusResult;
   };
 
-  /**
-   * Return reboot information for both nodes of the failover pair.
-   *
-   * The response reports, for the local node and for the other node, whether a reboot is required and the reasons for it. The ``other_node`` field is ``null`` when the remote node cannot be reached.
-   * @roles FAILOVER_READ
-   */
   'failover.reboot.info': {
     params: [];
     response: FailoverRebootInfo;
   };
 
-  /**
-   * Retrieve list of available ACL templates for a given ``path``. Supports ``query-filters`` and ``query-options``.
-   *
-   * ACL entries in the returned templates are always in canonical order.
-   * @roles FILESYSTEM_ATTRS_READ
-   */
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
   };
 
-  /**
-   * Returns FEC modes supported by interface ``id``.
-   *
-   * Returns an empty list if the interface does not exist or does not support FEC.
-   * @roles NETWORK_INTERFACE_READ
-   */
   'interface.available_fec_modes': {
     params: [id: string];
     response: ('AUTO' | 'OFF' | 'RS' | 'BASER' | 'LLRS')[];
   };
 
-  /**
-   * Update Interface of ``id``.
-   *
-   * Update network interface static IP::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "interface.update",
-   *         "params": ["enp0s3", {"aliases": ["192.168.0.10"]}]
-   *     }
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'interface.update': {
     params: [id: string, data: InterfaceUpdate];
     response: InterfaceEntry;
   };
 
-  /**
-   * Query available IPMI Channels with ``query-filters`` and ``query-options``.
-   * @roles IPMI_READ
-   */
-  'ipmi.lan.query': {
-    params: [data?: IPMILanQuery];
-    response: IPMILanEntry[] | IPMILanEntry | IPMILanQueryResultItem[] | IPMILanQueryResultItem | number;
-  };
-
-  /**
-   * Create an iSCSI Extent.
-   * @roles SHARING_ISCSI_EXTENT_WRITE
-   */
   'iscsi.extent.create': {
     params: [iscsi_extent_create: IscsiExtentCreate];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_ISCSI_EXTENT_READ
-   */
   'iscsi.extent.get_instance': {
     params: [id: number, options?: QueryOptions<ISCSITargetExtentEntry>];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_EXTENT_READ
-   */
   'iscsi.extent.query': {
     params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptions<ISCSITargetExtentEntry>];
     response: ISCSITargetExtentEntry[] | ISCSITargetExtentEntry | ISCSITargetExtentQueryResultItem[] | ISCSITargetExtentQueryResultItem | number;
   };
 
-  /**
-   * Update iSCSI Extent of ``id``.
-   * @roles SHARING_ISCSI_EXTENT_WRITE
-   */
   'iscsi.extent.update': {
     params: [id: number, iscsi_extent_update: IscsiExtentUpdate];
     response: ISCSITargetExtentEntry;
   };
 
-  /**
-   * @roles SHARING_ISCSI_GLOBAL_READ
-   */
   'iscsi.global.config': {
     params: [];
     response: ISCSIGlobalEntry;
   };
 
-  /**
-   * Get a list of currently running iSCSI sessions. This includes initiator and target names and the unique connection IDs.
-   * @roles SHARING_ISCSI_GLOBAL_READ
-   */
   'iscsi.global.sessions': {
     params: [filters?: QueryFilters<ISCSIGlobalSessionsItem>, options?: QueryOptions<ISCSIGlobalSessionsItem>];
     response: ISCSIGlobalSessionsItem[] | ISCSIGlobalSessionsItem | ISCSIGlobalSessionsItemQueryResultItem[] | ISCSIGlobalSessionsItemQueryResultItem | number;
   };
 
-  /**
-   * Update the iSCSI global configuration.
-   * @roles SHARING_ISCSI_GLOBAL_WRITE
-   */
   'iscsi.global.update': {
     params: [iscsi_update?: ISCSIGlobalUpdateArgs];
     response: ISCSIGlobalEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.get_instance': {
     params: [id: number, options?: QueryOptions<KeychainCredentialEntry>];
     response: KeychainCredentialEntry;
   };
 
-  /**
-   * @roles KEYCHAIN_CREDENTIAL_READ
-   */
   'keychaincredential.query': {
     params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptions<KeychainCredentialEntry>];
     response: KeychainCredentialEntry[] | KeychainCredentialEntry | KeychainCredentialQueryResultItem[] | KeychainCredentialQueryResultItem | number;
   };
 
-  /**
-   * Bridge choices for virtualization purposes.
-   *
-   * Empty means it will be managed/created automatically.
-   * @roles LXC_CONFIG_READ, READONLY_ADMIN
-   */
   'lxc.bridge_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * @roles LXC_CONFIG_READ
-   */
   'lxc.config': {
     params: [];
     response: LXCConfigEntry;
   };
 
-  /**
-   * Update container config.
-   * @roles LXC_CONFIG_WRITE
-   */
   'lxc.update': {
     params: [lxc_config_update?: LXCConfigUpdateArgs];
     response: LXCConfigEntry;
   };
 
-  /**
-   * Create an NVMe target ``host``.
-   *
-   * This may be then be associated with one or more ``subsystems`` to control access.
-   * @roles SHARING_NVME_TARGET_WRITE
-   */
-  'nvmet.host.create': {
-    params: [nvmet_host_create: NVMetHostCreate];
-    response: NVMetHostEntry;
-  };
-
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.host.get_instance': {
-    params: [id: number, options?: QueryOptions<NVMetHostEntry>];
-    response: NVMetHostEntry;
-  };
-
-  /**
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.host.query': {
-    params: [filters?: QueryFilters<NVMetHostEntry>, options?: QueryOptions<NVMetHostEntry>];
-    response: NVMetHostEntry[] | NVMetHostEntry | NVMetHostQueryResultItem[] | NVMetHostQueryResultItem | number;
-  };
-
-  /**
-   * Update NVMe target ``host`` of ``id``.
-   * @roles SHARING_NVME_TARGET_WRITE
-   */
-  'nvmet.host.update': {
-    params: [id: number, nvmet_host_update: NVMetHostUpdate];
-    response: NVMetHostEntry;
-  };
-
-  /**
-   * Create an association between a ``host`` and a subsystem (``subsys``).
-   *
-   * This will enable the ``host`` to access the subsystem, even if the subsystem does not have the ``allow_any_host`` attribute set.
-   * @roles SHARING_NVME_TARGET_WRITE
-   */
-  'nvmet.host_subsys.create': {
-    params: [nvmet_host_subsys_create: NVMetHostSubsysCreate];
-    response: NVMetHostSubsysEntry;
-  };
-
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.host_subsys.get_instance': {
-    params: [id: number, options?: QueryOptions<NVMetHostSubsysEntry>];
-    response: NVMetHostSubsysEntry;
-  };
-
-  /**
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.host_subsys.query': {
-    params: [filters?: QueryFilters<NVMetHostSubsysEntry>, options?: QueryOptions<NVMetHostSubsysEntry>];
-    response: NVMetHostSubsysEntry[] | NVMetHostSubsysEntry | NVMetHostSubsysQueryResultItem[] | NVMetHostSubsysQueryResultItem | number;
-  };
-
-  /**
-   * Update ``host``/``subsys`` association of ``id``.
-   * @roles SHARING_NVME_TARGET_WRITE
-   */
-  'nvmet.host_subsys.update': {
-    params: [id: number, nvmet_host_subsys_update: NVMetHostSubsysUpdate];
-    response: NVMetHostSubsysEntry;
-  };
-
-  /**
-   * Create a NVMe target namespace in a subsystem (``subsys``).
-   *
-   * This will expose the namespace to any hosts permitted to access the subsystem.
-   * @roles SHARING_NVME_TARGET_WRITE
-   */
   'nvmet.namespace.create': {
     params: [nvmet_namespace_create: NVMetNamespaceCreate];
     response: NVMetNamespaceEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_NVME_TARGET_READ
-   */
   'nvmet.namespace.get_instance': {
     params: [id: number, options?: QueryOptions<NVMetNamespaceEntry>];
     response: NVMetNamespaceEntry;
   };
 
-  /**
-   * @roles SHARING_NVME_TARGET_READ
-   */
   'nvmet.namespace.query': {
     params: [filters?: QueryFilters<NVMetNamespaceEntry>, options?: QueryOptions<NVMetNamespaceEntry>];
     response: NVMetNamespaceEntry[] | NVMetNamespaceEntry | NVMetNamespaceQueryResultItem[] | NVMetNamespaceQueryResultItem | number;
   };
 
-  /**
-   * Update NVMe target namespace of ``id``.
-   * @roles SHARING_NVME_TARGET_WRITE
-   */
   'nvmet.namespace.update': {
     params: [id: number, nvmet_namespace_update: NVMetNamespaceUpdate];
     response: NVMetNamespaceEntry;
   };
 
-  /**
-   * Creates a dataset/zvol.
-   *
-   * Create a dataset within tank pool::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "pool.dataset.create",
-   *         "params": [{
-   *             "name": "tank/myuser",
-   *             "comments": "Dataset for myuser"
-   *         }]
-   *     }
-   * @roles DATASET_WRITE
-   */
   'pool.dataset.create': {
     params: [data: PoolDatasetCreateFilesystem | PoolDatasetCreateVolume];
     response: PoolDatasetEntry;
   };
 
-  /**
-   * Return a list of the specified ``quota_type`` of quotas on the ZFS dataset ``ds``. Supports ``query-filters`` and ``query-options``.
-   *
-   * .. note::
-   *
-   *     SMB client requests to set a quota granting no space will result in an on-disk quota of 1 KiB.
-   * @roles DATASET_READ
-   */
   'pool.dataset.get_quota': {
     params: [dataset: string, quota_type: 'USER' | 'GROUP' | 'DATASET' | 'PROJECT', filters?: QueryFilters<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>, options?: QueryOptions<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>];
     response: (PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota)[] | PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota | number;
   };
 
-  /**
-   * Rename a ZFS resource (filesystem, snapshot, or zvolume) identified by ``id``.
-   *
-   * .. warning::
-   *
-   *     No safety checks are performed when renaming ZFS resources. If the resource is in use by services
-   *     such as SMB, iSCSI, snapshot tasks, replication, or cloud sync, renaming may cause disruptions or
-   *     service failures. Proceed only if you are certain the resource is not in use and fully understand
-   *     the risks; set ``force`` to continue.
-   *
-   * The ``recursive`` option is only valid for renaming snapshots. If ``true``, and a snapshot is given, the snapshot is renamed recursively for all children -- for example, ``dozer/a@now`` and ``dozer/a/b@now`` are renamed to ``dozer/a@new`` and ``dozer/a/b@new``. Renaming snapshots is likewise not recommended.
-   * @roles DATASET_WRITE
-   */
-  'pool.dataset.rename': {
-    params: [id: string, data: PoolDatasetRenameOptions];
-    response: null;
-  };
-
-  /**
-   * Updates a dataset/zvol ``id``.
-   *
-   * Update the ``comments`` for "tank/myuser"::
-   *
-   *     {
-   *         "jsonrpc": "2.0",
-   *         "id": 1,
-   *         "method": "pool.dataset.update",
-   *         "params": ["tank/myuser", {
-   *             "comments": "Dataset for myuser, UPDATE #1"
-   *         }]
-   *     }
-   * @roles DATASET_WRITE
-   */
-  'pool.dataset.update': {
-    params: [id: string, data: PoolDatasetUpdate];
-    response: PoolDatasetEntry;
-  };
-
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles POOL_READ
-   */
   'pool.get_instance': {
     params: [id: number, options?: QueryOptions<PoolEntry>];
     response: PoolEntry;
   };
 
-  /**
-   * @roles POOL_READ
-   */
   'pool.query': {
     params: [filters?: QueryFilters<PoolEntry>, options?: QueryOptions<PoolEntry>];
     response: PoolEntry[] | PoolEntry | PoolQueryResultItem[] | PoolQueryResultItem | number;
   };
 
-  /**
-   * Take a snapshot from a given dataset.
-   * @roles SNAPSHOT_WRITE
-   */
   'pool.snapshot.create': {
     params: [data: PoolSnapshotCreateWithName | PoolSnapshotCreateWithSchema];
     response: PoolSnapshotCreateUpdateEntry;
   };
 
-  /**
-   * Rename a snapshot ``id`` to ``new_name``.
-   *
-   * No safety checks are performed when renaming ZFS resources. If the dataset is in use by services such as SMB, iSCSI, snapshot tasks, replication, or cloud sync, renaming may cause disruptions or service failures.
-   *
-   * Proceed only if you are certain the ZFS resource is not in use and fully understand the risks. Set Force to continue.
-   * @roles SNAPSHOT_WRITE
-   */
   'pool.snapshot.rename': {
     params: [id: string, options: PoolSnapshotRenameOptions];
     response: null;
   };
 
-  /**
-   * Update the user properties of the snapshot identified by ``snap_id``.
-   * @roles SNAPSHOT_WRITE
-   */
   'pool.snapshot.update': {
     params: [id: string, data: PoolSnapshotUpdate];
     response: PoolSnapshotCreateUpdateEntry;
   };
 
-  /**
-   * Create a periodic snapshot task.
-   *
-   * Snapshots are automatically destroyed after their configured lifetime. If multiple periodic tasks create a snapshot at the same time (for example, an hourly and a daily task at 00:00), the snapshot is kept until the last of those tasks reaches its expiry time.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'pool.snapshottask.create': {
     params: [data: PoolSnapshotTaskCreate];
     response: PeriodicSnapshotTaskEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'pool.snapshottask.get_instance': {
     params: [id: number, options?: QueryOptions<PeriodicSnapshotTaskEntry>];
     response: PeriodicSnapshotTaskEntry;
   };
 
-  /**
-   * @roles SNAPSHOT_TASK_READ
-   */
   'pool.snapshottask.query': {
     params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptions<PeriodicSnapshotTaskEntry>];
     response: PeriodicSnapshotTaskEntry[] | PeriodicSnapshotTaskEntry | PeriodicSnapshotTaskQueryResultItem[] | PeriodicSnapshotTaskQueryResultItem | number;
   };
 
-  /**
-   * Update a Periodic Snapshot Task with specific ``id``.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'pool.snapshottask.update': {
     params: [id: number, data: PoolSnapshotTaskUpdate];
     response: PeriodicSnapshotTaskEntry;
   };
 
-  /**
-   * Reduce the privileges of the current user credentials to ``READONLY_ADMINS``. This action prevents the session from making configuration changes. It also redacts sensitive data in API output.
-   * @roles READONLY_ADMIN
-   */
   'privilege.become_readonly': {
     params: [];
     response: null;
   };
 
-  /**
-   * Create a Replication Task that will push or pull ZFS snapshots to or from remote host.
-   * @roles REPLICATION_TASK_WRITE
-   */
   'replication.create': {
     params: [replication_create: ReplicationCreate];
     response: ReplicationEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles REPLICATION_TASK_READ
-   */
   'replication.get_instance': {
     params: [id: number, options?: QueryOptions<ReplicationEntry>];
     response: ReplicationEntry;
   };
 
-  /**
-   * @roles REPLICATION_TASK_READ
-   */
   'replication.query': {
     params: [filters?: QueryFilters<ReplicationEntry>, options?: QueryOptions<ReplicationEntry>];
     response: ReplicationEntry[] | ReplicationEntry | ReplicationQueryResultItem[] | ReplicationQueryResultItem | number;
   };
 
-  /**
-   * Create the opposite of replication task ``id`` (PULL if it was PUSH and vice versa).
-   * @roles REPLICATION_TASK_WRITE
-   */
   'replication.restore': {
     params: [id: number, replication_restore: ReplicationRestoreOptions];
     response: ReplicationEntry;
   };
 
-  /**
-   * Check if target has any snapshots that do not exist on source. Returns these snapshots grouped by dataset.
-   * @roles REPLICATION_TASK_WRITE
-   */
   'replication.target_unmatched_snapshots': {
     params: [direction: DirectionInput2, source_datasets: string[], target_dataset: string, transport: TransportInput, ssh_credentials?: number | null];
     response: Record<string, string[]>;
   };
 
-  /**
-   * Update a Replication Task with specific ``id``.
-   * @roles REPLICATION_TASK_WRITE
-   */
   'replication.update': {
     params: [id: number, replication_update: ReplicationUpdate];
     response: ReplicationEntry;
   };
 
-  /**
-   * Get reporting data for given graphs.
-   *
-   * List of possible graphs can be retrieved using :doc:`reporting.graphs <api_methods_reporting.graphs>` call.
-   *
-   * For the time period of the graph either ``unit`` and ``page`` OR ``start`` and ``end`` should be used, not both.
-   * @roles REPORTING_READ
-   */
   'reporting.get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
   };
 
-  /**
-   * Get reporting data for ``name`` graph.
-   * @roles REPORTING_READ
-   */
   'reporting.graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
   };
 
-  /**
-   * Get reporting data for given graphs.
-   *
-   * List of possible graphs can be retrieved using :doc:`reporting.netdata_graphs <api_methods_reporting.netdata_graphs>` call.
-   * @roles REPORTING_READ
-   */
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
   };
 
-  /**
-   * Get reporting data for ``name`` graph.
-   * @roles REPORTING_READ
-   */
   'reporting.netdata_graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
   };
 
-  /**
-   * Create a Rsync Task.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'rsynctask.create': {
     params: [rsync_task_create: RsyncTaskCreate];
     response: RsyncTaskEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'rsynctask.get_instance': {
     params: [id: number, options?: QueryOptions<RsyncTaskEntry>];
     response: RsyncTaskEntry;
   };
 
-  /**
-   * @roles SNAPSHOT_TASK_READ
-   */
   'rsynctask.query': {
     params: [filters?: QueryFilters<RsyncTaskEntry>, options?: QueryOptions<RsyncTaskEntry>];
     response: RsyncTaskEntry[] | RsyncTaskEntry | RsyncTaskQueryResultItem[] | RsyncTaskQueryResultItem | number;
   };
 
-  /**
-   * Update Rsync Task of ``id``.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'rsynctask.update': {
     params: [id: number, rsync_task_update: RsyncTaskUpdate];
     response: RsyncTaskEntry;
   };
 
-  /**
-   * Create a NFS Share.
-   * @roles SHARING_NFS_WRITE
-   */
   'sharing.nfs.create': {
     params: [data: NfsShareCreate];
     response: SharingNFSEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_NFS_READ
-   */
   'sharing.nfs.get_instance': {
     params: [id: number, options?: QueryOptions<SharingNFSEntry>];
     response: SharingNFSEntry;
   };
 
-  /**
-   * @roles SHARING_NFS_READ
-   */
   'sharing.nfs.query': {
     params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptions<SharingNFSEntry>];
     response: SharingNFSEntry[] | SharingNFSEntry | SharingNFSQueryResultItem[] | SharingNFSQueryResultItem | number;
   };
 
-  /**
-   * Update NFS Share of ``id``.
-   * @roles SHARING_NFS_WRITE
-   */
   'sharing.nfs.update': {
     params: [id: number, data: NfsShareUpdate];
     response: SharingNFSEntry;
   };
 
-  /**
-   * Create an SMB share.
-   *
-   * The behavior and available options of the share are determined by its ``purpose``; most deployments should use ``DEFAULT_SHARE``. Before creating a share, the server should be joined to a directory service or have at least one local SMB user; :doc:`sharing.smb.share_precheck <api_methods_sharing.smb.share_precheck>` can be used to validate this and the share name in advance.
-   *
-   * .. note::
-   *
-   *     Setting raw ``smb.conf`` auxiliary parameters (``options.auxsmbconf``) is restricted to callers
-   *     with full administrative privileges. Auxiliary parameters that would break the SMB server are
-   *     rejected, returning a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*).
-   * @roles SHARING_SMB_WRITE
-   */
   'sharing.smb.create': {
     params: [data: SmbShareCreate];
     response: SharingSMBEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.get_instance': {
     params: [id: number, options?: QueryOptions<SharingSMBEntry>];
     response: SharingSMBEntry;
   };
 
-  /**
-   * Retrieve the share-level ACL for the SMB share named ``share_name``.
-   *
-   * This is the access control list enforced by the SMB protocol on connections to the share; it is distinct from the filesystem ACL on the share ``path``. Each entry's SID is resolved to a Unix ID and name where possible. The special share name ``HOMES`` refers to the auto-generated home-directory share.
-   *
-   * A JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned when the named share does not exist.
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.getacl': {
     params: [smb_getacl: SharingSMBGetaclArgs];
     response: SMBShareAcl;
   };
 
-  /**
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.query': {
     params: [filters?: QueryFilters<SharingSMBEntry>, options?: QueryOptions<SharingSMBEntry>];
     response: SharingSMBEntry[] | SharingSMBEntry | SharingSMBQueryResultItem[] | SharingSMBQueryResultItem | number;
   };
 
-  /**
-   * Set an ACL on ``share_name``. This only impacts access through the SMB protocol.
-   * @roles SHARING_SMB_WRITE
-   */
   'sharing.smb.setacl': {
     params: [smb_setacl: SharingSMBSetaclArgs];
     response: SMBShareAcl;
   };
 
-  /**
-   * Update the SMB share identified by ``id``.
-   *
-   * Renaming a share or changing its ``path`` is disruptive: existing SMB sessions on the affected share are forcibly closed so that the change can take effect.
-   *
-   * .. note::
-   *
-   *     Setting raw ``smb.conf`` auxiliary parameters (``options.auxsmbconf``) is restricted to callers
-   *     with full administrative privileges. Auxiliary parameters that would break the SMB server are
-   *     rejected and the original configuration is restored.
-   * @roles SHARING_SMB_WRITE
-   */
   'sharing.smb.update': {
     params: [id: number, data: SmbShareUpdate];
     response: SharingSMBEntry;
   };
 
-  /**
-   * Create a Webshare share that exposes a local ZFS path over the Webshare protocol.
-   *
-   * The shared ``path`` must reside under ``/mnt/`` within a ZFS pool. At most one share may set ``is_home_base`` to ``true`` to serve as the base path for user home directories.
-   * @roles SHARING_WEBSHARE_WRITE
-   */
   'sharing.webshare.create': {
     params: [data: SharingWebshareCreate];
     response: SharingWebshareEntry;
   };
 
-  /**
-   * Delete SMB Share of ``id``. This will forcibly disconnect SMB clients that are accessing the share.
-   * @roles SHARING_WEBSHARE_WRITE
-   */
   'sharing.webshare.delete': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_WEBSHARE_READ
-   */
   'sharing.webshare.get_instance': {
     params: [id: number, options?: QueryOptions<SharingWebshareEntry>];
     response: SharingWebshareEntry;
   };
 
-  /**
-   * @roles SHARING_WEBSHARE_READ
-   */
   'sharing.webshare.query': {
     params: [filters?: QueryFilters<SharingWebshareEntry>, options?: QueryOptions<SharingWebshareEntry>];
     response: SharingWebshareEntry[] | SharingWebshareEntry | SharingWebshareQueryResultItem[] | SharingWebshareQueryResultItem | number;
   };
 
-  /**
-   * Update the Webshare share identified by ``id``.
-   *
-   * Only one share may set ``is_home_base`` to ``true`` to serve as the base path for user home directories.
-   * @roles SHARING_WEBSHARE_WRITE
-   */
   'sharing.webshare.update': {
     params: [id: number, data: SharingWebshareUpdate];
     response: SharingWebshareEntry;
   };
 
-  /**
-   * @roles SHARING_SMB_READ
-   */
   'smb.config': {
     params: [];
     response: SMBEntry;
   };
 
-  /**
-   * Returns SMB server status (sessions, open files, locks, notifications).
-   * @roles SHARING_SMB_READ
-   */
   'smb.status': {
     params: [info_level?: 'ALL' | 'SESSIONS' | 'SHARES' | 'LOCKS' | 'BYTERANGE' | 'NOTIFICATIONS', filters?: QueryFilters<Record<string, unknown>>, options?: QueryOptions<Record<string, unknown>>, status_options?: SMBStatusOptions];
     response: (Record<string, unknown>)[] | Record<string, unknown> | number;
   };
 
-  /**
-   * Update the SMB service configuration.
-   *
-   * The group specified as the SMB ``admin_group`` is automatically added as a foreign group member of ``S-1-5-32-544`` (the builtin administrators group), affording the group all privileges granted to a local administrator. Any SMB group may be selected, including Active Directory groups.
-   *
-   * Mandatory SMB encryption (``encryption`` set to ``REQUIRED``) is not compatible with ``SMB1`` server support.
-   *
-   * .. note::
-   *
-   *     ``workgroup`` and ``netbiosname`` must have different values.
-   *
-   * .. important::
-   *
-   *     ``smb_options`` are raw ``smb.conf`` parameters that are not covered by the supported configuration
-   *     options. Not all options are tested or supported, and their behavior may change between releases.
-   *     Stability of ``smb.conf`` options is not guaranteed.
-   * @roles SHARING_SMB_WRITE
-   */
   'smb.update': {
     params: [smb_update?: SMBUpdateArgs];
     response: SMBEntry;
   };
 
-  /**
-   * @roles SYSTEM_GENERAL_READ
-   */
-  'snmp.config': {
-    params: [];
-    response: SNMPEntry;
-  };
-
-  /**
-   * Update SNMP Service Configuration.
-   *
-   * The ``v3_*`` settings are valid and enforced only when ``v3`` is enabled.
-   *
-   * Enabling ``v3`` requires ``v3_username``, ``v3_authtype``, and ``v3_password``. Disabling ``v3`` alone retains the v3 user settings in the private config but removes the public config entry, blocking v3 access. Disabling ``v3`` and clearing ``v3_username`` additionally removes the user from the private config.
-   * @roles SYSTEM_GENERAL_WRITE
-   */
-  'snmp.update': {
-    params: [snmp_update?: SNMPUpdateArgs];
-    response: SNMPEntry;
-  };
-
-  /**
-   * Returns whether a non-isolated NVIDIA GPU is present in the system.
-   * @roles SYSTEM_ADVANCED_READ
-   */
   'system.advanced.nvidia_present': {
     params: [];
     response: boolean;
   };
 
-  /**
-   * Update System Advanced Service Configuration.
-   * @roles SYSTEM_ADVANCED_WRITE
-   */
   'system.advanced.update': {
     params: [data: SystemAdvancedUpdate];
     response: SystemAdvancedEntry;
   };
 
-  /**
-   * Returns whether the ``feature`` is enabled.
-   * @roles SYSTEM_PRODUCT_READ
-   */
   'system.feature_enabled': {
     params: [feature: Feature];
     response: boolean;
   };
 
-  /**
-   * @roles SYSTEM_GENERAL_READ
-   */
   'system.general.config': {
     params: [];
     response: SystemGeneralEntry;
   };
 
-  /**
-   * Update System General Service Configuration.
-   *
-   * UI configuration is not applied automatically. Call :doc:`system.general.ui_restart <api_methods_system.general.ui_restart>` to apply new UI settings (all HTTP connections will be aborted) or specify ``ui_restart_delay`` (in seconds) to automatically apply them after some small amount of time necessary you might need to receive the response for your settings update request.
-   *
-   * If incorrect UI configuration is applied, you might loss API connectivity and won't be able to fix the settings. To avoid that, specify ``rollback_timeout`` (in seconds). It will automatically roll back UI configuration to the previously working settings after ``rollback_timeout`` passes unless you call :doc:`system.general.checkin <api_methods_system.general.checkin>` in case the new settings were correct and no rollback is necessary.
-   * @roles SYSTEM_GENERAL_WRITE
-   */
   'system.general.update': {
     params: [general_settings?: SystemGeneralUpdateArgs];
     response: SystemGeneralEntry;
   };
 
-  /**
-   * @roles TRUENAS_CONNECT_READ
-   */
   'tn_connect.config': {
     params: [];
     response: TrueNASConnectEntry;
   };
 
-  /**
-   * Returns current mapping of ips configured with truenas connect against their hostnames.
-   * @roles TRUENAS_CONNECT_READ
-   */
   'tn_connect.ips_with_hostnames': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Update TrueNAS Connect configuration.
-   * @roles TRUENAS_CONNECT_WRITE
-   */
   'tn_connect.update': {
     params: [tn_connect_update?: TrueNASConnectUpdateArgs];
     response: TrueNASConnectEntry;
   };
 
-  /**
-   * @roles TRUECOMMAND_READ
-   */
   'truecommand.config': {
     params: [];
     response: TruecommandEntry;
   };
 
-  /**
-   * Update Truecommand service settings.
-   *
-   * ``api_key`` is a valid API key generated by iX Portal.
-   * @roles TRUECOMMAND_WRITE
-   */
   'truecommand.update': {
     params: [truecommand_update?: TruecommandUpdateArgs];
     response: TruecommandEntry;
   };
 
-  /**
-   * Return the system hardware fingerprint as a base64-encoded JSON string.
-   * @roles READONLY_ADMIN
-   */
   'truenas.license.fingerprint': {
     params: [];
     response: string;
   };
 
-  /**
-   * Returns the parsed license object, or null if no license exists.
-   * @roles READONLY_ADMIN
-   */
   'truenas.license.info': {
     params: [];
     response: Record<string, unknown> | null;
   };
 
-  /**
-   * Upload a PEM-wrapped license file.
-   * @roles FULL_ADMIN
-   */
   'truenas.license.upload': {
     params: [license: string, options?: TrueNASLicenseUploadOptions];
     response: null;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SYSTEM_TUNABLE_READ
-   */
   'tunable.get_instance': {
     params: [id: number, options?: QueryOptions<TunableEntry>];
     response: TunableEntry;
   };
 
-  /**
-   * @roles SYSTEM_TUNABLE_READ
-   */
   'tunable.query': {
     params: [filters?: QueryFilters<TunableEntry>, options?: QueryOptions<TunableEntry>];
     response: TunableEntry[] | TunableEntry | TunableQueryResultItem[] | TunableQueryResultItem | number;
   };
 
-  /**
-   * Update UPS Service Configuration.
-   * @roles SYSTEM_GENERAL_WRITE
-   */
   'ups.update': {
     params: [data: UPSUpdate];
     response: UPSEntry;
   };
 
-  /**
-   * Create a new user.
-   * @roles ACCOUNT_WRITE
-   */
   'user.create': {
     params: [user_create: UserCreate];
     response: UserCreateUpdateResult;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles ACCOUNT_READ
-   */
   'user.get_instance': {
     params: [id: number, options?: QueryOptions<UserEntry>];
     response: UserEntry;
   };
 
-  /**
-   * Query users with `query-filters` and `query-options`.
-   *
-   * If users provided by Active Directory or LDAP are not desired, then "local", "=", True should be added to filters.
-   * @roles ACCOUNT_READ
-   */
   'user.query': {
     params: [filters?: QueryFilters<UserEntry>, options?: QueryOptions<UserEntry>];
     response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
   };
 
-  /**
-   * Renew ``username`` user's two-factor authentication secret.
-   *
-   * .. note::
-   *
-   *     This username must match the authenticated username unless authenticated
-   *     credentials have the ``FULL_ADMIN`` role.
-   */
   'user.renew_2fa_secret': {
     params: [username: string, twofactor_options: TwofactorOptions];
     response: UserRenew2FaSecretResult;
   };
 
-  /**
-   * Update attributes of an existing user.
-   * @roles ACCOUNT_WRITE
-   */
   'user.update': {
     params: [id: number, user_update: UserUpdate];
     response: UserCreateUpdateResult;
   };
 
-  /**
-   * Create a Virtual Machine (VM).
-   *
-   * A maximum of 16 guest virtual CPUs are allowed. The CPU topology is configured through the ``vcpus``, ``cores``, and ``threads`` attributes.
-   * @roles VM_WRITE
-   */
   'vm.create': {
     params: [vm_create: VMCreateArgs];
     response: VMEntry;
   };
 
-  /**
-   * Delete a VM.
-   * @roles VM_WRITE
-   */
   'vm.delete': {
     params: [id: number, options?: VMDeleteOptions];
     response: null;
   };
 
-  /**
-   * Available choices for NIC Attach attribute.
-   * @roles READONLY_ADMIN, VM_DEVICE_READ
-   */
   'vm.device.nic_attach_choices': {
     params: [];
     response: VMDeviceNicAttachChoicesResult;
   };
 
-  /**
-   * Retrieve USB controller type choices.
-   * @roles READONLY_ADMIN, VM_DEVICE_READ
-   */
   'vm.device.usb_controller_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * Available choices for USB passthrough devices.
-   * @roles READONLY_ADMIN, VM_DEVICE_READ
-   */
   'vm.device.usb_passthrough_choices': {
     params: [];
     response: USBPassthroughInfo;
   };
 
-  /**
-   * Retrieve details about ``device`` USB device.
-   * @roles VM_DEVICE_READ
-   */
   'vm.device.usb_passthrough_device': {
     params: [device: string];
     response: USBPassthroughDevice;
   };
 
-  /**
-   * Get the display devices from a given guest.
-   * @roles VM_READ
-   */
   'vm.get_display_devices': {
     params: [id: number];
     response: DisplayDevice[];
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles VM_READ
-   */
   'vm.get_instance': {
     params: [id: number, options?: QueryOptions<VMEntry>];
     response: VMEntry;
   };
 
-  /**
-   * @roles VM_READ
-   */
   'vm.query': {
     params: [filters?: QueryFilters<VMEntry>, options?: QueryOptions<VMEntry>];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
   };
 
-  /**
-   * Get the status of ``id`` VM.
-   *
-   * Returns a dict:
-   *     - state, RUNNING / STOPPED / SUSPENDED
-   *     - pid, process id if RUNNING
-   * @roles VM_READ
-   */
   'vm.status': {
     params: [id: number];
     response: VMStatus;
   };
 
-  /**
-   * Update all information of a specific VM.
-   *
-   * ``devices`` is a list of virtualized hardware to attach to the virtual machine. If ``devices`` is not present, no change is made to devices. If either the device list order or the data stored by a device changes when the attribute is passed, these actions are taken:
-   *
-   * 1. If a device previously attached to the VM is no longer in the ``devices`` list, it is removed from the
-   *    virtual machine.
-   * 2. Devices in the ``devices`` list that contain a valid ``id`` attribute corresponding to an existing
-   *    device are updated.
-   * 3. Devices that do not have an ``id`` attribute are created and attached to the VM.
-   * @roles VM_WRITE
-   */
   'vm.update': {
     params: [id: number, vm_update: VMUpdate];
     response: VMEntry;
   };
 
-  /**
-   * Create VMWare snapshot.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'vmware.create': {
     params: [vmware_create: VMWareCreate];
     response: VMWareEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SNAPSHOT_TASK_READ
-   */
   'vmware.get_instance': {
     params: [id: number, options?: QueryOptions<VMWareEntry>];
     response: VMWareEntry;
   };
 
-  /**
-   * Requests datastores from vCenter server and tries to match them with local filesystems.
-   *
-   * Returns a list of datastores, a list of local filesystems and guessed relationship between them.
-   * @roles READONLY_ADMIN
-   */
   'vmware.match_datastores_with_datasets': {
     params: [vmware_creds: VMWareMatchDatastoresWithDatasetsArgs];
     response: VMWareMatchDatastoresWithDatasetsResult;
   };
 
-  /**
-   * @roles SNAPSHOT_TASK_READ
-   */
   'vmware.query': {
     params: [filters?: QueryFilters<VMWareEntry>, options?: QueryOptions<VMWareEntry>];
     response: VMWareEntry[] | VMWareEntry | VMWareQueryResultItem[] | VMWareQueryResultItem | number;
   };
 
-  /**
-   * Update VMWare snapshot of ``id``.
-   * @roles SNAPSHOT_TASK_WRITE
-   */
   'vmware.update': {
     params: [id: number, vmware_update: VMWareUpdate];
     response: VMWareEntry;
   };
 
-  /**
-   * Returns ip choices for Webshare service to use.
-   * @roles READONLY_ADMIN, SHARING_WEBSHARE_READ
-   */
   'webshare.bindip_choices': {
     params: [];
     response: Record<string, string>;
   };
 
-  /**
-   * @roles SHARING_WEBSHARE_READ
-   */
   'webshare.config': {
     params: [];
     response: WebshareEntry;
   };
 
-  /**
-   * Update Webshare Service Configuration.
-   * @roles SHARING_WEBSHARE_WRITE
-   */
   'webshare.update': {
     params: [webshare_update: WebshareUpdate];
     response: WebshareEntry;
   };
 
-  /**
-   * This endpoint was designed to be exclusively consumed by the webUI. This is what makes up the System Information card on the main dashboard after a user logs in.
-   * @roles READONLY_ADMIN
-   */
   'webui.main.dashboard.sys_info': {
     params: [];
     response: SysInfo;
   };
 
-  /**
-   * Destroy a ZFS resource (filesystem or volume), optionally recursing into its descendants.
-   *
-   * To destroy snapshots, use :doc:`zfs.resource.snapshot.destroy <api_methods_zfs.resource.snapshot.destroy>` instead.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - a snapshot path (containing ``@``) is supplied
-   *   (use :doc:`zfs.resource.snapshot.destroy <api_methods_zfs.resource.snapshot.destroy>`)
-   * - the resource does not exist (``ENOENT``)
-   * - the resource has children and ``recursive`` is ``false`` (``EBUSY``)
-   * - the resource has snapshots and ``recursive`` is ``false``
-   * - the target is the pool's root filesystem
-   * - the path is absolute or ends with ``/``
-   * - the path references a protected internal resource
-   *
-   * Examples:
-   *
-   * Destroy a single filesystem:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/temp"}
-   *
-   * Recursively destroy a filesystem and all of its descendants:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/parent", "recursive": true}
-   *
-   * .. note::
-   *
-   *     - Root filesystem destruction is not allowed for safety
-   *     - Protected system paths cannot be destroyed via API
-   *     - Datasets with snapshots require ``recursive`` to be ``true``
-   * @roles ZFS_RESOURCE_DELETE
-   */
   'zfs.resource.destroy': {
     params: [data: ZFSResourceDestroyArgsData];
     response: null;
   };
 
-  /**
-   * Query ZFS resources (datasets and volumes) with flexible filtering options.
-   *
-   * This method provides a high-performance interface for retrieving information about ZFS resources, including their properties, hierarchical relationships, and metadata. The query can be customized to retrieve specific resources, properties, and control the output format.
-   *
-   * To query snapshots, use :doc:`zfs.resource.snapshot.query <api_methods_zfs.resource.snapshot.query>` instead.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - a snapshot path is supplied (use :doc:`zfs.resource.snapshot.query <api_methods_zfs.resource.snapshot.query>`)
-   * - overlapping paths are supplied with ``get_children`` enabled
-   * - a requested path does not exist (``ENOENT``)
-   *
-   * Examples:
-   *
-   * Query all resources with default properties:
-   *
-   * .. code:: json
-   *
-   *     {}
-   *
-   * Query specific resources:
-   *
-   * .. code:: json
-   *
-   *     {"paths": ["tank/documents", "tank/media"]}
-   *
-   * Query specific properties with children:
-   *
-   * .. code:: json
-   *
-   *     {"paths": ["tank"], "properties": ["mounted", "compression", "used"], "get_children": true}
-   *
-   * Get a hierarchical view of resources:
-   *
-   * .. code:: json
-   *
-   *     {"paths": ["tank"], "nest_results": true, "get_children": true}
-   * @roles ZFS_RESOURCE_READ
-   */
   'zfs.resource.query': {
     params: [data?: ZFSResourceQuery];
     response: ZFSResourceEntry[];
   };
 
-  /**
-   * Clone a ZFS snapshot to create a new dataset.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - the source snapshot does not exist
-   * - the destination dataset already exists
-   * - the source is not a snapshot
-   *
-   * Examples:
-   *
-   * Clone a snapshot to a new dataset:
-   *
-   * .. code:: json
-   *
-   *     {"snapshot": "tank/data@backup", "dataset": "tank/data_clone"}
-   *
-   * Clone with properties:
-   *
-   * .. code:: json
-   *
-   *     {
-   *         "snapshot": "tank/data@backup",
-   *         "dataset": "tank/data_clone",
-   *         "properties": {"compression": "lz4", "quota": "10G"}
-   *     }
-   * @roles SNAPSHOT_WRITE
-   */
   'zfs.resource.snapshot.clone': {
     params: [data: ZFSResourceSnapshotCloneQuery];
     response: null;
   };
 
-  /**
-   * Count ZFS snapshots per dataset.
-   *
-   * This method provides a fast way to count snapshots without retrieving full snapshot information. Useful for UI displays and quota checks.
-   *
-   * Examples:
-   *
-   * Count snapshots for root filesystems only:
-   *
-   * .. code:: json
-   *
-   *     {}
-   *
-   * Count all snapshots recursively:
-   *
-   * .. code:: json
-   *
-   *     {"recursive": true}
-   *
-   * Count snapshots for a specific dataset:
-   *
-   * .. code:: json
-   *
-   *     {"paths": ["tank/data"]}
-   *
-   * Count snapshots for a dataset and all of its children:
-   *
-   * .. code:: json
-   *
-   *     {"paths": ["tank"], "recursive": true}
-   * @roles SNAPSHOT_READ
-   */
   'zfs.resource.snapshot.count': {
     params: [data?: ZFSResourceSnapshotCountQuery];
     response: Record<string, number>;
   };
 
-  /**
-   * Create a ZFS snapshot.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - the dataset does not exist
-   * - the snapshot already exists
-   *
-   * Examples:
-   *
-   * Create a single snapshot:
-   *
-   * .. code:: json
-   *
-   *     {"dataset": "tank/data", "name": "backup"}
-   *
-   * Create snapshots recursively:
-   *
-   * .. code:: json
-   *
-   *     {"dataset": "tank", "name": "backup", "recursive": true}
-   *
-   * Create with user properties:
-   *
-   * .. code:: json
-   *
-   *     {"dataset": "tank/data", "name": "backup", "user_properties": {"com.company:backup_type": "daily"}}
-   * @roles SNAPSHOT_WRITE
-   */
   'zfs.resource.snapshot.create': {
     params: [data: ZFSResourceSnapshotCreateQuery];
     response: ZFSResourceSnapshotEntry;
   };
 
-  /**
-   * Destroy ZFS snapshots.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - the snapshot does not exist (``ENOENT``)
-   * - it has dependent clones and ``defer`` is ``false`` (``ENOTEMPTY``)
-   * - it has active holds (``ENOTEMPTY``)
-   * - a protected path is targeted without ``bypass`` (``EACCES``)
-   *
-   * Examples:
-   *
-   * Destroy a single snapshot:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@backup"}
-   *
-   * Destroy matching snapshots in child datasets:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank@backup", "recursive": true}
-   *
-   * Defer destruction if the snapshot is in use:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@snap", "defer": true}
-   *
-   * Destroy all snapshots of a dataset:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data", "all_snapshots": true}
-   *
-   * Destroy all snapshots of a dataset and its children:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank", "all_snapshots": true, "recursive": true}
-   * @roles SNAPSHOT_DELETE
-   */
   'zfs.resource.snapshot.destroy': {
     params: [data: ZFSResourceSnapshotDestroyQuery];
     response: null;
   };
 
-  /**
-   * Create a hold on a ZFS snapshot.
-   *
-   * A hold prevents a snapshot from being destroyed. Multiple holds can be placed on a snapshot with different tags.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - the snapshot does not exist
-   * - the hold cannot be created
-   *
-   * Examples:
-   *
-   * Hold a snapshot:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@backup"}
-   *
-   * Hold with a custom tag:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@backup", "tag": "replication"}
-   *
-   * Hold matching snapshots in child datasets:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank@backup", "recursive": true}
-   * @roles SNAPSHOT_WRITE
-   */
   'zfs.resource.snapshot.hold': {
     params: [data: ZFSResourceSnapshotHoldQuery];
     response: null;
   };
 
-  /**
-   * Get holds on a ZFS snapshot.
-   *
-   * Examples:
-   *
-   * Get the holds on a snapshot:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@backup"}
-   * @roles SNAPSHOT_READ
-   */
   'zfs.resource.snapshot.holds': {
     params: [data: ZFSResourceSnapshotHoldsQuery];
     response: string[];
   };
 
-  /**
-   * Retrieve information about ZFS snapshots, including their properties and user properties.
-   *
-   * Examples:
-   *
-   * Query all snapshots:
-   *
-   * .. code:: json
-   *
-   *     {}
-   *
-   * Query snapshots for a specific dataset:
-   *
-   * .. code:: json
-   *
-   *     {"paths": ["tank/data"]}
-   *
-   * Query a specific snapshot:
-   *
-   * .. code:: json
-   *
-   *     {"paths": ["tank/data@backup"]}
-   *
-   * Query with recursion and specific properties:
-   *
-   * .. code:: json
-   *
-   *     {"paths": ["tank"], "recursive": true, "properties": ["used", "referenced", "creation"]}
-   * @roles SNAPSHOT_READ
-   */
   'zfs.resource.snapshot.query': {
     params: [data?: ZFSResourceSnapshotQuery];
     response: ZFSResourceSnapshotEntry[];
   };
 
-  /**
-   * Release hold(s) from a ZFS snapshot.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - the snapshot does not exist
-   * - the hold cannot be released
-   *
-   * Examples:
-   *
-   * Release a specific hold:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@backup", "tag": "replication"}
-   *
-   * Release all holds from a snapshot:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@backup"}
-   *
-   * Release a hold from matching snapshots in child datasets:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank@backup", "tag": "backup", "recursive": true}
-   * @roles SNAPSHOT_WRITE
-   */
   'zfs.resource.snapshot.release': {
     params: [data: ZFSResourceSnapshotReleaseQuery];
     response: null;
   };
 
-  /**
-   * Rename a ZFS snapshot.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - the snapshot does not exist
-   * - the new name already exists
-   * - a supplied path is invalid
-   *
-   * Examples:
-   *
-   * Rename a single snapshot:
-   *
-   * .. code:: json
-   *
-   *     {"current_name": "tank/data@old", "new_name": "tank/data@new"}
-   *
-   * Rename matching snapshots in child datasets:
-   *
-   * .. code:: json
-   *
-   *     {"current_name": "tank@old", "new_name": "tank@new", "recursive": true}
-   * @roles SNAPSHOT_WRITE
-   */
   'zfs.resource.snapshot.rename': {
     params: [data: ZFSResourceSnapshotRenameQuery];
     response: null;
   };
 
-  /**
-   * Rollback a ZFS dataset to a snapshot.
-   *
-   * .. warning::
-   *
-   *     This is a destructive change. All data written since the target snapshot was
-   *     taken will be discarded.
-   *
-   * Invalid input is returned to the client as a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*); each failing condition appears in the error's ``data.extra`` array with its own ``errno``. A validation error is raised when:
-   *
-   * - the snapshot does not exist
-   * - the rollback cannot be completed
-   *
-   * Examples:
-   *
-   * Roll back to a snapshot:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@backup"}
-   *
-   * Roll back, destroying more recent snapshots:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank/data@backup", "recursive": true}
-   *
-   * Roll back all child datasets:
-   *
-   * .. code:: json
-   *
-   *     {"path": "tank@backup", "recursive_rollback": true}
-   * @roles SNAPSHOT_WRITE
-   */
   'zfs.resource.snapshot.rollback': {
     params: [data: ZFSResourceSnapshotRollbackQuery];
     response: null;
   };
 
-  /**
-   * @roles DATASET_READ
-   */
   'zfs.tier.config': {
     params: [];
     response: ZfsTierEntry;
   };
 
-  /**
-   * Set the performance tier for a ZFS dataset, optionally migrating existing data.
-   * @roles DATASET_WRITE
-   */
   'zfs.tier.dataset_set_tier': {
     params: [zfs_tier_dataset_set_tier: ZfsTierDatasetSetTierArgs];
     response: TierInfo;
   };
 
-  /**
-   * Cancel a running or queued rewrite job.
-   * @roles DATASET_WRITE
-   */
   'zfs.tier.rewrite_job_cancel': {
     params: [zfs_tier_rewrite_job_cancel: ZfsTierRewriteJobCancelArgs];
     response: null;
   };
 
-  /**
-   * Create a new rewrite job for the specified ZFS dataset.
-   * @roles DATASET_WRITE
-   */
   'zfs.tier.rewrite_job_create': {
     params: [zfs_tier_rewrite_job_create: ZfsTierRewriteJobCreateArgs];
     response: ZfsTierRewriteJobEntry;
   };
 
-  /**
-   * List files that failed to be rewritten during a rewrite job.
-   * @roles DATASET_READ
-   */
   'zfs.tier.rewrite_job_failures': {
     params: [zfs_tier_rewrite_job_failures: ZfsTierRewriteJobFailuresArgs];
     response: ZfsTierRewriteJobFailureEntry[] | ZfsTierRewriteJobFailureEntry | ZfsTierRewriteJobFailureQueryResultItem[] | ZfsTierRewriteJobFailureQueryResultItem | number;
   };
 
-  /**
-   * Query rewrite jobs, optionally filtered by status.
-   * @roles DATASET_READ
-   */
   'zfs.tier.rewrite_job_query': {
     params: [zfs_tier_rewrite_job_query?: ZfsTierRewriteJobQueryArgs];
     response: ZfsTierRewriteJobEntry[] | ZfsTierRewriteJobEntry | ZfsTierRewriteJobQueryResultItem[] | ZfsTierRewriteJobQueryResultItem | number;
   };
 
-  /**
-   * Recover a rewrite job in ERROR state by reissuing failed rewrites.
-   * @roles DATASET_WRITE
-   */
   'zfs.tier.rewrite_job_recover': {
     params: [zfs_tier_rewrite_job_recover: ZfsTierRewriteJobRecoverArgs];
     response: ZfsTierRewriteJobEntry;
   };
 
-  /**
-   * Get detailed status and statistics for a specific rewrite job.
-   * @roles DATASET_READ
-   */
   'zfs.tier.rewrite_job_status': {
     params: [zfs_tier_rewrite_job_status: ZfsTierRewriteJobStatusArgs];
     response: ZfsTierRewriteJobStatusEntry;
   };
 
-  /**
-   * Update the global ZFS tiering configuration.
-   *
-   * Controls whether tiering is enabled, how many rewrite jobs may run concurrently, the filesystem usage threshold at which rewrites are aborted, and the percentage of PERFORMANCE tier space reserved for metadata. Applying the new configuration regenerates the ``truenas_zfstierd`` daemon configuration and reloads (or restarts, if ``max_concurrent_jobs`` changed) the daemon.
-   *
-   * ZFS tiering requires a license. A JSON-RPC ``error`` response (code ``-32001``, *Method call error*) is returned when the system is not licensed for this feature.
-   * @roles DATASET_WRITE
-   */
   'zfs.tier.update': {
     params: [zfs_tier_update?: ZfsTierUpdateArgs];
     response: ZfsTierEntry;
   };
 
-  /**
-   * Query ZFS pools with flexible options for properties, topology, scan, and features.
-   *
-   * Returns information about both imported and non-imported pools. By default, only minimal data is returned (name, guid, status, health); additional sections like topology, scan, properties, etc. must be opted into via their respective flags. Pools that exist in the database but are not currently imported are returned with an OFFLINE status.
-   *
-   * The boot pool can be queried by explicitly passing its name in ``pool_names``. It is excluded from results when ``pool_names`` is null (query-all mode).
-   *
-   * Examples::
-   *
-   *     # Query all pools (minimal info: name, guid, status, health)
-   *     {}
-   *
-   *     # Query specific pools with properties
-   *     {
-   *         "pool_names": ["tank", "boot-pool"],
-   *         "properties": ["size", "capacity"]
-   *     }
-   *
-   *     # Query with full topology and scan information
-   *     {
-   *         "pool_names": ["tank"],
-   *         "topology": true,
-   *         "scan": true
-   *     }
-   *
-   *     # Query everything
-   *     {
-   *         "topology": true,
-   *         "scan": true,
-   *         "expand": true,
-   *         "features": true,
-   *         "properties": ["size", "capacity", "health"]
-   *     }
-   * @roles POOL_READ
-   */
   'zpool.query': {
     params: [data?: ZPoolQuery];
     response: ZPoolEntry[];

@@ -7,21 +7,11 @@ import type { ApiEventDirectory as PreviousApiEventDirectory } from '../v26_0_0/
 
 import type {
   AlertListRemovedEvent,
-  AuthSessionsRemovedEvent,
-  FCHostRemovedEvent,
-  FCPortRemovedEvent,
-  ISCSITargetAuthCredentialRemovedEvent,
-  ISCSITargetAuthorizedInitiatorRemovedEvent,
-  PeriodicSnapshotTaskRemovedEvent,
-  PrivilegeRemovedEvent,
 } from '../v25_04_0/api-types';
 import type {
   VMDeviceRemovedEvent,
   VMRemovedEvent,
 } from '../v25_04_2/api-types';
-import type {
-  ReplicationRemovedEvent,
-} from '../v25_10_0/api-types';
 import type {
   ContainerDeviceRemovedEvent,
   ContainerRemovedEvent,
@@ -29,26 +19,11 @@ import type {
 import type {
   AlertListAddedEvent,
   AlertListChangedEvent,
-  AuthSessionsAddedEvent,
   ContainerAddedEvent,
   ContainerChangedEvent,
   ContainerDeviceAddedEvent,
   ContainerDeviceChangedEvent,
   DockerStateChangedEvent,
-  FCHostAddedEvent,
-  FCHostChangedEvent,
-  FCPortAddedEvent,
-  FCPortChangedEvent,
-  ISCSITargetAuthCredentialAddedEvent,
-  ISCSITargetAuthCredentialChangedEvent,
-  ISCSITargetAuthorizedInitiatorAddedEvent,
-  ISCSITargetAuthorizedInitiatorChangedEvent,
-  PeriodicSnapshotTaskAddedEvent,
-  PeriodicSnapshotTaskChangedEvent,
-  PrivilegeAddedEvent,
-  PrivilegeChangedEvent,
-  ReplicationAddedEvent,
-  ReplicationChangedEvent,
   VMAddedEvent,
   VMChangedEvent,
   VMDeviceAddedEvent,
@@ -57,137 +32,34 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiEventDirectoryDelta {
-  /**
-   * Sent on alert changes.
-   * @roles ALERT_LIST_READ
-   */
   'alert.list': {
     added: AlertListAddedEvent;
     changed: AlertListChangedEvent;
     removed: AlertListRemovedEvent;
   };
 
-  /**
-   * Notification of new and removed sessions.
-   * @roles FULL_ADMIN
-   */
-  'auth.sessions': {
-    added: AuthSessionsAddedEvent;
-    removed: AuthSessionsRemovedEvent;
-  };
-
-  /**
-   * Sent on container.device changes.
-   * @roles CONTAINER_DEVICE_READ
-   */
   'container.device.query': {
     added: ContainerDeviceAddedEvent;
     changed: ContainerDeviceChangedEvent;
     removed: ContainerDeviceRemovedEvent;
   };
 
-  /**
-   * Sent on container changes.
-   * @roles CONTAINER_READ
-   */
   'container.query': {
     added: ContainerAddedEvent;
     changed: ContainerChangedEvent;
     removed: ContainerRemovedEvent;
   };
 
-  /**
-   * Docker state events
-   * @roles DOCKER_READ
-   */
   'docker.state': {
     changed: DockerStateChangedEvent;
   };
 
-  /**
-   * Sent on fc.fc_host changes.
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
-  'fc.fc_host.query': {
-    added: FCHostAddedEvent;
-    changed: FCHostChangedEvent;
-    removed: FCHostRemovedEvent;
-  };
-
-  /**
-   * Sent on fcport changes.
-   * @roles SHARING_ISCSI_TARGET_READ
-   */
-  'fcport.query': {
-    added: FCPortAddedEvent;
-    changed: FCPortChangedEvent;
-    removed: FCPortRemovedEvent;
-  };
-
-  /**
-   * Sent on iscsi.auth changes.
-   * @roles SHARING_ISCSI_AUTH_READ
-   */
-  'iscsi.auth.query': {
-    added: ISCSITargetAuthCredentialAddedEvent;
-    changed: ISCSITargetAuthCredentialChangedEvent;
-    removed: ISCSITargetAuthCredentialRemovedEvent;
-  };
-
-  /**
-   * Sent on iscsi.initiator changes.
-   * @roles SHARING_ISCSI_INITIATOR_READ
-   */
-  'iscsi.initiator.query': {
-    added: ISCSITargetAuthorizedInitiatorAddedEvent;
-    changed: ISCSITargetAuthorizedInitiatorChangedEvent;
-    removed: ISCSITargetAuthorizedInitiatorRemovedEvent;
-  };
-
-  /**
-   * Sent on pool.snapshottask changes.
-   * @roles SNAPSHOT_TASK_READ
-   */
-  'pool.snapshottask.query': {
-    added: PeriodicSnapshotTaskAddedEvent;
-    changed: PeriodicSnapshotTaskChangedEvent;
-    removed: PeriodicSnapshotTaskRemovedEvent;
-  };
-
-  /**
-   * Sent on privilege changes.
-   * @roles PRIVILEGE_READ
-   */
-  'privilege.query': {
-    added: PrivilegeAddedEvent;
-    changed: PrivilegeChangedEvent;
-    removed: PrivilegeRemovedEvent;
-  };
-
-  /**
-   * Sent on replication changes.
-   * @roles REPLICATION_TASK_READ
-   */
-  'replication.query': {
-    added: ReplicationAddedEvent;
-    changed: ReplicationChangedEvent;
-    removed: ReplicationRemovedEvent;
-  };
-
-  /**
-   * Sent on vm.device changes.
-   * @roles VM_DEVICE_READ
-   */
   'vm.device.query': {
     added: VMDeviceAddedEvent;
     changed: VMDeviceChangedEvent;
     removed: VMDeviceRemovedEvent;
   };
 
-  /**
-   * Sent on vm changes.
-   * @roles VM_READ
-   */
   'vm.query': {
     added: VMAddedEvent;
     changed: VMChangedEvent;

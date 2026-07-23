@@ -4,83 +4,48 @@
  */
 
 import type {
-  AclTemplateFormatOptions,
   Acltype,
   AzureBlobCredentialsModel,
-  AzureBlobCredentialsModelInput2,
   B2CredentialsModel,
-  B2CredentialsModelInput2,
   Blocksize,
   BoxCredentialsModel,
-  BoxCredentialsModelInput2,
   CloudBackupCron,
   DropboxCredentialsModel,
-  DropboxCredentialsModelInput2,
   FTPCredentialsModel,
-  FTPCredentialsModelInput2,
   FilesystemSetAclOptions,
   GoogleCloudStorageCredentialsModel,
-  GoogleCloudStorageCredentialsModelInput2,
   GoogleDriveCredentialsModel,
-  GoogleDriveCredentialsModelInput2,
   GooglePhotosCredentialsModel,
-  GooglePhotosCredentialsModelInput2,
   HTTPCredentialsModel,
-  HTTPCredentialsModelInput2,
   HubicCredentialsModel,
-  HubicCredentialsModelInput2,
   NFS4ACE_AdvancedFlags,
-  NFS4ACE_AdvancedFlagsInput,
-  NFS4ACE_AdvancedFlagsInput2,
   NFS4ACE_AdvancedPerms,
-  NFS4ACE_AdvancedPermsInput,
-  NFS4ACE_AdvancedPermsInput2,
   NFS4ACE_BasicFlags,
-  NFS4ACE_BasicFlagsInput,
-  NFS4ACE_BasicFlagsInput2,
   NFS4ACE_BasicPerms,
-  NFS4ACE_BasicPermsInput,
-  NFS4ACE_BasicPermsInput2,
   NFS4ACL_Flags,
   OneDriveCredentialsModel,
-  OneDriveCredentialsModelInput2,
   PCloudCredentialsModel,
-  PCloudCredentialsModelInput2,
   POSIXACE,
-  POSIXACEInput,
-  POSIXACEInput2,
   Rpm,
   S3CredentialsModel,
   S3CredentialsModelInput2,
   SFTPCredentialsModel,
-  SFTPCredentialsModelInput2,
   SSHCredentials,
-  SSHCredentialsInput,
   SSHKeyPair,
-  SSHKeyPairInput,
-  Source,
+  StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
-  SwiftCredentialsModelInput2,
   Tag,
   WebDavCredentialsModel,
-  WebDavCredentialsModelInput2,
   When,
   YandexCredentialsModel,
-  YandexCredentialsModelInput2,
 } from '../v25_04_0/api-types';
 
-/**
- * Used by: vm.create (params), vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (event), vm.query (params), vm.query (response), vm.update (params), vm.update (response)
- */
 export const Bootloader = {
   UefiCsm: 'UEFI_CSM',
   Uefi: 'UEFI',
 } as const;
 export type Bootloader = (typeof Bootloader)[keyof typeof Bootloader];
 
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (params), vm.device.update (response) … and 6 more
- */
 export const Iotype = {
   Native: 'NATIVE',
   Threads: 'THREADS',
@@ -88,9 +53,6 @@ export const Iotype = {
 } as const;
 export type Iotype = (typeof Iotype)[keyof typeof Iotype];
 
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (params), vm.device.update (response) … and 7 more
- */
 export const Resolution = {
   '1920x1200': '1920x1200',
   '1920x1080': '1920x1080',
@@ -105,54 +67,36 @@ export const Resolution = {
 } as const;
 export type Resolution = (typeof Resolution)[keyof typeof Resolution];
 
-/**
- * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (params), container.update (response), vm.create (params) … and 8 more
- */
 export const Time = {
   Local: 'LOCAL',
   Utc: 'UTC',
 } as const;
 export type Time = (typeof Time)[keyof typeof Time];
 
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export const Type = {
   Ahci: 'AHCI',
   Virtio: 'VIRTIO',
 } as const;
 export type Type = (typeof Type)[keyof typeof Type];
 
-/**
- * Used by: filesystem.acltemplate.by_path (response), filesystem.acltemplate.create (response), filesystem.acltemplate.get_instance (params), filesystem.acltemplate.get_instance (response), filesystem.acltemplate.query (params), filesystem.acltemplate.query (response), filesystem.acltemplate.update (response), filesystem.getacl (response), filesystem.setacl (response)
- */
 export const Type2 = {
   Allow: 'ALLOW',
   Deny: 'DENY',
 } as const;
 export type Type2 = (typeof Type2)[keyof typeof Type2];
 
-/**
- * Used by: initshutdownscript.create (response), initshutdownscript.get_instance (params), initshutdownscript.get_instance (response), initshutdownscript.query (params), initshutdownscript.query (response), initshutdownscript.update (response)
- */
 export const Type3 = {
   Command: 'COMMAND',
   Script: 'SCRIPT',
 } as const;
 export type Type3 = (typeof Type3)[keyof typeof Type3];
 
-/**
- * Used by: cloud_backup.list_snapshot_directory (response)
- */
 export const Type4 = {
   Dir: 'dir',
   File: 'file',
 } as const;
 export type Type4 = (typeof Type4)[keyof typeof Type4];
 
-/**
- * Used by: filesystem.listdir (response), filesystem.mkdir (response), filesystem.stat (response)
- */
 export const Type5 = {
   Directory: 'DIRECTORY',
   File: 'FILE',
@@ -161,238 +105,94 @@ export const Type5 = {
 } as const;
 export type Type5 = (typeof Type5)[keyof typeof Type5];
 
-/**
- * Used by: iscsi.extent.create (response), iscsi.extent.get_instance (params), iscsi.extent.get_instance (response), iscsi.extent.query (params), iscsi.extent.query (response), iscsi.extent.update (response)
- */
 export const Type6 = {
   Disk: 'DISK',
   File: 'FILE',
 } as const;
 export type Type6 = (typeof Type6)[keyof typeof Type6];
 
-/**
- * Used by: keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response)
- */
 export const Type7 = {
   SshKeyPair: 'SSH_KEY_PAIR',
   SshCredentials: 'SSH_CREDENTIALS',
 } as const;
 export type Type7 = (typeof Type7)[keyof typeof Type7];
 
-/**
- * Used by: vm.device.create (params), vm.device.query (event), vm.device.update (params), vm.query (event)
- */
 export const TypeInput = {
   Ahci: 'AHCI',
   Virtio: 'VIRTIO',
 } as const;
 export type TypeInput = (typeof TypeInput)[keyof typeof TypeInput];
 
-/**
- * Used by: filesystem.acltemplate.create (params), filesystem.acltemplate.query (event), filesystem.acltemplate.update (params), filesystem.setacl (params), network.configuration.update (params)
- */
 export const TypeInput2 = {
   Allow: 'ALLOW',
   Deny: 'DENY',
 } as const;
 export type TypeInput2 = (typeof TypeInput2)[keyof typeof TypeInput2];
 
-/**
- * Used by: initshutdownscript.create (params), initshutdownscript.query (event), initshutdownscript.update (params)
- */
 export const TypeInput3 = {
   Command: 'COMMAND',
   Script: 'SCRIPT',
 } as const;
 export type TypeInput3 = (typeof TypeInput3)[keyof typeof TypeInput3];
 
-/**
- * Used by: iscsi.extent.create (params), iscsi.extent.query (event), iscsi.extent.update (params)
- */
 export const TypeInput4 = {
   Disk: 'DISK',
   File: 'FILE',
 } as const;
 export type TypeInput4 = (typeof TypeInput4)[keyof typeof TypeInput4];
 
-/**
- * Used by: device.get_info (params)
- */
 export const TypeInput5 = {
   Serial: 'SERIAL',
   Gpu: 'GPU',
 } as const;
 export type TypeInput5 = (typeof TypeInput5)[keyof typeof TypeInput5];
 
-/**
- * Used by: keychaincredential.query (event)
- */
 export const TypeInput6 = {
   SshKeyPair: 'SSH_KEY_PAIR',
   SshCredentials: 'SSH_CREDENTIALS',
 } as const;
 export type TypeInput6 = (typeof TypeInput6)[keyof typeof TypeInput6];
 
-/**
- * Used by: vm.device.bind_choices (response)
- */
 export type VMDeviceBindChoicesResult = Record<string, unknown>;
 
-/**
- * Used by: vm.device.disk_choices (response)
- */
 export type VMDeviceDiskChoices = Record<string, unknown>;
 
-/**
- * Used by: vm.device.passthrough_device_choices (response)
- */
 export type VMDevicePassthroughInfo = Record<string, VMDevicePassthroughDevice>;
 
-/**
- * Used by: vm.device.query (response)
- */
 export type VMDeviceQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: vm.query (response)
- */
 export type VMQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: filesystem.acltemplate.query (event)
- */
 export interface ACLTemplateAddedEvent {
   id: number;
   fields: ACLTemplateEntryInput;
 }
-/**
- * Used by: filesystem.acltemplate.query (event)
- */
 export interface ACLTemplateEntryInput {
-  /**
-   * Unique identifier for the ACL template.
-   */
   id: number;
-  /**
-   * Whether this is a built-in system template or user-created.
-   */
   builtin: boolean;
-  /**
-   * Human-readable name for the ACL template.
-   */
   name: string;
   acltype: Acltype;
-  /**
-   * Array of Access Control Entries defined by this template.
-   */
-  acl: NFS4ACEInput[] | POSIXACEInput[];
-  /**
-   * Optional descriptive comment about the template's purpose.
-   */
+  acl: NFS4ACEInput[] | POSIXACE[];
   comment?: string;
 }
-/**
- * Used by: filesystem.acltemplate.query (event)
- */
 export interface NFS4ACEInput {
   tag: Tag;
   type: TypeInput2;
-  /**
-   * Permissions granted or denied by this ACE.
-   */
-  perms: NFS4ACE_AdvancedPermsInput | NFS4ACE_BasicPermsInput;
-  /**
-   * Inheritance and other behavioral flags for this ACE.
-   */
-  flags: NFS4ACE_AdvancedFlagsInput | NFS4ACE_BasicFlagsInput;
-  /**
-   * UID or GID when `tag` is "USER" or "GROUP". `null` for special entries.
-   */
+  perms: NFS4ACE_AdvancedPerms | NFS4ACE_BasicPerms;
+  flags: NFS4ACE_AdvancedFlags | NFS4ACE_BasicFlags;
   id?: number | null;
-  /**
-   * Username or group name when `tag` is "USER" or "GROUP". `null` for special entries.
-   */
   who?: string | null;
 }
-/**
- * Used by: filesystem.acltemplate.by_path (params)
- */
-export interface ACLTemplateByPathArgs {
-  path?: string;
-  "query-filters"?: unknown[];
-  "query-options"?: QueryOptionsModel2;
-  "format-options"?: AclTemplateFormatOptions;
-}
-/**
- * Used by: acme.dns.authenticator.query (params), alertservice.query (params), api_key.query (params), app.image.query (params), app.ix_volume.query (params), app.query (params), app.registry.query (params), auth.sessions (params), boot.environment.query (params), cloud_backup.query (params) … and 30 more
- */
-export interface QueryOptionsModel2 {
-  relationships?: boolean;
-  extend?: string | null;
-  extend_context?: string | null;
-  prefix?: string | null;
-  /**
-   * Extra options are defined on a per-endpoint basis and are described in the documentation for the associated query method.
-   */
-  extra?: {
-    [k: string]: unknown;
-  };
-  /**
-   * An array of field names describing the manner in which query results should be ordered. The field names may also have one of more of the following special prefixes: `-` (reverse sort direction), `nulls_first:` (place any null values at the head of the results list), `nulls_last:` (place any null values at the tail of the results list).
-   */
-  order_by?: string[];
-  /**
-   * An array of field names specifying the exact fields to include in the query return. The dot character `.` may be used to explicitly select only subkeys of the query result.
-   */
-  select?: (string | unknown[])[];
-  /**
-   * Return a numeric value representing the number of items that match the specified `query-filters`.
-   */
-  count?: boolean;
-  /**
-   * Return the JSON object of the first result matching the specified `query-filters`. The query fails if there specified `query-filters` return no results.
-   */
-  get?: boolean;
-  /**
-   * This specifies the beginning offset of the results array. When combined with the `limit` query-option it may be used to implement pagination of large results arrays. WARNING: some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
-   */
-  offset?: number;
-  /**
-   * This specifies the maximum number of results matching the specified `query-filters` to return. When combined wtih the `offset` query-option it may be used to implement pagination of large results arrays. WARNING: some query methods provide volatile results and the onus is on the developer to understand whether pagination is appropriate for a particular query API method.
-   */
-  limit?: number;
-  force_sql_filters?: boolean;
-}
-/**
- * Used by: filesystem.acltemplate.query (event)
- */
 export interface ACLTemplateChangedEvent {
   id: number;
   fields: ACLTemplateEntryInput;
 }
-/**
- * Used by: filesystem.acltemplate.create (params)
- */
 export interface AclTemplateCreate {
   name: string;
   acltype: Acltype;
-  acl: NFS4ACEInput2[] | POSIXACEInput2[];
+  acl: NFS4ACEInput[] | POSIXACE[];
   comment?: string;
 }
-/**
- * Used by: filesystem.acltemplate.create (params), filesystem.acltemplate.update (params), filesystem.setacl (params)
- */
-export interface NFS4ACEInput2 {
-  tag: Tag;
-  type: TypeInput2;
-  perms: NFS4ACE_AdvancedPermsInput2 | NFS4ACE_BasicPermsInput2;
-  flags: NFS4ACE_AdvancedFlagsInput2 | NFS4ACE_BasicFlagsInput2;
-  id?: number | null;
-  who?: string | null;
-}
-/**
- * Used by: filesystem.acltemplate.by_path (response), filesystem.acltemplate.create (response), filesystem.acltemplate.get_instance (params), filesystem.acltemplate.get_instance (response), filesystem.acltemplate.query (params), filesystem.acltemplate.query (response), filesystem.acltemplate.update (response)
- */
 export interface ACLTemplateEntry {
   id: number;
   builtin: boolean;
@@ -401,9 +201,6 @@ export interface ACLTemplateEntry {
   acl: NFS4ACE[] | POSIXACE[];
   comment?: string;
 }
-/**
- * Used by: filesystem.acltemplate.by_path (response), filesystem.acltemplate.create (response), filesystem.acltemplate.get_instance (params), filesystem.acltemplate.get_instance (response), filesystem.acltemplate.query (params), filesystem.acltemplate.query (response), filesystem.acltemplate.update (response), filesystem.getacl (response), filesystem.setacl (response)
- */
 export interface NFS4ACE {
   tag: Tag;
   type: Type2;
@@ -412,102 +209,36 @@ export interface NFS4ACE {
   id?: number | null;
   who?: string | null;
 }
-/**
- * Used by: filesystem.acltemplate.update (params)
- */
 export interface AclTemplateUpdate {
   name?: string;
   acltype?: Acltype;
-  acl?: NFS4ACEInput2[] | POSIXACEInput2[];
+  acl?: NFS4ACEInput[] | POSIXACE[];
   comment?: string;
 }
-/**
- * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response)
- */
 export interface CloudBackupEntry {
-  /**
-   * The name of the task to display in the UI
-   */
-  description?: string;
-  /**
-   * The local path to back up beginning with `/mnt` or `/dev/zvol`
-   */
   path: string;
   credentials: CredentialsEntry;
-  /**
-   * Additional information for each backup, e.g. bucket name
-   */
   attributes: {
     [k: string]: unknown;
   };
   schedule?: CloudBackupCron;
-  /**
-   * A Bash script to run immediately before every backup
-   */
   pre_script?: string;
-  /**
-   * A Bash script to run immediately after every backup if it succeeds
-   */
   post_script?: string;
-  /**
-   * Whether to create a temporary snapshot of the dataset before every backup
-   */
   snapshot?: boolean;
-  /**
-   * Paths to pass to `restic backup --include`
-   */
   include?: string[];
-  /**
-   * Paths to pass to `restic backup --exclude`
-   */
   exclude?: string[];
-  /**
-   * (Slated for removal)
-   */
   args?: string;
-  /**
-   * Can enable/disable the task
-   */
   enabled?: boolean;
-  /**
-   * Password for the remote repository
-   */
   password: string;
-  /**
-   * How many of the most recent backup snapshots to keep after each backup
-   */
   keep_last: number;
-  /**
-   * DEFAULT:
-   * - pack size given by `$RESTIC_PACK_SIZE` (default 16 MiB)
-   * - read concurrency given by `$RESTIC_READ_CONCURRENCY` (default 2 files)
-   * PERFORMANCE:
-   * - pack size = 29 MiB
-   * - read concurrency given by `$RESTIC_READ_CONCURRENCY` (default 2 files)
-   * FAST_STORAGE:
-   * - pack size = 58 MiB
-   * - read concurrency = 100 files
-   */
   transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
-  /**
-   * Whether to preserve absolute paths in each backup (cannot be set when `snapshot=True`)
-   */
   absolute_paths?: boolean;
   id: number;
-  /**
-   * Information regarding the task's job state, e.g. progress
-   */
   job: {
     [k: string]: unknown;
   } | null;
-  /**
-   * A locked task cannot run
-   */
   locked: boolean;
 }
-/**
- * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response), cloudsync.credentials.create (response), cloudsync.credentials.get_instance (params), cloudsync.credentials.get_instance (response), cloudsync.credentials.query (params) … and 2 more
- */
 export interface CredentialsEntry {
   id: number;
   name: string;
@@ -531,115 +262,73 @@ export interface CredentialsEntry {
     | WebDavCredentialsModel
     | YandexCredentialsModel;
 }
-/**
- * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response), cloudsync.credentials.create (response), cloudsync.credentials.get_instance (params), cloudsync.credentials.get_instance (response), cloudsync.credentials.query (params) … and 2 more
- */
 export interface StorjIxCredentialsModel {
   type: "STORJ_IX";
   access_key_id: string;
   secret_access_key: string;
   endpoint?: string;
 }
-/**
- * Used by: cloud_backup.list_snapshot_directory (response)
- */
 export interface CloudBackupSnapshotItem {
-  /**
-   * Name of the item
-   */
   name: string;
-  /**
-   * Item's path in the snapshot
-   */
   path: string;
   type: Type4;
-  /**
-   * Size of the file in bytes
-   */
   size: number | null;
-  /**
-   * Last modified time
-   */
   mtime: string;
   [k: string]: unknown;
 }
-/**
- * Used by: cloudsync.credentials.create (params)
- */
 export interface CloudCredentialCreate {
   name: string;
   provider:
-    | AzureBlobCredentialsModelInput2
-    | B2CredentialsModelInput2
-    | BoxCredentialsModelInput2
-    | DropboxCredentialsModelInput2
-    | FTPCredentialsModelInput2
-    | GoogleCloudStorageCredentialsModelInput2
-    | GoogleDriveCredentialsModelInput2
-    | GooglePhotosCredentialsModelInput2
-    | HTTPCredentialsModelInput2
-    | HubicCredentialsModelInput2
-    | OneDriveCredentialsModelInput2
-    | PCloudCredentialsModelInput2
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
     | S3CredentialsModelInput2
-    | SFTPCredentialsModelInput2
-    | StorjIxCredentialsModelInput2
-    | SwiftCredentialsModelInput2
-    | WebDavCredentialsModelInput2
-    | YandexCredentialsModelInput2;
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModelInput
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
 }
-/**
- * Used by: cloudsync.credentials.create (params), cloudsync.credentials.update (params), cloudsync.credentials.verify (params)
- */
-export interface StorjIxCredentialsModelInput2 {
-  type: "STORJ_IX";
-  access_key_id: string;
-  secret_access_key: string;
-  endpoint?: string;
-}
-/**
- * Used by: cloudsync.credentials.update (params)
- */
 export interface CloudCredentialUpdate {
   name?: string;
   provider?:
-    | AzureBlobCredentialsModelInput2
-    | B2CredentialsModelInput2
-    | BoxCredentialsModelInput2
-    | DropboxCredentialsModelInput2
-    | FTPCredentialsModelInput2
-    | GoogleCloudStorageCredentialsModelInput2
-    | GoogleDriveCredentialsModelInput2
-    | GooglePhotosCredentialsModelInput2
-    | HTTPCredentialsModelInput2
-    | HubicCredentialsModelInput2
-    | OneDriveCredentialsModelInput2
-    | PCloudCredentialsModelInput2
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
     | S3CredentialsModelInput2
-    | SFTPCredentialsModelInput2
-    | StorjIxCredentialsModelInput2
-    | SwiftCredentialsModelInput2
-    | WebDavCredentialsModelInput2
-    | YandexCredentialsModelInput2;
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModelInput
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
 }
-/**
- * Used by: device.get_info (params)
- */
 export interface DeviceGetInfoOther {
   type: TypeInput5;
 }
-/**
- * Used by: vm.get_display_devices (response)
- */
 export interface DisplayDevice {
   id: number;
   attributes: GetDisplayDevice;
   vm: number;
   order: number;
 }
-/**
- * Used by: vm.get_display_devices (response)
- */
 export interface GetDisplayDevice {
   dtype: "DISPLAY";
   resolution?: Resolution;
@@ -652,72 +341,24 @@ export interface GetDisplayDevice {
   type?: "SPICE";
   password_configured: boolean;
 }
-/**
- * Used by: filesystem.listdir (response), filesystem.mkdir (response)
- */
 export interface FilesystemDirEntry {
-  /**
-   * Entry's base name.
-   */
   name: string;
-  /**
-   * Entry's full path.
-   */
   path: string;
-  /**
-   * Canonical path of the entry, eliminating any symbolic links
-   */
   realpath: string;
   type: Type5;
-  /**
-   * Size in bytes of a plain file. This corresonds with stx_size.
-   */
   size: number;
-  /**
-   * Allocated size of file. Calculated by multiplying stx_blocks by 512.
-   */
   allocation_size: number;
-  /**
-   * Entry's mode including file type information and file permission bits. This corresponds with stx_mode.
-   */
   mode: number;
-  /**
-   * The mount ID of the mount containing the entry. This corresponds to the number in first field of /proc/self/mountinfo and stx_mnt_id.
-   */
   mount_id: number;
-  /**
-   * Specifies whether ACL is present on the entry. If this is the case then file permission bits as reported in `mode` may not be representative of the actual permissions.
-   */
   acl: boolean;
-  /**
-   * User ID of the entry's owner. This corresponds with stx_uid.
-   */
   uid: number;
-  /**
-   * Group ID of the entry's owner. This corresponds with stx_gid.
-   */
   gid: number;
-  /**
-   * Specifies whether the entry is also the mountpoint of a filesystem.
-   */
   is_mountpoint: boolean;
-  /**
-   * Specifies whether the entry is located within the ZFS ctldir (for example a snapshot).
-   */
   is_ctldir: boolean;
-  /**
-   * Extra file attribute indicators for entry as returned by statx. Expanded from stx_attributes.
-   */
   attributes: (
     "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
   )[];
-  /**
-   * List of xattr names of extended attributes on file.
-   */
   xattrs: string[];
-  /**
-   * List of extra ZFS-related file attribute indicators on file. Will be None type if filesystem is not ZFS.
-   */
   zfs_attrs:
     | (
         | "READONLY"
@@ -737,12 +378,9 @@ export interface FilesystemDirEntry {
       )[]
     | null;
 }
-/**
- * Used by: filesystem.setacl (params)
- */
 export interface FilesystemSetaclArgs {
   path: string;
-  dacl: NFS4ACEInput2[] | POSIXACEInput2[];
+  dacl: NFS4ACEInput[] | POSIXACE[];
   options?: FilesystemSetAclOptions;
   nfs41_flags?: NFS4ACL_Flags;
   uid?: number | null;
@@ -751,288 +389,94 @@ export interface FilesystemSetaclArgs {
   group?: string | null;
   acltype?: ("NFS4" | "POSIX1E") | null;
 }
-/**
- * Used by: filesystem.stat (response)
- */
 export interface FilesystemStatData {
-  /**
-   * Canonical path of the entry, eliminating any symbolic links
-   */
   realpath: string;
   type: Type5;
-  /**
-   * Size in bytes of a plain file. This corresonds with stx_size.
-   */
   size: number;
-  /**
-   * Allocated size of file. Calculated by multiplying stx_blocks by 512.
-   */
   allocation_size: number;
-  /**
-   * Entry's mode including file type information and file permission bits. This corresponds with stx_mode.
-   */
   mode: number;
-  /**
-   * The mount ID of the mount containing the entry. This corresponds to the number in first field of /proc/self/mountinfo and stx_mnt_id.
-   */
   mount_id: number;
-  /**
-   * User ID of the entry's owner. This corresponds with stx_uid.
-   */
   uid: number;
-  /**
-   * Group ID of the entry's owner. This corresponds with stx_gid.
-   */
   gid: number;
-  /**
-   * Time of last access. Corresponds with stx_atime. This is mutable from userspace.
-   */
   atime: number;
-  /**
-   * Time of last modification. Corresponds with stx_mtime. This is mutable from userspace.
-   */
   mtime: number;
-  /**
-   * Time of last status change. Corresponds with stx_ctime.
-   */
   ctime: number;
-  /**
-   * Time of creation. Corresponds with stx_btime.
-   */
   btime: number;
-  /**
-   * The ID of the device containing the filesystem where the file resides. This is not sufficient to uniquely identify a particular filesystem mount. mount_id must be used for that purpose. This corresponds with st_dev.
-   */
   dev: number;
-  /**
-   * The inode number of the file. This corresponds with stx_ino.
-   */
   inode: number;
-  /**
-   * Number of hard links. Corresponds with stx_nlinks.
-   */
   nlink: number;
-  /**
-   * Specifies whether ACL is present on the entry. If this is the case then file permission bits as reported in `mode` may not be representative of the actual permissions.
-   */
   acl: boolean;
-  /**
-   * Specifies whether the entry is also the mountpoint of a filesystem.
-   */
   is_mountpoint: boolean;
-  /**
-   * Specifies whether the entry is located within the ZFS ctldir (for example a snapshot).
-   */
   is_ctldir: boolean;
-  /**
-   * Extra file attribute indicators for entry as returned by statx. Expanded from stx_attributes.
-   */
   attributes: (
     "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
   )[];
-  /**
-   * Username associated with `uid`. Will be None if the User ID does not map to existing user.
-   */
   user: string | null;
-  /**
-   * Groupname associated with `gid`. Will be None if the Group ID does not map to existing group.
-   */
   group: string | null;
 }
-/**
- * Used by: group.create (params)
- */
 export interface GroupCreate {
-  /**
-   * If `null`, it is automatically filled with the next one available.
-   */
   gid?: number | null;
   name: string;
   sudo_commands?: string[];
   sudo_commands_nopasswd?: string[];
-  /**
-   * Specifies whether the group should be mapped into an NT group.
-   */
   smb?: boolean;
-  /**
-   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
-   *
-   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
-   */
   userns_idmap?: "DIRECT" | number | null;
-  /**
-   * A list of user ids (`id` attribute from `user.query`).
-   */
   users?: number[];
 }
-/**
- * Used by: group.get_group_obj (response)
- */
-export interface GroupGetGroupObjResult {
-  /**
-   * Name of the group.
-   */
-  gr_name: string;
-  /**
-   * Group ID of the group.
-   */
-  gr_gid: number;
-  /**
-   * List of group names that are members of the group.
-   */
-  gr_mem: string[];
-  /**
-   * Optional SID value for the account that is present if `sid_info` is specified in payload.
-   */
-  sid?: string | null;
-  source: Source;
-  /**
-   * Boolean indicating whether this group is local to the NAS or provided by a directory service.
-   */
-  local: boolean;
-}
-/**
- * Used by: group.update (params)
- */
 export interface GroupUpdate {
   name?: string;
   sudo_commands?: string[];
   sudo_commands_nopasswd?: string[];
-  /**
-   * Specifies whether the group should be mapped into an NT group.
-   */
   smb?: boolean;
-  /**
-   * Species the subgid mapping for this group. If DIRECT then the GID will be directly mapped to all containers. Alternatively, the target GID may be explicitly specified. If None, then the GID will not be mapped.
-   *
-   * NOTE: this field will be ignored for groups that have been assigned TrueNAS roles.
-   */
   userns_idmap?: "DIRECT" | number | null;
-  /**
-   * A list of user ids (`id` attribute from `user.query`).
-   */
   users?: number[];
 }
-/**
- * Used by: initshutdownscript.query (event)
- */
 export interface InitShutdownScriptAddedEvent {
   id: number;
   fields: InitShutdownScriptEntryInput;
 }
-/**
- * Used by: initshutdownscript.query (event)
- */
 export interface InitShutdownScriptEntryInput {
   type: TypeInput3;
-  /**
-   * Must be given if `type="COMMAND"`.
-   */
   command?: string | null;
-  /**
-   * Must be given if `type="SCRIPT"`.
-   */
   script?: string | null;
   when: When;
-  /**
-   * Whether the init/shutdown script is enabled to execute.
-   */
   enabled?: boolean;
-  /**
-   * An integer time in seconds that the system should wait for the execution of the script/command.
-   *
-   * A hard limit for a timeout is configured by the base OS, so when a script/command is set to execute on SHUTDOWN, the hard limit configured by the base OS is changed adding the timeout specified by script/command so it can be ensured that it executes as desired and is not interrupted by the base OS's limit.
-   */
   timeout?: number;
-  /**
-   * Optional comment describing the purpose of this script.
-   */
   comment?: string;
-  /**
-   * Unique identifier for the init/shutdown script.
-   */
   id: number;
 }
-/**
- * Used by: initshutdownscript.query (event)
- */
 export interface InitShutdownScriptChangedEvent {
   id: number;
   fields: InitShutdownScriptEntryInput;
 }
-/**
- * Used by: initshutdownscript.create (params)
- */
 export interface InitShutdownScriptCreate {
   type: TypeInput3;
-  /**
-   * Must be given if `type="COMMAND"`.
-   */
   command?: string | null;
-  /**
-   * Must be given if `type="SCRIPT"`.
-   */
   script?: string | null;
   when: When;
   enabled?: boolean;
-  /**
-   * An integer time in seconds that the system should wait for the execution of the script/command.
-   *
-   * A hard limit for a timeout is configured by the base OS, so when a script/command is set to execute on SHUTDOWN, the hard limit configured by the base OS is changed adding the timeout specified by script/command so it can be ensured that it executes as desired and is not interrupted by the base OS's limit.
-   */
   timeout?: number;
   comment?: string;
 }
-/**
- * Used by: initshutdownscript.create (response), initshutdownscript.get_instance (params), initshutdownscript.get_instance (response), initshutdownscript.query (params), initshutdownscript.query (response), initshutdownscript.update (response)
- */
 export interface InitShutdownScriptEntry {
   type: Type3;
-  /**
-   * Must be given if `type="COMMAND"`.
-   */
   command?: string | null;
-  /**
-   * Must be given if `type="SCRIPT"`.
-   */
   script?: string | null;
   when: When;
   enabled?: boolean;
-  /**
-   * An integer time in seconds that the system should wait for the execution of the script/command.
-   *
-   * A hard limit for a timeout is configured by the base OS, so when a script/command is set to execute on SHUTDOWN, the hard limit configured by the base OS is changed adding the timeout specified by script/command so it can be ensured that it executes as desired and is not interrupted by the base OS's limit.
-   */
   timeout?: number;
   comment?: string;
   id: number;
 }
-/**
- * Used by: initshutdownscript.update (params)
- */
 export interface InitShutdownScriptUpdate {
   type?: TypeInput3;
-  /**
-   * Must be given if `type="COMMAND"`.
-   */
   command?: string | null;
-  /**
-   * Must be given if `type="SCRIPT"`.
-   */
   script?: string | null;
   when?: When;
   enabled?: boolean;
-  /**
-   * An integer time in seconds that the system should wait for the execution of the script/command.
-   *
-   * A hard limit for a timeout is configured by the base OS, so when a script/command is set to execute on SHUTDOWN, the hard limit configured by the base OS is changed adding the timeout specified by script/command so it can be ensured that it executes as desired and is not interrupted by the base OS's limit.
-   */
   timeout?: number;
   comment?: string;
 }
-/**
- * Used by: iscsi.extent.create (params)
- */
 export interface IscsiExtentCreate {
   name: string;
   type?: TypeInput4;
@@ -1050,9 +494,6 @@ export interface IscsiExtentCreate {
   ro?: boolean;
   enabled?: boolean;
 }
-/**
- * Used by: iscsi.extent.update (params)
- */
 export interface IscsiExtentUpdate {
   name?: string;
   type?: TypeInput4;
@@ -1070,111 +511,38 @@ export interface IscsiExtentUpdate {
   ro?: boolean;
   enabled?: boolean;
 }
-/**
- * Used by: iscsi.extent.query (event)
- */
 export interface ISCSITargetExtentAddedEvent {
   id: number;
   fields: ISCSITargetExtentEntryInput;
 }
-/**
- * Used by: iscsi.extent.query (event)
- */
 export interface ISCSITargetExtentEntryInput {
-  /**
-   * Unique identifier for the iSCSI extent.
-   */
   id: number;
-  /**
-   * Name of the iSCSI extent.
-   */
   name: string;
   type?: TypeInput4;
-  /**
-   * Disk device to use for the extent or `null` if using a file.
-   */
   disk?: string | null;
-  /**
-   * Serial number for the extent or `null` to auto-generate.
-   */
   serial?: string | null;
-  /**
-   * File path for file-based extents or `null` if using a disk.
-   */
   path?: string | null;
-  /**
-   * The ZFS dataset containing the file-based extent (e.g., 'tank/iscsi'). Returns `null` for non-FILE extent types (DISK, ZVOL) or if the FILE path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
   dataset: string | null;
-  /**
-   * The path of the file-based extent relative to the dataset mountpoint (e.g., 'extents/lun0.img'). An empty string indicates the file is at the dataset root. Returns `null` for non-FILE types or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
   relative_path: string | null;
-  /**
-   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
-   */
   filesize?: string | number;
   blocksize?: Blocksize;
-  /**
-   * Whether to use physical block size reporting.
-   */
   pblocksize?: boolean;
-  /**
-   * Available space threshold percentage or `null` to disable.
-   */
   avail_threshold?: number | null;
-  /**
-   * Optional comment describing the extent.
-   */
   comment?: string;
-  /**
-   * Network Address Authority (NAA) identifier for the extent.
-   */
   naa: string;
-  /**
-   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
-   */
   insecure_tpc?: boolean;
-  /**
-   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
-   */
   xen?: boolean;
   rpm?: Rpm;
-  /**
-   * Whether the extent is read-only.
-   */
   ro?: boolean;
-  /**
-   * Whether the extent is enabled and available for use.
-   */
   enabled?: boolean;
-  /**
-   * Vendor string reported by the extent.
-   */
   vendor: string;
-  /**
-   * Product ID string for the extent or `null` for default.
-   */
   product_id?: string | null;
-  /**
-   * Read-only value indicating whether the iscsi extent is located on a locked dataset.
-   *
-   * - `true`: The extent is in a locked dataset.
-   * - `false`: The extent is not in a locked dataset.
-   * - `null`: Lock status is not available because path locking information was not requested.
-   */
   locked: boolean | null;
 }
-/**
- * Used by: iscsi.extent.query (event)
- */
 export interface ISCSITargetExtentChangedEvent {
   id: number;
   fields: ISCSITargetExtentEntryInput;
 }
-/**
- * Used by: iscsi.extent.create (response), iscsi.extent.get_instance (params), iscsi.extent.get_instance (response), iscsi.extent.query (params), iscsi.extent.query (response), iscsi.extent.update (response)
- */
 export interface ISCSITargetExtentEntry {
   id: number;
   name: string;
@@ -1196,53 +564,26 @@ export interface ISCSITargetExtentEntry {
   vendor: string;
   locked: boolean | null;
 }
-/**
- * Used by: keychaincredential.query (event)
- */
 export interface KeychainCredentialAddedEvent {
   id: number;
   fields: KeychainCredentialEntryInput;
 }
-/**
- * Used by: keychaincredential.query (event)
- */
 export interface KeychainCredentialEntryInput {
-  /**
-   * Unique identifier for this keychain credential.
-   */
   id: number;
-  /**
-   * Distinguishes this Keychain Credential from others.
-   */
   name: string;
   type: TypeInput6;
-  /**
-   * Credential-specific configuration and authentication data.
-   */
-  attributes: SSHKeyPairInput | SSHCredentialsInput;
+  attributes: SSHKeyPair | SSHCredentials;
 }
-/**
- * Used by: keychaincredential.query (event)
- */
 export interface KeychainCredentialChangedEvent {
   id: number;
   fields: KeychainCredentialEntryInput;
 }
-/**
- * Used by: keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response)
- */
 export interface KeychainCredentialEntry {
   id: number;
-  /**
-   * Distinguishes this Keychain Credential from others.
-   */
   name: string;
   type: Type7;
   attributes: SSHKeyPair | SSHCredentials;
 }
-/**
- * Used by: filesystem.getacl (response), filesystem.setacl (response)
- */
 export interface NFS4ACLResult {
   path: string;
   user: string | null;
@@ -1254,525 +595,168 @@ export interface NFS4ACLResult {
   aclflags: NFS4ACL_Flags;
   trivial: boolean;
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export interface USBAttributes {
-  /**
-   * Vendor id must start with "0x" prefix e.g 0x16a8.
-   */
   vendor_id: string;
-  /**
-   * Product id must start with "0x" prefix e.g 0x16a8.
-   */
   product_id: string;
 }
-/**
- * Used by: vm.device.create (params), vm.device.update (params)
- */
-export interface USBAttributesInput {
-  /**
-   * Vendor id must start with "0x" prefix e.g 0x16a8.
-   */
-  vendor_id: string;
-  /**
-   * Product id must start with "0x" prefix e.g 0x16a8.
-   */
-  product_id: string;
-}
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface USBAttributesInput2 {
-  /**
-   * USB vendor identifier in hexadecimal format (e.g., '0x1d6b' for Linux Foundation).
-   */
-  vendor_id: string;
-  /**
-   * USB product identifier in hexadecimal format (e.g., '0x0002' for 2.0 root hub).
-   */
-  product_id: string;
-}
-/**
- * Used by: vm.query (event)
- */
 export interface VMAddedEvent {
   id: number;
   fields: VMEntryInput;
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMEntryInput {
-  /**
-   * Additional command line arguments passed to the VM hypervisor.
-   */
   command_line_args?: string;
-  /**
-   * CPU virtualization mode.
-   *
-   * * `CUSTOM`: Use specified model.
-   * * `HOST-MODEL`: Mirror host CPU.
-   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
-   */
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  /**
-   * Specific CPU model to emulate. `null` to use hypervisor default.
-   */
   cpu_model?: string | null;
-  /**
-   * Display name of the virtual machine.
-   */
   name: string;
-  /**
-   * Optional description or notes about the virtual machine.
-   */
-  description?: string;
-  /**
-   * Number of virtual CPU sockets. The total number of guest vCPUs is `vcpus` * `cores` * `threads` (maximum 16).
-   */
   vcpus?: number;
-  /**
-   * Number of CPU cores per socket.
-   */
   cores?: number;
-  /**
-   * Number of threads per CPU core.
-   */
   threads?: number;
-  /**
-   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
-   */
   cpuset?: string | null;
-  /**
-   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
-   */
   nodeset?: string | null;
-  /**
-   * Whether to expose detailed CPU topology information to the guest OS.
-   */
   enable_cpu_topology_extension?: boolean;
-  /**
-   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
-   */
   pin_vcpus?: boolean;
-  /**
-   * Whether to automatically suspend the VM when a periodic snapshot task runs. For manual snapshots, the VM is suspended only if explicitly included in the snapshot's VM pause list.
-   */
   suspend_on_snapshot?: boolean;
-  /**
-   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
-   */
   trusted_platform_module?: boolean;
-  /**
-   * Amount of memory allocated to the VM in mebibytes (MiB).
-   */
   memory: number;
-  /**
-   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
-   */
   min_memory?: number | null;
-  /**
-   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
-   */
   hyperv_enlightenments?: boolean;
   bootloader?: Bootloader;
-  /**
-   * OVMF firmware file to use for UEFI boot.
-   */
   bootloader_ovmf?: string;
-  /**
-   * Whether to automatically start the VM when the host system boots.
-   */
   autostart?: boolean;
-  /**
-   * Whether to hide the KVM hypervisor from standard MSR-based discovery. Useful when doing GPU passthrough.
-   */
   hide_from_msr?: boolean;
-  /**
-   * Whether to ensure the guest always has access to a video device. Required for headless OS installations (e.g. Ubuntu Server). Set to `false` when using GPU passthrough without a separate display device.
-   */
   ensure_display_device?: boolean;
   time?: Time;
-  /**
-   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
-   */
   shutdown_timeout?: number;
-  /**
-   * Guest architecture type. `null` to use hypervisor default.
-   */
   arch_type?: string | null;
-  /**
-   * Virtual machine type/chipset. `null` to use hypervisor default.
-   */
   machine_type?: string | null;
-  /**
-   * Unique UUID for the VM.
-   */
   uuid: string;
-  /**
-   * Array of virtual devices attached to this VM.
-   */
   devices: VMDeviceEntryInput[];
-  /**
-   * Whether at least one display device is available for this VM.
-   */
   display_available: boolean;
-  /**
-   * Unique identifier for the virtual machine.
-   */
   id: number;
   status: VMStatusInput;
-  /**
-   * Whether to enable UEFI Secure Boot for enhanced security.
-   */
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
 export interface VMDeviceEntryInput {
-  /**
-   * Unique identifier for the VM device.
-   */
   id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes:
     | VMCDROMDeviceInput
     | VMDisplayDeviceInput
     | VMISCSIDiskDevice
-    | VMNICDeviceInput
-    | VMPCIDeviceInput
+    | VMNICDeviceInput2
+    | VMPCIDevice
     | VMRAWDeviceInput
     | VMDiskDeviceInput
-    | VMUSBDeviceInput;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
+    | VMUSBDevice;
   vm: number;
-  /**
-   * Boot order priority for this device (lower numbers boot first).
-   */
   order: number;
 }
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
 export interface VMCDROMDeviceInput {
-  /**
-   * Device type identifier for CD-ROM/DVD devices.
-   */
   dtype: "CDROM";
-  /**
-   * Path must not contain "{", "}" characters, and it should start with "/mnt/".
-   */
   path: string;
 }
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
 export interface VMDisplayDeviceInput {
-  /**
-   * Device type identifier for display/graphics devices.
-   */
   dtype: "DISPLAY";
   resolution?: Resolution;
-  /**
-   * VNC/SPICE port number for remote display access. `null` for auto-assignment.
-   */
   port?: number | null;
-  /**
-   * Web-based display access port number. `null` for auto-assignment.
-   */
   web_port?: number | null;
-  /**
-   * IP address to bind the display server to.
-   */
   bind?: string;
-  /**
-   * Whether to wait for a client connection before starting the VM.
-   */
   wait?: boolean;
-  /**
-   * Password for display server authentication.
-   */
   password?: string | null;
-  /**
-   * Whether to enable web-based display access.
-   */
   web?: boolean;
-  /**
-   * Display protocol type.
-   */
   type?: "SPICE" | "VNC";
 }
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
 export interface VMISCSIDiskDevice {
-  /**
-   * Device type identifier for iSCSI disk devices.
-   */
   dtype: "ISCSI_DISK";
-  /**
-   * IP address of the iSCSI target portal.
-   */
   portal_address: "" | string;
   /**
-   * iSCSI targets to attach, one entry per target IQN.
-   *
    * @minItems 1
    */
   targets: [VMISCSIDiskTarget, ...VMISCSIDiskTarget[]];
-  /**
-   * IQN identifying this VM as an iSCSI initiator.
-   */
   initiator_iqn: string;
-  /**
-   * PCI slot for the virtio-scsi-pci controller on the root bus (pcie.0 on q35/aarch64, pci.0 on i440fx). Conflicts with other explicitly-placed devices are detected at device creation time.
-   */
   controller_slot?: number;
 }
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
 export interface VMISCSIDiskTarget {
-  /**
-   * iSCSI Qualified Name of the target.
-   */
   iqn: string;
   /**
-   * LUN numbers to access on this target.
-   *
    * @minItems 1
    */
   luns?: [number, ...number[]];
 }
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMNICDeviceInput {
-  /**
-   * Device type identifier for network interface cards.
-   */
+export interface VMNICDeviceInput2 {
   dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
   trust_guest_rx_filters?: boolean;
-  /**
-   * Network interface controller type. `E1000` for Intel compatibility, `VIRTIO` for performance.
-   */
   type?: "E1000" | "VIRTIO";
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
   nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
   mac?: string | null;
-  /**
-   * Pin this NIC to a specific PCI controller bus rather than letting libvirt auto-assign an address. `null` for automatic assignment.
-   */
   pci_address?: VMNICPciAddress | null;
 }
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
 export interface VMNICPciAddress {
-  /**
-   * PCI bus number. Must be >= 1; bus 0 is the root complex.
-   */
   bus: number;
-  /**
-   * PCI slot number (0-31). No default: correct value depends on machine type.
-   */
   slot: number;
-  /**
-   * PCI function number (0-7).
-   */
   function?: number;
-  /**
-   * PCI domain number. Must be 0; multi-segment topologies are not supported.
-   */
   domain?: number;
 }
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMPCIDeviceInput {
-  /**
-   * Device type identifier for PCI passthrough devices.
-   */
+export interface VMPCIDevice {
   dtype: "PCI";
-  /**
-   * Host PCI device identifier to pass through to the VM.
-   */
   pptdev: string;
 }
-/**
- * Used by: vm.device.create (params), vm.device.query (event), vm.query (event)
- */
 export interface VMRAWDeviceInput {
-  /**
-   * Device type identifier for raw disk devices.
-   */
   dtype: "RAW";
-  /**
-   * Filesystem path to the raw disk device or image file.
-   */
   path: string;
   type?: TypeInput;
-  /**
-   * Whether the disk file already exists or should be created.
-   */
   exists?: boolean;
-  /**
-   * Whether this disk should be marked as bootable.
-   */
   boot?: boolean;
-  /**
-   * Size of the disk in bytes. Required if creating a new disk file.
-   */
   size?: number | null;
-  /**
-   * Logical sector size for the disk. `null` for default.
-   */
   logical_sectorsize?: (null | 512 | 4096) | null;
-  /**
-   * Physical sector size for the disk. `null` for default.
-   */
   physical_sectorsize?: (null | 512 | 4096) | null;
   iotype?: Iotype;
-  /**
-   * Serial number to assign to the virtual disk. `null` for auto-generated.
-   */
   serial?: string | null;
 }
-/**
- * Used by: vm.device.create (params), vm.device.query (event), vm.query (event)
- */
 export interface VMDiskDeviceInput {
-  /**
-   * Device type identifier for virtual disk devices.
-   */
   dtype: "DISK";
-  /**
-   * Path to existing disk file or ZFS volume. `null` if creating a new ZFS volume.
-   */
   path?: string | null;
   type?: TypeInput;
-  /**
-   * Whether to create a new ZFS volume for this disk.
-   */
   create_zvol?: boolean;
-  /**
-   * Name for the new ZFS volume. Required if `create_zvol` is true.
-   */
   zvol_name?: string | null;
-  /**
-   * Size of the new ZFS volume in bytes. Required if `create_zvol` is true.
-   */
   zvol_volsize?: number | null;
-  /**
-   * Logical sector size for the disk. `null` for default.
-   */
   logical_sectorsize?: (null | 512 | 4096) | null;
-  /**
-   * Physical sector size for the disk. `null` for default.
-   */
   physical_sectorsize?: (null | 512 | 4096) | null;
   iotype?: Iotype;
-  /**
-   * Serial number to assign to the virtual disk. `null` for auto-generated.
-   */
   serial?: string | null;
 }
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMUSBDeviceInput {
-  /**
-   * Device type identifier for USB devices.
-   */
+export interface VMUSBDevice {
   dtype: "USB";
-  /**
-   * USB device attributes for identification. `null` for USB host controller only.
-   */
-  usb?: USBAttributesInput2 | null;
-  /**
-   * USB controller type for the virtual machine.
-   */
+  usb?: USBAttributes | null;
   controller_type?:
     "piix3-uhci" | "piix4-uhci" | "ehci" | "ich9-ehci1" | "vt82c686b-uhci" | "pci-ohci" | "nec-xhci" | "qemu-xhci";
-  /**
-   * Host USB device path to pass through. `null` for controller only.
-   */
   device?: string | null;
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMStatusInput {
-  /**
-   * Current state of the virtual machine.
-   */
   state: string;
-  /**
-   * Process ID of the running VM. `null` if not running.
-   */
   pid: number | null;
-  /**
-   * Hypervisor-specific domain state.
-   */
   domain_state: string | null;
 }
-/**
- * Used by: vm.bootloader_options (response)
- */
 export interface VMBootloaderOptionsResult {
   UEFI?: "UEFI";
   UEFI_CSM?: "Legacy BIOS";
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export interface VMCDROMDevice {
   dtype: "CDROM";
-  /**
-   * Path must not contain "{", "}" characters, and it should start with "/mnt/".
-   */
   path: string;
 }
-/**
- * Used by: vm.device.create (params), vm.device.update (params)
- */
 export interface VMCDROMDeviceInput2 {
   dtype: "CDROM";
-  /**
-   * Path must not contain "{", "}" characters, and it should start with "/mnt/".
-   */
   path: string;
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
 }
-/**
- * Used by: vm.create (params)
- */
 export interface VMCreateArgs {
   command_line_args?: string;
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
-  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -1797,23 +781,14 @@ export interface VMCreateArgs {
   uuid?: string | null;
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vm.delete (params)
- */
 export interface VMDeleteOptions {
   zvols?: boolean;
   force?: boolean;
 }
-/**
- * Used by: vm.device.query (event)
- */
 export interface VMDeviceAddedEvent {
   id: number;
   fields: VMDeviceEntryInput;
 }
-/**
- * Used by: vm.device.passthrough_device (response), vm.device.passthrough_device_choices (response)
- */
 export interface VMDeviceCapability {
   class: string | null;
   domain: string | null;
@@ -1823,31 +798,22 @@ export interface VMDeviceCapability {
   product: string | null;
   vendor: string | null;
 }
-/**
- * Used by: vm.device.query (event)
- */
 export interface VMDeviceChangedEvent {
   id: number;
   fields: VMDeviceEntryInput;
 }
-/**
- * Used by: vm.device.create (params)
- */
 export interface VMDeviceCreateArgs {
   attributes:
     | VMCDROMDeviceInput2
     | VMDisplayDeviceInput2
-    | VMNICDeviceInput2
-    | VMPCIDeviceInput2
-    | VMRAWDeviceInput2
-    | VMDiskDeviceInput2
-    | VMUSBDeviceInput2;
+    | VMNICDeviceInput
+    | VMPCIDevice
+    | VMRAWDeviceInput
+    | VMDiskDeviceInput
+    | VMUSBDevice;
   vm: number;
   order?: number | null;
 }
-/**
- * Used by: vm.device.create (params), vm.device.update (params)
- */
 export interface VMDisplayDeviceInput2 {
   dtype: "DISPLAY";
   resolution?: Resolution;
@@ -1859,86 +825,24 @@ export interface VMDisplayDeviceInput2 {
   web?: boolean;
   type?: "SPICE";
 }
-/**
- * Used by: vm.device.create (params), vm.device.update (params)
- */
-export interface VMNICDeviceInput2 {
+export interface VMNICDeviceInput {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
   type?: "E1000" | "VIRTIO";
   nic_attach?: string | null;
   mac?: string | null;
 }
-/**
- * Used by: vm.device.create (params), vm.device.update (params)
- */
-export interface VMPCIDeviceInput2 {
-  dtype: "PCI";
-  pptdev: string;
-}
-/**
- * Used by: vm.device.create (params), vm.device.update (params)
- */
-export interface VMRAWDeviceInput2 {
-  dtype: "RAW";
-  /**
-   * Path must not contain "{", "}" characters.
-   */
-  path: string;
-  type?: TypeInput;
-  exists?: boolean;
-  boot?: boolean;
-  size?: number | null;
-  logical_sectorsize?: (null | 512 | 4096) | null;
-  physical_sectorsize?: (null | 512 | 4096) | null;
-  iotype?: Iotype;
-  serial?: string | null;
-}
-/**
- * Used by: vm.device.create (params), vm.device.update (params)
- */
-export interface VMDiskDeviceInput2 {
-  dtype: "DISK";
-  path?: string | null;
-  type?: TypeInput;
-  create_zvol?: boolean;
-  zvol_name?: string | null;
-  zvol_volsize?: number | null;
-  logical_sectorsize?: (null | 512 | 4096) | null;
-  physical_sectorsize?: (null | 512 | 4096) | null;
-  iotype?: Iotype;
-  serial?: string | null;
-}
-/**
- * Used by: vm.device.create (params), vm.device.update (params)
- */
-export interface VMUSBDeviceInput2 {
-  dtype: "USB";
-  usb?: USBAttributesInput | null;
-  controller_type?:
-    "piix3-uhci" | "piix4-uhci" | "ehci" | "ich9-ehci1" | "vt82c686b-uhci" | "pci-ohci" | "nec-xhci" | "qemu-xhci";
-  device?: string | null;
-}
-/**
- * Used by: vm.device.delete (params)
- */
 export interface VMDeviceDeleteOptions {
   force?: boolean;
   raw_file?: boolean;
   zvol?: boolean;
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export interface VMDeviceEntry {
   id: number;
   attributes: VMCDROMDevice | VMDisplayDevice | VMNICDevice | VMPCIDevice | VMRAWDevice | VMDiskDevice | VMUSBDevice;
   vm: number;
   order: number;
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export interface VMDisplayDevice {
   dtype: "DISPLAY";
   resolution?: Resolution;
@@ -1950,9 +854,6 @@ export interface VMDisplayDevice {
   web?: boolean;
   type?: "SPICE";
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export interface VMNICDevice {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
@@ -1960,21 +861,8 @@ export interface VMNICDevice {
   nic_attach?: string | null;
   mac?: string | null;
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
-export interface VMPCIDevice {
-  dtype: "PCI";
-  pptdev: string;
-}
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export interface VMRAWDevice {
   dtype: "RAW";
-  /**
-   * Path must not contain "{", "}" characters.
-   */
   path: string;
   type?: Type;
   exists?: boolean;
@@ -1985,9 +873,6 @@ export interface VMRAWDevice {
   iotype?: Iotype;
   serial?: string | null;
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export interface VMDiskDevice {
   dtype: "DISK";
   path?: string | null;
@@ -2000,35 +885,16 @@ export interface VMDiskDevice {
   iotype?: Iotype;
   serial?: string | null;
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
-export interface VMUSBDevice {
-  dtype: "USB";
-  usb?: USBAttributes | null;
-  controller_type?:
-    "piix3-uhci" | "piix4-uhci" | "ehci" | "ich9-ehci1" | "vt82c686b-uhci" | "pci-ohci" | "nec-xhci" | "qemu-xhci";
-  device?: string | null;
-}
-/**
- * Used by: vm.device.passthrough_device (response), vm.device.passthrough_device_choices (response)
- */
 export interface VMDeviceIOMMUGroup {
   number: number;
   addresses: VMDeviceIOMMUGroupAddress[];
 }
-/**
- * Used by: vm.device.passthrough_device (response), vm.device.passthrough_device_choices (response)
- */
 export interface VMDeviceIOMMUGroupAddress {
   domain: string;
   bus: string;
   slot: string;
   function: string;
 }
-/**
- * Used by: vm.device.passthrough_device (response), vm.device.passthrough_device_choices (response)
- */
 export interface VMDevicePassthroughDevice {
   capability: VMDeviceCapability;
   controller_type: string | null;
@@ -2037,40 +903,29 @@ export interface VMDevicePassthroughDevice {
   drivers: string[];
   error: string | null;
   reset_mechanism_defined: boolean;
-  description: string;
   critical: boolean;
   device_path: string | null;
 }
-/**
- * Used by: vm.device.query (event)
- */
 export interface VMDeviceRemovedEvent {
   id: number;
 }
-/**
- * Used by: vm.device.update (params)
- */
 export interface VMDeviceUpdate {
   attributes?:
     | VMCDROMDeviceInput2
     | VMDisplayDeviceInput2
-    | VMNICDeviceInput2
-    | VMPCIDeviceInput2
-    | VMRAWDeviceInput2
-    | VMDiskDeviceInput2
-    | VMUSBDeviceInput2;
+    | VMNICDeviceInput
+    | VMPCIDevice
+    | VMRAWDeviceInput
+    | VMDiskDeviceInput
+    | VMUSBDevice;
   vm?: number;
   order?: number | null;
 }
-/**
- * Used by: vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (params), vm.query (response), vm.update (response)
- */
 export interface VMEntry {
   command_line_args?: string;
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
-  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -2099,64 +954,36 @@ export interface VMEntry {
   status: VMStatus;
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (params), vm.query (response), vm.status (response), vm.update (response)
- */
 export interface VMStatus {
   state: string;
   pid: number | null;
   domain_state: string;
 }
-/**
- * Used by: vm.flags (response)
- */
 export interface VMFlagsResult {
   intel_vmx: boolean;
   unrestricted_guest: boolean;
   amd_rvi: boolean;
   amd_asids: boolean;
 }
-/**
- * Used by: vm.port_wizard (response)
- */
 export interface VMPortWizardResult {
-  /**
-   * Available server port
-   */
   port: number;
-  /**
-   * Web port to be used based on available port
-   */
   web: number;
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMRemovedEvent {
   id: number;
 }
-/**
- * Used by: vm.start (params)
- */
 export interface VMStartOptions {
   overcommit?: boolean;
 }
-/**
- * Used by: vm.stop (params)
- */
 export interface VMStopOptions {
   force?: boolean;
   force_after_timeout?: boolean;
 }
-/**
- * Used by: vm.update (params)
- */
 export interface VMUpdate {
   command_line_args?: string;
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name?: string;
-  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -2181,9 +1008,6 @@ export interface VMUpdate {
   uuid?: string | null;
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vm.virtualization_details (response)
- */
 export interface VMVirtualizationDetailsResult {
   supported: boolean;
   error: string | null;

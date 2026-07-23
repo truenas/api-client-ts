@@ -7,14 +7,6 @@ import type { ApiJobDirectory as PreviousApiJobDirectory } from '../v25_10_0/api
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiJobDirectoryDelta {
-  /**
-   * Sync local keytab with remote domain controller. This is required if additional kerberos SPNs were added to the truenas account in the remote domain controller after joining the directory service.
-   *
-   * This is currently only implemented for active directory.
-   *
-   * This method is a job.
-   * @roles DIRECTORY_SERVICE_WRITE
-   */
   'directoryservices.sync_keytab': {
     params: [];
     response: null;

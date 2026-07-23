@@ -17,74 +17,21 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiJobDirectoryDelta {
-  /**
-   * Set the ACL of a given path.
-   *
-   * The ``dacl`` entry formatting depends on the underlying ``acltype``: an ``NFS4`` ACL requires NFSv4 entries, while a ``POSIX1E`` ACL requires POSIX1e entries. When ``stripacl`` is set, the ACL is converted to a trivial ACL; an ACL is trivial if it can be expressed as a file mode without losing any access rules.
-   *
-   * .. note::
-   *
-   *     For each owner change, set one and only one of ``uid`` or ``user`` (and likewise one of
-   *     ``gid`` or ``group``), and only if the caller wishes to change the owning user or group of
-   *     the file or directory.
-   *
-   * .. warning::
-   *
-   *     If ``user``, ``uid``, ``group``, or ``gid`` is specified in a recursive operation, then the
-   *     owning user, group, or both for *all* files will be changed.
-   *
-   * The following notes about ACL entries are necessarily terse. If more detail is required, please consult relevant TrueNAS documentation.
-   *
-   * .. rubric:: NFSv4 ACL entry semantics
-   *
-   * The ``tag`` identifies the principal to whom the entry applies. ``USER`` and ``GROUP`` have conventional meanings: ``owner@`` refers to the owning user of the file, ``group@`` to the owning group, and ``everyone@`` to all users (including the owning user and group). The ``type`` may be ``ALLOW`` or ``DENY``, and ``DENY`` entries take precedence over ``ALLOW`` when the ACL is evaluated. The ``flags`` inheritance flags determine how an entry is presented (if at all) on newly-created files or directories within the specified path and are only valid for directories.
-   *
-   * .. rubric:: POSIX1e ACL entry semantics
-   *
-   * When ``default`` is ``true``, the entry belongs to the POSIX default ACL and is copied to new files and directories created within the directory where it is set; default entries are *not* evaluated when determining access to the file on which they are set. When ``default`` is ``false``, the entry applies to the POSIX access ACL which is used to determine access to the directory but is not inherited.
-   *
-   * For the ``tag``, ``USER_OBJ`` refers to the owning user (denoted "user" in conventional POSIX UGO permissions), ``GROUP_OBJ`` refers to the owning group (denoted "group"), and ``OTHER`` applies to all users and groups who are not ``USER_OBJ`` or ``GROUP_OBJ``. ``MASK`` sets the maximum permissions granted to all ``USER`` and ``GROUP`` entries. A valid POSIX1e ACL contains precisely one ``USER_OBJ``, ``GROUP_OBJ``, ``OTHER``, and ``MASK`` entry for each of the default and access lists.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.setacl': {
     params: [filesystem_acl: FilesystemSetaclArgs];
     response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
   };
 
-  /**
-   * Retrieve log file contents of ``id`` VM.
-   *
-   * It will download empty file if log file does not exist.
-   *
-   * This method is a job.
-   * @roles VM_READ
-   */
   'vm.log_file_download': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Restart a VM.
-   *
-   * This method is a job.
-   * @roles VM_WRITE
-   */
   'vm.restart': {
     params: [id: number];
     response: null;
   };
 
-  /**
-   * Stops a VM.
-   *
-   * For unresponsive guests who have exceeded the ``shutdown_timeout`` defined by the user and have become unresponsive, they required to be powered down using :doc:`vm.poweroff <api_methods_vm.poweroff>`. :doc:`vm.stop <api_methods_vm.stop>` is only going to send a shutdown signal to the guest and wait the desired ``shutdown_timeout`` value before tearing down guest vmemory.
-   *
-   * This method is a job.
-   * @roles VM_WRITE
-   */
   'vm.stop': {
     params: [id: number, options?: VMStopOptions];
     response: null;

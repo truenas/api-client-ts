@@ -120,7 +120,7 @@ export async function generateFromDump(
     : {
       declared: models.map((m) => m.definitions),
       homes: models.map((m) => new Map(Object.keys(m.definitions).map((n) => [n, 0]))),
-      changeKind: models.map(() => new Map<string, 'docs' | 'refs'>()),
+      changeKind: models.map(() => new Map<string, 'refs'>()),
     };
 
   const dirOf = (i: number): string => versionDir(models[i].version);
@@ -180,10 +180,10 @@ export async function generateFromDump(
     perVersion: T[][],
     entryText: (item: T) => string,
     refs: (item: T) => Set<string>,
-  ): { own: T[][]; removed: string[][]; kinds: Map<string, 'docs' | 'refs'>[] } {
+  ): { own: T[][]; removed: string[][]; kinds: Map<string, 'refs'>[] } {
     const own: T[][] = [];
     const removed: string[][] = [];
-    const kinds: Map<string, 'docs' | 'refs'>[] = [];
+    const kinds: Map<string, 'refs'>[] = [];
     for (let i = 0; i < perVersion.length; i++) {
       if (i === 0 || !multi) {
         own.push(perVersion[i]);
@@ -192,16 +192,14 @@ export async function generateFromDump(
         continue;
       }
       const prev = new Map(perVersion[i - 1].map((item) => [item.name, item]));
-      const versionKinds = new Map<string, 'docs' | 'refs'>();
+      const versionKinds = new Map<string, 'refs'>();
       own.push(perVersion[i].filter((item) => {
         const before = prev.get(item.name);
         if (!before || entryText(before) !== entryText(item)) return true;
         if ([...refs(item)].some((r) => homes[i].get(r) === i)) {
           // Entry text identical; pulled in because a referenced type was
-          // re-declared here. Inherit that re-declaration's reason if it was
-          // itself docs-only.
-          const reasons = [...refs(item)].filter((r) => homes[i].get(r) === i).map((r) => changeKind[i].get(r));
-          versionKinds.set(item.name, reasons.every((r) => r === 'docs') ? 'docs' : 'refs');
+          // re-declared here.
+          versionKinds.set(item.name, 'refs');
           return true;
         }
         return false;
@@ -264,11 +262,11 @@ export async function generateFromDump(
   }
 
   if (multi) {
-    const KIND_LABEL = { docs: ' (docs)', refs: ' (via referenced types)' } as const;
+    const KIND_LABEL = { refs: ' (via referenced types)' } as const;
     const manifestRows: ManifestRow[] = [];
     const collectRows = (
       kind: ManifestRow['kind'],
-      delta: { own: { name: string }[][]; removed: string[][]; kinds: Map<string, 'docs' | 'refs'>[] },
+      delta: { own: { name: string }[][]; removed: string[][]; kinds: Map<string, 'refs'>[] },
     ) => {
       const byName = new Map<string, ManifestRow>();
       delta.own.forEach((items, i) => {

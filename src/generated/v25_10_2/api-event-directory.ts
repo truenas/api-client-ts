@@ -15,10 +15,6 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiEventDirectoryDelta {
-  /**
-   * Sent on certificate changes.
-   * @roles CERTIFICATE_READ
-   */
   'certificate.query': {
     added: CertificateAddedEvent;
     changed: CertificateChangedEvent;

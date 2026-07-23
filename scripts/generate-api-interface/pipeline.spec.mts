@@ -94,11 +94,6 @@ describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
     expect(files.get('shared/api-job-directory-base.ts')).toContain("| 'test.run'");
   });
 
-  it('marks removed_in methods as deprecated (at their declaring version)', async () => {
-    const v1 = (await generate()).get('v1_0_0/api-call-directory.ts') ?? '';
-    expect(v1).toContain("'test.update':");
-    expect(v1).toContain('@deprecated Removed in API version v3.0.0.');
-  });
 
   it('gates method-named events on the method existing in that version', async () => {
     // Middleware's dump emits the same event set for every version; the

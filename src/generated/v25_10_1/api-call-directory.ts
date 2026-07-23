@@ -11,16 +11,15 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  SharingSMBGetaclArgs,
-  SharingSMBQueryResultItem,
   StaticRouteEntry,
+} from '../v25_04_0/api-types';
+import type {
+  SharingSMBQueryResultItem,
 } from '../v25_10_0/api-types';
 import type {
-  SMBShareAcl,
   SNMPEntry,
   SNMPUpdateArgs,
   SharingSMBEntry,
-  SharingSMBSetaclArgs,
   SmbShareCreate,
   SmbShareUpdate,
   StaticRouteCreate,
@@ -31,135 +30,51 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiCallDirectoryDelta {
-  /**
-   * Returns the status of the docker service.
-   * @roles DOCKER_READ
-   */
   'docker.status': {
     params: [];
     response: StatusResult;
   };
 
-  /**
-   * Create an SMB share.
-   *
-   * The behavior and available options of the share are determined by its ``purpose``; most deployments should use ``DEFAULT_SHARE``. Before creating a share, the server should be joined to a directory service or have at least one local SMB user; :doc:`sharing.smb.share_precheck <api_methods_sharing.smb.share_precheck>` can be used to validate this and the share name in advance.
-   *
-   * .. note::
-   *
-   *     Setting raw ``smb.conf`` auxiliary parameters (``options.auxsmbconf``) is restricted to callers
-   *     with full administrative privileges. Auxiliary parameters that would break the SMB server are
-   *     rejected, returning a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*).
-   * @roles SHARING_SMB_WRITE
-   */
   'sharing.smb.create': {
     params: [data: SmbShareCreate];
     response: SharingSMBEntry;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.get_instance': {
     params: [id: number, options?: QueryOptions<SharingSMBEntry>];
     response: SharingSMBEntry;
   };
 
-  /**
-   * Retrieve the share-level ACL for the SMB share named ``share_name``.
-   *
-   * This is the access control list enforced by the SMB protocol on connections to the share; it is distinct from the filesystem ACL on the share ``path``. Each entry's SID is resolved to a Unix ID and name where possible. The special share name ``HOMES`` refers to the auto-generated home-directory share.
-   *
-   * A JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned when the named share does not exist.
-   * @roles SHARING_SMB_READ
-   */
-  'sharing.smb.getacl': {
-    params: [smb_getacl: SharingSMBGetaclArgs];
-    response: SMBShareAcl;
-  };
-
-  /**
-   * @roles SHARING_SMB_READ
-   */
   'sharing.smb.query': {
     params: [filters?: QueryFilters<SharingSMBEntry>, options?: QueryOptions<SharingSMBEntry>];
     response: SharingSMBEntry[] | SharingSMBEntry | SharingSMBQueryResultItem[] | SharingSMBQueryResultItem | number;
   };
 
-  /**
-   * Set an ACL on ``share_name``. This only impacts access through the SMB protocol.
-   * @roles SHARING_SMB_WRITE
-   */
-  'sharing.smb.setacl': {
-    params: [smb_setacl: SharingSMBSetaclArgs];
-    response: SMBShareAcl;
-  };
-
-  /**
-   * Update the SMB share identified by ``id``.
-   *
-   * Renaming a share or changing its ``path`` is disruptive: existing SMB sessions on the affected share are forcibly closed so that the change can take effect.
-   *
-   * .. note::
-   *
-   *     Setting raw ``smb.conf`` auxiliary parameters (``options.auxsmbconf``) is restricted to callers
-   *     with full administrative privileges. Auxiliary parameters that would break the SMB server are
-   *     rejected and the original configuration is restored.
-   * @roles SHARING_SMB_WRITE
-   */
   'sharing.smb.update': {
     params: [id: number, data: SmbShareUpdate];
     response: SharingSMBEntry;
   };
 
-  /**
-   * @roles SYSTEM_GENERAL_READ
-   */
   'snmp.config': {
     params: [];
     response: SNMPEntry;
   };
 
-  /**
-   * Update SNMP Service Configuration.
-   *
-   * The ``v3_*`` settings are valid and enforced only when ``v3`` is enabled.
-   *
-   * Enabling ``v3`` requires ``v3_username``, ``v3_authtype``, and ``v3_password``. Disabling ``v3`` alone retains the v3 user settings in the private config but removes the public config entry, blocking v3 access. Disabling ``v3`` and clearing ``v3_username`` additionally removes the user from the private config.
-   * @roles SYSTEM_GENERAL_WRITE
-   */
   'snmp.update': {
     params: [snmp_update?: SNMPUpdateArgs];
     response: SNMPEntry;
   };
 
-  /**
-   * Create a Static Route.
-   *
-   * Address families of ``gateway`` and ``destination`` should match when creating a static route.
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'staticroute.create': {
     params: [data: StaticRouteCreate];
     response: StaticRouteEntry;
   };
 
-  /**
-   * Update Static Route of ``id``.
-   * @roles NETWORK_INTERFACE_WRITE
-   */
   'staticroute.update': {
     params: [id: number, data: StaticRouteUpdate];
     response: StaticRouteEntry;
   };
 
-  /**
-   * Get the virtual size of a disk image using qemu-img info.
-   * @roles VM_DEVICE_READ
-   */
   'vm.device.virtual_size': {
     params: [vm_virtual_size: VMDeviceVirtualSizeArgs];
     response: number;

@@ -11,171 +11,52 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  GroupQueryResultItem,
-  PrivilegeCreate,
-  PrivilegeQueryResultItem,
-  PrivilegeUpdate,
-  QueryOptionsModel2,
+  QueryOptionsModel,
   TwofactorOptions,
+  UserCreate,
   UserQueryResultItem,
+  UserUpdate,
 } from '../v25_04_0/api-types';
 import type {
   CoreSetOptionsOptions,
-  GroupCreate,
-  GroupEntry,
-  GroupUpdate,
-  PrivilegeEntry,
   SystemSecurityEntry,
-  UserCreate,
   UserCreateUpdateResult,
   UserEntry,
   UserRenew2FaSecretResult,
-  UserUpdate,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiCallDirectoryDelta {
-  /**
-   * Set per-connection options for the current API session and return the resulting option values.
-   *
-   * Options such as ``legacy_jobs``, ``private_methods``, and ``py_exceptions`` change how the middleware formats responses and errors for this connection only; they are not persisted beyond the session.
-   */
   'core.set_options': {
     params: [options: CoreSetOptionsOptions];
     response: null;
   };
 
-  /**
-   * Create a new group.
-   * @roles ACCOUNT_WRITE
-   */
-  'group.create': {
-    params: [group_create: GroupCreate];
-    response: number;
-  };
-
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles ACCOUNT_READ
-   */
-  'group.get_instance': {
-    params: [id: number, options?: QueryOptions<GroupEntry>];
-    response: GroupEntry;
-  };
-
-  /**
-   * Query groups with `query-filters` and `query-options`.
-   * @roles ACCOUNT_READ
-   */
-  'group.query': {
-    params: [filters?: QueryFilters<GroupEntry>, options?: QueryOptionsModel2];
-    response: GroupEntry[] | GroupEntry | GroupQueryResultItem[] | GroupQueryResultItem | number;
-  };
-
-  /**
-   * Update attributes of an existing group.
-   * @roles ACCOUNT_WRITE
-   */
-  'group.update': {
-    params: [id: number, group_update: GroupUpdate];
-    response: number;
-  };
-
-  /**
-   * Create a privilege.
-   * @roles PRIVILEGE_WRITE
-   */
-  'privilege.create': {
-    params: [privilege_create: PrivilegeCreate];
-    response: PrivilegeEntry;
-  };
-
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles PRIVILEGE_READ
-   */
-  'privilege.get_instance': {
-    params: [id: number, options?: QueryOptions<PrivilegeEntry>];
-    response: PrivilegeEntry;
-  };
-
-  /**
-   * @roles PRIVILEGE_READ
-   */
-  'privilege.query': {
-    params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptionsModel2];
-    response: PrivilegeEntry[] | PrivilegeEntry | PrivilegeQueryResultItem[] | PrivilegeQueryResultItem | number;
-  };
-
-  /**
-   * Update the privilege ``id``.
-   * @roles PRIVILEGE_WRITE
-   */
-  'privilege.update': {
-    params: [id: number, privilege_update: PrivilegeUpdate];
-    response: PrivilegeEntry;
-  };
-
-  /**
-   * @roles SYSTEM_SECURITY_READ
-   */
   'system.security.config': {
     params: [];
     response: SystemSecurityEntry;
   };
 
-  /**
-   * Create a new user.
-   * @roles ACCOUNT_WRITE
-   */
   'user.create': {
     params: [user_create: UserCreate];
     response: UserCreateUpdateResult;
   };
 
-  /**
-   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
-   *
-   * Please see `query` method documentation for `options`.
-   * @roles ACCOUNT_READ
-   */
   'user.get_instance': {
     params: [id: number, options?: QueryOptions<UserEntry>];
     response: UserEntry;
   };
 
-  /**
-   * Query users with `query-filters` and `query-options`.
-   *
-   * If users provided by Active Directory or LDAP are not desired, then "local", "=", True should be added to filters.
-   * @roles ACCOUNT_READ
-   */
   'user.query': {
-    params: [filters?: QueryFilters<UserEntry>, options?: QueryOptionsModel2];
+    params: [filters?: QueryFilters<UserEntry>, options?: QueryOptionsModel];
     response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
   };
 
-  /**
-   * Renew ``username`` user's two-factor authentication secret.
-   *
-   * .. note::
-   *
-   *     This username must match the authenticated username unless authenticated
-   *     credentials have the ``FULL_ADMIN`` role.
-   */
   'user.renew_2fa_secret': {
     params: [username: string, twofactor_options: TwofactorOptions];
     response: UserRenew2FaSecretResult;
   };
 
-  /**
-   * Update attributes of an existing user.
-   * @roles ACCOUNT_WRITE
-   */
   'user.update': {
     params: [id: number, user_update: UserUpdate];
     response: UserCreateUpdateResult;

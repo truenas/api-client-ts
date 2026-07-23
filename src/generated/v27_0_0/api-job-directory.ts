@@ -9,9 +9,7 @@ import type {
   ZFSFileAttrsData,
 } from '../v25_04_0/api-types';
 import type {
-  DISABLED_ACLResult,
-  NFS4ACLResult,
-  POSIXACLResult,
+  KMIPEntry,
   SystemSecurityEntry,
   TunableUpdate,
 } from '../v25_10_0/api-types';
@@ -29,18 +27,12 @@ import type {
   AppUpgradeBulkEntry,
   AppUpgradeOptions,
   AuditExport,
-  BootAttachOptions,
   CertificateCreate,
-  ConfigSave,
   ContainerCreate,
   ContainerEntry,
   DockerEntry,
   DockerUpdate,
-  FailoverUpgrade,
   FilesystemSetZfsAttributesData,
-  FilesystemSetaclArgs,
-  FilesystemSetpermArgs,
-  KMIPEntry,
   KMIPUpdate,
   MailSendMessage,
   MailUpdate,
@@ -52,287 +44,81 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiJobDirectoryDelta {
-  /**
-   * Create an app with ``app_name`` using ``catalog_app`` with ``train`` and ``version``.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.create': {
     params: [app_create: AppCreate];
     response: AppEntry;
   };
 
-  /**
-   * Pull a docker image.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.image.pull': {
     params: [image_pull: AppImagePull];
     response: null;
   };
 
-  /**
-   * Upgrade ``app_name`` app to ``app_version``.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.upgrade': {
     params: [app_name: string, options?: AppUpgradeOptions];
     response: AppEntry;
   };
 
-  /**
-   * Upgrade multiple apps sequentially, each with its own options, emitting a single consolidated alert once all upgrades have completed.
-   *
-   * This method is a job.
-   * @roles APPS_WRITE
-   */
   'app.upgrade_bulk': {
     params: [apps: AppUpgradeBulkEntry[]];
     response: AppBulkUpgradeJobResult[];
   };
 
-  /**
-   * Generate an audit report based on the specified ``query-filters`` and ``query-options`` for the specified ``services`` in the specified ``export_format``.
-   *
-   * Supported export_formats are CSV, JSON, and YAML. The endpoint returns a local filesystem path where the resulting audit report is located.
-   *
-   * This method is a job.
-   * @roles SYSTEM_AUDIT_READ
-   */
   'audit.export': {
     params: [data?: AuditExport];
     response: string;
   };
 
-  /**
-   * Attach a disk to the boot pool, turning a stripe into a mirror.
-   *
-   * This method is a job.
-   * @roles DISK_WRITE
-   */
-  'boot.attach': {
-    params: [dev: string, options?: BootAttachOptions];
-    response: null;
-  };
-
-  /**
-   * Create a new certificate.
-   *
-   * The ``create_type`` attribute selects which kind of certificate is created:
-   *
-   * 1. ``CERTIFICATE_CREATE_IMPORTED`` - imported certificate.
-   * 2. ``CERTIFICATE_CREATE_CSR`` - certificate signing request.
-   * 3. ``CERTIFICATE_CREATE_IMPORTED_CSR`` - imported certificate signing request.
-   * 4. ``CERTIFICATE_CREATE_ACME`` - ACME certificate.
-   *
-   * The remaining values in ``data`` are validated according to the selected type.
-   *
-   * This method is a job.
-   * @roles CERTIFICATE_WRITE
-   */
   'certificate.create': {
     params: [certificate_create: CertificateCreate];
     response: CertificateEntry;
   };
 
-  /**
-   * Create a tar file of security-sensitive information.
-   *
-   * If none of these options are set, the tar file is not generated and the database file is returned.
-   *
-   * This method is a job.
-   * @roles FULL_ADMIN
-   */
-  'config.save': {
-    params: [options?: ConfigSave];
-    response: null;
-  };
-
-  /**
-   * Create a Container.
-   *
-   * This method is a job.
-   * @roles CONTAINER_WRITE
-   */
   'container.create': {
     params: [container_create: ContainerCreate];
     response: ContainerEntry;
   };
 
-  /**
-   * Update Docker service configuration.
-   *
-   * This method is a job.
-   * @roles DOCKER_WRITE
-   */
   'docker.update': {
     params: [docker_update: DockerUpdate];
     response: DockerEntry;
   };
 
-  /**
-   * Upgrades both controllers. Files will be downloaded to the Active Controller and then transferred to the Standby Controller. Upgrade process will start concurrently on both nodes. Once both upgrades are applied, the Standby Controller will reboot. This job will wait for that job to complete before finalizing.
-   *
-   * This method is a job.
-   * @roles FAILOVER_WRITE
-   */
-  'failover.upgrade': {
-    params: [failover_upgrade?: FailoverUpgrade];
-    response: boolean;
-  };
-
-  /**
-   * Set special ZFS-related file flags (MS-DOS attributes and the BSD-style ``immutable``/``nounlink``/``appendonly`` flags) on the specified path.
-   *
-   * Several of these flags are also surfaced elsewhere. The ``immutable`` flag appears as ``IMMUTABLE`` in the ``attributes`` of :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_IMMUTABLE`` in the ``statx()`` response; ``appendonly`` appears as ``APPEND`` in :doc:`filesystem.stat <api_methods_filesystem.stat>` output and as ``STATX_ATTR_APPEND`` in ``statx()``.
-   *
-   * When recursion is requested, the path is treated as the root of a tree walk, and attributes are applied to descendants of the matching type. Recursion stops at dataset boundaries.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
   'filesystem.set_zfs_attributes': {
     params: [data: FilesystemSetZfsAttributesData];
     response: ZFSFileAttrsData;
   };
 
-  /**
-   * Set the ACL of a given path.
-   *
-   * The ``dacl`` entry formatting depends on the underlying ``acltype``: an ``NFS4`` ACL requires NFSv4 entries, while a ``POSIX1E`` ACL requires POSIX1e entries. When ``stripacl`` is set, the ACL is converted to a trivial ACL; an ACL is trivial if it can be expressed as a file mode without losing any access rules.
-   *
-   * .. note::
-   *
-   *     For each owner change, set one and only one of ``uid`` or ``user`` (and likewise one of
-   *     ``gid`` or ``group``), and only if the caller wishes to change the owning user or group of
-   *     the file or directory.
-   *
-   * .. warning::
-   *
-   *     If ``user``, ``uid``, ``group``, or ``gid`` is specified in a recursive operation, then the
-   *     owning user, group, or both for *all* files will be changed.
-   *
-   * The following notes about ACL entries are necessarily terse. If more detail is required, please consult relevant TrueNAS documentation.
-   *
-   * .. rubric:: NFSv4 ACL entry semantics
-   *
-   * The ``tag`` identifies the principal to whom the entry applies. ``USER`` and ``GROUP`` have conventional meanings: ``owner@`` refers to the owning user of the file, ``group@`` to the owning group, and ``everyone@`` to all users (including the owning user and group). The ``type`` may be ``ALLOW`` or ``DENY``, and ``DENY`` entries take precedence over ``ALLOW`` when the ACL is evaluated. The ``flags`` inheritance flags determine how an entry is presented (if at all) on newly-created files or directories within the specified path and are only valid for directories.
-   *
-   * .. rubric:: POSIX1e ACL entry semantics
-   *
-   * When ``default`` is ``true``, the entry belongs to the POSIX default ACL and is copied to new files and directories created within the directory where it is set; default entries are *not* evaluated when determining access to the file on which they are set. When ``default`` is ``false``, the entry applies to the POSIX access ACL which is used to determine access to the directory but is not inherited.
-   *
-   * For the ``tag``, ``USER_OBJ`` refers to the owning user (denoted "user" in conventional POSIX UGO permissions), ``GROUP_OBJ`` refers to the owning group (denoted "group"), and ``OTHER`` applies to all users and groups who are not ``USER_OBJ`` or ``GROUP_OBJ``. ``MASK`` sets the maximum permissions granted to all ``USER`` and ``GROUP`` entries. A valid POSIX1e ACL contains precisely one ``USER_OBJ``, ``GROUP_OBJ``, ``OTHER``, and ``MASK`` entry for each of the default and access lists.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
-  'filesystem.setacl': {
-    params: [filesystem_acl: FilesystemSetaclArgs];
-    response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
-  };
-
-  /**
-   * Set Unix permissions on the given ``path``.
-   *
-   * If ``mode`` is specified then the mode is applied to the path, and to files and subdirectories depending on which ``options`` are selected.
-   *
-   * This method will fail if an extended ACL is present on ``path`` unless ``stripacl`` is set. If no ``mode`` is set and ``stripacl`` is ``true``, then non-trivial ACLs are converted to trivial ACLs. An ACL is trivial if it can be expressed as a file mode without losing any access rules.
-   *
-   * .. important::
-   *
-   *     ``uid``, ``gid``, ``user``, and ``group`` *should* remain unset *unless* the
-   *     administrator wishes to change the owner or group of files.
-   *
-   * This method is a job.
-   * @roles FILESYSTEM_ATTRS_WRITE
-   */
-  'filesystem.setperm': {
-    params: [filesystem_setperm: FilesystemSetpermArgs];
-    response: null;
-  };
-
-  /**
-   * Update KMIP Server Configuration.
-   *
-   * The system authenticates to the remote KMIP server with a TLS handshake and synchronizes ZFS/SED keys between the local database and the server according to the configuration.
-   *
-   * This method is a job.
-   * @roles KMIP_WRITE
-   */
   'kmip.update': {
     params: [kmip_update: KMIPUpdate];
     response: KMIPEntry;
   };
 
-  /**
-   * Sends mail using configured mail settings.
-   *
-   * This method is a job.
-   * @roles MAIL_WRITE
-   */
   'mail.send': {
     params: [message: MailSendMessage, config?: MailUpdate];
     response: null;
   };
 
-  /**
-   * Method to attach a file to an existing ticket.
-   *
-   * This method is a job.
-   * @roles READONLY_ADMIN, SUPPORT_WRITE
-   */
   'support.attach_ticket': {
     params: [data: SupportAttachTicket];
     response: null;
   };
 
-  /**
-   * Update System Security Service Configuration.
-   *
-   * This method is used to change the FIPS, STIG, and local account policies for TrueNAS Enterprise. These features are not available in community editions of TrueNAS.
-   *
-   * This method is a job.
-   * @roles SYSTEM_SECURITY_WRITE
-   */
   'system.security.update': {
     params: [data: SystemSecurityUpdate];
     response: SystemSecurityEntry;
   };
 
-  /**
-   * Create a tunable.
-   *
-   * This method is a job.
-   * @roles SYSTEM_TUNABLE_WRITE
-   */
   'tunable.create': {
     params: [data: TunableCreate];
     response: TunableEntry;
   };
 
-  /**
-   * Update Tunable of ``id``.
-   *
-   * This method is a job.
-   * @roles SYSTEM_TUNABLE_WRITE
-   */
   'tunable.update': {
     params: [id: number, data: TunableUpdate];
     response: TunableEntry;
   };
 
-  /**
-   * Convert between disk images and ZFS volumes. Supported disk image formats         are qcow2, qed, raw, vdi, vhdx, and vmdk. The conversion direction is determined         automatically based on file extension.
-   *
-   * This method is a job.
-   * @roles VM_DEVICE_WRITE
-   */
   'vm.device.convert': {
     params: [vm_convert: VMDeviceConvert];
     response: boolean;

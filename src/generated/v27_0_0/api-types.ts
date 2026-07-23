@@ -4,91 +4,45 @@
  */
 
 import type {
-  Authenticator,
-  BaseCredentialData,
-  Blocksize,
-  Credentials,
-  Encryption,
-  EncryptionInput,
-  Mode,
-  Rpm,
-  STIGType,
-  Unixcharset,
+  AppImageAuthConfig,
+  AppVersionInfo,
+  CloudFlareSchema,
+  DigitalOceanSchema,
+  FilesystemMkdirOptions,
+  GraphiteExporter,
+  Maintainer,
+  OVHSchema,
+  Route53Schema,
+  ShellSchema,
   ZFSFileAttrsData,
 } from '../v25_04_0/api-types';
 import type {
   Bootloader,
   Time,
   Type5,
-  Type6,
+  VMDiskDevice,
   VMDiskDeviceInput,
   VMISCSIDiskDevice,
   VMNICPciAddress,
-  VMRAWDeviceInput,
-} from '../v25_04_2/api-types';
-import type {
-  APIKeyCredentialData,
-  AppVersionInfo,
-  AuthUserInfo,
-  CertificateExtensions,
-  CloudFlareSchema,
-  CloudTaskAttributesInput,
-  DigitalOceanSchema,
-  Direction2,
-  DirectionInput2,
-  ExternalOpt,
-  GraphiteExporter,
-  GroupEntry,
-  IscsiGroup,
-  IscsiTargetParameters,
-  LegacyOpt,
-  MailEntryOAuth,
-  Maintainer,
-  Mode2,
-  ModeInput,
-  ModeInput2,
-  NFS4ACEInput,
-  NFS4ACL_Flags,
-  OVHSchema,
-  POSIXACE,
-  PoolSnapshotTaskCron,
-  Protocol,
-  QueryOptionsModel,
-  Readonly,
-  ReadonlyInput2,
-  ReplicationLifetimeModel,
-  Route53Schema,
-  SMBShareAclEntryWhoId,
-  Security,
-  ShellSchema,
-  Shutdown,
-  StatusInput4,
-  TokenCredentialData,
-  Transport,
-  TransportInput,
-  TypeInput6,
-  UnmappedGroupEntry,
-  UserCredentialData,
-  VMCDROMDevice,
-  VMDiskDevice,
-  VMDisplayDevice,
   VMPCIDevice,
   VMRAWDevice,
+  VMRAWDeviceInput,
   VMUSBDevice,
+} from '../v25_04_2/api-types';
+import type {
+  CertificateExtensions,
+  CloudTaskAttributesInput,
+  MailEntryOAuth,
+  Protocol,
+  QueryOptionsModel,
+  Security,
+  StatusInput4,
+  VMCDROMDevice,
+  VMDisplayDevice,
 } from '../v25_10_0/api-types';
 import type {
-  DefaultOpt,
-  FCPStorageOpt,
-  MultiprotocolOpt,
-  PrivateDatasetOpt,
-  Purpose,
-  TimeLockedOpt,
-  TimeMachineOpt,
-  VeeamRepositoryOpt,
-} from '../v25_10_1/api-types';
-import type {
   ACLTemplateByPathQueryOptions,
-  AppImageAuthConfig,
+  AclTemplateFormatOptions,
   AuditExportQueryOptions,
   ContainerCreateImage,
   ContainerFilesystemDevice,
@@ -97,1621 +51,403 @@ import type {
   ContainerStatusInput,
   ContainerUSBDevice,
   DefaultIdmapConfiguration,
+  FilesystemSetZfsAttributesOptions,
   GetDisplayDevice,
   IsolatedIdmapConfiguration,
-  KeychainCredentialEntry,
-  KeychainCredentialEntryInput,
-  ReplicationTimeCronModel,
-  SmbAuditConfig,
   Status3,
-  TierInfo,
   Type11,
   Type7,
   TypeInput7,
   VMStatus,
 } from '../v26_0_0/api-types';
 
-/**
- * Used by: app.available (response)
- */
 export type AppAvailableItemQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: app.latest (response)
- */
 export type AppLatestItemQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: docker.list_backups (response)
- */
 export type DockerBackupMap = Record<string, DockerBackupEntry>;
 
-/**
- * Used by: nvmet.global.sessions (response)
- */
 export type NVMetGlobalSessionsItemQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: reporting.graphs (response)
- */
 export type ReportingGraphsItemQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: reporting.netdata_graphs (response)
- */
 export type ReportingNetdataGraphsItemQueryResultItem = Record<string, unknown>;
 
-/**
- * Used by: filesystem.acltemplate.by_path (params)
- */
 export interface ACLTemplateByPathArgs {
-  /**
-   * Filesystem path to filter templates by compatibility or empty string for all.
-   */
   path?: string;
-  /**
-   * Query filters to apply when selecting templates.
-   */
   "query-filters"?: unknown[];
   "query-options"?: ACLTemplateByPathQueryOptions;
   "format-options"?: AclTemplateFormatOptions;
 }
-/**
- * Used by: filesystem.acltemplate.by_path (params)
- */
-export interface AclTemplateFormatOptions {
-  /**
-   * Whether to ensure every result contains ACL entries for the `builtin_users` and `builtin_administrators` groups.
-   */
-  ensure_builtins?: boolean;
-  /**
-   * Whether to resolve numeric user/group IDs to names in ACL entries.
-   */
-  resolve_names?: boolean;
-}
-/**
- * Used by: acme.dns.authenticator.create (params)
- */
 export interface ACMEDNSAuthenticatorCreate {
-  /**
-   * Authentication credentials and configuration for the DNS provider.
-   */
   attributes: CloudFlareSchema | DigitalOceanSchema | OVHSchema | Route53Schema | ShellSchema;
-  /**
-   * Human-readable name for the DNS authenticator.
-   */
   name: string;
 }
-/**
- * Used by: reporting.get_data (response), reporting.graph (response), reporting.netdata_get_data (response), reporting.netdata_graph (response)
- */
 export interface Aggregations {
-  /**
-   * Minimum value for each data series over the time period.
-   */
   min: {
     [k: string]: number;
   };
-  /**
-   * Average value for each data series over the time period.
-   */
   mean: {
     [k: string]: number;
   };
-  /**
-   * Maximum value for each data series over the time period.
-   */
   max: {
     [k: string]: number;
   };
 }
-/**
- * Used by: alert.list (event), alert.list (response), disk.temperature_alerts (response)
- */
 export interface Alert {
-  /**
-   * Unique identifier for the alert.
-   */
   uuid: string;
-  /**
-   * Source component that generated the alert.
-   */
   source: string;
-  /**
-   * Alert class identifier for categorization.
-   */
   klass: string;
-  /**
-   * Arguments and parameters specific to the alert type.
-   */
-  args: {
-    [k: string]: unknown;
-  };
-  /**
-   * Node identifier in HA systems or hostname for single-node systems.
-   */
+  args: unknown;
   node: string;
-  /**
-   * Unique key used for alert deduplication and identification.
-   */
   key: string;
-  /**
-   * Timestamp when the alert was first created.
-   */
   datetime: string;
-  /**
-   * Timestamp of the most recent occurrence of this alert.
-   */
   last_occurrence: string;
-  /**
-   * Whether the alert has been manually dismissed by a user.
-   */
   dismissed: boolean;
-  /**
-   * Email notification configuration and status for this alert.
-   */
-  mail: {
-    [k: string]: unknown;
-  };
-  /**
-   * Human-readable description of the alert.
-   */
+  mail: unknown;
   text: string;
-  /**
-   * Alert identifier used for API operations.
-   */
   id: string;
-  /**
-   * Severity level of the alert (INFO, WARNING, ERROR, etc.).
-   */
   level: string;
-  /**
-   * Formatted alert message with HTML.
-   */
   formatted: string | null;
-  /**
-   * Whether this alert will not be dismissed automatically.
-   */
   one_shot: boolean;
 }
-/**
- * Used by: alert.list (event)
- */
 export interface AlertListAddedEvent {
-  /**
-   * Event identifier for the added alert.
-   */
   id: number;
   fields: Alert;
 }
-/**
- * Used by: alert.list (event)
- */
 export interface AlertListChangedEvent {
-  /**
-   * Event identifier for the changed alert.
-   */
   id: number;
   fields: Alert;
 }
-/**
- * Used by: app.create (params)
- */
 export interface AppCreate {
-  /**
-   * Whether to create a custom application (`true`) or install from catalog (`false`).
-   */
   custom_app?: boolean;
-  /**
-   * Configuration values for the application installation.
-   */
   values?: {
     [k: string]: unknown;
   };
-  /**
-   * Docker Compose configuration as a structured object for custom applications.
-   */
   custom_compose_config?: {
     [k: string]: unknown;
   };
-  /**
-   * Docker Compose configuration as a YAML string for custom applications.
-   */
   custom_compose_config_string?: string;
-  /**
-   * Name of the catalog application to install. Required when `custom_app` is `false`.
-   */
   catalog_app?: string | null;
-  /**
-   * Application name must have the following:
-   *
-   * * Lowercase alphanumeric characters can be specified.
-   * * Name must start with an alphabetic character and can end with alphanumeric character.
-   * * Hyphen '-' is allowed but not as the first or last character.
-   */
   app_name: string;
-  /**
-   * The catalog train to install from.
-   */
   train?: string;
-  /**
-   * The version of the application to install.
-   */
   version?: string;
 }
-/**
- * Used by: app.image.dockerhub_rate_limit (response)
- */
 export interface AppImageDockerhubRateLimitInfo {
-  /**
-   * Total pull limit for Docker Hub registry.
-   */
   total_pull_limit?: number | null;
-  /**
-   * Total time limit in seconds for Docker Hub registry before the limit renews.
-   */
   total_time_limit_in_secs?: number | null;
-  /**
-   * Remaining pull limit for Docker Hub registry.
-   */
   remaining_pull_limit?: number | null;
-  /**
-   * Remaining time limit in seconds for Docker Hub registry for the current pull limit to be renewed.
-   */
   remaining_time_limit_in_secs?: number | null;
-  /**
-   * Error message if rate limit information could not be retrieved or `null` on success.
-   */
   error?: string | null;
 }
-/**
- * Used by: app.image.pull (params)
- */
 export interface AppImagePull {
-  /**
-   * Authentication configuration for private registries or `null` for public images.
-   */
   auth_config?: AppImageAuthConfig | null;
-  /**
-   * Container image reference to pull (registry/repository:tag).
-   */
   image: string;
 }
-/**
- * Represents the latest version of an available application.
- *
- * Used by: app.latest (params), app.latest (response)
- */
 export interface AppLatestItem {
-  /**
-   * HTML content of the app README.
-   */
   app_readme: string | null;
-  /**
-   * List of categories for the app.
-   */
   categories: string[];
-  /**
-   * Short description of the app.
-   */
-  description: string;
-  /**
-   * Health status of the app.
-   */
   healthy: boolean;
-  /**
-   * Error if app is not healthy.
-   */
   healthy_error?: string | null;
-  /**
-   * Homepage URL of the app.
-   */
   home: string;
-  /**
-   * Local path to the app's location.
-   */
   location: string;
-  /**
-   * Latest available app version.
-   */
   latest_version: string | null;
-  /**
-   * Latest available app version in repository.
-   */
   latest_app_version: string | null;
-  /**
-   * Human-readable version of the app.
-   */
   latest_human_version: string | null;
-  /**
-   * Timestamp of the last update in ISO format.
-   */
   last_update: string | null;
-  /**
-   * Name of the app.
-   */
   name: string;
-  /**
-   * Indicates if the app is recommended.
-   */
   recommended: boolean;
-  /**
-   * List of app maintainers.
-   */
   maintainers: Maintainer[];
-  /**
-   * Tags associated with the app.
-   */
   tags: string[];
-  /**
-   * List of screenshot URLs.
-   */
   screenshots: string[];
-  /**
-   * List of source URLs.
-   */
   sources: string[];
-  /**
-   * URL of the app icon.
-   */
   icon_url?: string | null;
-  /**
-   * Name of the catalog this application comes from.
-   */
   catalog: string;
-  /**
-   * Whether this application is currently installed on the system.
-   */
   installed: boolean;
-  /**
-   * The catalog train this application version belongs to.
-   */
   train: string;
-  /**
-   * Popularity ranking of this application. Lower numbers indicate higher popularity. `null` if not ranked.
-   */
   popularity_rank: number | null;
   [k: string]: unknown;
 }
-/**
- * Used by: app.upgrade_bulk (params)
- */
 export interface AppUpgradeBulkEntry {
-  /**
-   * Name of the application to upgrade.
-   */
   app_name: string;
   options?: AppUpgradeOptions;
 }
-/**
- * Used by: app.upgrade (params), app.upgrade_bulk (params)
- */
 export interface AppUpgradeOptions {
-  /**
-   * Target version to upgrade to. Use 'latest' for the newest available version.
-   */
   app_version?: string;
-  /**
-   * Configuration values to apply during the upgrade.
-   */
   values?: {
     [k: string]: unknown;
   };
-  /**
-   * Whether to create snapshots of host path volumes before upgrade.
-   */
   snapshot_hostpaths?: boolean;
 }
-/**
- * Used by: app.upgrade_summary (response)
- */
 export interface AppUpgradeSummary {
-  /**
-   * Latest version available for the app.
-   */
   latest_version: string;
-  /**
-   * Latest human readable version available for the app.
-   */
   latest_human_version: string;
-  /**
-   * Version user has requested to be upgraded at.
-   */
   upgrade_version: string;
-  /**
-   * Human-readable version user has requested to be upgraded at.
-   */
   upgrade_human_version: string;
-  /**
-   * List of available versions for upgrade.
-   */
   available_versions_for_upgrade: AppVersionInfo[];
-  /**
-   * Changelog or release notes for the upgrade version. `null` if not available.
-   */
   changelog: string | null;
 }
-/**
- * Used by: app.upgrade_summary (params)
- */
 export interface AppUpgradeSummaryOptions {
-  /**
-   * Target version to generate upgrade summary for. Use 'latest' for the newest available version.
-   */
   app_version?: string;
 }
-/**
- * Used by: audit.export (params)
- */
 export interface AuditExport {
-  /**
-   * Array of services to include in the audit query.
-   */
   services?: ("MIDDLEWARE" | "SMB" | "SUDO" | "SYSTEM")[];
-  /**
-   * Array of filters to apply to the audit query results.
-   */
   "query-filters"?: unknown[];
   "query-options"?: AuditExportQueryOptions;
-  /**
-   * HA systems may direct the query to the 'remote' controller by including 'remote_controller=True'. The default is the 'current' controller.
-   */
   remote_controller?: boolean;
-  /**
-   * Format for exporting audit data.
-   */
   export_format?: "CSV" | "JSON" | "YAML";
 }
-/**
- * Used by: audit.query (params)
- */
 export interface AuditQuery {
-  /**
-   * Array of services to include in the audit query.
-   */
   services?: ("MIDDLEWARE" | "SMB" | "SUDO" | "SYSTEM")[];
-  /**
-   * Array of filters to apply to the audit query results.
-   */
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
-  /**
-   * HA systems may direct the query to the 'remote' controller by including 'remote_controller=True'. The default is the 'current' controller.
-   */
   remote_controller?: boolean;
 }
-/**
- * Used by: auth.login_ex (params)
- */
-export interface AuthApiKeyPlain {
-  /**
-   * Authentication mechanism identifier for plain API key authentication.
-   */
-  mechanism: "API_KEY_PLAIN";
-  /**
-   * Username associated with the API key.
-   */
-  username: string;
-  /**
-   * API key for authentication.
-   */
-  api_key: string;
-  login_options?: AuthCommonOptions;
-}
-/**
- * Used by: auth.login_ex (params), auth.login_ex_continue (params)
- */
-export interface AuthCommonOptions {
-  /**
-   * Whether to include detailed user information (the output of `auth.me`) in the authentication response.
-   */
-  user_info?: boolean;
-  /**
-   * Whether to include a reauthentication token in the authentication response. The `ttl` for the generated token depends on the TrueNAS webui setting for preferences->lifetime, with a default value of 600 seconds.
-   */
-  reconnect_token?: boolean;
-}
-/**
- * Used by: auth.login_ex (params), auth.login_ex_continue (params)
- */
-export interface AuthOTPToken {
-  /**
-   * Authentication mechanism identifier for one-time password tokens.
-   */
-  mechanism: "OTP_TOKEN";
-  /**
-   * One-time password token for authentication.
-   */
-  otp_token: string;
-  login_options?: AuthCommonOptions;
-}
-/**
- * Used by: auth.login_ex (params)
- */
-export interface AuthPasswordPlain {
-  /**
-   * Authentication mechanism identifier for plain password authentication.
-   */
-  mechanism: "PASSWORD_PLAIN";
-  /**
-   * Username for authentication.
-   */
-  username: string;
-  /**
-   * Password for authentication.
-   */
-  password: string;
-  login_options?: AuthCommonOptions;
-}
-/**
- * Used by: auth.login_ex (response), auth.login_ex_continue (response)
- */
-export interface AuthRespSuccess {
-  /**
-   * Authentication response type indicating successful login.
-   */
-  response_type: "SUCCESS";
-  /**
-   * Authenticated user information (the output of `auth.me`), or `null` if not requested.
-   */
-  user_info: AuthUserInfo | null;
-  authenticator: Authenticator;
-  /**
-   * Single-use token that can be used to reauthenticate to the truenas server in case websocket session is interrupted. This will be `null` in the following situations:
-   *
-   * 1) The initiating authentication request set `reconnect_token` to `false` (default).
-   * 2) The user authenticated via a one-time password, which does not support reconnect token creation.
-   */
-  reconnect_token: string | null;
-}
-/**
- * Used by: auth.sessions (event)
- */
-export interface AuthSessionsAddedEvent {
-  fields: AuthSessionsEntry;
-}
-/**
- * Used by: auth.sessions (event), auth.sessions (params), auth.sessions (response)
- */
-export interface AuthSessionsEntry {
-  /**
-   * Unique identifier for the authentication session.
-   */
-  id: string;
-  /**
-   * Whether this is the current active session.
-   */
-  current: boolean;
-  /**
-   * Whether this is an internal system session. Pass `[["internal", "=", false]]` as `query-filters` to exclude internal sessions from the list.
-   */
-  internal: boolean;
-  /**
-   * Origin information for the session (IP address, hostname, etc.).
-   */
-  origin: string;
-  credentials: Credentials;
-  /**
-   * Detailed credential information specific to the authentication method.
-   */
-  credentials_data: BaseCredentialData | UserCredentialData | APIKeyCredentialData | TokenCredentialData;
-  /**
-   * Timestamp when the session was created.
-   */
-  created_at: string;
-  /**
-   * Whether the session was established over a secure transport (HTTPS/WSS).
-   */
-  secure_transport: boolean;
-}
-/**
- * Used by: auth.login_ex (params)
- */
-export interface AuthTokenPlain {
-  /**
-   * Authentication mechanism type for plain token login.
-   */
-  mechanism: "TOKEN_PLAIN";
-  /**
-   * Authentication token (masked for security).
-   */
-  token: string;
-  login_options?: AuthCommonOptions;
-}
-/**
- * Used by: boot.attach (params)
- */
-export interface BootAttachOptions {
-  /**
-   * When `true`, size the new disk's partition to the maximum available space. When `false`, size it to match the existing boot pool partition to avoid a size mismatch if a disk later fails.
-   */
-  expand?: boolean;
-}
-/**
- * Used by: boot.environment.activate (params)
- */
 export interface BootEnvironmentActivate {
-  /**
-   * Name of the boot environment to activate for next boot.
-   */
   id: string;
 }
-/**
- * Used by: boot.environment.clone (params)
- */
 export interface BootEnvironmentClone {
-  /**
-   * Name of the existing boot environment to clone from.
-   */
   id: string;
-  /**
-   * Name for the new cloned boot environment.
-   */
   target: string;
 }
-/**
- * Used by: boot.environment.destroy (params)
- */
 export interface BootEnvironmentDestroy {
-  /**
-   * Name of the boot environment to destroy.
-   */
   id: string;
 }
-/**
- * Used by: boot.environment.keep (params)
- */
 export interface BootEnvironmentKeep {
-  /**
-   * Name of the boot environment to modify.
-   */
   id: string;
-  /**
-   * Whether to protect this boot environment from automatic deletion.
-   */
   value: boolean;
 }
-/**
- * Used by: certificate.create (params)
- */
 export interface CertificateCreate {
-  /**
-   * Certificate name.
-   */
   name: string;
-  /**
-   * Type of certificate creation operation.
-   */
   create_type:
     | "CERTIFICATE_CREATE_IMPORTED"
     | "CERTIFICATE_CREATE_CSR"
     | "CERTIFICATE_CREATE_IMPORTED_CSR"
     | "CERTIFICATE_CREATE_ACME";
-  /**
-   * Whether to add this certificate to the trusted certificate store.
-   */
   add_to_trusted_store?: boolean;
-  /**
-   * PEM-encoded certificate to import or `null`.
-   */
   certificate?: string | null;
-  /**
-   * PEM-encoded private key to import or `null`.
-   */
   privatekey?: string | null;
-  /**
-   * PEM-encoded certificate signing request to import or `null`.
-   */
   CSR?: string | null;
-  /**
-   * RSA key length in bits or `null`.
-   */
   key_length?: (2048 | 4096) | null;
-  /**
-   * Type of cryptographic key to generate.
-   */
   key_type?: "RSA" | "EC";
-  /**
-   * Elliptic curve to use for EC keys.
-   */
   ec_curve?: "SECP256R1" | "SECP384R1" | "SECP521R1" | "ed25519";
-  /**
-   * Passphrase to protect the private key or `null`.
-   */
   passphrase?: string | null;
-  /**
-   * City or locality name for certificate subject or `null`.
-   */
   city?: string | null;
-  /**
-   * Common name for certificate subject or `null`.
-   */
   common?: string | null;
-  /**
-   * Country name for certificate subject or `null`.
-   */
   country?: string | null;
-  /**
-   * Email address for certificate subject or `null`.
-   */
   email?: string | null;
-  /**
-   * Organization name for certificate subject or `null`.
-   */
   organization?: string | null;
-  /**
-   * Organizational unit for certificate subject or `null`.
-   */
   organizational_unit?: string | null;
-  /**
-   * State or province name for certificate subject or `null`.
-   */
   state?: string | null;
-  /**
-   * Hash algorithm for certificate signing.
-   */
   digest_algorithm?: "SHA224" | "SHA256" | "SHA384" | "SHA512";
-  /**
-   * Subject alternative names for the certificate.
-   */
   san?: string[];
   cert_extensions?: CertificateExtensions;
-  /**
-   * ACME directory URI to be used for ACME certificate creation.
-   */
   acme_directory_uri?: string | null;
-  /**
-   * CSR to be used for ACME certificate creation.
-   */
   csr_id?: number | null;
-  /**
-   * Set this when creating an ACME certificate to accept terms of service of the ACME service.
-   */
   tos?: boolean | null;
-  /**
-   * A mapping of domain to ACME DNS Authenticator ID for each domain listed in SAN or common name of the CSR.
-   */
   dns_mapping?: {
     [k: string]: number;
   };
-  /**
-   * Number of days before the certificate expiration date to attempt certificate renewal. If certificate renewal fails, renewal will be reattempted every day until expiration.
-   */
   renew_days?: number;
 }
-/**
- * Used by: cloudsync.list_directory (params)
- */
 export interface CloudSyncListDirectory {
-  /**
-   * ID of the cloud credential to use for directory listing.
-   */
   credentials: number;
-  /**
-   * Whether files are encrypted in cloud storage.
-   */
   encryption?: boolean;
-  /**
-   * Whether filenames are encrypted in cloud storage.
-   */
   filename_encryption?: boolean;
-  /**
-   * Password for decrypting files and filenames.
-   */
   encryption_password?: string;
-  /**
-   * Salt value for encryption key derivation.
-   */
   encryption_salt?: string;
   attributes: CloudTaskAttributesInput;
-  /**
-   * Additional arguments for the directory listing command.
-   */
   args?: string;
 }
-/**
- * Used by: config.save (params)
- */
-export interface ConfigSave {
-  /**
-   * Whether to include the secret seed in the configuration backup.
-   */
-  secretseed?: boolean;
-  /**
-   * Whether to include encryption keys for storage pools in the backup. IGNORED and deprecated; it does not apply on SCALE systems.
-   */
-  pool_keys?: boolean;
-  /**
-   * Whether to include root user's SSH authorized keys in the backup.
-   */
-  root_authorized_keys?: boolean;
-}
-/**
- * Used by: container.query (event)
- */
 export interface ContainerAddedEvent {
   id: number;
   fields: ContainerEntryInput;
 }
-/**
- * Used by: container.query (event)
- */
 export interface ContainerEntryInput {
-  /**
-   * Container ID.
-   */
   id: number;
-  /**
-   * Container UUID (for libvirt).
-   */
   uuid: string;
-  /**
-   * Container name.
-   */
   name: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * Container's devices.
-   */
   devices?: ContainerDeviceEntryInput[];
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
   cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
   autostart?: boolean;
   time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
   shutdown_timeout?: number;
-  /**
-   * Which dataset to use as the container root filesystem.
-   */
   dataset: string;
-  /**
-   * "init" process commandline.
-   */
   init?: string;
-  /**
-   * "init" process working dir.
-   */
   initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
   initenv?: {
     [k: string]: string;
   };
-  /**
-   * "init" process username.
-   */
   inituser?: string | null;
-  /**
-   * "init" process group.
-   */
   initgroup?: string | null;
-  /**
-   * Idmap configuration for the container There are three two possible values: DEFAULT: This applies the standard TrueNAS idmap namespace configuration. It changes user ID (UID) 0 (root) in the container to UID 2147000001 (truenas_container_unpriv_root). It offsets the other container UIDs by the same amount. For example, UID 1000 in the container becomes UID 2147001001 in the host. ISOLATED: Same as `DEFAULT`, but UID will be calculated as `2147000001 + 65536 * slice`. This will ensure unique ID for each container (provided that the `slice` is also unique). None: The container does not apply any idmap namespace. Container UIDs map directly to host UIDs. For example, UID 0 in the container is UID 0 in the host. WARNING: For security, use the DEFAULT value. Security best practice is to run containers with idmap namespaces.
-   */
   idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
   capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
   capabilities_state?: {
     [k: string]: boolean;
   };
-  /**
-   * The default network bridge this container will use when no NIC devices are explicitly attached. When the container has explicitly configured NIC devices, this is `null` because the NIC configuration is visible in the `devices` list.
-   */
   default_network?: string | null;
   status: ContainerStatusInput;
 }
-/**
- * Used by: container.device.query (event), container.query (event)
- */
 export interface ContainerDeviceEntryInput {
-  /**
-   * Unique identifier for the containers device.
-   */
   id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
-  /**
-   * ID of the container this device belongs to.
-   */
   container: number;
 }
-/**
- * Used by: container.device.create (params), container.device.query (event), container.query (event)
- */
 export interface ContainerNICDeviceInput {
-  /**
-   * Device type identifier for network interface cards.
-   */
   dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
   trust_guest_rx_filters?: boolean;
   type?: TypeInput7;
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
   nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
   mac?: string | null;
 }
-/**
- * Used by: container.query (event)
- */
 export interface ContainerChangedEvent {
   id: number;
   fields: ContainerEntryInput;
 }
-/**
- * Used by: container.create (params)
- */
 export interface ContainerCreate {
-  /**
-   * Container UUID (for libvirt). Auto-generated if not provided.
-   */
   uuid?: string | null;
-  /**
-   * Container name.
-   */
   name: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
   cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
   autostart?: boolean;
   time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
   shutdown_timeout?: number;
-  /**
-   * "init" process commandline.
-   */
   init?: string;
-  /**
-   * "init" process working dir.
-   */
   initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
   initenv?: {
     [k: string]: string;
   };
-  /**
-   * "init" process username.
-   */
   inituser?: string | null;
-  /**
-   * "init" process group.
-   */
   initgroup?: string | null;
-  /**
-   * Idmap configuration for the container There are three two possible values: DEFAULT: This applies the standard TrueNAS idmap namespace configuration. It changes user ID (UID) 0 (root) in the container to UID 2147000001 (truenas_container_unpriv_root). It offsets the other container UIDs by the same amount. For example, UID 1000 in the container becomes UID 2147001001 in the host. ISOLATED: Same as `DEFAULT`, but UID will be calculated as `2147000001 + 65536 * slice`. This will ensure unique ID for each container (provided that the `slice` is also unique). None: The container does not apply any idmap namespace. Container UIDs map directly to host UIDs. For example, UID 0 in the container is UID 0 in the host. WARNING: For security, use the DEFAULT value. Security best practice is to run containers with idmap namespaces.
-   */
   idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
   capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
   capabilities_state?: {
     [k: string]: boolean;
   };
-  /**
-   * Pool to use for this container. Leave it null to use container preferred pool instead.
-   */
   pool?: string | null;
   image: ContainerCreateImage;
 }
-/**
- * Used by: container.device.query (event)
- */
 export interface ContainerDeviceAddedEvent {
   id: number;
   fields: ContainerDeviceEntryInput;
 }
-/**
- * Used by: container.device.query (event)
- */
 export interface ContainerDeviceChangedEvent {
   id: number;
   fields: ContainerDeviceEntryInput;
 }
-/**
- * Used by: container.device.create (params)
- */
 export interface ContainerDeviceCreate {
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
-  /**
-   * ID of the container this device belongs to.
-   */
   container: number;
 }
-/**
- * Used by: container.create (response), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params), container.get_instance (response), container.query (params) … and 2 more
- */
 export interface ContainerDeviceEntry {
-  /**
-   * Unique identifier for the containers device.
-   */
   id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDevice | ContainerUSBDevice;
-  /**
-   * ID of the container this device belongs to.
-   */
   container: number;
 }
-/**
- * Used by: container.create (response), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params), container.get_instance (response), container.query (params) … and 2 more
- */
 export interface ContainerNICDevice {
-  /**
-   * Device type identifier for network interface cards.
-   */
   dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
   trust_guest_rx_filters?: boolean;
   type?: Type7;
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
   nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
   mac?: string | null;
 }
-/**
- * Used by: container.device.nic_attach_choices (response)
- */
 export interface ContainerDeviceNicAttachChoices {
-  /**
-   * Available bridge interfaces for NIC attachment.
-   */
   BRIDGE: string[];
-  /**
-   * Available parent interfaces for creating MACVLAN NIC devices.
-   */
   MACVLAN: string[];
 }
-/**
- * Used by: container.create (response), container.get_instance (params), container.get_instance (response), container.query (params), container.query (response), container.update (response)
- */
 export interface ContainerEntry {
-  /**
-   * Container ID.
-   */
   id: number;
-  /**
-   * Container UUID (for libvirt).
-   */
   uuid: string;
-  /**
-   * Container name.
-   */
   name: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * Container's devices.
-   */
   devices?: ContainerDeviceEntry[];
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
   cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
   autostart?: boolean;
   time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
   shutdown_timeout?: number;
-  /**
-   * Which dataset to use as the container root filesystem.
-   */
   dataset: string;
-  /**
-   * "init" process commandline.
-   */
   init?: string;
-  /**
-   * "init" process working dir.
-   */
   initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
   initenv?: {
     [k: string]: string;
   };
-  /**
-   * "init" process username.
-   */
   inituser?: string | null;
-  /**
-   * "init" process group.
-   */
   initgroup?: string | null;
-  /**
-   * Idmap configuration for the container There are three two possible values: DEFAULT: This applies the standard TrueNAS idmap namespace configuration. It changes user ID (UID) 0 (root) in the container to UID 2147000001 (truenas_container_unpriv_root). It offsets the other container UIDs by the same amount. For example, UID 1000 in the container becomes UID 2147001001 in the host. ISOLATED: Same as `DEFAULT`, but UID will be calculated as `2147000001 + 65536 * slice`. This will ensure unique ID for each container (provided that the `slice` is also unique). None: The container does not apply any idmap namespace. Container UIDs map directly to host UIDs. For example, UID 0 in the container is UID 0 in the host. WARNING: For security, use the DEFAULT value. Security best practice is to run containers with idmap namespaces.
-   */
   idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
   capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
   capabilities_state?: {
     [k: string]: boolean;
   };
-  /**
-   * The default network bridge this container will use when no NIC devices are explicitly attached. When the container has explicitly configured NIC devices, this is `null` because the NIC configuration is visible in the `devices` list.
-   */
   default_network?: string | null;
   status: ContainerStatus;
 }
-/**
- * Used by: cloudsync.credentials.verify (response)
- */
 export interface CredentialsVerifyData {
-  /**
-   * Whether the cloud credentials are valid and functional.
-   */
   valid: boolean;
-  /**
-   * Error message if credential verification failed or `null` on success.
-   */
   error?: string | null;
-  /**
-   * Logs excerpt (or `null` if no error occurred).
-   */
   excerpt?: string | null;
 }
-/**
- * Used by: docker.config (response), docker.update (params), docker.update (response)
- */
 export interface DockerAddressPool {
-  /**
-   * Base network for the pool. Host bits are ignored, and the value is stored as its canonical network address (e.g. `172.17.0.0/12` is stored as `172.16.0.0/12`) which is the range subnets are actually allocated from.
-   */
   base: string;
-  /**
-   * Subnet size for networks allocated from this pool.
-   */
   size: number;
 }
-/**
- * Used by: docker.list_backups (response)
- */
 export interface DockerBackupAppInfo {
-  /**
-   * Unique identifier of the application.
-   */
   id: string;
-  /**
-   * Human-readable name of the application.
-   */
   name: string;
-  /**
-   * Current running state of the application.
-   */
   state: string;
 }
-/**
- * Used by: docker.list_backups (response)
- */
 export interface DockerBackupEntry {
-  /**
-   * Name of the backup.
-   */
   name: string;
-  /**
-   * Array of applications included in this backup.
-   */
   apps: DockerBackupAppInfo[];
-  /**
-   * ZFS snapshot name associated with this backup.
-   */
   snapshot_name: string;
-  /**
-   * Timestamp when the backup was created.
-   */
   created_on: string;
-  /**
-   * Filesystem path where the backup is stored.
-   */
   backup_path: string;
 }
-/**
- * Used by: docker.config (response), docker.update (response)
- */
 export interface DockerEntry {
-  /**
-   * Unique identifier for the Docker configuration.
-   */
   id: number;
-  /**
-   * Whether automatic Docker image updates are enabled.
-   */
   enable_image_updates: boolean;
-  /**
-   * ZFS dataset used for Docker data storage or `null`.
-   */
   dataset: string | null;
-  /**
-   * Storage pool used for Docker or `null` if not configured.
-   */
   pool: string | null;
-  /**
-   * Array of network address pools for container networking.
-   */
   address_pools: DockerAddressPool[];
-  /**
-   * IPv6 CIDR block for Docker container networking.
-   */
   cidr_v6: string;
-  /**
-   * Array of registry mirrors.
-   */
   registry_mirrors: DockerRegistryMirror[];
 }
-/**
- * Used by: docker.config (response), docker.update (params), docker.update (response)
- */
 export interface DockerRegistryMirror {
-  /**
-   * URL of the registry mirror.
-   */
   url: string;
-  /**
-   * Whether the registry mirror uses an insecure (HTTP) connection.
-   */
   insecure: boolean;
 }
-/**
- * Used by: docker.state (event)
- */
 export interface DockerStateChangedEvent {
   fields: DockerStatusInfoInput;
 }
-/**
- * Used by: docker.state (event)
- */
 export interface DockerStatusInfoInput {
-  /**
-   * Human-readable description of the current Docker service status.
-   */
-  description: string;
   status: StatusInput4;
 }
-/**
- * Used by: docker.status (response)
- */
 export interface DockerStatusInfo {
-  /**
-   * Human-readable description of the current Docker service status.
-   */
-  description: string;
   status: Status3;
 }
-/**
- * Used by: docker.update (params)
- */
 export interface DockerUpdate {
-  /**
-   * Whether automatic Docker image updates are enabled.
-   */
   enable_image_updates?: boolean;
-  /**
-   * Storage pool used for Docker or `null` if not configured.
-   */
   pool?: string | null;
-  /**
-   * Array of network address pools for container networking.
-   */
   address_pools?: DockerAddressPool[];
-  /**
-   * IPv6 CIDR block for Docker container networking.
-   */
   cidr_v6?: string;
-  /**
-   * Array of registry mirrors.
-   */
   registry_mirrors?: DockerRegistryMirror[];
-  /**
-   * Whether to migrate existing applications when changing pools.
-   */
   migrate_applications?: boolean;
 }
-/**
- * Used by: failover.sync_to_peer (params)
- */
-export interface FailoverSyncToPeer {
-  /**
-   * Reboot the other controller after syncing.
-   */
-  reboot?: boolean;
-}
-/**
- * Used by: failover.upgrade (params)
- */
-export interface FailoverUpgrade {
-  /**
-   * Update train to use for the upgrade or `null` for default.
-   */
-  train?: string | null;
-  /**
-   * Specific version to upgrade to or `null` for latest.
-   */
-  version?: string | null;
-  /**
-   * Should be set to `true` if a previous call to this method returned a `CallError` with `errno=EAGAIN` meaning that an upgrade can be performed with a warning and that warning is accepted. In that case, you also have to set `resume_manual` to `true` if a previous call to this method was performed using update file upload.
-   */
-  resume?: boolean;
-  /**
-   * Whether to resume a manual upgrade operation.
-   */
-  resume_manual?: boolean;
-}
-/**
- * Used by: fc.fc_host.query (event)
- */
-export interface FCHostAddedEvent {
-  id: number;
-  fields: FCHostEntry;
-}
-/**
- * Used by: fc.fc_host.create (response), fc.fc_host.get_instance (params), fc.fc_host.get_instance (response), fc.fc_host.query (event), fc.fc_host.query (params), fc.fc_host.query (response), fc.fc_host.update (response)
- */
-export interface FCHostEntry {
-  /**
-   * Unique identifier for the Fibre Channel host configuration.
-   */
-  id: number;
-  /**
-   * Human-readable alias for the Fibre Channel host.
-   */
-  alias: string;
-  /**
-   * World Wide Port Name (NAA format) for Controller A, or `null` if not configured.
-   */
-  wwpn?: string | null;
-  /**
-   * World Wide Port Name (NAA format) for Controller B, or `null` if not configured. Only applicable to HA systems.
-   */
-  wwpn_b?: string | null;
-  /**
-   * Number of N_Port ID Virtualization (NPIV) virtual ports to create.
-   */
-  npiv?: number;
-}
-/**
- * Used by: fc.fc_host.query (event)
- */
-export interface FCHostChangedEvent {
-  id: number;
-  fields: FCHostEntry;
-}
-/**
- * Used by: fc.fc_host.create (params)
- */
-export interface FCHostCreate {
-  /**
-   * Human-readable alias for the Fibre Channel host.
-   */
-  alias: string;
-  /**
-   * World Wide Port Name (NAA format) for Controller A, or `null` if not configured.
-   */
-  wwpn?: string | null;
-  /**
-   * World Wide Port Name (NAA format) for Controller B, or `null` if not configured. Only applicable to HA systems.
-   */
-  wwpn_b?: string | null;
-  /**
-   * Number of N_Port ID Virtualization (NPIV) virtual ports to create.
-   */
-  npiv?: number;
-}
-/**
- * Used by: fc.fc_host.update (params)
- */
-export interface FCHostUpdate {
-  /**
-   * Human-readable alias for the Fibre Channel host.
-   */
-  alias?: string;
-  /**
-   * World Wide Port Name (NAA format) for Controller A, or `null` if not configured.
-   */
-  wwpn?: string | null;
-  /**
-   * World Wide Port Name (NAA format) for Controller B, or `null` if not configured. Only applicable to HA systems.
-   */
-  wwpn_b?: string | null;
-  /**
-   * Number of N_Port ID Virtualization (NPIV) virtual ports to create.
-   */
-  npiv?: number;
-}
-/**
- * Used by: fcport.query (event)
- */
-export interface FCPortAddedEvent {
-  id: number;
-  fields: FCPortEntry;
-}
-/**
- * Used by: fcport.create (response), fcport.get_instance (params), fcport.get_instance (response), fcport.query (event), fcport.query (params), fcport.query (response), fcport.update (response)
- */
-export interface FCPortEntry {
-  /**
-   * Unique identifier for the Fibre Channel port configuration.
-   */
-  id: number;
-  /**
-   * Alias name for the Fibre Channel port, or `alias/number` for an NPIV port.
-   */
-  port: string;
-  /**
-   * World Wide Port Name for port A or `null` if not configured.
-   */
-  wwpn: string | null;
-  /**
-   * World Wide Port Name for port B or `null` if not configured.
-   */
-  wwpn_b: string | null;
-  /**
-   * Target configuration object or `null` if not configured.
-   */
-  target: {
-    [k: string]: unknown;
-  } | null;
-}
-/**
- * Used by: fcport.query (event)
- */
-export interface FCPortChangedEvent {
-  id: number;
-  fields: FCPortEntry;
-}
-/**
- * Used by: fcport.create (params)
- */
-export interface FCPortCreate {
-  /**
-   * Alias name for the Fibre Channel port, or `alias/number` for an NPIV port.
-   */
-  port: string;
-  /**
-   * ID of the target to associate with this FC port.
-   */
-  target_id: number;
-}
-/**
- * Used by: fcport.update (params)
- */
-export interface FCPortUpdate {
-  /**
-   * Alias name for the Fibre Channel port, or `alias/number` for an NPIV port.
-   */
-  port?: string;
-  /**
-   * ID of the target to associate with this FC port.
-   */
-  target_id?: number;
-}
-/**
- * Used by: filesystem.listdir (response), filesystem.mkdir (response)
- */
 export interface FilesystemDirEntry {
-  /**
-   * Entry's base name.
-   */
   name: string;
-  /**
-   * Entry's full path.
-   */
   path: string;
-  /**
-   * Canonical path of the entry, eliminating any symbolic links.
-   */
   realpath: string | null;
   type: Type5;
-  /**
-   * Size of the file in bytes. For directories, this may not represent total content size. Corresonds with stx_size.
-   */
   size: number;
-  /**
-   * Allocated size of file. Calculated by multiplying stx_blocks by 512.
-   */
   allocation_size: number;
-  /**
-   * Entry's mode including file type information and file permission bits. This corresponds with stx_mode.
-   */
   mode: number;
-  /**
-   * The mount ID of the mount containing the entry. This corresponds to the number in first field of /proc/self/mountinfo and stx_mnt_id.
-   */
   mount_id: number;
-  /**
-   * Specifies whether ACL is present on the entry. If this is the case then file permission bits as reported in `mode` may not be representative of the actual permissions.
-   */
   acl: boolean | null;
-  /**
-   * User ID of the entry's owner. This corresponds with stx_uid.
-   */
   uid: number;
-  /**
-   * Group ID of the entry's owner. This corresponds with stx_gid.
-   */
   gid: number;
-  /**
-   * Specifies whether the entry is also the mountpoint of a filesystem.
-   */
   is_mountpoint: boolean;
-  /**
-   * Specifies whether the entry is located within the ZFS ctldir (for example a snapshot).
-   */
   is_ctldir: boolean | null;
-  /**
-   * Extra file attribute indicators for entry as returned by statx. Expanded from stx_attributes.
-   */
   attributes: (
     "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
   )[];
-  /**
-   * List of xattr names of extended attributes on file.
-   */
   xattrs: string[] | null;
-  /**
-   * List of extra ZFS-related file attribute indicators on file. Will be None type if filesystem is not ZFS.
-   */
   zfs_attrs:
     | (
         | "READONLY"
@@ -1731,3101 +467,246 @@ export interface FilesystemDirEntry {
       )[]
     | null;
 }
-/**
- * Used by: filesystem.mkdir (params)
- */
 export interface FilesystemMkdirData {
-  /**
-   * Path where the new directory should be created.
-   */
   path: string;
   options?: FilesystemMkdirOptions;
 }
-/**
- * Used by: filesystem.mkdir (params)
- */
-export interface FilesystemMkdirOptions {
-  /**
-   * Unix permissions for the new directory.
-   */
-  mode?: string;
-  /**
-   * Whether to raise an error if chmod fails. When it does, the newly created directory is removed to prevent its use with unintended permissions.
-   */
-  raise_chmod_error?: boolean;
-}
-/**
- * Used by: filesystem.setacl (params)
- */
-export interface FilesystemSetaclArgs {
-  /**
-   * Absolute filesystem path to set ACL on.
-   */
-  path: string;
-  /**
-   * Array of Access Control Entries to apply to the filesystem object. Formatting depends on the underlying `acltype`: an NFS4 ACL requires NFSv4 entries, while a POSIX1e ACL requires POSIX1e entries.
-   */
-  dacl: NFS4ACEInput[] | POSIXACE[];
-  options?: FilesystemSetAclOptions;
-  nfs41_flags?: NFS4ACL_Flags;
-  /**
-   * Numeric user ID to set as owner or `null` to preserve existing. Set one and only one of `uid`/`user`, and only to change the owning user.
-   */
-  uid?: number | null;
-  /**
-   * Username to set as owner or `null` to preserve existing. Set one and only one of `uid`/`user`.
-   */
-  user?: string | null;
-  /**
-   * Numeric group ID to set as group or `null` to preserve existing. Set one and only one of `gid`/`group`, and only to change the owning group.
-   */
-  gid?: number | null;
-  /**
-   * Group name to set as group or `null` to preserve existing. Set one and only one of `gid`/`group`.
-   */
-  group?: string | null;
-  /**
-   * ACL type to use or `null` to auto-detect from filesystem capabilities.
-   */
-  acltype?: ("NFS4" | "POSIX1E") | null;
-}
-/**
- * Used by: filesystem.setacl (params)
- */
-export interface FilesystemSetAclOptions {
-  /**
-   * Whether to remove the ACL entirely and revert to basic POSIX permissions.
-   */
-  stripacl?: boolean;
-  /**
-   * Whether to apply ACL changes recursively to all child files and directories.
-   */
-  recursive?: boolean;
-  /**
-   * Whether to traverse filesystem boundaries (ZFS datasets) during recursive operations.
-   */
-  traverse?: boolean;
-  /**
-   * Whether to validate that the users/groups granted access in the ACL can actually access the path or parent path.
-   */
-  validate_effective_acl?: boolean;
-}
-/**
- * Used by: filesystem.setperm (params)
- */
-export interface FilesystemSetpermArgs {
-  /**
-   * Filesystem path to modify.
-   */
-  path: string;
-  /**
-   * Numeric user ID to set as owner. `null` to leave unchanged.
-   */
-  uid?: number | null;
-  /**
-   * Username to set as owner. `null` to leave unchanged.
-   */
-  user?: string | null;
-  /**
-   * Numeric group ID to set as group owner. `null` to leave unchanged.
-   */
-  gid?: number | null;
-  /**
-   * Group name to set as group owner. `null` to leave unchanged.
-   */
-  group?: string | null;
-  /**
-   * Unix permissions to set (octal format). `null` to leave unchanged.
-   */
-  mode?: string | null;
-  options?: FilesystemSetpermOptions;
-}
-/**
- * Used by: filesystem.setperm (params)
- */
-export interface FilesystemSetpermOptions {
-  /**
-   * Whether to apply the operation recursively to subdirectories.
-   */
-  recursive?: boolean;
-  /**
-   * If set do not limit to single dataset / filesystem.
-   */
-  traverse?: boolean;
-  /**
-   * Whether to remove existing Access Control Lists when setting permissions. `filesystem.setperm` fails if an extended ACL is present on the path unless this is set. When no `mode` is set and this is `true`, non-trivial ACLs are converted to trivial ACLs.
-   */
-  stripacl?: boolean;
-}
-/**
- * Used by: filesystem.set_zfs_attributes (params)
- */
 export interface FilesystemSetZfsAttributesData {
-  /**
-   * Path to the file or directory to set ZFS attributes on.
-   */
   path: string;
   zfs_file_attributes: ZFSFileAttrsData;
   options?: FilesystemSetZfsAttributesOptions;
 }
-/**
- * Used by: filesystem.set_zfs_attributes (params)
- */
-export interface FilesystemSetZfsAttributesOptions {
-  /**
-   * If set, walk the tree under `path` and apply attributes to entries whose type appears in the list (`FILES`, `DIRECTORIES`, or both). The root `path` is included only if its type matches the filter. `null` means no recursion (operate on `path` only). An empty list is rejected. Recursion stops at dataset boundaries.
-   */
-  recursive?: ("FILES" | "DIRECTORIES")[] | null;
-}
-/**
- * Used by: filesystem.stat (response)
- */
-export interface FilesystemStatData {
-  /**
-   * Canonical path of the entry, eliminating any symbolic links.
-   */
-  realpath: string;
-  type: Type5;
-  /**
-   * Size in bytes of a plain file. This corresonds with stx_size.
-   */
-  size: number;
-  /**
-   * Allocated size of file. Calculated by multiplying stx_blocks by 512.
-   */
-  allocation_size: number;
-  /**
-   * Entry's mode including file type information and file permission bits. This corresponds with stx_mode.
-   */
-  mode: number;
-  /**
-   * The mount ID of the mount containing the entry. This corresponds to the number in first field of /proc/self/mountinfo and stx_mnt_id. Bind mounts share the same device ID but have different mount IDs, so this value uniquely identifies the particular mount and can be used to identify children of a given mountpoint.
-   */
-  mount_id: number;
-  /**
-   * User ID of the entry's owner. This corresponds with stx_uid.
-   */
-  uid: number;
-  /**
-   * Group ID of the entry's owner. This corresponds with stx_gid.
-   */
-  gid: number;
-  /**
-   * Time of last access. Corresponds with stx_atime. This is mutable from userspace.
-   */
-  atime: number;
-  /**
-   * Time of last modification. Corresponds with stx_mtime. This is mutable from userspace.
-   */
-  mtime: number;
-  /**
-   * Time of last status change. Corresponds with stx_ctime.
-   */
-  ctime: number;
-  /**
-   * Time of creation. Corresponds with stx_btime. Depending on the platform, this may be mutable from userspace.
-   */
-  btime: number;
-  /**
-   * The ID of the device containing the filesystem where the file resides. Within the TrueNAS API this is sufficient to uniquely identify a given dataset, but it is not sufficient to uniquely identify a particular filesystem mount (bind mounts of the same dataset share a dev). mount_id must be used for that purpose. This corresponds with st_dev.
-   */
-  dev: number;
-  /**
-   * The inode number of the file. This corresponds with stx_ino. It uniquely identifies the file on the given device, but once a file is deleted its inode number may be reused.
-   */
-  inode: number;
-  /**
-   * Number of hard links. Corresponds with stx_nlinks.
-   */
-  nlink: number;
-  /**
-   * Specifies whether ACL is present on the entry. If this is the case then file permission bits as reported in `mode` may not be representative of the actual permissions.
-   */
-  acl: boolean;
-  /**
-   * Specifies whether the entry is also the mountpoint of a filesystem.
-   */
-  is_mountpoint: boolean;
-  /**
-   * Specifies whether the entry is located within the ZFS ctldir (for example a snapshot).
-   */
-  is_ctldir: boolean;
-  /**
-   * Extra file attribute indicators for entry as returned by statx. Expanded from stx_attributes.
-   */
-  attributes: (
-    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
-  )[];
-  /**
-   * Username associated with `uid`. Will be None if the User ID does not map to existing user.
-   */
-  user: string | null;
-  /**
-   * Groupname associated with `gid`. Will be None if the Group ID does not map to existing group.
-   */
-  group: string | null;
-}
-/**
- * Used by: ftp.update (params)
- */
 export interface FTPUpdate {
-  /**
-   * TCP port number on which the FTP service listens for incoming connections.
-   */
   port?: number;
-  /**
-   * Maximum number of simultaneous client connections allowed.
-   */
   clients?: number;
-  /**
-   * Maximum number of connections allowed from a single IP address. 0 means unlimited.
-   */
   ipconnections?: number;
-  /**
-   * Maximum number of failed login attempts before blocking an IP address. 0 disables this limit.
-   */
   loginattempt?: number;
-  /**
-   * Idle timeout in seconds before disconnecting inactive clients. 0 disables timeout.
-   */
   timeout?: number;
-  /**
-   * Timeout in seconds for clients that connect but do not transfer data. 0 disables timeout.
-   */
   timeout_notransfer?: number;
-  /**
-   * Whether to allow only anonymous FTP access, disabling authenticated user login.
-   */
   onlyanonymous?: boolean;
-  /**
-   * Filesystem path for anonymous FTP users. `null` to use the default anonymous FTP directory.
-   */
   anonpath?: string | null;
-  /**
-   * Whether to allow only local system users to login, disabling anonymous access.
-   */
   onlylocal?: boolean;
-  /**
-   * Welcome message displayed to FTP clients upon connection.
-   */
   banner?: string;
-  /**
-   * Default Unix permissions (umask) for files created by FTP users.
-   */
   filemask?: string;
-  /**
-   * Default Unix permissions (umask) for directories created by FTP users.
-   */
   dirmask?: string;
-  /**
-   * Whether to enable File eXchange Protocol (FXP) for server-to-server transfers.
-   */
   fxp?: boolean;
-  /**
-   * Whether to allow clients to resume interrupted file transfers.
-   */
   resume?: boolean;
-  /**
-   * Whether to restrict users to their home directories (chroot jail).
-   */
   defaultroot?: boolean;
-  /**
-   * Whether to perform RFC 1413 ident lookups on connecting clients.
-   */
   ident?: boolean;
-  /**
-   * Whether to perform reverse DNS lookups on client IP addresses for logging.
-   */
   reversedns?: boolean;
-  /**
-   * Public IP address to advertise to clients for passive mode connections when behind NAT.
-   */
   masqaddress?: string;
-  /**
-   * Minimum port number for passive mode data connections. Must be 0 or between 1024-65535.
-   */
   passiveportsmin?: number;
-  /**
-   * Maximum port number for passive mode data connections. Must be 0 or between 1024-65535.
-   */
   passiveportsmax?: number;
-  /**
-   * Maximum upload bandwidth in KiB/s for local users. 0 means unlimited.
-   */
   localuserbw?: number;
-  /**
-   * Maximum download bandwidth in KiB/s for local users. 0 means unlimited.
-   */
   localuserdlbw?: number;
-  /**
-   * Maximum upload bandwidth in KiB/s for anonymous users. 0 means unlimited.
-   */
   anonuserbw?: number;
-  /**
-   * Maximum download bandwidth in KiB/s for anonymous users. 0 means unlimited.
-   */
   anonuserdlbw?: number;
-  /**
-   * Whether to enable TLS/SSL encryption for FTP connections.
-   */
   tls?: boolean;
-  /**
-   * TLS policy for connections. Values include: `"on"` (required), `"off"` (disabled), `"data"` (data only), `"auth"` (authentication only), `"ctrl"` (control only), or combinations with `+` and `!` modifiers.
-   */
   tls_policy?:
     "" | "on" | "off" | "data" | "!data" | "auth" | "ctrl" | "ctrl+data" | "ctrl+!data" | "auth+data" | "auth+!data";
-  /**
-   * Whether to allow TLS clients to initiate renegotiation of the TLS connection.
-   */
   tls_opt_allow_client_renegotiations?: boolean;
-  /**
-   * Whether to allow .ftpaccess files to override TLS requirements for specific users.
-   */
   tls_opt_allow_dot_login?: boolean;
-  /**
-   * Whether to allow per-user TLS configuration overrides.
-   */
   tls_opt_allow_per_user?: boolean;
-  /**
-   * Whether to require client certificates to have a Common Name field.
-   */
   tls_opt_common_name_required?: boolean;
-  /**
-   * Whether to enable detailed TLS diagnostic logging.
-   */
   tls_opt_enable_diags?: boolean;
-  /**
-   * Whether to export client certificate data to environment variables.
-   */
   tls_opt_export_cert_data?: boolean;
-  /**
-   * Whether to disable empty TLS record fragments to improve compatibility with some clients. Disabling increases vulnerability to some attack vectors.
-   */
   tls_opt_no_empty_fragments?: boolean;
-  /**
-   * Whether to disable the requirement for TLS session reuse.
-   */
   tls_opt_no_session_reuse_required?: boolean;
-  /**
-   * Whether to export standard TLS environment variables for use by external programs.
-   */
   tls_opt_stdenvvars?: boolean;
-  /**
-   * Whether to require client certificates to contain a DNS name in the Subject Alternative Name extension. The `reversedns` setting must also be enabled.
-   */
   tls_opt_dns_name_required?: boolean;
-  /**
-   * Whether to require client certificates to contain an IP address in the Subject Alternative Name extension.
-   */
   tls_opt_ip_address_required?: boolean;
-  /**
-   * ID of the certificate to use for TLS/SSL connections. `null` to use the default system certificate.
-   */
   ssltls_certificate?: number | null;
-  /**
-   * Additional ProFTPD configuration directives to include in the server configuration. Manual directives may render the FTP service non-functional and should be used with caution.
-   */
   options?: string;
 }
-/**
- * Used by: iscsi.auth.create (params)
- */
-export interface IscsiAuthCreate {
-  /**
-   * Numeric tag used to associate this credential with iSCSI targets. Must be unique among iSCSI Authorized Accesses.
-   */
-  tag: number;
-  /**
-   * Username for iSCSI CHAP authentication.
-   */
-  user: string;
-  /**
-   * Password/secret for iSCSI CHAP authentication. Must be 12-16 characters.
-   */
-  secret: string;
-  /**
-   * Username for mutual CHAP authentication or empty string if not configured.
-   */
-  peeruser?: string;
-  /**
-   * Password/secret for mutual CHAP authentication, or empty string if not configured. Must be 12-16 characters when set and must differ from `secret`.
-   */
-  peersecret?: string;
-  /**
-   * Authentication method for target discovery. If "CHAP_MUTUAL" is selected for target discovery, it is only permitted for a single entry systemwide.
-   */
-  discovery_auth?: "NONE" | "CHAP" | "CHAP_MUTUAL";
-}
-/**
- * Used by: iscsi.auth.update (params)
- */
-export interface IscsiAuthUpdate {
-  /**
-   * Numeric tag used to associate this credential with iSCSI targets. Must be unique among iSCSI Authorized Accesses.
-   */
-  tag?: number;
-  /**
-   * Username for iSCSI CHAP authentication.
-   */
-  user?: string;
-  /**
-   * Password/secret for iSCSI CHAP authentication. Must be 12-16 characters.
-   */
-  secret?: string;
-  /**
-   * Username for mutual CHAP authentication or empty string if not configured.
-   */
-  peeruser?: string;
-  /**
-   * Password/secret for mutual CHAP authentication, or empty string if not configured. Must be 12-16 characters when set and must differ from `secret`.
-   */
-  peersecret?: string;
-  /**
-   * Authentication method for target discovery. If "CHAP_MUTUAL" is selected for target discovery, it is only permitted for a single entry systemwide.
-   */
-  discovery_auth?: "NONE" | "CHAP" | "CHAP_MUTUAL";
-}
-/**
- * Used by: iscsi.extent.create (params)
- */
-export interface IscsiExtentCreate {
-  /**
-   * Name of the iSCSI extent.
-   */
-  name: string;
-  type?: TypeInput6;
-  /**
-   * Disk device to use for the extent or `null` if using a file.
-   */
-  disk?: string | null;
-  /**
-   * Serial number for the extent or `null` to auto-generate.
-   */
-  serial?: string | null;
-  /**
-   * File path for file-based extents or `null` if using a disk.
-   */
-  path?: string | null;
-  /**
-   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
-   */
-  filesize?: string | number;
-  blocksize?: Blocksize;
-  /**
-   * Whether to use physical block size reporting.
-   */
-  pblocksize?: boolean;
-  /**
-   * Available space threshold percentage or `null` to disable.
-   */
-  avail_threshold?: number | null;
-  /**
-   * Optional comment describing the extent.
-   */
-  comment?: string;
-  /**
-   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
-   */
-  insecure_tpc?: boolean;
-  /**
-   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
-   */
-  xen?: boolean;
-  rpm?: Rpm;
-  /**
-   * Whether the extent is read-only.
-   */
-  ro?: boolean;
-  /**
-   * Whether the extent is enabled and available for use.
-   */
-  enabled?: boolean;
-  /**
-   * Product ID string for the extent or `null` for default.
-   */
-  product_id?: string | null;
-}
-/**
- * Used by: iscsi.extent.update (params)
- */
-export interface IscsiExtentUpdate {
-  /**
-   * Name of the iSCSI extent.
-   */
-  name?: string;
-  type?: TypeInput6;
-  /**
-   * Disk device to use for the extent or `null` if using a file.
-   */
-  disk?: string | null;
-  /**
-   * Serial number for the extent or `null` to auto-generate.
-   */
-  serial?: string | null;
-  /**
-   * File path for file-based extents or `null` if using a disk.
-   */
-  path?: string | null;
-  /**
-   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
-   */
-  filesize?: string | number;
-  blocksize?: Blocksize;
-  /**
-   * Whether to use physical block size reporting.
-   */
-  pblocksize?: boolean;
-  /**
-   * Available space threshold percentage or `null` to disable.
-   */
-  avail_threshold?: number | null;
-  /**
-   * Optional comment describing the extent.
-   */
-  comment?: string;
-  /**
-   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
-   */
-  insecure_tpc?: boolean;
-  /**
-   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
-   */
-  xen?: boolean;
-  rpm?: Rpm;
-  /**
-   * Whether the extent is read-only.
-   */
-  ro?: boolean;
-  /**
-   * Whether the extent is enabled and available for use.
-   */
-  enabled?: boolean;
-  /**
-   * Product ID string for the extent or `null` for default.
-   */
-  product_id?: string | null;
-}
-/**
- * Used by: iscsi.initiator.create (params)
- */
-export interface IscsiInitiatorCreate {
-  /**
-   * Array of iSCSI Qualified Names (IQNs) or IP addresses of authorized initiators. An empty list allows all initiators.
-   */
-  initiators?: string[];
-  /**
-   * Optional comment describing the authorized initiator group.
-   */
-  comment?: string;
-}
-/**
- * Used by: iscsi.initiator.update (params)
- */
-export interface IscsiInitiatorUpdate {
-  /**
-   * Unique identifier for the authorized initiator group.
-   */
-  id?: number;
-  /**
-   * Array of iSCSI Qualified Names (IQNs) or IP addresses of authorized initiators. An empty list allows all initiators.
-   */
-  initiators?: string[];
-  /**
-   * Optional comment describing the authorized initiator group.
-   */
-  comment?: string;
-}
-/**
- * Used by: iscsi.auth.query (event)
- */
-export interface ISCSITargetAuthCredentialAddedEvent {
-  id: number;
-  fields: ISCSITargetAuthCredentialEntry;
-}
-/**
- * Used by: iscsi.auth.create (response), iscsi.auth.get_instance (params), iscsi.auth.get_instance (response), iscsi.auth.query (event), iscsi.auth.query (params), iscsi.auth.query (response), iscsi.auth.update (response)
- */
-export interface ISCSITargetAuthCredentialEntry {
-  /**
-   * Unique identifier for the iSCSI authentication credential.
-   */
-  id: number;
-  /**
-   * Numeric tag used to associate this credential with iSCSI targets. Must be unique among iSCSI Authorized Accesses.
-   */
-  tag: number;
-  /**
-   * Username for iSCSI CHAP authentication.
-   */
-  user: string;
-  /**
-   * Password/secret for iSCSI CHAP authentication. Must be 12-16 characters.
-   */
-  secret: string;
-  /**
-   * Username for mutual CHAP authentication or empty string if not configured.
-   */
-  peeruser?: string;
-  /**
-   * Password/secret for mutual CHAP authentication, or empty string if not configured. Must be 12-16 characters when set and must differ from `secret`.
-   */
-  peersecret?: string;
-  /**
-   * Authentication method for target discovery. If "CHAP_MUTUAL" is selected for target discovery, it is only permitted for a single entry systemwide.
-   */
-  discovery_auth?: "NONE" | "CHAP" | "CHAP_MUTUAL";
-}
-/**
- * Used by: iscsi.auth.query (event)
- */
-export interface ISCSITargetAuthCredentialChangedEvent {
-  id: number;
-  fields: ISCSITargetAuthCredentialEntry;
-}
-/**
- * Used by: iscsi.initiator.query (event)
- */
-export interface ISCSITargetAuthorizedInitiatorAddedEvent {
-  id: number;
-  fields: ISCSITargetAuthorizedInitiatorEntry;
-}
-/**
- * Used by: iscsi.initiator.create (response), iscsi.initiator.get_instance (params), iscsi.initiator.get_instance (response), iscsi.initiator.query (event), iscsi.initiator.query (params), iscsi.initiator.query (response), iscsi.initiator.update (response)
- */
-export interface ISCSITargetAuthorizedInitiatorEntry {
-  /**
-   * Unique identifier for the authorized initiator group.
-   */
-  id: number;
-  /**
-   * Array of iSCSI Qualified Names (IQNs) or IP addresses of authorized initiators. An empty list allows all initiators.
-   */
-  initiators?: string[];
-  /**
-   * Optional comment describing the authorized initiator group.
-   */
-  comment?: string;
-}
-/**
- * Used by: iscsi.initiator.query (event)
- */
-export interface ISCSITargetAuthorizedInitiatorChangedEvent {
-  id: number;
-  fields: ISCSITargetAuthorizedInitiatorEntry;
-}
-/**
- * Used by: iscsi.target.create (params)
- */
-export interface IscsiTargetCreate {
-  /**
-   * Name of the iSCSI target (maximum 120 characters).
-   */
-  name: string;
-  /**
-   * Optional alias name for the iSCSI target.
-   */
-  alias?: string | null;
-  mode?: ModeInput;
-  /**
-   * Array of portal-initiator group associations for this target.
-   */
-  groups?: IscsiGroup[];
-  /**
-   * Array of network addresses (CIDR notation) allowed to access this target. An empty list allows access from all networks.
-   */
-  auth_networks?: string[];
-  /**
-   * Optional iSCSI-specific parameters for this target.
-   */
-  iscsi_parameters?: IscsiTargetParameters | null;
-}
-/**
- * Used by: iscsi.target.create (response), iscsi.target.get_instance (params), iscsi.target.get_instance (response), iscsi.target.query (params), iscsi.target.query (response), iscsi.target.update (response)
- */
-export interface ISCSITargetEntry {
-  /**
-   * Unique identifier for the iSCSI target.
-   */
-  id: number;
-  /**
-   * Name of the iSCSI target (maximum 120 characters).
-   */
-  name: string;
-  /**
-   * Optional alias name for the iSCSI target.
-   */
-  alias?: string | null;
-  mode?: Mode;
-  /**
-   * Array of portal-initiator group associations for this target.
-   */
-  groups?: IscsiGroup[];
-  /**
-   * Array of network addresses (CIDR notation) allowed to access this target. An empty list allows access from all networks.
-   */
-  auth_networks?: string[];
-  /**
-   * Relative target ID number assigned by the system.
-   */
-  rel_tgt_id: number;
-  /**
-   * Optional iSCSI-specific parameters for this target.
-   */
-  iscsi_parameters?: IscsiTargetParameters | null;
-}
-/**
- * Used by: iscsi.extent.create (response), iscsi.extent.get_instance (params), iscsi.extent.get_instance (response), iscsi.extent.query (params), iscsi.extent.query (response), iscsi.extent.update (response)
- */
-export interface ISCSITargetExtentEntry {
-  /**
-   * Unique identifier for the iSCSI extent.
-   */
-  id: number;
-  /**
-   * Name of the iSCSI extent.
-   */
-  name: string;
-  type?: Type6;
-  /**
-   * Disk device to use for the extent or `null` if using a file.
-   */
-  disk?: string | null;
-  /**
-   * Serial number for the extent or `null` to auto-generate.
-   */
-  serial?: string | null;
-  /**
-   * File path for file-based extents or `null` if using a disk.
-   */
-  path?: string | null;
-  /**
-   * The ZFS dataset containing the file-based extent (e.g., 'tank/iscsi'). Returns `null` for non-FILE extent types (DISK, ZVOL) or if the FILE path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
-  dataset: string | null;
-  /**
-   * The path of the file-based extent relative to the dataset mountpoint (e.g., 'extents/lun0.img'). An empty string indicates the file is at the dataset root. Returns `null` for non-FILE types or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
-  relative_path: string | null;
-  /**
-   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
-   */
-  filesize?: string | number;
-  blocksize?: Blocksize;
-  /**
-   * Whether to use physical block size reporting.
-   */
-  pblocksize?: boolean;
-  /**
-   * Available space threshold percentage or `null` to disable.
-   */
-  avail_threshold?: number | null;
-  /**
-   * Optional comment describing the extent.
-   */
-  comment?: string;
-  /**
-   * Network Address Authority (NAA) identifier for the extent.
-   */
-  naa: string;
-  /**
-   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
-   */
-  insecure_tpc?: boolean;
-  /**
-   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
-   */
-  xen?: boolean;
-  rpm?: Rpm;
-  /**
-   * Whether the extent is read-only.
-   */
-  ro?: boolean;
-  /**
-   * Whether the extent is enabled and available for use.
-   */
-  enabled?: boolean;
-  /**
-   * Vendor string reported by the extent.
-   */
-  vendor: string;
-  /**
-   * Product ID string for the extent or `null` for default.
-   */
-  product_id?: string | null;
-  /**
-   * Read-only value indicating whether the iscsi extent is located on a locked dataset.
-   *
-   * - `true`: The extent is in a locked dataset.
-   * - `false`: The extent is not in a locked dataset.
-   * - `null`: Lock status is not available because path locking information was not requested.
-   */
-  locked: boolean | null;
-}
-/**
- * Used by: iscsi.target.update (params)
- */
-export interface IscsiTargetUpdate {
-  /**
-   * Name of the iSCSI target (maximum 120 characters).
-   */
-  name?: string;
-  /**
-   * Optional alias name for the iSCSI target.
-   */
-  alias?: string | null;
-  mode?: ModeInput;
-  /**
-   * Array of portal-initiator group associations for this target.
-   */
-  groups?: IscsiGroup[];
-  /**
-   * Array of network addresses (CIDR notation) allowed to access this target. An empty list allows access from all networks.
-   */
-  auth_networks?: string[];
-  /**
-   * Optional iSCSI-specific parameters for this target.
-   */
-  iscsi_parameters?: IscsiTargetParameters | null;
-}
-/**
- * Used by: kmip.config (response), kmip.update (response)
- */
-export interface KMIPEntry {
-  /**
-   * Unique identifier for the KMIP configuration.
-   */
-  id: number;
-  /**
-   * Whether KMIP (Key Management Interoperability Protocol) is enabled.
-   */
-  enabled: boolean;
-  /**
-   * Whether to use KMIP for managing SED (Self-Encrypting Drive) keys. When enabled, SED keys are synced from the local database to the remote KMIP server. When disabled, any SED keys still held on the KMIP server are synced back to the local database.
-   */
-  manage_sed_disks: boolean;
-  /**
-   * Whether to use KMIP for managing ZFS encryption keys. When enabled, ZFS keys are synced from the local database to the remote KMIP server. When disabled, any ZFS keys still held on the KMIP server are synced back to the local database.
-   */
-  manage_zfs_keys: boolean;
-  /**
-   * ID of the client certificate used to initiate the TLS handshake with the KMIP `server`, or `null`.
-   */
-  certificate: number | null;
-  /**
-   * ID of the certificate authority used to verify the KMIP `server` during the TLS handshake, or `null`.
-   */
-  certificate_authority: number | null;
-  /**
-   * TCP port number for the KMIP server connection.
-   */
-  port: number;
-  /**
-   * Hostname or IP address of the KMIP server or `null` if not configured.
-   */
-  server: string | null;
-  /**
-   * SSL/TLS protocol version to use for KMIP connections. Specify this to match the SSL configuration used by the KMIP server.
-   */
-  ssl_version: "PROTOCOL_TLSv1" | "PROTOCOL_TLSv1_1" | "PROTOCOL_TLSv1_2";
-}
-/**
- * Used by: kmip.update (params)
- */
 export interface KMIPUpdate {
-  /**
-   * Whether to enable KMIP functionality. Cannot be set to disabled while there are keys pending sync, unless `force_clear` is also set.
-   */
   enabled?: boolean;
-  /**
-   * Whether to use KMIP for managing SED (Self-Encrypting Drive) keys. When enabled, SED keys are synced from the local database to the remote KMIP server. When disabled, any SED keys still held on the KMIP server are synced back to the local database.
-   */
   manage_sed_disks?: boolean;
-  /**
-   * Whether to use KMIP for managing ZFS encryption keys. When enabled, ZFS keys are synced from the local database to the remote KMIP server. When disabled, any ZFS keys still held on the KMIP server are synced back to the local database.
-   */
   manage_zfs_keys?: boolean;
-  /**
-   * ID of the client certificate used to initiate the TLS handshake with the KMIP `server`, or `null`.
-   */
   certificate?: number | null;
-  /**
-   * ID of the certificate authority used to verify the KMIP `server` during the TLS handshake, or `null`.
-   */
   certificate_authority?: number | null;
-  /**
-   * TCP port number for the KMIP server connection.
-   */
   port?: number;
-  /**
-   * Hostname or IP address of the KMIP server or `null` if not configured.
-   */
   server?: string | null;
-  /**
-   * SSL/TLS protocol version to use for KMIP connections. Specify this to match the SSL configuration used by the KMIP server.
-   */
   ssl_version?: "PROTOCOL_TLSv1" | "PROTOCOL_TLSv1_1" | "PROTOCOL_TLSv1_2";
-  /**
-   * When enabled, removes all keys pending sync from the database. Use with extreme caution: ZFS dataset or SED disk keys may be lost, leaving them locked forever. Disabled by default.
-   */
   force_clear?: boolean;
-  /**
-   * Allows migrating data between two KMIP servers. The system first migrates keys from the old server to the local database, then from the database to the new server. If it cannot retrieve all keys from the old server the operation fails, which can be bypassed with `force_clear`.
-   */
   change_server?: boolean;
-  /**
-   * When enabled (the default), the system tests the connection to `server` to make sure it is reachable before saving.
-   */
   validate?: boolean;
 }
-/**
- * Used by: lxc.update (params)
- */
 export interface LXCConfigUpdate {
-  /**
-   * Default pool used by containers and image datasets.
-   */
   preferred_pool?: string | null;
-  /**
-   * Network bridge interface for virtualized instance networking. `null` if not configured.
-   */
   bridge?: string | null;
-  /**
-   * IPv4 network CIDR for the container bridge network.
-   */
   v4_network?: string;
-  /**
-   * IPv6 network CIDR for the container bridge network.
-   */
   v6_network?: string;
 }
-/**
- * Used by: mail.config (response), mail.update (response)
- */
 export interface MailEntry {
-  /**
-   * The sending address that the mail server will use for sending emails.
-   */
   fromemail: string;
-  /**
-   * Display name that will appear as the sender name in outgoing emails.
-   */
   fromname: string;
-  /**
-   * Hostname or IP address of the SMTP server used for sending emails.
-   */
   outgoingserver: string;
-  /**
-   * TCP port number for the SMTP server connection.
-   */
   port: number;
   security: Security;
-  /**
-   * Whether SMTP authentication is enabled and `user`, `pass` are required.
-   */
   smtp: boolean;
-  /**
-   * SMTP username.
-   */
   user: string | null;
-  /**
-   * SMTP password.
-   */
   pass: string | null;
-  /**
-   * OAuth configuration for email providers that support it or `null` for basic authentication.
-   */
   oauth: MailEntryOAuth | null;
-  /**
-   * Unique identifier for this mail configuration.
-   */
   id: number;
 }
-/**
- * Used by: mail.send (params)
- */
 export interface MailSendMessage {
-  /**
-   * Subject line for the email message.
-   */
   subject: string;
-  /**
-   * Formatted to HTML using Markdown and rendered using default email template.
-   */
   text?: string;
-  /**
-   * Custom HTML (overrides `text`). If null, no HTML MIME part will be added to the email.
-   */
   html?: string | null;
-  /**
-   * Email recipients. Defaults to all local administrators.
-   */
   to?: string[];
-  /**
-   * Email CC recipients, if any.
-   */
   cc?: string[];
-  /**
-   * Time limit for connecting to the SMTP server in seconds.
-   */
   timeout?: number;
-  /**
-   * If set to true, an array compromised of the following object is required via HTTP upload:
-   *
-   * * headers *(array)*
-   *     * name *(string)*
-   *     * value *(string)*
-   *     * params *(object)*
-   *
-   * * content *(string)*
-   *
-   * Example:
-   * [
-   *   {
-   *     "headers": [
-   *       {
-   *         "name": "Content-Transfer-Encoding",
-   *         "value": "base64"
-   *       },
-   *       {
-   *         "name": "Content-Type",
-   *         "value": "application/octet-stream",
-   *         "params": {
-   *           "name": "test.txt"
-   *         }
-   *       }
-   *     ],
-   *     "content": "dGVzdAo="
-   *   }
-   * ]
-   */
   attachments?: boolean;
-  /**
-   * Queue the message to be sent later if it fails to send.
-   */
   queue?: boolean;
-  /**
-   * Any additional headers to include in the email message.
-   */
   extra_headers?: {
     [k: string]: unknown;
   };
 }
-/**
- * Used by: mail.send (params), mail.update (params)
- */
 export interface MailUpdate {
-  /**
-   * The sending address that the mail server will use for sending emails.
-   */
   fromemail?: string;
-  /**
-   * Display name that will appear as the sender name in outgoing emails.
-   */
   fromname?: string;
-  /**
-   * Hostname or IP address of the SMTP server used for sending emails.
-   */
   outgoingserver?: string;
-  /**
-   * TCP port number for the SMTP server connection.
-   */
   port?: number;
   security?: Security;
-  /**
-   * Whether SMTP authentication is enabled and `user`, `pass` are required.
-   */
   smtp?: boolean;
-  /**
-   * SMTP username.
-   */
   user?: string | null;
-  /**
-   * SMTP password.
-   */
   pass?: string | null;
-  /**
-   * OAuth configuration for email providers that support it or `null` for basic authentication.
-   */
   oauth?: MailEntryOAuth | null;
 }
-/**
- * Used by: nfs.config (response), nfs.update (response)
- */
-export interface NFSEntry {
-  /**
-   * Placeholder identifier.  Not used as there is only one.
-   */
-  id: number;
-  /**
-   * Specify the number of nfsd. Set `1..256`, or `null`/unset to have the server determine the count automatically. When automatic, the count equals the number of CPU cores, clamped to no less than 1 and no more than 32. The number of mountd processes is always one quarter of the number of nfsd.
-   */
-  servers: number | null;
-  /**
-   * Allow non-root mount requests.  This equates to 'insecure' share option.
-   */
-  allow_nonroot: boolean;
-  /**
-   * Specify supported NFS protocols:  NFSv3, NFSv4 or both can be listed. At least one must be enabled. The `showmount` command is available only while NFSv3 is enabled.
-   */
-  protocols: ("NFSV3" | "NFSV4")[];
-  /**
-   * Force Kerberos authentication on NFS shares. When enabled, NFS shares will be inaccessible if a valid Kerberos ticket is not available.
-   */
-  v4_krb: boolean;
-  /**
-   * Specify a DNS domain (NFSv4 only). Overrides the DNS domain for NFSv4 (sets the `Domain` setting in idmapd.conf).
-   */
-  v4_domain: string;
-  /**
-   * Limit the server IP addresses available for NFS. When empty, NFS listens on all active server addresses.
-   */
-  bindip?: string[];
-  /**
-   * Specify the mountd port binding.
-   */
-  mountd_port: number | null;
-  /**
-   * Specify the rpc.statd port binding.
-   */
-  rpcstatd_port: number | null;
-  /**
-   * Specify the rpc.lockd port binding.
-   */
-  rpclockd_port: number | null;
-  /**
-   * Enable or disable mountd logging.
-   */
-  mountd_log: boolean;
-  /**
-   * Enable or disable statd and lockd logging.
-   */
-  statd_lockd_log: boolean;
-  /**
-   * Status of NFSv4 authentication requirement (status only).
-   */
-  v4_krb_enabled: boolean;
-  /**
-   * Enable to allow server to manage gids.
-   */
-  userd_manage_gids: boolean;
-  /**
-   * Report status of NFS Principal Name in keytab (status only).
-   */
-  keytab_has_nfs_spn: boolean;
-  /**
-   * Report status of 'servers' field. If true, the number of nfsd is managed by the server (status only).
-   */
-  managed_nfsd: boolean;
-  /**
-   * Enable or disable NFS over RDMA.  Available on supported platforms with an installed RDMA-capable NIC. NFS over RDMA uses port 20049.
-   */
-  rdma: boolean;
-}
-/**
- * Used by: nfs.update (params)
- */
-export interface NFSUpdateArgs {
-  /**
-   * Specify the number of nfsd. Set `1..256`, or `null`/unset to have the server determine the count automatically. When automatic, the count equals the number of CPU cores, clamped to no less than 1 and no more than 32. The number of mountd processes is always one quarter of the number of nfsd.
-   */
-  servers?: number | null;
-  /**
-   * Allow non-root mount requests.  This equates to 'insecure' share option.
-   */
-  allow_nonroot?: boolean;
-  /**
-   * Specify supported NFS protocols:  NFSv3, NFSv4 or both can be listed. At least one must be enabled. The `showmount` command is available only while NFSv3 is enabled.
-   */
-  protocols?: ("NFSV3" | "NFSV4")[];
-  /**
-   * Force Kerberos authentication on NFS shares. When enabled, NFS shares will be inaccessible if a valid Kerberos ticket is not available.
-   */
-  v4_krb?: boolean;
-  /**
-   * Specify a DNS domain (NFSv4 only). Overrides the DNS domain for NFSv4 (sets the `Domain` setting in idmapd.conf).
-   */
-  v4_domain?: string;
-  /**
-   * Limit the server IP addresses available for NFS. When empty, NFS listens on all active server addresses.
-   */
-  bindip?: string[];
-  /**
-   * Specify the mountd port binding.
-   */
-  mountd_port?: number | null;
-  /**
-   * Specify the rpc.statd port binding.
-   */
-  rpcstatd_port?: number | null;
-  /**
-   * Specify the rpc.lockd port binding.
-   */
-  rpclockd_port?: number | null;
-  /**
-   * Enable or disable mountd logging.
-   */
-  mountd_log?: boolean;
-  /**
-   * Enable or disable statd and lockd logging.
-   */
-  statd_lockd_log?: boolean;
-  /**
-   * Enable to allow server to manage gids.
-   */
-  userd_manage_gids?: boolean;
-  /**
-   * Enable or disable NFS over RDMA.  Available on supported platforms with an installed RDMA-capable NIC. NFS over RDMA uses port 20049.
-   */
-  rdma?: boolean;
-}
-/**
- * Used by: nvmet.global.sessions (params), nvmet.global.sessions (response)
- */
 export interface NVMetGlobalSessionsItem {
-  /**
-   * Address of the connected host. For example an IP address.
-   */
   host_traddr: string;
-  /**
-   * NQN of the connected host.
-   */
   hostnqn: string;
-  /**
-   * `id` of the subsystem on this TrueNAS that the host is connected to.
-   */
   subsys_id: number;
-  /**
-   * `id` of the port on this TrueNAS through which the host is connected.
-   */
   port_id: number;
-  /**
-   * NVMe controller number.
-   */
   ctrl: number;
 }
-/**
- * Used by: pool.snapshottask.query (event)
- */
-export interface PeriodicSnapshotTaskAddedEvent {
-  id: number;
-  fields: PeriodicSnapshotTaskEntry;
-}
-/**
- * Used by: pool.snapshottask.create (response), pool.snapshottask.get_instance (params), pool.snapshottask.get_instance (response), pool.snapshottask.query (event), pool.snapshottask.query (params), pool.snapshottask.query (response), pool.snapshottask.update (response)
- */
-export interface PeriodicSnapshotTaskEntry {
-  /**
-   * Unique identifier for the periodic snapshot task.
-   */
-  id: number;
-  /**
-   * The dataset to take snapshots of.
-   */
-  dataset: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
-  recursive?: boolean;
-  /**
-   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
-   */
-  lifetime_value?: number;
-  /**
-   * Unit of time for snapshot retention.
-   */
-  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-  /**
-   * Whether this periodic snapshot task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
-  exclude?: string[];
-  /**
-   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
-   */
-  naming_schema?: string;
-  /**
-   * Whether to take snapshots even if no data has changed.
-   */
-  allow_empty?: boolean;
-  schedule?: PoolSnapshotTaskCron;
-  /**
-   * Whether VMware VMs are synced before taking snapshots.
-   */
-  vmware_sync: boolean;
-  /**
-   * Detailed state information for the task.
-   */
-  state: {
-    [k: string]: unknown;
-  };
-}
-/**
- * Used by: pool.snapshottask.query (event)
- */
-export interface PeriodicSnapshotTaskChangedEvent {
-  id: number;
-  fields: PeriodicSnapshotTaskEntry;
-}
-/**
- * Used by: pool.snapshottask.create (params)
- */
-export interface PoolSnapshotTaskCreate {
-  /**
-   * The dataset to take snapshots of.
-   */
-  dataset: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
-  recursive?: boolean;
-  /**
-   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
-   */
-  lifetime_value?: number;
-  /**
-   * Unit of time for snapshot retention.
-   */
-  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-  /**
-   * Whether this periodic snapshot task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
-  exclude?: string[];
-  /**
-   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
-   */
-  naming_schema?: string;
-  /**
-   * Whether to take snapshots even if no data has changed.
-   */
-  allow_empty?: boolean;
-  schedule?: PoolSnapshotTaskCron;
-}
-/**
- * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
- */
-export interface PoolSnapshotTaskDBEntry {
-  /**
-   * Unique identifier for the periodic snapshot task.
-   */
-  id: number;
-  /**
-   * The dataset to take snapshots of.
-   */
-  dataset: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
-  recursive?: boolean;
-  /**
-   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
-   */
-  lifetime_value?: number;
-  /**
-   * Unit of time for snapshot retention.
-   */
-  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-  /**
-   * Whether this periodic snapshot task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
-  exclude?: string[];
-  /**
-   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
-   */
-  naming_schema?: string;
-  /**
-   * Whether to take snapshots even if no data has changed.
-   */
-  allow_empty?: boolean;
-  schedule?: PoolSnapshotTaskCron;
-  state: string;
-}
-/**
- * Used by: pool.snapshottask.update (params)
- */
-export interface PoolSnapshotTaskUpdate {
-  /**
-   * The dataset to take snapshots of.
-   */
-  dataset?: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
-  recursive?: boolean;
-  /**
-   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
-   */
-  lifetime_value?: number;
-  /**
-   * Unit of time for snapshot retention.
-   */
-  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-  /**
-   * Whether this periodic snapshot task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
-  exclude?: string[];
-  /**
-   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
-   */
-  naming_schema?: string;
-  /**
-   * Whether to take snapshots even if no data has changed.
-   */
-  allow_empty?: boolean;
-  schedule?: PoolSnapshotTaskCron;
-  /**
-   * Whether to fix the removal date of existing snapshots when retention settings change.
-   */
-  fixate_removal_date?: boolean;
-}
-/**
- * Used by: pool.snapshottask.update_will_change_retention_for (params)
- */
-export interface PoolSnapshotTaskUpdateWillChangeRetentionFor {
-  /**
-   * The dataset to take snapshots of.
-   */
-  dataset?: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
-  recursive?: boolean;
-  /**
-   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
-   */
-  lifetime_value?: number;
-  /**
-   * Unit of time for snapshot retention.
-   */
-  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-  /**
-   * Whether this periodic snapshot task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
-  exclude?: string[];
-  /**
-   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
-   */
-  naming_schema?: string;
-  /**
-   * Whether to take snapshots even if no data has changed.
-   */
-  allow_empty?: boolean;
-  schedule?: PoolSnapshotTaskCron;
-}
-/**
- * Used by: privilege.query (event)
- */
-export interface PrivilegeAddedEvent {
-  id: number;
-  fields: PrivilegeEntry;
-}
-/**
- * Used by: privilege.create (response), privilege.get_instance (params), privilege.get_instance (response), privilege.query (event), privilege.query (params), privilege.query (response), privilege.update (response)
- */
-export interface PrivilegeEntry {
-  /**
-   * Unique identifier for the privilege.
-   */
-  id: number;
-  /**
-   * Name of the built-in privilege if this is a system privilege. `null` for custom privileges.
-   */
-  builtin_name: string | null;
-  /**
-   * Display name of the privilege. Must be unique.
-   */
-  name: string;
-  /**
-   * Array of local groups assigned to this privilege.
-   */
-  local_groups: (GroupEntry | UnmappedGroupEntry)[];
-  /**
-   * Array of directory service groups assigned to this privilege.
-   */
-  ds_groups: (GroupEntry | UnmappedGroupEntry)[];
-  /**
-   * Array of role names included in this privilege.
-   */
-  roles?: string[];
-  /**
-   * Whether this privilege grants access to the web shell.
-   */
-  web_shell: boolean;
-}
-/**
- * Used by: privilege.query (event)
- */
-export interface PrivilegeChangedEvent {
-  id: number;
-  fields: PrivilegeEntry;
-}
-/**
- * Used by: privilege.create (params)
- */
-export interface PrivilegeCreate {
-  /**
-   * Display name of the privilege. Must be unique.
-   */
-  name: string;
-  /**
-   * Array of local group IDs to assign to this privilege.
-   */
-  local_groups?: number[];
-  /**
-   * Array of directory service group IDs or SIDs to assign to this privilege.
-   */
-  ds_groups?: (number | string)[];
-  /**
-   * Array of role names included in this privilege.
-   */
-  roles?: string[];
-  /**
-   * Whether this privilege grants access to the web shell.
-   */
-  web_shell: boolean;
-}
-/**
- * Used by: privilege.roles (params), privilege.roles (response)
- */
-export interface PrivilegeRolesEntry {
-  /**
-   * Internal name of the role.
-   */
-  name: string;
-  /**
-   * Array of other role names that this role includes. Granting this role also grants the permissions of all included roles.
-   */
-  includes: string[];
-  /**
-   * Whether this is a built-in system role.
-   */
-  builtin: boolean;
-  /**
-   * STIG compliance type for this role. `null` if not STIG-related.
-   */
-  stig: STIGType | null;
-}
-/**
- * Used by: privilege.update (params)
- */
-export interface PrivilegeUpdate {
-  /**
-   * Display name of the privilege. Must be unique.
-   */
-  name?: string;
-  /**
-   * Array of local group IDs to assign to this privilege.
-   */
-  local_groups?: number[];
-  /**
-   * Array of directory service group IDs or SIDs to assign to this privilege.
-   */
-  ds_groups?: (number | string)[];
-  /**
-   * Array of role names included in this privilege.
-   */
-  roles?: string[];
-  /**
-   * Whether this privilege grants access to the web shell.
-   */
-  web_shell?: boolean;
-}
-/**
- * Used by: replication.query (event)
- */
-export interface ReplicationAddedEvent {
-  id: number;
-  fields: ReplicationEntryInput;
-}
-/**
- * Used by: replication.query (event)
- */
-export interface ReplicationEntryInput {
-  /**
-   * Unique identifier for this replication task.
-   */
-  id: number;
-  /**
-   * Name for replication task.
-   */
-  name: string;
-  direction: DirectionInput2;
-  transport: TransportInput;
-  /**
-   * Keychain Credential of type `SSH_CREDENTIALS`.
-   */
-  ssh_credentials?: KeychainCredentialEntryInput | null;
-  /**
-   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
-   *
-   * * `LOCAL`: Local system initiates the connection
-   * * `REMOTE`: Remote system initiates the connection
-   * * `null`: Not applicable for other transport types
-   */
-  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
-  /**
-   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_active_side_listen_address?: string | null;
-  /**
-   * Minimum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_min?: number | null;
-  /**
-   * Maximum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_max?: number | null;
-  /**
-   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_passive_side_connect_address?: string | null;
-  /**
-   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
-   */
-  sudo?: boolean;
-  /**
-   * List of datasets to replicate snapshots from.
-   *
-   * @minItems 1
-   */
-  source_datasets: [string, ...string[]];
-  /**
-   * Dataset to put snapshots into.
-   */
-  target_dataset: string;
-  /**
-   * Whether to recursively replicate child datasets.
-   */
-  recursive: boolean;
-  /**
-   * Array of dataset patterns to exclude from replication.
-   */
-  exclude?: string[];
-  /**
-   * Send dataset properties along with snapshots.
-   */
-  properties?: boolean;
-  /**
-   * Array of dataset property names to exclude from replication.
-   */
-  properties_exclude?: string[];
-  /**
-   * Object mapping dataset property names to override values during replication.
-   */
-  properties_override?: {
-    [k: string]: string;
-  };
-  /**
-   * Whether to use full ZFS replication.
-   */
-  replicate?: boolean;
-  /**
-   * Whether to enable encryption for the replicated datasets.
-   */
-  encryption?: boolean;
-  /**
-   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
-   */
-  encryption_inherit?: boolean | null;
-  /**
-   * Encryption key for replicated datasets. `null` if not specified.
-   */
-  encryption_key?: string | null;
-  /**
-   * Format of the encryption key.
-   *
-   * * `HEX`: Hexadecimal-encoded key
-   * * `PASSPHRASE`: Text passphrase
-   * * `null`: Not applicable when encryption is disabled
-   */
-  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
-  /**
-   * Filesystem path where encryption key is stored. `null` if not using key file.
-   */
-  encryption_key_location?: string | null;
-  /**
-   * List of periodic snapshot tasks that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
-   */
-  periodic_snapshot_tasks: PoolSnapshotTaskDBEntry[];
-  /**
-   * List of naming schemas for pull replication.
-   */
-  naming_schema?: string[];
-  /**
-   * List of naming schemas for push replication.
-   */
-  also_include_naming_schema?: string[];
-  /**
-   * Replicate all snapshots which names match specified regular expression.
-   */
-  name_regex?: string | null;
-  /**
-   * Allow replication to run automatically on schedule or after bound periodic snapshot task.
-   */
-  auto: boolean;
-  /**
-   * Schedule to run replication task. Only `auto` replication tasks without bound periodic snapshot tasks can have a schedule.
-   */
-  schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
-   */
-  restrict_schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Will only replicate snapshots that match `schedule` or `restrict_schedule`.
-   */
-  only_matching_schedule?: boolean;
-  /**
-   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
-   */
-  allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
-  /**
-   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
-   */
-  hold_pending_snapshots?: boolean;
-  /**
-   * How to delete old snapshots on target side:
-   *
-   * * `SOURCE`: Delete snapshots that are absent on source side.
-   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
-   * * `NONE`: Do not delete any snapshots.
-   */
-  retention_policy: "SOURCE" | "CUSTOM" | "NONE";
-  /**
-   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_value?: number | null;
-  /**
-   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
-  /**
-   * Array of different retention schedules with their own cron schedules and lifetime settings.
-   */
-  lifetimes?: ReplicationLifetimeModel[];
-  /**
-   * Compresses SSH stream. Available only for SSH transport.
-   */
-  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
-  /**
-   * Limits speed of SSH stream. Available only for SSH transport.
-   */
-  speed_limit?: number | null;
-  /**
-   * Enable large block support for ZFS send streams.
-   */
-  large_block?: boolean;
-  /**
-   * Enable embedded block support for ZFS send streams.
-   */
-  embed?: boolean;
-  /**
-   * Enable compressed ZFS send streams.
-   */
-  compressed?: boolean;
-  /**
-   * Number of retries before considering replication failed.
-   */
-  retries?: number;
-  /**
-   * Log level for replication task execution. Controls verbosity of replication logs.
-   */
-  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
-  /**
-   * Whether this replication task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Current state information for the replication task.
-   */
-  state: {
-    [k: string]: unknown;
-  };
-  /**
-   * Information about the currently running job. `null` if no job is running.
-   */
-  job: {
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Whether this replication task has encrypted dataset keys available.
-   */
-  has_encrypted_dataset_keys: boolean;
-}
-/**
- * Used by: replication.query (event)
- */
-export interface ReplicationChangedEvent {
-  id: number;
-  fields: ReplicationEntryInput;
-}
-/**
- * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
- */
-export interface ReplicationEntry {
-  /**
-   * Unique identifier for this replication task.
-   */
-  id: number;
-  /**
-   * Name for replication task.
-   */
-  name: string;
-  direction: Direction2;
-  transport: Transport;
-  /**
-   * Keychain Credential of type `SSH_CREDENTIALS`.
-   */
-  ssh_credentials?: KeychainCredentialEntry | null;
-  /**
-   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
-   *
-   * * `LOCAL`: Local system initiates the connection
-   * * `REMOTE`: Remote system initiates the connection
-   * * `null`: Not applicable for other transport types
-   */
-  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
-  /**
-   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_active_side_listen_address?: string | null;
-  /**
-   * Minimum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_min?: number | null;
-  /**
-   * Maximum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_max?: number | null;
-  /**
-   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_passive_side_connect_address?: string | null;
-  /**
-   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
-   */
-  sudo?: boolean;
-  /**
-   * List of datasets to replicate snapshots from.
-   *
-   * @minItems 1
-   */
-  source_datasets: [string, ...string[]];
-  /**
-   * Dataset to put snapshots into.
-   */
-  target_dataset: string;
-  /**
-   * Whether to recursively replicate child datasets.
-   */
-  recursive: boolean;
-  /**
-   * Array of dataset patterns to exclude from replication.
-   */
-  exclude?: string[];
-  /**
-   * Send dataset properties along with snapshots.
-   */
-  properties?: boolean;
-  /**
-   * Array of dataset property names to exclude from replication.
-   */
-  properties_exclude?: string[];
-  /**
-   * Object mapping dataset property names to override values during replication.
-   */
-  properties_override?: {
-    [k: string]: string;
-  };
-  /**
-   * Whether to use full ZFS replication.
-   */
-  replicate?: boolean;
-  /**
-   * Whether to enable encryption for the replicated datasets.
-   */
-  encryption?: boolean;
-  /**
-   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
-   */
-  encryption_inherit?: boolean | null;
-  /**
-   * Encryption key for replicated datasets. `null` if not specified.
-   */
-  encryption_key?: string | null;
-  /**
-   * Format of the encryption key.
-   *
-   * * `HEX`: Hexadecimal-encoded key
-   * * `PASSPHRASE`: Text passphrase
-   * * `null`: Not applicable when encryption is disabled
-   */
-  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
-  /**
-   * Filesystem path where encryption key is stored. `null` if not using key file.
-   */
-  encryption_key_location?: string | null;
-  /**
-   * List of periodic snapshot tasks that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
-   */
-  periodic_snapshot_tasks: PoolSnapshotTaskDBEntry[];
-  /**
-   * List of naming schemas for pull replication.
-   */
-  naming_schema?: string[];
-  /**
-   * List of naming schemas for push replication.
-   */
-  also_include_naming_schema?: string[];
-  /**
-   * Replicate all snapshots which names match specified regular expression.
-   */
-  name_regex?: string | null;
-  /**
-   * Allow replication to run automatically on schedule or after bound periodic snapshot task.
-   */
-  auto: boolean;
-  /**
-   * Schedule to run replication task. Only `auto` replication tasks without bound periodic snapshot tasks can have a schedule.
-   */
-  schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
-   */
-  restrict_schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Will only replicate snapshots that match `schedule` or `restrict_schedule`.
-   */
-  only_matching_schedule?: boolean;
-  /**
-   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
-   */
-  allow_from_scratch?: boolean;
-  readonly?: Readonly;
-  /**
-   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
-   */
-  hold_pending_snapshots?: boolean;
-  /**
-   * How to delete old snapshots on target side:
-   *
-   * * `SOURCE`: Delete snapshots that are absent on source side.
-   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
-   * * `NONE`: Do not delete any snapshots.
-   */
-  retention_policy: "SOURCE" | "CUSTOM" | "NONE";
-  /**
-   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_value?: number | null;
-  /**
-   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
-  /**
-   * Array of different retention schedules with their own cron schedules and lifetime settings.
-   */
-  lifetimes?: ReplicationLifetimeModel[];
-  /**
-   * Compresses SSH stream. Available only for SSH transport.
-   */
-  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
-  /**
-   * Limits speed of SSH stream. Available only for SSH transport.
-   */
-  speed_limit?: number | null;
-  /**
-   * Enable large block support for ZFS send streams.
-   */
-  large_block?: boolean;
-  /**
-   * Enable embedded block support for ZFS send streams.
-   */
-  embed?: boolean;
-  /**
-   * Enable compressed ZFS send streams.
-   */
-  compressed?: boolean;
-  /**
-   * Number of retries before considering replication failed.
-   */
-  retries?: number;
-  /**
-   * Log level for replication task execution. Controls verbosity of replication logs.
-   */
-  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
-  /**
-   * Whether this replication task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Current state information for the replication task.
-   */
-  state: {
-    [k: string]: unknown;
-  };
-  /**
-   * Information about the currently running job. `null` if no job is running.
-   */
-  job: {
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Whether this replication task has encrypted dataset keys available.
-   */
-  has_encrypted_dataset_keys: boolean;
-}
-/**
- * Used by: reporting.exporters.create (params)
- */
 export interface ReportingExportsCreate {
-  /**
-   * Whether this exporter is enabled and active.
-   */
   enabled: boolean;
   attributes: GraphiteExporter;
-  /**
-   * User defined name of exporter configuration.
-   */
   name: string;
 }
-/**
- * Used by: reporting.get_data (response), reporting.graph (response), reporting.netdata_get_data (response), reporting.netdata_graph (response)
- */
 export interface ReportingGetDataResponse {
-  /**
-   * Name of the performance metric.
-   */
   name: string;
-  /**
-   * Specific instance identifier for the metric. `null` for system-wide metrics.
-   */
   identifier: string | null;
-  /**
-   * Array of time-series data points for the requested time period.
-   */
   data: unknown[];
-  /**
-   * Statistical aggregations of the data over the time period.
-   */
   aggregations: Aggregations | null;
-  /**
-   * Actual start timestamp of the returned data.
-   */
   start: number;
-  /**
-   * Actual end timestamp of the returned data.
-   */
   end: number;
-  /**
-   * Array of labels describing each data series in the results.
-   */
   legend: string[];
 }
-/**
- * Used by: reporting.graphs (params), reporting.graphs (response)
- */
 export interface ReportingGraphsItem {
-  /**
-   * Unique name identifier for the graph type.
-   */
   name: string;
-  /**
-   * Label for the vertical (Y) axis of the graph.
-   */
   vertical_label: string;
-  /**
-   * Array of available instance identifiers for this graph type. `null` if not applicable.
-   */
   identifiers: string[] | null;
 }
-/**
- * Used by: reporting.netdata_graphs (params), reporting.netdata_graphs (response)
- */
 export interface ReportingNetdataGraphsItem {
-  /**
-   * Unique name identifier for the netdata graph type.
-   */
   name: string;
-  /**
-   * Label for the vertical (Y) axis of the graph.
-   */
   vertical_label: string;
-  /**
-   * Array of available instance identifiers for this graph type. `null` if not applicable.
-   */
   identifiers: string[] | null;
 }
-/**
- * Used by: reporting.update (params)
- */
 export interface ReportingUpdate {
-  /**
-   * Number of days to keep high-resolution reporting data.
-   */
   tier0_days?: number;
-  /**
-   * Number of days to keep lower-resolution aggregated reporting data.
-   */
   tier1_days?: number;
-  /**
-   * Interval in seconds for updating aggregated tier1 data.
-   */
   tier1_update_interval?: number;
 }
-/**
- * Used by: sharing.nfs.create (response), sharing.nfs.get_instance (params), sharing.nfs.get_instance (response), sharing.nfs.query (params), sharing.nfs.query (response), sharing.nfs.update (response)
- */
-export interface SharingNFSEntry {
-  /**
-   * Unique identifier for the NFS share.
-   */
-  id: number;
-  /**
-   * Local path to be exported.
-   */
-  path: string;
-  /**
-   * Dataset name component of the path (e.g., 'tank/share'). Null if path cannot be resolved.
-   */
-  dataset: string | null;
-  /**
-   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
-   */
-  relative_path: string | null;
-  /**
-   * IGNORED for now.
-   */
-  aliases?: string[];
-  /**
-   * User comment associated with share.
-   */
-  comment?: string;
-  /**
-   * List of authorized networks that are allowed to access the share having format "network/mask" CIDR notation. Each entry must be unique. If empty, all networks are allowed. Excessively long lists should be avoided.
-   */
-  networks?: string[];
-  /**
-   * List of IP's/hostnames which are allowed to access the share. No quotes or spaces are allowed. Each entry must be unique. If empty, all IP's/hostnames are allowed. Excessively long lists should be avoided.
-   */
-  hosts?: string[];
-  /**
-   * Export the share as read only.
-   */
-  ro?: boolean;
-  /**
-   * Map root user client to a specified user.
-   */
-  maproot_user?: string | null;
-  /**
-   * Map root group client to a specified group.
-   */
-  maproot_group?: string | null;
-  /**
-   * Map all client users to a specified user.
-   */
-  mapall_user?: string | null;
-  /**
-   * Map all client groups to a specified group.
-   */
-  mapall_group?: string | null;
-  /**
-   * Specify the security schema.
-   */
-  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
-  /**
-   * Enable or disable the share.
-   */
-  enabled?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
-  locked: boolean | null;
-  /**
-   * Enterprise feature to enable access to the ZFS snapshot directory for the export. Export path must be the root directory of a ZFS dataset.
-   */
-  expose_snapshots?: boolean;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
-  tier?: TierInfo | null;
-}
-/**
- * SMB share entry on the TrueNAS server.
- *
- * Used by: sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (response)
- */
-export interface SharingSMBEntry {
-  /**
-   * Unique identifier for this SMB share.
-   */
-  id: number;
-  purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
-  name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
-  path: string | "EXTERNAL";
-  /**
-   * The ZFS dataset containing this SMB share (e.g., 'tank/share'). Returns `null` for external shares or if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
-  dataset: string | null;
-  /**
-   * The path of the share relative to the dataset mountpoint (e.g., 'subfolder/data'). An empty string indicates the share is at the dataset root. Returns `null` for external shares or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
-  relative_path: string | null;
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
-  enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
-  readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
-  access_based_share_enumeration?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
-  locked: boolean | null;
-  audit?: SmbAuditConfig;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
-  options?:
-    | (
-        | LegacyOpt
-        | DefaultOpt
-        | TimeMachineOpt
-        | MultiprotocolOpt
-        | TimeLockedOpt
-        | PrivateDatasetOpt
-        | ExternalOpt
-        | VeeamRepositoryOpt
-        | FCPStorageOpt
-      )
-    | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
-  tier?: TierInfo | null;
-}
-/**
- * Used by: sharing.smb.setacl (params)
- */
-export interface SharingSMBSetaclArgs {
-  /**
-   * Name of the SMB share.
-   */
-  share_name: string;
-  /**
-   * List of SMB share ACL entries.
-   */
-  share_acl?: SMBShareAclEntry[];
-}
-/**
- * An SMB Share ACL Entry that grants or denies specific permissions to a principal.
- * You can identify the principal by a SID (`ae_who_sid`), or Unix ID (`ae_who_id`).
- *
- * Used by: sharing.smb.getacl (response), sharing.smb.setacl (params), sharing.smb.setacl (response)
- */
-export interface SMBShareAclEntry {
-  /**
-   * Permissions granted or denied to the principal: `FULL` grants read, write, execute, delete, write ACL, and change owner; `CHANGE` grants read, write, execute, and delete; `READ` grants read and execute. NOTE: this may appear as CUSTOM on read if user has manually edited the share ACL through unsupported means. In this case users will be required to set it to a supported value on update.
-   */
-  ae_perm: "FULL" | "CHANGE" | "READ" | "CUSTOM";
-  /**
-   * The type of SMB share ACL entry. This value determines whether the permissions (ae_perm) are granted (ALLOWED) or denied (DENIED).
-   */
-  ae_type: "ALLOWED" | "DENIED";
-  /**
-   * The SID of the principal to whom this ACL entry applies.
-   */
-  ae_who_sid?: string | null;
-  /**
-   * The Unix ID of the principal to whom this ACL entry applies.
-   */
-  ae_who_id?: SMBShareAclEntryWhoId | null;
-  /**
-   * The User or group name of the principal to whom this ACL entry applies.
-   */
-  ae_who_str?: string | null;
-}
-/**
- * TrueNAS SMB server configuration.
- *
- * Used by: smb.config (response), smb.update (response)
- */
-export interface SMBEntry {
-  /**
-   * Unique identifier for the SMB service configuration.
-   */
-  id: number;
-  /**
-   * The NetBIOS name of this server. Defaults to the original hostname of the system.
-   */
-  netbiosname: string;
-  /**
-   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain. When the server is joined to an AD domain, additional Kerberos Service Principal Names are generated for these aliases.
-   */
-  netbiosalias: string[];
-  /**
-   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain. This must differ from `netbiosname`.
-   */
-  workgroup: string;
-  /**
-   * Description of the SMB server. SMB clients may see this description during some operations.
-   */
-  description: string;
-  /**
-   * Minimum SMB protocol version permitted for client connections. `SMB1` enables legacy client support (not recommended). `SMB2` is the default. `SMB3` restricts access to modern clients only. NOTE: SMB2 and SMB3 are dialects of the same protocol family; setting `SMB3` as the minimum may break access for networked embedded devices that only support SMB2.
-   */
-  minimum_protocol: "SMB1" | "SMB2" | "SMB3";
-  unixcharset: Unixcharset;
-  /**
-   * When set to `true` the NetBIOS name server in TrueNAS participates in elections for the local master browser. When set to `false` the NetBIOS name server does not attempt to become a local master browser on a subnet and loses all browsing elections.
-   *
-   * NOTE: This parameter has no effect if the NetBIOS name server is disabled.
-   */
-  localmaster: boolean;
-  /**
-   * Send log messages to syslog. Enable this option if you want SMB server error logs to be included in information sent to a remote syslog server. NOTE: This requires that remote syslog is globally configured on TrueNAS.
-   */
-  syslog: boolean;
-  /**
-   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. This is not required for MacOS support generally but is currently required for Time Machine support.
-   */
-  aapl_extensions: boolean;
-  /**
-   * List of enabled search protocols for the SMB server. Currently the only support search protocol is SPOTLIGHT for MacOS clients. When SPOTLIGHT search protocol support is enabled, MacOS clients can send spotlight protocol requests to the TrueNAS samba server and receive results from indexed paths.
-   */
-  search_protocols?: "SPOTLIGHT"[];
-  /**
-   * The selected group has full administrator privileges on TrueNAS via the SMB protocol.
-   */
-  admin_group: string | null;
-  /**
-   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account. Defaults to "nobody".
-   */
-  guest: string;
-  /**
-   * `smb.conf` create mask. DEFAULT applies current server default which is 664.
-   */
-  filemask: string | "DEFAULT";
-  /**
-   * `smb.conf` directory mask. DEFAULT applies current server default which is 775.
-   */
-  dirmask: string | "DEFAULT";
-  /**
-   * Enable legacy and very insecure NTLMv1 authentication. This should never be done except in extreme edge cases and may be against regulations in non-home environments.
-   */
-  ntlmv1_auth: boolean;
-  /**
-   * Enable SMB3 multi-channel support.
-   */
-  multichannel: boolean;
-  encryption: Encryption;
-  /**
-   * List of IP addresses used by the TrueNAS SMB server.
-   */
-  bindip: string[];
-  /**
-   * The unique identifier for the TrueNAS SMB server. It also serves as the domain SID for all local SMB user and group accounts.
-   */
-  server_sid: string | null;
-  /**
-   * Additional unvalidated and unsupported configuration options for the SMB server. WARNING: Using `smb_options` may produce unexpected server behavior.
-   */
-  smb_options: string;
-  /**
-   * Set SMB log levels to debug. Use this setting only when troubleshooting a specific SMB issue. Do not use it in production environments.
-   */
-  debug: boolean;
-  /**
-   * Enterprise feature to ensure SMB state consistency across HA failover events. This feature is incompatible with the following share purposes: MULTIPROTOCOL_SHARE, LEGACY_SHARE. This feature is also incompatible with `minimum_protocol` set to `SMB1`.
-   */
-  stateful_failover: boolean;
-}
-/**
- * The ACL that applies to a specific SMB share.
- *
- * NOTE: this is not the same as a filesystem ACL. It only affects access through the SMB protocol.
- *
- * Used by: sharing.smb.getacl (response), sharing.smb.setacl (response)
- */
-export interface SMBShareAcl {
-  /**
-   * Name of the SMB share.
-   */
-  share_name: string;
-  /**
-   * List of SMB share ACL entries.
-   */
-  share_acl?: SMBShareAclEntry[];
-}
-/**
- * Used by: smb.update (params)
- */
-export interface SMBUpdateArgs {
-  /**
-   * The NetBIOS name of this server. Defaults to the original hostname of the system.
-   */
-  netbiosname?: string;
-  /**
-   * Alternative netbios names of the TrueNAS server. These names are announced through NetBIOS name server and registered in Active Directory when TrueNAS joins the domain. When the server is joined to an AD domain, additional Kerberos Service Principal Names are generated for these aliases.
-   */
-  netbiosalias?: string[];
-  /**
-   * Workgroup name. When TrueNAS joins active directory, it automatically changes this value to match the NetBIOS domain of the Active Directory domain. This must differ from `netbiosname`.
-   */
-  workgroup?: string;
-  /**
-   * Description of the SMB server. SMB clients may see this description during some operations.
-   */
-  description?: string;
-  /**
-   * Minimum SMB protocol version permitted for client connections. `SMB1` enables legacy client support (not recommended). `SMB2` is the default. `SMB3` restricts access to modern clients only. NOTE: SMB2 and SMB3 are dialects of the same protocol family; setting `SMB3` as the minimum may break access for networked embedded devices that only support SMB2.
-   */
-  minimum_protocol?: "SMB1" | "SMB2" | "SMB3";
-  unixcharset?: Unixcharset;
-  /**
-   * When set to `true` the NetBIOS name server in TrueNAS participates in elections for the local master browser. When set to `false` the NetBIOS name server does not attempt to become a local master browser on a subnet and loses all browsing elections.
-   *
-   * NOTE: This parameter has no effect if the NetBIOS name server is disabled.
-   */
-  localmaster?: boolean;
-  /**
-   * Send log messages to syslog. Enable this option if you want SMB server error logs to be included in information sent to a remote syslog server. NOTE: This requires that remote syslog is globally configured on TrueNAS.
-   */
-  syslog?: boolean;
-  /**
-   * Enable support for SMB2/3 AAPL protocol extensions. This setting makes the TrueNAS server advertise support for Apple protocol extensions as a MacOS server. This is not required for MacOS support generally but is currently required for Time Machine support.
-   */
-  aapl_extensions?: boolean;
-  /**
-   * List of enabled search protocols for the SMB server. Currently the only support search protocol is SPOTLIGHT for MacOS clients. When SPOTLIGHT search protocol support is enabled, MacOS clients can send spotlight protocol requests to the TrueNAS samba server and receive results from indexed paths.
-   */
-  search_protocols?: "SPOTLIGHT"[];
-  /**
-   * The selected group has full administrator privileges on TrueNAS via the SMB protocol.
-   */
-  admin_group?: string | null;
-  /**
-   * SMB guest account username. This username provides access to legacy SMB shares with guest access enabled. It must be a valid, existing local user account. Defaults to "nobody".
-   */
-  guest?: string;
-  /**
-   * `smb.conf` create mask. DEFAULT applies current server default which is 664.
-   */
-  filemask?: string | "DEFAULT";
-  /**
-   * `smb.conf` directory mask. DEFAULT applies current server default which is 775.
-   */
-  dirmask?: string | "DEFAULT";
-  /**
-   * Enable legacy and very insecure NTLMv1 authentication. This should never be done except in extreme edge cases and may be against regulations in non-home environments.
-   */
-  ntlmv1_auth?: boolean;
-  /**
-   * Enable SMB3 multi-channel support.
-   */
-  multichannel?: boolean;
-  encryption?: EncryptionInput;
-  /**
-   * List of IP addresses used by the TrueNAS SMB server.
-   */
-  bindip?: string[];
-  /**
-   * The unique identifier for the TrueNAS SMB server. It also serves as the domain SID for all local SMB user and group accounts.
-   */
-  server_sid?: string | null;
-  /**
-   * Additional unvalidated and unsupported configuration options for the SMB server. WARNING: Using `smb_options` may produce unexpected server behavior.
-   */
-  smb_options?: string;
-  /**
-   * Set SMB log levels to debug. Use this setting only when troubleshooting a specific SMB issue. Do not use it in production environments.
-   */
-  debug?: boolean;
-  /**
-   * Enterprise feature to ensure SMB state consistency across HA failover events. This feature is incompatible with the following share purposes: MULTIPROTOCOL_SHARE, LEGACY_SHARE. This feature is also incompatible with `minimum_protocol` set to `SMB1`.
-   */
-  stateful_failover?: boolean;
-}
-/**
- * Used by: snmp.config (response), snmp.update (response)
- */
 export interface SNMPEntry {
-  /**
-   * Placeholder identifier.  Not used as there is only one.
-   */
   id: number;
-  /**
-   * A comment describing the physical location of the server.
-   */
   location: string;
-  /**
-   * Contact information for the system administrator (email or name).
-   */
   contact: string;
-  /**
-   * Whether SNMP traps are enabled.
-   */
   traps: boolean;
-  /**
-   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
-   */
   v3: boolean;
-  /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
-   */
   community?: string;
-  /**
-   * Username for SNMP version 3 authentication.
-   */
   v3_username: string;
-  /**
-   * Authentication type for SNMP version 3 (empty string means no authentication).
-   */
   v3_authtype: "" | "MD5" | "SHA";
-  /**
-   * Password for SNMP version 3 authentication.
-   */
   v3_password: string;
-  /**
-   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
-   */
   v3_privproto: (null | "AES" | "DES") | null;
-  /**
-   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
-   */
   v3_privpassphrase?: string | null;
-  /**
-   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
-   */
   options: string;
-  /**
-   * Whether to enable ZFS dataset statistics collection for SNMP.
-   */
   zilstat: boolean;
 }
-/**
- * Used by: snmp.update (params)
- */
 export interface SNMPUpdate {
-  /**
-   * A comment describing the physical location of the server.
-   */
   location?: string;
-  /**
-   * Contact information for the system administrator (email or name).
-   */
   contact?: string;
-  /**
-   * Whether SNMP traps are enabled.
-   */
   traps?: boolean;
-  /**
-   * Whether SNMP version 3 is enabled.  Enabling version 3 also requires username, authtype and password.
-   */
   v3?: boolean;
-  /**
-   * SNMP community string for v1/v2c access. Allows letters and numbers: a-zA-Z0-9 special characters: !$%&()+-_={}[]<>,.? and spaces. Notable excluded characters: # / \ @.
-   */
   community?: string;
-  /**
-   * Username for SNMP version 3 authentication.
-   */
   v3_username?: string;
-  /**
-   * Authentication type for SNMP version 3 (empty string means no authentication).
-   */
   v3_authtype?: "" | "MD5" | "SHA";
-  /**
-   * Password for SNMP version 3 authentication.
-   */
   v3_password?: string;
-  /**
-   * Privacy protocol for SNMP version 3 encryption. `null` means no encryption. If set, ['AES'|'DES'], a `privpassphrase` must be supplied.
-   */
   v3_privproto?: (null | "AES" | "DES") | null;
-  /**
-   * Privacy passphrase for SNMP version 3 encryption. This field is required when `privproto` is set.
-   */
   v3_privpassphrase?: string | null;
-  /**
-   * Additional SNMP daemon configuration options. Manual settings should be used with caution as they may render the SNMP service non-functional.
-   */
   options?: string;
-  /**
-   * Whether to enable ZFS dataset statistics collection for SNMP.
-   */
   zilstat?: boolean;
 }
-/**
- * Used by: support.attach_ticket (params)
- */
 export interface SupportAttachTicket {
-  /**
-   * Ticket number to attach the file to.
-   */
   ticket: number;
-  /**
-   * Path to the file to attach to the ticket.
-   */
   filename: string;
-  /**
-   * Authentication token for attaching files.
-   */
   token?: string;
 }
-/**
- * Used by: system.security.update (params)
- */
 export interface SystemSecurityUpdate {
-  /**
-   * When set, enables FIPS mode.
-   */
   enable_fips?: boolean;
-  /**
-   * When set, enables compatibility with the General Purpose Operating System STIG.
-   */
   enable_gpos_stig?: boolean;
-  /**
-   * The number of days local users will have to wait before they will be allowed to change password again. One reason for setting this parameter is to prevent users from bypassing password history restrictions by rapidly changing their passwords. The value of None means that there is no minimum password age.
-   */
   min_password_age?: number | null;
-  /**
-   * The number of days after which a password is considered to be expired. After expiration no login will be possible for the user. The user should contact the administrator for a password reset. The value of None means that there is no maximum password age, and password aging is disabled.
-   *
-   * NOTE: User passwords will never expire if password aging is disabled.
-   */
   max_password_age?: number | null;
-  /**
-   * The password complexity ruleset defines what character types are required for passwords used by local accounts. The value of None means that there are no password complexity requirements. List items indicate a requirement for at least one character in the password to be of the specified character set type.
-   */
   password_complexity_ruleset?: ("UPPER" | "LOWER" | "NUMBER" | "SPECIAL")[] | null;
-  /**
-   * The minimum length of passwords used for local accounts. The value of None means that there is no minimum password length.
-   */
   min_password_length?: number | null;
-  /**
-   * The number of password generations to keep in history for checks against password reuse for local user accounts. The value of None means that history checks for password reuse are not performed.
-   */
   password_history_length?: number | null;
 }
-/**
- * Used by: truecommand.update (params)
- */
 export interface TruecommandUpdate {
-  /**
-   * Whether to enable TrueCommand integration.
-   */
   enabled?: boolean;
-  /**
-   * 16-character API key for TrueCommand authentication, obtained from iX Portal. `null` to disable integration.
-   */
   api_key?: string | null;
 }
-/**
- * Used by: tn_connect.update (params)
- */
 export interface TrueNASConnectUpdate {
-  /**
-   * Whether to enable the TrueNAS Connect service.
-   */
   enabled?: boolean;
 }
-/**
- * Used by: tunable.create (response), tunable.get_instance (params), tunable.get_instance (response), tunable.query (params), tunable.query (response), tunable.update (response)
- */
 export interface TunableEntry {
   type?: Type11;
-  /**
-   * Name or identifier of the system parameter to tune.
-   */
   var: string;
-  /**
-   * Value to assign to the tunable parameter.
-   */
   value: string;
-  /**
-   * Optional descriptive comment explaining the purpose of this tunable.
-   */
   comment?: string;
-  /**
-   * Whether this tunable is active and should be applied.
-   */
   enabled?: boolean;
-  /**
-   * Unique identifier for the tunable configuration.
-   */
   id: number;
-  /**
-   * Original system value of the parameter before this tunable was applied.
-   */
   orig_value: string;
 }
-/**
- * Used by: ups.config (response), ups.update (response)
- */
-export interface UPSEntry {
-  /**
-   * Whether the UPS should power down after completing the shutdown sequence.
-   */
-  powerdown: boolean;
-  /**
-   * Whether to enable remote monitoring of the UPS status over the network.
-   */
-  rmonitor: boolean;
-  /**
-   * Unique identifier for the UPS configuration.
-   */
-  id: number;
-  /**
-   * Seconds to wait before warning about communication loss with UPS. `null` for default.
-   */
-  nocommwarntime: number | null;
-  /**
-   * Network port for communicating with remote UPS monitoring systems.
-   */
-  remoteport: number;
-  /**
-   * Seconds to wait after initiating shutdown before forcing power off. Only applies when `shutdown` is `BATT`.
-   */
-  shutdowntimer: number;
-  /**
-   * Maximum seconds to wait for other systems to shutdown before continuing.
-   */
-  hostsync: number;
-  /**
-   * Human-readable description of this UPS configuration.
-   */
-  description: string;
-  /**
-   * UPS driver name that handles communication with the specific UPS hardware model.
-   */
-  driver: string;
-  /**
-   * Additional user configurations for UPS monitoring access.
-   */
-  extrausers: string;
-  /**
-   * Unique identifier name for this UPS device within the monitoring system.
-   */
-  identifier: string;
-  mode: Mode2;
-  /**
-   * Password for UPS monitoring authentication.
-   */
-  monpwd: string;
-  /**
-   * Username for UPS monitoring authentication.
-   */
-  monuser: string;
-  /**
-   * Additional configuration options passed to the UPS driver.
-   */
-  options: string;
-  /**
-   * Additional configuration options for the UPS daemon.
-   */
-  optionsupsd: string;
-  /**
-   * Serial port or device path for UPS communication.
-   */
-  port: string;
-  /**
-   * Hostname or IP address of remote UPS server when operating in SLAVE mode.
-   */
-  remotehost: string;
-  shutdown: Shutdown;
-  /**
-   * Custom command to execute during UPS shutdown sequence. `null` to use the default (`poweroff`).
-   */
-  shutdowncmd: string | null;
-  /**
-   * Complete UPS identifier including hostname for network monitoring.
-   */
-  complete_identifier: string;
-}
-/**
- * Used by: ups.update (params)
- */
-export interface UPSUpdate {
-  /**
-   * Whether the UPS should power down after completing the shutdown sequence.
-   */
-  powerdown?: boolean;
-  /**
-   * Whether to enable remote monitoring of the UPS status over the network.
-   */
-  rmonitor?: boolean;
-  /**
-   * Seconds to wait before warning about communication loss with UPS. `null` for default.
-   */
-  nocommwarntime?: number | null;
-  /**
-   * Network port for communicating with remote UPS monitoring systems.
-   */
-  remoteport?: number;
-  /**
-   * Seconds to wait after initiating shutdown before forcing power off. Only applies when `shutdown` is `BATT`.
-   */
-  shutdowntimer?: number;
-  /**
-   * Maximum seconds to wait for other systems to shutdown before continuing.
-   */
-  hostsync?: number;
-  /**
-   * Human-readable description of this UPS configuration.
-   */
-  description?: string;
-  /**
-   * UPS driver name that handles communication with the specific UPS hardware model.
-   */
-  driver?: string;
-  /**
-   * Additional user configurations for UPS monitoring access.
-   */
-  extrausers?: string;
-  /**
-   * Unique identifier name for this UPS device within the monitoring system.
-   */
-  identifier?: string;
-  mode?: ModeInput2;
-  /**
-   * Password for UPS monitoring authentication (required for updates).
-   */
-  monpwd?: string;
-  /**
-   * Username for UPS monitoring authentication.
-   */
-  monuser?: string;
-  /**
-   * Additional configuration options passed to the UPS driver.
-   */
-  options?: string;
-  /**
-   * Additional configuration options for the UPS daemon.
-   */
-  optionsupsd?: string;
-  /**
-   * Serial port or device path for UPS communication.
-   */
-  port?: string;
-  /**
-   * Hostname or IP address of remote UPS server when operating in SLAVE mode.
-   */
-  remotehost?: string;
-  shutdown?: Shutdown;
-  /**
-   * Custom command to execute during UPS shutdown sequence. `null` to use the default (`poweroff`).
-   */
-  shutdowncmd?: string | null;
-}
-/**
- * Used by: vm.query (event)
- */
 export interface VMAddedEvent {
   id: number;
   fields: VMEntryInput;
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMEntryInput {
-  /**
-   * Additional command line arguments passed to the VM hypervisor.
-   */
   command_line_args?: string;
-  /**
-   * CPU virtualization mode.
-   *
-   * * `CUSTOM`: Use specified model.
-   * * `HOST-MODEL`: Mirror host CPU.
-   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
-   */
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  /**
-   * Specific CPU model to emulate. `null` to use hypervisor default.
-   */
   cpu_model?: string | null;
-  /**
-   * Display name of the virtual machine.
-   */
   name: string;
-  /**
-   * Optional description or notes about the virtual machine.
-   */
-  description?: string;
-  /**
-   * Number of virtual CPU sockets. The total number of guest vCPUs is `vcpus` * `cores` * `threads` (maximum 16).
-   */
   vcpus?: number;
-  /**
-   * Number of CPU cores per socket.
-   */
   cores?: number;
-  /**
-   * Number of threads per CPU core.
-   */
   threads?: number;
-  /**
-   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
-   */
   cpuset?: string | null;
-  /**
-   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
-   */
   nodeset?: string | null;
-  /**
-   * Whether to expose detailed CPU topology information to the guest OS.
-   */
   enable_cpu_topology_extension?: boolean;
-  /**
-   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
-   */
   pin_vcpus?: boolean;
-  /**
-   * Whether to automatically suspend the VM when a periodic snapshot task runs. For manual snapshots, the VM is suspended only if explicitly included in the snapshot's VM pause list.
-   */
   suspend_on_snapshot?: boolean;
-  /**
-   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
-   */
   trusted_platform_module?: boolean;
-  /**
-   * Amount of memory allocated to the VM in mebibytes (MiB).
-   */
   memory: number;
-  /**
-   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
-   */
   min_memory?: number | null;
-  /**
-   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
-   */
   hyperv_enlightenments?: boolean;
   bootloader?: Bootloader;
-  /**
-   * OVMF firmware file to use for UEFI boot.
-   */
   bootloader_ovmf?: string;
-  /**
-   * Whether to automatically start the VM when the host system boots.
-   */
   autostart?: boolean;
-  /**
-   * Whether to hide the KVM hypervisor from standard MSR-based discovery. Useful when doing GPU passthrough.
-   */
   hide_from_msr?: boolean;
-  /**
-   * Whether to ensure the guest always has access to a video device. Required for headless OS installations (e.g. Ubuntu Server). Set to `false` when using GPU passthrough without a separate display device.
-   */
   ensure_display_device?: boolean;
   time?: Time;
-  /**
-   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
-   */
   shutdown_timeout?: number;
-  /**
-   * Guest architecture type. `null` to use hypervisor default.
-   */
   arch_type?: string | null;
-  /**
-   * Virtual machine type/chipset. `null` to use hypervisor default.
-   */
   machine_type?: string | null;
-  /**
-   * Unique UUID for the VM.
-   */
   uuid: string;
-  /**
-   * Array of virtual devices attached to this VM.
-   */
   devices: VMDeviceEntryInput[];
-  /**
-   * Whether at least one display device is available for this VM.
-   */
   display_available: boolean;
-  /**
-   * Unique identifier for the virtual machine.
-   */
   id: number;
   status: VMStatus;
-  /**
-   * Whether to enable UEFI Secure Boot for enhanced security.
-   */
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
 export interface VMDeviceEntryInput {
-  /**
-   * Unique identifier for the VM device.
-   */
   id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes:
     | VMCDROMDevice
     | VMDisplayDevice
@@ -4835,226 +716,67 @@ export interface VMDeviceEntryInput {
     | VMRAWDeviceInput
     | VMDiskDeviceInput
     | VMUSBDevice;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
   vm: number;
-  /**
-   * Boot order priority for this device (lower numbers boot first).
-   */
   order: number;
 }
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
 export interface VMNICDevice {
-  /**
-   * Device type identifier for network interface cards.
-   */
   dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
   trust_guest_rx_filters?: boolean;
-  /**
-   * Network interface controller type. `E1000` for Intel compatibility, `VIRTIO` for performance.
-   */
   type?: "E1000" | "VIRTIO";
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
   nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
   mac?: string | null;
-  /**
-   * Pin this NIC to a specific PCI controller bus rather than letting libvirt auto-assign an address. `null` for automatic assignment.
-   */
   pci_address?: VMNICPciAddress | null;
 }
-/**
- * Used by: vm.bootloader_options (response)
- */
 export interface VMBootloaderOptions {
-  /**
-   * Modern UEFI firmware with secure boot support.
-   */
   UEFI?: "UEFI";
-  /**
-   * UEFI with Compatibility Support Module for legacy BIOS compatibility.
-   */
   UEFI_CSM?: "Legacy BIOS";
 }
-/**
- * Used by: vm.query (event)
- */
 export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
 }
-/**
- * Used by: vm.create (params)
- */
 export interface VMCreate {
-  /**
-   * Additional command line arguments passed to the VM hypervisor.
-   */
   command_line_args?: string;
-  /**
-   * CPU virtualization mode.
-   *
-   * * `CUSTOM`: Use specified model.
-   * * `HOST-MODEL`: Mirror host CPU.
-   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
-   */
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  /**
-   * Specific CPU model to emulate. `null` to use hypervisor default.
-   */
   cpu_model?: string | null;
-  /**
-   * Display name of the virtual machine.
-   */
   name: string;
-  /**
-   * Optional description or notes about the virtual machine.
-   */
-  description?: string;
-  /**
-   * Number of virtual CPU sockets. The total number of guest vCPUs is `vcpus` * `cores` * `threads` (maximum 16).
-   */
   vcpus?: number;
-  /**
-   * Number of CPU cores per socket.
-   */
   cores?: number;
-  /**
-   * Number of threads per CPU core.
-   */
   threads?: number;
-  /**
-   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
-   */
   cpuset?: string | null;
-  /**
-   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
-   */
   nodeset?: string | null;
-  /**
-   * Whether to expose detailed CPU topology information to the guest OS.
-   */
   enable_cpu_topology_extension?: boolean;
-  /**
-   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
-   */
   pin_vcpus?: boolean;
-  /**
-   * Whether to automatically suspend the VM when a periodic snapshot task runs. For manual snapshots, the VM is suspended only if explicitly included in the snapshot's VM pause list.
-   */
   suspend_on_snapshot?: boolean;
-  /**
-   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
-   */
   trusted_platform_module?: boolean;
-  /**
-   * Amount of memory allocated to the VM in mebibytes (MiB).
-   */
   memory: number;
-  /**
-   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
-   */
   min_memory?: number | null;
-  /**
-   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
-   */
   hyperv_enlightenments?: boolean;
   bootloader?: Bootloader;
-  /**
-   * OVMF firmware file to use for UEFI boot.
-   */
   bootloader_ovmf?: string | null;
-  /**
-   * Whether to automatically start the VM when the host system boots.
-   */
   autostart?: boolean;
-  /**
-   * Whether to hide the KVM hypervisor from standard MSR-based discovery. Useful when doing GPU passthrough.
-   */
   hide_from_msr?: boolean;
-  /**
-   * Whether to ensure the guest always has access to a video device. Required for headless OS installations (e.g. Ubuntu Server). Set to `false` when using GPU passthrough without a separate display device.
-   */
   ensure_display_device?: boolean;
   time?: Time;
-  /**
-   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
-   */
   shutdown_timeout?: number;
-  /**
-   * Guest architecture type. `null` to use hypervisor default.
-   */
   arch_type?: string | null;
-  /**
-   * Virtual machine type/chipset. `null` to use hypervisor default.
-   */
   machine_type?: string | null;
-  /**
-   * Unique UUID for the VM. `null` to auto-generate.
-   */
   uuid?: string | null;
-  /**
-   * Whether to enable UEFI Secure Boot for enhanced security.
-   */
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vm.delete (params)
- */
-export interface VMDeleteOptions {
-  /**
-   * Delete associated ZFS volumes when deleting the VM.
-   */
-  zvols?: boolean;
-  /**
-   * Delete a running or suspended VM by stopping it first. Without this, deleting an active VM is rejected. Also causes failures to destroy associated ZFS volumes to be logged and ignored rather than aborting the deletion.
-   */
-  force?: boolean;
-}
-/**
- * Used by: vm.device.query (event)
- */
 export interface VMDeviceAddedEvent {
   id: number;
   fields: VMDeviceEntryInput;
 }
-/**
- * Used by: vm.device.query (event)
- */
 export interface VMDeviceChangedEvent {
   id: number;
   fields: VMDeviceEntryInput;
 }
-/**
- * Used by: vm.device.convert (params)
- */
 export interface VMDeviceConvert {
-  /**
-   * Source path for the conversion (disk image file or ZFS volume).
-   */
   source: string;
-  /**
-   * Destination path for the conversion (disk image file or ZFS volume).
-   */
   destination: string;
 }
-/**
- * Used by: vm.device.create (params)
- */
 export interface VMDeviceCreate {
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes:
     | VMCDROMDevice
     | VMDisplayDevice
@@ -5064,26 +786,11 @@ export interface VMDeviceCreate {
     | VMRAWDeviceInput
     | VMDiskDeviceInput
     | VMUSBDevice;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
   vm: number;
-  /**
-   * Boot order priority for this device. `null` for automatic assignment.
-   */
   order?: number | null;
 }
-/**
- * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
- */
 export interface VMDeviceEntry {
-  /**
-   * Unique identifier for the VM device.
-   */
   id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
   attributes:
     | VMCDROMDevice
     | VMDisplayDevice
@@ -5093,532 +800,114 @@ export interface VMDeviceEntry {
     | VMRAWDevice
     | VMDiskDevice
     | VMUSBDevice;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
   vm: number;
-  /**
-   * Boot order priority for this device (lower numbers boot first).
-   */
   order: number;
 }
-/**
- * Used by: vm.device.iotype_choices (response)
- */
 export interface VMDeviceIotypeChoices {
-  /**
-   * Native asynchronous I/O for best performance with NVMe.
-   */
   NATIVE?: string;
-  /**
-   * Thread-based I/O suitable for most storage types.
-   */
   THREADS?: string;
-  /**
-   * Linux io_uring interface for high-performance async I/O.
-   */
   IO_URING?: string;
 }
-/**
- * Used by: vm.device.nic_attach_choices (response)
- */
 export interface VMDeviceNicAttachChoices {
-  /**
-   * Available bridge interfaces for NIC attachment.
-   */
   BRIDGE: string[];
-  /**
-   * Available parent interfaces for creating MACVLAN NIC devices.
-   */
   MACVLAN: string[];
 }
-/**
- * Used by: vm.device.virtual_size (params)
- */
 export interface VMDeviceVirtualSize {
-  /**
-   * Absolute path to the disk image.
-   */
   path: string;
 }
-/**
- * Used by: vm.get_display_devices (response)
- */
 export interface VMDisplayDeviceInfo {
-  /**
-   * Unique identifier for the VM device.
-   */
   id: number;
   attributes: GetDisplayDevice;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
   vm: number;
-  /**
-   * Boot order priority for this device (lower numbers boot first).
-   */
   order: number;
 }
-/**
- * Used by: vm.get_display_web_uri (params)
- */
 export interface VMDisplayWebURIOptions {
   protocol?: Protocol;
 }
-/**
- * Used by: vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (params), vm.query (response), vm.update (response)
- */
 export interface VMEntry {
-  /**
-   * Additional command line arguments passed to the VM hypervisor.
-   */
   command_line_args?: string;
-  /**
-   * CPU virtualization mode.
-   *
-   * * `CUSTOM`: Use specified model.
-   * * `HOST-MODEL`: Mirror host CPU.
-   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
-   */
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  /**
-   * Specific CPU model to emulate. `null` to use hypervisor default.
-   */
   cpu_model?: string | null;
-  /**
-   * Display name of the virtual machine.
-   */
   name: string;
-  /**
-   * Optional description or notes about the virtual machine.
-   */
-  description?: string;
-  /**
-   * Number of virtual CPU sockets. The total number of guest vCPUs is `vcpus` * `cores` * `threads` (maximum 16).
-   */
   vcpus?: number;
-  /**
-   * Number of CPU cores per socket.
-   */
   cores?: number;
-  /**
-   * Number of threads per CPU core.
-   */
   threads?: number;
-  /**
-   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
-   */
   cpuset?: string | null;
-  /**
-   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
-   */
   nodeset?: string | null;
-  /**
-   * Whether to expose detailed CPU topology information to the guest OS.
-   */
   enable_cpu_topology_extension?: boolean;
-  /**
-   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
-   */
   pin_vcpus?: boolean;
-  /**
-   * Whether to automatically suspend the VM when a periodic snapshot task runs. For manual snapshots, the VM is suspended only if explicitly included in the snapshot's VM pause list.
-   */
   suspend_on_snapshot?: boolean;
-  /**
-   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
-   */
   trusted_platform_module?: boolean;
-  /**
-   * Amount of memory allocated to the VM in mebibytes (MiB).
-   */
   memory: number;
-  /**
-   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
-   */
   min_memory?: number | null;
-  /**
-   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
-   */
   hyperv_enlightenments?: boolean;
   bootloader?: Bootloader;
-  /**
-   * OVMF firmware file to use for UEFI boot.
-   */
   bootloader_ovmf?: string;
-  /**
-   * Whether to automatically start the VM when the host system boots.
-   */
   autostart?: boolean;
-  /**
-   * Whether to hide the KVM hypervisor from standard MSR-based discovery. Useful when doing GPU passthrough.
-   */
   hide_from_msr?: boolean;
-  /**
-   * Whether to ensure the guest always has access to a video device. Required for headless OS installations (e.g. Ubuntu Server). Set to `false` when using GPU passthrough without a separate display device.
-   */
   ensure_display_device?: boolean;
   time?: Time;
-  /**
-   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
-   */
   shutdown_timeout?: number;
-  /**
-   * Guest architecture type. `null` to use hypervisor default.
-   */
   arch_type?: string | null;
-  /**
-   * Virtual machine type/chipset. `null` to use hypervisor default.
-   */
   machine_type?: string | null;
-  /**
-   * Unique UUID for the VM.
-   */
   uuid: string;
-  /**
-   * Array of virtual devices attached to this VM.
-   */
   devices: VMDeviceEntry[];
-  /**
-   * Whether at least one display device is available for this VM.
-   */
   display_available: boolean;
-  /**
-   * Unique identifier for the virtual machine.
-   */
   id: number;
   status: VMStatus;
-  /**
-   * Whether to enable UEFI Secure Boot for enhanced security.
-   */
   enable_secure_boot?: boolean;
 }
-/**
- * Used by: vm.flags (response)
- */
 export interface VMFlags {
-  /**
-   * Whether Intel VT-x (VMX) virtualization is available.
-   */
   intel_vmx: boolean;
-  /**
-   * Whether Intel unrestricted guest mode is supported.
-   */
   unrestricted_guest: boolean;
-  /**
-   * Whether AMD Rapid Virtualization Indexing (RVI/NPT) is available.
-   */
   amd_rvi: boolean;
-  /**
-   * Whether AMD Address Space Identifiers (ASIDs) are supported.
-   */
   amd_asids: boolean;
 }
-/**
- * Used by: vm.get_display_web_uri (response)
- */
 export interface VMGetDisplayWebUri {
-  /**
-   * Error message if URI generation failed. `null` on success.
-   */
   error: string | null;
-  /**
-   * Generated web URI for accessing the VM display. `null` on error.
-   */
   uri: string | null;
 }
-/**
- * Used by: vm.get_vmemory_in_use (response)
- */
 export interface VMGetVmemoryInUse {
-  /**
-   * Running but not provisioned, in bytes.
-   */
   RNP: number;
-  /**
-   * Provisioned but not running, in bytes.
-   */
   PRD: number;
-  /**
-   * Running and provisioned, in bytes.
-   */
   RPRD: number;
 }
-/**
- * Used by: vm.get_vm_memory_info (response)
- */
 export interface VMGetVmMemoryInfo {
-  /**
-   * Minimum memory requested by the VM.
-   */
   minimum_memory_requested: number | null;
-  /**
-   * Maximum / total memory requested by the VM.
-   */
   total_memory_requested: number;
-  /**
-   * Overcommit of memory is required to start VM.
-   */
   overcommit_required: boolean;
-  /**
-   * Memory requirements of VM are fulfilled if over-committing memory is specified.
-   */
   memory_req_fulfilled_after_overcommit: boolean;
-  /**
-   * Size of ARC to shrink in bytes.
-   */
   arc_to_shrink: number | null;
-  /**
-   * Current size of max ARC in bytes.
-   */
   current_arc_max: number;
-  /**
-   * Minimum size of ARC in bytes.
-   */
   arc_min: number;
-  /**
-   * Size of max ARC in bytes after shrinking.
-   */
   arc_max_after_shrink: number;
-  /**
-   * VM memory in bytes to consider when making calculations for available/required memory. If VM ballooning is specified for the VM, the minimum VM memory specified by user will be taken into account otherwise total VM memory requested will be taken into account.
-   */
   actual_vm_requested_memory: number;
 }
-/**
- * Used by: vm.get_guest_network_interfaces (response)
- */
 export interface VMGuestNetworkInterface {
-  /**
-   * Interface name as seen in the guest OS (e.g. 'eth0', 'ens3').
-   */
   name: string;
-  /**
-   * MAC address of the interface.
-   */
   hardware_address: string;
-  /**
-   * IP addresses currently assigned to this interface.
-   */
   ip_addresses: VMGuestNetworkInterfaceIPAddress[];
 }
-/**
- * Used by: vm.get_guest_network_interfaces (response)
- */
 export interface VMGuestNetworkInterfaceIPAddress {
-  /**
-   * IP address assigned to the interface.
-   */
   ip_address: "" | string;
-  /**
-   * Prefix length (subnet mask bits).
-   */
   prefix: number;
-  /**
-   * Address family: 'IPV4' or 'IPV6'.
-   */
   ip_address_type: "IPV4" | "IPV6";
 }
-/**
- * Used by: vm.port_wizard (response)
- */
 export interface VMPortWizard {
-  /**
-   * Available server port.
-   */
   port: number;
-  /**
-   * Web port to be used based on available port.
-   */
   web: number;
 }
-/**
- * Used by: vm.update (params)
- */
-export interface VMUpdate {
-  /**
-   * Additional command line arguments passed to the VM hypervisor.
-   */
-  command_line_args?: string;
-  /**
-   * CPU virtualization mode.
-   *
-   * * `CUSTOM`: Use specified model.
-   * * `HOST-MODEL`: Mirror host CPU.
-   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
-   */
-  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  /**
-   * Specific CPU model to emulate. `null` to use hypervisor default.
-   */
-  cpu_model?: string | null;
-  /**
-   * Display name of the virtual machine.
-   */
-  name?: string;
-  /**
-   * Optional description or notes about the virtual machine.
-   */
-  description?: string;
-  /**
-   * Number of virtual CPU sockets. The total number of guest vCPUs is `vcpus` * `cores` * `threads` (maximum 16).
-   */
-  vcpus?: number;
-  /**
-   * Number of CPU cores per socket.
-   */
-  cores?: number;
-  /**
-   * Number of threads per CPU core.
-   */
-  threads?: number;
-  /**
-   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
-   */
-  cpuset?: string | null;
-  /**
-   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
-   */
-  nodeset?: string | null;
-  /**
-   * Whether to expose detailed CPU topology information to the guest OS.
-   */
-  enable_cpu_topology_extension?: boolean;
-  /**
-   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
-   */
-  pin_vcpus?: boolean;
-  /**
-   * Whether to automatically suspend the VM when a periodic snapshot task runs. For manual snapshots, the VM is suspended only if explicitly included in the snapshot's VM pause list.
-   */
-  suspend_on_snapshot?: boolean;
-  /**
-   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
-   */
-  trusted_platform_module?: boolean;
-  /**
-   * Amount of memory allocated to the VM in mebibytes (MiB).
-   */
-  memory?: number;
-  /**
-   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
-   */
-  min_memory?: number | null;
-  /**
-   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
-   */
-  hyperv_enlightenments?: boolean;
-  bootloader?: Bootloader;
-  /**
-   * Whether to automatically start the VM when the host system boots.
-   */
-  autostart?: boolean;
-  /**
-   * Whether to hide the KVM hypervisor from standard MSR-based discovery. Useful when doing GPU passthrough.
-   */
-  hide_from_msr?: boolean;
-  /**
-   * Whether to ensure the guest always has access to a video device. Required for headless OS installations (e.g. Ubuntu Server). Set to `false` when using GPU passthrough without a separate display device.
-   */
-  ensure_display_device?: boolean;
-  time?: Time;
-  /**
-   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
-   */
-  shutdown_timeout?: number;
-  /**
-   * Guest architecture type. `null` to use hypervisor default.
-   */
-  arch_type?: string | null;
-  /**
-   * Virtual machine type/chipset. `null` to use hypervisor default.
-   */
-  machine_type?: string | null;
-  /**
-   * Unique UUID for the VM. `null` to auto-generate.
-   */
-  uuid?: string | null;
-}
-/**
- * Used by: vm.virtualization_details (response)
- */
 export interface VMVirtualizationDetails {
-  /**
-   * Whether hardware virtualization is supported and available.
-   */
   supported: boolean;
-  /**
-   * Error message if virtualization is not available. `null` if supported.
-   */
   error: string | null;
 }
-/**
- * Used by: zfs.resource.destroy (params)
- */
-export interface ZFSResourceDestroyArgsData {
-  /**
-   * Path of the zfs resource (dataset or volume) to be destroyed. Must be of the form 'pool/name'; it cannot be an absolute path or end with '/'. Snapshot paths (containing '@') are not accepted - use `zfs.resource.snapshot.destroy` instead.
-   */
-  path: string;
-  /**
-   * Recursively destroy all descendants of the resource, including child datasets, snapshots, clones, and holds.
-   */
-  recursive?: boolean;
-}
-/**
- * Used by: zfs.tier.rewrite_job_failures (params)
- */
 export interface ZfsTierRewriteJobFailuresArgs {
-  /**
-   * Rewrite job to query, in `dataset_name@job_uuid` format.
-   */
   tier_job_id: string;
-  /**
-   * Additional filters to apply to the results.
-   */
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
 }
-/**
- * Used by: zfs.tier.rewrite_job_query (params)
- */
 export interface ZfsTierRewriteJobQueryArgs {
-  /**
-   * Limit results to jobs in the specified states. Pass `null` or omit to return all jobs.
-   */
   status?: ("COMPLETE" | "RUNNING" | "QUEUED" | "CANCELLED" | "STOPPED" | "ERROR")[] | null;
-  /**
-   * Additional filters to apply to the results.
-   */
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
-}
-/**
- * Used by: zpool.query (params)
- */
-export interface ZPoolQuery {
-  /**
-   * Pool names to query. `null` queries all imported pools.
-   */
-  pool_names?: string[] | null;
-  /**
-   * Property names to retrieve. `null` returns no properties.
-   */
-  properties?: string[] | null;
-  /**
-   * Include vdev topology.
-   */
-  topology?: boolean;
-  /**
-   * Include scan/scrub information.
-   */
-  scan?: boolean;
-  /**
-   * Include expansion information.
-   */
-  expand?: boolean;
-  /**
-   * Include feature flags.
-   */
-  features?: boolean;
 }

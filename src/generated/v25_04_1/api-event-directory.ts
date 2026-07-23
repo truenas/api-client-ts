@@ -16,18 +16,10 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiEventDirectoryDelta {
-  /**
-   * Docker state events
-   * @roles DOCKER_READ
-   */
   'docker.state': {
     changed: DockerStateChangedEvent;
   };
 
-  /**
-   * Sent on sharing.nfs changes.
-   * @roles SHARING_NFS_READ
-   */
   'sharing.nfs.query': {
     added: SharingNFSAddedEvent;
     changed: SharingNFSChangedEvent;
