@@ -11,6 +11,7 @@ import type {
 } from '../shared/query-types';
 
 import type {
+  ACLTemplateEntry,
   AppsIxVolumeEntry,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
@@ -28,6 +29,7 @@ import type {
   HubicCredentialsModel,
   KeychainCredentialCreateSSHCredentialsEntry,
   KeychainCredentialCreateSSHKeyPairEntry,
+  KeychainCredentialEntry,
   KeychainCredentialUpdateSSHCredentialsEntry,
   KeychainCredentialUpdateSSHKeyPairEntry,
   MegaCredentialsModel,
@@ -38,13 +40,12 @@ import type {
   ReportingQuery,
   SFTPCredentialsModel,
   SSHKeyPair,
-  StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
   WebDavCredentialsModel,
   YandexCredentialsModel,
 } from '../v25_04_0/api-types';
 import type {
-  ACLTemplateEntry,
+  StorjIxCredentialsModelInput,
   VMDeviceQueryResultItem,
   VMQueryResultItem,
 } from '../v25_04_2/api-types';
@@ -65,7 +66,6 @@ import type {
   ContainerQueryResultItem,
   ContainerUpdate,
   GraphIdentifier,
-  KeychainCredentialEntry,
   LXCConfigEntry,
   S3CredentialsModel,
   TrueNASConnectEntry,

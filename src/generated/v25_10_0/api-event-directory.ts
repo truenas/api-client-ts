@@ -11,12 +11,8 @@ import type {
   AuthSessionsRemovedEvent,
   CloudBackupRemovedEvent,
   GroupRemovedEvent,
-  ISCSITargetExtentRemovedEvent,
   ISCSITargetRemovedEvent,
-  InitShutdownScriptRemovedEvent,
-  KeychainCredentialRemovedEvent,
   PrivilegeRemovedEvent,
-  SharingNFSRemovedEvent,
 } from '../v25_04_0/api-types';
 import type {
   VMDeviceRemovedEvent,
@@ -42,17 +38,12 @@ import type {
   DiskQueryAddedEvent,
   DiskQueryChangedEvent,
   DiskQueryRemovedEvent,
-  DockerStateChangedEvent,
   FailoverDisabledReasonsChangedEvent,
   FailoverStatusChangedEvent,
   GroupAddedEvent,
   GroupChangedEvent,
   ISCSITargetAddedEvent,
   ISCSITargetChangedEvent,
-  ISCSITargetExtentAddedEvent,
-  ISCSITargetExtentChangedEvent,
-  InitShutdownScriptAddedEvent,
-  InitShutdownScriptChangedEvent,
   InterfaceAddedEvent,
   InterfaceChangedEvent,
   InterfaceRemovedEvent,
@@ -65,8 +56,6 @@ import type {
   KerberosRealmAddedEvent,
   KerberosRealmChangedEvent,
   KerberosRealmRemovedEvent,
-  KeychainCredentialAddedEvent,
-  KeychainCredentialChangedEvent,
   NVMetHostAddedEvent,
   NVMetHostChangedEvent,
   NVMetHostRemovedEvent,
@@ -91,7 +80,6 @@ import type {
   PoolDatasetChangedEvent,
   PoolDatasetRemovedEvent,
   PoolRemovedEvent,
-  PoolScanChangedEvent,
   PoolSnapshotAddedEvent,
   PoolSnapshotChangedEvent,
   PoolSnapshotRemovedEvent,
@@ -106,8 +94,6 @@ import type {
   ServiceAddedEvent,
   ServiceChangedEvent,
   ServiceRemovedEvent,
-  SharingNFSAddedEvent,
-  SharingNFSChangedEvent,
   SharingSMBAddedEvent,
   SharingSMBChangedEvent,
   SharingSMBRemovedEvent,
@@ -172,10 +158,6 @@ export interface ApiEventDirectoryDelta {
     removed: DiskQueryRemovedEvent;
   };
 
-  'docker.state': {
-    changed: DockerStateChangedEvent;
-  };
-
   'failover.disabled.reasons': {
     changed: FailoverDisabledReasonsChangedEvent;
   };
@@ -196,22 +178,10 @@ export interface ApiEventDirectoryDelta {
     removed: GroupRemovedEvent;
   };
 
-  'initshutdownscript.query': {
-    added: InitShutdownScriptAddedEvent;
-    changed: InitShutdownScriptChangedEvent;
-    removed: InitShutdownScriptRemovedEvent;
-  };
-
   'interface.query': {
     added: InterfaceAddedEvent;
     changed: InterfaceChangedEvent;
     removed: InterfaceRemovedEvent;
-  };
-
-  'iscsi.extent.query': {
-    added: ISCSITargetExtentAddedEvent;
-    changed: ISCSITargetExtentChangedEvent;
-    removed: ISCSITargetExtentRemovedEvent;
   };
 
   'iscsi.target.query': {
@@ -236,12 +206,6 @@ export interface ApiEventDirectoryDelta {
     added: KerberosRealmAddedEvent;
     changed: KerberosRealmChangedEvent;
     removed: KerberosRealmRemovedEvent;
-  };
-
-  'keychaincredential.query': {
-    added: KeychainCredentialAddedEvent;
-    changed: KeychainCredentialChangedEvent;
-    removed: KeychainCredentialRemovedEvent;
   };
 
   'nvmet.host.query': {
@@ -292,10 +256,6 @@ export interface ApiEventDirectoryDelta {
     removed: PoolRemovedEvent;
   };
 
-  'pool.scan': {
-    changed: PoolScanChangedEvent;
-  };
-
   'pool.snapshot.query': {
     added: PoolSnapshotAddedEvent;
     changed: PoolSnapshotChangedEvent;
@@ -324,12 +284,6 @@ export interface ApiEventDirectoryDelta {
     added: ServiceAddedEvent;
     changed: ServiceChangedEvent;
     removed: ServiceRemovedEvent;
-  };
-
-  'sharing.nfs.query': {
-    added: SharingNFSAddedEvent;
-    changed: SharingNFSChangedEvent;
-    removed: SharingNFSRemovedEvent;
   };
 
   'sharing.smb.query': {

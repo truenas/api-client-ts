@@ -4,39 +4,28 @@
  */
 
 import type {
-  Acltype,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
-  Blocksize,
   BoxCredentialsModel,
   CloudBackupCron,
+  CloudBackupS3CredentialsModelInput,
+  CloudBackupS3CredentialsModelInput2,
+  CloudCron,
+  CloudTaskAttributes,
   DropboxCredentialsModel,
   FTPCredentialsModel,
-  FilesystemSetAclOptions,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
-  NFS4ACE_AdvancedFlags,
-  NFS4ACE_AdvancedPerms,
-  NFS4ACE_BasicFlags,
-  NFS4ACE_BasicPerms,
-  NFS4ACL_Flags,
+  MegaCredentialsModel,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
-  POSIXACE,
-  Rpm,
   S3CredentialsModel,
-  S3CredentialsModelInput2,
   SFTPCredentialsModel,
-  SSHCredentials,
-  SSHKeyPair,
-  StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
-  Tag,
   WebDavCredentialsModel,
-  When,
   YandexCredentialsModel,
 } from '../v25_04_0/api-types';
 
@@ -73,85 +62,17 @@ export const Time = {
 } as const;
 export type Time = (typeof Time)[keyof typeof Time];
 
-export const Type = {
+export const VMDiskDeviceType = {
   Ahci: 'AHCI',
   Virtio: 'VIRTIO',
 } as const;
-export type Type = (typeof Type)[keyof typeof Type];
+export type VMDiskDeviceType = (typeof VMDiskDeviceType)[keyof typeof VMDiskDeviceType];
 
-export const Type2 = {
-  Allow: 'ALLOW',
-  Deny: 'DENY',
-} as const;
-export type Type2 = (typeof Type2)[keyof typeof Type2];
-
-export const Type3 = {
-  Command: 'COMMAND',
-  Script: 'SCRIPT',
-} as const;
-export type Type3 = (typeof Type3)[keyof typeof Type3];
-
-export const Type4 = {
-  Dir: 'dir',
-  File: 'file',
-} as const;
-export type Type4 = (typeof Type4)[keyof typeof Type4];
-
-export const Type5 = {
-  Directory: 'DIRECTORY',
-  File: 'FILE',
-  Symlink: 'SYMLINK',
-  Other: 'OTHER',
-} as const;
-export type Type5 = (typeof Type5)[keyof typeof Type5];
-
-export const Type6 = {
-  Disk: 'DISK',
-  File: 'FILE',
-} as const;
-export type Type6 = (typeof Type6)[keyof typeof Type6];
-
-export const Type7 = {
-  SshKeyPair: 'SSH_KEY_PAIR',
-  SshCredentials: 'SSH_CREDENTIALS',
-} as const;
-export type Type7 = (typeof Type7)[keyof typeof Type7];
-
-export const TypeInput = {
+export const VMDiskDeviceTypeInput = {
   Ahci: 'AHCI',
   Virtio: 'VIRTIO',
 } as const;
-export type TypeInput = (typeof TypeInput)[keyof typeof TypeInput];
-
-export const TypeInput2 = {
-  Allow: 'ALLOW',
-  Deny: 'DENY',
-} as const;
-export type TypeInput2 = (typeof TypeInput2)[keyof typeof TypeInput2];
-
-export const TypeInput3 = {
-  Command: 'COMMAND',
-  Script: 'SCRIPT',
-} as const;
-export type TypeInput3 = (typeof TypeInput3)[keyof typeof TypeInput3];
-
-export const TypeInput4 = {
-  Disk: 'DISK',
-  File: 'FILE',
-} as const;
-export type TypeInput4 = (typeof TypeInput4)[keyof typeof TypeInput4];
-
-export const TypeInput5 = {
-  Serial: 'SERIAL',
-  Gpu: 'GPU',
-} as const;
-export type TypeInput5 = (typeof TypeInput5)[keyof typeof TypeInput5];
-
-export const TypeInput6 = {
-  SshKeyPair: 'SSH_KEY_PAIR',
-  SshCredentials: 'SSH_CREDENTIALS',
-} as const;
-export type TypeInput6 = (typeof TypeInput6)[keyof typeof TypeInput6];
+export type VMDiskDeviceTypeInput = (typeof VMDiskDeviceTypeInput)[keyof typeof VMDiskDeviceTypeInput];
 
 export type VMDeviceBindChoicesResult = Record<string, unknown>;
 
@@ -163,57 +84,69 @@ export type VMDeviceQueryResultItem = Record<string, unknown>;
 
 export type VMQueryResultItem = Record<string, unknown>;
 
-export interface ACLTemplateAddedEvent {
+export interface CloudBackupAddedEvent {
   id: number;
-  fields: ACLTemplateEntryInput;
+  fields: CloudBackupEntryInput;
 }
-export interface ACLTemplateEntryInput {
+export interface CloudBackupEntryInput {
   id: number;
-  builtin: boolean;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  credentials: CredentialsEntryInput;
+  attributes: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job: {
+    [k: string]: unknown;
+  } | null;
+  locked: boolean;
+  password: string;
+  keep_last: number;
+  transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
+  absolute_paths?: boolean;
+  cache_path?: string | null;
+  rate_limit?: number | null;
+}
+export interface CredentialsEntryInput {
+  id: number;
   name: string;
-  acltype: Acltype;
-  acl: NFS4ACEInput[] | POSIXACE[];
-  comment?: string;
+  provider:
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | MegaCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
+    | CloudBackupS3CredentialsModelInput
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModelInput
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
 }
-export interface NFS4ACEInput {
-  tag: Tag;
-  type: TypeInput2;
-  perms: NFS4ACE_AdvancedPerms | NFS4ACE_BasicPerms;
-  flags: NFS4ACE_AdvancedFlags | NFS4ACE_BasicFlags;
-  id?: number | null;
-  who?: string | null;
+export interface StorjIxCredentialsModelInput {
+  type: "STORJ_IX";
+  access_key_id: string;
+  secret_access_key: string;
+  endpoint?: string;
 }
-export interface ACLTemplateChangedEvent {
+export interface CloudBackupChangedEvent {
   id: number;
-  fields: ACLTemplateEntryInput;
-}
-export interface AclTemplateCreate {
-  name: string;
-  acltype: Acltype;
-  acl: NFS4ACEInput[] | POSIXACE[];
-  comment?: string;
-}
-export interface ACLTemplateEntry {
-  id: number;
-  builtin: boolean;
-  name: string;
-  acltype: Acltype;
-  acl: NFS4ACE[] | POSIXACE[];
-  comment?: string;
-}
-export interface NFS4ACE {
-  tag: Tag;
-  type: Type2;
-  perms: NFS4ACE_AdvancedPerms | NFS4ACE_BasicPerms;
-  flags: NFS4ACE_AdvancedFlags | NFS4ACE_BasicFlags;
-  id?: number | null;
-  who?: string | null;
-}
-export interface AclTemplateUpdate {
-  name?: string;
-  acltype?: Acltype;
-  acl?: NFS4ACEInput[] | POSIXACE[];
-  comment?: string;
+  fields: CloudBackupEntryInput;
 }
 export interface CloudBackupEntry {
   path: string;
@@ -268,14 +201,6 @@ export interface StorjIxCredentialsModel {
   secret_access_key: string;
   endpoint?: string;
 }
-export interface CloudBackupSnapshotItem {
-  name: string;
-  path: string;
-  type: Type4;
-  size: number | null;
-  mtime: string;
-  [k: string]: unknown;
-}
 export interface CloudCredentialCreate {
   name: string;
   provider:
@@ -291,7 +216,7 @@ export interface CloudCredentialCreate {
     | HubicCredentialsModel
     | OneDriveCredentialsModel
     | PCloudCredentialsModel
-    | S3CredentialsModelInput2
+    | CloudBackupS3CredentialsModelInput2
     | SFTPCredentialsModel
     | StorjIxCredentialsModelInput
     | SwiftCredentialsModel
@@ -313,15 +238,20 @@ export interface CloudCredentialUpdate {
     | HubicCredentialsModel
     | OneDriveCredentialsModel
     | PCloudCredentialsModel
-    | S3CredentialsModelInput2
+    | CloudBackupS3CredentialsModelInput2
     | SFTPCredentialsModel
     | StorjIxCredentialsModelInput
     | SwiftCredentialsModel
     | WebDavCredentialsModel
     | YandexCredentialsModel;
 }
-export interface DeviceGetInfoOther {
-  type: TypeInput5;
+export interface CredentialsAddedEvent {
+  id: number;
+  fields: CredentialsEntryInput;
+}
+export interface CredentialsChangedEvent {
+  id: number;
+  fields: CredentialsEntryInput;
 }
 export interface DisplayDevice {
   id: number;
@@ -341,79 +271,6 @@ export interface GetDisplayDevice {
   type?: "SPICE";
   password_configured: boolean;
 }
-export interface FilesystemDirEntry {
-  name: string;
-  path: string;
-  realpath: string;
-  type: Type5;
-  size: number;
-  allocation_size: number;
-  mode: number;
-  mount_id: number;
-  acl: boolean;
-  uid: number;
-  gid: number;
-  is_mountpoint: boolean;
-  is_ctldir: boolean;
-  attributes: (
-    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
-  )[];
-  xattrs: string[];
-  zfs_attrs:
-    | (
-        | "READONLY"
-        | "HIDDEN"
-        | "SYSTEM"
-        | "ARCHIVE"
-        | "IMMUTABLE"
-        | "NOUNLINK"
-        | "APPENDONLY"
-        | "NODUMP"
-        | "OPAQUE"
-        | "AV_QUARANTINED"
-        | "AV_MODIFIED"
-        | "REPARSE"
-        | "OFFLINE"
-        | "SPARSE"
-      )[]
-    | null;
-}
-export interface FilesystemSetaclArgs {
-  path: string;
-  dacl: NFS4ACEInput[] | POSIXACE[];
-  options?: FilesystemSetAclOptions;
-  nfs41_flags?: NFS4ACL_Flags;
-  uid?: number | null;
-  user?: string | null;
-  gid?: number | null;
-  group?: string | null;
-  acltype?: ("NFS4" | "POSIX1E") | null;
-}
-export interface FilesystemStatData {
-  realpath: string;
-  type: Type5;
-  size: number;
-  allocation_size: number;
-  mode: number;
-  mount_id: number;
-  uid: number;
-  gid: number;
-  atime: number;
-  mtime: number;
-  ctime: number;
-  btime: number;
-  dev: number;
-  inode: number;
-  nlink: number;
-  acl: boolean;
-  is_mountpoint: boolean;
-  is_ctldir: boolean;
-  attributes: (
-    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
-  )[];
-  user: string | null;
-  group: string | null;
-}
 export interface GroupCreate {
   gid?: number | null;
   name: string;
@@ -430,170 +287,6 @@ export interface GroupUpdate {
   smb?: boolean;
   userns_idmap?: "DIRECT" | number | null;
   users?: number[];
-}
-export interface InitShutdownScriptAddedEvent {
-  id: number;
-  fields: InitShutdownScriptEntryInput;
-}
-export interface InitShutdownScriptEntryInput {
-  type: TypeInput3;
-  command?: string | null;
-  script?: string | null;
-  when: When;
-  enabled?: boolean;
-  timeout?: number;
-  comment?: string;
-  id: number;
-}
-export interface InitShutdownScriptChangedEvent {
-  id: number;
-  fields: InitShutdownScriptEntryInput;
-}
-export interface InitShutdownScriptCreate {
-  type: TypeInput3;
-  command?: string | null;
-  script?: string | null;
-  when: When;
-  enabled?: boolean;
-  timeout?: number;
-  comment?: string;
-}
-export interface InitShutdownScriptEntry {
-  type: Type3;
-  command?: string | null;
-  script?: string | null;
-  when: When;
-  enabled?: boolean;
-  timeout?: number;
-  comment?: string;
-  id: number;
-}
-export interface InitShutdownScriptUpdate {
-  type?: TypeInput3;
-  command?: string | null;
-  script?: string | null;
-  when?: When;
-  enabled?: boolean;
-  timeout?: number;
-  comment?: string;
-}
-export interface IscsiExtentCreate {
-  name: string;
-  type?: TypeInput4;
-  disk?: string | null;
-  serial?: string | null;
-  path?: string | null;
-  filesize?: string | number;
-  blocksize?: Blocksize;
-  pblocksize?: boolean;
-  avail_threshold?: number | null;
-  comment?: string;
-  insecure_tpc?: boolean;
-  xen?: boolean;
-  rpm?: Rpm;
-  ro?: boolean;
-  enabled?: boolean;
-}
-export interface IscsiExtentUpdate {
-  name?: string;
-  type?: TypeInput4;
-  disk?: string | null;
-  serial?: string | null;
-  path?: string | null;
-  filesize?: string | number;
-  blocksize?: Blocksize;
-  pblocksize?: boolean;
-  avail_threshold?: number | null;
-  comment?: string;
-  insecure_tpc?: boolean;
-  xen?: boolean;
-  rpm?: Rpm;
-  ro?: boolean;
-  enabled?: boolean;
-}
-export interface ISCSITargetExtentAddedEvent {
-  id: number;
-  fields: ISCSITargetExtentEntryInput;
-}
-export interface ISCSITargetExtentEntryInput {
-  id: number;
-  name: string;
-  type?: TypeInput4;
-  disk?: string | null;
-  serial?: string | null;
-  path?: string | null;
-  dataset: string | null;
-  relative_path: string | null;
-  filesize?: string | number;
-  blocksize?: Blocksize;
-  pblocksize?: boolean;
-  avail_threshold?: number | null;
-  comment?: string;
-  naa: string;
-  insecure_tpc?: boolean;
-  xen?: boolean;
-  rpm?: Rpm;
-  ro?: boolean;
-  enabled?: boolean;
-  vendor: string;
-  product_id?: string | null;
-  locked: boolean | null;
-}
-export interface ISCSITargetExtentChangedEvent {
-  id: number;
-  fields: ISCSITargetExtentEntryInput;
-}
-export interface ISCSITargetExtentEntry {
-  id: number;
-  name: string;
-  type?: Type6;
-  disk?: string | null;
-  serial?: string | null;
-  path?: string | null;
-  filesize?: string | number;
-  blocksize?: Blocksize;
-  pblocksize?: boolean;
-  avail_threshold?: number | null;
-  comment?: string;
-  naa: string;
-  insecure_tpc?: boolean;
-  xen?: boolean;
-  rpm?: Rpm;
-  ro?: boolean;
-  enabled?: boolean;
-  vendor: string;
-  locked: boolean | null;
-}
-export interface KeychainCredentialAddedEvent {
-  id: number;
-  fields: KeychainCredentialEntryInput;
-}
-export interface KeychainCredentialEntryInput {
-  id: number;
-  name: string;
-  type: TypeInput6;
-  attributes: SSHKeyPair | SSHCredentials;
-}
-export interface KeychainCredentialChangedEvent {
-  id: number;
-  fields: KeychainCredentialEntryInput;
-}
-export interface KeychainCredentialEntry {
-  id: number;
-  name: string;
-  type: Type7;
-  attributes: SSHKeyPair | SSHCredentials;
-}
-export interface NFS4ACLResult {
-  path: string;
-  user: string | null;
-  group: string | null;
-  uid: number | null;
-  gid: number | null;
-  acltype: "NFS4";
-  acl: NFS4ACE[];
-  aclflags: NFS4ACL_Flags;
-  trivial: boolean;
 }
 export interface USBAttributes {
   vendor_id: string;
@@ -639,10 +332,10 @@ export interface VMEntryInput {
 export interface VMDeviceEntryInput {
   id: number;
   attributes:
-    | VMCDROMDeviceInput
-    | VMDisplayDeviceInput
+    | VmDeviceVMCDROMDeviceInput
+    | VmDeviceVMDisplayDeviceInput
     | VMISCSIDiskDevice
-    | VMNICDeviceInput2
+    | VmDeviceVMNICDeviceInput
     | VMPCIDevice
     | VMRAWDeviceInput
     | VMDiskDeviceInput
@@ -650,11 +343,11 @@ export interface VMDeviceEntryInput {
   vm: number;
   order: number;
 }
-export interface VMCDROMDeviceInput {
+export interface VmDeviceVMCDROMDeviceInput {
   dtype: "CDROM";
   path: string;
 }
-export interface VMDisplayDeviceInput {
+export interface VmDeviceVMDisplayDeviceInput {
   dtype: "DISPLAY";
   resolution?: Resolution;
   port?: number | null;
@@ -682,7 +375,7 @@ export interface VMISCSIDiskTarget {
    */
   luns?: [number, ...number[]];
 }
-export interface VMNICDeviceInput2 {
+export interface VmDeviceVMNICDeviceInput {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
   type?: "E1000" | "VIRTIO";
@@ -703,7 +396,7 @@ export interface VMPCIDevice {
 export interface VMRAWDeviceInput {
   dtype: "RAW";
   path: string;
-  type?: TypeInput;
+  type?: VMDiskDeviceTypeInput;
   exists?: boolean;
   boot?: boolean;
   size?: number | null;
@@ -715,7 +408,7 @@ export interface VMRAWDeviceInput {
 export interface VMDiskDeviceInput {
   dtype: "DISK";
   path?: string | null;
-  type?: TypeInput;
+  type?: VMDiskDeviceTypeInput;
   create_zvol?: boolean;
   zvol_name?: string | null;
   zvol_volsize?: number | null;
@@ -741,10 +434,6 @@ export interface VMBootloaderOptionsResult {
   UEFI_CSM?: "Legacy BIOS";
 }
 export interface VMCDROMDevice {
-  dtype: "CDROM";
-  path: string;
-}
-export interface VMCDROMDeviceInput2 {
   dtype: "CDROM";
   path: string;
 }
@@ -804,9 +493,9 @@ export interface VMDeviceChangedEvent {
 }
 export interface VMDeviceCreateArgs {
   attributes:
-    | VMCDROMDeviceInput2
-    | VMDisplayDeviceInput2
-    | VMNICDeviceInput
+    | VmVMCDROMDeviceInput
+    | VmVMDisplayDeviceInput
+    | VmVMNICDeviceInput
     | VMPCIDevice
     | VMRAWDeviceInput
     | VMDiskDeviceInput
@@ -814,7 +503,11 @@ export interface VMDeviceCreateArgs {
   vm: number;
   order?: number | null;
 }
-export interface VMDisplayDeviceInput2 {
+export interface VmVMCDROMDeviceInput {
+  dtype: "CDROM";
+  path: string;
+}
+export interface VmVMDisplayDeviceInput {
   dtype: "DISPLAY";
   resolution?: Resolution;
   port?: number | null;
@@ -825,7 +518,7 @@ export interface VMDisplayDeviceInput2 {
   web?: boolean;
   type?: "SPICE";
 }
-export interface VMNICDeviceInput {
+export interface VmVMNICDeviceInput {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
   type?: "E1000" | "VIRTIO";
@@ -864,7 +557,7 @@ export interface VMNICDevice {
 export interface VMRAWDevice {
   dtype: "RAW";
   path: string;
-  type?: Type;
+  type?: VMDiskDeviceType;
   exists?: boolean;
   boot?: boolean;
   size?: number | null;
@@ -876,7 +569,7 @@ export interface VMRAWDevice {
 export interface VMDiskDevice {
   dtype: "DISK";
   path?: string | null;
-  type?: Type;
+  type?: VMDiskDeviceType;
   create_zvol?: boolean;
   zvol_name?: string | null;
   zvol_volsize?: number | null;
@@ -911,9 +604,9 @@ export interface VMDeviceRemovedEvent {
 }
 export interface VMDeviceUpdate {
   attributes?:
-    | VMCDROMDeviceInput2
-    | VMDisplayDeviceInput2
-    | VMNICDeviceInput
+    | VmVMCDROMDeviceInput
+    | VmVMDisplayDeviceInput
+    | VmVMNICDeviceInput
     | VMPCIDevice
     | VMRAWDeviceInput
     | VMDiskDeviceInput

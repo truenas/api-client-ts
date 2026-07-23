@@ -112,6 +112,47 @@ describe('preprocess', () => {
     expect(other[0].params[0].schema.tsType).toBeUndefined();
   });
 
+  it('qualifies same-name collisions by origin instead of numeric suffixes', () => {
+    // Two distinct middleware classes named 'Status' in different services.
+    const { definitions } = preprocess(version([
+      method('pool.scrub.query', args({}, []), returnsDoc({ $ref: '#/$defs/Status' }, {
+        Status: { title: 'Status', enum: ['RUNNING', 'DONE'], type: 'string' },
+      })),
+      method('smart.test.query', args({}, []), returnsDoc({ $ref: '#/$defs/Status' }, {
+        Status: { title: 'Status', enum: ['PASSED', 'FAILED'], type: 'string' },
+      })),
+    ]));
+    expect(Object.keys(definitions).sort()).toEqual(['PoolScrubStatus', 'SmartTestStatus']);
+
+    // Hoisted field enums colliding: qualified by their owning model.
+    const entry = (state: string[]): Schema => ({
+      title: 'E', type: 'object', additionalProperties: false,
+      properties: { state: { enum: state, title: 'State', type: 'string' } },
+    });
+    const { definitions: hoisted } = preprocess(version([
+      method('a.get', args({}, []), returnsDoc({ $ref: '#/$defs/AEntry' }, { AEntry: { ...entry(['UP', 'DOWN']), title: 'AEntry' } })),
+      method('b.get', args({}, []), returnsDoc({ $ref: '#/$defs/BEntry' }, { BEntry: { ...entry(['ON', 'OFF']), title: 'BEntry' } })),
+    ]));
+    expect(hoisted['AEntryState']?._kind).toBe('enum');
+    expect(hoisted['BEntryState']?._kind).toBe('enum');
+    expect(hoisted).not.toHaveProperty('State');
+
+    // A middleware-real name is never displaced by a qualified collision name.
+    const { definitions: real } = preprocess(version([
+      method('pool.scrub.get', args({}, []), returnsDoc({ $ref: '#/$defs/Action' }, {
+        Action: { title: 'Action', enum: ['START'], type: 'string' },
+      })),
+      method('pool.scrub.run', args({}, []), returnsDoc({ $ref: '#/$defs/Action' }, {
+        Action: { title: 'Action', enum: ['STOP'], type: 'string' },
+      })),
+      method('other.get', args({}, []), returnsDoc({ $ref: '#/$defs/PoolScrubAction' }, {
+        PoolScrubAction: { title: 'PoolScrubAction', type: 'object', additionalProperties: false, properties: { x: { type: 'string' } } },
+      })),
+    ]));
+    expect(real['PoolScrubAction'].properties).toHaveProperty('x'); // the real class keeps its name
+    expect(Object.keys(real).filter((n) => n.startsWith('PoolScrubAction')).sort()).toEqual(['PoolScrubAction', 'PoolScrubAction2', 'PoolScrubAction3']);
+  });
+
   it('passes the structured job flag through and filters by prefix', () => {
     const dump = version([
       method('a.run', args({}, []), returnsDoc({ type: 'boolean' }), { job: true }),

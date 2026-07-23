@@ -14,8 +14,10 @@
  * two renders differ — directly, or transitively via a referenced model that
  * differs — the definition is split: the serialization render keeps the bare
  * name (consumers read far more than they write) and the validation render
- * gets an `Input` suffix. Rare same-name/same-mode collisions (distinct
- * middleware models sharing a class name) get numeric suffixes.
+ * gets an `Input` suffix. Same-name/same-mode collisions (distinct middleware
+ * models or field enums sharing a name) are qualified by origin — the owning
+ * model for hoisted field enums, the defining method's service otherwise —
+ * so a colliding `Status` becomes e.g. `CloudBackupEntryStatus`.
  */
 import type {
   ApiDumpVersion,
@@ -71,6 +73,8 @@ function directRefNames(node: unknown, into = new Set<string>()): Set<string> {
 interface DefVariant {
   schema: Schema;
   modes: Set<Mode>;
+  /** Where this shape comes from: the owning model (hoisted field enums) or the method/event whose document defines it. */
+  origins: Set<string>;
   /** Per mode, for every `#/$defs/X` inside `schema`: the shape hash X had in that mode's source document. */
   refHashes: { input?: Map<string, string>; output?: Map<string, string> };
   finalName?: { input: string; output: string };
@@ -81,7 +85,7 @@ class DefTable {
   byName = new Map<string, Map<string, DefVariant>>();
 
   /** Register one `$defs` entry (or event root model) from a document of the given mode. */
-  record(name: string, schema: Schema, mode: Mode, docDefs: Record<string, Schema>): string {
+  record(name: string, schema: Schema, mode: Mode, docDefs: Record<string, Schema>, origin?: string): string {
     const hash = stableStringify(schema);
     let variants = this.byName.get(name);
     if (!variants) {
@@ -90,9 +94,10 @@ class DefTable {
     }
     let variant = variants.get(hash);
     if (!variant) {
-      variant = { schema, modes: new Set(), refHashes: {} };
+      variant = { schema, modes: new Set(), refHashes: {}, origins: new Set() };
       variants.set(hash, variant);
     }
+    if (origin) variant.origins.add(origin);
     if (!variant.refHashes[mode]) {
       const refHashes = new Map<string, string>();
       for (const ref of directRefNames(schema)) {
@@ -148,39 +153,96 @@ class DefTable {
   /** Assign final TypeScript names to every variant, per mode. */
   assignNames(): void {
     const split = this.computeSplit();
-    for (const [name, variants] of this.byName) {
-      // Match json-schema-to-typescript's declared-name normalization
-      // (leading capital, uppercase after digits: iSCSITargetEntry ->
-      // ISCSITargetEntry, Renew2fa -> Renew2Fa) so our references and its
-      // declarations agree. Underscores pass through unchanged.
-      const normalized = (name[0].toUpperCase() + name.slice(1))
-        .replace(/(\d)([a-z])/g, (_, d: string, c: string) => d + c.toUpperCase());
-      const base = RESERVED_NAMES.has(normalized) ? `${normalized}Model` : normalized;
-      const suffixed = (stem: string, i: number) => (i === 0 ? stem : `${stem}${i + 1}`);
-      const ordered = [...variants.entries()].sort(([a], [b]) => a.localeCompare(b));
+    const used = new Set<string>();
+    const claim = (want: string): string => {
+      let name = want;
+      let i = 2;
+      while (used.has(name)) name = `${want}${i++}`;
+      used.add(name);
+      return name;
+    };
+    /**
+     * PascalCase qualifier from a variant's origin: the owning model for
+     * hoisted field enums ('CloudBackupEntry'), or the service of the
+     * defining method ('pool.scrub.create' -> 'PoolScrub').
+     */
+    const qualifierFor = (variant: DefVariant): string => {
+      const origin = [...variant.origins].sort()[0] ?? '';
+      const stem = origin.includes('.')
+        ? (origin.split('.').slice(0, -1).join(' ') || origin)
+        : origin.replace(/(Args|Result)$/, '');
+      return stem.split(/[^A-Za-z0-9]+/).filter(Boolean)
+        .map((t) => t[0].toUpperCase() + t.slice(1)).join('');
+    };
+    const qualified = (variant: DefVariant, stem: string): string => {
+      const qualifier = qualifierFor(variant);
+      return claim(qualifier && !stem.startsWith(qualifier) ? `${qualifier}${stem}` : stem);
+    };
 
-      if (!split.has(name)) {
-        // One render everywhere (or single-mode-only name): numeric suffixes
-        // for the rare same-name/same-mode collisions.
-        ordered.forEach(([, variant], i) => {
-          const n = suffixed(base, i);
-          variant.finalName = { input: n, output: n };
-        });
-        continue;
+    const prepared = [...this.byName.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([name, variants]) => {
+        // Match json-schema-to-typescript's declared-name normalization
+        // (leading capital, uppercase after digits: iSCSITargetEntry ->
+        // ISCSITargetEntry, Renew2fa -> Renew2Fa) so our references and its
+        // declarations agree. Underscores pass through unchanged.
+        const normalized = (name[0].toUpperCase() + name.slice(1))
+          .replace(/(\d)([a-z])/g, (_, d: string, c: string) => d + c.toUpperCase());
+        const base = RESERVED_NAMES.has(normalized) ? `${normalized}Model` : normalized;
+        const ordered = [...variants.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, v]) => v);
+        const isSplit = split.has(name);
+        return {
+          base,
+          ordered,
+          isSplit,
+          // Mode-split: serialization render keeps the bare name (consumers
+          // read far more than they write), validation render gets Input.
+          inputs: isSplit ? ordered.filter((v) => v.modes.has('input')) : [],
+          outputs: isSplit ? ordered.filter((v) => v.modes.has('output')) : [],
+        };
+      });
+
+    // Phase 1: unambiguous names — middleware's own — claim their bare names
+    // first, so origin-qualified collision names can never displace them.
+    for (const p of prepared) {
+      if (!p.isSplit) {
+        if (p.ordered.length === 1) {
+          const n = claim(p.base);
+          p.ordered[0].finalName = { input: n, output: n };
+        }
+      } else {
+        if (p.outputs.length === 1) {
+          p.outputs[0].finalName = { input: '', output: claim(p.base) };
+        }
+        if (p.inputs.length === 1) {
+          const v = p.inputs[0];
+          v.finalName = { ...(v.finalName ?? { output: '' }), input: claim(`${p.base}Input`) };
+        }
       }
-
-      // Mode-split: serialization render keeps the bare name, validation
-      // render gets the Input suffix. A variant used in both modes (identical
-      // render, split forced by a referenced def) becomes two definitions.
-      const inputs = ordered.filter(([, v]) => v.modes.has('input'));
-      const outputs = ordered.filter(([, v]) => v.modes.has('output'));
-      outputs.forEach(([, variant], i) => {
-        variant.finalName = { input: '', output: suffixed(base, i) };
-      });
-      inputs.forEach(([, variant], i) => {
-        const inputName = suffixed(`${base}Input`, i);
-        variant.finalName = { ...(variant.finalName ?? { output: '' }), input: inputName };
-      });
+    }
+    // Phase 2: same-name/same-mode collisions (distinct middleware models or
+    // field enums sharing a name) get origin-qualified names — Status becomes
+    // CloudBackupEntryStatus, not Status2.
+    for (const p of prepared) {
+      if (!p.isSplit) {
+        if (p.ordered.length > 1) {
+          for (const v of p.ordered) {
+            const n = qualified(v, p.base);
+            v.finalName = { input: n, output: n };
+          }
+        }
+      } else {
+        if (p.outputs.length > 1) {
+          for (const v of p.outputs) {
+            v.finalName = { input: '', output: qualified(v, p.base) };
+          }
+        }
+        if (p.inputs.length > 1) {
+          for (const v of p.inputs) {
+            v.finalName = { ...(v.finalName ?? { output: '' }), input: qualified(v, `${p.base}Input`) };
+          }
+        }
+      }
     }
   }
 
@@ -315,13 +377,13 @@ const ENUM_USE_SITE_KEYS = ['description', 'default', 'examples'];
  * `$defs` (mutating the document) so they flow through the normal definition
  * machinery and get emitted as named const-object enums.
  */
-function hoistInlineEnums(node: unknown, doc: Schema, isDefRoot = false): unknown {
-  if (Array.isArray(node)) return node.map((n) => hoistInlineEnums(n, doc));
+function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string>, owner: string, isDefRoot = false): unknown {
+  if (Array.isArray(node)) return node.map((n) => hoistInlineEnums(n, doc, owners, owner));
   if (node === null || typeof node !== 'object') return node;
   const schema = node as Schema;
   const out: Schema = {};
   for (const [key, value] of Object.entries(schema)) {
-    out[key] = key === '$defs' ? value : hoistInlineEnums(value, doc);
+    out[key] = key === '$defs' ? value : hoistInlineEnums(value, doc, owners, owner);
   }
   // A def body is already named — hoisting it would replace the definition
   // with a self-referential $ref.
@@ -338,6 +400,7 @@ function hoistInlineEnums(node: unknown, doc: Schema, isDefRoot = false): unknow
     const existing = defs[out.title];
     if (existing === undefined || stableStringify(existing) === stableStringify(body)) {
       defs[out.title] = body;
+      if (!owners.has(out.title)) owners.set(out.title, owner);
       return { $ref: `#/$defs/${out.title}`, ...useSite };
     }
   }
@@ -363,21 +426,22 @@ function stripDocs(node: unknown): unknown {
 }
 
 /** Apply enum hoisting to a whole document: def bodies first, then the root. */
-function hoistDocEnums(doc: Schema): Schema {
+function hoistDocEnums(doc: Schema): { doc: Schema; owners: Map<string, string> } {
   doc.$defs ??= {};
+  const owners = new Map<string, string>();
   for (const name of Object.keys(doc.$defs)) {
-    doc.$defs[name] = hoistInlineEnums(doc.$defs[name], doc, true) as Schema;
+    doc.$defs[name] = hoistInlineEnums(doc.$defs[name], doc, owners, name, true) as Schema;
   }
-  const transformed = hoistInlineEnums(doc, doc) as Schema;
+  const transformed = hoistInlineEnums(doc, doc, owners, String(doc.title ?? '')) as Schema;
   transformed.$defs = doc.$defs;
-  return transformed;
+  return { doc: transformed, owners };
 }
 
 /** Record every `$defs` entry of one document into the table. */
-function recordDoc(table: DefTable, doc: Schema, mode: Mode): void {
+function recordDoc(table: DefTable, doc: Schema, mode: Mode, docOrigin: string, owners: Map<string, string>): void {
   const docDefs = (doc.$defs ?? {}) as Record<string, Schema>;
   for (const [name, schema] of Object.entries(docDefs)) {
-    table.record(name, schema, mode, docDefs);
+    table.record(name, schema, mode, docDefs, owners.get(name) ?? docOrigin);
   }
 }
 
@@ -394,20 +458,23 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
 
   const table = new DefTable();
   for (const method of methods) {
-    method.schemas.accepts = hoistDocEnums(stripDocs(method.schemas.accepts) as Schema);
-    method.schemas.returns = hoistDocEnums(stripDocs(method.schemas.returns) as Schema);
-    recordDoc(table, method.schemas.accepts, 'input');
-    recordDoc(table, method.schemas.returns, 'output');
+    const accepts = hoistDocEnums(stripDocs(method.schemas.accepts) as Schema);
+    const returns = hoistDocEnums(stripDocs(method.schemas.returns) as Schema);
+    method.schemas.accepts = accepts.doc;
+    method.schemas.returns = returns.doc;
+    recordDoc(table, accepts.doc, 'input', method.name, accepts.owners);
+    recordDoc(table, returns.doc, 'output', method.name, returns.owners);
   }
   for (const event of events) {
     for (const [variant, rawDoc] of Object.entries(event.schemas)) {
-      const doc = hoistDocEnums(stripDocs(rawDoc) as Schema);
+      const hoisted = hoistDocEnums(stripDocs(rawDoc) as Schema);
+      const doc = hoisted.doc;
       event.schemas[variant] = doc;
-      recordDoc(table, doc, 'input');
+      recordDoc(table, doc, 'input', event.name, hoisted.owners);
       // The event root itself is a named model; hoist it like a $defs entry.
       const { $defs, ...root } = doc;
       if (typeof root.title === 'string') {
-        table.record(root.title, root as Schema, 'input', ($defs ?? {}) as Record<string, Schema>);
+        table.record(root.title, root as Schema, 'input', ($defs ?? {}) as Record<string, Schema>, event.name);
       }
     }
   }

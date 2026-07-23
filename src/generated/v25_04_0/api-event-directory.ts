@@ -55,7 +55,7 @@ import type {
   FCPortRemovedEvent,
   FailoverRebootInfoChangedEvent,
   FileFollowTailEventSourceArgs,
-  FileFollowTailEventSourceEvent2,
+  FilesystemFileFollowTailEventSourceEvent2,
   GroupAddedEvent,
   GroupChangedEvent,
   GroupRemovedEvent,
@@ -230,7 +230,7 @@ export interface ApiEventDirectory {
 
   'filesystem.file_tail_follow': {
     subscriptionParams: FileFollowTailEventSourceArgs;
-    added: FileFollowTailEventSourceEvent2;
+    added: FilesystemFileFollowTailEventSourceEvent2;
   };
 
   'group.query': {

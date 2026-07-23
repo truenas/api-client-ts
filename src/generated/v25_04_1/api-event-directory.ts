@@ -5,27 +5,5 @@
 
 import type { ApiEventDirectory as PreviousApiEventDirectory } from '../v25_04_0/api-event-directory';
 
-import type {
-  SharingNFSRemovedEvent,
-} from '../v25_04_0/api-types';
-import type {
-  DockerStateChangedEvent,
-  SharingNFSAddedEvent,
-  SharingNFSChangedEvent,
-} from './api-types';
-
-/** Entries added or changed in this version (directly, or through a referenced type). */
-export interface ApiEventDirectoryDelta {
-  'docker.state': {
-    changed: DockerStateChangedEvent;
-  };
-
-  'sharing.nfs.query': {
-    added: SharingNFSAddedEvent;
-    changed: SharingNFSChangedEvent;
-    removed: SharingNFSRemovedEvent;
-  };
-}
-
-/** This version's surface: the previous version's, updated by the delta. */
-export type ApiEventDirectory = Omit<PreviousApiEventDirectory, keyof ApiEventDirectoryDelta> & ApiEventDirectoryDelta;
+/** Identical to the previous version's surface. */
+export type ApiEventDirectory = PreviousApiEventDirectory;

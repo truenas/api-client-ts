@@ -8,38 +8,9 @@ import type {
   UserTwofactorConfigEntry,
 } from '../v25_04_0/api-types';
 
-export const StatusInput = {
-  Complete: 'COMPLETE',
-  Running: 'RUNNING',
-  Queued: 'QUEUED',
-  Cancelled: 'CANCELLED',
-  Stopped: 'STOPPED',
-  Error: 'ERROR',
-} as const;
-export type StatusInput = (typeof StatusInput)[keyof typeof StatusInput];
-
-export const StatusInput2 = {
-  Pending: 'PENDING',
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-  Initializing: 'INITIALIZING',
-  Stopping: 'STOPPING',
-  Unconfigured: 'UNCONFIGURED',
-  Failed: 'FAILED',
-  Migrating: 'MIGRATING',
-  MigrationFailed: 'MIGRATION_FAILED',
-} as const;
-export type StatusInput2 = (typeof StatusInput2)[keyof typeof StatusInput2];
-
 export interface CoreSetOptionsOptions {
   py_exceptions?: boolean;
   [k: string]: unknown;
-}
-export interface DockerStateChangedEvent {
-  fields: DockerStatusInfo;
-}
-export interface DockerStatusInfo {
-  status: StatusInput2;
 }
 export interface DockerUpdateArgs {
   enable_image_updates?: boolean;
@@ -47,44 +18,6 @@ export interface DockerUpdateArgs {
   nvidia?: boolean;
   address_pools?: AddressPool[];
   cidr_v6?: string;
-}
-export interface SharingNFSAddedEvent {
-  id: number;
-  fields: SharingNFSEntryInput;
-}
-export interface SharingNFSEntryInput {
-  id: number;
-  path: string;
-  dataset: string | null;
-  relative_path: string | null;
-  aliases?: string[];
-  comment?: string;
-  networks?: string[];
-  hosts?: string[];
-  ro?: boolean;
-  maproot_user?: string | null;
-  maproot_group?: string | null;
-  mapall_user?: string | null;
-  mapall_group?: string | null;
-  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
-  enabled?: boolean;
-  locked: boolean | null;
-  expose_snapshots?: boolean;
-  tier?: TierInfo | null;
-}
-export interface TierInfo {
-  tier_type: "REGULAR" | "PERFORMANCE";
-  tier_job?: ZfsTierRewriteJobEntry | null;
-}
-export interface ZfsTierRewriteJobEntry {
-  tier_job_id: string;
-  dataset_name: string;
-  job_uuid: string;
-  status: StatusInput;
-}
-export interface SharingNFSChangedEvent {
-  id: number;
-  fields: SharingNFSEntryInput;
 }
 export interface SystemSecurityEntry {
   id: number;

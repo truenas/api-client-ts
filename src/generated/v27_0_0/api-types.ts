@@ -8,6 +8,8 @@ import type {
   AppVersionInfo,
   CloudFlareSchema,
   DigitalOceanSchema,
+  DockerStatusInfoStatusInput,
+  FilesystemDirEntryType,
   FilesystemMkdirOptions,
   GraphiteExporter,
   Maintainer,
@@ -19,7 +21,6 @@ import type {
 import type {
   Bootloader,
   Time,
-  Type5,
   VMDiskDevice,
   VMDiskDeviceInput,
   VMISCSIDiskDevice,
@@ -32,14 +33,18 @@ import type {
 import type {
   CertificateExtensions,
   CloudTaskAttributesInput,
+  GetDisplayDevice,
   MailEntryOAuth,
   Protocol,
   QueryOptionsModel,
   Security,
-  StatusInput4,
+  TunableCreateType,
   VMCDROMDevice,
   VMDisplayDevice,
 } from '../v25_10_0/api-types';
+import type {
+  DockerStatusInfoStatus,
+} from '../v25_10_1/api-types';
 import type {
   ACLTemplateByPathQueryOptions,
   AclTemplateFormatOptions,
@@ -47,17 +52,14 @@ import type {
   ContainerCreateImage,
   ContainerFilesystemDevice,
   ContainerGPUDevice,
+  ContainerNICDeviceType,
+  ContainerNICDeviceTypeInput,
   ContainerStatus,
   ContainerStatusInput,
   ContainerUSBDevice,
   DefaultIdmapConfiguration,
   FilesystemSetZfsAttributesOptions,
-  GetDisplayDevice,
   IsolatedIdmapConfiguration,
-  Status3,
-  Type11,
-  Type7,
-  TypeInput7,
   VMStatus,
 } from '../v26_0_0/api-types';
 
@@ -296,7 +298,7 @@ export interface ContainerDeviceEntryInput {
 export interface ContainerNICDeviceInput {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
-  type?: TypeInput7;
+  type?: ContainerNICDeviceTypeInput;
   nic_attach?: string | null;
   mac?: string | null;
 }
@@ -346,7 +348,7 @@ export interface ContainerDeviceEntry {
 export interface ContainerNICDevice {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
-  type?: Type7;
+  type?: ContainerNICDeviceType;
   nic_attach?: string | null;
   mac?: string | null;
 }
@@ -417,10 +419,10 @@ export interface DockerStateChangedEvent {
   fields: DockerStatusInfoInput;
 }
 export interface DockerStatusInfoInput {
-  status: StatusInput4;
+  status: DockerStatusInfoStatusInput;
 }
 export interface DockerStatusInfo {
-  status: Status3;
+  status: DockerStatusInfoStatus;
 }
 export interface DockerUpdate {
   enable_image_updates?: boolean;
@@ -434,7 +436,7 @@ export interface FilesystemDirEntry {
   name: string;
   path: string;
   realpath: string | null;
-  type: Type5;
+  type: FilesystemDirEntryType;
   size: number;
   allocation_size: number;
   mode: number;
@@ -660,7 +662,7 @@ export interface TrueNASConnectUpdate {
   enabled?: boolean;
 }
 export interface TunableEntry {
-  type?: Type11;
+  type?: TunableCreateType;
   var: string;
   value: string;
   comment?: string;

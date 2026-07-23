@@ -6,20 +6,14 @@
 import type { ApiEventDirectory as PreviousApiEventDirectory } from '../v25_04_1/api-event-directory';
 
 import type {
-  ACLTemplateRemovedEvent,
-  ISCSITargetExtentRemovedEvent,
-  InitShutdownScriptRemovedEvent,
-  KeychainCredentialRemovedEvent,
+  CloudBackupRemovedEvent,
+  CredentialsRemovedEvent,
 } from '../v25_04_0/api-types';
 import type {
-  ACLTemplateAddedEvent,
-  ACLTemplateChangedEvent,
-  ISCSITargetExtentAddedEvent,
-  ISCSITargetExtentChangedEvent,
-  InitShutdownScriptAddedEvent,
-  InitShutdownScriptChangedEvent,
-  KeychainCredentialAddedEvent,
-  KeychainCredentialChangedEvent,
+  CloudBackupAddedEvent,
+  CloudBackupChangedEvent,
+  CredentialsAddedEvent,
+  CredentialsChangedEvent,
   VMAddedEvent,
   VMChangedEvent,
   VMDeviceAddedEvent,
@@ -30,28 +24,16 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiEventDirectoryDelta {
-  'filesystem.acltemplate.query': {
-    added: ACLTemplateAddedEvent;
-    changed: ACLTemplateChangedEvent;
-    removed: ACLTemplateRemovedEvent;
+  'cloud_backup.query': {
+    added: CloudBackupAddedEvent;
+    changed: CloudBackupChangedEvent;
+    removed: CloudBackupRemovedEvent;
   };
 
-  'initshutdownscript.query': {
-    added: InitShutdownScriptAddedEvent;
-    changed: InitShutdownScriptChangedEvent;
-    removed: InitShutdownScriptRemovedEvent;
-  };
-
-  'iscsi.extent.query': {
-    added: ISCSITargetExtentAddedEvent;
-    changed: ISCSITargetExtentChangedEvent;
-    removed: ISCSITargetExtentRemovedEvent;
-  };
-
-  'keychaincredential.query': {
-    added: KeychainCredentialAddedEvent;
-    changed: KeychainCredentialChangedEvent;
-    removed: KeychainCredentialRemovedEvent;
+  'cloudsync.credentials.query': {
+    added: CredentialsAddedEvent;
+    changed: CredentialsChangedEvent;
+    removed: CredentialsRemovedEvent;
   };
 
   'vm.device.query': {

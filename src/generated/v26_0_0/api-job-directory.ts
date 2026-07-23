@@ -10,22 +10,18 @@ import type {
   AppRollbackOptions,
   AppUpdate,
   DISABLED_ACLResult,
+  NFS4ACLResult,
   POSIXACLResult,
   UpgradeOptions,
   ZFSFileAttrsData,
 } from '../v25_04_0/api-types';
 import type {
-  NFS4ACLResult,
-} from '../v25_04_2/api-types';
-import type {
   MailSendMessage,
   MailUpdate,
   SupportNewTicketCommunity,
   SupportNewTicketEnterprise,
-  TunableUpdate,
 } from '../v25_10_0/api-types';
 import type {
-  Action2,
   AppBulkUpgradeJobResult,
   AppEntry,
   AppUpgradeBulkEntry,
@@ -41,10 +37,9 @@ import type {
   PoolDatasetChangeKeyOptions,
   PoolEntry,
   PoolImportPoolArgs,
+  PoolScrubAction,
   PoolUpdate,
   SupportNewTicket,
-  TunableCreate,
-  TunableEntry,
   ZpoolScrubRun,
 } from './api-types';
 
@@ -151,12 +146,12 @@ export interface ApiJobDirectoryDelta {
   };
 
   'pool.scrub': {
-    params: [id: number, action: Action2];
+    params: [id: number, action: PoolScrubAction];
     response: null;
   };
 
   'pool.scrub.scrub': {
-    params: [name: string, action?: Action2];
+    params: [name: string, action?: PoolScrubAction];
     response: null;
   };
 
@@ -173,16 +168,6 @@ export interface ApiJobDirectoryDelta {
   'truenas.set_production': {
     params: [production: boolean, attach_debug?: boolean];
     response: SupportNewTicket | null;
-  };
-
-  'tunable.create': {
-    params: [data: TunableCreate];
-    response: TunableEntry;
-  };
-
-  'tunable.update': {
-    params: [id: number, data: TunableUpdate];
-    response: TunableEntry;
   };
 
   'zpool.scrub.run': {

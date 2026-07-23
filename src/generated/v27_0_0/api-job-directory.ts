@@ -11,6 +11,7 @@ import type {
 import type {
   KMIPEntry,
   SystemSecurityEntry,
+  TunableCreate,
   TunableUpdate,
 } from '../v25_10_0/api-types';
 import type {
@@ -19,7 +20,6 @@ import type {
 import type {
   AppBulkUpgradeJobResult,
   AppEntry,
-  TunableCreate,
 } from '../v26_0_0/api-types';
 import type {
   AppCreate,

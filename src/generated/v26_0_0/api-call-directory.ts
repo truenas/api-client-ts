@@ -11,9 +11,11 @@ import type {
 } from '../shared/query-types';
 
 import type {
+  ACLTemplateEntry,
   ApiKeyCreate,
   ApiKeyQueryResultItem,
   ApiKeyUpdate,
+  AppContainerIDOptions,
   AppImageQueryResultItem,
   AppQueryResultItem,
   AuthRespAuthErr,
@@ -28,18 +30,15 @@ import type {
   CloudBackupQueryResultItem,
   CredentialsQueryResultItem,
   CredentialsVerifyResult,
-  DeviceGetInfoDisk,
   DropboxCredentialsModel,
   FTPCredentialsModel,
   FailoverRebootInfo,
-  GPUInfo,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
   ISCSITargetExtentQueryResultItem,
-  KeychainCredentialQueryResultItem,
   MegaCredentialsModel,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
@@ -48,17 +47,15 @@ import type {
   PoolSnapshotTaskUpdate,
   ReportingQuery,
   SFTPCredentialsModel,
-  SerialInfo,
   SharingNFSQueryResultItem,
   SharingSMBGetaclArgs,
-  StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
   UserQueryResultItem,
   WebDavCredentialsModel,
   YandexCredentialsModel,
 } from '../v25_04_0/api-types';
 import type {
-  ACLTemplateEntry,
+  StorjIxCredentialsModelInput,
   VMDeleteOptions,
   VMQueryResultItem,
 } from '../v25_04_2/api-types';
@@ -66,9 +63,9 @@ import type {
   CloudBackupCreate,
   CloudBackupUpdate,
   CloudSyncCreate,
+  CloudSyncCreateDirectionInput,
   CloudSyncQueryResultItem,
   CloudSyncUpdate,
-  DirectionInput2,
   DirectoryServicesStatus,
   DiskEntry,
   InterfaceEntry,
@@ -85,6 +82,7 @@ import type {
   PoolDatasetUserGroupQuota,
   PoolQueryResultItem,
   PoolSnapshotCreateUpdateEntry,
+  ReplicationCountEligibleManualSnapshotsTransportInput,
   ReplicationCreate,
   ReplicationQueryResultItem,
   ReplicationRestoreOptions,
@@ -96,14 +94,11 @@ import type {
   SharingSMBQueryResultItem,
   SystemAdvancedEntry,
   SystemGeneralUpdateArgs,
-  TransportInput,
   TruecommandUpdateArgs,
-  TunableQueryResultItem,
   UPSEntry,
   VMCreateArgs,
   VMUpdate,
   VMWareCreate,
-  VMWareMatchDatastoresWithDatasetsArgs,
   VMWareQueryResultItem,
   VMWareUpdate,
 } from '../v25_10_0/api-types';
@@ -119,6 +114,7 @@ import type {
   ApiKeyEntry,
   ApiKeyEntryWithKey,
   ApiKeyScramData,
+  AppContainerResponse,
   AppEntry,
   AppImageEntry,
   AuditQuery,
@@ -153,13 +149,10 @@ import type {
   ContainerQueryResultItem,
   ContainerUpdate,
   CredentialsEntry,
-  DeviceGetInfoOther,
-  DiskDetails,
   DiskResetSedArgs,
   DiskSetupSedArgs,
   DiskUnlockSedArgs,
   DiskUpdate,
-  DisplayDevice,
   DockerEntry,
   Feature,
   GraphIdentifier,
@@ -169,7 +162,6 @@ import type {
   ISCSIGlobalUpdateArgs,
   ISCSITargetExtentEntry,
   InterfaceUpdate,
-  KeychainCredentialEntry,
   LXCConfigEntry,
   LXCConfigUpdateArgs,
   NVMetNamespaceEntry,
@@ -196,7 +188,6 @@ import type {
   SharingWebshareEntry,
   SharingWebshareQueryResultItem,
   SharingWebshareUpdate,
-  StatusResult,
   SysInfo,
   SystemAdvancedUpdate,
   SystemGeneralEntry,
@@ -205,7 +196,6 @@ import type {
   TrueNASConnectUpdateArgs,
   TrueNASLicenseUploadOptions,
   TruecommandEntry,
-  TunableEntry,
   TwofactorOptions,
   UPSUpdate,
   USBPassthroughDevice,
@@ -219,7 +209,6 @@ import type {
   VMEntry,
   VMStatus,
   VMWareEntry,
-  VMWareMatchDatastoresWithDatasetsResult,
   WebshareEntry,
   WebshareUpdate,
   ZFSResourceDestroyArgsData,
@@ -294,6 +283,16 @@ export interface ApiCallDirectoryDelta {
   'api_key.update': {
     params: [id: number, api_key_update: ApiKeyUpdate];
     response: ApiKeyEntryWithKey | ApiKeyEntry;
+  };
+
+  'app.container_console_choices': {
+    params: [app_name: string];
+    response: AppContainerResponse;
+  };
+
+  'app.container_ids': {
+    params: [app_name: string, options?: AppContainerIDOptions];
+    response: AppContainerResponse;
   };
 
   'app.get_instance': {
@@ -511,19 +510,9 @@ export interface ApiCallDirectoryDelta {
     response: ContainerEntry;
   };
 
-  'device.get_info': {
-    params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
-    response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
-  };
-
   'directoryservices.status': {
     params: [];
     response: DirectoryServicesStatus;
-  };
-
-  'disk.details': {
-    params: [data?: DiskDetails];
-    response: unknown[] | Record<string, unknown>;
   };
 
   'disk.reset_sed': {
@@ -554,11 +543,6 @@ export interface ApiCallDirectoryDelta {
   'docker.config': {
     params: [];
     response: DockerEntry;
-  };
-
-  'docker.status': {
-    params: [];
-    response: StatusResult;
   };
 
   'failover.reboot.info': {
@@ -614,16 +598,6 @@ export interface ApiCallDirectoryDelta {
   'iscsi.global.update': {
     params: [iscsi_update?: ISCSIGlobalUpdateArgs];
     response: ISCSIGlobalEntry;
-  };
-
-  'keychaincredential.get_instance': {
-    params: [id: number, options?: QueryOptions<KeychainCredentialEntry>];
-    response: KeychainCredentialEntry;
-  };
-
-  'keychaincredential.query': {
-    params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptions<KeychainCredentialEntry>];
-    response: KeychainCredentialEntry[] | KeychainCredentialEntry | KeychainCredentialQueryResultItem[] | KeychainCredentialQueryResultItem | number;
   };
 
   'lxc.bridge_choices': {
@@ -742,7 +716,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'replication.target_unmatched_snapshots': {
-    params: [direction: DirectionInput2, source_datasets: string[], target_dataset: string, transport: TransportInput, ssh_credentials?: number | null];
+    params: [direction: CloudSyncCreateDirectionInput, source_datasets: string[], target_dataset: string, transport: ReplicationCountEligibleManualSnapshotsTransportInput, ssh_credentials?: number | null];
     response: Record<string, string[]>;
   };
 
@@ -946,16 +920,6 @@ export interface ApiCallDirectoryDelta {
     response: null;
   };
 
-  'tunable.get_instance': {
-    params: [id: number, options?: QueryOptions<TunableEntry>];
-    response: TunableEntry;
-  };
-
-  'tunable.query': {
-    params: [filters?: QueryFilters<TunableEntry>, options?: QueryOptions<TunableEntry>];
-    response: TunableEntry[] | TunableEntry | TunableQueryResultItem[] | TunableQueryResultItem | number;
-  };
-
   'ups.update': {
     params: [data: UPSUpdate];
     response: UPSEntry;
@@ -1016,11 +980,6 @@ export interface ApiCallDirectoryDelta {
     response: USBPassthroughDevice;
   };
 
-  'vm.get_display_devices': {
-    params: [id: number];
-    response: DisplayDevice[];
-  };
-
   'vm.get_instance': {
     params: [id: number, options?: QueryOptions<VMEntry>];
     response: VMEntry;
@@ -1049,11 +1008,6 @@ export interface ApiCallDirectoryDelta {
   'vmware.get_instance': {
     params: [id: number, options?: QueryOptions<VMWareEntry>];
     response: VMWareEntry;
-  };
-
-  'vmware.match_datastores_with_datasets': {
-    params: [vmware_creds: VMWareMatchDatastoresWithDatasetsArgs];
-    response: VMWareMatchDatastoresWithDatasetsResult;
   };
 
   'vmware.query': {

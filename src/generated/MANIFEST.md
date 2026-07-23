@@ -56,8 +56,8 @@ causes a change.
 | app.categories | call | introduced v25.04.0 |
 | app.certificate_choices | call | introduced v25.04.0 |
 | app.config | call | introduced v25.04.0 |
-| app.container_console_choices | call | introduced v25.04.0 |
-| app.container_ids | call | introduced v25.04.0 |
+| app.container_console_choices | call | introduced v25.04.0; changed v26.0.0 (via referenced types) |
+| app.container_ids | call | introduced v25.04.0; changed v26.0.0 (via referenced types) |
 | app.container_log_follow | event | introduced v25.04.0 |
 | app.convert_to_custom | job | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | app.create | job | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 |
@@ -154,10 +154,10 @@ causes a change.
 | cloud_backup.delete | call | introduced v25.04.0 |
 | cloud_backup.delete_snapshot | job | introduced v25.04.0 |
 | cloud_backup.get_instance | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
-| cloud_backup.list_snapshot_directory | call | introduced v25.04.0; changed v25.04.2 (via referenced types) |
+| cloud_backup.list_snapshot_directory | call | introduced v25.04.0 |
 | cloud_backup.list_snapshots | call | introduced v25.04.0 |
 | cloud_backup.query | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0, v26.0.0 (via referenced types) |
-| cloud_backup.query | event | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| cloud_backup.query | event | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | cloud_backup.restore | job | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | cloud_backup.sync | job | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | cloud_backup.transfer_setting_choices | call | introduced v25.04.0 |
@@ -169,7 +169,7 @@ causes a change.
 | cloudsync.credentials.delete | call | introduced v25.04.0 |
 | cloudsync.credentials.get_instance | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | cloudsync.credentials.query | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0, v26.0.0 (via referenced types) |
-| cloudsync.credentials.query | event | introduced v25.04.0; changed v26.0.0 (via referenced types) |
+| cloudsync.credentials.query | event | introduced v25.04.0; changed v25.04.2 (via referenced types), v26.0.0 (via referenced types) |
 | cloudsync.credentials.s3_provider_choices | call | introduced v26.0.0 |
 | cloudsync.credentials.update | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | cloudsync.credentials.verify | call | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0, v27.0.0 |
@@ -232,7 +232,7 @@ causes a change.
 | cronjob.query | event | introduced v25.04.0 |
 | cronjob.run | job | introduced v25.04.0 |
 | cronjob.update | call | introduced v25.04.0 |
-| device.get_info | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| device.get_info | call | introduced v25.04.0 |
 | directoryservices.cache_refresh | job | introduced v25.10.0 |
 | directoryservices.certificate_choices | call | introduced v25.10.0 |
 | directoryservices.config | call | introduced v25.10.0 |
@@ -241,7 +241,7 @@ causes a change.
 | directoryservices.status | event | introduced v25.10.0 |
 | directoryservices.sync_keytab | job | introduced v25.10.1 |
 | directoryservices.update | job | introduced v25.10.0 |
-| disk.details | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| disk.details | call | introduced v25.10.0 |
 | disk.get_instance | call | introduced v27.0.0 |
 | disk.get_used | call | introduced v25.10.0 |
 | disk.query | call | introduced v25.10.0 |
@@ -266,8 +266,8 @@ causes a change.
 | docker.network.query | event | introduced v25.04.0 |
 | docker.nvidia_present | call | introduced v25.04.0 |
 | docker.restore_backup | job | introduced v25.04.0 |
-| docker.state | event | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v27.0.0 (via referenced types) |
-| docker.status | call | introduced v25.04.0; changed v25.10.0 (via referenced types), v25.10.1 (via referenced types), v26.0.0 (via referenced types), v27.0.0 |
+| docker.state | event | introduced v25.04.0; changed v27.0.0 (via referenced types) |
+| docker.status | call | introduced v25.04.0; changed v25.10.1 (via referenced types), v27.0.0 |
 | docker.update | job | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 |
 | enclosure.label.set | call | introduced v25.04.0 |
 | enclosure2.query | call | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
@@ -303,25 +303,25 @@ causes a change.
 | fcport.query | event | introduced v25.04.0 |
 | fcport.status | call | introduced v25.04.0; changed v25.10.0 |
 | fcport.update | call | introduced v25.04.0 |
-| filesystem.acltemplate.by_path | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
-| filesystem.acltemplate.create | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
+| filesystem.acltemplate.by_path | call | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
+| filesystem.acltemplate.create | call | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | filesystem.acltemplate.delete | call | introduced v25.04.0 |
-| filesystem.acltemplate.get_instance | call | introduced v25.04.0; changed v25.04.2 (via referenced types) |
-| filesystem.acltemplate.query | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 |
-| filesystem.acltemplate.query | event | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
-| filesystem.acltemplate.update | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
+| filesystem.acltemplate.get_instance | call | introduced v25.04.0 |
+| filesystem.acltemplate.query | call | introduced v25.04.0; changed v25.10.0 |
+| filesystem.acltemplate.query | event | introduced v25.04.0; changed v25.10.0 (via referenced types) |
+| filesystem.acltemplate.update | call | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | filesystem.chown | job | introduced v25.04.0 |
 | filesystem.file_tail_follow | event | introduced v25.04.0 |
 | filesystem.get | job | introduced v25.04.0 |
 | filesystem.get_zfs_attributes | call | introduced v25.04.0 |
-| filesystem.getacl | call | introduced v25.04.0; changed v25.04.2 (via referenced types) |
-| filesystem.listdir | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v27.0.0 (via referenced types) |
-| filesystem.mkdir | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v27.0.0 |
+| filesystem.getacl | call | introduced v25.04.0 |
+| filesystem.listdir | call | introduced v25.04.0; changed v25.10.0, v27.0.0 (via referenced types) |
+| filesystem.mkdir | call | introduced v25.04.0; changed v27.0.0 |
 | filesystem.put | job | introduced v25.04.0 |
 | filesystem.set_zfs_attributes | job | introduced v25.04.0; changed v26.0.0 (via referenced types), v27.0.0 |
-| filesystem.setacl | job | introduced v25.04.0; changed v25.04.2 (via referenced types), v26.0.0 (via referenced types) |
+| filesystem.setacl | job | introduced v25.04.0; changed v26.0.0 (via referenced types) |
 | filesystem.setperm | job | introduced v25.04.0 |
-| filesystem.stat | call | introduced v25.04.0; changed v25.04.2 (via referenced types) |
+| filesystem.stat | call | introduced v25.04.0 |
 | filesystem.statfs | call | introduced v25.04.0 |
 | ftp.config | call | introduced v25.04.0 |
 | ftp.update | call | introduced v25.04.0; changed v27.0.0 |
@@ -336,12 +336,12 @@ causes a change.
 | group.update | call | introduced v25.04.0; changed v25.04.2 (via referenced types) |
 | hardware.virtualization.variant | call | introduced v25.10.0 |
 | idmap.clear_idmap_cache | job | introduced v25.10.0 |
-| initshutdownscript.create | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
+| initshutdownscript.create | call | introduced v25.04.0 |
 | initshutdownscript.delete | call | introduced v25.04.0 |
-| initshutdownscript.get_instance | call | introduced v25.04.0; changed v25.04.2 (via referenced types) |
-| initshutdownscript.query | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 |
-| initshutdownscript.query | event | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
-| initshutdownscript.update | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
+| initshutdownscript.get_instance | call | introduced v25.04.0 |
+| initshutdownscript.query | call | introduced v25.04.0; changed v25.10.0 |
+| initshutdownscript.query | event | introduced v25.04.0 |
+| initshutdownscript.update | call | introduced v25.04.0 |
 | interface.available_fec_modes | call | introduced v26.0.0 |
 | interface.bridge_members_choices | call | introduced v25.10.0 |
 | interface.cancel_rollback | call | introduced v25.10.0 |
@@ -382,13 +382,13 @@ causes a change.
 | iscsi.auth.query | call | introduced v25.04.0; changed v25.10.0 |
 | iscsi.auth.query | event | introduced v25.04.0 |
 | iscsi.auth.update | call | introduced v25.04.0 |
-| iscsi.extent.create | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| iscsi.extent.create | call | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | iscsi.extent.delete | call | introduced v25.04.0 |
 | iscsi.extent.disk_choices | call | introduced v25.04.0 |
-| iscsi.extent.get_instance | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
-| iscsi.extent.query | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0, v26.0.0 (via referenced types) |
-| iscsi.extent.query | event | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
-| iscsi.extent.update | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| iscsi.extent.get_instance | call | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| iscsi.extent.query | call | introduced v25.04.0; changed v25.10.0, v26.0.0 (via referenced types) |
+| iscsi.extent.query | event | introduced v25.04.0 |
+| iscsi.extent.update | call | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | iscsi.global.alua_enabled | call | introduced v25.04.0 |
 | iscsi.global.client_count | call | introduced v25.04.0 |
 | iscsi.global.config | call | introduced v25.04.0; changed v26.0.0 (via referenced types) |
@@ -410,7 +410,7 @@ causes a change.
 | iscsi.portal.update | call | introduced v25.04.0 |
 | iscsi.target.create | call | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | iscsi.target.delete | call | introduced v25.04.0 |
-| iscsi.target.get_instance | call | introduced v25.04.0 |
+| iscsi.target.get_instance | call | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | iscsi.target.query | call | introduced v25.04.0; changed v25.10.0 |
 | iscsi.target.query | event | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | iscsi.target.update | call | introduced v25.04.0; changed v25.10.0 (via referenced types) |
@@ -446,9 +446,9 @@ causes a change.
 | keychaincredential.create | call | introduced v25.04.0; changed v27.0.0 |
 | keychaincredential.delete | call | introduced v25.04.0 |
 | keychaincredential.generate_ssh_key_pair | call | introduced v25.04.0; changed v27.0.0 |
-| keychaincredential.get_instance | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
-| keychaincredential.query | call | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0, v26.0.0 (via referenced types) |
-| keychaincredential.query | event | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| keychaincredential.get_instance | call | introduced v25.04.0 |
+| keychaincredential.query | call | introduced v25.04.0; changed v25.10.0 |
+| keychaincredential.query | event | introduced v25.04.0 |
 | keychaincredential.remote_ssh_host_key_scan | call | introduced v25.04.0 |
 | keychaincredential.remote_ssh_semiautomatic_setup | call | introduced v25.04.0 |
 | keychaincredential.setup_ssh_connection | call | introduced v25.04.0 |
@@ -571,7 +571,7 @@ causes a change.
 | pool.replace | job | introduced v25.10.0 |
 | pool.resilver.config | call | introduced v25.04.0 |
 | pool.resilver.update | call | introduced v25.04.0 |
-| pool.scan | event | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| pool.scan | event | introduced v25.04.0; changed v26.0.0 (via referenced types) |
 | pool.scrub | job | introduced v25.10.0; changed v26.0.0 |
 | pool.scrub.create | call | introduced v25.04.0 |
 | pool.scrub.delete | call | introduced v25.04.0 |
@@ -654,7 +654,7 @@ causes a change.
 | rsynctask.delete | call | introduced v25.10.0 |
 | rsynctask.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | rsynctask.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
-| rsynctask.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| rsynctask.query | event | introduced v25.10.0 |
 | rsynctask.run | job | introduced v25.10.0 |
 | rsynctask.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | service.control | job | introduced v25.10.0 |
@@ -668,7 +668,7 @@ causes a change.
 | sharing.nfs.delete | call | introduced v25.04.0 |
 | sharing.nfs.get_instance | call | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | sharing.nfs.query | call | introduced v25.04.0; changed v25.10.0, v26.0.0 (via referenced types) |
-| sharing.nfs.query | event | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| sharing.nfs.query | event | introduced v25.04.0; changed v26.0.0 (via referenced types) |
 | sharing.nfs.update | call | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | sharing.smb.create | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
 | sharing.smb.delete | call | introduced v25.10.0 |
@@ -788,13 +788,13 @@ causes a change.
 | truenas.license.upload | call | introduced v26.0.0 |
 | truenas.managed_by_truecommand | call | introduced v25.04.0 |
 | truenas.set_production | job | introduced v25.04.0; changed v26.0.0 |
-| tunable.create | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
+| tunable.create | job | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | tunable.delete | job | introduced v25.10.0 |
-| tunable.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
-| tunable.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
-| tunable.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| tunable.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| tunable.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| tunable.query | event | introduced v25.10.0 |
 | tunable.tunable_type_choices | call | introduced v25.10.0 |
-| tunable.update | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
+| tunable.update | job | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | update.available_versions | call | introduced v25.10.0 |
 | update.config | call | introduced v25.10.0 |
 | update.download | job | introduced v25.10.0 |
@@ -852,7 +852,7 @@ causes a change.
 | vm.flags | call | introduced v25.04.2; changed v27.0.0 |
 | vm.get_available_memory | call | introduced v25.04.2 |
 | vm.get_console | call | introduced v25.04.2 |
-| vm.get_display_devices | call | introduced v25.04.2; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 |
+| vm.get_display_devices | call | introduced v25.04.2; changed v25.10.0 (via referenced types), v27.0.0 |
 | vm.get_display_web_uri | call | introduced v25.10.0; changed v27.0.0 |
 | vm.get_guest_network_interfaces | call | introduced v27.0.0 |
 | vm.get_instance | call | introduced v25.04.2; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
@@ -883,7 +883,7 @@ causes a change.
 | vmware.delete | call | introduced v25.10.0 |
 | vmware.get_datastores | call | introduced v25.10.0 |
 | vmware.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
-| vmware.match_datastores_with_datasets | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| vmware.match_datastores_with_datasets | call | introduced v25.10.0 |
 | vmware.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | vmware.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | vmware.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
@@ -926,26 +926,25 @@ causes a change.
 | Name | Kind | History |
 |------|------|---------|
 | Aclmode | type | introduced v25.10.0 |
-| ACLTemplateAddedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
+| ACLTemplateAddedEvent | type | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | ACLTemplateByPathArgs | type | introduced v25.04.0; changed v25.10.0, v26.0.0, v27.0.0 |
 | ACLTemplateByPathQueryOptions | type | introduced v26.0.0 |
-| ACLTemplateChangedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
-| AclTemplateCreate | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 |
-| ACLTemplateEntry | type | introduced v25.04.0; changed v25.04.2 (via referenced types) |
-| ACLTemplateEntryInput | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 |
+| ACLTemplateChangedEvent | type | introduced v25.04.0; changed v25.10.0 (via referenced types) |
+| AclTemplateCreate | type | introduced v25.04.0; changed v25.10.0 |
+| ACLTemplateEntry | type | introduced v25.04.0 |
+| ACLTemplateEntryAcltypeInput | type | introduced v25.10.0 |
+| ACLTemplateEntryInput | type | introduced v25.04.0; changed v25.10.0 |
 | AclTemplateFormatOptions | type | introduced v25.04.0; changed v26.0.0 |
 | ACLTemplateQueryResultItem | type | introduced v25.04.0 |
 | ACLTemplateRemovedEvent | type | introduced v25.04.0 |
-| AclTemplateUpdate | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 |
+| AclTemplateUpdate | type | introduced v25.04.0; changed v25.10.0 |
 | Acltype | type | introduced v25.04.0 |
-| AcltypeInput | type | introduced v25.10.0 |
-| AcltypeInput2 | type | introduced v25.10.0 |
 | ACMEDNSAuthenticatorAttributeSchema | type | introduced v25.04.0; changed v25.10.0 |
 | ACMEDNSAuthenticatorCreate | type | introduced v27.0.0 |
+| AcmeDnsAuthenticatorQueryOptionsModel | type | introduced v25.04.0; removed v25.10.0 |
 | ACMEDNSAuthenticatorSchema | type | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | ACMEDNSAuthenticatorUpdate | type | introduced v25.04.0 |
-| Action | type | introduced v25.04.0; changed v26.0.0 |
-| Action2 | type | introduced v26.0.0 |
+| Action | type | introduced v25.04.0; removed v26.0.0 |
 | ActiveDirectoryConfig | type | introduced v25.10.0 |
 | ActiveDirectoryConfigInput | type | introduced v25.10.0 |
 | AD_Idmap | type | introduced v25.10.0 |
@@ -985,7 +984,7 @@ causes a change.
 | ApiKeyScramData | type | introduced v26.0.0 |
 | APIKeySessionData | type | introduced v25.04.0 |
 | ApiKeyUpdate | type | introduced v25.04.0 |
-| AppActiveWorkloads | type | introduced v25.04.0; changed v25.10.0 |
+| AppActiveWorkloads | type | introduced v25.04.0; changed v25.10.0, v26.0.0 (via referenced types) |
 | AppActiveWorkloadsInput | type | introduced v25.04.0 |
 | AppAddedEvent | type | introduced v25.04.0 |
 | AppAvailableItem | type | introduced v25.04.0; changed v25.10.0 |
@@ -993,13 +992,15 @@ causes a change.
 | AppBulkUpgradeJobResult | type | introduced v26.0.0 |
 | AppCertificate | type | introduced v25.04.0 |
 | AppChangedEvent | type | introduced v25.04.0 |
-| AppContainerDetails | type | introduced v25.04.0 |
+| AppContainerDetails | type | introduced v25.04.0; changed v26.0.0 |
 | AppContainerDetailsInput | type | introduced v25.04.0 |
+| AppContainerDetailsState | type | introduced v26.0.0 |
+| AppContainerDetailsStateInput | type | introduced v25.04.0 |
 | AppContainerIDOptions | type | introduced v25.04.0 |
 | AppContainerLogsFollowTailEventSourceArgs | type | introduced v25.04.0 |
 | AppContainerLogsFollowTailEventSourceEvent | type | introduced v25.04.0 |
 | AppContainerLogsFollowTailEventSourceEvent2 | type | introduced v25.04.0 |
-| AppContainerResponse | type | introduced v25.04.0 |
+| AppContainerResponse | type | introduced v25.04.0; changed v26.0.0 (via referenced types) |
 | AppCreate | type | introduced v27.0.0 |
 | AppCreateArgs | type | introduced v25.04.0; removed v27.0.0 |
 | AppDelete | type | introduced v25.04.0 |
@@ -1127,19 +1128,22 @@ causes a change.
 | CertificateQueryResultItem | type | introduced v25.10.0 |
 | CertificateRemovedEvent | type | introduced v25.10.0 |
 | CertificateUpdate | type | introduced v25.10.0 |
-| Checksum | type | introduced v25.10.0 |
-| Checksum2 | type | introduced v25.10.0 |
-| CloudBackupAddedEvent | type | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
-| CloudBackupChangedEvent | type | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| CloudBackupAddedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| CloudBackupChangedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | CloudBackupCreate | type | introduced v25.04.0; changed v25.10.0 |
 | CloudBackupCron | type | introduced v25.04.0; removed v25.10.0 |
 | CloudBackupEntry | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0, v26.0.0 |
-| CloudBackupEntryInput | type | introduced v25.04.0; changed v25.10.0, v26.0.0 (via referenced types) |
+| CloudBackupEntryInput | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0, v26.0.0 (via referenced types) |
 | CloudBackupQueryResultItem | type | introduced v25.04.0 |
 | CloudBackupRemovedEvent | type | introduced v25.04.0 |
 | CloudBackupRestoreOptions | type | introduced v25.04.0; changed v25.10.0 |
+| CloudBackupS3CredentialsModelInput | type | introduced v25.04.0; removed v26.0.0 |
+| CloudBackupS3CredentialsModelInput2 | type | introduced v25.04.0; removed v26.0.0 |
 | CloudBackupSnapshot | type | introduced v25.04.0 |
-| CloudBackupSnapshotItem | type | introduced v25.04.0; changed v25.04.2 |
+| CloudBackupSnapshotItem | type | introduced v25.04.0 |
+| CloudBackupSnapshotItemType | type | introduced v25.04.0 |
+| CloudBackupStorjIxCredentialsModelInput | type | introduced v25.04.0; removed v25.04.2 |
+| CloudBackupStorjIxCredentialsModelInput2 | type | introduced v25.04.0; removed v25.04.2 |
 | CloudBackupSyncOptions | type | introduced v25.04.0; changed v25.10.0 |
 | CloudBackupUpdate | type | introduced v25.04.0; changed v25.10.0 |
 | CloudCredentialCreate | type | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
@@ -1150,6 +1154,8 @@ causes a change.
 | CloudSyncBwlimit | type | introduced v25.10.0 |
 | CloudSyncChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | CloudSyncCreate | type | introduced v25.10.0 |
+| CloudSyncCreateDirection | type | introduced v25.10.0 |
+| CloudSyncCreateDirectionInput | type | introduced v25.10.0 |
 | CloudSyncEntry | type | introduced v25.10.0; changed v26.0.0 |
 | CloudSyncEntryInput | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | CloudSyncListDirectory | type | introduced v27.0.0 |
@@ -1163,6 +1169,7 @@ causes a change.
 | CloudSyncSyncOptions | type | introduced v25.10.0 |
 | CloudSyncUpdate | type | introduced v25.10.0 |
 | CloudTaskAttributes | type | introduced v25.04.0; changed v25.10.0 |
+| CloudTaskAttributesEncryptionInput | type | introduced v25.04.0 |
 | CloudTaskAttributesInput | type | introduced v25.10.0 |
 | Code | type | introduced v25.10.0 |
 | Compression | type | introduced v25.10.0 |
@@ -1173,9 +1180,10 @@ causes a change.
 | ContainerCreate | type | introduced v27.0.0 |
 | ContainerCreateArgs | type | introduced v26.0.0; removed v27.0.0 |
 | ContainerCreateImage | type | introduced v26.0.0 |
-| ContainerDetails | type | introduced v25.04.0 |
+| ContainerDetails | type | introduced v25.04.0; changed v26.0.0 |
 | ContainerDeviceAddedEvent | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
 | ContainerDeviceChangedEvent | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| ContainerDeviceContainerNICDeviceInput | type | introduced v26.0.0; removed v27.0.0 |
 | ContainerDeviceCreate | type | introduced v27.0.0 |
 | ContainerDeviceCreateArgs | type | introduced v26.0.0; removed v27.0.0 |
 | ContainerDeviceDeleteOptions | type | introduced v26.0.0 |
@@ -1194,13 +1202,16 @@ causes a change.
 | ContainerImageQueryRegistryResultImageVersion | type | introduced v26.0.0 |
 | ContainerNICDevice | type | introduced v26.0.0; changed v27.0.0 |
 | ContainerNICDeviceInput | type | introduced v26.0.0; changed v27.0.0 |
-| ContainerNICDeviceInput2 | type | introduced v26.0.0; removed v27.0.0 |
+| ContainerNICDeviceType | type | introduced v26.0.0 |
+| ContainerNICDeviceTypeInput | type | introduced v26.0.0 |
 | ContainerQueryResultItem | type | introduced v26.0.0 |
 | ContainerRemovedEvent | type | introduced v26.0.0 |
 | ContainersMetricsEventSourceArgs | type | introduced v25.04.0 |
 | ContainersMetricsEventSourceEvent | type | introduced v25.04.0 |
 | ContainerStatus | type | introduced v26.0.0 |
 | ContainerStatusInput | type | introduced v26.0.0 |
+| ContainerStatusState | type | introduced v26.0.0 |
+| ContainerStatusStateInput | type | introduced v26.0.0 |
 | ContainerStopOptions | type | introduced v26.0.0 |
 | ContainerUpdate | type | introduced v26.0.0 |
 | ContainerUSBDevice | type | introduced v26.0.0 |
@@ -1216,12 +1227,13 @@ causes a change.
 | CoreOptions | type | introduced v25.10.0 |
 | CoreOptionsInput | type | introduced v25.10.0 |
 | CorePingRemoteArgs | type | introduced v25.10.0 |
+| CorePingRemoteTypeInput | type | introduced v25.10.0 |
 | CoreSetOptionsOptions | type | introduced v25.04.0; changed v25.04.1; removed v25.10.0 |
 | Credentials | type | introduced v25.04.0 |
-| CredentialsAddedEvent | type | introduced v25.04.0; changed v26.0.0 (via referenced types) |
-| CredentialsChangedEvent | type | introduced v25.04.0; changed v26.0.0 (via referenced types) |
+| CredentialsAddedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v26.0.0 (via referenced types) |
+| CredentialsChangedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v26.0.0 (via referenced types) |
 | CredentialsEntry | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0, v26.0.0 (via referenced types) |
-| CredentialsEntryInput | type | introduced v25.04.0; changed v26.0.0 |
+| CredentialsEntryInput | type | introduced v25.04.0; changed v25.04.2, v26.0.0 |
 | CredentialsQueryResultItem | type | introduced v25.04.0 |
 | CredentialsRemovedEvent | type | introduced v25.04.0 |
 | CredentialsVerifyData | type | introduced v27.0.0 |
@@ -1241,19 +1253,13 @@ causes a change.
 | CronJobUpdate | type | introduced v25.04.0 |
 | CronModel | type | introduced v25.10.0 |
 | CSRProfilesModel | type | introduced v25.04.0 |
-| Deduplication | type | introduced v25.10.0 |
-| Deduplication2 | type | introduced v25.10.0 |
 | DefaultIdmapConfiguration | type | introduced v26.0.0 |
 | DefaultOpt | type | introduced v25.10.0; changed v25.10.1 |
-| DefaultOptInput | type | introduced v25.10.0 |
-| DefaultOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| DefaultOptInput | type | introduced v25.10.1 |
 | DeviceGetInfoDisk | type | introduced v25.04.0 |
-| DeviceGetInfoOther | type | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
+| DeviceGetInfoOther | type | introduced v25.04.0 |
+| DeviceGetInfoOtherTypeInput | type | introduced v25.04.0 |
 | DigitalOceanSchema | type | introduced v25.04.0 |
-| Direction | type | introduced v25.10.0 |
-| Direction2 | type | introduced v25.10.0 |
-| DirectionInput | type | introduced v25.10.0 |
-| DirectionInput2 | type | introduced v25.10.0 |
 | DirectoryServicesEntry | type | introduced v25.10.0 |
 | DirectoryServicesLeaveArgs | type | introduced v25.10.0 |
 | DirectoryServicesStatus | type | introduced v25.10.0 |
@@ -1261,7 +1267,8 @@ causes a change.
 | DirectoryServicesStatusResult | type | introduced v25.10.0; removed v26.0.0 |
 | DirectoryServicesUpdateArgs | type | introduced v25.10.0 |
 | DISABLED_ACLResult | type | introduced v25.04.0 |
-| DiskDetails | type | introduced v25.10.0; changed v26.0.0 |
+| DiskDetails | type | introduced v25.10.0 |
+| DiskDetailsTypeInput | type | introduced v25.10.0 |
 | DiskEntry | type | introduced v25.10.0 |
 | DiskEntryEnclosure | type | introduced v25.10.0 |
 | DiskEntryInput | type | introduced v25.10.0 |
@@ -1274,7 +1281,8 @@ causes a change.
 | DiskTemperatureAggEntry | type | introduced v25.10.0 |
 | DiskUnlockSedArgs | type | introduced v26.0.0 |
 | DiskUpdate | type | introduced v25.10.0; changed v26.0.0 |
-| DisplayDevice | type | introduced v25.04.2; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types); removed v27.0.0 |
+| DiskWipeModeInput | type | introduced v25.10.0 |
+| DisplayDevice | type | introduced v25.04.2; changed v25.10.0 (via referenced types); removed v27.0.0 |
 | DisplayWebURIOptions | type | introduced v25.10.0; removed v27.0.0 |
 | DNSAuthenticatorAddedEvent | type | introduced v25.04.0 |
 | DNSAuthenticatorChangedEvent | type | introduced v25.04.0 |
@@ -1297,9 +1305,11 @@ causes a change.
 | DockerNetworkQueryResultItem | type | introduced v25.04.0 |
 | DockerNetworkRemovedEvent | type | introduced v25.04.0 |
 | DockerRegistryMirror | type | introduced v27.0.0 |
-| DockerStateChangedEvent | type | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v27.0.0 |
-| DockerStatusInfo | type | introduced v25.04.0; changed v25.04.1, v25.10.0, v27.0.0 |
+| DockerStateChangedEvent | type | introduced v25.04.0; changed v27.0.0 |
+| DockerStatusInfo | type | introduced v25.04.0; changed v27.0.0 |
 | DockerStatusInfoInput | type | introduced v27.0.0 |
+| DockerStatusInfoStatus | type | introduced v25.10.1 |
+| DockerStatusInfoStatusInput | type | introduced v25.04.0 |
 | DockerUpdate | type | introduced v27.0.0 |
 | DockerUpdateArgs | type | introduced v25.04.0; changed v25.04.1, v25.10.0, v26.0.0; removed v27.0.0 |
 | DropboxCredentialsModel | type | introduced v25.04.0 |
@@ -1310,9 +1320,8 @@ causes a change.
 | Enclosure2Entry | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
 | Enclosure2QueryResultItem | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
 | Enclosure2SetSlotStatusArgs | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
+| Enclosure2SetSlotStatusStatusInput | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
 | Encryption | type | introduced v25.04.0 |
-| EncryptionInput | type | introduced v25.04.0 |
-| EncryptionInput2 | type | introduced v25.04.0 |
 | Endpoint | type | introduced v25.04.0 |
 | Exec | type | introduced v25.10.0 |
 | ExtendedKeyUsageModel | type | introduced v25.04.0 |
@@ -1350,31 +1359,33 @@ causes a change.
 | FCPStorageOptInput | type | introduced v25.10.1 |
 | Feature | type | introduced v25.10.0; changed v26.0.0 |
 | FileFollowTailEventSourceArgs | type | introduced v25.04.0 |
-| FileFollowTailEventSourceEvent | type | introduced v25.04.0 |
-| FileFollowTailEventSourceEvent2 | type | introduced v25.04.0 |
 | FilesystemChownArgs | type | introduced v25.04.0 |
 | FilesystemChownOptions | type | introduced v25.04.0 |
-| FilesystemDirEntry | type | introduced v25.04.0; changed v25.04.2, v27.0.0 |
+| FilesystemDirEntry | type | introduced v25.04.0; changed v27.0.0 |
+| FilesystemDirEntryType | type | introduced v25.04.0 |
 | FilesystemDirQueryResultItem | type | introduced v25.04.0 |
+| FilesystemFileFollowTailEventSourceEvent | type | introduced v25.04.0 |
+| FilesystemFileFollowTailEventSourceEvent2 | type | introduced v25.04.0 |
 | FilesystemMkdirArgs | type | introduced v25.04.0; removed v27.0.0 |
 | FilesystemMkdirData | type | introduced v27.0.0 |
 | FilesystemMkdirOptions | type | introduced v25.04.0 |
 | FilesystemPutOptions | type | introduced v25.04.0 |
-| FilesystemSetaclArgs | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v26.0.0 |
+| FilesystemSetaclArgs | type | introduced v25.04.0; changed v26.0.0 |
 | FilesystemSetAclOptions | type | introduced v25.04.0; changed v26.0.0 |
 | FilesystemSetpermArgs | type | introduced v25.04.0 |
 | FilesystemSetpermOptions | type | introduced v25.04.0 |
 | FilesystemSetZfsAttributesArgs | type | introduced v25.04.0; changed v26.0.0; removed v27.0.0 |
 | FilesystemSetZfsAttributesData | type | introduced v27.0.0 |
 | FilesystemSetZfsAttributesOptions | type | introduced v26.0.0 |
-| FilesystemStatData | type | introduced v25.04.0; changed v25.04.2 |
+| FilesystemStatData | type | introduced v25.04.0 |
 | FilesystemStatfsData | type | introduced v25.04.0 |
 | FTPCredentialsModel | type | introduced v25.04.0 |
 | FTPEntry | type | introduced v25.04.0 |
 | FTPUpdate | type | introduced v27.0.0 |
 | FTPUpdateArgs | type | introduced v25.04.0; removed v27.0.0 |
 | Function | type | introduced v25.04.0 |
-| GetDisplayDevice | type | introduced v25.04.2; changed v25.10.0, v26.0.0 |
+| GetDisplayDevice | type | introduced v25.04.2; changed v25.10.0 |
+| GetDisplayDeviceType | type | introduced v25.10.0 |
 | GoogleCloudStorageCredentialsModel | type | introduced v25.04.0 |
 | GoogleDriveCredentialsModel | type | introduced v25.04.0 |
 | GooglePhotosCredentialsModel | type | introduced v25.04.0 |
@@ -1400,14 +1411,16 @@ causes a change.
 | HTTPCredentialsModel | type | introduced v25.04.0 |
 | HubicCredentialsModel | type | introduced v25.04.0 |
 | InfluxDBServiceModel | type | introduced v25.04.0 |
-| InitShutdownScriptAddedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
-| InitShutdownScriptChangedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
-| InitShutdownScriptCreate | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
-| InitShutdownScriptEntry | type | introduced v25.04.0; changed v25.04.2 |
-| InitShutdownScriptEntryInput | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
+| InitShutdownScriptAddedEvent | type | introduced v25.04.0 |
+| InitShutdownScriptChangedEvent | type | introduced v25.04.0 |
+| InitShutdownScriptCreate | type | introduced v25.04.0 |
+| InitShutdownScriptCreateType | type | introduced v25.04.0 |
+| InitShutdownScriptCreateTypeInput | type | introduced v25.04.0 |
+| InitShutdownScriptEntry | type | introduced v25.04.0 |
+| InitShutdownScriptEntryInput | type | introduced v25.04.0 |
 | InitShutdownScriptQueryResultItem | type | introduced v25.04.0 |
 | InitShutdownScriptRemovedEvent | type | introduced v25.04.0 |
-| InitShutdownScriptUpdate | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
+| InitShutdownScriptUpdate | type | introduced v25.04.0 |
 | InterfaceAddedEvent | type | introduced v25.10.0 |
 | InterfaceChangedEvent | type | introduced v25.10.0 |
 | InterfaceChoicesOptions | type | introduced v25.10.0 |
@@ -1415,8 +1428,10 @@ causes a change.
 | InterfaceCreate | type | introduced v25.10.0 |
 | InterfaceCreateAlias | type | introduced v25.10.0 |
 | InterfaceCreateAlias2 | type | introduced v25.10.0 |
+| InterfaceCreateAliasTypeInput | type | introduced v25.10.0 |
 | InterfaceCreateFailoverAlias | type | introduced v25.10.0 |
 | InterfaceCreateFailoverAlias2 | type | introduced v25.10.0 |
+| InterfaceCreateTypeInput | type | introduced v25.10.0 |
 | InterfaceEntry | type | introduced v25.10.0 |
 | InterfaceEntryAlias | type | introduced v25.10.0 |
 | InterfaceEntryInput | type | introduced v25.10.0 |
@@ -1438,6 +1453,8 @@ causes a change.
 | IPAConfig | type | introduced v25.10.0 |
 | IPAConfigInput | type | introduced v25.10.0 |
 | IpmiChassisIdentifyRequest | type | introduced v25.10.2 |
+| IpmiChassisIdentifyRequestVerb | type | introduced v25.10.2 |
+| IpmiChassisIdentifyVerb | type | introduced v25.10.0; removed v25.10.2 |
 | IPMIChassisInfo | type | introduced v25.10.0 |
 | IpmiChassisInfoRequest | type | introduced v25.10.2 |
 | IPMILanEntry | type | introduced v25.10.0 |
@@ -1451,8 +1468,10 @@ causes a change.
 | IPMISELInfo | type | introduced v25.10.0 |
 | IscsiAuthCreate | type | introduced v25.04.0 |
 | IscsiAuthUpdate | type | introduced v25.04.0 |
-| IscsiExtentCreate | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
-| IscsiExtentUpdate | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
+| IscsiExtentCreate | type | introduced v25.04.0; changed v25.10.0 |
+| IscsiExtentCreateType | type | introduced v25.04.0 |
+| IscsiExtentCreateTypeInput | type | introduced v25.04.0 |
+| IscsiExtentUpdate | type | introduced v25.04.0; changed v25.10.0 |
 | ISCSIGlobalEntry | type | introduced v25.04.0; changed v26.0.0 |
 | ISCSIGlobalSessionsItem | type | introduced v26.0.0 |
 | ISCSIGlobalSessionsItemQueryResultItem | type | introduced v26.0.0 |
@@ -1484,12 +1503,14 @@ causes a change.
 | ISCSITargetAuthorizedInitiatorRemovedEvent | type | introduced v25.04.0 |
 | ISCSITargetChangedEvent | type | introduced v25.04.0; changed v25.10.0 |
 | IscsiTargetCreate | type | introduced v25.04.0; changed v25.10.0 |
-| ISCSITargetEntry | type | introduced v25.04.0 |
+| IscsiTargetCreateMode | type | introduced v25.10.0 |
+| IscsiTargetCreateModeInput | type | introduced v25.10.0 |
+| ISCSITargetEntry | type | introduced v25.04.0; changed v25.10.0 |
 | ISCSITargetEntryInput | type | introduced v25.10.0 |
-| ISCSITargetExtentAddedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
-| ISCSITargetExtentChangedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types) |
-| ISCSITargetExtentEntry | type | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
-| ISCSITargetExtentEntryInput | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
+| ISCSITargetExtentAddedEvent | type | introduced v25.04.0 |
+| ISCSITargetExtentChangedEvent | type | introduced v25.04.0 |
+| ISCSITargetExtentEntry | type | introduced v25.04.0; changed v25.10.0, v26.0.0 |
+| ISCSITargetExtentEntryInput | type | introduced v25.04.0 |
 | ISCSITargetExtentQueryResultItem | type | introduced v25.04.0 |
 | ISCSITargetExtentRemovedEvent | type | introduced v25.04.0 |
 | IscsiTargetParameters | type | introduced v25.04.0 |
@@ -1528,13 +1549,15 @@ causes a change.
 | KerberosRealmRemovedEvent | type | introduced v25.10.0 |
 | KerberosRealmUpdate | type | introduced v25.10.0 |
 | KerberosUpdateArgs | type | introduced v25.10.0 |
-| KeychainCredentialAddedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
-| KeychainCredentialChangedEvent | type | introduced v25.04.0; changed v25.04.2 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| KeychainCredentialAddedEvent | type | introduced v25.04.0 |
+| KeychainCredentialChangedEvent | type | introduced v25.04.0 |
 | KeychainCredentialCreateSSHCredentialsEntry | type | introduced v25.04.0 |
 | KeychainCredentialCreateSSHKeyPairEntry | type | introduced v25.04.0 |
 | KeychainCredentialDeleteOptions | type | introduced v25.04.0 |
-| KeychainCredentialEntry | type | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
-| KeychainCredentialEntryInput | type | introduced v25.04.0; changed v25.04.2, v25.10.0, v26.0.0 |
+| KeychainCredentialEntry | type | introduced v25.04.0 |
+| KeychainCredentialEntryInput | type | introduced v25.04.0 |
+| KeychainCredentialEntryType | type | introduced v25.04.0 |
+| KeychainCredentialEntryTypeInput | type | introduced v25.04.0 |
 | KeychainCredentialGenerateSshKeyPairResult | type | introduced v25.04.0; removed v27.0.0 |
 | KeychainCredentialQueryResultItem | type | introduced v25.04.0 |
 | KeychainCredentialRemoteSshHostKeyScanArgs | type | introduced v25.04.0 |
@@ -1572,30 +1595,25 @@ causes a change.
 | Maintainer | type | introduced v25.04.0 |
 | MattermostServiceModel | type | introduced v25.04.0 |
 | MegaCredentialsModel | type | introduced v25.04.0 |
-| Mode | type | introduced v25.04.0 |
-| Mode2 | type | introduced v25.10.0 |
-| Mode3 | type | introduced v25.10.0 |
-| ModeInput | type | introduced v25.10.0 |
-| ModeInput2 | type | introduced v25.10.0 |
-| ModeInput3 | type | introduced v25.10.0 |
-| ModeInput4 | type | introduced v25.10.0 |
+| Mode | type | introduced v25.04.0; removed v25.10.0 |
 | MultiprotocolOpt | type | introduced v25.10.0; changed v25.10.1 |
-| MultiprotocolOptInput | type | introduced v25.10.0 |
-| MultiprotocolOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| MultiprotocolOptInput | type | introduced v25.10.1 |
 | Name | type | introduced v25.10.0; changed v26.0.0 |
 | NetworkConfigurationActivity | type | introduced v25.10.0 |
 | NetworkConfigurationEntry | type | introduced v25.10.0 |
 | NetWorkConfigurationUpdate | type | introduced v25.10.0 |
 | NetworkGeneralSummaryIP | type | introduced v25.10.0 |
 | NetworkGeneralSummaryResult | type | introduced v25.10.0 |
-| NFS4ACE | type | introduced v25.04.0; changed v25.04.2 |
+| NFS4ACE | type | introduced v25.04.0 |
 | NFS4ACE_AdvancedFlags | type | introduced v25.04.0 |
 | NFS4ACE_AdvancedPerms | type | introduced v25.04.0 |
 | NFS4ACE_BasicFlags | type | introduced v25.04.0 |
 | NFS4ACE_BasicPerms | type | introduced v25.04.0 |
-| NFS4ACEInput | type | introduced v25.04.0; changed v25.04.2 |
+| NFS4ACEInput | type | introduced v25.04.0 |
+| NFS4ACEType | type | introduced v25.04.0 |
+| NFS4ACETypeInput | type | introduced v25.04.0 |
 | NFS4ACL_Flags | type | introduced v25.04.0 |
-| NFS4ACLResult | type | introduced v25.04.0; changed v25.04.2 (via referenced types) |
+| NFS4ACLResult | type | introduced v25.04.0 |
 | NFSEntry | type | introduced v25.04.0 |
 | NFSGetNfs3ClientsEntry | type | introduced v25.10.0 |
 | NFSGetNfs3ClientsQueryResultItem | type | introduced v25.10.0 |
@@ -1685,12 +1703,16 @@ causes a change.
 | PoolAttachment | type | introduced v25.10.0 |
 | PoolChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | PoolCreate | type | introduced v25.10.0; changed v26.0.0 |
+| PoolCreateChecksum | type | introduced v25.10.0 |
+| PoolCreateDeduplication | type | introduced v25.10.0 |
 | PoolCreateEncryptionOptions | type | introduced v25.10.0; changed v26.0.0 |
 | PoolCreateTopology | type | introduced v25.10.0; changed v26.0.0 |
 | PoolCreateTopologyCacheVdev | type | introduced v25.10.0 |
 | PoolCreateTopologyDataVdevDRAID | type | introduced v25.10.0; removed v26.0.0 |
+| PoolCreateTopologyDataVdevDRAIDTypeInput | type | introduced v25.10.0; removed v26.0.0 |
 | PoolCreateTopologyDataVdevNonDRAID | type | introduced v25.10.0; removed v26.0.0 |
 | PoolCreateTopologyDedupVdev | type | introduced v25.10.0; changed v26.0.0 |
+| PoolCreateTopologyDedupVdevTypeInput | type | introduced v26.0.0 |
 | PoolCreateTopologyLogVdev | type | introduced v25.10.0; changed v26.0.0 |
 | PoolCreateTopologySpecialVdev | type | introduced v25.10.0; removed v26.0.0 |
 | PoolCreateTopologyVdevDRAID | type | introduced v26.0.0 |
@@ -1700,10 +1722,15 @@ causes a change.
 | PoolDatasetChangeKeyOptions | type | introduced v25.10.0; changed v26.0.0 |
 | PoolDatasetChecksumChoicesResult | type | introduced v25.10.0 |
 | PoolDatasetCreateFilesystem | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| PoolDatasetCreateFilesystemAcltypeInput | type | introduced v25.10.0 |
+| PoolDatasetCreateFilesystemChecksum | type | introduced v25.10.0 |
+| PoolDatasetCreateFilesystemDeduplication | type | introduced v25.10.0 |
+| PoolDatasetCreateFilesystemReadonlyInput | type | introduced v25.10.0 |
 | PoolDatasetCreateUserProperty | type | introduced v25.10.0 |
 | PoolDatasetCreateVolume | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | PoolDatasetDatasetQuota | type | introduced v25.10.0 |
 | PoolDatasetDeleteOptions | type | introduced v25.10.0 |
+| PoolDatasetDeleteResult | type | introduced v25.10.0 |
 | PoolDatasetEncryptionAlgorithmChoicesResult | type | introduced v25.10.0 |
 | PoolDatasetEncryptionSummary | type | introduced v25.10.0 |
 | PoolDatasetEncryptionSummaryOptions | type | introduced v25.10.0 |
@@ -1737,9 +1764,12 @@ causes a change.
 | PoolReplace | type | introduced v25.10.0 |
 | PoolResilverEntry | type | introduced v25.04.0 |
 | PoolResilverUpdate | type | introduced v25.04.0 |
-| PoolScan | type | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| PoolScanChangedEvent | type | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 |
+| PoolScan | type | introduced v25.04.0; changed v26.0.0 |
+| PoolScanChangedEvent | type | introduced v25.04.0; changed v26.0.0 |
 | PoolScanInput | type | introduced v26.0.0 |
+| PoolScanState | type | introduced v26.0.0 |
+| PoolScanStateInput | type | introduced v25.04.0 |
+| PoolScrubAction | type | introduced v26.0.0 |
 | PoolScrubAddedEvent | type | introduced v25.04.0 |
 | PoolScrubChangedEvent | type | introduced v25.04.0 |
 | PoolScrubCreate | type | introduced v25.04.0 |
@@ -1784,8 +1814,7 @@ causes a change.
 | POSIXACLResult | type | introduced v25.04.0 |
 | PrimaryDomainIdmap | type | introduced v25.10.0 |
 | PrivateDatasetOpt | type | introduced v25.10.0; changed v25.10.1 |
-| PrivateDatasetOptInput | type | introduced v25.10.0 |
-| PrivateDatasetOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| PrivateDatasetOptInput | type | introduced v25.10.1 |
 | PrivilegeAddedEvent | type | introduced v25.04.0; changed v25.10.0 |
 | PrivilegeChangedEvent | type | introduced v25.04.0; changed v25.10.0 |
 | PrivilegeCreate | type | introduced v25.04.0 |
@@ -1798,14 +1827,10 @@ causes a change.
 | PrivilegeUpdate | type | introduced v25.04.0 |
 | Protocol | type | introduced v25.10.0 |
 | Purpose | type | introduced v25.10.0; changed v25.10.1 |
-| PurposeInput | type | introduced v25.10.0; removed v25.10.1 |
-| PurposeInput2 | type | introduced v25.10.0; removed v25.10.1 |
-| QueryOptionsModel | type | introduced v25.04.0; changed v25.10.0 |
+| QueryOptionsModel | type | introduced v25.10.0 |
 | RdmaCardConfig | type | introduced v25.04.0 |
 | RdmaLinkConfig | type | introduced v25.04.0 |
 | Readonly | type | introduced v25.10.0 |
-| ReadonlyInput | type | introduced v25.10.0 |
-| ReadonlyInput2 | type | introduced v25.10.0 |
 | RebootInfo | type | introduced v25.04.0 |
 | RebootRequiredReason | type | introduced v25.04.0 |
 | RegistryMirror | type | introduced v26.0.0; removed v27.0.0 |
@@ -1816,7 +1841,9 @@ causes a change.
 | ReplicationConfigUpdateArgs | type | introduced v25.10.0 |
 | ReplicationCountEligibleManualSnapshotsArgs | type | introduced v25.10.0 |
 | ReplicationCountEligibleManualSnapshotsResult | type | introduced v25.10.0 |
+| ReplicationCountEligibleManualSnapshotsTransportInput | type | introduced v25.10.0 |
 | ReplicationCreate | type | introduced v25.10.0 |
+| ReplicationCreateReadonlyInput | type | introduced v25.10.0 |
 | ReplicationEntry | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | ReplicationEntryInput | type | introduced v25.10.0; changed v26.0.0 |
 | ReplicationLifetimeModel | type | introduced v25.10.0 |
@@ -1855,9 +1882,6 @@ causes a change.
 | ReportingUpdateArgs | type | introduced v25.04.0; removed v27.0.0 |
 | Resolution | type | introduced v25.04.2 |
 | RestoreOpts | type | introduced v25.10.0 |
-| Result | type | introduced v25.10.0 |
-| Result2 | type | introduced v25.10.0 |
-| Result3 | type | introduced v25.10.0 |
 | RFC2307_Idmap | type | introduced v25.10.0 |
 | RID_Idmap | type | introduced v25.10.0 |
 | Route53Schema | type | introduced v25.04.0 |
@@ -1867,18 +1891,20 @@ causes a change.
 | RSACSRExtensions | type | introduced v25.04.0 |
 | RSACSRExtensionsModel | type | introduced v25.04.0 |
 | RSAKeyUsageModel | type | introduced v25.04.0 |
-| RsyncTaskAddedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
-| RsyncTaskChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| RsyncTaskAddedEvent | type | introduced v25.10.0 |
+| RsyncTaskChangedEvent | type | introduced v25.10.0 |
 | RsyncTaskCreate | type | introduced v25.10.0 |
+| RsyncTaskCreateDirection | type | introduced v25.10.0 |
+| RsyncTaskCreateDirectionInput | type | introduced v25.10.0 |
+| RsyncTaskCreateMode | type | introduced v25.10.0 |
+| RsyncTaskCreateModeInput | type | introduced v25.10.0 |
 | RsyncTaskEntry | type | introduced v25.10.0; changed v26.0.0 |
-| RsyncTaskEntryInput | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| RsyncTaskEntryInput | type | introduced v25.10.0 |
 | RsyncTaskQueryResultItem | type | introduced v25.10.0 |
 | RsyncTaskRemovedEvent | type | introduced v25.10.0 |
 | RsyncTaskSchedule | type | introduced v25.10.0 |
 | RsyncTaskUpdate | type | introduced v25.10.0 |
 | S3CredentialsModel | type | introduced v25.04.0; changed v26.0.0 |
-| S3CredentialsModelInput | type | introduced v25.04.0; removed v26.0.0 |
-| S3CredentialsModelInput2 | type | introduced v25.04.0; removed v26.0.0 |
 | Schema | type | introduced v25.10.0 |
 | Security | type | introduced v25.10.0 |
 | SerialInfo | type | introduced v25.04.0 |
@@ -1887,6 +1913,7 @@ causes a change.
 | ServiceAddedEvent | type | introduced v25.10.0 |
 | ServiceAnnouncement | type | introduced v25.10.0 |
 | ServiceChangedEvent | type | introduced v25.10.0 |
+| ServiceControlVerb | type | introduced v25.10.0 |
 | ServiceEntry | type | introduced v25.10.0 |
 | ServiceOptions | type | introduced v25.10.0 |
 | ServiceQueryResultItem | type | introduced v25.10.0 |
@@ -1896,21 +1923,35 @@ causes a change.
 | SetupSSHConnectionManualSetup | type | introduced v25.04.0 |
 | SetupSSHConnectionSemiautomatic | type | introduced v25.04.0 |
 | SFTPCredentialsModel | type | introduced v25.04.0 |
-| SharingNFSAddedEvent | type | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
-| SharingNFSChangedEvent | type | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| SharingNFSAddedEvent | type | introduced v25.04.0; changed v26.0.0 (via referenced types) |
+| SharingNFSChangedEvent | type | introduced v25.04.0; changed v26.0.0 (via referenced types) |
 | SharingNFSEntry | type | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| SharingNFSEntryInput | type | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v26.0.0 |
+| SharingNFSEntryInput | type | introduced v25.04.0; changed v26.0.0 |
 | SharingNFSQueryResultItem | type | introduced v25.04.0 |
 | SharingNFSRemovedEvent | type | introduced v25.04.0 |
 | SharingSMBAddedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
 | SharingSMBChangedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
+| SharingSmbDefaultOptInput | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbDefaultOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSMBEntry | type | introduced v25.10.0; changed v25.10.1, v26.0.0 |
 | SharingSMBEntryInput | type | introduced v25.10.0; changed v25.10.1, v26.0.0 |
+| SharingSMBEntryPurposeInput | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSMBEntryPurposeInput2 | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSMBGetaclArgs | type | introduced v25.04.0 |
+| SharingSmbMultiprotocolOptInput | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbMultiprotocolOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbPrivateDatasetOptInput | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbPrivateDatasetOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSMBQueryResultItem | type | introduced v25.10.0 |
 | SharingSMBRemovedEvent | type | introduced v25.10.0 |
 | SharingSMBSetaclArgs | type | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | SharingSMBSharePrecheckArgs | type | introduced v25.10.0 |
+| SharingSmbTimeLockedOptInput | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbTimeLockedOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbTimeMachineOptInput | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbTimeMachineOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbVeeamRepositoryOptInput | type | introduced v25.10.0; removed v25.10.1 |
+| SharingSmbVeeamRepositoryOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
 | SharingWebshareAddedEvent | type | introduced v26.0.0 |
 | SharingWebshareChangedEvent | type | introduced v26.0.0 |
 | SharingWebshareCreate | type | introduced v26.0.0 |
@@ -1924,6 +1965,7 @@ causes a change.
 | SlackServiceModel | type | introduced v25.04.0 |
 | SmbAuditConfig | type | introduced v25.10.0 |
 | SMBEntry | type | introduced v25.04.0; changed v26.0.0 |
+| SMBEntryEncryptionInput | type | introduced v25.04.0 |
 | SMBShareAcl | type | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
 | SMBShareAclEntry | type | introduced v25.04.0; changed v25.10.0 (via referenced types), v26.0.0 |
 | SMBShareAclEntryWhoId | type | introduced v25.04.0; changed v25.10.0 |
@@ -1945,13 +1987,7 @@ causes a change.
 | SSHKeyPair | type | introduced v25.04.0 |
 | SSHKeyPairEntry | type | introduced v25.04.0; removed v27.0.0 |
 | SSHUpdate | type | introduced v25.10.0 |
-| State | type | introduced v25.04.0 |
-| State2 | type | introduced v26.0.0 |
-| State3 | type | introduced v26.0.0 |
-| StateInput | type | introduced v25.04.0 |
-| StateInput2 | type | introduced v25.04.0; changed v25.10.0 |
-| StateInput3 | type | introduced v25.10.0; changed v26.0.0 |
-| StateInput4 | type | introduced v26.0.0 |
+| State | type | introduced v25.04.0; removed v26.0.0 |
 | StaticRouteAddedEvent | type | introduced v25.04.0 |
 | StaticRouteChangedEvent | type | introduced v25.04.0 |
 | StaticRouteCreate | type | introduced v25.04.0; changed v25.10.1 |
@@ -1959,23 +1995,17 @@ causes a change.
 | StaticRouteQueryResultItem | type | introduced v25.04.0 |
 | StaticRouteRemovedEvent | type | introduced v25.04.0 |
 | StaticRouteUpdate | type | introduced v25.04.0; changed v25.10.1 |
-| Status | type | introduced v25.04.0; changed v25.10.0, v26.0.0 |
-| Status2 | type | introduced v25.10.0; changed v25.10.1, v26.0.0 |
-| Status3 | type | introduced v26.0.0 |
-| StatusInput | type | introduced v25.04.0; changed v25.04.1, v25.10.0 |
-| StatusInput2 | type | introduced v25.04.0; changed v25.04.1, v25.10.0 |
-| StatusInput3 | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
-| StatusInput4 | type | introduced v25.10.0 |
-| StatusResult | type | introduced v25.04.0; changed v25.10.0, v25.10.1 (via referenced types), v26.0.0; removed v27.0.0 |
+| Status | type | introduced v25.04.0; removed v25.10.1 |
+| StatusResult | type | introduced v25.04.0; changed v25.10.1; removed v27.0.0 |
 | STIGType | type | introduced v25.04.0 |
 | StorjIxCredentialsModel | type | introduced v25.04.0; changed v25.04.2 |
-| StorjIxCredentialsModelInput | type | introduced v25.04.0 |
-| StorjIxCredentialsModelInput2 | type | introduced v25.04.0; removed v25.04.2 |
+| StorjIxCredentialsModelInput | type | introduced v25.04.2 |
 | SupportAttachTicket | type | introduced v27.0.0 |
 | SupportAttachTicketArgs | type | introduced v25.10.0; removed v27.0.0 |
 | SupportEntry | type | introduced v25.10.0 |
 | SupportNewTicket | type | introduced v26.0.0 |
 | SupportNewTicketCommunity | type | introduced v25.10.0 |
+| SupportNewTicketCommunityTypeInput | type | introduced v25.10.0 |
 | SupportNewTicketEnterprise | type | introduced v25.10.0 |
 | SupportNewTicketResult | type | introduced v25.10.0; removed v26.0.0 |
 | SupportSimilarIssue | type | introduced v25.10.0 |
@@ -1986,6 +2016,7 @@ causes a change.
 | SysInfoEntry | type | introduced v25.04.0; removed v25.10.0 |
 | Sysloglevel | type | introduced v25.10.0 |
 | SyslogServer | type | introduced v25.10.0 |
+| SyslogServerTransportInput | type | introduced v25.10.0 |
 | SystemAdvancedEntry | type | introduced v25.10.0 |
 | SystemAdvancedUpdate | type | introduced v25.10.0; changed v26.0.0 |
 | SystemDatasetEntry | type | introduced v25.10.0 |
@@ -1993,6 +2024,7 @@ causes a change.
 | SystemGeneralEntry | type | introduced v25.10.0; changed v26.0.0 |
 | SystemGeneralUpdateArgs | type | introduced v25.10.0 |
 | SystemInfoResult | type | introduced v25.10.0 |
+| SystemProductTypeResult | type | introduced v25.10.0 |
 | SystemReadyAddedEvent | type | introduced v25.10.0 |
 | SystemRebootAddedEvent | type | introduced v25.04.0 |
 | SystemRebootAddedEventFields | type | introduced v25.04.0 |
@@ -2003,27 +2035,26 @@ causes a change.
 | SystemSecurityUpdateArgs | type | introduced v25.04.0; changed v25.04.1, v25.10.0; removed v27.0.0 |
 | SystemShutdownAddedEvent | type | introduced v25.04.0 |
 | SystemShutdownOptions | type | introduced v25.04.0 |
+| SystemStateResult | type | introduced v25.10.0 |
 | Tag | type | introduced v25.04.0 |
 | Target | type | introduced v25.10.0 |
 | TelegramServiceModel | type | introduced v25.04.0 |
-| TierInfo | type | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types) |
+| TierInfo | type | introduced v25.04.0; changed v26.0.0 (via referenced types) |
 | TierInfoInput | type | introduced v26.0.0 |
 | Time | type | introduced v25.04.2 |
 | TimeLockedOpt | type | introduced v25.10.0; changed v25.10.1 |
-| TimeLockedOptInput | type | introduced v25.10.0 |
-| TimeLockedOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| TimeLockedOptInput | type | introduced v25.10.1 |
 | TimeMachineOpt | type | introduced v25.10.0; changed v25.10.1 |
-| TimeMachineOptInput | type | introduced v25.10.0 |
-| TimeMachineOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| TimeMachineOptInput | type | introduced v25.10.1 |
 | TokenCredentialData | type | introduced v25.04.0; changed v25.10.0 |
 | TokenCredentialDataInput | type | introduced v25.04.0; removed v25.10.0 |
 | TokenParentCredentialsData | type | introduced v25.04.0; changed v25.10.0 (via referenced types) |
 | TokenParentCredentialsDataInput | type | introduced v25.04.0; removed v25.10.0 |
 | Transport | type | introduced v25.10.0 |
-| TransportInput | type | introduced v25.10.0 |
-| TransportInput2 | type | introduced v25.10.0 |
 | TruecommandConfigChangedEvent | type | introduced v25.10.0 |
 | TruecommandConfigChangedEventFields | type | introduced v25.10.0 |
+| TruecommandConfigChangedEventFieldsStatus | type | introduced v25.10.0 |
+| TruecommandConfigChangedEventFieldsStatusInput | type | introduced v25.10.0 |
 | TruecommandEntry | type | introduced v25.10.0; changed v26.0.0 |
 | TruecommandUpdate | type | introduced v27.0.0 |
 | TruecommandUpdateArgs | type | introduced v25.10.0; removed v27.0.0 |
@@ -2033,11 +2064,13 @@ causes a change.
 | TrueNASConnectUpdate | type | introduced v27.0.0 |
 | TrueNASConnectUpdateArgs | type | introduced v25.04.0; changed v25.10.0, v26.0.0; removed v27.0.0 |
 | TrueNASLicenseUploadOptions | type | introduced v26.0.0 |
-| TunableAddedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
-| TunableChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
-| TunableCreate | type | introduced v25.10.0; changed v26.0.0 |
-| TunableEntry | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
-| TunableEntryInput | type | introduced v25.10.0; changed v26.0.0 |
+| TunableAddedEvent | type | introduced v25.10.0 |
+| TunableChangedEvent | type | introduced v25.10.0 |
+| TunableCreate | type | introduced v25.10.0 |
+| TunableCreateType | type | introduced v25.10.0 |
+| TunableCreateTypeInput | type | introduced v25.10.0 |
+| TunableEntry | type | introduced v25.10.0; changed v27.0.0 |
+| TunableEntryInput | type | introduced v25.10.0 |
 | TunableQueryResultItem | type | introduced v25.10.0 |
 | TunableRemovedEvent | type | introduced v25.10.0 |
 | TunableTunableTypeChoices | type | introduced v25.10.0 |
@@ -2046,31 +2079,6 @@ causes a change.
 | TwoFactorAuthServices | type | introduced v25.10.0 |
 | TwoFactorAuthUpdate | type | introduced v25.10.0 |
 | TwofactorOptions | type | introduced v25.04.0; changed v26.0.0 |
-| Type | type | introduced v25.04.0; changed v25.04.2 |
-| Type10 | type | introduced v25.10.0; changed v26.0.0 |
-| Type11 | type | introduced v26.0.0 |
-| Type2 | type | introduced v25.04.0; changed v25.04.2 |
-| Type3 | type | introduced v25.04.0; changed v25.04.2 |
-| Type4 | type | introduced v25.04.0; changed v25.04.2 |
-| Type5 | type | introduced v25.04.0; changed v25.04.2 |
-| Type6 | type | introduced v25.04.0; changed v25.04.2 |
-| Type7 | type | introduced v25.04.2; changed v25.10.0, v26.0.0 |
-| Type8 | type | introduced v25.10.0; changed v26.0.0 |
-| Type9 | type | introduced v25.10.0; changed v26.0.0 |
-| TypeInput | type | introduced v25.04.0; changed v25.04.2 |
-| TypeInput10 | type | introduced v25.10.0; changed v26.0.0 |
-| TypeInput11 | type | introduced v25.10.0; changed v26.0.0 |
-| TypeInput12 | type | introduced v25.10.0; changed v26.0.0 |
-| TypeInput13 | type | introduced v25.10.0; changed v26.0.0 |
-| TypeInput14 | type | introduced v26.0.0 |
-| TypeInput2 | type | introduced v25.04.0; changed v25.04.2 |
-| TypeInput3 | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
-| TypeInput4 | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
-| TypeInput5 | type | introduced v25.04.0; changed v25.04.2, v25.10.0 |
-| TypeInput6 | type | introduced v25.04.2; changed v25.10.0 |
-| TypeInput7 | type | introduced v25.10.0; changed v26.0.0 |
-| TypeInput8 | type | introduced v25.10.0 |
-| TypeInput9 | type | introduced v25.10.0 |
 | Unixcharset | type | introduced v25.04.0 |
 | UnmappedGroupEntry | type | introduced v25.04.0 |
 | UpdateAvailableVersion | type | introduced v25.10.0 |
@@ -2090,6 +2098,8 @@ causes a change.
 | UpgradeOptions | type | introduced v25.04.0; removed v27.0.0 |
 | UpgradeSummaryOptions | type | introduced v25.04.0; removed v27.0.0 |
 | UPSEntry | type | introduced v25.10.0 |
+| UPSEntryMode | type | introduced v25.10.0 |
+| UPSEntryModeInput | type | introduced v25.10.0 |
 | UPSUpdate | type | introduced v26.0.0 |
 | UPSUpdateArgs | type | introduced v25.10.0; removed v26.0.0 |
 | USBAttributes | type | introduced v25.04.2 |
@@ -2122,19 +2132,14 @@ causes a change.
 | UserWebUiLoginDisabledAddedEvent | type | introduced v25.04.0 |
 | UserWebUiLoginDisabledAddedEventFields | type | introduced v25.04.0 |
 | VeeamRepositoryOpt | type | introduced v25.10.0; changed v25.10.1 |
-| VeeamRepositoryOptInput | type | introduced v25.10.0 |
-| VeeamRepositoryOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
+| VeeamRepositoryOptInput | type | introduced v25.10.1 |
 | Vendor | type | introduced v25.04.0 |
-| Verb | type | introduced v25.10.0 |
-| Verb2 | type | introduced v25.10.0 |
 | VictorOpsServiceModel | type | introduced v25.04.0 |
 | VMAddedEvent | type | introduced v25.04.2; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | VMBootloaderOptions | type | introduced v27.0.0 |
 | VMBootloaderOptionsResult | type | introduced v25.04.2; removed v27.0.0 |
 | VMBootloaderOvmfChoicesResult | type | introduced v25.10.0; removed v27.0.0 |
 | VMCDROMDevice | type | introduced v25.04.2; changed v25.10.0 |
-| VMCDROMDeviceInput | type | introduced v25.04.2; removed v25.10.0 |
-| VMCDROMDeviceInput2 | type | introduced v25.04.2; removed v25.10.0 |
 | VMChangedEvent | type | introduced v25.04.2; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | VMCpuModelChoicesResult | type | introduced v25.10.0; removed v27.0.0 |
 | VMCreate | type | introduced v27.0.0 |
@@ -2166,12 +2171,15 @@ causes a change.
 | VMDeviceUsbControllerChoicesResult | type | introduced v25.10.0; removed v26.0.0 |
 | VMDeviceVirtualSize | type | introduced v27.0.0 |
 | VMDeviceVirtualSizeArgs | type | introduced v25.10.1; removed v27.0.0 |
+| VmDeviceVMCDROMDeviceInput | type | introduced v25.04.2; removed v25.10.0 |
+| VmDeviceVMDisplayDeviceInput | type | introduced v25.04.2; removed v25.10.0 |
+| VmDeviceVMNICDeviceInput | type | introduced v25.04.2; removed v27.0.0 |
 | VMDiskDevice | type | introduced v25.04.2 |
 | VMDiskDeviceInput | type | introduced v25.04.2 |
+| VMDiskDeviceType | type | introduced v25.04.2 |
+| VMDiskDeviceTypeInput | type | introduced v25.04.2 |
 | VMDisplayDevice | type | introduced v25.04.2; changed v25.10.0 |
 | VMDisplayDeviceInfo | type | introduced v27.0.0 |
-| VMDisplayDeviceInput | type | introduced v25.04.2; removed v25.10.0 |
-| VMDisplayDeviceInput2 | type | introduced v25.04.2; removed v25.10.0 |
 | VMDisplayWebURIOptions | type | introduced v27.0.0 |
 | VMEntry | type | introduced v25.04.2; changed v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 |
 | VMEntryInput | type | introduced v25.04.2; changed v25.10.0 (via referenced types), v26.0.0, v27.0.0 (via referenced types) |
@@ -2189,8 +2197,6 @@ causes a change.
 | VMISCSIDiskDevice | type | introduced v25.04.2 |
 | VMISCSIDiskTarget | type | introduced v25.04.2 |
 | VMNICDevice | type | introduced v25.04.2; changed v27.0.0 |
-| VMNICDeviceInput | type | introduced v25.04.2; removed v27.0.0 |
-| VMNICDeviceInput2 | type | introduced v25.04.2; removed v27.0.0 |
 | VMNICPciAddress | type | introduced v25.04.2 |
 | VMPCIDevice | type | introduced v25.04.2 |
 | VMPortWizard | type | introduced v27.0.0 |
@@ -2207,6 +2213,9 @@ causes a change.
 | VMUSBDevice | type | introduced v25.04.2 |
 | VMVirtualizationDetails | type | introduced v27.0.0 |
 | VMVirtualizationDetailsResult | type | introduced v25.04.2; removed v27.0.0 |
+| VmVMCDROMDeviceInput | type | introduced v25.04.2; removed v25.10.0 |
+| VmVMDisplayDeviceInput | type | introduced v25.04.2; removed v25.10.0 |
+| VmVMNICDeviceInput | type | introduced v25.04.2; removed v27.0.0 |
 | VMWareAddedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | VMWareChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | VMWareCreate | type | introduced v25.10.0 |
@@ -2214,11 +2223,13 @@ causes a change.
 | VMWareEntryInput | type | introduced v25.10.0; changed v26.0.0 |
 | VMWareEntryState | type | introduced v25.10.0; changed v26.0.0 |
 | VMWareEntryStateInput | type | introduced v26.0.0 |
+| VMWareEntryStateStateInput | type | introduced v25.10.0 |
 | VMWareGetDatastoresArgs | type | introduced v25.10.0 |
 | VMWareMatchDatastoresWithDatasetsArgs | type | introduced v25.10.0 |
-| VMWareMatchDatastoresWithDatasetsResult | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| VMWareMatchDatastoresWithDatasetsResult | type | introduced v25.10.0 |
 | VMWareMatchDatastoresWithDatasetsResultDatastore | type | introduced v25.10.0 |
-| VMWareMatchDatastoresWithDatasetsResultFilesystem | type | introduced v25.10.0; changed v26.0.0 |
+| VMWareMatchDatastoresWithDatasetsResultFilesystem | type | introduced v25.10.0 |
+| VMWareMatchDatastoresWithDatasetsResultFilesystemType | type | introduced v25.10.0 |
 | VMWareQueryResultItem | type | introduced v25.10.0 |
 | VMWareRemovedEvent | type | introduced v25.10.0 |
 | VMWareUpdate | type | introduced v25.10.0 |
@@ -2249,8 +2260,10 @@ causes a change.
 | ZfsTierEntry | type | introduced v26.0.0 |
 | ZfsTierRewriteJobCancelArgs | type | introduced v26.0.0 |
 | ZfsTierRewriteJobCreateArgs | type | introduced v26.0.0 |
-| ZfsTierRewriteJobEntry | type | introduced v25.04.0; changed v25.04.1, v25.10.0, v26.0.0 |
+| ZfsTierRewriteJobEntry | type | introduced v25.04.0; changed v26.0.0 |
 | ZfsTierRewriteJobEntryInput | type | introduced v26.0.0 |
+| ZfsTierRewriteJobEntryStatus | type | introduced v26.0.0 |
+| ZfsTierRewriteJobEntryStatusInput | type | introduced v25.04.0 |
 | ZfsTierRewriteJobFailureEntry | type | introduced v26.0.0 |
 | ZfsTierRewriteJobFailureError | type | introduced v26.0.0 |
 | ZfsTierRewriteJobFailureQueryResultItem | type | introduced v26.0.0 |
@@ -2281,6 +2294,7 @@ causes a change.
 | ZPoolScan | type | introduced v26.0.0 |
 | ZPoolScanInput | type | introduced v26.0.0 |
 | ZpoolScrubRun | type | introduced v26.0.0 |
+| ZpoolScrubRunAction | type | introduced v26.0.0 |
 | ZPoolTopology | type | introduced v26.0.0 |
 | ZPoolVdev | type | introduced v26.0.0 |
 | ZPoolVdevStats | type | introduced v26.0.0 |

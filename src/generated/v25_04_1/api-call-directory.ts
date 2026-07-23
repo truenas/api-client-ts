@@ -11,7 +11,7 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  QueryOptionsModel,
+  AcmeDnsAuthenticatorQueryOptionsModel,
   TwofactorOptions,
   UserCreate,
   UserQueryResultItem,
@@ -48,7 +48,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'user.query': {
-    params: [filters?: QueryFilters<UserEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<UserEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
   };
 

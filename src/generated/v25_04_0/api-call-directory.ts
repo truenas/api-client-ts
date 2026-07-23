@@ -16,6 +16,7 @@ import type {
   ACMEDNSAuthenticatorUpdate,
   AclTemplateCreate,
   AclTemplateUpdate,
+  AcmeDnsAuthenticatorQueryOptionsModel,
   Alert,
   AlertCategory,
   AlertClassesEntry,
@@ -78,8 +79,10 @@ import type {
   CloudBackupCreate,
   CloudBackupEntry,
   CloudBackupQueryResultItem,
+  CloudBackupS3CredentialsModelInput2,
   CloudBackupSnapshot,
   CloudBackupSnapshotItem,
+  CloudBackupStorjIxCredentialsModelInput2,
   CloudBackupUpdate,
   CloudCredentialCreate,
   CloudCredentialUpdate,
@@ -210,7 +213,6 @@ import type {
   PrivilegeRolesEntry,
   PrivilegeRolesQueryResultItem,
   PrivilegeUpdate,
-  QueryOptionsModel,
   RdmaCardConfig,
   RebootInfo,
   ReportingEntry,
@@ -222,7 +224,6 @@ import type {
   ReportingGetDataResponse,
   ReportingQuery,
   ReportingUpdateArgs,
-  S3CredentialsModelInput2,
   SFTPCredentialsModel,
   SMBEntry,
   SMBShareAcl,
@@ -243,7 +244,6 @@ import type {
   StaticRouteQueryResultItem,
   StaticRouteUpdate,
   StatusResult,
-  StorjIxCredentialsModelInput2,
   SwiftCredentialsModel,
   SysInfo,
   SystemSecurityEntry,
@@ -291,7 +291,7 @@ export interface ApiCallDirectory {
   };
 
   'acme.dns.authenticator.query': {
-    params: [filters?: QueryFilters<DNSAuthenticatorEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<DNSAuthenticatorEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: DNSAuthenticatorEntry[] | DNSAuthenticatorEntry | DNSAuthenticatorQueryResultItem[] | DNSAuthenticatorQueryResultItem | number;
   };
 
@@ -351,7 +351,7 @@ export interface ApiCallDirectory {
   };
 
   'alertservice.query': {
-    params: [filters?: QueryFilters<AlertServiceEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<AlertServiceEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: AlertServiceEntry[] | AlertServiceEntry | AlertServiceQueryResultItem[] | AlertServiceQueryResultItem | number;
   };
 
@@ -386,7 +386,7 @@ export interface ApiCallDirectory {
   };
 
   'api_key.query': {
-    params: [filters?: QueryFilters<ApiKeyEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ApiKeyEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ApiKeyEntry[] | ApiKeyEntry | ApiKeyQueryResultItem[] | ApiKeyQueryResultItem | number;
   };
 
@@ -451,7 +451,7 @@ export interface ApiCallDirectory {
   };
 
   'app.image.query': {
-    params: [filters?: QueryFilters<AppImageEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<AppImageEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: AppImageEntry[] | AppImageEntry | AppImageQueryResultItem[] | AppImageQueryResultItem | number;
   };
 
@@ -466,7 +466,7 @@ export interface ApiCallDirectory {
   };
 
   'app.ix_volume.query': {
-    params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: AppsIxVolumeEntry[] | AppsIxVolumeEntry | AppsIxVolumeQueryResultItem[] | AppsIxVolumeQueryResultItem | number;
   };
 
@@ -476,7 +476,7 @@ export interface ApiCallDirectory {
   };
 
   'app.query': {
-    params: [filters?: QueryFilters<AppEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<AppEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: AppEntry[] | AppEntry | AppQueryResultItem[] | AppQueryResultItem | number;
   };
 
@@ -496,7 +496,7 @@ export interface ApiCallDirectory {
   };
 
   'app.registry.query': {
-    params: [filters?: QueryFilters<AppRegistryEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<AppRegistryEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: AppRegistryEntry[] | AppRegistryEntry | AppRegistryQueryResultItem[] | AppRegistryQueryResultItem | number;
   };
 
@@ -561,7 +561,7 @@ export interface ApiCallDirectory {
   };
 
   'auth.sessions': {
-    params: [filters?: QueryFilters<AuthSessionsEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<AuthSessionsEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: AuthSessionsEntry[] | AuthSessionsEntry | AuthSessionsQueryResultItem[] | AuthSessionsQueryResultItem | number;
   };
 
@@ -606,7 +606,7 @@ export interface ApiCallDirectory {
   };
 
   'boot.environment.query': {
-    params: [filters?: QueryFilters<BootEnvironmentEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<BootEnvironmentEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: BootEnvironmentEntry[] | BootEnvironmentEntry | BootEnvironmentQueryResultItem[] | BootEnvironmentQueryResultItem | number;
   };
 
@@ -681,7 +681,7 @@ export interface ApiCallDirectory {
   };
 
   'cloud_backup.query': {
-    params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<CloudBackupEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: CloudBackupEntry[] | CloudBackupEntry | CloudBackupQueryResultItem[] | CloudBackupQueryResultItem | number;
   };
 
@@ -711,7 +711,7 @@ export interface ApiCallDirectory {
   };
 
   'cloudsync.credentials.query': {
-    params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<CredentialsEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: CredentialsEntry[] | CredentialsEntry | CredentialsQueryResultItem[] | CredentialsQueryResultItem | number;
   };
 
@@ -721,7 +721,7 @@ export interface ApiCallDirectory {
   };
 
   'cloudsync.credentials.verify': {
-    params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | S3CredentialsModelInput2 | SFTPCredentialsModel | StorjIxCredentialsModelInput2 | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
+    params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | CloudBackupS3CredentialsModelInput2 | SFTPCredentialsModel | CloudBackupStorjIxCredentialsModelInput2 | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
     response: CredentialsVerifyResult;
   };
 
@@ -766,7 +766,7 @@ export interface ApiCallDirectory {
   };
 
   'cronjob.query': {
-    params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<CronJobEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
   };
 
@@ -806,7 +806,7 @@ export interface ApiCallDirectory {
   };
 
   'docker.network.query': {
-    params: [filters?: QueryFilters<DockerNetworkEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<DockerNetworkEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: DockerNetworkEntry[] | DockerNetworkEntry | DockerNetworkQueryResultItem[] | DockerNetworkQueryResultItem | number;
   };
 
@@ -826,7 +826,7 @@ export interface ApiCallDirectory {
   };
 
   'enclosure2.query': {
-    params: [filters?: QueryFilters<Enclosure2Entry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<Enclosure2Entry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: Enclosure2Entry[] | Enclosure2Entry | Enclosure2QueryResultItem[] | Enclosure2QueryResultItem | number;
   };
 
@@ -861,7 +861,7 @@ export interface ApiCallDirectory {
   };
 
   'fc.fc_host.query': {
-    params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<FCHostEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: FCHostEntry[] | FCHostEntry | FCHostQueryResultItem[] | FCHostQueryResultItem | number;
   };
 
@@ -891,12 +891,12 @@ export interface ApiCallDirectory {
   };
 
   'fcport.query': {
-    params: [filters?: QueryFilters<FCPortEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<FCPortEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: FCPortEntry[] | FCPortEntry | FCPortQueryResultItem[] | FCPortQueryResultItem | number;
   };
 
   'fcport.status': {
-    params: [filters?: QueryFilters<Record<string, unknown>>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<Record<string, unknown>>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: unknown[];
   };
 
@@ -926,7 +926,7 @@ export interface ApiCallDirectory {
   };
 
   'filesystem.acltemplate.query': {
-    params: [filters?: QueryFilters<ACLTemplateEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ACLTemplateEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ACLTemplateEntry[] | ACLTemplateEntry | ACLTemplateQueryResultItem[] | ACLTemplateQueryResultItem | number;
   };
 
@@ -946,7 +946,7 @@ export interface ApiCallDirectory {
   };
 
   'filesystem.listdir': {
-    params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel];
+    params: [path: string, query_filters?: unknown[], query_options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: FilesystemDirEntry[] | FilesystemDirEntry | FilesystemDirQueryResultItem[] | FilesystemDirQueryResultItem | number;
   };
 
@@ -1006,7 +1006,7 @@ export interface ApiCallDirectory {
   };
 
   'group.query': {
-    params: [filters?: QueryFilters<GroupEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<GroupEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: GroupEntry[] | GroupEntry | GroupQueryResultItem[] | GroupQueryResultItem | number;
   };
 
@@ -1031,7 +1031,7 @@ export interface ApiCallDirectory {
   };
 
   'initshutdownscript.query': {
-    params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: InitShutdownScriptEntry[] | InitShutdownScriptEntry | InitShutdownScriptQueryResultItem[] | InitShutdownScriptQueryResultItem | number;
   };
 
@@ -1061,7 +1061,7 @@ export interface ApiCallDirectory {
   };
 
   'iscsi.auth.query': {
-    params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ISCSITargetAuthCredentialEntry[] | ISCSITargetAuthCredentialEntry | ISCSITargetAuthCredentialQueryResultItem[] | ISCSITargetAuthCredentialQueryResultItem | number;
   };
 
@@ -1091,7 +1091,7 @@ export interface ApiCallDirectory {
   };
 
   'iscsi.extent.query': {
-    params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ISCSITargetExtentEntry[] | ISCSITargetExtentEntry | ISCSITargetExtentQueryResultItem[] | ISCSITargetExtentQueryResultItem | number;
   };
 
@@ -1121,7 +1121,7 @@ export interface ApiCallDirectory {
   };
 
   'iscsi.global.sessions': {
-    params: [filters?: QueryFilters<IscsiSession>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<IscsiSession>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: IscsiSession[] | IscsiSession | IscsiSessionQueryResultItem[] | IscsiSessionQueryResultItem | number;
   };
 
@@ -1146,7 +1146,7 @@ export interface ApiCallDirectory {
   };
 
   'iscsi.initiator.query': {
-    params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ISCSITargetAuthorizedInitiatorEntry[] | ISCSITargetAuthorizedInitiatorEntry | ISCSITargetAuthorizedInitiatorQueryResultItem[] | ISCSITargetAuthorizedInitiatorQueryResultItem | number;
   };
 
@@ -1176,7 +1176,7 @@ export interface ApiCallDirectory {
   };
 
   'iscsi.portal.query': {
-    params: [filters?: QueryFilters<ISCSIPortalEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ISCSIPortalEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ISCSIPortalEntry[] | ISCSIPortalEntry | ISCSIPortalQueryResultItem[] | ISCSIPortalQueryResultItem | number;
   };
 
@@ -1201,7 +1201,7 @@ export interface ApiCallDirectory {
   };
 
   'iscsi.target.query': {
-    params: [filters?: QueryFilters<ISCSITargetEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ISCSITargetEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ISCSITargetEntry[] | ISCSITargetEntry | ISCSITargetQueryResultItem[] | ISCSITargetQueryResultItem | number;
   };
 
@@ -1231,7 +1231,7 @@ export interface ApiCallDirectory {
   };
 
   'iscsi.targetextent.query': {
-    params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ISCSITargetToExtentEntry[] | ISCSITargetToExtentEntry | ISCSITargetToExtentQueryResultItem[] | ISCSITargetToExtentQueryResultItem | number;
   };
 
@@ -1261,7 +1261,7 @@ export interface ApiCallDirectory {
   };
 
   'keychaincredential.query': {
-    params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: KeychainCredentialEntry[] | KeychainCredentialEntry | KeychainCredentialQueryResultItem[] | KeychainCredentialQueryResultItem | number;
   };
 
@@ -1341,7 +1341,7 @@ export interface ApiCallDirectory {
   };
 
   'pool.scrub.query': {
-    params: [filters?: QueryFilters<PoolScrubEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<PoolScrubEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: PoolScrubEntry[] | PoolScrubEntry | PoolScrubQueryResultItem[] | PoolScrubQueryResultItem | number;
   };
 
@@ -1386,7 +1386,7 @@ export interface ApiCallDirectory {
   };
 
   'pool.snapshottask.query': {
-    params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: PeriodicSnapshotTaskEntry[] | PeriodicSnapshotTaskEntry | PeriodicSnapshotTaskQueryResultItem[] | PeriodicSnapshotTaskQueryResultItem | number;
   };
 
@@ -1416,12 +1416,12 @@ export interface ApiCallDirectory {
   };
 
   'privilege.query': {
-    params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<PrivilegeEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: PrivilegeEntry[] | PrivilegeEntry | PrivilegeQueryResultItem[] | PrivilegeQueryResultItem | number;
   };
 
   'privilege.roles': {
-    params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: PrivilegeRolesEntry[] | PrivilegeRolesEntry | PrivilegeRolesQueryResultItem[] | PrivilegeRolesQueryResultItem | number;
   };
 
@@ -1466,7 +1466,7 @@ export interface ApiCallDirectory {
   };
 
   'reporting.exporters.query': {
-    params: [filters?: QueryFilters<ReportingExportsEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<ReportingExportsEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: ReportingExportsEntry[] | ReportingExportsEntry | ReportingExportsQueryResultItem[] | ReportingExportsQueryResultItem | number;
   };
 
@@ -1501,7 +1501,7 @@ export interface ApiCallDirectory {
   };
 
   'sharing.nfs.query': {
-    params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<SharingNFSEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: SharingNFSEntry[] | SharingNFSEntry | SharingNFSQueryResultItem[] | SharingNFSQueryResultItem | number;
   };
 
@@ -1571,7 +1571,7 @@ export interface ApiCallDirectory {
   };
 
   'staticroute.query': {
-    params: [filters?: QueryFilters<StaticRouteEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<StaticRouteEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: StaticRouteEntry[] | StaticRouteEntry | StaticRouteQueryResultItem[] | StaticRouteQueryResultItem | number;
   };
 
@@ -1601,7 +1601,7 @@ export interface ApiCallDirectory {
   };
 
   'system.ntpserver.query': {
-    params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<NTPServerEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: NTPServerEntry[] | NTPServerEntry | NTPServerQueryResultItem[] | NTPServerQueryResultItem | number;
   };
 
@@ -1716,7 +1716,7 @@ export interface ApiCallDirectory {
   };
 
   'user.query': {
-    params: [filters?: QueryFilters<UserEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<UserEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
   };
 

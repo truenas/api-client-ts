@@ -11,66 +11,39 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  ACLTemplateByPathArgs,
-  ACLTemplateQueryResultItem,
+  AcmeDnsAuthenticatorQueryOptionsModel,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
   BoxCredentialsModel,
   CloudBackupCreate,
   CloudBackupQueryResultItem,
+  CloudBackupS3CredentialsModelInput2,
   CloudBackupUpdate,
   CredentialsQueryResultItem,
   CredentialsVerifyResult,
-  DISABLED_ACLResult,
-  DeviceGetInfoDisk,
   DropboxCredentialsModel,
   FTPCredentialsModel,
-  FilesystemDirQueryResultItem,
-  FilesystemMkdirArgs,
-  GPUInfo,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
-  ISCSITargetExtentQueryResultItem,
-  InitShutdownScriptQueryResultItem,
-  KeychainCredentialQueryResultItem,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
-  POSIXACLResult,
-  QueryOptionsModel,
-  S3CredentialsModelInput2,
   SFTPCredentialsModel,
-  SerialInfo,
-  StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
   WebDavCredentialsModel,
   YandexCredentialsModel,
 } from '../v25_04_0/api-types';
 import type {
-  ACLTemplateEntry,
-  AclTemplateCreate,
-  AclTemplateUpdate,
   CloudBackupEntry,
-  CloudBackupSnapshotItem,
   CloudCredentialCreate,
   CloudCredentialUpdate,
   CredentialsEntry,
-  DeviceGetInfoOther,
   DisplayDevice,
-  FilesystemDirEntry,
-  FilesystemStatData,
   GroupCreate,
   GroupUpdate,
-  ISCSITargetExtentEntry,
-  InitShutdownScriptCreate,
-  InitShutdownScriptEntry,
-  InitShutdownScriptUpdate,
-  IscsiExtentCreate,
-  IscsiExtentUpdate,
-  KeychainCredentialEntry,
-  NFS4ACLResult,
+  StorjIxCredentialsModelInput,
   VMBootloaderOptionsResult,
   VMCreateArgs,
   VMDeleteOptions,
@@ -105,13 +78,8 @@ export interface ApiCallDirectoryDelta {
     response: CloudBackupEntry;
   };
 
-  'cloud_backup.list_snapshot_directory': {
-    params: [id: number, snapshot_id: string, path: string];
-    response: CloudBackupSnapshotItem[];
-  };
-
   'cloud_backup.query': {
-    params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<CloudBackupEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: CloudBackupEntry[] | CloudBackupEntry | CloudBackupQueryResultItem[] | CloudBackupQueryResultItem | number;
   };
 
@@ -131,7 +99,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'cloudsync.credentials.query': {
-    params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<CredentialsEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: CredentialsEntry[] | CredentialsEntry | CredentialsQueryResultItem[] | CredentialsQueryResultItem | number;
   };
 
@@ -141,58 +109,8 @@ export interface ApiCallDirectoryDelta {
   };
 
   'cloudsync.credentials.verify': {
-    params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | S3CredentialsModelInput2 | SFTPCredentialsModel | StorjIxCredentialsModelInput | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
+    params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | CloudBackupS3CredentialsModelInput2 | SFTPCredentialsModel | StorjIxCredentialsModelInput | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
     response: CredentialsVerifyResult;
-  };
-
-  'device.get_info': {
-    params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
-    response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
-  };
-
-  'filesystem.acltemplate.by_path': {
-    params: [filesystem_acl?: ACLTemplateByPathArgs];
-    response: ACLTemplateEntry[];
-  };
-
-  'filesystem.acltemplate.create': {
-    params: [acltemplate_create: AclTemplateCreate];
-    response: ACLTemplateEntry;
-  };
-
-  'filesystem.acltemplate.get_instance': {
-    params: [id: number, options?: QueryOptions<ACLTemplateEntry>];
-    response: ACLTemplateEntry;
-  };
-
-  'filesystem.acltemplate.query': {
-    params: [filters?: QueryFilters<ACLTemplateEntry>, options?: QueryOptionsModel];
-    response: ACLTemplateEntry[] | ACLTemplateEntry | ACLTemplateQueryResultItem[] | ACLTemplateQueryResultItem | number;
-  };
-
-  'filesystem.acltemplate.update': {
-    params: [id: number, acltemplate_update: AclTemplateUpdate];
-    response: ACLTemplateEntry;
-  };
-
-  'filesystem.getacl': {
-    params: [path: string, simplified?: boolean, resolve_ids?: boolean];
-    response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
-  };
-
-  'filesystem.listdir': {
-    params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel];
-    response: FilesystemDirEntry[] | FilesystemDirEntry | FilesystemDirQueryResultItem[] | FilesystemDirQueryResultItem | number;
-  };
-
-  'filesystem.mkdir': {
-    params: [filesystem_mkdir: FilesystemMkdirArgs];
-    response: FilesystemDirEntry;
-  };
-
-  'filesystem.stat': {
-    params: [path: string];
-    response: FilesystemStatData;
   };
 
   'group.create': {
@@ -203,56 +121,6 @@ export interface ApiCallDirectoryDelta {
   'group.update': {
     params: [id: number, group_update: GroupUpdate];
     response: number;
-  };
-
-  'initshutdownscript.create': {
-    params: [data: InitShutdownScriptCreate];
-    response: InitShutdownScriptEntry;
-  };
-
-  'initshutdownscript.get_instance': {
-    params: [id: number, options?: QueryOptions<InitShutdownScriptEntry>];
-    response: InitShutdownScriptEntry;
-  };
-
-  'initshutdownscript.query': {
-    params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptionsModel];
-    response: InitShutdownScriptEntry[] | InitShutdownScriptEntry | InitShutdownScriptQueryResultItem[] | InitShutdownScriptQueryResultItem | number;
-  };
-
-  'initshutdownscript.update': {
-    params: [id: number, data: InitShutdownScriptUpdate];
-    response: InitShutdownScriptEntry;
-  };
-
-  'iscsi.extent.create': {
-    params: [iscsi_extent_create: IscsiExtentCreate];
-    response: ISCSITargetExtentEntry;
-  };
-
-  'iscsi.extent.get_instance': {
-    params: [id: number, options?: QueryOptions<ISCSITargetExtentEntry>];
-    response: ISCSITargetExtentEntry;
-  };
-
-  'iscsi.extent.query': {
-    params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptionsModel];
-    response: ISCSITargetExtentEntry[] | ISCSITargetExtentEntry | ISCSITargetExtentQueryResultItem[] | ISCSITargetExtentQueryResultItem | number;
-  };
-
-  'iscsi.extent.update': {
-    params: [id: number, iscsi_extent_update: IscsiExtentUpdate];
-    response: ISCSITargetExtentEntry;
-  };
-
-  'keychaincredential.get_instance': {
-    params: [id: number, options?: QueryOptions<KeychainCredentialEntry>];
-    response: KeychainCredentialEntry;
-  };
-
-  'keychaincredential.query': {
-    params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptionsModel];
-    response: KeychainCredentialEntry[] | KeychainCredentialEntry | KeychainCredentialQueryResultItem[] | KeychainCredentialQueryResultItem | number;
   };
 
   'vm.bootloader_options': {
@@ -311,7 +179,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'vm.device.query': {
-    params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<VMDeviceEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: VMDeviceEntry[] | VMDeviceEntry | VMDeviceQueryResultItem[] | VMDeviceQueryResultItem | number;
   };
 
@@ -366,7 +234,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'vm.query': {
-    params: [filters?: QueryFilters<VMEntry>, options?: QueryOptionsModel];
+    params: [filters?: QueryFilters<VMEntry>, options?: AcmeDnsAuthenticatorQueryOptionsModel];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
   };
 

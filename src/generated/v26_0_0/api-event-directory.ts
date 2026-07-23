@@ -10,7 +10,6 @@ import type {
   ApiKeyRemovedEvent,
   CloudBackupRemovedEvent,
   CredentialsRemovedEvent,
-  KeychainCredentialRemovedEvent,
   PeriodicSnapshotTaskRemovedEvent,
   SharingNFSRemovedEvent,
   UserRemovedEvent,
@@ -22,9 +21,7 @@ import type {
   CloudSyncRemovedEvent,
   PoolRemovedEvent,
   ReplicationRemovedEvent,
-  RsyncTaskRemovedEvent,
   SharingSMBRemovedEvent,
-  TunableRemovedEvent,
   VMWareRemovedEvent,
 } from '../v25_10_0/api-types';
 import type {
@@ -44,8 +41,6 @@ import type {
   ContainerRemovedEvent,
   CredentialsAddedEvent,
   CredentialsChangedEvent,
-  KeychainCredentialAddedEvent,
-  KeychainCredentialChangedEvent,
   PeriodicSnapshotTaskAddedEvent,
   PeriodicSnapshotTaskChangedEvent,
   PoolAddedEvent,
@@ -53,8 +48,6 @@ import type {
   PoolScanChangedEvent,
   ReplicationAddedEvent,
   ReplicationChangedEvent,
-  RsyncTaskAddedEvent,
-  RsyncTaskChangedEvent,
   SharingNFSAddedEvent,
   SharingNFSChangedEvent,
   SharingSMBAddedEvent,
@@ -62,8 +55,6 @@ import type {
   SharingWebshareAddedEvent,
   SharingWebshareChangedEvent,
   SharingWebshareRemovedEvent,
-  TunableAddedEvent,
-  TunableChangedEvent,
   UserAddedEvent,
   UserChangedEvent,
   VMAddedEvent,
@@ -123,12 +114,6 @@ export interface ApiEventDirectoryDelta {
     removed: ContainerRemovedEvent;
   };
 
-  'keychaincredential.query': {
-    added: KeychainCredentialAddedEvent;
-    changed: KeychainCredentialChangedEvent;
-    removed: KeychainCredentialRemovedEvent;
-  };
-
   'pool.query': {
     added: PoolAddedEvent;
     changed: PoolChangedEvent;
@@ -151,12 +136,6 @@ export interface ApiEventDirectoryDelta {
     removed: ReplicationRemovedEvent;
   };
 
-  'rsynctask.query': {
-    added: RsyncTaskAddedEvent;
-    changed: RsyncTaskChangedEvent;
-    removed: RsyncTaskRemovedEvent;
-  };
-
   'sharing.nfs.query': {
     added: SharingNFSAddedEvent;
     changed: SharingNFSChangedEvent;
@@ -173,12 +152,6 @@ export interface ApiEventDirectoryDelta {
     added: SharingWebshareAddedEvent;
     changed: SharingWebshareChangedEvent;
     removed: SharingWebshareRemovedEvent;
-  };
-
-  'tunable.query': {
-    added: TunableAddedEvent;
-    changed: TunableChangedEvent;
-    removed: TunableRemovedEvent;
   };
 
   'user.query': {

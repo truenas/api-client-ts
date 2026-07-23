@@ -6,22 +6,11 @@
 import type { ApiJobDirectory as PreviousApiJobDirectory } from '../v25_04_1/api-job-directory';
 
 import type {
-  DISABLED_ACLResult,
-  POSIXACLResult,
-} from '../v25_04_0/api-types';
-import type {
-  FilesystemSetaclArgs,
-  NFS4ACLResult,
   VMStopOptions,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiJobDirectoryDelta {
-  'filesystem.setacl': {
-    params: [filesystem_acl: FilesystemSetaclArgs];
-    response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
-  };
-
   'vm.log_file_download': {
     params: [id: number];
     response: null;

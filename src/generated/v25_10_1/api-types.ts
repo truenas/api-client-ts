@@ -4,19 +4,28 @@
  */
 
 import type {
-  DefaultOptInput,
+  TierInfo,
+} from '../v25_04_0/api-types';
+import type {
   ExternalOpt,
   ExternalOptInput,
   LegacyOpt,
   LegacyOptInput,
-  MultiprotocolOptInput,
-  PrivateDatasetOptInput,
   SmbAuditConfig,
-  TierInfo,
-  TimeLockedOptInput,
-  TimeMachineOptInput,
-  VeeamRepositoryOptInput,
 } from '../v25_10_0/api-types';
+
+export const DockerStatusInfoStatus = {
+  Pending: 'PENDING',
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+  Initializing: 'INITIALIZING',
+  Stopping: 'STOPPING',
+  Unconfigured: 'UNCONFIGURED',
+  Failed: 'FAILED',
+  Migrating: 'MIGRATING',
+  MigrationFailed: 'MIGRATION_FAILED',
+} as const;
+export type DockerStatusInfoStatus = (typeof DockerStatusInfoStatus)[keyof typeof DockerStatusInfoStatus];
 
 export const Purpose = {
   DefaultShare: 'DEFAULT_SHARE',
@@ -31,20 +40,13 @@ export const Purpose = {
 } as const;
 export type Purpose = (typeof Purpose)[keyof typeof Purpose];
 
-export const Status2 = {
-  Pending: 'PENDING',
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-  Initializing: 'INITIALIZING',
-  Stopping: 'STOPPING',
-  Unconfigured: 'UNCONFIGURED',
-  Failed: 'FAILED',
-  Migrating: 'MIGRATING',
-  MigrationFailed: 'MIGRATION_FAILED',
-} as const;
-export type Status2 = (typeof Status2)[keyof typeof Status2];
-
 export interface DefaultOpt {
+  aapl_name_mangling?: boolean;
+  hostsallow?: string[];
+  hostsdeny?: string[];
+}
+export interface DefaultOptInput {
+  purpose: "DEFAULT_SHARE";
   aapl_name_mangling?: boolean;
   hostsallow?: string[];
   hostsdeny?: string[];
@@ -65,7 +67,21 @@ export interface MultiprotocolOpt {
   hostsallow?: string[];
   hostsdeny?: string[];
 }
+export interface MultiprotocolOptInput {
+  purpose: "MULTIPROTOCOL_SHARE";
+  aapl_name_mangling?: boolean;
+  hostsallow?: string[];
+  hostsdeny?: string[];
+}
 export interface PrivateDatasetOpt {
+  dataset_naming_schema?: string | null;
+  auto_quota?: number;
+  aapl_name_mangling?: boolean;
+  hostsallow?: string[];
+  hostsdeny?: string[];
+}
+export interface PrivateDatasetOptInput {
+  purpose: "PRIVATE_DATASETS_SHARE";
   dataset_naming_schema?: string | null;
   auto_quota?: number;
   aapl_name_mangling?: boolean;
@@ -104,6 +120,28 @@ export interface SharingSMBEntryInput {
       )
     | null;
   tier?: TierInfo | null;
+}
+export interface TimeMachineOptInput {
+  purpose: "TIMEMACHINE_SHARE";
+  timemachine_quota?: number;
+  auto_snapshot?: boolean;
+  auto_dataset_creation?: boolean;
+  dataset_naming_schema?: string | null;
+  vuid?: string | null;
+  hostsallow?: string[];
+  hostsdeny?: string[];
+}
+export interface TimeLockedOptInput {
+  purpose: "TIME_LOCKED_SHARE";
+  grace_period?: number;
+  aapl_name_mangling?: boolean;
+  hostsallow?: string[];
+  hostsdeny?: string[];
+}
+export interface VeeamRepositoryOptInput {
+  purpose: "VEEAM_REPOSITORY_SHARE";
+  hostsallow?: string[];
+  hostsdeny?: string[];
 }
 export interface SharingSMBChangedEvent {
   id: number;
@@ -242,7 +280,7 @@ export interface StaticRouteUpdate {
   gateway?: string;
 }
 export interface StatusResult {
-  status: Status2;
+  status: DockerStatusInfoStatus;
 }
 export interface VMDeviceVirtualSizeArgs {
   path: string;

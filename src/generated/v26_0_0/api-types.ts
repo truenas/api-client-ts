@@ -7,6 +7,8 @@ import type {
   AddressPool,
   Aggregations,
   AppImageParsedRepoTags,
+  AppNetworks,
+  AppVolumes,
   AuthUserInfo,
   Authenticator,
   AzureBlobCredentialsModel,
@@ -17,7 +19,6 @@ import type {
   CloudCron,
   DropboxCredentialsModel,
   Encryption,
-  EncryptionInput,
   FTPCredentialsModel,
   Function,
   GoogleCloudStorageCredentialsModel,
@@ -25,57 +26,51 @@ import type {
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
+  IscsiExtentCreateType,
+  KeychainCredentialEntry,
+  KeychainCredentialEntryInput,
   Maintainer,
   MegaCredentialsModel,
+  NFS4ACEInput,
   NFS4ACL_Flags,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
   POSIXACE,
+  PoolScanStateInput,
   PoolSnapshotTaskCron,
   Rpm,
   SFTPCredentialsModel,
-  SSHCredentials,
-  SSHKeyPair,
-  StorjIxCredentialsModelInput,
+  SMBEntryEncryptionInput,
   SwiftCredentialsModel,
   Unixcharset,
   UpgradeOptions,
+  UsedPorts,
   UserTwofactorConfigEntry,
   WebDavCredentialsModel,
   YandexCredentialsModel,
   ZFSFileAttrsData,
+  ZfsTierRewriteJobEntryStatusInput,
 } from '../v25_04_0/api-types';
 import type {
   Bootloader,
-  NFS4ACEInput,
-  Resolution,
   StorjIxCredentialsModel,
+  StorjIxCredentialsModelInput,
   Time,
-  Type6,
   USBAttributes,
 } from '../v25_04_2/api-types';
 import type {
   Aclmode,
-  AcltypeInput2,
   Advpowermgmt,
   Algorithm,
-  AppActiveWorkloads,
   Atime,
   Autotrim,
   Casesensitivity,
-  Checksum,
-  Checksum2,
   CloudSyncBwlimit,
+  CloudSyncCreateDirection,
+  CloudSyncCreateDirectionInput,
   CloudTaskAttributes,
   CloudTaskAttributesInput,
   Compression,
-  Deduplication,
-  Deduplication2,
-  DefaultOptInput,
-  Direction,
-  Direction2,
-  DirectionInput,
-  DirectionInput2,
   DiskEntryEnclosure,
   Exec,
   ExternalOpt,
@@ -85,21 +80,24 @@ import type {
   InterfaceCreateFailoverAlias,
   LegacyOpt,
   LegacyOptInput,
-  Mode3,
-  ModeInput2,
-  ModeInput3,
-  MultiprotocolOptInput,
   NVMetSubsysEntry,
+  PoolCreateChecksum,
+  PoolCreateDeduplication,
   PoolCreateTopologyCacheVdev,
+  PoolDatasetCreateFilesystemAcltypeInput,
+  PoolDatasetCreateFilesystemChecksum,
+  PoolDatasetCreateFilesystemDeduplication,
+  PoolDatasetCreateFilesystemReadonlyInput,
   PoolDatasetCreateUserProperty,
   PoolTopology,
-  PrivateDatasetOptInput,
   QueryOptionsModel,
   Readonly,
-  ReadonlyInput,
-  ReadonlyInput2,
+  ReplicationCountEligibleManualSnapshotsTransportInput,
+  ReplicationCreateReadonlyInput,
   ReplicationLifetimeModel,
   ReplicationTimeCronModel,
+  RsyncTaskCreateDirection,
+  RsyncTaskCreateMode,
   RsyncTaskSchedule,
   SMBShareAclEntryWhoId,
   Serialspeed,
@@ -107,48 +105,70 @@ import type {
   SmbAuditConfig,
   Snapdev,
   Snapdir,
-  StateInput2,
-  StatusInput2,
   Sync,
   SyslogServer,
   Sysloglevel,
-  TimeLockedOptInput,
-  TimeMachineOptInput,
   Transport,
-  TransportInput,
+  TruecommandConfigChangedEventFieldsStatus,
+  UPSEntryModeInput,
   USBCapability,
   VMDeviceEntry,
   VMDeviceEntryInput,
-  VMWareMatchDatastoresWithDatasetsResultDatastore,
-  VeeamRepositoryOptInput,
+  VMWareEntryStateStateInput,
+  VMWareMatchDatastoresWithDatasetsResultFilesystemType,
   Volblocksize,
   ZFSPropertiesEntry,
 } from '../v25_10_0/api-types';
 import type {
   DefaultOpt,
+  DefaultOptInput,
   FCPStorageOpt,
   FCPStorageOptInput,
   MultiprotocolOpt,
+  MultiprotocolOptInput,
   PrivateDatasetOpt,
+  PrivateDatasetOptInput,
   Purpose,
   TimeLockedOpt,
+  TimeLockedOptInput,
   TimeMachineOpt,
+  TimeMachineOptInput,
   VeeamRepositoryOpt,
+  VeeamRepositoryOptInput,
 } from '../v25_10_1/api-types';
 
-export const Action = {
-  Start: 'START',
-  Pause: 'PAUSE',
-  Cancel: 'CANCEL',
+export const AppContainerDetailsState = {
+  Crashed: 'crashed',
+  Created: 'created',
+  Exited: 'exited',
+  Running: 'running',
+  Starting: 'starting',
 } as const;
-export type Action = (typeof Action)[keyof typeof Action];
+export type AppContainerDetailsState = (typeof AppContainerDetailsState)[keyof typeof AppContainerDetailsState];
 
-export const Action2 = {
-  Start: 'START',
-  Stop: 'STOP',
-  Pause: 'PAUSE',
+export const ContainerNICDeviceType = {
+  E1000: 'E1000',
+  Virtio: 'VIRTIO',
 } as const;
-export type Action2 = (typeof Action2)[keyof typeof Action2];
+export type ContainerNICDeviceType = (typeof ContainerNICDeviceType)[keyof typeof ContainerNICDeviceType];
+
+export const ContainerNICDeviceTypeInput = {
+  E1000: 'E1000',
+  Virtio: 'VIRTIO',
+} as const;
+export type ContainerNICDeviceTypeInput = (typeof ContainerNICDeviceTypeInput)[keyof typeof ContainerNICDeviceTypeInput];
+
+export const ContainerStatusState = {
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+} as const;
+export type ContainerStatusState = (typeof ContainerStatusState)[keyof typeof ContainerStatusState];
+
+export const ContainerStatusStateInput = {
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+} as const;
+export type ContainerStatusStateInput = (typeof ContainerStatusStateInput)[keyof typeof ContainerStatusStateInput];
 
 export const Feature = {
   Apps: 'APPS',
@@ -195,6 +215,26 @@ export const Passkey = {
 } as const;
 export type Passkey = (typeof Passkey)[keyof typeof Passkey];
 
+export const PoolCreateTopologyDedupVdevTypeInput = {
+  Mirror: 'MIRROR',
+  Stripe: 'STRIPE',
+} as const;
+export type PoolCreateTopologyDedupVdevTypeInput = (typeof PoolCreateTopologyDedupVdevTypeInput)[keyof typeof PoolCreateTopologyDedupVdevTypeInput];
+
+export const PoolScanState = {
+  Scanning: 'SCANNING',
+  Finished: 'FINISHED',
+  Canceled: 'CANCELED',
+} as const;
+export type PoolScanState = (typeof PoolScanState)[keyof typeof PoolScanState];
+
+export const PoolScrubAction = {
+  Start: 'START',
+  Stop: 'STOP',
+  Pause: 'PAUSE',
+} as const;
+export type PoolScrubAction = (typeof PoolScrubAction)[keyof typeof PoolScrubAction];
+
 export const Service = {
   Middleware: 'MIDDLEWARE',
   Smb: 'SMB',
@@ -203,33 +243,7 @@ export const Service = {
 } as const;
 export type Service = (typeof Service)[keyof typeof Service];
 
-export const State2 = {
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-} as const;
-export type State2 = (typeof State2)[keyof typeof State2];
-
-export const State3 = {
-  Scanning: 'SCANNING',
-  Finished: 'FINISHED',
-  Canceled: 'CANCELED',
-} as const;
-export type State3 = (typeof State3)[keyof typeof State3];
-
-export const StateInput3 = {
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-} as const;
-export type StateInput3 = (typeof StateInput3)[keyof typeof StateInput3];
-
-export const StateInput4 = {
-  Scanning: 'SCANNING',
-  Finished: 'FINISHED',
-  Canceled: 'CANCELED',
-} as const;
-export type StateInput4 = (typeof StateInput4)[keyof typeof StateInput4];
-
-export const Status = {
+export const ZfsTierRewriteJobEntryStatus = {
   Complete: 'COMPLETE',
   Running: 'RUNNING',
   Queued: 'QUEUED',
@@ -237,97 +251,16 @@ export const Status = {
   Stopped: 'STOPPED',
   Error: 'ERROR',
 } as const;
-export type Status = (typeof Status)[keyof typeof Status];
+export type ZfsTierRewriteJobEntryStatus = (typeof ZfsTierRewriteJobEntryStatus)[keyof typeof ZfsTierRewriteJobEntryStatus];
 
-export const Status2 = {
-  Connected: 'CONNECTED',
-  Connecting: 'CONNECTING',
-  Disabled: 'DISABLED',
-  Failed: 'FAILED',
+export const ZpoolScrubRunAction = {
+  Start: 'START',
+  Pause: 'PAUSE',
+  Cancel: 'CANCEL',
 } as const;
-export type Status2 = (typeof Status2)[keyof typeof Status2];
+export type ZpoolScrubRunAction = (typeof ZpoolScrubRunAction)[keyof typeof ZpoolScrubRunAction];
 
-export const Status3 = {
-  Pending: 'PENDING',
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-  Initializing: 'INITIALIZING',
-  Stopping: 'STOPPING',
-  Unconfigured: 'UNCONFIGURED',
-  Failed: 'FAILED',
-  Migrating: 'MIGRATING',
-  MigrationFailed: 'MIGRATION_FAILED',
-} as const;
-export type Status3 = (typeof Status3)[keyof typeof Status3];
-
-export const Type10 = {
-  SshKeyPair: 'SSH_KEY_PAIR',
-  SshCredentials: 'SSH_CREDENTIALS',
-} as const;
-export type Type10 = (typeof Type10)[keyof typeof Type10];
-
-export const Type11 = {
-  Sysctl: 'SYSCTL',
-  Udev: 'UDEV',
-  Zfs: 'ZFS',
-} as const;
-export type Type11 = (typeof Type11)[keyof typeof Type11];
-
-export const Type7 = {
-  E1000: 'E1000',
-  Virtio: 'VIRTIO',
-} as const;
-export type Type7 = (typeof Type7)[keyof typeof Type7];
-
-export const Type8 = {
-  Filesystem: 'FILESYSTEM',
-  Volume: 'VOLUME',
-} as const;
-export type Type8 = (typeof Type8)[keyof typeof Type8];
-
-export const Type9 = {
-  Spice: 'SPICE',
-  Vnc: 'VNC',
-} as const;
-export type Type9 = (typeof Type9)[keyof typeof Type9];
-
-export const TypeInput10 = {
-  Mirror: 'MIRROR',
-  Stripe: 'STRIPE',
-} as const;
-export type TypeInput10 = (typeof TypeInput10)[keyof typeof TypeInput10];
-
-export const TypeInput11 = {
-  Serial: 'SERIAL',
-  Gpu: 'GPU',
-} as const;
-export type TypeInput11 = (typeof TypeInput11)[keyof typeof TypeInput11];
-
-export const TypeInput12 = {
-  SshKeyPair: 'SSH_KEY_PAIR',
-  SshCredentials: 'SSH_CREDENTIALS',
-} as const;
-export type TypeInput12 = (typeof TypeInput12)[keyof typeof TypeInput12];
-
-export const TypeInput13 = {
-  Sysctl: 'SYSCTL',
-  Udev: 'UDEV',
-  Zfs: 'ZFS',
-} as const;
-export type TypeInput13 = (typeof TypeInput13)[keyof typeof TypeInput13];
-
-export const TypeInput14 = {
-  Used: 'USED',
-  Unused: 'UNUSED',
-  Both: 'BOTH',
-} as const;
-export type TypeInput14 = (typeof TypeInput14)[keyof typeof TypeInput14];
-
-export const TypeInput7 = {
-  E1000: 'E1000',
-  Virtio: 'VIRTIO',
-} as const;
-export type TypeInput7 = (typeof TypeInput7)[keyof typeof TypeInput7];
+export type AppContainerResponse = Record<string, ContainerDetails>;
 
 export type AuditQueryResultItemQueryResultItem = Record<string, unknown>;
 
@@ -474,6 +407,23 @@ export interface ApiKeyScramData {
   client_key: string;
   stored_key: string;
   server_key: string;
+}
+export interface AppActiveWorkloads {
+  containers: number;
+  used_ports: UsedPorts[];
+  used_host_ips: string[];
+  container_details: AppContainerDetails[];
+  volumes: AppVolumes[];
+  images: string[];
+  networks: AppNetworks[];
+}
+export interface AppContainerDetails {
+  id: string;
+  service_name: string;
+  image: string;
+  port_config: UsedPorts[];
+  state: AppContainerDetailsState;
+  volume_mounts: AppVolumes[];
 }
 export interface AppBulkUpgradeJobResult {
   app_name: string;
@@ -640,7 +590,7 @@ export interface BootGetState {
 }
 export interface PoolScan {
   function: Function;
-  state: State3;
+  state: PoolScanState;
   start_time: string;
   end_time: string | null;
   percentage: number;
@@ -875,7 +825,7 @@ export interface CloudSyncEntryInput {
   locked: boolean;
   bwlimit?: CloudSyncBwlimit[];
   transfers?: number | null;
-  direction: DirectionInput2;
+  direction: CloudSyncCreateDirectionInput;
   transfer_mode: "SYNC" | "COPY" | "MOVE";
   encryption?: boolean;
   filename_encryption?: boolean;
@@ -909,7 +859,7 @@ export interface CloudSyncEntry {
   locked: boolean;
   bwlimit?: CloudSyncBwlimit[];
   transfers?: number | null;
-  direction: Direction2;
+  direction: CloudSyncCreateDirection;
   transfer_mode: "SYNC" | "COPY" | "MOVE";
   encryption?: boolean;
   filename_encryption?: boolean;
@@ -949,7 +899,8 @@ export interface ContainerEntryInput {
 }
 export interface ContainerDeviceEntryInput {
   id: number;
-  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput2 | ContainerUSBDevice;
+  attributes:
+    ContainerFilesystemDevice | ContainerGPUDevice | ContainerDeviceContainerNICDeviceInput | ContainerUSBDevice;
   container: number;
 }
 export interface ContainerFilesystemDevice {
@@ -962,10 +913,10 @@ export interface ContainerGPUDevice {
   gpu_type: "AMD" | "INTEL" | "NVIDIA";
   pci_address: string;
 }
-export interface ContainerNICDeviceInput2 {
+export interface ContainerDeviceContainerNICDeviceInput {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
-  type?: TypeInput7;
+  type?: ContainerNICDeviceTypeInput;
   nic_attach?: string | null;
   mac?: string | null;
 }
@@ -982,7 +933,7 @@ export interface IsolatedIdmapConfiguration {
   slice: number | null;
 }
 export interface ContainerStatusInput {
-  state: StateInput3;
+  state: ContainerStatusStateInput;
   pid: number | null;
   domain_state: string | null;
 }
@@ -1016,6 +967,12 @@ export interface ContainerCreateImage {
   name: string;
   version: string;
 }
+export interface ContainerDetails {
+  id: string;
+  service_name: string;
+  image: string;
+  state: AppContainerDetailsState;
+}
 export interface ContainerDeviceAddedEvent {
   id: number;
   fields: ContainerDeviceEntryInput;
@@ -1031,7 +988,7 @@ export interface ContainerDeviceCreateArgs {
 export interface ContainerNICDeviceInput {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
-  type?: TypeInput7;
+  type?: ContainerNICDeviceTypeInput;
   nic_attach?: string | null;
   mac?: string | null;
 }
@@ -1048,7 +1005,7 @@ export interface ContainerDeviceEntry {
 export interface ContainerNICDevice {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
-  type?: Type7;
+  type?: ContainerNICDeviceType;
   nic_attach?: string | null;
   mac?: string | null;
 }
@@ -1091,7 +1048,7 @@ export interface ContainerEntry {
   status: ContainerStatus;
 }
 export interface ContainerStatus {
-  state: State2;
+  state: ContainerStatusState;
   pid: number | null;
   domain_state: string | null;
 }
@@ -1136,13 +1093,6 @@ export interface CredentialsChangedEvent {
   id: number;
   fields: CredentialsEntryInput;
 }
-export interface DeviceGetInfoOther {
-  type: TypeInput11;
-}
-export interface DiskDetails {
-  join_partitions?: boolean;
-  type?: TypeInput14;
-}
 export interface DiskResetSedArgs {
   name: string;
   psid: string;
@@ -1166,24 +1116,6 @@ export interface DiskUpdate {
   passwd?: string;
   sed?: boolean | null;
   sed_status?: string | null;
-}
-export interface DisplayDevice {
-  id: number;
-  attributes: GetDisplayDevice;
-  vm: number;
-  order: number;
-}
-export interface GetDisplayDevice {
-  dtype: "DISPLAY";
-  resolution?: Resolution;
-  port?: number | null;
-  web_port?: number | null;
-  bind?: string;
-  wait?: boolean;
-  password?: string | null;
-  web?: boolean;
-  type?: Type9;
-  password_configured: boolean;
 }
 export interface DockerEntry {
   id: number;
@@ -1301,7 +1233,7 @@ export interface ISCSIGlobalUpdateArgs {
 export interface ISCSITargetExtentEntry {
   id: number;
   name: string;
-  type?: Type6;
+  type?: IscsiExtentCreateType;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -1321,26 +1253,6 @@ export interface ISCSITargetExtentEntry {
   vendor: string;
   product_id?: string | null;
   locked: boolean | null;
-}
-export interface KeychainCredentialAddedEvent {
-  id: number;
-  fields: KeychainCredentialEntryInput;
-}
-export interface KeychainCredentialEntryInput {
-  id: number;
-  name: string;
-  type: TypeInput12;
-  attributes: SSHKeyPair | SSHCredentials;
-}
-export interface KeychainCredentialChangedEvent {
-  id: number;
-  fields: KeychainCredentialEntryInput;
-}
-export interface KeychainCredentialEntry {
-  id: number;
-  name: string;
-  type: Type10;
-  attributes: SSHKeyPair | SSHCredentials;
 }
 export interface LXCConfigEntry {
   id: number;
@@ -1429,7 +1341,7 @@ export interface PoolEntryInput {
 }
 export interface PoolScanInput {
   function: Function;
-  state: StateInput4;
+  state: PoolScanStateInput;
   start_time: string;
   end_time: string | null;
   percentage: number;
@@ -1449,8 +1361,8 @@ export interface PoolCreate {
   encryption?: boolean;
   dedup_table_quota?: "AUTO" | "CUSTOM" | null;
   dedup_table_quota_value?: number | null;
-  deduplication?: Deduplication2;
-  checksum?: Checksum2;
+  deduplication?: PoolCreateDeduplication;
+  checksum?: PoolCreateChecksum;
   encryption_options?: PoolCreateEncryptionOptions;
   topology: PoolCreateTopology;
   allow_duplicate_serials?: boolean;
@@ -1489,11 +1401,11 @@ export interface PoolCreateTopologyVdevNonDRAID {
   disks: string[];
 }
 export interface PoolCreateTopologyDedupVdev {
-  type: TypeInput10;
+  type: PoolCreateTopologyDedupVdevTypeInput;
   disks: string[];
 }
 export interface PoolCreateTopologyLogVdev {
-  type: TypeInput10;
+  type: PoolCreateTopologyDedupVdevTypeInput;
   disks: string[];
 }
 export interface PoolDatasetChangeKeyOptions {
@@ -1520,9 +1432,9 @@ export interface PoolDatasetCreateFilesystem {
   special_small_block_size?: number | "INHERIT";
   copies?: number | "INHERIT";
   snapdir?: Snapdir;
-  deduplication?: Deduplication;
-  checksum?: Checksum;
-  readonly?: ReadonlyInput;
+  deduplication?: PoolDatasetCreateFilesystemDeduplication;
+  checksum?: PoolDatasetCreateFilesystemChecksum;
+  readonly?: PoolDatasetCreateFilesystemReadonlyInput;
   share_type?: "GENERIC" | "MULTIPROTOCOL" | "NFS" | "SMB" | "APPS";
   encryption_options?: PoolCreateEncryptionOptions;
   encryption?: boolean;
@@ -1531,7 +1443,7 @@ export interface PoolDatasetCreateFilesystem {
   create_ancestors?: boolean;
   type?: "FILESYSTEM";
   aclmode?: Aclmode;
-  acltype?: AcltypeInput2;
+  acltype?: PoolDatasetCreateFilesystemAcltypeInput;
   atime?: Atime;
   casesensitivity?: Casesensitivity;
   quota?: number | (0 | null);
@@ -1555,9 +1467,9 @@ export interface PoolDatasetCreateVolume {
   special_small_block_size?: number | "INHERIT";
   copies?: number | "INHERIT";
   snapdir?: Snapdir;
-  deduplication?: Deduplication;
-  checksum?: Checksum;
-  readonly?: ReadonlyInput;
+  deduplication?: PoolDatasetCreateFilesystemDeduplication;
+  checksum?: PoolDatasetCreateFilesystemChecksum;
+  readonly?: PoolDatasetCreateFilesystemReadonlyInput;
   share_type?: "GENERIC" | "MULTIPROTOCOL" | "NFS" | "SMB" | "APPS";
   encryption_options?: PoolCreateEncryptionOptions;
   encryption?: boolean;
@@ -1693,8 +1605,8 @@ export interface ReplicationAddedEvent {
 export interface ReplicationEntryInput {
   id: number;
   name: string;
-  direction: DirectionInput2;
-  transport: TransportInput;
+  direction: CloudSyncCreateDirectionInput;
+  transport: ReplicationCountEligibleManualSnapshotsTransportInput;
   ssh_credentials?: KeychainCredentialEntryInput | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
   netcat_active_side_listen_address?: string | null;
@@ -1729,7 +1641,7 @@ export interface ReplicationEntryInput {
   restrict_schedule?: ReplicationTimeCronModel | null;
   only_matching_schedule?: boolean;
   allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
+  readonly?: ReplicationCreateReadonlyInput;
   hold_pending_snapshots?: boolean;
   retention_policy: "SOURCE" | "CUSTOM" | "NONE";
   lifetime_value?: number | null;
@@ -1758,7 +1670,7 @@ export interface ReplicationChangedEvent {
 export interface ReplicationEntry {
   id: number;
   name: string;
-  direction: Direction2;
+  direction: CloudSyncCreateDirection;
   transport: Transport;
   ssh_credentials?: KeychainCredentialEntry | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
@@ -1825,58 +1737,19 @@ export interface ReportingGetDataResponse {
   end: number;
   legend: string[];
 }
-export interface RsyncTaskAddedEvent {
-  id: number;
-  fields: RsyncTaskEntryInput;
-}
-export interface RsyncTaskEntryInput {
-  id: number;
-  path: string;
-  dataset: string | null;
-  relative_path: string | null;
-  user: string;
-  mode?: ModeInput3;
-  remotehost?: string | null;
-  remoteport?: number | null;
-  remotemodule?: string | null;
-  ssh_credentials?: KeychainCredentialEntryInput | null;
-  remotepath?: string;
-  direction?: DirectionInput;
-  desc?: string;
-  schedule?: RsyncTaskSchedule;
-  recursive?: boolean;
-  times?: boolean;
-  compress?: boolean;
-  archive?: boolean;
-  delete?: boolean;
-  quiet?: boolean;
-  preserveperm?: boolean;
-  preserveattr?: boolean;
-  delayupdates?: boolean;
-  extra?: string[];
-  enabled?: boolean;
-  locked: boolean;
-  job: {
-    [k: string]: unknown;
-  } | null;
-}
-export interface RsyncTaskChangedEvent {
-  id: number;
-  fields: RsyncTaskEntryInput;
-}
 export interface RsyncTaskEntry {
   id: number;
   path: string;
   dataset: string | null;
   relative_path: string | null;
   user: string;
-  mode?: Mode3;
+  mode?: RsyncTaskCreateMode;
   remotehost?: string | null;
   remoteport?: number | null;
   remotemodule?: string | null;
   ssh_credentials?: KeychainCredentialEntry | null;
   remotepath?: string;
-  direction?: Direction;
+  direction?: RsyncTaskCreateDirection;
   desc?: string;
   schedule?: RsyncTaskSchedule;
   recursive?: boolean;
@@ -1927,7 +1800,7 @@ export interface ZfsTierRewriteJobEntryInput {
   tier_job_id: string;
   dataset_name: string;
   job_uuid: string;
-  status: StatusInput2;
+  status: ZfsTierRewriteJobEntryStatusInput;
 }
 export interface SharingNFSChangedEvent {
   id: number;
@@ -1961,7 +1834,7 @@ export interface ZfsTierRewriteJobEntry {
   tier_job_id: string;
   dataset_name: string;
   job_uuid: string;
-  status: Status;
+  status: ZfsTierRewriteJobEntryStatus;
 }
 export interface SharingSMBAddedEvent {
   id: number;
@@ -2136,15 +2009,12 @@ export interface SMBUpdateArgs {
   dirmask?: string | "DEFAULT";
   ntlmv1_auth?: boolean;
   multichannel?: boolean;
-  encryption?: EncryptionInput;
+  encryption?: SMBEntryEncryptionInput;
   bindip?: string[];
   server_sid?: string | null;
   smb_options?: string;
   debug?: boolean;
   stateful_failover?: boolean;
-}
-export interface StatusResult {
-  status: Status3;
 }
 export interface SupportNewTicket {
   ticket: number | null;
@@ -2223,7 +2093,7 @@ export interface SystemGeneralEntry {
 export interface TruecommandEntry {
   id: number;
   api_key: string | null;
-  status: Status2;
+  status: TruecommandConfigChangedEventFieldsStatus;
   status_reason:
     | "Truecommand service is connected."
     | "Pending Confirmation From iX Portal for Truecommand API Key."
@@ -2257,41 +2127,6 @@ export interface TrueNASConnectUpdateArgs {
 export interface TrueNASLicenseUploadOptions {
   ha_propagate?: boolean;
 }
-export interface TunableAddedEvent {
-  id: number;
-  fields: TunableEntryInput;
-}
-export interface TunableEntryInput {
-  type?: TypeInput13;
-  var: string;
-  value: string;
-  comment?: string;
-  enabled?: boolean;
-  id: number;
-  orig_value: string;
-}
-export interface TunableChangedEvent {
-  id: number;
-  fields: TunableEntryInput;
-}
-export interface TunableCreate {
-  type?: TypeInput13;
-  var: string;
-  value: string;
-  comment?: string;
-  enabled?: boolean;
-  update_initramfs?: boolean;
-}
-export interface TunableEntry {
-  type?: Type11;
-  var: string;
-  value: string;
-  comment?: string;
-  enabled?: boolean;
-  update_initramfs?: boolean;
-  id: number;
-  orig_value: string;
-}
 export interface TwofactorOptions {
   otp_digits?: number;
   interval?: Interval;
@@ -2306,7 +2141,7 @@ export interface UPSUpdate {
   driver?: string;
   extrausers?: string;
   identifier?: string;
-  mode?: ModeInput2;
+  mode?: UPSEntryModeInput;
   monpwd?: string;
   monuser?: string;
   options?: string;
@@ -2579,7 +2414,7 @@ export interface VMWareEntryInput {
   state: VMWareEntryStateInput;
 }
 export interface VMWareEntryStateInput {
-  state?: StateInput2;
+  state?: VMWareEntryStateStateInput;
   error?: string;
   datetime?: string;
 }
@@ -2595,14 +2430,6 @@ export interface VMWareEntry {
   username: string;
   password: string;
   state: VMWareEntryState;
-}
-export interface VMWareMatchDatastoresWithDatasetsResult {
-  datastores: VMWareMatchDatastoresWithDatasetsResultDatastore[];
-  filesystems: VMWareMatchDatastoresWithDatasetsResultFilesystem[];
-}
-export interface VMWareMatchDatastoresWithDatasetsResultFilesystem {
-  type: Type8;
-  name: string;
 }
 export interface WebshareEntry {
   id: number;
@@ -2627,7 +2454,7 @@ export interface ZFSResourceEntry {
   name: string;
   pool: string;
   properties: ZFSPropertiesEntry | null;
-  type: Type8;
+  type: VMWareMatchDatastoresWithDatasetsResultFilesystemType;
   user_properties: {
     [k: string]: string;
   } | null;
@@ -2785,7 +2612,7 @@ export interface ZfsTierRewriteJobStatusEntry {
   tier_job_id: string;
   dataset_name: string;
   job_uuid: string;
-  status: Status;
+  status: ZfsTierRewriteJobEntryStatus;
   stats: ZfsTierRewriteJobStats | null;
   error: string | null;
 }
@@ -2793,7 +2620,7 @@ export interface ZfsTierRewriteJobStatusEntryInput {
   tier_job_id: string;
   dataset_name: string;
   job_uuid: string;
-  status: StatusInput2;
+  status: ZfsTierRewriteJobEntryStatusInput;
   stats: ZfsTierRewriteJobStats | null;
   error: string | null;
 }
@@ -2884,7 +2711,7 @@ export interface ZPoolVdevStats {
 }
 export interface ZPoolScan {
   function: Function;
-  state: State3;
+  state: PoolScanState;
   start_time: number;
   end_time: number | null;
   percentage: number;
@@ -2932,7 +2759,7 @@ export interface ZPoolEntryInput {
 }
 export interface ZPoolScanInput {
   function: Function;
-  state: StateInput4;
+  state: PoolScanStateInput;
   start_time: number;
   end_time: number | null;
   percentage: number;
@@ -2965,6 +2792,6 @@ export interface ZPoolQueryRemovedEvent {
 export interface ZpoolScrubRun {
   pool_name: string;
   scan_type?: "SCRUB" | "ERRORSCRUB";
-  action?: Action;
+  action?: ZpoolScrubRunAction;
   threshold?: number;
 }

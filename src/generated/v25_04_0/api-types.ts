@@ -16,6 +16,15 @@ export const Action = {
 } as const;
 export type Action = (typeof Action)[keyof typeof Action];
 
+export const AppContainerDetailsStateInput = {
+  Crashed: 'crashed',
+  Created: 'created',
+  Exited: 'exited',
+  Running: 'running',
+  Starting: 'starting',
+} as const;
+export type AppContainerDetailsStateInput = (typeof AppContainerDetailsStateInput)[keyof typeof AppContainerDetailsStateInput];
+
 export const Authenticator = {
   Level1: 'LEVEL_1',
   Level2: 'LEVEL_2',
@@ -43,6 +52,18 @@ export const Blocksize = {
 } as const;
 export type Blocksize = (typeof Blocksize)[keyof typeof Blocksize];
 
+export const CloudBackupSnapshotItemType = {
+  Dir: 'dir',
+  File: 'file',
+} as const;
+export type CloudBackupSnapshotItemType = (typeof CloudBackupSnapshotItemType)[keyof typeof CloudBackupSnapshotItemType];
+
+export const CloudTaskAttributesEncryptionInput = {
+  Null: null,
+  Aes256: 'AES256',
+} as const;
+export type CloudTaskAttributesEncryptionInput = (typeof CloudTaskAttributesEncryptionInput)[keyof typeof CloudTaskAttributesEncryptionInput];
+
 export const Credentials = {
   UnixSocket: 'UNIX_SOCKET',
   LoginPassword: 'LOGIN_PASSWORD',
@@ -54,6 +75,32 @@ export const Credentials = {
 } as const;
 export type Credentials = (typeof Credentials)[keyof typeof Credentials];
 
+export const DeviceGetInfoOtherTypeInput = {
+  Serial: 'SERIAL',
+  Gpu: 'GPU',
+} as const;
+export type DeviceGetInfoOtherTypeInput = (typeof DeviceGetInfoOtherTypeInput)[keyof typeof DeviceGetInfoOtherTypeInput];
+
+export const DockerStatusInfoStatusInput = {
+  Pending: 'PENDING',
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+  Initializing: 'INITIALIZING',
+  Stopping: 'STOPPING',
+  Unconfigured: 'UNCONFIGURED',
+  Failed: 'FAILED',
+  Migrating: 'MIGRATING',
+  MigrationFailed: 'MIGRATION_FAILED',
+} as const;
+export type DockerStatusInfoStatusInput = (typeof DockerStatusInfoStatusInput)[keyof typeof DockerStatusInfoStatusInput];
+
+export const Enclosure2SetSlotStatusStatusInput = {
+  Clear: 'CLEAR',
+  On: 'ON',
+  Off: 'OFF',
+} as const;
+export type Enclosure2SetSlotStatusStatusInput = (typeof Enclosure2SetSlotStatusStatusInput)[keyof typeof Enclosure2SetSlotStatusStatusInput];
+
 export const Encryption = {
   Default: 'DEFAULT',
   Negotiate: 'NEGOTIATE',
@@ -61,20 +108,6 @@ export const Encryption = {
   Required: 'REQUIRED',
 } as const;
 export type Encryption = (typeof Encryption)[keyof typeof Encryption];
-
-export const EncryptionInput = {
-  Default: 'DEFAULT',
-  Negotiate: 'NEGOTIATE',
-  Desired: 'DESIRED',
-  Required: 'REQUIRED',
-} as const;
-export type EncryptionInput = (typeof EncryptionInput)[keyof typeof EncryptionInput];
-
-export const EncryptionInput2 = {
-  Null: null,
-  Aes256: 'AES256',
-} as const;
-export type EncryptionInput2 = (typeof EncryptionInput2)[keyof typeof EncryptionInput2];
 
 export const Endpoint = {
   OvhEu: 'ovh-eu',
@@ -87,11 +120,55 @@ export const Endpoint = {
 } as const;
 export type Endpoint = (typeof Endpoint)[keyof typeof Endpoint];
 
+export const FilesystemDirEntryType = {
+  Directory: 'DIRECTORY',
+  File: 'FILE',
+  Symlink: 'SYMLINK',
+  Other: 'OTHER',
+} as const;
+export type FilesystemDirEntryType = (typeof FilesystemDirEntryType)[keyof typeof FilesystemDirEntryType];
+
 export const Function = {
   Resilver: 'RESILVER',
   Scrub: 'SCRUB',
 } as const;
 export type Function = (typeof Function)[keyof typeof Function];
+
+export const InitShutdownScriptCreateType = {
+  Command: 'COMMAND',
+  Script: 'SCRIPT',
+} as const;
+export type InitShutdownScriptCreateType = (typeof InitShutdownScriptCreateType)[keyof typeof InitShutdownScriptCreateType];
+
+export const InitShutdownScriptCreateTypeInput = {
+  Command: 'COMMAND',
+  Script: 'SCRIPT',
+} as const;
+export type InitShutdownScriptCreateTypeInput = (typeof InitShutdownScriptCreateTypeInput)[keyof typeof InitShutdownScriptCreateTypeInput];
+
+export const IscsiExtentCreateType = {
+  Disk: 'DISK',
+  File: 'FILE',
+} as const;
+export type IscsiExtentCreateType = (typeof IscsiExtentCreateType)[keyof typeof IscsiExtentCreateType];
+
+export const IscsiExtentCreateTypeInput = {
+  Disk: 'DISK',
+  File: 'FILE',
+} as const;
+export type IscsiExtentCreateTypeInput = (typeof IscsiExtentCreateTypeInput)[keyof typeof IscsiExtentCreateTypeInput];
+
+export const KeychainCredentialEntryType = {
+  SshKeyPair: 'SSH_KEY_PAIR',
+  SshCredentials: 'SSH_CREDENTIALS',
+} as const;
+export type KeychainCredentialEntryType = (typeof KeychainCredentialEntryType)[keyof typeof KeychainCredentialEntryType];
+
+export const KeychainCredentialEntryTypeInput = {
+  SshKeyPair: 'SSH_KEY_PAIR',
+  SshCredentials: 'SSH_CREDENTIALS',
+} as const;
+export type KeychainCredentialEntryTypeInput = (typeof KeychainCredentialEntryTypeInput)[keyof typeof KeychainCredentialEntryTypeInput];
 
 export const Level = {
   Info: 'INFO',
@@ -111,6 +188,25 @@ export const Mode = {
 } as const;
 export type Mode = (typeof Mode)[keyof typeof Mode];
 
+export const NFS4ACEType = {
+  Allow: 'ALLOW',
+  Deny: 'DENY',
+} as const;
+export type NFS4ACEType = (typeof NFS4ACEType)[keyof typeof NFS4ACEType];
+
+export const NFS4ACETypeInput = {
+  Allow: 'ALLOW',
+  Deny: 'DENY',
+} as const;
+export type NFS4ACETypeInput = (typeof NFS4ACETypeInput)[keyof typeof NFS4ACETypeInput];
+
+export const PoolScanStateInput = {
+  Scanning: 'SCANNING',
+  Finished: 'FINISHED',
+  Canceled: 'CANCELED',
+} as const;
+export type PoolScanStateInput = (typeof PoolScanStateInput)[keyof typeof PoolScanStateInput];
+
 export const Rpm = {
   Unknown: 'UNKNOWN',
   Ssd: 'SSD',
@@ -120,6 +216,14 @@ export const Rpm = {
   '15000': '15000',
 } as const;
 export type Rpm = (typeof Rpm)[keyof typeof Rpm];
+
+export const SMBEntryEncryptionInput = {
+  Default: 'DEFAULT',
+  Negotiate: 'NEGOTIATE',
+  Desired: 'DESIRED',
+  Required: 'REQUIRED',
+} as const;
+export type SMBEntryEncryptionInput = (typeof SMBEntryEncryptionInput)[keyof typeof SMBEntryEncryptionInput];
 
 export const Source = {
   Local: 'LOCAL',
@@ -137,22 +241,6 @@ export const State = {
 } as const;
 export type State = (typeof State)[keyof typeof State];
 
-export const StateInput = {
-  Crashed: 'crashed',
-  Created: 'created',
-  Exited: 'exited',
-  Running: 'running',
-  Starting: 'starting',
-} as const;
-export type StateInput = (typeof StateInput)[keyof typeof StateInput];
-
-export const StateInput2 = {
-  Scanning: 'SCANNING',
-  Finished: 'FINISHED',
-  Canceled: 'CANCELED',
-} as const;
-export type StateInput2 = (typeof StateInput2)[keyof typeof StateInput2];
-
 export const Status = {
   Pending: 'PENDING',
   Running: 'RUNNING',
@@ -163,36 +251,6 @@ export const Status = {
   Failed: 'FAILED',
 } as const;
 export type Status = (typeof Status)[keyof typeof Status];
-
-export const StatusInput = {
-  Clear: 'CLEAR',
-  On: 'ON',
-  Off: 'OFF',
-} as const;
-export type StatusInput = (typeof StatusInput)[keyof typeof StatusInput];
-
-export const StatusInput2 = {
-  Complete: 'COMPLETE',
-  Running: 'RUNNING',
-  Queued: 'QUEUED',
-  Cancelled: 'CANCELLED',
-  Stopped: 'STOPPED',
-  Error: 'ERROR',
-} as const;
-export type StatusInput2 = (typeof StatusInput2)[keyof typeof StatusInput2];
-
-export const StatusInput3 = {
-  Pending: 'PENDING',
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-  Initializing: 'INITIALIZING',
-  Stopping: 'STOPPING',
-  Unconfigured: 'UNCONFIGURED',
-  Failed: 'FAILED',
-  Migrating: 'MIGRATING',
-  MigrationFailed: 'MIGRATION_FAILED',
-} as const;
-export type StatusInput3 = (typeof StatusInput3)[keyof typeof StatusInput3];
 
 export const STIGType = {
   '0': 0,
@@ -208,74 +266,6 @@ export const Tag = {
   'GROUP': 'GROUP',
 } as const;
 export type Tag = (typeof Tag)[keyof typeof Tag];
-
-export const Type = {
-  Allow: 'ALLOW',
-  Deny: 'DENY',
-} as const;
-export type Type = (typeof Type)[keyof typeof Type];
-
-export const Type2 = {
-  Command: 'COMMAND',
-  Script: 'SCRIPT',
-} as const;
-export type Type2 = (typeof Type2)[keyof typeof Type2];
-
-export const Type3 = {
-  Dir: 'dir',
-  File: 'file',
-} as const;
-export type Type3 = (typeof Type3)[keyof typeof Type3];
-
-export const Type4 = {
-  Directory: 'DIRECTORY',
-  File: 'FILE',
-  Symlink: 'SYMLINK',
-  Other: 'OTHER',
-} as const;
-export type Type4 = (typeof Type4)[keyof typeof Type4];
-
-export const Type5 = {
-  Disk: 'DISK',
-  File: 'FILE',
-} as const;
-export type Type5 = (typeof Type5)[keyof typeof Type5];
-
-export const Type6 = {
-  SshKeyPair: 'SSH_KEY_PAIR',
-  SshCredentials: 'SSH_CREDENTIALS',
-} as const;
-export type Type6 = (typeof Type6)[keyof typeof Type6];
-
-export const TypeInput = {
-  Allow: 'ALLOW',
-  Deny: 'DENY',
-} as const;
-export type TypeInput = (typeof TypeInput)[keyof typeof TypeInput];
-
-export const TypeInput2 = {
-  Command: 'COMMAND',
-  Script: 'SCRIPT',
-} as const;
-export type TypeInput2 = (typeof TypeInput2)[keyof typeof TypeInput2];
-
-export const TypeInput3 = {
-  Disk: 'DISK',
-  File: 'FILE',
-} as const;
-export type TypeInput3 = (typeof TypeInput3)[keyof typeof TypeInput3];
-
-export const TypeInput4 = {
-  Serial: 'SERIAL',
-  Gpu: 'GPU',
-} as const;
-export type TypeInput4 = (typeof TypeInput4)[keyof typeof TypeInput4];
-
-export const TypeInput5 = {
-  SshKeyPair: 'SSH_KEY_PAIR',
-  SshCredentials: 'SSH_CREDENTIALS',
-} as const;
-export type TypeInput5 = (typeof TypeInput5)[keyof typeof TypeInput5];
 
 export const Unixcharset = {
   Utf8: 'UTF-8',
@@ -389,6 +379,16 @@ export const When = {
 } as const;
 export type When = (typeof When)[keyof typeof When];
 
+export const ZfsTierRewriteJobEntryStatusInput = {
+  Complete: 'COMPLETE',
+  Running: 'RUNNING',
+  Queued: 'QUEUED',
+  Cancelled: 'CANCELLED',
+  Stopped: 'STOPPED',
+  Error: 'ERROR',
+} as const;
+export type ZfsTierRewriteJobEntryStatusInput = (typeof ZfsTierRewriteJobEntryStatusInput)[keyof typeof ZfsTierRewriteJobEntryStatusInput];
+
 export type ACLTemplateQueryResultItem = Record<string, unknown>;
 
 export type AlertServiceQueryResultItem = Record<string, unknown>;
@@ -491,7 +491,7 @@ export interface ACLTemplateEntryInput {
 }
 export interface NFS4ACEInput {
   tag: Tag;
-  type: TypeInput;
+  type: NFS4ACETypeInput;
   perms: NFS4ACE_AdvancedPerms | NFS4ACE_BasicPerms;
   flags: NFS4ACE_AdvancedFlags | NFS4ACE_BasicFlags;
   id?: number | null;
@@ -541,10 +541,10 @@ export interface POSIXACE_Perms {
 export interface ACLTemplateByPathArgs {
   path?: string;
   "query-filters"?: unknown[];
-  "query-options"?: QueryOptionsModel;
+  "query-options"?: AcmeDnsAuthenticatorQueryOptionsModel;
   "format-options"?: AclTemplateFormatOptions;
 }
-export interface QueryOptionsModel {
+export interface AcmeDnsAuthenticatorQueryOptionsModel {
   relationships?: boolean;
   extend?: string | null;
   extend_context?: string | null;
@@ -585,7 +585,7 @@ export interface ACLTemplateEntry {
 }
 export interface NFS4ACE {
   tag: Tag;
-  type: Type;
+  type: NFS4ACEType;
   perms: NFS4ACE_AdvancedPerms | NFS4ACE_BasicPerms;
   flags: NFS4ACE_AdvancedFlags | NFS4ACE_BasicFlags;
   id?: number | null;
@@ -945,7 +945,7 @@ export interface AppContainerDetailsInput {
   service_name: string;
   image: string;
   port_config: UsedPorts[];
-  state: StateInput;
+  state: AppContainerDetailsStateInput;
   volume_mounts: AppVolumes[];
 }
 export interface AppAddedEvent {
@@ -1493,9 +1493,9 @@ export interface CredentialsEntryInput {
     | MegaCredentialsModel
     | OneDriveCredentialsModel
     | PCloudCredentialsModel
-    | S3CredentialsModelInput
+    | CloudBackupS3CredentialsModelInput
     | SFTPCredentialsModel
-    | StorjIxCredentialsModelInput
+    | CloudBackupStorjIxCredentialsModelInput
     | SwiftCredentialsModel
     | WebDavCredentialsModel
     | YandexCredentialsModel;
@@ -1558,7 +1558,7 @@ export interface PCloudCredentialsModel {
   token: string;
   hostname?: string;
 }
-export interface S3CredentialsModelInput {
+export interface CloudBackupS3CredentialsModelInput {
   type: "S3";
   access_key_id: string;
   secret_access_key: string;
@@ -1579,7 +1579,7 @@ export interface SFTPCredentialsModel {
   pass?: string | null;
   private_key?: number | null;
 }
-export interface StorjIxCredentialsModelInput {
+export interface CloudBackupStorjIxCredentialsModelInput {
   type: "STORJ_IX";
   access_key_id: string;
   secret_access_key: string;
@@ -1625,7 +1625,7 @@ export interface CloudTaskAttributes {
   chunk_size?: number;
   acknowledge_abuse?: boolean;
   region?: string;
-  encryption?: EncryptionInput2;
+  encryption?: CloudTaskAttributesEncryptionInput;
   storage_class?:
     | ""
     | "STANDARD"
@@ -1743,6 +1743,16 @@ export interface CloudBackupRestoreOptions {
   exclude?: string[];
   include?: string[];
 }
+export interface CloudBackupS3CredentialsModelInput2 {
+  type: "S3";
+  access_key_id: string;
+  secret_access_key: string;
+  endpoint?: "" | string;
+  region?: string;
+  skip_region?: boolean & string;
+  signatures_v2?: boolean & string;
+  max_upload_parts?: number & string;
+}
 export interface CloudBackupSnapshot {
   id: string;
   hostname: string;
@@ -1753,10 +1763,15 @@ export interface CloudBackupSnapshot {
 export interface CloudBackupSnapshotItem {
   name: string;
   path: string;
-  type: Type3;
+  type: CloudBackupSnapshotItemType;
   size: number | null;
   mtime: string;
   [k: string]: unknown;
+}
+export interface CloudBackupStorjIxCredentialsModelInput2 {
+  type: "STORJ_IX";
+  access_key_id: string;
+  secret_access_key: string;
 }
 export interface CloudBackupSyncOptions {
   dry_run?: boolean;
@@ -1794,27 +1809,12 @@ export interface CloudCredentialCreate {
     | HubicCredentialsModel
     | OneDriveCredentialsModel
     | PCloudCredentialsModel
-    | S3CredentialsModelInput2
+    | CloudBackupS3CredentialsModelInput2
     | SFTPCredentialsModel
-    | StorjIxCredentialsModelInput2
+    | CloudBackupStorjIxCredentialsModelInput2
     | SwiftCredentialsModel
     | WebDavCredentialsModel
     | YandexCredentialsModel;
-}
-export interface S3CredentialsModelInput2 {
-  type: "S3";
-  access_key_id: string;
-  secret_access_key: string;
-  endpoint?: "" | string;
-  region?: string;
-  skip_region?: boolean & string;
-  signatures_v2?: boolean & string;
-  max_upload_parts?: number & string;
-}
-export interface StorjIxCredentialsModelInput2 {
-  type: "STORJ_IX";
-  access_key_id: string;
-  secret_access_key: string;
 }
 export interface CloudCredentialUpdate {
   name?: string;
@@ -1831,9 +1831,9 @@ export interface CloudCredentialUpdate {
     | HubicCredentialsModel
     | OneDriveCredentialsModel
     | PCloudCredentialsModel
-    | S3CredentialsModelInput2
+    | CloudBackupS3CredentialsModelInput2
     | SFTPCredentialsModel
-    | StorjIxCredentialsModelInput2
+    | CloudBackupStorjIxCredentialsModelInput2
     | SwiftCredentialsModel
     | WebDavCredentialsModel
     | YandexCredentialsModel;
@@ -1987,7 +1987,7 @@ export interface DeviceGetInfoDisk {
   serials_only?: boolean;
 }
 export interface DeviceGetInfoOther {
-  type: TypeInput4;
+  type: DeviceGetInfoOtherTypeInput;
 }
 export interface DISABLED_ACLResult {
   path: string;
@@ -2065,7 +2065,7 @@ export interface DockerStateChangedEvent {
   fields: DockerStatusInfo;
 }
 export interface DockerStatusInfo {
-  status: StatusInput3;
+  status: DockerStatusInfoStatusInput;
 }
 export interface DockerUpdateArgs {
   enable_image_updates?: boolean;
@@ -2078,7 +2078,7 @@ export interface DockerUpdateArgs {
 export interface Enclosure2SetSlotStatusArgs {
   enclosure_id: string;
   slot: number;
-  status: StatusInput;
+  status: Enclosure2SetSlotStatusStatusInput;
 }
 export interface FailoverRebootInfo {
   this_node: RebootInfo;
@@ -2166,12 +2166,6 @@ export interface FileFollowTailEventSourceArgs {
   path: string;
   tail_lines?: number;
 }
-export interface FileFollowTailEventSourceEvent {
-  data: string;
-}
-export interface FileFollowTailEventSourceEvent2 {
-  fields: FileFollowTailEventSourceEvent;
-}
 export interface FilesystemChownArgs {
   path: string;
   uid?: number | null;
@@ -2188,7 +2182,7 @@ export interface FilesystemDirEntry {
   name: string;
   path: string;
   realpath: string;
-  type: Type4;
+  type: FilesystemDirEntryType;
   size: number;
   allocation_size: number;
   mode: number;
@@ -2220,6 +2214,12 @@ export interface FilesystemDirEntry {
         | "SPARSE"
       )[]
     | null;
+}
+export interface FilesystemFileFollowTailEventSourceEvent {
+  data: string;
+}
+export interface FilesystemFileFollowTailEventSourceEvent2 {
+  fields: FilesystemFileFollowTailEventSourceEvent;
 }
 export interface FilesystemMkdirArgs {
   path: string;
@@ -2287,7 +2287,7 @@ export interface ZFSFileAttrsData {
 }
 export interface FilesystemStatData {
   realpath: string;
-  type: Type4;
+  type: FilesystemDirEntryType;
   size: number;
   allocation_size: number;
   mode: number;
@@ -2541,7 +2541,7 @@ export interface InitShutdownScriptAddedEvent {
   fields: InitShutdownScriptEntryInput;
 }
 export interface InitShutdownScriptEntryInput {
-  type: TypeInput2;
+  type: InitShutdownScriptCreateTypeInput;
   command?: string | null;
   script?: string | null;
   when: When;
@@ -2555,7 +2555,7 @@ export interface InitShutdownScriptChangedEvent {
   fields: InitShutdownScriptEntryInput;
 }
 export interface InitShutdownScriptCreate {
-  type: TypeInput2;
+  type: InitShutdownScriptCreateTypeInput;
   command?: string | null;
   script?: string | null;
   when: When;
@@ -2564,7 +2564,7 @@ export interface InitShutdownScriptCreate {
   comment?: string;
 }
 export interface InitShutdownScriptEntry {
-  type: Type2;
+  type: InitShutdownScriptCreateType;
   command?: string | null;
   script?: string | null;
   when: When;
@@ -2577,7 +2577,7 @@ export interface InitShutdownScriptRemovedEvent {
   id: number;
 }
 export interface InitShutdownScriptUpdate {
-  type?: TypeInput2;
+  type?: InitShutdownScriptCreateTypeInput;
   command?: string | null;
   script?: string | null;
   when?: When;
@@ -2603,7 +2603,7 @@ export interface IscsiAuthUpdate {
 }
 export interface IscsiExtentCreate {
   name: string;
-  type?: TypeInput3;
+  type?: IscsiExtentCreateTypeInput;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -2620,7 +2620,7 @@ export interface IscsiExtentCreate {
 }
 export interface IscsiExtentUpdate {
   name?: string;
-  type?: TypeInput3;
+  type?: IscsiExtentCreateTypeInput;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -2788,7 +2788,7 @@ export interface ISCSITargetExtentAddedEvent {
 export interface ISCSITargetExtentEntryInput {
   id: number;
   name: string;
-  type?: TypeInput3;
+  type?: IscsiExtentCreateTypeInput;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -2816,7 +2816,7 @@ export interface ISCSITargetExtentChangedEvent {
 export interface ISCSITargetExtentEntry {
   id: number;
   name: string;
-  type?: Type5;
+  type?: IscsiExtentCreateType;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -2883,7 +2883,7 @@ export interface KeychainCredentialAddedEvent {
 export interface KeychainCredentialEntryInput {
   id: number;
   name: string;
-  type: TypeInput5;
+  type: KeychainCredentialEntryTypeInput;
   attributes: SSHKeyPair | SSHCredentials;
 }
 export interface SSHKeyPair {
@@ -2918,7 +2918,7 @@ export interface KeychainCredentialDeleteOptions {
 export interface KeychainCredentialEntry {
   id: number;
   name: string;
-  type: Type6;
+  type: KeychainCredentialEntryType;
   attributes: SSHKeyPair | SSHCredentials;
 }
 export interface KeychainCredentialGenerateSshKeyPairResult {
@@ -3166,7 +3166,7 @@ export interface PoolResilverUpdate {
 }
 export interface PoolScan {
   function: Function;
-  state: StateInput2;
+  state: PoolScanStateInput;
   start_time: string;
   end_time: string | null;
   percentage: number;
@@ -3522,7 +3522,7 @@ export interface ZfsTierRewriteJobEntry {
   tier_job_id: string;
   dataset_name: string;
   job_uuid: string;
-  status: StatusInput2;
+  status: ZfsTierRewriteJobEntryStatusInput;
 }
 export interface SharingNFSChangedEvent {
   id: number;
@@ -3613,7 +3613,7 @@ export interface SMBUpdateArgs {
   dirmask?: string | "DEFAULT";
   ntlmv1_auth?: boolean;
   multichannel?: boolean;
-  encryption?: EncryptionInput;
+  encryption?: SMBEntryEncryptionInput;
   bindip?: string[];
   server_sid?: string | null;
   smb_options?: string;

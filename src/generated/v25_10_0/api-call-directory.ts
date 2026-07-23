@@ -11,6 +11,7 @@ import type {
 } from '../shared/query-types';
 
 import type {
+  ACLTemplateEntry,
   ACLTemplateQueryResultItem,
   AlertServiceQueryResultItem,
   ApiKeyCreate,
@@ -36,13 +37,13 @@ import type {
   BootEnvironmentQueryResultItem,
   BoxCredentialsModel,
   CloudBackupQueryResultItem,
+  CloudBackupS3CredentialsModelInput2,
   CredentialsQueryResultItem,
   CredentialsVerifyResult,
   CronJobEntry,
   CronJobQueryResultItem,
   DNSAuthenticatorEntry,
   DNSAuthenticatorQueryResultItem,
-  DeviceGetInfoDisk,
   DockerNetworkEntry,
   DockerNetworkQueryResultItem,
   DropboxCredentialsModel,
@@ -51,8 +52,8 @@ import type {
   FCPortEntry,
   FCPortQueryResultItem,
   FTPCredentialsModel,
+  FilesystemDirEntry,
   FilesystemDirQueryResultItem,
-  GPUInfo,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
@@ -65,13 +66,14 @@ import type {
   ISCSITargetAuthCredentialQueryResultItem,
   ISCSITargetAuthorizedInitiatorEntry,
   ISCSITargetAuthorizedInitiatorQueryResultItem,
-  ISCSITargetEntry,
   ISCSITargetExtentQueryResultItem,
   ISCSITargetQueryResultItem,
   ISCSITargetToExtentEntry,
   ISCSITargetToExtentQueryResultItem,
+  InitShutdownScriptEntry,
   InitShutdownScriptQueryResultItem,
   IscsiSession,
+  KeychainCredentialEntry,
   KeychainCredentialQueryResultItem,
   MegaCredentialsModel,
   NTPServerEntry,
@@ -92,14 +94,11 @@ import type {
   ReportingExportsQueryResultItem,
   ReportingGetDataResponse,
   ReportingQuery,
-  S3CredentialsModelInput2,
   SFTPCredentialsModel,
-  SerialInfo,
   SharingNFSQueryResultItem,
   SharingSMBGetaclArgs,
   StaticRouteEntry,
   StaticRouteQueryResultItem,
-  StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
   TwofactorOptions,
   UserGetUserObjArgs,
@@ -108,9 +107,7 @@ import type {
   YandexCredentialsModel,
 } from '../v25_04_0/api-types';
 import type {
-  ACLTemplateEntry,
-  FilesystemDirEntry,
-  InitShutdownScriptEntry,
+  StorjIxCredentialsModelInput,
   VMDeviceQueryResultItem,
   VMQueryResultItem,
 } from '../v25_04_2/api-types';
@@ -141,6 +138,7 @@ import type {
   CloudCredentialCreate,
   CloudCredentialUpdate,
   CloudSyncCreate,
+  CloudSyncCreateDirectionInput,
   CloudSyncEntry,
   CloudSyncListDirectoryArgs,
   CloudSyncProvider,
@@ -155,8 +153,6 @@ import type {
   CredentialsEntry,
   DNSQueryItem,
   DNSQueryItemQueryResultItem,
-  DeviceGetInfoOther,
-  DirectionInput2,
   DirectoryServicesEntry,
   DirectoryServicesStatusResult,
   DiskDetails,
@@ -183,9 +179,8 @@ import type {
   IPMILanQueryResultItem,
   IPMILanUpdateOptionsDHCP,
   IPMILanUpdateOptionsStatic,
+  ISCSITargetEntry,
   ISCSITargetExtentEntry,
-  InitShutdownScriptCreate,
-  InitShutdownScriptUpdate,
   InterfaceChoicesOptions,
   InterfaceCommitOptions,
   InterfaceCreate,
@@ -198,6 +193,7 @@ import type {
   InterfaceServicesRestartedOnSyncItem,
   InterfaceUpdate,
   InterfaceXmitHashPolicyChoicesResult,
+  IpmiChassisIdentifyVerb,
   IscsiExtentCreate,
   IscsiExtentUpdate,
   IscsiTargetCreate,
@@ -217,7 +213,6 @@ import type {
   KerberosRealmQueryResultItem,
   KerberosRealmUpdate,
   KerberosUpdateArgs,
-  KeychainCredentialEntry,
   MailEntry,
   MailUpdate,
   NFSGetNfs3ClientsEntry,
@@ -268,6 +263,7 @@ import type {
   PoolDatasetCreateVolume,
   PoolDatasetDatasetQuota,
   PoolDatasetDeleteOptions,
+  PoolDatasetDeleteResult,
   PoolDatasetEncryptionAlgorithmChoicesResult,
   PoolDatasetEntry,
   PoolDatasetProjectQuota,
@@ -299,6 +295,7 @@ import type {
   ReplicationConfigUpdateArgs,
   ReplicationCountEligibleManualSnapshotsArgs,
   ReplicationCountEligibleManualSnapshotsResult,
+  ReplicationCountEligibleManualSnapshotsTransportInput,
   ReplicationCreate,
   ReplicationEntry,
   ReplicationQueryResultItem,
@@ -306,9 +303,6 @@ import type {
   ReplicationUpdate,
   ReportingExporterSchema,
   RestoreOpts,
-  Result,
-  Result2,
-  Result3,
   RouteSystemRoutesItem,
   RouteSystemRoutesItemQueryResultItem,
   RsyncTaskCreate,
@@ -328,7 +322,6 @@ import type {
   SharingSMBSharePrecheckArgs,
   SmbShareCreate,
   SmbShareUpdate,
-  StatusResult,
   SupportEntry,
   SupportSimilarIssue,
   SupportUpdate,
@@ -339,9 +332,10 @@ import type {
   SystemGeneralEntry,
   SystemGeneralUpdateArgs,
   SystemInfoResult,
+  SystemProductTypeResult,
   SystemSecurityEntry,
+  SystemStateResult,
   Target,
-  TransportInput,
   TrueNASConnectEntry,
   TrueNASConnectUpdateArgs,
   TruecommandEntry,
@@ -388,7 +382,6 @@ import type {
   VMWareMatchDatastoresWithDatasetsResult,
   VMWareQueryResultItem,
   VMWareUpdate,
-  Verb,
   ZFSResourceEntry,
   ZFSResourceQuery,
 } from './api-types';
@@ -641,7 +634,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'cloudsync.credentials.verify': {
-    params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | MegaCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | S3CredentialsModelInput2 | SFTPCredentialsModel | StorjIxCredentialsModelInput | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
+    params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | MegaCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | CloudBackupS3CredentialsModelInput2 | SFTPCredentialsModel | StorjIxCredentialsModelInput | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
     response: CredentialsVerifyResult;
   };
 
@@ -740,11 +733,6 @@ export interface ApiCallDirectoryDelta {
     response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
   };
 
-  'device.get_info': {
-    params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
-    response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
-  };
-
   'directoryservices.certificate_choices': {
     params: [];
     response: Record<string, string>;
@@ -803,11 +791,6 @@ export interface ApiCallDirectoryDelta {
   'docker.network.query': {
     params: [filters?: QueryFilters<DockerNetworkEntry>, options?: QueryOptions<DockerNetworkEntry>];
     response: DockerNetworkEntry[] | DockerNetworkEntry | DockerNetworkQueryResultItem[] | DockerNetworkQueryResultItem | number;
-  };
-
-  'docker.status': {
-    params: [];
-    response: StatusResult;
   };
 
   'enclosure2.query': {
@@ -925,19 +908,9 @@ export interface ApiCallDirectoryDelta {
     response: string;
   };
 
-  'initshutdownscript.create': {
-    params: [data: InitShutdownScriptCreate];
-    response: InitShutdownScriptEntry;
-  };
-
   'initshutdownscript.query': {
     params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptions<InitShutdownScriptEntry>];
     response: InitShutdownScriptEntry[] | InitShutdownScriptEntry | InitShutdownScriptQueryResultItem[] | InitShutdownScriptQueryResultItem | number;
-  };
-
-  'initshutdownscript.update': {
-    params: [id: number, data: InitShutdownScriptUpdate];
-    response: InitShutdownScriptEntry;
   };
 
   'interface.bridge_members_choices': {
@@ -1056,7 +1029,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'ipmi.chassis.identify': {
-    params: [verb?: Verb];
+    params: [verb?: IpmiChassisIdentifyVerb];
     response: null;
   };
 
@@ -1122,6 +1095,11 @@ export interface ApiCallDirectoryDelta {
 
   'iscsi.target.create': {
     params: [iscsi_target_create: IscsiTargetCreate];
+    response: ISCSITargetEntry;
+  };
+
+  'iscsi.target.get_instance': {
+    params: [id: number, options?: QueryOptions<ISCSITargetEntry>];
     response: ISCSITargetEntry;
   };
 
@@ -1233,11 +1211,6 @@ export interface ApiCallDirectoryDelta {
   'kerberos.update': {
     params: [kerberos_update?: KerberosUpdateArgs];
     response: KerberosEntry;
-  };
-
-  'keychaincredential.get_instance': {
-    params: [id: number, options?: QueryOptions<KeychainCredentialEntry>];
-    response: KeychainCredentialEntry;
   };
 
   'keychaincredential.query': {
@@ -1522,7 +1495,7 @@ export interface ApiCallDirectoryDelta {
 
   'pool.dataset.delete': {
     params: [id: string, options?: PoolDatasetDeleteOptions];
-    response: Result3;
+    response: PoolDatasetDeleteResult;
   };
 
   'pool.dataset.encryption_algorithm_choices': {
@@ -1766,7 +1739,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'replication.create_dataset': {
-    params: [dataset: string, transport: TransportInput, ssh_credentials?: number | null];
+    params: [dataset: string, transport: ReplicationCountEligibleManualSnapshotsTransportInput, ssh_credentials?: number | null];
     response: null;
   };
 
@@ -1781,7 +1754,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'replication.list_datasets': {
-    params: [transport: TransportInput, ssh_credentials?: number | null];
+    params: [transport: ReplicationCountEligibleManualSnapshotsTransportInput, ssh_credentials?: number | null];
     response: string[];
   };
 
@@ -1801,7 +1774,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'replication.target_unmatched_snapshots': {
-    params: [direction: DirectionInput2, source_datasets: string[], target_dataset: string, transport: TransportInput, ssh_credentials?: number | null];
+    params: [direction: CloudSyncCreateDirectionInput, source_datasets: string[], target_dataset: string, transport: ReplicationCountEligibleManualSnapshotsTransportInput, ssh_credentials?: number | null];
     response: Record<string, string>;
   };
 
@@ -2157,7 +2130,7 @@ export interface ApiCallDirectoryDelta {
 
   'system.product_type': {
     params: [];
-    response: Result2;
+    response: SystemProductTypeResult;
   };
 
   'system.ready': {
@@ -2177,7 +2150,7 @@ export interface ApiCallDirectoryDelta {
 
   'system.state': {
     params: [];
-    response: Result;
+    response: SystemStateResult;
   };
 
   'system.version': {

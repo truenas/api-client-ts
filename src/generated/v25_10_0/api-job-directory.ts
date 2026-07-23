@@ -33,6 +33,7 @@ import type {
   DirectoryServicesEntry,
   DirectoryServicesLeaveArgs,
   DirectoryServicesUpdateArgs,
+  DiskWipeModeInput,
   DockerEntry,
   DockerUpdateArgs,
   FailoverRebootOtherNodeOptions,
@@ -44,7 +45,6 @@ import type {
   KMIPUpdateArgs,
   MailSendMessage,
   MailUpdate,
-  ModeInput4,
   PoolAttach,
   PoolCreate,
   PoolDatasetChangeKeyOptions,
@@ -61,6 +61,7 @@ import type {
   PoolReplace,
   PoolUpdate,
   ReplicationRunOnetimeArgs,
+  ServiceControlVerb,
   ServiceOptions,
   SupportAttachTicketArgs,
   SupportNewTicketCommunity,
@@ -77,7 +78,6 @@ import type {
   UpdateManualOptions,
   UpdateRunAttrs,
   VMDeviceConvertArgs,
-  Verb2,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
@@ -198,7 +198,7 @@ export interface ApiJobDirectoryDelta {
   };
 
   'disk.wipe': {
-    params: [dev: string, mode: ModeInput4, synccache?: boolean];
+    params: [dev: string, mode: DiskWipeModeInput, synccache?: boolean];
     response: null;
   };
 
@@ -353,7 +353,7 @@ export interface ApiJobDirectoryDelta {
   };
 
   'service.control': {
-    params: [verb: Verb2, service: string, options?: ServiceOptions];
+    params: [verb: ServiceControlVerb, service: string, options?: ServiceOptions];
     response: boolean;
   };
 

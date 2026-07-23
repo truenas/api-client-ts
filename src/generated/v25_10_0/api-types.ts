@@ -16,72 +16,73 @@ import type {
   BaseCredentialData,
   Blocksize,
   BoxCredentialsModel,
+  CloudBackupS3CredentialsModelInput2,
   CloudCron,
+  CloudTaskAttributesEncryptionInput,
   Credentials,
-  CredentialsEntryInput,
   DropboxCredentialsModel,
-  EncryptionInput2,
   FTPCredentialsModel,
-  Function,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
   InfluxDBServiceModel,
+  IscsiExtentCreateType,
+  IscsiExtentCreateTypeInput,
   IscsiGroup,
   IscsiTargetParameters,
+  KeychainCredentialEntry,
+  KeychainCredentialEntryInput,
   Level,
   MailServiceModel,
   Maintainer,
   MattermostServiceModel,
   MegaCredentialsModel,
+  NFS4ACEInput,
+  NFS4ACETypeInput,
   OneDriveCredentialsModel,
   OpsGenieServiceModel,
   PCloudCredentialsModel,
   POSIXACE,
   PagerDutyServiceModel,
+  PoolScan,
   PoolSnapshotTaskCron,
   Rpm,
   S3CredentialsModel,
-  S3CredentialsModelInput2,
   SFTPCredentialsModel,
   SNMPTrapServiceModel,
-  SSHCredentials,
-  SSHKeyPair,
   SlackServiceModel,
   Source,
-  StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
   TelegramServiceModel,
+  TierInfo,
   UnmappedGroupEntry,
   UsedPorts,
   UserTwofactorConfigEntry,
   VictorOpsServiceModel,
   WebDavCredentialsModel,
-  When,
   YandexCredentialsModel,
 } from '../v25_04_0/api-types';
 import type {
   Bootloader,
-  NFS4ACEInput,
+  CredentialsEntryInput,
   Resolution,
   StorjIxCredentialsModel,
+  StorjIxCredentialsModelInput,
   Time,
-  Type6,
-  TypeInput2,
   VMDiskDevice,
   VMDiskDeviceInput,
   VMISCSIDiskDevice,
   VMNICDevice,
-  VMNICDeviceInput,
-  VMNICDeviceInput2,
   VMPCIDevice,
   VMRAWDevice,
   VMRAWDeviceInput,
   VMStatus,
   VMStatusInput,
   VMUSBDevice,
+  VmDeviceVMNICDeviceInput,
+  VmVMNICDeviceInput,
 } from '../v25_04_2/api-types';
 
 export const Aclmode = {
@@ -92,19 +93,11 @@ export const Aclmode = {
 } as const;
 export type Aclmode = (typeof Aclmode)[keyof typeof Aclmode];
 
-export const AcltypeInput = {
+export const ACLTemplateEntryAcltypeInput = {
   Nfs4: 'NFS4',
   Posix1e: 'POSIX1E',
 } as const;
-export type AcltypeInput = (typeof AcltypeInput)[keyof typeof AcltypeInput];
-
-export const AcltypeInput2 = {
-  Off: 'OFF',
-  Nfsv4: 'NFSV4',
-  Posix: 'POSIX',
-  Inherit: 'INHERIT',
-} as const;
-export type AcltypeInput2 = (typeof AcltypeInput2)[keyof typeof AcltypeInput2];
+export type ACLTemplateEntryAcltypeInput = (typeof ACLTemplateEntryAcltypeInput)[keyof typeof ACLTemplateEntryAcltypeInput];
 
 export const Advpowermgmt = {
   Disabled: 'DISABLED',
@@ -147,33 +140,17 @@ export const Casesensitivity = {
 } as const;
 export type Casesensitivity = (typeof Casesensitivity)[keyof typeof Casesensitivity];
 
-export const Checksum = {
-  On: 'ON',
-  Off: 'OFF',
-  Fletcher2: 'FLETCHER2',
-  Fletcher4: 'FLETCHER4',
-  Sha256: 'SHA256',
-  Sha512: 'SHA512',
-  Skein: 'SKEIN',
-  Edonr: 'EDONR',
-  Blake3: 'BLAKE3',
-  Inherit: 'INHERIT',
+export const CloudSyncCreateDirection = {
+  Push: 'PUSH',
+  Pull: 'PULL',
 } as const;
-export type Checksum = (typeof Checksum)[keyof typeof Checksum];
+export type CloudSyncCreateDirection = (typeof CloudSyncCreateDirection)[keyof typeof CloudSyncCreateDirection];
 
-export const Checksum2 = {
-  On: 'ON',
-  Off: 'OFF',
-  Fletcher2: 'FLETCHER2',
-  Fletcher4: 'FLETCHER4',
-  Sha256: 'SHA256',
-  Sha512: 'SHA512',
-  Skein: 'SKEIN',
-  Edonr: 'EDONR',
-  Blake3: 'BLAKE3',
-  Null: null,
+export const CloudSyncCreateDirectionInput = {
+  Push: 'PUSH',
+  Pull: 'PULL',
 } as const;
-export type Checksum2 = (typeof Checksum2)[keyof typeof Checksum2];
+export type CloudSyncCreateDirectionInput = (typeof CloudSyncCreateDirectionInput)[keyof typeof CloudSyncCreateDirectionInput];
 
 export const Code = {
   Normal: 'NORMAL',
@@ -236,45 +213,33 @@ export const Compression = {
 } as const;
 export type Compression = (typeof Compression)[keyof typeof Compression];
 
-export const Deduplication = {
+export const CorePingRemoteTypeInput = {
+  Icmp: 'ICMP',
+  Icmpv4: 'ICMPV4',
+  Icmpv6: 'ICMPV6',
+} as const;
+export type CorePingRemoteTypeInput = (typeof CorePingRemoteTypeInput)[keyof typeof CorePingRemoteTypeInput];
+
+export const DiskDetailsTypeInput = {
+  Used: 'USED',
+  Unused: 'UNUSED',
+  Both: 'BOTH',
+} as const;
+export type DiskDetailsTypeInput = (typeof DiskDetailsTypeInput)[keyof typeof DiskDetailsTypeInput];
+
+export const DiskWipeModeInput = {
+  Quick: 'QUICK',
+  Full: 'FULL',
+  FullRandom: 'FULL_RANDOM',
+} as const;
+export type DiskWipeModeInput = (typeof DiskWipeModeInput)[keyof typeof DiskWipeModeInput];
+
+export const Enclosure2SetSlotStatusStatusInput = {
+  Clear: 'CLEAR',
   On: 'ON',
-  Verify: 'VERIFY',
   Off: 'OFF',
-  Inherit: 'INHERIT',
 } as const;
-export type Deduplication = (typeof Deduplication)[keyof typeof Deduplication];
-
-export const Deduplication2 = {
-  On: 'ON',
-  Verify: 'VERIFY',
-  Off: 'OFF',
-  Null: null,
-} as const;
-export type Deduplication2 = (typeof Deduplication2)[keyof typeof Deduplication2];
-
-export const Direction = {
-  Pull: 'PULL',
-  Push: 'PUSH',
-} as const;
-export type Direction = (typeof Direction)[keyof typeof Direction];
-
-export const Direction2 = {
-  Push: 'PUSH',
-  Pull: 'PULL',
-} as const;
-export type Direction2 = (typeof Direction2)[keyof typeof Direction2];
-
-export const DirectionInput = {
-  Pull: 'PULL',
-  Push: 'PUSH',
-} as const;
-export type DirectionInput = (typeof DirectionInput)[keyof typeof DirectionInput];
-
-export const DirectionInput2 = {
-  Push: 'PUSH',
-  Pull: 'PULL',
-} as const;
-export type DirectionInput2 = (typeof DirectionInput2)[keyof typeof DirectionInput2];
+export type Enclosure2SetSlotStatusStatusInput = (typeof Enclosure2SetSlotStatusStatusInput)[keyof typeof Enclosure2SetSlotStatusStatusInput];
 
 export const Exec = {
   On: 'ON',
@@ -289,6 +254,12 @@ export const Feature = {
   Vm: 'VM',
 } as const;
 export type Feature = (typeof Feature)[keyof typeof Feature];
+
+export const GetDisplayDeviceType = {
+  Spice: 'SPICE',
+  Vnc: 'VNC',
+} as const;
+export type GetDisplayDeviceType = (typeof GetDisplayDeviceType)[keyof typeof GetDisplayDeviceType];
 
 export const Hddstandby = {
   AlwaysOn: 'ALWAYS ON',
@@ -305,43 +276,38 @@ export const Hddstandby = {
 } as const;
 export type Hddstandby = (typeof Hddstandby)[keyof typeof Hddstandby];
 
-export const Mode2 = {
-  Master: 'MASTER',
-  Slave: 'SLAVE',
+export const InterfaceCreateAliasTypeInput = {
+  Inet: 'INET',
+  Inet6: 'INET6',
 } as const;
-export type Mode2 = (typeof Mode2)[keyof typeof Mode2];
+export type InterfaceCreateAliasTypeInput = (typeof InterfaceCreateAliasTypeInput)[keyof typeof InterfaceCreateAliasTypeInput];
 
-export const Mode3 = {
-  Module: 'MODULE',
-  Ssh: 'SSH',
+export const InterfaceCreateTypeInput = {
+  Bridge: 'BRIDGE',
+  LinkAggregation: 'LINK_AGGREGATION',
+  Vlan: 'VLAN',
 } as const;
-export type Mode3 = (typeof Mode3)[keyof typeof Mode3];
+export type InterfaceCreateTypeInput = (typeof InterfaceCreateTypeInput)[keyof typeof InterfaceCreateTypeInput];
 
-export const ModeInput = {
+export const IpmiChassisIdentifyVerb = {
+  On: 'ON',
+  Off: 'OFF',
+} as const;
+export type IpmiChassisIdentifyVerb = (typeof IpmiChassisIdentifyVerb)[keyof typeof IpmiChassisIdentifyVerb];
+
+export const IscsiTargetCreateMode = {
   Iscsi: 'ISCSI',
   Fc: 'FC',
   Both: 'BOTH',
 } as const;
-export type ModeInput = (typeof ModeInput)[keyof typeof ModeInput];
+export type IscsiTargetCreateMode = (typeof IscsiTargetCreateMode)[keyof typeof IscsiTargetCreateMode];
 
-export const ModeInput2 = {
-  Master: 'MASTER',
-  Slave: 'SLAVE',
+export const IscsiTargetCreateModeInput = {
+  Iscsi: 'ISCSI',
+  Fc: 'FC',
+  Both: 'BOTH',
 } as const;
-export type ModeInput2 = (typeof ModeInput2)[keyof typeof ModeInput2];
-
-export const ModeInput3 = {
-  Module: 'MODULE',
-  Ssh: 'SSH',
-} as const;
-export type ModeInput3 = (typeof ModeInput3)[keyof typeof ModeInput3];
-
-export const ModeInput4 = {
-  Quick: 'QUICK',
-  Full: 'FULL',
-  FullRandom: 'FULL_RANDOM',
-} as const;
-export type ModeInput4 = (typeof ModeInput4)[keyof typeof ModeInput4];
+export type IscsiTargetCreateModeInput = (typeof IscsiTargetCreateModeInput)[keyof typeof IscsiTargetCreateModeInput];
 
 export const Name = {
   Cpu: 'cpu',
@@ -375,6 +341,78 @@ export const Policy = {
 } as const;
 export type Policy = (typeof Policy)[keyof typeof Policy];
 
+export const PoolCreateChecksum = {
+  On: 'ON',
+  Off: 'OFF',
+  Fletcher2: 'FLETCHER2',
+  Fletcher4: 'FLETCHER4',
+  Sha256: 'SHA256',
+  Sha512: 'SHA512',
+  Skein: 'SKEIN',
+  Edonr: 'EDONR',
+  Blake3: 'BLAKE3',
+  Null: null,
+} as const;
+export type PoolCreateChecksum = (typeof PoolCreateChecksum)[keyof typeof PoolCreateChecksum];
+
+export const PoolCreateDeduplication = {
+  On: 'ON',
+  Verify: 'VERIFY',
+  Off: 'OFF',
+  Null: null,
+} as const;
+export type PoolCreateDeduplication = (typeof PoolCreateDeduplication)[keyof typeof PoolCreateDeduplication];
+
+export const PoolCreateTopologyDataVdevDRAIDTypeInput = {
+  Draid1: 'DRAID1',
+  Draid2: 'DRAID2',
+  Draid3: 'DRAID3',
+} as const;
+export type PoolCreateTopologyDataVdevDRAIDTypeInput = (typeof PoolCreateTopologyDataVdevDRAIDTypeInput)[keyof typeof PoolCreateTopologyDataVdevDRAIDTypeInput];
+
+export const PoolDatasetCreateFilesystemAcltypeInput = {
+  Off: 'OFF',
+  Nfsv4: 'NFSV4',
+  Posix: 'POSIX',
+  Inherit: 'INHERIT',
+} as const;
+export type PoolDatasetCreateFilesystemAcltypeInput = (typeof PoolDatasetCreateFilesystemAcltypeInput)[keyof typeof PoolDatasetCreateFilesystemAcltypeInput];
+
+export const PoolDatasetCreateFilesystemChecksum = {
+  On: 'ON',
+  Off: 'OFF',
+  Fletcher2: 'FLETCHER2',
+  Fletcher4: 'FLETCHER4',
+  Sha256: 'SHA256',
+  Sha512: 'SHA512',
+  Skein: 'SKEIN',
+  Edonr: 'EDONR',
+  Blake3: 'BLAKE3',
+  Inherit: 'INHERIT',
+} as const;
+export type PoolDatasetCreateFilesystemChecksum = (typeof PoolDatasetCreateFilesystemChecksum)[keyof typeof PoolDatasetCreateFilesystemChecksum];
+
+export const PoolDatasetCreateFilesystemDeduplication = {
+  On: 'ON',
+  Verify: 'VERIFY',
+  Off: 'OFF',
+  Inherit: 'INHERIT',
+} as const;
+export type PoolDatasetCreateFilesystemDeduplication = (typeof PoolDatasetCreateFilesystemDeduplication)[keyof typeof PoolDatasetCreateFilesystemDeduplication];
+
+export const PoolDatasetCreateFilesystemReadonlyInput = {
+  On: 'ON',
+  Off: 'OFF',
+  Inherit: 'INHERIT',
+} as const;
+export type PoolDatasetCreateFilesystemReadonlyInput = (typeof PoolDatasetCreateFilesystemReadonlyInput)[keyof typeof PoolDatasetCreateFilesystemReadonlyInput];
+
+export const PoolDatasetDeleteResult = {
+  Null: null,
+  True: true,
+} as const;
+export type PoolDatasetDeleteResult = (typeof PoolDatasetDeleteResult)[keyof typeof PoolDatasetDeleteResult];
+
 export const Protocol = {
   Http: 'HTTP',
   Https: 'HTTPS',
@@ -393,31 +431,6 @@ export const Purpose = {
 } as const;
 export type Purpose = (typeof Purpose)[keyof typeof Purpose];
 
-export const PurposeInput = {
-  DefaultShare: 'DEFAULT_SHARE',
-  LegacyShare: 'LEGACY_SHARE',
-  TimemachineShare: 'TIMEMACHINE_SHARE',
-  MultiprotocolShare: 'MULTIPROTOCOL_SHARE',
-  TimeLockedShare: 'TIME_LOCKED_SHARE',
-  PrivateDatasetsShare: 'PRIVATE_DATASETS_SHARE',
-  ExternalShare: 'EXTERNAL_SHARE',
-  VeeamRepositoryShare: 'VEEAM_REPOSITORY_SHARE',
-  FcpShare: 'FCP_SHARE',
-} as const;
-export type PurposeInput = (typeof PurposeInput)[keyof typeof PurposeInput];
-
-export const PurposeInput2 = {
-  DefaultShare: 'DEFAULT_SHARE',
-  LegacyShare: 'LEGACY_SHARE',
-  TimemachineShare: 'TIMEMACHINE_SHARE',
-  MultiprotocolShare: 'MULTIPROTOCOL_SHARE',
-  TimeLockedShare: 'TIME_LOCKED_SHARE',
-  PrivateDatasetsShare: 'PRIVATE_DATASETS_SHARE',
-  ExternalShare: 'EXTERNAL_SHARE',
-  VeeamRepositoryShare: 'VEEAM_REPOSITORY_SHARE',
-} as const;
-export type PurposeInput2 = (typeof PurposeInput2)[keyof typeof PurposeInput2];
-
 export const Readonly = {
   Set: 'SET',
   Require: 'REQUIRE',
@@ -425,38 +438,43 @@ export const Readonly = {
 } as const;
 export type Readonly = (typeof Readonly)[keyof typeof Readonly];
 
-export const ReadonlyInput = {
-  On: 'ON',
-  Off: 'OFF',
-  Inherit: 'INHERIT',
+export const ReplicationCountEligibleManualSnapshotsTransportInput = {
+  Ssh: 'SSH',
+  SshNetcat: 'SSH+NETCAT',
+  Local: 'LOCAL',
 } as const;
-export type ReadonlyInput = (typeof ReadonlyInput)[keyof typeof ReadonlyInput];
+export type ReplicationCountEligibleManualSnapshotsTransportInput = (typeof ReplicationCountEligibleManualSnapshotsTransportInput)[keyof typeof ReplicationCountEligibleManualSnapshotsTransportInput];
 
-export const ReadonlyInput2 = {
+export const ReplicationCreateReadonlyInput = {
   Set: 'SET',
   Require: 'REQUIRE',
   Ignore: 'IGNORE',
 } as const;
-export type ReadonlyInput2 = (typeof ReadonlyInput2)[keyof typeof ReadonlyInput2];
+export type ReplicationCreateReadonlyInput = (typeof ReplicationCreateReadonlyInput)[keyof typeof ReplicationCreateReadonlyInput];
 
-export const Result = {
-  Booting: 'BOOTING',
-  Ready: 'READY',
-  ShuttingDown: 'SHUTTING_DOWN',
+export const RsyncTaskCreateDirection = {
+  Pull: 'PULL',
+  Push: 'PUSH',
 } as const;
-export type Result = (typeof Result)[keyof typeof Result];
+export type RsyncTaskCreateDirection = (typeof RsyncTaskCreateDirection)[keyof typeof RsyncTaskCreateDirection];
 
-export const Result2 = {
-  CommunityEdition: 'COMMUNITY_EDITION',
-  Enterprise: 'ENTERPRISE',
+export const RsyncTaskCreateDirectionInput = {
+  Pull: 'PULL',
+  Push: 'PUSH',
 } as const;
-export type Result2 = (typeof Result2)[keyof typeof Result2];
+export type RsyncTaskCreateDirectionInput = (typeof RsyncTaskCreateDirectionInput)[keyof typeof RsyncTaskCreateDirectionInput];
 
-export const Result3 = {
-  Null: null,
-  True: true,
+export const RsyncTaskCreateMode = {
+  Module: 'MODULE',
+  Ssh: 'SSH',
 } as const;
-export type Result3 = (typeof Result3)[keyof typeof Result3];
+export type RsyncTaskCreateMode = (typeof RsyncTaskCreateMode)[keyof typeof RsyncTaskCreateMode];
+
+export const RsyncTaskCreateModeInput = {
+  Module: 'MODULE',
+  Ssh: 'SSH',
+} as const;
+export type RsyncTaskCreateModeInput = (typeof RsyncTaskCreateModeInput)[keyof typeof RsyncTaskCreateModeInput];
 
 export const Schema = {
   Rfc2307: 'RFC2307',
@@ -479,6 +497,39 @@ export const Serialspeed = {
   '115200': '115200',
 } as const;
 export type Serialspeed = (typeof Serialspeed)[keyof typeof Serialspeed];
+
+export const ServiceControlVerb = {
+  Start: 'START',
+  Stop: 'STOP',
+  Restart: 'RESTART',
+  Reload: 'RELOAD',
+} as const;
+export type ServiceControlVerb = (typeof ServiceControlVerb)[keyof typeof ServiceControlVerb];
+
+export const SharingSMBEntryPurposeInput = {
+  DefaultShare: 'DEFAULT_SHARE',
+  LegacyShare: 'LEGACY_SHARE',
+  TimemachineShare: 'TIMEMACHINE_SHARE',
+  MultiprotocolShare: 'MULTIPROTOCOL_SHARE',
+  TimeLockedShare: 'TIME_LOCKED_SHARE',
+  PrivateDatasetsShare: 'PRIVATE_DATASETS_SHARE',
+  ExternalShare: 'EXTERNAL_SHARE',
+  VeeamRepositoryShare: 'VEEAM_REPOSITORY_SHARE',
+  FcpShare: 'FCP_SHARE',
+} as const;
+export type SharingSMBEntryPurposeInput = (typeof SharingSMBEntryPurposeInput)[keyof typeof SharingSMBEntryPurposeInput];
+
+export const SharingSMBEntryPurposeInput2 = {
+  DefaultShare: 'DEFAULT_SHARE',
+  LegacyShare: 'LEGACY_SHARE',
+  TimemachineShare: 'TIMEMACHINE_SHARE',
+  MultiprotocolShare: 'MULTIPROTOCOL_SHARE',
+  TimeLockedShare: 'TIME_LOCKED_SHARE',
+  PrivateDatasetsShare: 'PRIVATE_DATASETS_SHARE',
+  ExternalShare: 'EXTERNAL_SHARE',
+  VeeamRepositoryShare: 'VEEAM_REPOSITORY_SHARE',
+} as const;
+export type SharingSMBEntryPurposeInput2 = (typeof SharingSMBEntryPurposeInput2)[keyof typeof SharingSMBEntryPurposeInput2];
 
 export const Shutdown = {
   Lowbatt: 'LOWBATT',
@@ -511,77 +562,11 @@ export const SourceInput = {
 } as const;
 export type SourceInput = (typeof SourceInput)[keyof typeof SourceInput];
 
-export const StateInput2 = {
-  Pending: 'PENDING',
-  Success: 'SUCCESS',
-  Error: 'ERROR',
-  Blocked: 'BLOCKED',
+export const SupportNewTicketCommunityTypeInput = {
+  Bug: 'BUG',
+  Feature: 'FEATURE',
 } as const;
-export type StateInput2 = (typeof StateInput2)[keyof typeof StateInput2];
-
-export const StateInput3 = {
-  Scanning: 'SCANNING',
-  Finished: 'FINISHED',
-  Canceled: 'CANCELED',
-} as const;
-export type StateInput3 = (typeof StateInput3)[keyof typeof StateInput3];
-
-export const Status = {
-  Connected: 'CONNECTED',
-  Connecting: 'CONNECTING',
-  Disabled: 'DISABLED',
-  Failed: 'FAILED',
-} as const;
-export type Status = (typeof Status)[keyof typeof Status];
-
-export const Status2 = {
-  Pending: 'PENDING',
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-  Initializing: 'INITIALIZING',
-  Stopping: 'STOPPING',
-  Unconfigured: 'UNCONFIGURED',
-  Failed: 'FAILED',
-} as const;
-export type Status2 = (typeof Status2)[keyof typeof Status2];
-
-export const StatusInput = {
-  Clear: 'CLEAR',
-  On: 'ON',
-  Off: 'OFF',
-} as const;
-export type StatusInput = (typeof StatusInput)[keyof typeof StatusInput];
-
-export const StatusInput2 = {
-  Complete: 'COMPLETE',
-  Running: 'RUNNING',
-  Queued: 'QUEUED',
-  Cancelled: 'CANCELLED',
-  Stopped: 'STOPPED',
-  Error: 'ERROR',
-} as const;
-export type StatusInput2 = (typeof StatusInput2)[keyof typeof StatusInput2];
-
-export const StatusInput3 = {
-  Connected: 'CONNECTED',
-  Connecting: 'CONNECTING',
-  Disabled: 'DISABLED',
-  Failed: 'FAILED',
-} as const;
-export type StatusInput3 = (typeof StatusInput3)[keyof typeof StatusInput3];
-
-export const StatusInput4 = {
-  Pending: 'PENDING',
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-  Initializing: 'INITIALIZING',
-  Stopping: 'STOPPING',
-  Unconfigured: 'UNCONFIGURED',
-  Failed: 'FAILED',
-  Migrating: 'MIGRATING',
-  MigrationFailed: 'MIGRATION_FAILED',
-} as const;
-export type StatusInput4 = (typeof StatusInput4)[keyof typeof StatusInput4];
+export type SupportNewTicketCommunityTypeInput = (typeof SupportNewTicketCommunityTypeInput)[keyof typeof SupportNewTicketCommunityTypeInput];
 
 export const Sync = {
   Standard: 'STANDARD',
@@ -603,6 +588,26 @@ export const Sysloglevel = {
 } as const;
 export type Sysloglevel = (typeof Sysloglevel)[keyof typeof Sysloglevel];
 
+export const SyslogServerTransportInput = {
+  Udp: 'UDP',
+  Tcp: 'TCP',
+  Tls: 'TLS',
+} as const;
+export type SyslogServerTransportInput = (typeof SyslogServerTransportInput)[keyof typeof SyslogServerTransportInput];
+
+export const SystemProductTypeResult = {
+  CommunityEdition: 'COMMUNITY_EDITION',
+  Enterprise: 'ENTERPRISE',
+} as const;
+export type SystemProductTypeResult = (typeof SystemProductTypeResult)[keyof typeof SystemProductTypeResult];
+
+export const SystemStateResult = {
+  Booting: 'BOOTING',
+  Ready: 'READY',
+  ShuttingDown: 'SHUTTING_DOWN',
+} as const;
+export type SystemStateResult = (typeof SystemStateResult)[keyof typeof SystemStateResult];
+
 export const Target = {
   Ws: 'WS',
   Cli: 'CLI',
@@ -617,129 +622,61 @@ export const Transport = {
 } as const;
 export type Transport = (typeof Transport)[keyof typeof Transport];
 
-export const TransportInput = {
-  Ssh: 'SSH',
-  SshNetcat: 'SSH+NETCAT',
-  Local: 'LOCAL',
+export const TruecommandConfigChangedEventFieldsStatus = {
+  Connected: 'CONNECTED',
+  Connecting: 'CONNECTING',
+  Disabled: 'DISABLED',
+  Failed: 'FAILED',
 } as const;
-export type TransportInput = (typeof TransportInput)[keyof typeof TransportInput];
+export type TruecommandConfigChangedEventFieldsStatus = (typeof TruecommandConfigChangedEventFieldsStatus)[keyof typeof TruecommandConfigChangedEventFieldsStatus];
 
-export const TransportInput2 = {
-  Udp: 'UDP',
-  Tcp: 'TCP',
-  Tls: 'TLS',
+export const TruecommandConfigChangedEventFieldsStatusInput = {
+  Connected: 'CONNECTED',
+  Connecting: 'CONNECTING',
+  Disabled: 'DISABLED',
+  Failed: 'FAILED',
 } as const;
-export type TransportInput2 = (typeof TransportInput2)[keyof typeof TransportInput2];
+export type TruecommandConfigChangedEventFieldsStatusInput = (typeof TruecommandConfigChangedEventFieldsStatusInput)[keyof typeof TruecommandConfigChangedEventFieldsStatusInput];
 
-export const Type10 = {
+export const TunableCreateType = {
   Sysctl: 'SYSCTL',
   Udev: 'UDEV',
   Zfs: 'ZFS',
 } as const;
-export type Type10 = (typeof Type10)[keyof typeof Type10];
+export type TunableCreateType = (typeof TunableCreateType)[keyof typeof TunableCreateType];
 
-export const Type7 = {
+export const TunableCreateTypeInput = {
+  Sysctl: 'SYSCTL',
+  Udev: 'UDEV',
+  Zfs: 'ZFS',
+} as const;
+export type TunableCreateTypeInput = (typeof TunableCreateTypeInput)[keyof typeof TunableCreateTypeInput];
+
+export const UPSEntryMode = {
+  Master: 'MASTER',
+  Slave: 'SLAVE',
+} as const;
+export type UPSEntryMode = (typeof UPSEntryMode)[keyof typeof UPSEntryMode];
+
+export const UPSEntryModeInput = {
+  Master: 'MASTER',
+  Slave: 'SLAVE',
+} as const;
+export type UPSEntryModeInput = (typeof UPSEntryModeInput)[keyof typeof UPSEntryModeInput];
+
+export const VMWareEntryStateStateInput = {
+  Pending: 'PENDING',
+  Success: 'SUCCESS',
+  Error: 'ERROR',
+  Blocked: 'BLOCKED',
+} as const;
+export type VMWareEntryStateStateInput = (typeof VMWareEntryStateStateInput)[keyof typeof VMWareEntryStateStateInput];
+
+export const VMWareMatchDatastoresWithDatasetsResultFilesystemType = {
   Filesystem: 'FILESYSTEM',
   Volume: 'VOLUME',
 } as const;
-export type Type7 = (typeof Type7)[keyof typeof Type7];
-
-export const Type8 = {
-  Spice: 'SPICE',
-  Vnc: 'VNC',
-} as const;
-export type Type8 = (typeof Type8)[keyof typeof Type8];
-
-export const Type9 = {
-  SshKeyPair: 'SSH_KEY_PAIR',
-  SshCredentials: 'SSH_CREDENTIALS',
-} as const;
-export type Type9 = (typeof Type9)[keyof typeof Type9];
-
-export const TypeInput10 = {
-  Serial: 'SERIAL',
-  Gpu: 'GPU',
-} as const;
-export type TypeInput10 = (typeof TypeInput10)[keyof typeof TypeInput10];
-
-export const TypeInput11 = {
-  SshKeyPair: 'SSH_KEY_PAIR',
-  SshCredentials: 'SSH_CREDENTIALS',
-} as const;
-export type TypeInput11 = (typeof TypeInput11)[keyof typeof TypeInput11];
-
-export const TypeInput12 = {
-  Sysctl: 'SYSCTL',
-  Udev: 'UDEV',
-  Zfs: 'ZFS',
-} as const;
-export type TypeInput12 = (typeof TypeInput12)[keyof typeof TypeInput12];
-
-export const TypeInput13 = {
-  Used: 'USED',
-  Unused: 'UNUSED',
-  Both: 'BOTH',
-} as const;
-export type TypeInput13 = (typeof TypeInput13)[keyof typeof TypeInput13];
-
-export const TypeInput3 = {
-  Bridge: 'BRIDGE',
-  LinkAggregation: 'LINK_AGGREGATION',
-  Vlan: 'VLAN',
-} as const;
-export type TypeInput3 = (typeof TypeInput3)[keyof typeof TypeInput3];
-
-export const TypeInput4 = {
-  Bug: 'BUG',
-  Feature: 'FEATURE',
-} as const;
-export type TypeInput4 = (typeof TypeInput4)[keyof typeof TypeInput4];
-
-export const TypeInput5 = {
-  Command: 'COMMAND',
-  Script: 'SCRIPT',
-} as const;
-export type TypeInput5 = (typeof TypeInput5)[keyof typeof TypeInput5];
-
-export const TypeInput6 = {
-  Disk: 'DISK',
-  File: 'FILE',
-} as const;
-export type TypeInput6 = (typeof TypeInput6)[keyof typeof TypeInput6];
-
-export const TypeInput7 = {
-  Draid1: 'DRAID1',
-  Draid2: 'DRAID2',
-  Draid3: 'DRAID3',
-} as const;
-export type TypeInput7 = (typeof TypeInput7)[keyof typeof TypeInput7];
-
-export const TypeInput8 = {
-  Icmp: 'ICMP',
-  Icmpv4: 'ICMPV4',
-  Icmpv6: 'ICMPV6',
-} as const;
-export type TypeInput8 = (typeof TypeInput8)[keyof typeof TypeInput8];
-
-export const TypeInput9 = {
-  Inet: 'INET',
-  Inet6: 'INET6',
-} as const;
-export type TypeInput9 = (typeof TypeInput9)[keyof typeof TypeInput9];
-
-export const Verb = {
-  On: 'ON',
-  Off: 'OFF',
-} as const;
-export type Verb = (typeof Verb)[keyof typeof Verb];
-
-export const Verb2 = {
-  Start: 'START',
-  Stop: 'STOP',
-  Restart: 'RESTART',
-  Reload: 'RELOAD',
-} as const;
-export type Verb2 = (typeof Verb2)[keyof typeof Verb2];
+export type VMWareMatchDatastoresWithDatasetsResultFilesystemType = (typeof VMWareMatchDatastoresWithDatasetsResultFilesystemType)[keyof typeof VMWareMatchDatastoresWithDatasetsResultFilesystemType];
 
 export const Volblocksize = {
   '512': '512',
@@ -885,7 +822,7 @@ export interface ACLTemplateEntryInput {
   id: number;
   builtin: boolean;
   name: string;
-  acltype: AcltypeInput;
+  acltype: ACLTemplateEntryAcltypeInput;
   acl: NFS4ACEInput[] | POSIXACE[];
   comment?: string;
 }
@@ -913,13 +850,13 @@ export interface ACLTemplateChangedEvent {
 }
 export interface AclTemplateCreate {
   name: string;
-  acltype: AcltypeInput;
+  acltype: ACLTemplateEntryAcltypeInput;
   acl: NFS4ACEInput[] | POSIXACE[];
   comment?: string;
 }
 export interface AclTemplateUpdate {
   name?: string;
-  acltype?: AcltypeInput;
+  acltype?: ACLTemplateEntryAcltypeInput;
   acl?: NFS4ACEInput[] | POSIXACE[];
   comment?: string;
 }
@@ -1495,7 +1432,7 @@ export interface CloudTaskAttributesInput {
   chunk_size?: number;
   acknowledge_abuse?: boolean;
   region?: string;
-  encryption?: EncryptionInput2;
+  encryption?: CloudTaskAttributesEncryptionInput;
   storage_class?:
     | ""
     | "STANDARD"
@@ -1621,7 +1558,7 @@ export interface CloudCredentialCreate {
     | MegaCredentialsModel
     | OneDriveCredentialsModel
     | PCloudCredentialsModel
-    | S3CredentialsModelInput2
+    | CloudBackupS3CredentialsModelInput2
     | SFTPCredentialsModel
     | StorjIxCredentialsModelInput
     | SwiftCredentialsModel
@@ -1644,7 +1581,7 @@ export interface CloudCredentialUpdate {
     | MegaCredentialsModel
     | OneDriveCredentialsModel
     | PCloudCredentialsModel
-    | S3CredentialsModelInput2
+    | CloudBackupS3CredentialsModelInput2
     | SFTPCredentialsModel
     | StorjIxCredentialsModelInput
     | SwiftCredentialsModel
@@ -1676,7 +1613,7 @@ export interface CloudSyncEntryInput {
   locked: boolean;
   bwlimit?: CloudSyncBwlimit[];
   transfers?: number | null;
-  direction: DirectionInput2;
+  direction: CloudSyncCreateDirectionInput;
   transfer_mode: "SYNC" | "COPY" | "MOVE";
   encryption?: boolean;
   filename_encryption?: boolean;
@@ -1707,7 +1644,7 @@ export interface CloudSyncCreate {
   enabled?: boolean;
   bwlimit?: CloudSyncBwlimit[];
   transfers?: number | null;
-  direction: DirectionInput2;
+  direction: CloudSyncCreateDirectionInput;
   transfer_mode: "SYNC" | "COPY" | "MOVE";
   encryption?: boolean;
   filename_encryption?: boolean;
@@ -1735,7 +1672,7 @@ export interface CloudSyncEntry {
   locked: boolean;
   bwlimit?: CloudSyncBwlimit[];
   transfers?: number | null;
-  direction: Direction2;
+  direction: CloudSyncCreateDirection;
   transfer_mode: "SYNC" | "COPY" | "MOVE";
   encryption?: boolean;
   filename_encryption?: boolean;
@@ -1783,7 +1720,7 @@ export interface CloudSyncUpdate {
   enabled?: boolean;
   bwlimit?: CloudSyncBwlimit[];
   transfers?: number | null;
-  direction?: DirectionInput2;
+  direction?: CloudSyncCreateDirectionInput;
   transfer_mode?: "SYNC" | "COPY" | "MOVE";
   encryption?: boolean;
   filename_encryption?: boolean;
@@ -1852,7 +1789,7 @@ export interface CoreOptionsInput {
   [k: string]: unknown;
 }
 export interface CorePingRemoteArgs {
-  type?: TypeInput8;
+  type?: CorePingRemoteTypeInput;
   hostname: string;
   timeout?: number;
   count?: number | null;
@@ -1889,19 +1826,6 @@ export interface CronModel {
 }
 export interface DefaultOpt {
   aapl_name_mangling?: boolean;
-}
-export interface DefaultOptInput {
-  purpose: "DEFAULT_SHARE";
-  aapl_name_mangling?: boolean;
-  hostsallow?: string[];
-  hostsdeny?: string[];
-}
-export interface DefaultOptInput2 {
-  purpose: "DEFAULT_SHARE";
-  aapl_name_mangling?: boolean;
-}
-export interface DeviceGetInfoOther {
-  type: TypeInput10;
 }
 export interface DirectoryServicesEntry {
   id: number;
@@ -2027,7 +1951,7 @@ export interface LDAPConfigInput {
 }
 export interface DiskDetails {
   join_partitions?: boolean;
-  type?: TypeInput13;
+  type?: DiskDetailsTypeInput;
 }
 export interface DiskEntryEnclosure {
   number: number;
@@ -2099,7 +2023,7 @@ export interface GetDisplayDevice {
   wait?: boolean;
   password?: string | null;
   web?: boolean;
-  type?: Type8;
+  type?: GetDisplayDeviceType;
   password_configured: boolean;
 }
 export interface DisplayWebURIOptions {
@@ -2121,12 +2045,6 @@ export interface DockerEntry {
   secure_registry_mirrors: string[];
   insecure_registry_mirrors: string[];
 }
-export interface DockerStateChangedEvent {
-  fields: DockerStatusInfo;
-}
-export interface DockerStatusInfo {
-  status: StatusInput4;
-}
 export interface DockerUpdateArgs {
   enable_image_updates?: boolean;
   pool?: string | null;
@@ -2140,7 +2058,7 @@ export interface DockerUpdateArgs {
 export interface Enclosure2SetSlotStatusArgs {
   enclosure_id: string;
   slot: number;
-  status: StatusInput;
+  status: Enclosure2SetSlotStatusStatusInput;
 }
 export interface ExternalOpt {
   remote_path: string[];
@@ -2218,42 +2136,6 @@ export interface GroupEntry {
 export interface GroupChangedEvent {
   id: number;
   fields: GroupEntry;
-}
-export interface InitShutdownScriptAddedEvent {
-  id: number;
-  fields: InitShutdownScriptEntryInput;
-}
-export interface InitShutdownScriptEntryInput {
-  type: TypeInput5;
-  command?: string | null;
-  script?: string | null;
-  when: When;
-  enabled?: boolean;
-  timeout?: number;
-  comment?: string;
-  id: number;
-}
-export interface InitShutdownScriptChangedEvent {
-  id: number;
-  fields: InitShutdownScriptEntryInput;
-}
-export interface InitShutdownScriptCreate {
-  type: TypeInput5;
-  command?: string | null;
-  script?: string | null;
-  when: When;
-  enabled?: boolean;
-  timeout?: number;
-  comment?: string;
-}
-export interface InitShutdownScriptUpdate {
-  type?: TypeInput5;
-  command?: string | null;
-  script?: string | null;
-  when?: When;
-  enabled?: boolean;
-  timeout?: number;
-  comment?: string;
 }
 export interface InterfaceAddedEvent {
   id: string;
@@ -2348,7 +2230,7 @@ export interface InterfaceCommitOptions {
 }
 export interface InterfaceCreate {
   name?: string;
-  type: TypeInput3;
+  type: InterfaceCreateTypeInput;
   ipv4_dhcp?: boolean;
   ipv6_auto?: boolean;
   aliases?: InterfaceCreateAlias2[];
@@ -2379,12 +2261,12 @@ export interface InterfaceCreateFailoverAlias2 {
   address: "" | string;
 }
 export interface InterfaceCreateAlias {
-  type?: TypeInput9;
+  type?: InterfaceCreateAliasTypeInput;
   address: "" | string;
   netmask: number;
 }
 export interface InterfaceCreateFailoverAlias {
-  type?: TypeInput9;
+  type?: InterfaceCreateAliasTypeInput;
   address: "" | string;
 }
 export interface InterfaceIPInUseOptions {
@@ -2505,7 +2387,7 @@ export interface IPMISELInfo {
 }
 export interface IscsiExtentCreate {
   name: string;
-  type?: TypeInput6;
+  type?: IscsiExtentCreateTypeInput;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -2523,7 +2405,7 @@ export interface IscsiExtentCreate {
 }
 export interface IscsiExtentUpdate {
   name?: string;
-  type?: TypeInput6;
+  type?: IscsiExtentCreateTypeInput;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -2547,7 +2429,7 @@ export interface ISCSITargetEntryInput {
   id: number;
   name: string;
   alias?: string | null;
-  mode?: ModeInput;
+  mode?: IscsiTargetCreateModeInput;
   groups?: IscsiGroup[];
   auth_networks?: string[];
   rel_tgt_id: number;
@@ -2560,47 +2442,25 @@ export interface ISCSITargetChangedEvent {
 export interface IscsiTargetCreate {
   name: string;
   alias?: string | null;
-  mode?: ModeInput;
+  mode?: IscsiTargetCreateModeInput;
   groups?: IscsiGroup[];
   auth_networks?: string[];
   iscsi_parameters?: IscsiTargetParameters | null;
 }
-export interface ISCSITargetExtentAddedEvent {
-  id: number;
-  fields: ISCSITargetExtentEntryInput;
-}
-export interface ISCSITargetExtentEntryInput {
+export interface ISCSITargetEntry {
   id: number;
   name: string;
-  type?: TypeInput6;
-  disk?: string | null;
-  serial?: string | null;
-  path?: string | null;
-  dataset: string | null;
-  relative_path: string | null;
-  filesize?: string | number;
-  blocksize?: Blocksize;
-  pblocksize?: boolean;
-  avail_threshold?: number | null;
-  comment?: string;
-  naa: string;
-  insecure_tpc?: boolean;
-  xen?: boolean;
-  rpm?: Rpm;
-  ro?: boolean;
-  enabled?: boolean;
-  vendor: string;
-  product_id?: string | null;
-  locked: boolean | null;
-}
-export interface ISCSITargetExtentChangedEvent {
-  id: number;
-  fields: ISCSITargetExtentEntryInput;
+  alias?: string | null;
+  mode?: IscsiTargetCreateMode;
+  groups?: IscsiGroup[];
+  auth_networks?: string[];
+  rel_tgt_id: number;
+  iscsi_parameters?: IscsiTargetParameters | null;
 }
 export interface ISCSITargetExtentEntry {
   id: number;
   name: string;
-  type?: Type6;
+  type?: IscsiExtentCreateType;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -2622,7 +2482,7 @@ export interface ISCSITargetExtentEntry {
 export interface IscsiTargetUpdate {
   name?: string;
   alias?: string | null;
-  mode?: ModeInput;
+  mode?: IscsiTargetCreateModeInput;
   groups?: IscsiGroup[];
   auth_networks?: string[];
   iscsi_parameters?: IscsiTargetParameters | null;
@@ -2724,26 +2584,6 @@ export interface KerberosRealmUpdate {
 export interface KerberosUpdateArgs {
   appdefaults_aux?: string;
   libdefaults_aux?: string;
-}
-export interface KeychainCredentialAddedEvent {
-  id: number;
-  fields: KeychainCredentialEntryInput;
-}
-export interface KeychainCredentialEntryInput {
-  id: number;
-  name: string;
-  type: TypeInput11;
-  attributes: SSHKeyPair | SSHCredentials;
-}
-export interface KeychainCredentialChangedEvent {
-  id: number;
-  fields: KeychainCredentialEntryInput;
-}
-export interface KeychainCredentialEntry {
-  id: number;
-  name: string;
-  type: Type9;
-  attributes: SSHKeyPair | SSHCredentials;
 }
 export interface KMIPEntry {
   id: number;
@@ -2855,18 +2695,8 @@ export interface MailUpdate {
 export interface MultiprotocolOpt {
   aapl_name_mangling?: boolean;
 }
-export interface MultiprotocolOptInput {
-  purpose: "MULTIPROTOCOL_SHARE";
-  aapl_name_mangling?: boolean;
-  hostsallow?: string[];
-  hostsdeny?: string[];
-}
-export interface MultiprotocolOptInput2 {
-  purpose: "MULTIPROTOCOL_SHARE";
-  aapl_name_mangling?: boolean;
-}
 export interface NetworkConfigurationActivity {
-  type: TypeInput2;
+  type: NFS4ACETypeInput;
   activities?: string[];
 }
 export interface NetWorkConfigurationUpdate {
@@ -3261,19 +3091,6 @@ export interface PoolEntryInput {
   };
   topology: PoolTopology | null;
 }
-export interface PoolScan {
-  function: Function;
-  state: StateInput3;
-  start_time: string;
-  end_time: string | null;
-  percentage: number;
-  bytes_to_process: number;
-  bytes_processed: number;
-  bytes_issued: number;
-  pause: string | null;
-  errors: number;
-  total_secs_left: number | null;
-}
 export interface PoolAttach {
   target_vdev: string;
   new_disk: string;
@@ -3293,8 +3110,8 @@ export interface PoolCreate {
   encryption?: boolean;
   dedup_table_quota?: "AUTO" | "CUSTOM" | null;
   dedup_table_quota_value?: number | null;
-  deduplication?: Deduplication2;
-  checksum?: Checksum2;
+  deduplication?: PoolCreateDeduplication;
+  checksum?: PoolCreateChecksum;
   encryption_options?: PoolCreateEncryptionOptions;
   topology: PoolCreateTopology;
   allow_duplicate_serials?: boolean;
@@ -3321,7 +3138,7 @@ export interface PoolCreateTopology {
   spares?: string[];
 }
 export interface PoolCreateTopologyDataVdevDRAID {
-  type: TypeInput7;
+  type: PoolCreateTopologyDataVdevDRAIDTypeInput;
   disks: string[];
   draid_data_disks?: number | null;
   draid_spare_disks?: number;
@@ -3452,9 +3269,9 @@ export interface PoolDatasetCreateFilesystem {
   special_small_block_size?: number | "INHERIT";
   copies?: number | "INHERIT";
   snapdir?: Snapdir;
-  deduplication?: Deduplication;
-  checksum?: Checksum;
-  readonly?: ReadonlyInput;
+  deduplication?: PoolDatasetCreateFilesystemDeduplication;
+  checksum?: PoolDatasetCreateFilesystemChecksum;
+  readonly?: PoolDatasetCreateFilesystemReadonlyInput;
   share_type?: "GENERIC" | "MULTIPROTOCOL" | "NFS" | "SMB" | "APPS";
   encryption_options?: PoolCreateEncryptionOptions;
   encryption?: boolean;
@@ -3463,7 +3280,7 @@ export interface PoolDatasetCreateFilesystem {
   create_ancestors?: boolean;
   type?: "FILESYSTEM";
   aclmode?: Aclmode;
-  acltype?: AcltypeInput2;
+  acltype?: PoolDatasetCreateFilesystemAcltypeInput;
   atime?: Atime;
   casesensitivity?: Casesensitivity;
   quota?: number | (0 | null);
@@ -3491,9 +3308,9 @@ export interface PoolDatasetCreateVolume {
   special_small_block_size?: number | "INHERIT";
   copies?: number | "INHERIT";
   snapdir?: Snapdir;
-  deduplication?: Deduplication;
-  checksum?: Checksum;
-  readonly?: ReadonlyInput;
+  deduplication?: PoolDatasetCreateFilesystemDeduplication;
+  checksum?: PoolDatasetCreateFilesystemChecksum;
+  readonly?: PoolDatasetCreateFilesystemReadonlyInput;
   share_type?: "GENERIC" | "MULTIPROTOCOL" | "NFS" | "SMB" | "APPS";
   encryption_options?: PoolCreateEncryptionOptions;
   encryption?: boolean;
@@ -3590,15 +3407,15 @@ export interface PoolDatasetUpdate {
   special_small_block_size?: number | "INHERIT";
   copies?: number | "INHERIT";
   snapdir?: Snapdir;
-  deduplication?: Deduplication;
-  checksum?: Checksum;
-  readonly?: ReadonlyInput;
+  deduplication?: PoolDatasetCreateFilesystemDeduplication;
+  checksum?: PoolDatasetCreateFilesystemChecksum;
+  readonly?: PoolDatasetCreateFilesystemReadonlyInput;
   user_properties?: PoolDatasetCreateUserProperty[];
   create_ancestors?: boolean;
   force_size?: boolean;
   volsize?: number;
   aclmode?: Aclmode;
-  acltype?: AcltypeInput2;
+  acltype?: PoolDatasetCreateFilesystemAcltypeInput;
   atime?: Atime;
   quota?: number | (0 | null);
   refquota?: number | (0 | null);
@@ -3680,10 +3497,6 @@ export interface PoolReplace {
   force?: boolean;
   preserve_settings?: boolean;
   preserve_description?: boolean;
-}
-export interface PoolScanChangedEvent {
-  name: string;
-  scan: PoolScan;
 }
 export interface PoolSnapshotAddedEvent {
   id: string;
@@ -3829,20 +3642,6 @@ export interface PrivateDatasetOpt {
   auto_quota?: number;
   aapl_name_mangling?: boolean;
 }
-export interface PrivateDatasetOptInput {
-  purpose: "PRIVATE_DATASETS_SHARE";
-  dataset_naming_schema?: string | null;
-  auto_quota?: number;
-  aapl_name_mangling?: boolean;
-  hostsallow?: string[];
-  hostsdeny?: string[];
-}
-export interface PrivateDatasetOptInput2 {
-  purpose: "PRIVATE_DATASETS_SHARE";
-  dataset_naming_schema?: string | null;
-  auto_quota?: number;
-  aapl_name_mangling?: boolean;
-}
 export interface PrivilegeAddedEvent {
   id: number;
   fields: PrivilegeEntry;
@@ -3879,8 +3678,8 @@ export interface ReplicationAddedEvent {
 export interface ReplicationEntryInput {
   id: number;
   name: string;
-  direction: DirectionInput2;
-  transport: TransportInput;
+  direction: CloudSyncCreateDirectionInput;
+  transport: ReplicationCountEligibleManualSnapshotsTransportInput;
   ssh_credentials?: KeychainCredentialEntryInput | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
   netcat_active_side_listen_address?: string | null;
@@ -3915,7 +3714,7 @@ export interface ReplicationEntryInput {
   restrict_schedule?: ReplicationTimeCronModel | null;
   only_matching_schedule?: boolean;
   allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
+  readonly?: ReplicationCreateReadonlyInput;
   hold_pending_snapshots?: boolean;
   retention_policy: "SOURCE" | "CUSTOM" | "NONE";
   lifetime_value?: number | null;
@@ -3969,7 +3768,7 @@ export interface ReplicationCountEligibleManualSnapshotsArgs {
   datasets: [string, ...string[]];
   naming_schema?: string[];
   name_regex?: string | null;
-  transport: TransportInput;
+  transport: ReplicationCountEligibleManualSnapshotsTransportInput;
   ssh_credentials?: number | null;
 }
 export interface ReplicationCountEligibleManualSnapshotsResult {
@@ -3978,8 +3777,8 @@ export interface ReplicationCountEligibleManualSnapshotsResult {
 }
 export interface ReplicationCreate {
   name: string;
-  direction: DirectionInput2;
-  transport: TransportInput;
+  direction: CloudSyncCreateDirectionInput;
+  transport: ReplicationCountEligibleManualSnapshotsTransportInput;
   ssh_credentials?: number | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
   netcat_active_side_listen_address?: string | null;
@@ -4014,7 +3813,7 @@ export interface ReplicationCreate {
   restrict_schedule?: ReplicationTimeCronModel | null;
   only_matching_schedule?: boolean;
   allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
+  readonly?: ReplicationCreateReadonlyInput;
   hold_pending_snapshots?: boolean;
   retention_policy: "SOURCE" | "CUSTOM" | "NONE";
   lifetime_value?: number | null;
@@ -4032,7 +3831,7 @@ export interface ReplicationCreate {
 export interface ReplicationEntry {
   id: number;
   name: string;
-  direction: Direction2;
+  direction: CloudSyncCreateDirection;
   transport: Transport;
   ssh_credentials?: KeychainCredentialEntry | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
@@ -4098,8 +3897,8 @@ export interface ReplicationRestoreOptions {
   target_dataset: string;
 }
 export interface ReplicationRunOnetimeArgs {
-  direction: DirectionInput2;
-  transport: TransportInput;
+  direction: CloudSyncCreateDirectionInput;
+  transport: ReplicationCountEligibleManualSnapshotsTransportInput;
   ssh_credentials?: number | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
   netcat_active_side_listen_address?: string | null;
@@ -4131,7 +3930,7 @@ export interface ReplicationRunOnetimeArgs {
   name_regex?: string | null;
   restrict_schedule?: ReplicationTimeCronModel | null;
   allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
+  readonly?: ReplicationCreateReadonlyInput;
   hold_pending_snapshots?: boolean;
   retention_policy: "SOURCE" | "CUSTOM" | "NONE";
   lifetime_value?: number | null;
@@ -4150,8 +3949,8 @@ export interface ReplicationRunOnetimeArgs {
 }
 export interface ReplicationUpdate {
   name?: string;
-  direction?: DirectionInput2;
-  transport?: TransportInput;
+  direction?: CloudSyncCreateDirectionInput;
+  transport?: ReplicationCountEligibleManualSnapshotsTransportInput;
   ssh_credentials?: number | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
   netcat_active_side_listen_address?: string | null;
@@ -4186,7 +3985,7 @@ export interface ReplicationUpdate {
   restrict_schedule?: ReplicationTimeCronModel | null;
   only_matching_schedule?: boolean;
   allow_from_scratch?: boolean;
-  readonly?: ReadonlyInput2;
+  readonly?: ReplicationCreateReadonlyInput;
   hold_pending_snapshots?: boolean;
   retention_policy?: "SOURCE" | "CUSTOM" | "NONE";
   lifetime_value?: number | null;
@@ -4234,13 +4033,13 @@ export interface RsyncTaskEntryInput {
   dataset: string | null;
   relative_path: string | null;
   user: string;
-  mode?: ModeInput3;
+  mode?: RsyncTaskCreateModeInput;
   remotehost?: string | null;
   remoteport?: number | null;
   remotemodule?: string | null;
   ssh_credentials?: KeychainCredentialEntryInput | null;
   remotepath?: string;
-  direction?: DirectionInput;
+  direction?: RsyncTaskCreateDirectionInput;
   desc?: string;
   schedule?: RsyncTaskSchedule;
   recursive?: boolean;
@@ -4273,13 +4072,13 @@ export interface RsyncTaskChangedEvent {
 export interface RsyncTaskCreate {
   path: string;
   user: string;
-  mode?: ModeInput3;
+  mode?: RsyncTaskCreateModeInput;
   remotehost?: string | null;
   remoteport?: number | null;
   remotemodule?: string | null;
   ssh_credentials?: number | null;
   remotepath?: string;
-  direction?: DirectionInput;
+  direction?: RsyncTaskCreateDirectionInput;
   desc?: string;
   schedule?: RsyncTaskSchedule;
   recursive?: boolean;
@@ -4300,13 +4099,13 @@ export interface RsyncTaskEntry {
   id: number;
   path: string;
   user: string;
-  mode?: Mode3;
+  mode?: RsyncTaskCreateMode;
   remotehost?: string | null;
   remoteport?: number | null;
   remotemodule?: string | null;
   ssh_credentials?: KeychainCredentialEntry | null;
   remotepath?: string;
-  direction?: Direction;
+  direction?: RsyncTaskCreateDirection;
   desc?: string;
   schedule?: RsyncTaskSchedule;
   recursive?: boolean;
@@ -4331,13 +4130,13 @@ export interface RsyncTaskRemovedEvent {
 export interface RsyncTaskUpdate {
   path?: string;
   user?: string;
-  mode?: ModeInput3;
+  mode?: RsyncTaskCreateModeInput;
   remotehost?: string | null;
   remoteport?: number | null;
   remotemodule?: string | null;
   ssh_credentials?: number | null;
   remotepath?: string;
-  direction?: DirectionInput;
+  direction?: RsyncTaskCreateDirectionInput;
   desc?: string;
   schedule?: RsyncTaskSchedule;
   recursive?: boolean;
@@ -4380,44 +4179,6 @@ export interface ServiceRemovedEvent {
 export interface ServiceUpdate {
   enable: boolean;
 }
-export interface SharingNFSAddedEvent {
-  id: number;
-  fields: SharingNFSEntryInput;
-}
-export interface SharingNFSEntryInput {
-  id: number;
-  path: string;
-  dataset: string | null;
-  relative_path: string | null;
-  aliases?: string[];
-  comment?: string;
-  networks?: string[];
-  hosts?: string[];
-  ro?: boolean;
-  maproot_user?: string | null;
-  maproot_group?: string | null;
-  mapall_user?: string | null;
-  mapall_group?: string | null;
-  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
-  enabled?: boolean;
-  locked: boolean | null;
-  expose_snapshots?: boolean;
-  tier?: TierInfo | null;
-}
-export interface TierInfo {
-  tier_type: "REGULAR" | "PERFORMANCE";
-  tier_job?: ZfsTierRewriteJobEntry | null;
-}
-export interface ZfsTierRewriteJobEntry {
-  tier_job_id: string;
-  dataset_name: string;
-  job_uuid: string;
-  status: StatusInput2;
-}
-export interface SharingNFSChangedEvent {
-  id: number;
-  fields: SharingNFSEntryInput;
-}
 export interface SharingNFSEntry {
   id: number;
   path: string;
@@ -4441,7 +4202,7 @@ export interface SharingSMBAddedEvent {
 }
 export interface SharingSMBEntryInput {
   id: number;
-  purpose?: PurposeInput;
+  purpose?: SharingSMBEntryPurposeInput;
   name: string;
   path: string | "EXTERNAL";
   dataset: string | null;
@@ -4456,13 +4217,13 @@ export interface SharingSMBEntryInput {
   options?:
     | (
         | LegacyOptInput
-        | DefaultOptInput
-        | TimeMachineOptInput
-        | MultiprotocolOptInput
-        | TimeLockedOptInput
-        | PrivateDatasetOptInput
+        | SharingSmbDefaultOptInput
+        | SharingSmbTimeMachineOptInput
+        | SharingSmbMultiprotocolOptInput
+        | SharingSmbTimeLockedOptInput
+        | SharingSmbPrivateDatasetOptInput
         | ExternalOptInput
-        | VeeamRepositoryOptInput
+        | SharingSmbVeeamRepositoryOptInput
         | FCPStorageOpt
       )
     | null;
@@ -4473,7 +4234,13 @@ export interface SmbAuditConfig {
   watch_list?: string[];
   ignore_list?: string[];
 }
-export interface TimeMachineOptInput {
+export interface SharingSmbDefaultOptInput {
+  purpose: "DEFAULT_SHARE";
+  aapl_name_mangling?: boolean;
+  hostsallow?: string[];
+  hostsdeny?: string[];
+}
+export interface SharingSmbTimeMachineOptInput {
   purpose: "TIMEMACHINE_SHARE";
   timemachine_quota?: number;
   auto_snapshot?: boolean;
@@ -4483,14 +4250,28 @@ export interface TimeMachineOptInput {
   hostsallow?: string[];
   hostsdeny?: string[];
 }
-export interface TimeLockedOptInput {
+export interface SharingSmbMultiprotocolOptInput {
+  purpose: "MULTIPROTOCOL_SHARE";
+  aapl_name_mangling?: boolean;
+  hostsallow?: string[];
+  hostsdeny?: string[];
+}
+export interface SharingSmbTimeLockedOptInput {
   purpose: "TIME_LOCKED_SHARE";
   grace_period?: number;
   aapl_name_mangling?: boolean;
   hostsallow?: string[];
   hostsdeny?: string[];
 }
-export interface VeeamRepositoryOptInput {
+export interface SharingSmbPrivateDatasetOptInput {
+  purpose: "PRIVATE_DATASETS_SHARE";
+  dataset_naming_schema?: string | null;
+  auto_quota?: number;
+  aapl_name_mangling?: boolean;
+  hostsallow?: string[];
+  hostsdeny?: string[];
+}
+export interface SharingSmbVeeamRepositoryOptInput {
   purpose: "VEEAM_REPOSITORY_SHARE";
   hostsallow?: string[];
   hostsdeny?: string[];
@@ -4498,6 +4279,10 @@ export interface VeeamRepositoryOptInput {
 export interface SharingSMBChangedEvent {
   id: number;
   fields: SharingSMBEntryInput;
+}
+export interface SharingSmbDefaultOptInput2 {
+  purpose: "DEFAULT_SHARE";
+  aapl_name_mangling?: boolean;
 }
 export interface SharingSMBEntry {
   id: number;
@@ -4535,6 +4320,16 @@ export interface TimeLockedOpt {
   grace_period?: number;
   aapl_name_mangling?: boolean;
 }
+export interface SharingSmbMultiprotocolOptInput2 {
+  purpose: "MULTIPROTOCOL_SHARE";
+  aapl_name_mangling?: boolean;
+}
+export interface SharingSmbPrivateDatasetOptInput2 {
+  purpose: "PRIVATE_DATASETS_SHARE";
+  dataset_naming_schema?: string | null;
+  auto_quota?: number;
+  aapl_name_mangling?: boolean;
+}
 export interface SharingSMBRemovedEvent {
   id: number;
 }
@@ -4556,12 +4351,28 @@ export interface SMBShareAclEntryWhoId {
 export interface SharingSMBSharePrecheckArgs {
   name?: string | null;
 }
+export interface SharingSmbTimeLockedOptInput2 {
+  purpose: "TIME_LOCKED_SHARE";
+  grace_period?: number;
+  aapl_name_mangling?: boolean;
+}
+export interface SharingSmbTimeMachineOptInput2 {
+  purpose: "TIMEMACHINE_SHARE";
+  timemachine_quota?: number;
+  auto_snapshot?: boolean;
+  auto_dataset_creation?: boolean;
+  dataset_naming_schema?: string | null;
+  vuid?: string | null;
+}
+export interface SharingSmbVeeamRepositoryOptInput2 {
+  purpose: "VEEAM_REPOSITORY_SHARE";
+}
 export interface SMBShareAcl {
   share_name: string;
   share_acl?: SMBShareAclEntry[];
 }
 export interface SmbShareCreate {
-  purpose?: PurposeInput2;
+  purpose?: SharingSMBEntryPurposeInput2;
   name: string;
   path: string | "EXTERNAL";
   enabled?: boolean;
@@ -4573,34 +4384,18 @@ export interface SmbShareCreate {
   options?:
     | (
         | LegacyOptInput
-        | DefaultOptInput2
-        | TimeMachineOptInput2
-        | MultiprotocolOptInput2
-        | TimeLockedOptInput2
-        | PrivateDatasetOptInput2
+        | SharingSmbDefaultOptInput2
+        | SharingSmbTimeMachineOptInput2
+        | SharingSmbMultiprotocolOptInput2
+        | SharingSmbTimeLockedOptInput2
+        | SharingSmbPrivateDatasetOptInput2
         | ExternalOptInput
-        | VeeamRepositoryOptInput2
+        | SharingSmbVeeamRepositoryOptInput2
       )
     | null;
 }
-export interface TimeMachineOptInput2 {
-  purpose: "TIMEMACHINE_SHARE";
-  timemachine_quota?: number;
-  auto_snapshot?: boolean;
-  auto_dataset_creation?: boolean;
-  dataset_naming_schema?: string | null;
-  vuid?: string | null;
-}
-export interface TimeLockedOptInput2 {
-  purpose: "TIME_LOCKED_SHARE";
-  grace_period?: number;
-  aapl_name_mangling?: boolean;
-}
-export interface VeeamRepositoryOptInput2 {
-  purpose: "VEEAM_REPOSITORY_SHARE";
-}
 export interface SmbShareUpdate {
-  purpose?: PurposeInput2;
+  purpose?: SharingSMBEntryPurposeInput2;
   name?: string;
   path?: string | "EXTERNAL";
   enabled?: boolean;
@@ -4612,13 +4407,13 @@ export interface SmbShareUpdate {
   options?:
     | (
         | LegacyOptInput
-        | DefaultOptInput2
-        | TimeMachineOptInput2
-        | MultiprotocolOptInput2
-        | TimeLockedOptInput2
-        | PrivateDatasetOptInput2
+        | SharingSmbDefaultOptInput2
+        | SharingSmbTimeMachineOptInput2
+        | SharingSmbMultiprotocolOptInput2
+        | SharingSmbTimeLockedOptInput2
+        | SharingSmbPrivateDatasetOptInput2
         | ExternalOptInput
-        | VeeamRepositoryOptInput2
+        | SharingSmbVeeamRepositoryOptInput2
       )
     | null;
 }
@@ -4688,9 +4483,6 @@ export interface SSHUpdate {
   weak_ciphers?: ("AES128-CBC" | "NONE")[];
   options?: string;
 }
-export interface StatusResult {
-  status: Status2;
-}
 export interface SupportAttachTicketArgs {
   ticket: number;
   filename: string;
@@ -4711,7 +4503,7 @@ export interface SupportNewTicketCommunity {
   body: string;
   attach_debug?: boolean;
   token: string;
-  type: TypeInput4;
+  type: SupportNewTicketCommunityTypeInput;
   cc?: string[];
 }
 export interface SupportNewTicketEnterprise {
@@ -4756,7 +4548,7 @@ export interface SysInfo {
 }
 export interface SyslogServer {
   host: string;
-  transport?: TransportInput2;
+  transport?: SyslogServerTransportInput;
   tls_certificate?: number | null;
 }
 export interface SystemAdvancedUpdate {
@@ -4898,7 +4690,7 @@ export interface TruecommandConfigChangedEvent {
 }
 export interface TruecommandConfigChangedEventFields {
   id: number;
-  status: StatusInput3;
+  status: TruecommandConfigChangedEventFieldsStatusInput;
   status_reason:
     | "Truecommand service is connected."
     | "Pending Confirmation From iX Portal for Truecommand API Key."
@@ -4913,7 +4705,7 @@ export interface TruecommandConfigChangedEventFields {
 export interface TruecommandEntry {
   id: number;
   api_key: string | null;
-  status: Status;
+  status: TruecommandConfigChangedEventFieldsStatus;
   status_reason:
     | "Truecommand service is connected."
     | "Pending Confirmation From iX Portal for Truecommand API Key."
@@ -4957,7 +4749,7 @@ export interface TunableAddedEvent {
   fields: TunableEntryInput;
 }
 export interface TunableEntryInput {
-  type?: TypeInput12;
+  type?: TunableCreateTypeInput;
   var: string;
   value: string;
   comment?: string;
@@ -4970,7 +4762,7 @@ export interface TunableChangedEvent {
   fields: TunableEntryInput;
 }
 export interface TunableCreate {
-  type?: TypeInput12;
+  type?: TunableCreateTypeInput;
   var: string;
   value: string;
   comment?: string;
@@ -4978,7 +4770,7 @@ export interface TunableCreate {
   update_initramfs?: boolean;
 }
 export interface TunableEntry {
-  type?: Type10;
+  type?: TunableCreateType;
   var: string;
   value: string;
   comment?: string;
@@ -5094,7 +4886,7 @@ export interface UPSEntry {
   driver: string;
   extrausers: string;
   identifier: string;
-  mode: Mode2;
+  mode: UPSEntryMode;
   monpwd: string;
   monuser: string;
   options: string;
@@ -5115,7 +4907,7 @@ export interface UPSUpdateArgs {
   driver?: string;
   extrausers?: string;
   identifier?: string;
-  mode?: ModeInput2;
+  mode?: UPSEntryModeInput;
   monpwd?: string;
   monuser?: string;
   options?: string;
@@ -5341,7 +5133,7 @@ export interface VMDeviceEntryInput {
     | VMCDROMDevice
     | VMDisplayDevice
     | VMISCSIDiskDevice
-    | VMNICDeviceInput2
+    | VmDeviceVMNICDeviceInput
     | VMPCIDevice
     | VMRAWDeviceInput
     | VMDiskDeviceInput
@@ -5413,7 +5205,7 @@ export interface VMDeviceCreateArgs {
   attributes:
     | VMCDROMDevice
     | VMDisplayDevice
-    | VMNICDeviceInput
+    | VmVMNICDeviceInput
     | VMPCIDevice
     | VMRAWDeviceInput
     | VMDiskDeviceInput
@@ -5533,7 +5325,7 @@ export interface VMWareEntryInput {
   state: VMWareEntryState;
 }
 export interface VMWareEntryState {
-  state?: StateInput2;
+  state?: VMWareEntryStateStateInput;
   error?: string;
   datetime?: string;
 }
@@ -5578,7 +5370,7 @@ export interface VMWareMatchDatastoresWithDatasetsResultDatastore {
   filesystems: string[];
 }
 export interface VMWareMatchDatastoresWithDatasetsResultFilesystem {
-  type: Type7;
+  type: VMWareMatchDatastoresWithDatasetsResultFilesystemType;
   name: string;
 }
 export interface VMWareRemovedEvent {
@@ -5597,7 +5389,7 @@ export interface ZFSResourceEntry {
   name: string;
   pool: string;
   properties: ZFSPropertiesEntry;
-  type: Type7;
+  type: VMWareMatchDatastoresWithDatasetsResultFilesystemType;
   user_properties: {
     [k: string]: string;
   } | null;
