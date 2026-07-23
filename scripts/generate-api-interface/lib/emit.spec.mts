@@ -48,6 +48,19 @@ describe('directoryEntry', () => {
 
 });
 
+describe('emitManifest chronology', () => {
+  it('orders resurrections correctly: introduced, removed, reintroduced', async () => {
+    const { emitManifest } = await import('./emit.mts');
+    const out = emitManifest([{
+      name: 'enclosure2.query',
+      kind: 'call',
+      declaredIn: ['v1', 'v3', 'v4 (via referenced types)'],
+      removedIn: ['v2'],
+    }], ['v1', 'v2', 'v3', 'v4']);
+    expect(out).toContain('| enclosure2.query | call | introduced v1; removed v2; reintroduced v3; changed v4 (via referenced types) |');
+  });
+});
+
 describe('emitTypes enum emission', () => {
   it('derives member names and falls back to quoted values on collisions', async () => {
     const out = await emitTypes({

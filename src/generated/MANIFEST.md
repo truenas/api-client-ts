@@ -270,8 +270,8 @@ causes a change.
 | docker.status | call | introduced v25.04.0; changed v25.10.0 (via referenced types), v25.10.1 (via referenced types), v26.0.0 (via referenced types), v27.0.0 |
 | docker.update | job | introduced v25.04.0; changed v25.04.1 (via referenced types), v25.10.0 (via referenced types), v26.0.0 (via referenced types), v27.0.0 |
 | enclosure.label.set | call | introduced v25.04.0 |
-| enclosure2.query | call | introduced v25.04.0; changed v25.10.0; removed v25.04.1 |
-| enclosure2.set_slot_status | call | introduced v25.04.0; changed v25.10.0, v27.0.0; removed v25.04.1 |
+| enclosure2.query | call | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
+| enclosure2.set_slot_status | call | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0; changed v27.0.0 |
 | failover.become_passive | call | introduced v25.10.0 |
 | failover.config | call | introduced v25.10.0 |
 | failover.disabled.reasons | call | introduced v25.10.0 |
@@ -1307,9 +1307,9 @@ causes a change.
 | ECCCSRExtensionsModel | type | introduced v25.04.0 |
 | ECCKeyUsageModel | type | introduced v25.04.0 |
 | EmptyDict | type | introduced v25.10.0 |
-| Enclosure2Entry | type | introduced v25.04.0; changed v25.10.0; removed v25.04.1 |
-| Enclosure2QueryResultItem | type | introduced v25.04.0; changed v25.10.0; removed v25.04.1 |
-| Enclosure2SetSlotStatusArgs | type | introduced v25.04.0; changed v25.10.0; removed v25.04.1 |
+| Enclosure2Entry | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
+| Enclosure2QueryResultItem | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
+| Enclosure2SetSlotStatusArgs | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
 | Encryption | type | introduced v25.04.0 |
 | EncryptionInput | type | introduced v25.04.0 |
 | EncryptionInput2 | type | introduced v25.04.0 |
@@ -1964,7 +1964,7 @@ causes a change.
 | Status3 | type | introduced v26.0.0 |
 | StatusInput | type | introduced v25.04.0; changed v25.04.1, v25.10.0 |
 | StatusInput2 | type | introduced v25.04.0; changed v25.04.1, v25.10.0 |
-| StatusInput3 | type | introduced v25.04.0; changed v25.10.0; removed v25.04.1 |
+| StatusInput3 | type | introduced v25.04.0; removed v25.04.1; reintroduced v25.10.0 |
 | StatusInput4 | type | introduced v25.10.0 |
 | StatusResult | type | introduced v25.04.0; changed v25.10.0, v25.10.1 (via referenced types), v26.0.0; removed v27.0.0 |
 | STIGType | type | introduced v25.04.0 |

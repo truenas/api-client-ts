@@ -412,15 +412,37 @@ export interface ManifestRow {
  * "unchanged since vX" from "absent after vX" — this manifest can.
  */
 export function emitManifest(rows: ManifestRow[], versions: string[]): string {
+  const order = new Map(versions.map((v, i) => [v, i]));
+  const bare = (token: string) => token.replace(/\s*\(.*\)$/, '');
+  /**
+   * Chronological history. Entries can leave and return (enclosure2.* is
+   * present in v25.04.0, absent in v25.04.1/2, back from v25.10.0), so
+   * events are ordered by version and a declaration after a removal reads
+   * "reintroduced", not "changed".
+   */
+  const history = (row: ManifestRow): string => {
+    const events = [
+      ...row.declaredIn.map((token) => ({ at: order.get(bare(token)) ?? 0, kind: 'declared' as const, token })),
+      ...row.removedIn.map((token) => ({ at: order.get(token) ?? 0, kind: 'removed' as const, token })),
+    ].sort((a, b) => a.at - b.at);
+    const parts: { label: string; tokens: string[] }[] = [];
+    let firstDeclare = true;
+    let afterRemoval = false;
+    for (const event of events) {
+      const label = event.kind === 'removed' ? 'removed'
+        : firstDeclare ? 'introduced'
+        : afterRemoval ? 'reintroduced'
+        : 'changed';
+      if (event.kind === 'declared') { firstDeclare = false; afterRemoval = false; } else { afterRemoval = true; }
+      const last = parts[parts.length - 1];
+      if (last && last.label === label && label !== 'introduced') last.tokens.push(event.token);
+      else parts.push({ label, tokens: [event.token] });
+    }
+    return parts.map((p) => `${p.label} ${p.tokens.join(', ')}`).join('; ');
+  };
   const table = (subset: ManifestRow[]): string => subset
     .sort((a, b) => a.name.localeCompare(b.name))
-    .map((row) => {
-      const [introduced, ...changed] = row.declaredIn;
-      const parts = [`introduced ${introduced}`];
-      if (changed.length) parts.push(`changed ${changed.join(', ')}`);
-      if (row.removedIn.length) parts.push(`removed ${row.removedIn.join(', ')}`);
-      return `| ${row.name} | ${row.kind} | ${parts.join('; ')} |`;
-    })
+    .map((row) => `| ${row.name} | ${row.kind} | ${history(row)} |`)
     .join('\n');
   const surface = rows.filter((r) => r.kind !== 'type');
   const types = rows.filter((r) => r.kind === 'type');
