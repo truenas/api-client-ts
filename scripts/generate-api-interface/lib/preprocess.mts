@@ -33,6 +33,8 @@ import type {
 const RESERVED_NAMES = new Set([
   'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions',
   'ApiCallDirectory', 'ApiJobDirectory', 'ApiEventDirectory', 'ApiDirectory',
+  'ApiCallDirectoryDelta', 'ApiJobDirectoryDelta', 'ApiEventDirectoryDelta',
+  'ApiCallDirectoryBase', 'ApiJobDirectoryBase', 'ApiEventDirectoryBase',
 ]);
 
 /** The uniform property set of middleware's query options model. */

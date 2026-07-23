@@ -305,61 +305,76 @@ export function eventEntry(event: EventModel): string {
   return `${tsdoc([event.doc, event.roles.length ? `@roles ${event.roles.join(', ')}` : null])}  ${quote(event.name)}: {\n${variants}\n  };`;
 }
 
-/** Entries identical in every version whose types are all shared, hoisted into shared/. */
-export interface DirectoryBase {
-  /** Method/event names that live in the base and are omitted from version files. */
-  names: Set<string>;
-  interfaceName: string;
-  path: string;
+/**
+ * Chain link for a non-root version's directory: where the previous version's
+ * interface lives and which of its entries were removed in this version.
+ * Entries *changed* in this version are re-declared in the delta interface
+ * and displaced from the previous surface via `keyof` the delta.
+ */
+export interface DirectoryChainLink {
+  /** Module path of the previous version's directory file. */
+  prevPath: string;
+  /** Entries present in the previous version but absent from this one. */
+  removed: string[];
 }
 
-function extendedInterface(
+function chainedDirectory(
   interfaceName: string,
   entries: string,
-  base: DirectoryBase | undefined,
   imports: string,
+  link: DirectoryChainLink | undefined,
 ): string {
-  if (!base) {
+  if (!link) {
     return `${HEADER}\n${imports}export interface ${interfaceName} {\n${entries}\n}\n`;
   }
-  const baseImport = `import type { ${base.interfaceName} } from '${base.path}';\n`;
+  const prevAlias = `Previous${interfaceName}`;
+  const prevImport = `import type { ${interfaceName} as ${prevAlias} } from '${link.prevPath}';\n`;
+  const removedUnion = link.removed.map((n) => `'${n}'`).join(' | ');
   if (!entries) {
-    return `${HEADER}\n${baseImport}\n/** Every entry of this version is shared — see the base interface. */\nexport type ${interfaceName} = ${base.interfaceName};\n`;
+    if (link.removed.length === 0) {
+      return `${HEADER}\n${prevImport}\n/** Identical to the previous version's surface. */\nexport type ${interfaceName} = ${prevAlias};\n`;
+    }
+    return `${HEADER}\n${prevImport}\n/** The previous version's surface, without entries removed in this version. */\nexport type ${interfaceName} = Omit<${prevAlias}, ${removedUnion}>;\n`;
   }
-  return `${HEADER}\n${baseImport}${imports ? `\n${imports}` : '\n'}export interface ${interfaceName} extends ${base.interfaceName} {\n${entries}\n}\n`;
+  const deltaName = `${interfaceName}Delta`;
+  const omitted = link.removed.length ? `keyof ${deltaName} | ${removedUnion}` : `keyof ${deltaName}`;
+  return `${HEADER}\n${prevImport}${imports ? `\n${imports}` : '\n'}/** Entries added or changed in this version (directly, or through a referenced type). */\nexport interface ${deltaName} {\n${entries}\n}\n\n/** This version's surface: the previous version's, updated by the delta. */\nexport type ${interfaceName} = Omit<${prevAlias}, ${omitted}> & ${deltaName};\n`;
 }
 
-export function emitCallDirectory(methods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', base?: DirectoryBase): string {
-  const own = methods.filter((m) => !m.job && !base?.names.has(m.name));
-  const entries = own.map(directoryEntry).join('\n\n');
-  return extendedInterface('ApiCallDirectory', entries, base,
-    queryImportLine(entries, queryPath) + importLine(own, externals));
+export function emitCallDirectory(ownMethods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', link?: DirectoryChainLink): string {
+  const calls = ownMethods.filter((m) => !m.job);
+  const entries = calls.map(directoryEntry).join('\n\n');
+  return chainedDirectory('ApiCallDirectory', entries,
+    queryImportLine(entries, queryPath) + importLine(calls, externals), link);
 }
 
-export function emitJobDirectory(methods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', base?: DirectoryBase): string {
-  const jobs = methods.filter((m) => m.job);
-  if (jobs.length === 0 && !base) {
+export function emitJobDirectory(ownMethods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', link?: DirectoryChainLink): string {
+  const jobs = ownMethods.filter((m) => m.job);
+  if (jobs.length === 0 && !link) {
     return `${HEADER}\n/** No job methods in the generated API slice. */\n// eslint-disable-next-line @typescript-eslint/no-empty-object-type\nexport interface ApiJobDirectory {\n}\n`;
   }
-  const own = jobs.filter((m) => !base?.names.has(m.name));
-  const entries = own.map(directoryEntry).join('\n\n');
-  return extendedInterface('ApiJobDirectory', entries, base,
-    queryImportLine(entries, queryPath) + importLine(own, externals));
+  const entries = jobs.map(directoryEntry).join('\n\n');
+  return chainedDirectory('ApiJobDirectory', entries,
+    queryImportLine(entries, queryPath) + importLine(jobs, externals), link);
 }
 
-export function emitEventDirectory(events: EventModel[], externals?: Externals, base?: DirectoryBase): string {
-  const own = events.filter((e) => !base?.names.has(e.name));
-  const entries = own.map(eventEntry).join('\n\n');
-  return extendedInterface('ApiEventDirectory', entries, base, importLine(own, externals));
+export function emitEventDirectory(ownEvents: EventModel[], externals?: Externals, link?: DirectoryChainLink): string {
+  const entries = ownEvents.map(eventEntry).join('\n\n');
+  return chainedDirectory('ApiEventDirectory', entries, importLine(ownEvents, externals), link);
 }
 
 /**
- * A base directory interface emitted into shared/ — every referenced type is
- * chain-stable, so `externals` maps each one to its declaring version dir.
+ * A base directory in shared/: the entries stable across every generated
+ * version, expressed as a Pick from the chain root's directory (where each of
+ * those entries is materialized) — no entry duplication.
  */
-export function emitDirectoryBase(interfaceName: string, entryList: string[], refNodes: unknown, externals: Externals): string {
-  const entries = entryList.join('\n\n');
-  return `${HEADER}\n${queryImportLine(entries, './query-types')}${importLine(refNodes, externals)}export interface ${interfaceName} {\n${entries}\n}\n`;
+export function emitDirectoryBase(interfaceName: string, sourceInterface: string, sourcePath: string, names: string[]): string {
+  if (names.length === 0) {
+    return `${HEADER}\n/** Nothing is stable across every generated version. */\n// eslint-disable-next-line @typescript-eslint/no-empty-object-type\nexport interface ${interfaceName} {\n}\n`;
+  }
+  const source = `Source${sourceInterface}`;
+  const union = names.sort().map((n) => `  | '${n}'`).join('\n');
+  return `${HEADER}\nimport type { ${sourceInterface} as ${source} } from '${sourcePath}';\n\n/** The entries whose signature (and referenced types) are identical in every generated version. */\nexport type ${interfaceName} = Pick<\n  ${source},\n${union}\n>;\n`;
 }
 
 export interface InheritedGroup {

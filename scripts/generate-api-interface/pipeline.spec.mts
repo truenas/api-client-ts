@@ -65,25 +65,39 @@ describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
     }
   });
 
-  it('hoists stable entries into directory bases and keeps changed ones per-version', async () => {
+  it('chains directories: versions declare only added/changed entries', async () => {
     const files = await generate();
-    const base = files.get('shared/api-call-directory-base.ts') ?? '';
-    const jobBase = files.get('shared/api-job-directory-base.ts') ?? '';
-    expect(base).toContain("'iscsi.fetch':"); // identical everywhere, stable refs
-    expect(jobBase).toContain("'test.run':");
-    // test.create references TestEntry (changed in v2) -> must stay per-version.
-    expect(base).not.toContain("'test.create':");
-    expect(files.get('v1_0_0/api-call-directory.ts')).toContain("'test.create':");
-    expect(files.get('v2_0_0/api-call-directory.ts')).toContain("'test.create':");
+    const v1 = files.get('v1_0_0/api-call-directory.ts') ?? '';
+    const v2 = files.get('v2_0_0/api-call-directory.ts') ?? '';
+    // Root declares everything.
+    expect(v1).toContain("'iscsi.fetch':");
+    expect(v1).toContain("'test.create':");
+    // iscsi.fetch is unchanged in v2 -> inherited through the Omit chain, not re-declared.
+    expect(v2).not.toContain("'iscsi.fetch':");
+    // test.create's text is identical, but TestEntry was re-declared in v2 -> in the delta.
+    expect(v2).toContain("'test.create':");
+    expect(v2).toContain('export interface ApiCallDirectoryDelta {');
+    expect(v2).toContain('export type ApiCallDirectory = Omit<PreviousApiCallDirectory, keyof ApiCallDirectoryDelta>');
     // test.remove is new in v2.
-    expect(files.get('v2_0_0/api-call-directory.ts')).toContain("'test.remove':");
-    expect(files.get('v1_0_0/api-call-directory.ts')).not.toContain("'test.remove':");
+    expect(v2).toContain("'test.remove':");
+    // Jobs are unchanged in v2 -> pure alias of the previous version.
+    expect(files.get('v2_0_0/api-job-directory.ts')).toContain('export type ApiJobDirectory = PreviousApiJobDirectory;');
   });
 
-  it('marks removed_in methods as deprecated (entry is base-eligible, so in the base)', async () => {
-    const base = (await generate()).get('shared/api-call-directory-base.ts') ?? '';
-    expect(base).toContain("'test.update':");
-    expect(base).toContain('@deprecated Removed in API version v3.0.0.');
+  it('emits bases as a Pick from the chain root, without entry duplication', async () => {
+    const files = await generate();
+    const base = files.get('shared/api-call-directory-base.ts') ?? '';
+    expect(base).toContain('Pick<');
+    expect(base).toContain("| 'iscsi.fetch'"); // identical everywhere, stable refs
+    expect(base).not.toContain("| 'test.create'"); // references TestEntry, which diverges
+    expect(base).not.toContain("'iscsi.fetch':"); // no materialized entries in the base
+    expect(files.get('shared/api-job-directory-base.ts')).toContain("| 'test.run'");
+  });
+
+  it('marks removed_in methods as deprecated (at their declaring version)', async () => {
+    const v1 = (await generate()).get('v1_0_0/api-call-directory.ts') ?? '';
+    expect(v1).toContain("'test.update':");
+    expect(v1).toContain('@deprecated Removed in API version v3.0.0.');
   });
 
   it('gates method-named events on the method existing in that version', async () => {

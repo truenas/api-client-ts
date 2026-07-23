@@ -19,7 +19,7 @@ import {
   emitRootIndex,
   directoryEntry,
   eventEntry,
-  type DirectoryBase,
+  type DirectoryChainLink,
   type Externals,
 } from './emit.mts';
 import type { ApiDumpFile, ApiDumpVersion, MethodModel, VersionModel } from './types.mts';
@@ -163,27 +163,50 @@ export async function generateFromDump(
     job: computeDirectoryBase(models.map((m) => m.methods.filter((x) => x.job)), directoryEntry, methodRefs),
     event: computeDirectoryBase(models.map((m) => m.events), eventEntry, (e) => refNames(e.models)),
   } : null;
-  const baseFor = (kind: 'call' | 'job' | 'event'): DirectoryBase | undefined => (bases ? {
-    names: bases[kind],
-    interfaceName: `Api${kind[0].toUpperCase()}${kind.slice(1)}DirectoryBase`,
-    path: `../shared/api-${kind}-directory-base`,
-  } : undefined);
+
+  /**
+   * Directory chain deltas: an entry belongs to version i's delta when it is
+   * new, its emitted text changed, or a type it references was re-declared in
+   * version i (identical text over a re-declared type means something
+   * different). Entries of the previous version absent here are removals.
+   */
+  function directoryDelta<T extends { name: string }>(
+    perVersion: T[][],
+    entryText: (item: T) => string,
+    refs: (item: T) => Set<string>,
+  ): { own: T[][]; removed: string[][] } {
+    const own: T[][] = [];
+    const removed: string[][] = [];
+    for (let i = 0; i < perVersion.length; i++) {
+      if (i === 0 || !multi) {
+        own.push(perVersion[i]);
+        removed.push([]);
+        continue;
+      }
+      const prev = new Map(perVersion[i - 1].map((item) => [item.name, item]));
+      own.push(perVersion[i].filter((item) => {
+        const before = prev.get(item.name);
+        if (!before || entryText(before) !== entryText(item)) return true;
+        return [...refs(item)].some((r) => homes[i].get(r) === i);
+      }));
+      const current = new Set(perVersion[i].map((item) => item.name));
+      removed.push(perVersion[i - 1].filter((item) => !current.has(item.name)).map((item) => item.name));
+    }
+    return { own, removed };
+  }
+
+  const callDelta = directoryDelta(models.map((m) => m.methods.filter((x) => !x.job)), directoryEntry, methodRefs);
+  const jobDelta = directoryDelta(models.map((m) => m.methods.filter((x) => x.job)), directoryEntry, methodRefs);
+  const eventDelta = directoryDelta(models.map((m) => m.events), eventEntry, (e) => refNames(e.models));
 
   if (multi && bases) {
-    // Base entries render from the newest version's models (identical
-    // everywhere); their type imports resolve to the chain root.
-    const newest = models[models.length - 1];
-    const baseCalls = newest.methods.filter((m) => !m.job && bases.call.has(m.name));
-    const baseJobs = newest.methods.filter((m) => m.job && bases.job.has(m.name));
-    const baseEvents = newest.events.filter((e) => bases.event.has(e.name));
-    const rootExternals: Externals = new Map([...chainStable].map((name) => [name, `../${dirOf(0)}/api-types`]));
     write('shared', 'query-types.ts', queryTypesSource);
-    write('shared', 'api-call-directory-base.ts', emitDirectoryBase('ApiCallDirectoryBase', baseCalls.map(directoryEntry),
-      baseCalls.map((m) => [m.params.map((p) => p.schema), m.returns]), rootExternals));
-    write('shared', 'api-job-directory-base.ts', emitDirectoryBase('ApiJobDirectoryBase', baseJobs.map(directoryEntry),
-      baseJobs.map((m) => [m.params.map((p) => p.schema), m.returns]), rootExternals));
-    write('shared', 'api-event-directory-base.ts', emitDirectoryBase('ApiEventDirectoryBase', baseEvents.map(eventEntry),
-      baseEvents.map((e) => e.models), rootExternals));
+    write('shared', 'api-call-directory-base.ts', emitDirectoryBase('ApiCallDirectoryBase', 'ApiCallDirectory',
+      `../${dirOf(0)}/api-call-directory`, [...bases.call]));
+    write('shared', 'api-job-directory-base.ts', emitDirectoryBase('ApiJobDirectoryBase', 'ApiJobDirectory',
+      `../${dirOf(0)}/api-job-directory`, [...bases.job]));
+    write('shared', 'api-event-directory-base.ts', emitDirectoryBase('ApiEventDirectoryBase', 'ApiEventDirectory',
+      `../${dirOf(0)}/api-event-directory`, [...bases.event]));
     log(`Directory bases: ${bases.call.size} calls, ${bases.job.size} jobs, ${bases.event.size} events shared across versions`);
   }
 
@@ -202,11 +225,19 @@ export async function generateFromDump(
       types: names.filter((n) => declared[home][n]._kind !== 'enum').sort(),
     }));
 
+    const link = (kind: string): DirectoryChainLink | undefined => (multi && i > 0
+      ? { prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`, removed: [] }
+      : undefined);
+    const linkFor = (kind: string, removed: string[]): DirectoryChainLink | undefined => {
+      const l = link(kind);
+      return l ? { ...l, removed } : undefined;
+    };
+
     if (!multi) write('', 'query-types.ts', queryTypesSource);
     write(outDir, 'api-types.ts', await emitTypes(declared[i], externals));
-    write(outDir, 'api-call-directory.ts', emitCallDirectory(model.methods, externals, queryPath, baseFor('call')));
-    write(outDir, 'api-job-directory.ts', emitJobDirectory(model.methods, externals, queryPath, baseFor('job')));
-    write(outDir, 'api-event-directory.ts', emitEventDirectory(model.events, externals, baseFor('event')));
+    write(outDir, 'api-call-directory.ts', emitCallDirectory(callDelta.own[i], externals, queryPath, linkFor('call', callDelta.removed[i])));
+    write(outDir, 'api-job-directory.ts', emitJobDirectory(jobDelta.own[i], externals, queryPath, linkFor('job', jobDelta.removed[i])));
+    write(outDir, 'api-event-directory.ts', emitEventDirectory(eventDelta.own[i], externals, linkFor('event', eventDelta.removed[i])));
     write(outDir, 'index.ts', emitIndex({ inherited, queryPath }));
 
     const declaredCount = Object.keys(declared[i]).length;
