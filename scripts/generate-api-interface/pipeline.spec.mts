@@ -86,6 +86,20 @@ describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
     expect(base).toContain('@deprecated Removed in API version v3.0.0.');
   });
 
+  it('emits the version registry in the root index', async () => {
+    const root = (await generate()).get('index.ts') ?? '';
+    expect(root).toContain("'v1.0.0': ApiDirectoryV1_0_0;");
+    expect(root).toContain("'v2.0.0': ApiDirectoryV2_0_0;");
+    expect(root).toContain('export type SupportedApiVersion = keyof ApiDirectoryByVersion;');
+    expect(root).toMatch(/SUPPORTED_API_VERSIONS = \[\n {2}'v1\.0\.0',\n {2}'v2\.0\.0',\n\] as const/);
+  });
+
+  it("selects every dump version with apiVersions: ['all']", async () => {
+    const files = await generateFromDump(await loadFixture(), { apiVersions: ['all'] });
+    expect(files.has('v1_0_0/index.ts')).toBe(true);
+    expect(files.has('v2_0_0/index.ts')).toBe(true);
+  });
+
   it('rejects non-keep-refs dumps and unknown versions', async () => {
     const fixture = await loadFixture();
     await expect(generateFromDump({ versions: [{

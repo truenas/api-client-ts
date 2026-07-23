@@ -192,6 +192,7 @@ import type {
   AuditUpdate,
   AuthSessionsEntry,
   BootGetState,
+  CertificateEntry,
   CertificateQueryResultItem,
   CloudBackupCreate,
   CloudBackupEntry,
@@ -447,6 +448,7 @@ import type {
   VMWareMatchDatastoresWithDatasetsResult,
   VMWareQueryResultItem,
   VMWareUpdate,
+  Verb,
   ZFSResourceEntry,
   ZFSResourceQuery,
 } from '../v25_10_0/api-types';
@@ -460,12 +462,7 @@ import type {
   StaticRouteUpdate,
   StatusResult,
   VMDeviceVirtualSizeArgs,
-} from '../v25_10_1/api-types';
-import type {
-  CertificateEntry,
-  IpmiChassisIdentifyRequest,
-  IpmiChassisInfoRequest,
-} from '../v25_10_2/api-types';
+} from './api-types';
 
 export interface ApiCallDirectory extends ApiCallDirectoryBase {
   /**
@@ -2261,7 +2258,7 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
    * @roles IPMI_WRITE
    */
   'ipmi.chassis.identify': {
-    params: [data?: IpmiChassisIdentifyRequest];
+    params: [verb?: Verb];
     response: null;
   };
 
@@ -2272,7 +2269,7 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
    * @roles IPMI_READ
    */
   'ipmi.chassis.info': {
-    params: [data?: IpmiChassisInfoRequest];
+    params: [];
     response: IPMIChassisInfo | Record<string, unknown>;
   };
 

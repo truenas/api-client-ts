@@ -32,6 +32,7 @@ import type {
   AuditExport,
   BootAttachOptions,
   CertificateCreateArgs,
+  CertificateEntry,
   CertificateUpdate,
   CloudBackupRestoreOptions,
   CloudBackupSyncOptions,
@@ -88,9 +89,6 @@ import type {
   VMDeviceConvertArgs,
   Verb2,
 } from '../v25_10_0/api-types';
-import type {
-  CertificateEntry,
-} from '../v25_10_2/api-types';
 
 export interface ApiJobDirectory extends ApiJobDirectoryBase {
   /**

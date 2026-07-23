@@ -32,6 +32,7 @@ import type {
   AuditExport,
   BootAttachOptions,
   CertificateCreateArgs,
+  CertificateEntry,
   CertificateUpdate,
   CloudBackupRestoreOptions,
   CloudBackupSyncOptions,
@@ -87,10 +88,7 @@ import type {
   UpdateRunAttrs,
   VMDeviceConvertArgs,
   Verb2,
-} from '../v25_10_0/api-types';
-import type {
-  CertificateEntry,
-} from '../v25_10_2/api-types';
+} from './api-types';
 
 export interface ApiJobDirectory extends ApiJobDirectoryBase {
   /**
@@ -381,19 +379,6 @@ export interface ApiJobDirectory extends ApiJobDirectoryBase {
    */
   'directoryservices.leave': {
     params: [credential: DirectoryServicesLeaveArgs];
-    response: null;
-  };
-
-  /**
-   * Sync local keytab with remote domain controller. This is required if additional kerberos SPNs were added to the truenas account in the remote domain controller after joining the directory service.
-   *
-   * This is currently only implemented for active directory.
-   *
-   * This method is a job.
-   * @roles DIRECTORY_SERVICE_WRITE
-   */
-  'directoryservices.sync_keytab': {
-    params: [];
     response: null;
   };
 

@@ -6,52 +6,143 @@
 import type { ApiEventDirectoryBase } from '../shared/api-event-directory-base';
 
 import type {
+  ACLTemplateRemovedEvent,
   AlertListRemovedEvent,
+  AlertServiceRemovedEvent,
   ApiKeyRemovedEvent,
-  AuthSessionsAddedEvent,
+  AppRemovedEvent,
   AuthSessionsRemovedEvent,
+  BootEnvironmentRemovedEvent,
+  CertificateRemovedEvent,
   CloudBackupRemovedEvent,
   CloudSyncRemovedEvent,
   ContainerDeviceRemovedEvent,
   ContainerRemovedEvent,
   CredentialsRemovedEvent,
   CronJobRemovedEvent,
-  DockerStateChangedEvent,
+  DNSAuthenticatorRemovedEvent,
+  DiskQueryRemovedEvent,
+  DockerNetworkRemovedEvent,
   FCHostAddedEvent,
   FCHostChangedEvent,
   FCHostRemovedEvent,
   FCPortAddedEvent,
   FCPortChangedEvent,
   FCPortRemovedEvent,
+  GroupRemovedEvent,
+  ISCSIPortalRemovedEvent,
   ISCSITargetAuthCredentialAddedEvent,
   ISCSITargetAuthCredentialChangedEvent,
   ISCSITargetAuthCredentialRemovedEvent,
   ISCSITargetAuthorizedInitiatorAddedEvent,
   ISCSITargetAuthorizedInitiatorChangedEvent,
   ISCSITargetAuthorizedInitiatorRemovedEvent,
+  ISCSITargetExtentRemovedEvent,
+  ISCSITargetRemovedEvent,
+  ISCSITargetToExtentRemovedEvent,
+  InitShutdownScriptRemovedEvent,
+  InterfaceRemovedEvent,
+  JBOFRemovedEvent,
+  KeychainCredentialRemovedEvent,
+  NTPServerRemovedEvent,
   NVMetHostRemovedEvent,
   NVMetHostSubsysRemovedEvent,
-  PeriodicSnapshotTaskAddedEvent,
-  PeriodicSnapshotTaskChangedEvent,
+  NVMetNamespaceRemovedEvent,
+  NVMetPortSubsysRemovedEvent,
+  NVMetSubsysRemovedEvent,
   PeriodicSnapshotTaskRemovedEvent,
+  PoolDatasetRemovedEvent,
   PoolRemovedEvent,
-  PrivilegeAddedEvent,
-  PrivilegeChangedEvent,
+  PoolScrubRemovedEvent,
+  PoolSnapshotRemovedEvent,
   PrivilegeRemovedEvent,
   ReplicationRemovedEvent,
+  ReportingExportsRemovedEvent,
+  RsyncTaskRemovedEvent,
   SharingNFSRemovedEvent,
   SharingSMBRemovedEvent,
   SharingWebshareRemovedEvent,
+  StaticRouteRemovedEvent,
+  TunableRemovedEvent,
   UserRemovedEvent,
-  VMDeviceAddedEvent,
-  VMDeviceChangedEvent,
   VMDeviceRemovedEvent,
   VMRemovedEvent,
   VMWareRemovedEvent,
   ZPoolQueryRemovedEvent,
   ZfsTierRewriteJobQueryEventSourceArgs,
   ZfsTierRewriteJobStatusEventSourceArgs,
-} from '../v25_10_5/api-types';
+} from '../v25_04_0/api-types';
+import type {
+  ACLTemplateAddedEvent,
+  ACLTemplateChangedEvent,
+  AlertServiceAddedEvent,
+  AlertServiceChangedEvent,
+  AppAddedEvent,
+  AppChangedEvent,
+  AuthSessionsAddedEvent,
+  BootEnvironmentAddedEvent,
+  BootEnvironmentChangedEvent,
+  DNSAuthenticatorAddedEvent,
+  DNSAuthenticatorChangedEvent,
+  DiskQueryAddedEvent,
+  DiskQueryChangedEvent,
+  DockerNetworkAddedEvent,
+  DockerNetworkChangedEvent,
+  DockerStateChangedEvent,
+  FailoverRebootInfoChangedEvent,
+  GroupAddedEvent,
+  GroupChangedEvent,
+  ISCSIPortalAddedEvent,
+  ISCSIPortalChangedEvent,
+  ISCSITargetAddedEvent,
+  ISCSITargetChangedEvent,
+  ISCSITargetExtentAddedEvent,
+  ISCSITargetExtentChangedEvent,
+  ISCSITargetToExtentAddedEvent,
+  ISCSITargetToExtentChangedEvent,
+  InitShutdownScriptAddedEvent,
+  InitShutdownScriptChangedEvent,
+  InterfaceAddedEvent,
+  InterfaceChangedEvent,
+  JBOFAddedEvent,
+  JBOFChangedEvent,
+  KeychainCredentialAddedEvent,
+  KeychainCredentialChangedEvent,
+  NTPServerAddedEvent,
+  NTPServerChangedEvent,
+  NVMetNamespaceAddedEvent,
+  NVMetNamespaceChangedEvent,
+  NVMetPortSubsysAddedEvent,
+  NVMetPortSubsysChangedEvent,
+  NVMetSubsysAddedEvent,
+  NVMetSubsysChangedEvent,
+  PeriodicSnapshotTaskAddedEvent,
+  PeriodicSnapshotTaskChangedEvent,
+  PoolDatasetAddedEvent,
+  PoolDatasetChangedEvent,
+  PoolScrubAddedEvent,
+  PoolScrubChangedEvent,
+  PoolSnapshotAddedEvent,
+  PoolSnapshotChangedEvent,
+  PrivilegeAddedEvent,
+  PrivilegeChangedEvent,
+  ReportingExportsAddedEvent,
+  ReportingExportsChangedEvent,
+  RsyncTaskAddedEvent,
+  RsyncTaskChangedEvent,
+  StaticRouteAddedEvent,
+  StaticRouteChangedEvent,
+  SystemRebootInfoChangedEvent,
+  TruecommandConfigChangedEvent,
+  TunableAddedEvent,
+  TunableChangedEvent,
+  VMDeviceAddedEvent,
+  VMDeviceChangedEvent,
+} from '../v25_10_0/api-types';
+import type {
+  CertificateAddedEvent,
+  CertificateChangedEvent,
+} from '../v25_10_2/api-types';
 import type {
   AlertListAddedEvent,
   AlertListChangedEvent,
@@ -98,6 +189,16 @@ import type {
 
 export interface ApiEventDirectory extends ApiEventDirectoryBase {
   /**
+   * Sent on acme.dns.authenticator changes.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'acme.dns.authenticator.query': {
+    added: DNSAuthenticatorAddedEvent;
+    changed: DNSAuthenticatorChangedEvent;
+    removed: DNSAuthenticatorRemovedEvent;
+  };
+
+  /**
    * Sent on alert changes.
    * @roles ALERT_LIST_READ
    */
@@ -105,6 +206,16 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: AlertListAddedEvent;
     changed: AlertListChangedEvent;
     removed: AlertListRemovedEvent;
+  };
+
+  /**
+   * Sent on alertservice changes.
+   * @roles ALERT_READ
+   */
+  'alertservice.query': {
+    added: AlertServiceAddedEvent;
+    changed: AlertServiceChangedEvent;
+    removed: AlertServiceRemovedEvent;
   };
 
   /**
@@ -118,12 +229,42 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on app changes.
+   * @roles APPS_READ
+   */
+  'app.query': {
+    added: AppAddedEvent;
+    changed: AppChangedEvent;
+    removed: AppRemovedEvent;
+  };
+
+  /**
    * Notification of new and removed sessions.
    * @roles FULL_ADMIN
    */
   'auth.sessions': {
     added: AuthSessionsAddedEvent;
     removed: AuthSessionsRemovedEvent;
+  };
+
+  /**
+   * Sent on boot.environment changes.
+   * @roles BOOT_ENV_READ
+   */
+  'boot.environment.query': {
+    added: BootEnvironmentAddedEvent;
+    changed: BootEnvironmentChangedEvent;
+    removed: BootEnvironmentRemovedEvent;
+  };
+
+  /**
+   * Sent on certificate changes.
+   * @roles CERTIFICATE_READ
+   */
+  'certificate.query': {
+    added: CertificateAddedEvent;
+    changed: CertificateChangedEvent;
+    removed: CertificateRemovedEvent;
   };
 
   /**
@@ -187,11 +328,39 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on disk changes.
+   * @roles READONLY_ADMIN
+   */
+  'disk.query': {
+    added: DiskQueryAddedEvent;
+    changed: DiskQueryChangedEvent;
+    removed: DiskQueryRemovedEvent;
+  };
+
+  /**
+   * Sent on docker.network changes.
+   * @roles DOCKER_READ
+   */
+  'docker.network.query': {
+    added: DockerNetworkAddedEvent;
+    changed: DockerNetworkChangedEvent;
+    removed: DockerNetworkRemovedEvent;
+  };
+
+  /**
    * Docker state events
    * @roles DOCKER_READ
    */
   'docker.state': {
     changed: DockerStateChangedEvent;
+  };
+
+  /**
+   * Sent when a system reboot is required.
+   * @roles FAILOVER_READ
+   */
+  'failover.reboot.info': {
+    changed: FailoverRebootInfoChangedEvent;
   };
 
   /**
@@ -215,6 +384,46 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on filesystem.acltemplate changes.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.acltemplate.query': {
+    added: ACLTemplateAddedEvent;
+    changed: ACLTemplateChangedEvent;
+    removed: ACLTemplateRemovedEvent;
+  };
+
+  /**
+   * Sent on group changes.
+   * @roles ACCOUNT_READ
+   */
+  'group.query': {
+    added: GroupAddedEvent;
+    changed: GroupChangedEvent;
+    removed: GroupRemovedEvent;
+  };
+
+  /**
+   * Sent on initshutdownscript changes.
+   * @roles SYSTEM_CRON_READ
+   */
+  'initshutdownscript.query': {
+    added: InitShutdownScriptAddedEvent;
+    changed: InitShutdownScriptChangedEvent;
+    removed: InitShutdownScriptRemovedEvent;
+  };
+
+  /**
+   * Sent on interface changes.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.query': {
+    added: InterfaceAddedEvent;
+    changed: InterfaceChangedEvent;
+    removed: InterfaceRemovedEvent;
+  };
+
+  /**
    * Sent on iscsi.auth changes.
    * @roles SHARING_ISCSI_AUTH_READ
    */
@@ -225,6 +434,16 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on iscsi.extent changes.
+   * @roles SHARING_ISCSI_EXTENT_READ
+   */
+  'iscsi.extent.query': {
+    added: ISCSITargetExtentAddedEvent;
+    changed: ISCSITargetExtentChangedEvent;
+    removed: ISCSITargetExtentRemovedEvent;
+  };
+
+  /**
    * Sent on iscsi.initiator changes.
    * @roles SHARING_ISCSI_INITIATOR_READ
    */
@@ -232,6 +451,56 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: ISCSITargetAuthorizedInitiatorAddedEvent;
     changed: ISCSITargetAuthorizedInitiatorChangedEvent;
     removed: ISCSITargetAuthorizedInitiatorRemovedEvent;
+  };
+
+  /**
+   * Sent on iscsi.portal changes.
+   * @roles SHARING_ISCSI_PORTAL_READ
+   */
+  'iscsi.portal.query': {
+    added: ISCSIPortalAddedEvent;
+    changed: ISCSIPortalChangedEvent;
+    removed: ISCSIPortalRemovedEvent;
+  };
+
+  /**
+   * Sent on iscsi.target changes.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'iscsi.target.query': {
+    added: ISCSITargetAddedEvent;
+    changed: ISCSITargetChangedEvent;
+    removed: ISCSITargetRemovedEvent;
+  };
+
+  /**
+   * Sent on iscsi.targetextent changes.
+   * @roles SHARING_ISCSI_TARGETEXTENT_READ
+   */
+  'iscsi.targetextent.query': {
+    added: ISCSITargetToExtentAddedEvent;
+    changed: ISCSITargetToExtentChangedEvent;
+    removed: ISCSITargetToExtentRemovedEvent;
+  };
+
+  /**
+   * Sent on jbof changes.
+   * @roles JBOF_READ
+   */
+  'jbof.query': {
+    added: JBOFAddedEvent;
+    changed: JBOFChangedEvent;
+    removed: JBOFRemovedEvent;
+  };
+
+  /**
+   * Sent on keychaincredential changes.
+   * @roles KEYCHAIN_CREDENTIAL_READ
+   */
+  'keychaincredential.query': {
+    added: KeychainCredentialAddedEvent;
+    changed: KeychainCredentialChangedEvent;
+    removed: KeychainCredentialRemovedEvent;
   };
 
   /**
@@ -255,6 +524,46 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on nvmet.namespace changes.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.namespace.query': {
+    added: NVMetNamespaceAddedEvent;
+    changed: NVMetNamespaceChangedEvent;
+    removed: NVMetNamespaceRemovedEvent;
+  };
+
+  /**
+   * Sent on nvmet.port_subsys changes.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.port_subsys.query': {
+    added: NVMetPortSubsysAddedEvent;
+    changed: NVMetPortSubsysChangedEvent;
+    removed: NVMetPortSubsysRemovedEvent;
+  };
+
+  /**
+   * Sent on nvmet.subsys changes.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.subsys.query': {
+    added: NVMetSubsysAddedEvent;
+    changed: NVMetSubsysChangedEvent;
+    removed: NVMetSubsysRemovedEvent;
+  };
+
+  /**
+   * Sent on pool.dataset changes.
+   * @roles DATASET_READ
+   */
+  'pool.dataset.query': {
+    added: PoolDatasetAddedEvent;
+    changed: PoolDatasetChangedEvent;
+    removed: PoolDatasetRemovedEvent;
+  };
+
+  /**
    * Sent on pool changes.
    * @roles POOL_READ
    */
@@ -270,6 +579,26 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
    */
   'pool.scan': {
     changed: PoolScanChangedEvent;
+  };
+
+  /**
+   * Sent on pool.scrub changes.
+   * @roles POOL_SCRUB_READ
+   */
+  'pool.scrub.query': {
+    added: PoolScrubAddedEvent;
+    changed: PoolScrubChangedEvent;
+    removed: PoolScrubRemovedEvent;
+  };
+
+  /**
+   * Sent on pool.snapshot changes.
+   * @roles SNAPSHOT_READ
+   */
+  'pool.snapshot.query': {
+    added: PoolSnapshotAddedEvent;
+    changed: PoolSnapshotChangedEvent;
+    removed: PoolSnapshotRemovedEvent;
   };
 
   /**
@@ -303,6 +632,26 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on reporting.exporters changes.
+   * @roles REPORTING_READ
+   */
+  'reporting.exporters.query': {
+    added: ReportingExportsAddedEvent;
+    changed: ReportingExportsChangedEvent;
+    removed: ReportingExportsRemovedEvent;
+  };
+
+  /**
+   * Sent on rsynctask changes.
+   * @roles SNAPSHOT_TASK_READ
+   */
+  'rsynctask.query': {
+    added: RsyncTaskAddedEvent;
+    changed: RsyncTaskChangedEvent;
+    removed: RsyncTaskRemovedEvent;
+  };
+
+  /**
    * Sent on sharing.nfs changes.
    * @roles SHARING_NFS_READ
    */
@@ -330,6 +679,52 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: SharingWebshareAddedEvent;
     changed: SharingWebshareChangedEvent;
     removed: SharingWebshareRemovedEvent;
+  };
+
+  /**
+   * Sent on staticroute changes.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'staticroute.query': {
+    added: StaticRouteAddedEvent;
+    changed: StaticRouteChangedEvent;
+    removed: StaticRouteRemovedEvent;
+  };
+
+  /**
+   * Sent on system.ntpserver changes.
+   * @roles NETWORK_GENERAL_READ
+   */
+  'system.ntpserver.query': {
+    added: NTPServerAddedEvent;
+    changed: NTPServerChangedEvent;
+    removed: NTPServerRemovedEvent;
+  };
+
+  /**
+   * Sent when a system reboot is required.
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'system.reboot.info': {
+    changed: SystemRebootInfoChangedEvent;
+  };
+
+  /**
+   * Sent on TrueCommand configuration changes.
+   * @roles READONLY_ADMIN
+   */
+  'truecommand.config': {
+    changed: TruecommandConfigChangedEvent;
+  };
+
+  /**
+   * Sent on tunable changes.
+   * @roles SYSTEM_TUNABLE_READ
+   */
+  'tunable.query': {
+    added: TunableAddedEvent;
+    changed: TunableChangedEvent;
+    removed: TunableRemovedEvent;
   };
 
   /**

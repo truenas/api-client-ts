@@ -465,7 +465,7 @@ import type {
   CertificateEntry,
   IpmiChassisIdentifyRequest,
   IpmiChassisInfoRequest,
-} from '../v25_10_2/api-types';
+} from './api-types';
 
 export interface ApiCallDirectory extends ApiCallDirectoryBase {
   /**

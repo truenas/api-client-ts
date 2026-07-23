@@ -25,7 +25,7 @@ import {
 import type { ApiDumpFile, ApiDumpVersion, MethodModel, VersionModel } from './types.mts';
 
 export interface PipelineOptions {
-  /** Versions to generate (dump order is irrelevant); omit for a single-version dump. */
+  /** Versions to generate (dump order is irrelevant), or ['all']; omit for a single-version dump. */
   apiVersions?: string[];
   /** Method/event name prefixes to include; empty means the full surface. */
   includePrefixes?: string[];
@@ -68,7 +68,9 @@ export async function generateFromDump(
       + 'Regenerate it with `middlewared --dump-api --keep-refs` (middleware master, commit 58b62dd6+).');
   }
   let versions = available;
-  if (apiVersions?.length) {
+  if (apiVersions?.length === 1 && apiVersions[0] === 'all') {
+    versions = available;
+  } else if (apiVersions?.length) {
     versions = apiVersions.map((wanted) => {
       const found = available.find((v) => v.version === wanted);
       if (!found) {
@@ -196,7 +198,7 @@ export async function generateFromDump(
   }
 
   if (multi) {
-    files.set('index.ts', emitRootIndex(models.map((m) => versionDir(m.version))));
+    files.set('index.ts', emitRootIndex(models.map((m) => m.version)));
     log(`Chain: root ${models[0].version} declares ${Object.keys(declared[0]).length} types; ${chainStable.size} stable across the whole chain`);
   }
 

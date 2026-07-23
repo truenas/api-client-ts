@@ -246,7 +246,12 @@ export async function emitTypes(definitions: Record<string, DefSchema>, external
   const importsBlock = referencedExternal.length
     ? `${groupedImports(referencedExternal, externals, './api-types')}\n`
     : '';
-  return `${HEADER}\n${importsBlock}${[...enums, ...aliases, interfaces].join('\n\n')}\n`;
+  const parts = [...enums, ...aliases, interfaces].filter(Boolean);
+  if (parts.length === 0) {
+    // A version that declares nothing (pure re-export delta) must still be a module.
+    parts.push('/** This version declares no types of its own — see the version index for inherited re-exports. */\nexport {};');
+  }
+  return `${HEADER}\n${importsBlock}${parts.join('\n\n')}\n`;
 }
 
 /** One `'method.name': { params; response }` entry. Exported so generate.mts can compute cross-version base eligibility on the exact emitted text. */
@@ -404,22 +409,40 @@ export interface ApiDirectory {
 }
 
 /**
- * Root index for multi-version output: version namespaces plus
- * version-suffixed aliases of the directory entry points, so multi-version
- * consumers (TrueNAS Connect) never need import aliases.
+ * Root index for multi-version output: version namespaces, version-suffixed
+ * aliases of the directory entry points (so multi-version consumers never
+ * need import aliases), and the version registry — the compile-time bridge
+ * between runtime version strings and directory types that the client
+ * factory binds against.
  */
-export function emitRootIndex(versionDirs: string[]): string {
-  const namespaces = versionDirs
-    .map((dir) => `export * as ${dir} from './${dir}';`)
+export function emitRootIndex(versions: string[]): string {
+  const entries = versions.map((version) => {
+    const dir = version.replaceAll('.', '_');
+    return { version, dir, suffix: dir.replace(/^v/, 'V') };
+  });
+  const namespaces = entries
+    .map(({ dir }) => `export * as ${dir} from './${dir}';`)
     .join('\n');
-  const aliases = versionDirs.map((dir) => {
-    const suffix = dir.replace(/^v/, 'V');
-    return `export type {
+  const bundleImports = entries
+    .map(({ dir, suffix }) => `import type { ApiDirectory as ApiDirectory${suffix} } from './${dir}';`)
+    .join('\n');
+  const aliases = entries.map(({ dir, suffix }) => `export type {
   ApiCallDirectory as ApiCallDirectory${suffix},
   ApiJobDirectory as ApiJobDirectory${suffix},
   ApiEventDirectory as ApiEventDirectory${suffix},
-  ApiDirectory as ApiDirectory${suffix},
-} from './${dir}';`;
-  }).join('\n');
-  return `${HEADER}\n${namespaces}\n\n${aliases}\n`;
+} from './${dir}';`).join('\n');
+  const bundleExports = `export type {\n${entries.map(({ suffix }) => `  ApiDirectory${suffix},`).join('\n')}\n};`;
+  const registry = `/** Runtime version string -> that version's complete typed API surface. */
+export interface ApiDirectoryByVersion {
+${entries.map(({ version, suffix }) => `  '${version}': ApiDirectory${suffix};`).join('\n')}
+}
+
+/** Every API version this package ships types for. */
+export type SupportedApiVersion = keyof ApiDirectoryByVersion;
+
+/** Runtime twin of {@link SupportedApiVersion}, ascending (oldest first). */
+export const SUPPORTED_API_VERSIONS = [
+${entries.map(({ version }) => `  '${version}',`).join('\n')}
+] as const satisfies readonly SupportedApiVersion[];`;
+  return `${HEADER}\n${bundleImports}\n\n${namespaces}\n\n${aliases}\n${bundleExports}\n\n${registry}\n`;
 }

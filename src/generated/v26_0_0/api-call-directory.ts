@@ -11,18 +11,24 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  ACLTemplateEntry,
+  ACLTemplateQueryResultItem,
+  AlertServiceQueryResultItem,
   ApiKeyCreate,
   ApiKeyQueryResultItem,
   ApiKeyUpdate,
   AppImageDockerhubRateLimitResult,
   AppImageQueryResultItem,
   AppQueryResultItem,
+  AppRegistryEntry,
+  AppRegistryQueryResultItem,
   AppUpgradeSummaryResult,
+  AppsIxVolumeEntry,
+  AppsIxVolumeQueryResultItem,
   AuthRespAuthErr,
   AuthRespAuthRedirect,
   AuthRespExpired,
   AuthRespOTPRequired,
+  AuthSessionsQueryResultItem,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
   BootEnvironmentActivateArgs,
@@ -30,128 +36,350 @@ import type {
   BootEnvironmentDestroyArgs,
   BootEnvironmentEntry,
   BootEnvironmentKeepArgs,
+  BootEnvironmentQueryResultItem,
   BoxCredentialsModel,
   CatalogAppVersionDetails,
   CatalogEntry,
-  CloudBackupCreate,
   CloudBackupQueryResultItem,
-  CloudBackupUpdate,
-  CloudSyncCreate,
-  CloudSyncListDirectoryArgs,
-  CloudSyncQueryResultItem,
-  CloudSyncUpdate,
+  CoreGetJobsItem,
   CredentialsQueryResultItem,
   CredentialsVerifyResult,
   CronJobEntry,
-  DNSAuthenticatorCreateArgs,
+  CronJobQueryResultItem,
+  DISABLED_ACLResult,
   DNSAuthenticatorEntry,
-  DirectionInput2,
+  DNSAuthenticatorQueryResultItem,
+  DeviceGetInfoDisk,
   DirectoryServicesStatus,
-  DiskEntry,
-  DisplayWebURIOptions,
   DockerBackupInfo,
+  DockerNetworkEntry,
+  DockerNetworkQueryResultItem,
   DropboxCredentialsModel,
-  Enclosure2SetSlotStatusArgs,
+  FCHostEntry,
+  FCHostQueryResultItem,
+  FCPortEntry,
+  FCPortQueryResultItem,
   FTPCredentialsModel,
   FTPEntry,
   FTPUpdateArgs,
-  FailoverRebootInfo,
-  FilesystemDirEntry,
   FilesystemDirQueryResultItem,
   FilesystemMkdirArgs,
+  GPUInfo,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
+  GroupQueryResultItem,
   HTTPCredentialsModel,
   HubicCredentialsModel,
+  ISCSIPortalEntry,
+  ISCSIPortalQueryResultItem,
+  ISCSITargetAuthCredentialEntry,
+  ISCSITargetAuthCredentialQueryResultItem,
+  ISCSITargetAuthorizedInitiatorEntry,
+  ISCSITargetAuthorizedInitiatorQueryResultItem,
+  ISCSITargetEntry,
   ISCSITargetExtentQueryResultItem,
-  InterfaceEntry,
-  IscsiExtentCreate,
-  IscsiExtentUpdate,
-  KeychainCredentialCreateSSHCredentialsEntry,
-  KeychainCredentialCreateSSHKeyPairEntry,
+  ISCSITargetQueryResultItem,
+  ISCSITargetToExtentEntry,
+  ISCSITargetToExtentQueryResultItem,
+  InitShutdownScriptQueryResultItem,
+  KerberosKeytabEntry,
+  KerberosRealmEntry,
   KeychainCredentialGenerateSshKeyPairResult,
   KeychainCredentialQueryResultItem,
+  MegaCredentialsModel,
+  NTPServerEntry,
+  NTPServerQueryResultItem,
+  NVMetHostEntry,
+  NVMetPortEntry,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
+  POSIXACLResult,
+  PeriodicSnapshotTaskQueryResultItem,
+  PoolScrubEntry,
+  PoolScrubQueryResultItem,
+  PrivilegeCreate,
+  PrivilegeQueryResultItem,
+  PrivilegeRolesEntry,
+  PrivilegeRolesQueryResultItem,
+  PrivilegeUpdate,
+  ReportingEntry,
+  ReportingExportsEntry,
+  ReportingExportsQueryResultItem,
+  ReportingQuery,
+  ReportingUpdateArgs,
+  SFTPCredentialsModel,
+  SSHCredentialsEntry,
+  SSHKeyPairEntry,
+  SerialInfo,
+  ServiceEntry,
+  SharingNFSQueryResultItem,
+  SharingSMBGetaclArgs,
+  StaticRouteEntry,
+  StaticRouteQueryResultItem,
+  StorjIxCredentialsModelInput,
+  SwiftCredentialsModel,
+  UpdateStatus,
+  UpgradeSummaryOptions,
+  UserGetUserObjArgs,
+  UserQueryResultItem,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
+} from '../v25_04_0/api-types';
+import type {
+  ACLTemplateEntry,
+  CloudBackupSnapshotItem,
+  FilesystemDirEntry,
+  FilesystemStatData,
+  GroupCreate,
+  GroupUpdate,
+  InitShutdownScriptEntry,
+  NFS4ACLResult,
+  VMBootloaderOptionsResult,
+  VMDeleteOptions,
+  VMDeviceBindChoicesResult,
+  VMDeviceDeleteOptions,
+  VMDeviceDiskChoices,
+  VMDevicePassthroughDevice,
+  VMDevicePassthroughInfo,
+  VMDeviceQueryResultItem,
+  VMFlagsResult,
+  VMPortWizardResult,
+  VMQueryResultItem,
+  VMStartOptions,
+  VMVirtualizationDetailsResult,
+} from '../v25_04_2/api-types';
+import type {
+  ACMEDNSAuthenticatorSchema,
+  ACMEDNSAuthenticatorUpdate,
+  AclTemplateCreate,
+  AclTemplateUpdate,
+  AlertClassesEntry,
+  AlertClassesUpdate,
+  AlertServiceCreate,
+  AlertServiceEntry,
+  AppAvailableItem,
+  AuditEntry,
+  AuditUpdate,
+  AuthSessionsEntry,
+  CertificateQueryResultItem,
+  CloudBackupCreate,
+  CloudBackupUpdate,
+  CloudSyncCreate,
+  CloudSyncListDirectoryArgs,
+  CloudSyncProvider,
+  CloudSyncQueryResultItem,
+  CloudSyncUpdate,
+  CoreArpArgs,
+  CoreGetJobsItemQueryResultItem,
+  CoreOptions,
+  CoreOptionsInput,
+  DNSAuthenticatorCreateArgs,
+  DNSQueryItem,
+  DNSQueryItemQueryResultItem,
+  DeviceGetInfoOther,
+  DirectionInput2,
+  DirectoryServicesEntry,
+  DiskDetails,
+  DiskEntry,
+  DiskQueryResultItem,
+  DiskTemperatureAggEntry,
+  DisplayWebURIOptions,
+  EmptyDict,
+  Enclosure2Entry,
+  Enclosure2QueryResultItem,
+  Enclosure2SetSlotStatusArgs,
+  FailoverEntry,
+  FailoverRebootInfo,
+  FailoverSyncToPeer,
+  FailoverUpdate,
+  GroupEntry,
+  IPMIChassisInfo,
+  IPMILanEntry,
+  IPMILanQuery,
+  IPMILanQueryResultItem,
+  IPMILanUpdateOptionsDHCP,
+  IPMILanUpdateOptionsStatic,
+  InitShutdownScriptCreate,
+  InitShutdownScriptUpdate,
+  InterfaceChoicesOptions,
+  InterfaceCommitOptions,
+  InterfaceCreate,
+  InterfaceEntry,
+  InterfaceIPInUseItem,
+  InterfaceIPInUseOptions,
+  InterfaceLacpduRateChoicesResult,
+  InterfaceQueryResultItem,
+  InterfaceSaveNetworkConfigArgs,
+  InterfaceServicesRestartedOnSyncItem,
+  InterfaceXmitHashPolicyChoicesResult,
+  IscsiExtentCreate,
+  IscsiExtentUpdate,
+  IscsiTargetCreate,
+  IscsiTargetUpdate,
+  JBOFCreate,
+  JBOFEntry,
+  JBOFQueryResultItem,
+  JBOFUpdate,
+  KMIPEntry,
+  KerberosEntry,
+  KerberosKeytabCreate,
+  KerberosKeytabQueryResultItem,
+  KerberosKeytabUpdate,
+  KerberosRealmCreate,
+  KerberosRealmQueryResultItem,
+  KerberosRealmUpdate,
+  KerberosUpdateArgs,
+  KeychainCredentialCreateSSHCredentialsEntry,
+  KeychainCredentialCreateSSHKeyPairEntry,
   KeychainCredentialUpdateSSHCredentialsEntry,
   KeychainCredentialUpdateSSHKeyPairEntry,
   MailEntry,
   MailUpdate,
-  MegaCredentialsModel,
+  NFSGetNfs3ClientsEntry,
+  NFSGetNfs3ClientsQueryResultItem,
+  NFSGetNfs4ClientsEntry,
+  NFSGetNfs4ClientsQueryResultItem,
+  NVMetGlobalEntry,
+  NVMetGlobalUpdateArgs,
+  NVMetHostCreate,
+  NVMetHostDeleteOptions,
+  NVMetHostQueryResultItem,
+  NVMetHostSubsysCreate,
+  NVMetHostSubsysEntry,
+  NVMetHostSubsysQueryResultItem,
+  NVMetHostSubsysUpdate,
+  NVMetHostUpdate,
   NVMetNamespaceCreate,
+  NVMetNamespaceDeleteOptions,
   NVMetNamespaceQueryResultItem,
   NVMetNamespaceUpdate,
+  NVMetPortCreateFC,
+  NVMetPortCreateRDMATCP,
+  NVMetPortDeleteOptions,
+  NVMetPortQueryResultItem,
+  NVMetPortSubsysCreate,
+  NVMetPortSubsysEntry,
+  NVMetPortSubsysQueryResultItem,
+  NVMetPortSubsysUpdate,
+  NVMetPortUpdateFC,
+  NVMetPortUpdateRDMATCP,
+  NVMetSubsysCreate,
+  NVMetSubsysDeleteOptions,
+  NVMetSubsysEntry,
+  NVMetSubsysQueryResultItem,
+  NVMetSubsysUpdate,
+  NetWorkConfigurationUpdate,
+  NetworkConfigurationEntry,
+  NetworkGeneralSummaryResult,
   NfsShareCreate,
   NfsShareUpdate,
-  OneDriveCredentialsModel,
-  PCloudCredentialsModel,
-  PeriodicSnapshotTaskQueryResultItem,
+  PoolAttachment,
+  PoolDatasetChecksumChoicesResult,
   PoolDatasetDatasetQuota,
+  PoolDatasetDeleteOptions,
+  PoolDatasetEncryptionAlgorithmChoicesResult,
   PoolDatasetEntry,
   PoolDatasetProjectQuota,
+  PoolDatasetQueryResultItem,
+  PoolDatasetRenameOptions,
+  PoolDatasetSetQuota,
+  PoolDatasetUpdate,
   PoolDatasetUserGroupQuota,
+  PoolDetachOptions,
+  PoolLabel,
+  PoolProcess,
   PoolQueryResultItem,
+  PoolScrubCreate,
+  PoolScrubUpdate,
+  PoolSnapshotCloneArgs,
   PoolSnapshotCreateUpdateEntry,
+  PoolSnapshotDeleteOptions,
+  PoolSnapshotEntry,
+  PoolSnapshotHoldOptions,
+  PoolSnapshotQueryResultItem,
+  PoolSnapshotReleaseOptions,
+  PoolSnapshotRollbackOptions,
   PoolSnapshotTaskCreate,
   PoolSnapshotTaskUpdate,
+  PoolSnapshotTaskUpdateWillChangeRetentionFor,
+  PrivilegeEntry,
   QueryOptionsModel,
+  ReplicationConfigEntry,
+  ReplicationConfigUpdateArgs,
+  ReplicationCountEligibleManualSnapshotsArgs,
+  ReplicationCountEligibleManualSnapshotsResult,
   ReplicationQueryResultItem,
   ReplicationRestoreOptions,
-  ReportingEntry,
+  ReportingExporterSchema,
+  ReportingExporterUpdate,
   ReportingExportsCreateArgs,
-  ReportingExportsEntry,
-  ReportingQuery,
-  ReportingUpdateArgs,
   RestoreOpts,
+  Result,
+  Result2,
+  Result3,
+  RouteSystemRoutesItem,
+  RouteSystemRoutesItemQueryResultItem,
   RsyncTaskCreate,
   RsyncTaskQueryResultItem,
   RsyncTaskUpdate,
-  SFTPCredentialsModel,
-  SNMPEntry,
-  SNMPUpdateArgs,
-  SSHCredentialsEntry,
-  SSHKeyPairEntry,
-  SharingNFSQueryResultItem,
-  SharingSMBGetaclArgs,
+  SSHEntry,
+  SSHUpdate,
+  ServiceQueryResultItem,
+  ServiceUpdate,
   SharingSMBQueryResultItem,
-  StorjIxCredentialsModelInput,
-  SwiftCredentialsModel,
+  SharingSMBSharePrecheckArgs,
+  SupportEntry,
+  SupportSimilarIssue,
+  SupportUpdate,
   SystemAdvancedEntry,
+  SystemDatasetEntry,
   SystemGeneralUpdateArgs,
+  SystemInfoResult,
+  SystemSecurityEntry,
+  Target,
   TransportInput,
   TruecommandUpdateArgs,
   TunableQueryResultItem,
+  TunableTunableTypeChoices,
+  TwoFactorAuthEntry,
+  TwoFactorAuthUpdate,
   UPSEntry,
-  UpgradeSummaryOptions,
-  UserQueryResultItem,
-  VMBootloaderOptionsResult,
+  UpdateAvailableVersion,
+  UpdateEntry,
+  UpdateProfileChoice,
+  UpdateUpdate,
+  UserGetUserObj,
   VMBootloaderOvmfChoicesResult,
   VMCpuModelChoicesResult,
   VMCreateArgs,
-  VMDeleteOptions,
-  VMDeviceBindChoicesResult,
   VMDeviceCreateArgs,
-  VMDeviceDiskChoices,
   VMDeviceEntry,
   VMDeviceIotypeChoicesResult,
-  VMDeviceQueryResultItem,
   VMDeviceUpdate,
-  VMDeviceVirtualSizeArgs,
-  VMFlagsResult,
   VMGetDisplayWebUriResult,
   VMGetVmMemoryInfoResult,
   VMGetVmemoryInUseResult,
   VMGuestArchitectureAndMachineChoicesResult,
-  VMPortWizardResult,
-  VMQueryResultItem,
   VMUpdate,
-  VMVirtualizationDetailsResult,
   VMWareCreate,
+  VMWareGetDatastoresArgs,
   VMWareMatchDatastoresWithDatasetsArgs,
   VMWareQueryResultItem,
   VMWareUpdate,
-  WebDavCredentialsModel,
-  YandexCredentialsModel,
-} from '../v25_10_5/api-types';
+} from '../v25_10_0/api-types';
+import type {
+  SNMPEntry,
+  SNMPUpdateArgs,
+  StaticRouteCreate,
+  StaticRouteUpdate,
+  VMDeviceVirtualSizeArgs,
+} from '../v25_10_1/api-types';
+import type {
+  CertificateEntry,
+  IpmiChassisIdentifyRequest,
+  IpmiChassisInfoRequest,
+} from '../v25_10_2/api-types';
 import type {
   ACLTemplateByPathArgs,
   Alert,
@@ -302,6 +530,15 @@ import type {
 
 export interface ApiCallDirectory extends ApiCallDirectoryBase {
   /**
+   * Get the schemas for all DNS providers we support for ACME DNS Challenge and the respective attributes required for connecting to them while validating a DNS Challenge.
+   * @roles READONLY_ADMIN
+   */
+  'acme.dns.authenticator.authenticator_schemas': {
+    params: [];
+    response: ACMEDNSAuthenticatorSchema[];
+  };
+
+  /**
    * Create a DNS Authenticator.
    *
    * Create a specific DNS Authenticator containing required authentication details for the said provider to successfully connect with it.
@@ -309,6 +546,23 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
    */
   'acme.dns.authenticator.create': {
     params: [dns_authenticator_create: DNSAuthenticatorCreateArgs];
+    response: DNSAuthenticatorEntry;
+  };
+
+  /**
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'acme.dns.authenticator.query': {
+    params: [filters?: QueryFilters<DNSAuthenticatorEntry>, options?: QueryOptions<DNSAuthenticatorEntry>];
+    response: DNSAuthenticatorEntry[] | DNSAuthenticatorEntry | DNSAuthenticatorQueryResultItem[] | DNSAuthenticatorQueryResultItem | number;
+  };
+
+  /**
+   * Update DNS Authenticator of ``id``.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'acme.dns.authenticator.update': {
+    params: [id: number, dns_authenticator_update: ACMEDNSAuthenticatorUpdate];
     response: DNSAuthenticatorEntry;
   };
 
@@ -328,6 +582,71 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'alert.list_categories': {
     params: [options?: AlertListCategoriesOptions];
     response: AlertCategory[];
+  };
+
+  /**
+   * @roles ALERT_READ
+   */
+  'alertclasses.config': {
+    params: [];
+    response: AlertClassesEntry;
+  };
+
+  /**
+   * Update default Alert settings.
+   * @roles ALERT_WRITE
+   */
+  'alertclasses.update': {
+    params: [alert_class_update: AlertClassesUpdate];
+    response: AlertClassesEntry;
+  };
+
+  /**
+   * Create an Alert Service of specified ``type``.
+   *
+   * If ``enabled``, it sends alerts to the configured ``type`` of Alert Service.
+   * @roles ALERT_WRITE
+   */
+  'alertservice.create': {
+    params: [alert_service_create: AlertServiceCreate];
+    response: AlertServiceEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles ALERT_READ
+   */
+  'alertservice.get_instance': {
+    params: [id: number, options?: QueryOptions<AlertServiceEntry>];
+    response: AlertServiceEntry;
+  };
+
+  /**
+   * @roles ALERT_READ
+   */
+  'alertservice.query': {
+    params: [filters?: QueryFilters<AlertServiceEntry>, options?: QueryOptions<AlertServiceEntry>];
+    response: AlertServiceEntry[] | AlertServiceEntry | AlertServiceQueryResultItem[] | AlertServiceQueryResultItem | number;
+  };
+
+  /**
+   * Send a test alert using ``type`` of Alert Service.
+   * @roles ALERT_WRITE
+   */
+  'alertservice.test': {
+    params: [alert_service_create: AlertServiceCreate];
+    response: boolean;
+  };
+
+  /**
+   * Update Alert Service of ``id``.
+   * @roles ALERT_WRITE
+   */
+  'alertservice.update': {
+    params: [id: number, alert_service_update: AlertServiceCreate];
+    response: AlertServiceEntry;
   };
 
   /**
@@ -440,6 +759,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Query ix-volumes with `filters` and `options`.
+   * @roles APPS_READ
+   */
+  'app.ix_volume.query': {
+    params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: QueryOptions<AppsIxVolumeEntry>];
+    response: AppsIxVolumeEntry[] | AppsIxVolumeEntry | AppsIxVolumeQueryResultItem[] | AppsIxVolumeQueryResultItem | number;
+  };
+
+  /**
    * Query all apps with ``query-filters`` and ``query-options``.
    *
    * The following ``query-options.extra`` options are supported:
@@ -460,6 +788,23 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * @roles APPS_READ
+   */
+  'app.registry.query': {
+    params: [filters?: QueryFilters<AppRegistryEntry>, options?: QueryOptions<AppRegistryEntry>];
+    response: AppRegistryEntry[] | AppRegistryEntry | AppRegistryQueryResultItem[] | AppRegistryQueryResultItem | number;
+  };
+
+  /**
+   * Retrieve applications which are similar to ``app_name``.
+   * @roles CATALOG_READ
+   */
+  'app.similar': {
+    params: [app_name: string, train: string];
+    response: AppAvailableItem[];
+  };
+
+  /**
    * Retrieve upgrade summary for ``app_name``.
    * @roles APPS_READ
    */
@@ -469,12 +814,43 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Returns host IPs in use by applications.
+   * @roles APPS_READ
+   */
+  'app.used_host_ips': {
+    params: [];
+    response: Record<string, string[]>;
+  };
+
+  /**
+   * @roles SYSTEM_AUDIT_READ
+   */
+  'audit.config': {
+    params: [];
+    response: AuditEntry;
+  };
+
+  /**
    * Query contents of audit databases specified by ``services``.
    * @roles SYSTEM_AUDIT_READ
    */
   'audit.query': {
     params: [data?: AuditQuery];
     response: AuditQueryResultItem[] | AuditQueryResultItem | AuditQueryResultItemQueryResultItem[] | AuditQueryResultItemQueryResultItem | number;
+  };
+
+  /**
+   * Update default audit settings.
+   *
+   * .. note::
+   *
+   *     ``space``, ``remote_logging_enabled``, and ``enabled_services`` are read-only and are returned only by
+   *     :doc:`audit.config <api_methods_audit.config>` and :doc:`audit.update <api_methods_audit.update>`.
+   * @roles SYSTEM_AUDIT_WRITE
+   */
+  'audit.update': {
+    params: [data: AuditUpdate];
+    response: AuditEntry;
   };
 
   /**
@@ -531,6 +907,73 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Authenticate session using API Key.
+   *
+   * Deprecated and removed in v27. Use :doc:`auth.login_ex <api_methods_auth.login_ex>` with ``mechanism="API_KEY_PLAIN"`` (or ``mechanism="SCRAM"`` for SCRAM-based authentication).
+   * @deprecated Removed in API version v27.
+   */
+  'auth.login_with_api_key': {
+    params: [api_key: string];
+    response: boolean;
+  };
+
+  /**
+   * Authenticate session using token generated with :doc:`auth.generate_token <api_methods_auth.generate_token>`.
+   */
+  'auth.login_with_token': {
+    params: [token: string];
+    response: boolean;
+  };
+
+  /**
+   * Returns a list of active auth sessions.
+   *
+   * The ``credentials_data`` object varies by ``credentials`` type: password and socket sessions include ``username``; API key sessions additionally include ``api_key`` (id and name); token sessions include ``parent`` (the originating credential) and optionally ``username``.
+   *
+   * Example::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "auth.sessions",
+   *         "params": []
+   *     }
+   * @roles AUTH_SESSIONS_READ
+   */
+  'auth.sessions': {
+    params: [filters?: QueryFilters<AuthSessionsEntry>, options?: QueryOptions<AuthSessionsEntry>];
+    response: AuthSessionsEntry[] | AuthSessionsEntry | AuthSessionsQueryResultItem[] | AuthSessionsQueryResultItem | number;
+  };
+
+  /**
+   * @roles SYSTEM_SECURITY_READ
+   */
+  'auth.twofactor.config': {
+    params: [];
+    response: TwoFactorAuthEntry;
+  };
+
+  /**
+   * ``window`` extends the validity to ``window`` many counter ticks before and after the current one.
+   *
+   * Update Two-Factor Authentication Service Configuration.
+   * @roles SYSTEM_SECURITY_WRITE
+   */
+  'auth.twofactor.update': {
+    params: [auth_twofactor_update: TwoFactorAuthUpdate];
+    response: TwoFactorAuthEntry;
+  };
+
+  /**
+   * Detach given ``dev`` from boot pool.
+   * @roles DISK_WRITE
+   */
+  'boot.detach': {
+    params: [dev: string];
+    response: null;
+  };
+
+  /**
    * Activate the boot environment identified by ``id`` so that it becomes the default selection on the next boot. The currently running boot environment is unaffected until the system is rebooted.
    *
    * Activating the already-activated boot environment is allowed and regenerates the boot menu, which is how a caller retries after a failed menu regeneration.
@@ -575,12 +1018,38 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * @roles BOOT_ENV_READ
+   */
+  'boot.environment.query': {
+    params: [filters?: QueryFilters<BootEnvironmentEntry>, options?: QueryOptions<BootEnvironmentEntry>];
+    response: BootEnvironmentEntry[] | BootEnvironmentEntry | BootEnvironmentQueryResultItem[] | BootEnvironmentQueryResultItem | number;
+  };
+
+  /**
+   * Returns disks of the boot pool.
+   * @roles DISK_READ
+   */
+  'boot.get_disks': {
+    params: [];
+    response: string[];
+  };
+
+  /**
    * Returns the current state of the boot pool, including all vdevs, properties and datasets.
    * @roles READONLY_ADMIN
    */
   'boot.get_state': {
     params: [];
     response: BootGetState;
+  };
+
+  /**
+   * Set Automatic Scrub Interval value in days.
+   * @roles BOOT_ENV_WRITE
+   */
+  'boot.set_scrub_interval': {
+    params: [interval: number];
+    response: number;
   };
 
   /**
@@ -629,6 +1098,34 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Returns country choices for creating a certificate/csr.
+   * @roles CERTIFICATE_READ, READONLY_ADMIN
+   */
+  'certificate.country_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles CERTIFICATE_READ
+   */
+  'certificate.get_instance': {
+    params: [id: number, options?: QueryOptions<CertificateEntry>];
+    response: CertificateEntry;
+  };
+
+  /**
+   * @roles CERTIFICATE_READ
+   */
+  'certificate.query': {
+    params: [filters?: QueryFilters<CertificateEntry>, options?: QueryOptions<CertificateEntry>];
+    response: CertificateEntry[] | CertificateEntry | CertificateQueryResultItem[] | CertificateQueryResultItem | number;
+  };
+
+  /**
    * Create a new cloud backup task.
    * @roles CLOUD_BACKUP_WRITE
    */
@@ -649,6 +1146,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * List files in the directory ``path`` of the ``snapshot_id`` created by the cloud backup job ``id``.
+   * @roles CLOUD_BACKUP_READ
+   */
+  'cloud_backup.list_snapshot_directory': {
+    params: [id: number, snapshot_id: string, path: string];
+    response: CloudBackupSnapshotItem[];
+  };
+
+  /**
    * @roles CLOUD_BACKUP_READ
    */
   'cloud_backup.query': {
@@ -666,12 +1172,30 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Aborts cloud sync task.
+   * @roles CLOUD_SYNC_WRITE
+   */
+  'cloudsync.abort': {
+    params: [id: number];
+    response: boolean;
+  };
+
+  /**
    * Creates a new cloud_sync entry.
    * @roles CLOUD_SYNC_WRITE
    */
   'cloudsync.create': {
     params: [cloud_sync_create: CloudSyncCreate];
     response: CloudSyncEntry;
+  };
+
+  /**
+   * Creates a new bucket ``name`` using ``credentials_id``.
+   * @roles CLOUD_SYNC_WRITE
+   */
+  'cloudsync.create_bucket': {
+    params: [credentials_id: number, name: string];
+    response: null;
   };
 
   /**
@@ -730,6 +1254,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Deletes cloud_sync entry ``id``.
+   * @roles CLOUD_SYNC_WRITE
+   */
+  'cloudsync.delete': {
+    params: [id: number];
+    response: true;
+  };
+
+  /**
    * Returns instance matching `id`. If `id` is not found, Validation error is raised.
    *
    * Please see `query` method documentation for `options`.
@@ -741,6 +1274,19 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * List the buckets available to the cloud sync credential identified by ``credentials_id``.
+   *
+   * Use this when configuring a cloud sync task to discover which buckets a set of credentials can access. Each returned entry describes a bucket as a directory-like listing.
+   *
+   * Only providers that organize storage into buckets (such as Amazon S3 or Storj) are supported. A JSON-RPC ``error`` response (code ``-32001``, *Method call error*) is returned when the credential does not exist or its provider does not use buckets.
+   * @roles CLOUD_SYNC_WRITE
+   */
+  'cloudsync.list_buckets': {
+    params: [credentials_id: number];
+    response: (Record<string, unknown>)[];
+  };
+
+  /**
    * List contents of a remote bucket / directory.
    *
    * If the remote supports buckets, the path is constructed from the ``bucket`` and ``folder`` keys in ``attributes``; otherwise it is constructed from the ``folder`` key alone. For example, an S3 path is ``bucketname/directory/name`` and a Dropbox path is ``directory/name``.
@@ -749,6 +1295,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'cloudsync.list_directory': {
     params: [cloud_sync_ls: CloudSyncListDirectoryArgs];
     response: (Record<string, unknown>)[];
+  };
+
+  /**
+   * Returns a list of dictionaries of supported providers for Cloud Sync Tasks.
+   * @roles CLOUD_SYNC_READ
+   */
+  'cloudsync.providers': {
+    params: [];
+    response: CloudSyncProvider[];
   };
 
   /**
@@ -915,12 +1470,107 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Return the system ARP table as a mapping of IP address to MAC address.
+   *
+   * Use the ``interface`` and ``ip`` options to restrict the results to a particular interface or a single IP address.
+   * @roles FULL_ADMIN
+   */
+  'core.arp': {
+    params: [options?: CoreArpArgs];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Call a job that produces downloadable output and get a URL to retrieve the result.
+   *
+   * This method executes jobs that generate files or streaming data for download. The job writes its output to a pipe, and this method returns a time-limited, single-use download URL.
+   *
+   * 1. Call :doc:`core.download <api_methods_core.download>` with the target job method, arguments, and desired filename
+   *
+   * 2. Receive an array containing the job ID and download URL
+   *
+   * 3. Make an HTTP GET request to the download URL to retrieve the data
+   *
+   * 4. The download URL expires after a timeout and can only be used once
+   */
+  'core.download': {
+    params: [method: string, args: unknown[], filename: string, buffered?: boolean];
+    response: unknown[];
+  };
+
+  /**
+   * Get information about long-running jobs. If authenticated session does not have the FULL_ADMIN role, only jobs owned by the current authenticated session will be returned.
+   *
+   * ``result`` key will have sensitive values redacted by default for external clients.
+   *
+   * Redaction behavior may be explicitly specfied via the ``extra`` query option ``raw_result``. If ``raw_result`` is ``true`` then an unredacted result is returned.
+   */
+  'core.get_jobs': {
+    params: [filters?: QueryFilters<CoreGetJobsItem>, options?: QueryOptions<CoreGetJobsItem>];
+    response: CoreGetJobsItem[] | CoreGetJobsItem | CoreGetJobsItemQueryResultItem[] | CoreGetJobsItemQueryResultItem | number;
+  };
+
+  /**
+   * Return methods metadata of every available service.
+   */
+  'core.get_methods': {
+    params: [service?: string | null, target?: Target];
+    response: Record<string, unknown>;
+  };
+
+  /**
+   * Returns a list of all registered services.
+   */
+  'core.get_services': {
+    params: [target?: Target];
+    response: Record<string, unknown>;
+  };
+
+  /**
+   * Abort the running job identified by ``id``.
+   *
+   * Only jobs the caller is authorized to abort may be aborted.
+   */
+  'core.job_abort': {
+    params: [id: number];
+    response: null;
+  };
+
+  /**
+   * Download logs of the job ``id``.
+   *
+   * Please see :doc:`core.download <api_methods_core.download>` method documentation for explanation on ``filename`` and ``buffered`` arguments and return value.
+   */
+  'core.job_download_logs': {
+    params: [id: number, filename: string, buffered?: boolean];
+    response: string;
+  };
+
+  /**
    * Method that will send an ICMP echo request to "hostname" and will wait up to "timeout" for a reply.
    * @roles FULL_ADMIN
    */
   'core.ping_remote': {
     params: [options: CorePingRemoteArgs];
     response: boolean;
+  };
+
+  /**
+   * Resize terminal session (/websocket/shell) to cols x rows.
+   */
+  'core.resize_shell': {
+    params: [id: string, cols: number, rows: number];
+    response: null;
+  };
+
+  /**
+   * Set per-connection options for the current API session and return the resulting option values.
+   *
+   * Options such as ``legacy_jobs``, ``private_methods``, and ``py_exceptions`` change how the middleware formats responses and errors for this connection only; they are not persisted beyond the session.
+   */
+  'core.set_options': {
+    params: [options: CoreOptionsInput];
+    response: CoreOptions;
   };
 
   /**
@@ -935,6 +1585,14 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * @roles SYSTEM_CRON_READ
+   */
+  'cronjob.query': {
+    params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptions<CronJobEntry>];
+    response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
+  };
+
+  /**
    * Update cronjob of ``id``.
    * @roles SYSTEM_CRON_WRITE
    */
@@ -944,11 +1602,79 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Get info for ``type`` device.
+   * @roles READONLY_ADMIN
+   */
+  'device.get_info': {
+    params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
+    response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
+  };
+
+  /**
+   * Available certificate choices for use with the ``LDAP_MTLS`` ``credential_type``. Note that prior configuration of LDAP server is required and uploading a custom certificate to TrueNAS may also be required.
+   * @roles DIRECTORY_SERVICE_READ, READONLY_ADMIN
+   */
+  'directoryservices.certificate_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'directoryservices.config': {
+    params: [];
+    response: DirectoryServicesEntry;
+  };
+
+  /**
    * Provide the type and status of the currently-enabled directory service.
    */
   'directoryservices.status': {
     params: [];
     response: DirectoryServicesStatus;
+  };
+
+  /**
+   * Return detailed information for all disks on the system.
+   * @roles REPORTING_READ
+   */
+  'disk.details': {
+    params: [data?: DiskDetails];
+    response: unknown[] | Record<string, unknown>;
+  };
+
+  /**
+   * Return disks that are in use by any zpool that is currently imported. It will also return disks that are in use by any zpool that is exported.
+   *
+   * .. note::
+   *
+   *     Enabling ``join_partitions`` is an expensive operation.
+   * @roles REPORTING_READ
+   */
+  'disk.get_used': {
+    params: [join_partitions?: boolean];
+    response: unknown[];
+  };
+
+  /**
+   * Query disks.
+   *
+   * The following ``query-options.extra`` options are supported:
+   *
+   * ``include_expired`` *(bool)*:
+   *     Also include expired disks (``false`` by default).
+   *
+   * ``passwords`` *(bool)*:
+   *     Don't hide the KMIP password for the disks (``false`` by default).
+   *
+   * ``pools`` *(bool)*:
+   *     Join the pool name for each disk (``false`` by default).
+   * @roles DISK_READ
+   */
+  'disk.query': {
+    params: [filters?: QueryFilters<DiskEntry>, options?: QueryOptions<DiskEntry>];
+    response: DiskEntry[] | DiskEntry | DiskQueryResultItem[] | DiskQueryResultItem | number;
   };
 
   /**
@@ -970,12 +1696,34 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Returns min/max/avg temperature for ``names`` disks over the last ``days`` days.
+   * @roles REPORTING_READ
+   */
+  'disk.temperature_agg': {
+    params: [names: string[], days?: number];
+    response: Record<string, DiskTemperatureAggEntry>;
+  };
+
+  /**
    * Returns existing temperature alerts for specified disks.
    * @roles REPORTING_READ
    */
   'disk.temperature_alerts': {
     params: [names: string[]];
     response: Alert[];
+  };
+
+  /**
+   * Returns disk temperatures for disks in degrees celsius.
+   *
+   * .. note::
+   *
+   *     Disk temperatures are not retrieved more than once every 5 minutes.
+   * @roles REPORTING_READ
+   */
+  'disk.temperatures': {
+    params: [name?: string[], include_thresholds?: boolean];
+    response: Record<string, unknown>;
   };
 
   /**
@@ -997,6 +1745,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Query Name Servers with ``query-filters`` and ``query-options``.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'dns.query': {
+    params: [filters?: QueryFilters<DNSQueryItem>, options?: QueryOptions<DNSQueryItem>];
+    response: DNSQueryItem[] | DNSQueryItem | DNSQueryItemQueryResultItem[] | DNSQueryItemQueryResultItem | number;
+  };
+
+  /**
    * @roles DOCKER_READ
    */
   'docker.config': {
@@ -1014,6 +1771,14 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * @roles DOCKER_READ
+   */
+  'docker.network.query': {
+    params: [filters?: QueryFilters<DockerNetworkEntry>, options?: QueryOptions<DockerNetworkEntry>];
+    response: DockerNetworkEntry[] | DockerNetworkEntry | DockerNetworkQueryResultItem[] | DockerNetworkQueryResultItem | number;
+  };
+
+  /**
    * Returns the status of the docker service.
    * @roles DOCKER_READ
    */
@@ -1023,12 +1788,111 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Query detected enclosures on TrueNAS hardware.
+   *
+   * Returns an array of enclosure objects representing the head unit (controller) and any attached JBODs or JBOFs. Each entry contains hardware identification, physical layout information, and per-slot element details including disk mappings and status.
+   *
+   * .. note::
+   *     This method only returns results on TrueNAS-sold hardware.
+   *     An empty array is returned on generic or non-TrueNAS systems.
+   *
+   * Results are sorted with controller enclosures first, then by enclosure ID.
+   *
+   * Examples:
+   *
+   * Query all enclosures::
+   *
+   *     []
+   *
+   * Query only the controller (head unit)::
+   *
+   *     [
+   *         [["controller", "=", true]]
+   *     ]
+   *
+   * Query a specific enclosure by ID::
+   *
+   *     [
+   *         [["id", "=", "5b0bd6d1a30714bf"]],
+   *         {"get": true}
+   *     ]
+   * @roles ENCLOSURE_READ
+   */
+  'enclosure2.query': {
+    params: [filters?: QueryFilters<Enclosure2Entry>, options?: QueryOptions<Enclosure2Entry>];
+    response: Enclosure2Entry[] | Enclosure2Entry | Enclosure2QueryResultItem[] | Enclosure2QueryResultItem | number;
+  };
+
+  /**
    * Set enclosure bay number ``slot`` to ``status`` for ``enclosure_id``.
    * @roles ENCLOSURE_WRITE
    */
   'enclosure2.set_slot_status': {
     params: [Enclosure2SetSlotStatus: Enclosure2SetSlotStatusArgs];
     response: null;
+  };
+
+  /**
+   * This method is only called manually by the end-user so we fully expect that they know what they're doing. Furthermore, this method will only run if failover has NOT been administratively disabled. The reason why we only allow this in that scenario is because the failover logic (on the other node) will ignore any failover "event" that comes in if failover has been administratively disabled. This immediately causes the HA system to go into a "faulted" state because the other node will get the VIPs but it will not import the zpool and it will not start ``fenced``. Only way out of that situation is to manually fix things (import zpool, migrate VIPs, start ``fenced``, etc).
+   *
+   * .. warning::
+   *
+   *     The only "safe" way to "become passive" is to use the **STCNITH** method, or "Shoot The
+   *     Current Node In The Head" (similar to **STONITH**). This ensures the current node gets out
+   *     of the way *completely* so there is no chance of the zpool being imported on both nodes at
+   *     the same time which can ultimately end in data corruption.
+   * @roles FAILOVER_WRITE
+   */
+  'failover.become_passive': {
+    params: [];
+    response: null;
+  };
+
+  /**
+   * @roles FAILOVER_READ
+   */
+  'failover.config': {
+    params: [];
+    response: FailoverEntry;
+  };
+
+  /**
+   * Returns a list of reasons why failover is not enabled/functional. See ``DisabledReasonsEnum`` for the reasons and their explanation.
+   * @roles FAILOVER_READ
+   */
+  'failover.disabled.reasons': {
+    params: [];
+    response: string[];
+  };
+
+  /**
+   * Get a list of IPs for which the Web UI can be accessed.
+   * @roles FAILOVER_READ
+   */
+  'failover.get_ips': {
+    params: [];
+    response: string[];
+  };
+
+  /**
+   * Checks whether this instance is licensed as an HA unit.
+   */
+  'failover.licensed': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
+   * Returns the slot position in the chassis that the controller is located.
+   *
+   * * "A" - First node
+   * * "B" - Seconde Node
+   * * "MANUAL" - Slot position in chassis could not be determined
+   * @roles FAILOVER_READ
+   */
+  'failover.node': {
+    params: [];
+    response: string;
   };
 
   /**
@@ -1043,6 +1907,78 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Get the current HA status.
+   *
+   * Returns one of:
+   *
+   * * "MASTER"
+   * * "BACKUP"
+   * * "ELECTING"
+   * * "IMPORTING"
+   * * "ERROR"
+   * * "SINGLE"
+   * @roles FAILOVER_READ
+   */
+  'failover.status': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * Sync database and files from the other controller.
+   * @roles FAILOVER_WRITE
+   */
+  'failover.sync_from_peer': {
+    params: [];
+    response: null;
+  };
+
+  /**
+   * Sync database and files to the other controller.
+   * @roles FAILOVER_WRITE
+   */
+  'failover.sync_to_peer': {
+    params: [options?: FailoverSyncToPeer];
+    response: null;
+  };
+
+  /**
+   * Update failover configuration.
+   * @roles FAILOVER_WRITE
+   */
+  'failover.update': {
+    params: [data: FailoverUpdate];
+    response: FailoverEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fc.fc_host.query': {
+    params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptions<FCHostEntry>];
+    response: FCHostEntry[] | FCHostEntry | FCHostQueryResultItem[] | FCHostQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fcport.query': {
+    params: [filters?: QueryFilters<FCPortEntry>, options?: QueryOptions<FCPortEntry>];
+    response: FCPortEntry[] | FCPortEntry | FCPortQueryResultItem[] | FCPortQueryResultItem | number;
+  };
+
+  /**
+   * Return the runtime status of Fibre Channel ports, including port state, type, speed, and connected sessions.
+   *
+   * On an HA system, status is gathered from both controllers and reported per node.
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'fcport.status': {
+    params: [filters?: QueryFilters<Record<string, unknown>>, options?: QueryOptions<Record<string, unknown>>];
+    response: unknown[];
+  };
+
+  /**
    * Retrieve list of available ACL templates for a given ``path``. Supports ``query-filters`` and ``query-options``.
    *
    * ACL entries in the returned templates are always in canonical order.
@@ -1051,6 +1987,55 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
+  };
+
+  /**
+   * Create a new filesystem ACL template.
+   * @roles FILESYSTEM_ATTRS_WRITE
+   */
+  'filesystem.acltemplate.create': {
+    params: [acltemplate_create: AclTemplateCreate];
+    response: ACLTemplateEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.acltemplate.get_instance': {
+    params: [id: number, options?: QueryOptions<ACLTemplateEntry>];
+    response: ACLTemplateEntry;
+  };
+
+  /**
+   * Retrieve the available filesystem ACL templates.
+   *
+   * Built-in templates are returned with their access control list fully populated.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.acltemplate.query': {
+    params: [filters?: QueryFilters<ACLTemplateEntry>, options?: QueryOptions<ACLTemplateEntry>];
+    response: ACLTemplateEntry[] | ACLTemplateEntry | ACLTemplateQueryResultItem[] | ACLTemplateQueryResultItem | number;
+  };
+
+  /**
+   * Update filesystem ACL template with ``id``.
+   * @roles FILESYSTEM_ATTRS_WRITE
+   */
+  'filesystem.acltemplate.update': {
+    params: [id: number, acltemplate_update: AclTemplateUpdate];
+    response: ACLTemplateEntry;
+  };
+
+  /**
+   * Return ACL of a given path. This may return a POSIX1e ACL or a NFSv4 ACL. The ACL type is indicated by the ``acltype`` key.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.getacl': {
+    params: [path: string, simplified?: boolean, resolve_ids?: boolean];
+    response: NFS4ACLResult | POSIXACLResult | DISABLED_ACLResult;
   };
 
   /**
@@ -1083,12 +2068,120 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Return filesystem information for a given path.
+   *
+   * The reported timestamps reflect ``statx()`` values. The ``atime`` and ``mtime`` timestamps are mutable from userspace, and ``btime`` may also be mutable from userspace depending on the platform.
+   *
+   * The returned ``attributes`` list contains the ``statx()`` file attributes that apply to the file (see the ``statx(2)`` manpage for details). ZFS flags set via :doc:`filesystem.set_zfs_attributes <api_methods_filesystem.set_zfs_attributes>` are surfaced here: an immutable file reports ``IMMUTABLE`` and an append-only file reports ``APPEND``.
+   *
+   * .. note::
+   *
+   *     ``mount_id`` uniquely identifies the particular mount underlying the path. Bind mounts
+   *     share the same ``dev`` (device id) but have distinct ``mount_id`` values, so ``mount_id``
+   *     (not ``dev``) must be used to identify children of a given mountpoint.
+   * @roles FILESYSTEM_ATTRS_READ
+   */
+  'filesystem.stat': {
+    params: [path: string];
+    response: FilesystemStatData;
+  };
+
+  /**
    * Update ftp service configuration.
    * @roles SHARING_FTP_WRITE
    */
   'ftp.update': {
     params: [ftp_update?: FTPUpdateArgs];
     response: FTPEntry;
+  };
+
+  /**
+   * Create a new group.
+   * @roles ACCOUNT_WRITE
+   */
+  'group.create': {
+    params: [group_create: GroupCreate];
+    response: number;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles ACCOUNT_READ
+   */
+  'group.get_instance': {
+    params: [id: number, options?: QueryOptions<GroupEntry>];
+    response: GroupEntry;
+  };
+
+  /**
+   * Query groups with `query-filters` and `query-options`.
+   * @roles ACCOUNT_READ
+   */
+  'group.query': {
+    params: [filters?: QueryFilters<GroupEntry>, options?: QueryOptions<GroupEntry>];
+    response: GroupEntry[] | GroupEntry | GroupQueryResultItem[] | GroupQueryResultItem | number;
+  };
+
+  /**
+   * Update attributes of an existing group.
+   * @roles ACCOUNT_WRITE
+   */
+  'group.update': {
+    params: [id: number, group_update: GroupUpdate];
+    response: number;
+  };
+
+  /**
+   * Report the virtualization variation of TrueNAS system.
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'hardware.virtualization.variant': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * Create an initshutdown script task.
+   *
+   * .. note::
+   *
+   *     When a script or command is scheduled to run on ``SHUTDOWN``, its ``timeout`` is added to the hard
+   *     shutdown limit imposed by the base OS so that it can run to completion without being interrupted.
+   * @roles SYSTEM_CRON_WRITE
+   */
+  'initshutdownscript.create': {
+    params: [data: InitShutdownScriptCreate];
+    response: InitShutdownScriptEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SYSTEM_CRON_READ
+   */
+  'initshutdownscript.get_instance': {
+    params: [id: number, options?: QueryOptions<InitShutdownScriptEntry>];
+    response: InitShutdownScriptEntry;
+  };
+
+  /**
+   * @roles SYSTEM_CRON_READ
+   */
+  'initshutdownscript.query': {
+    params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptions<InitShutdownScriptEntry>];
+    response: InitShutdownScriptEntry[] | InitShutdownScriptEntry | InitShutdownScriptQueryResultItem[] | InitShutdownScriptQueryResultItem | number;
+  };
+
+  /**
+   * Update initshutdown script task of ``id``.
+   * @roles SYSTEM_CRON_WRITE
+   */
+  'initshutdownscript.update': {
+    params: [id: number, data: InitShutdownScriptUpdate];
+    response: InitShutdownScriptEntry;
   };
 
   /**
@@ -1100,6 +2193,281 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'interface.available_fec_modes': {
     params: [id: string];
     response: ('AUTO' | 'OFF' | 'RS' | 'BASER' | 'LLRS')[];
+  };
+
+  /**
+   * Return available interface choices that can be added to a ``br`` (bridge) interface.
+   * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN
+   */
+  'interface.bridge_members_choices': {
+    params: [id?: string | null];
+    response: Record<string, string>;
+  };
+
+  /**
+   * If this method is called after interface changes have been committed and within the checkin timeout, then the task that automatically rolls back any interface changes is cancelled and the in-memory snapshot of database tables for the various interface tables will NOT be cleared.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.cancel_rollback': {
+    params: [];
+    response: null;
+  };
+
+  /**
+   * If this method is called after interface changes have been committed and within the checkin timeout, then the task that automatically rolls back any interface changes is cancelled and the in-memory snapshot of database tables for the various interface tables will be cleared. The idea is that the end-user has verified the changes work as intended and need to be committed permanently.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.checkin': {
+    params: [];
+    response: null;
+  };
+
+  /**
+   * Returns whether we are waiting for the user to check in the applied network changes before they are rolled back.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.checkin_waiting': {
+    params: [];
+    response: number | null;
+  };
+
+  /**
+   * Choices of available network interfaces.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.choices': {
+    params: [options?: InterfaceChoicesOptions];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Commit/apply pending interfaces changes.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.commit': {
+    params: [options?: InterfaceCommitOptions];
+    response: null;
+  };
+
+  /**
+   * Create virtual interfaces (Link Aggregation, VLAN).
+   *
+   * Create a bridge interface::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "interface.create",
+   *         "params": [{
+   *             "name": "br0",
+   *             "type": "BRIDGE",
+   *             "bridge_members": ["enp0s3", "enp0s4"],
+   *             "aliases": ["192.168.0.10"]
+   *         }]
+   *     }
+   *
+   * Create a link aggregation interface that has multiple IP addresses in multiple subnets::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "interface.create",
+   *         "params": [{
+   *             "name": "bond0",
+   *             "type": "LINK_AGGREGATION",
+   *             "lag_protocol": "LACP",
+   *             "lag_ports": ["enp0s8", "enp0s9"],
+   *             "aliases": ["192.168.0.20/30", "192.168.1.20/30"]
+   *         }]
+   *     }
+   *
+   * Create a DHCP-enabled VLAN interface::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "interface.create",
+   *         "params": [{
+   *             "name": "vlan0",
+   *             "type": "VLAN",
+   *             "vlan_parent_interface": "enp0s10",
+   *             "vlan_tag": 10,
+   *             "vlan_pcp": 4,
+   *             "ipv4_dhcp": true,
+   *             "ipv6_auto": true
+   *         }]
+   *     }
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.create': {
+    params: [data: InterfaceCreate];
+    response: InterfaceEntry;
+  };
+
+  /**
+   * Delete Interface of ``id``.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.delete': {
+    params: [id: string];
+    response: string;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.get_instance': {
+    params: [id: string, options?: QueryOptions<InterfaceEntry>];
+    response: InterfaceEntry;
+  };
+
+  /**
+   * Return whether there are pending interfaces changes to be applied or not.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.has_pending_changes': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
+   * Get all IPv4 / IPv6 from all valid interfaces.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.ip_in_use': {
+    params: [options?: InterfaceIPInUseOptions];
+    response: InterfaceIPInUseItem[];
+  };
+
+  /**
+   * Available lacpdu rate policies for the LACP lagg type interfaces.
+   * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN
+   */
+  'interface.lacpdu_rate_choices': {
+    params: [];
+    response: InterfaceLacpduRateChoicesResult;
+  };
+
+  /**
+   * Return available interface choices that can be added to a ``bond`` (lag) interface.
+   * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN
+   */
+  'interface.lag_ports_choices': {
+    params: [id?: string | null];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Determines which network configuration items will be removed during interface setup.
+   *
+   * On a fresh install of SCALE, DHCP is started for every interface so IP addresses/routes could be installed via that program. However, when the end-user goes to configure the first interface we tear down all other interfaces configs AND delete the default route. We also remove the default route if the configured gateway doesn't match the one currently installed in kernel.
+   *
+   * Additionally, this checks for nameserver configurations that exist in the current network state but are not configured in the database, indicating they will be removed during reconfiguration.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.network_config_to_be_removed': {
+    params: [];
+    response: ('ipv4gateway' | 'nameserver1' | 'nameserver2' | 'nameserver3')[];
+  };
+
+  /**
+   * Query network interfaces with the standard ``query-filters`` and ``query-options``.
+   *
+   * Set the ``options.extra.retrieve_names_only`` boolean to return only interface names.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.query': {
+    params: [filters?: QueryFilters<InterfaceEntry>, options?: QueryOptions<InterfaceEntry>];
+    response: InterfaceEntry[] | InterfaceEntry | InterfaceQueryResultItem[] | InterfaceQueryResultItem | number;
+  };
+
+  /**
+   * Rollback pending interfaces changes.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.rollback': {
+    params: [];
+    response: null;
+  };
+
+  /**
+   * Saves network configuration settings to prevent network isolation during interface changes.
+   *
+   * This method provides a path for remediation when interface modifications would remove network connectivity. It accepts a configuration object containing network settings that will be validated and applied to the global network configuration.
+   *
+   * This makes 2 assumptions:
+   *
+   * 1. :doc:`interface.create <api_methods_interface.create>`,
+   *    :doc:`update <api_methods_interface.update>`, or
+   *    :doc:`delete <api_methods_interface.delete>` must have been called
+   *    before calling this method.
+   * 2. This method must be called before :doc:`interface.commit <api_methods_interface.commit>` is called.
+   *
+   * This method exists for the predominant scenario for new users:
+   *
+   * 1. Fresh install SCALE.
+   * 2. All interfaces start DHCPv4 (v6 is ignored for now).
+   * 3. One of the interfaces receives an IP address.
+   * 4. Along with the IP, the kernel receives a default route
+   *    (by design, of course).
+   * 5. User goes to configure this interface as having a static
+   *    IP address.
+   * 6. As we go through and "commit" the changes, we remove the default
+   *    route because it exists in the kernel FIB but doesn't exist
+   *    in the database.
+   * 7. IF the user is connecting via layer3, then they will lose all
+   *    access to the TrueNAS and never be able to finalize the changes
+   *    to the network because we ripped out the default route which
+   *    is how they were communicating to begin with.
+   *
+   * In the above scenario, we're going to try and prevent this by doing the following:
+   *
+   * 1. Fresh install SCALE.
+   * 2. All interfaces start DHCPv4.
+   * 3. Default route is received.
+   * 4. User configures an interface.
+   * 5. When user pushes "Test Changes" (:doc:`interface.commit <api_methods_interface.commit>`), WebUI will
+   *    call :doc:`interface.network_config_to_be_removed <api_methods_interface.network_config_to_be_removed>`
+   *    BEFORE :doc:`interface.commit <api_methods_interface.commit>`.
+   * 6. If :doc:`interface.network_config_to_be_removed <api_methods_interface.network_config_to_be_removed>`
+   *    returns any fields,
+   *    then webUI will open a new modal dialog that gives the end-user
+   *    ample warning describing the situation. Furthermore, the
+   *    modal will allow the user to input a default gateway and nameservers.
+   * 7. If user gives gateway, webUI will call this method providing the info
+   *    and we'll validate accordingly.
+   * 8. OR if user doesn't give gateway, they will need to "confirm" this is
+   *    desired.
+   * 9. The network configuration provided (gateway and nameservers) will be stored
+   *    in the same in-memory cache that we use for storing the interface changes
+   *    and will be rolled back accordingly in this plugin just like everything else.
+   *
+   * There are a few other scenarios where this is beneficial, but the one listed above is seen most often by end-users/support team.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'interface.save_network_config': {
+    params: [config: InterfaceSaveNetworkConfigArgs];
+    response: null;
+  };
+
+  /**
+   * Returns which services will be set to listen on 0.0.0.0 (and, thus, restarted) on sync.
+   *
+   * Example result::
+   *
+   *     [
+   *         // Samba service will be set ot listen on 0.0.0.0 and restarted because it was set up to listen on
+   *         // 192.168.0.1 which is being removed.
+   *         {"type": "SYSTEM_SERVICE", "service": "cifs", "ips": ["192.168.0.1"]},
+   *     ]
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.services_restarted_on_sync': {
+    params: [];
+    response: InterfaceServicesRestartedOnSyncItem[];
   };
 
   /**
@@ -1118,6 +2486,99 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'interface.update': {
     params: [id: string, data: InterfaceUpdate];
     response: InterfaceEntry;
+  };
+
+  /**
+   * Return available interface choices for ``vlan_parent_interface`` attribute.
+   * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN
+   */
+  'interface.vlan_parent_interface_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Returns the interface this websocket is connected to.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.websocket_interface': {
+    params: [];
+    response: InterfaceEntry | null;
+  };
+
+  /**
+   * Returns the local ip address for this websocket session.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'interface.websocket_local_ip': {
+    params: [];
+    response: '' | string | null;
+  };
+
+  /**
+   * Available transmit hash policies for the LACP or LOADBALANCE lagg type interfaces.
+   * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN
+   */
+  'interface.xmit_hash_policy_choices': {
+    params: [];
+    response: InterfaceXmitHashPolicyChoicesResult;
+  };
+
+  /**
+   * Toggle the chassis identify light on or off.
+   *
+   * On an HA system, set ``apply_remote`` to ``true`` to apply the change to the remote controller instead of the local one.
+   * @roles IPMI_WRITE
+   */
+  'ipmi.chassis.identify': {
+    params: [data?: IpmiChassisIdentifyRequest];
+    response: null;
+  };
+
+  /**
+   * Return IPMI chassis info.
+   *
+   * On an HA system, set ``query-remote`` to ``true`` to return the chassis info from the remote controller instead of the local one.
+   * @roles IPMI_READ
+   */
+  'ipmi.chassis.info': {
+    params: [data?: IpmiChassisInfoRequest];
+    response: IPMIChassisInfo | Record<string, unknown>;
+  };
+
+  /**
+   * Return a list of available IPMI channels.
+   * @roles IPMI_READ
+   */
+  'ipmi.lan.channels': {
+    params: [];
+    response: number[];
+  };
+
+  /**
+   * Query available IPMI Channels with ``query-filters`` and ``query-options``.
+   * @roles IPMI_READ
+   */
+  'ipmi.lan.query': {
+    params: [data?: IPMILanQuery];
+    response: IPMILanEntry[] | IPMILanEntry | IPMILanQueryResultItem[] | IPMILanQueryResultItem | number;
+  };
+
+  /**
+   * Update IPMI channel configuration.
+   * @roles IPMI_WRITE
+   */
+  'ipmi.lan.update': {
+    params: [channel: number, data: IPMILanUpdateOptionsDHCP | IPMILanUpdateOptionsStatic];
+    response: number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_AUTH_READ
+   */
+  'iscsi.auth.query': {
+    params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptions<ISCSITargetAuthCredentialEntry>];
+    response: ISCSITargetAuthCredentialEntry[] | ISCSITargetAuthCredentialEntry | ISCSITargetAuthCredentialQueryResultItem[] | ISCSITargetAuthCredentialQueryResultItem | number;
   };
 
   /**
@@ -1184,6 +2645,239 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * @roles SHARING_ISCSI_INITIATOR_READ
+   */
+  'iscsi.initiator.query': {
+    params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: QueryOptions<ISCSITargetAuthorizedInitiatorEntry>];
+    response: ISCSITargetAuthorizedInitiatorEntry[] | ISCSITargetAuthorizedInitiatorEntry | ISCSITargetAuthorizedInitiatorQueryResultItem[] | ISCSITargetAuthorizedInitiatorQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_PORTAL_READ
+   */
+  'iscsi.portal.query': {
+    params: [filters?: QueryFilters<ISCSIPortalEntry>, options?: QueryOptions<ISCSIPortalEntry>];
+    response: ISCSIPortalEntry[] | ISCSIPortalEntry | ISCSIPortalQueryResultItem[] | ISCSIPortalQueryResultItem | number;
+  };
+
+  /**
+   * Create an iSCSI Target.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'iscsi.target.create': {
+    params: [iscsi_target_create: IscsiTargetCreate];
+    response: ISCSITargetEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGET_READ
+   */
+  'iscsi.target.query': {
+    params: [filters?: QueryFilters<ISCSITargetEntry>, options?: QueryOptions<ISCSITargetEntry>];
+    response: ISCSITargetEntry[] | ISCSITargetEntry | ISCSITargetQueryResultItem[] | ISCSITargetQueryResultItem | number;
+  };
+
+  /**
+   * Update iSCSI Target of ``id``.
+   * @roles SHARING_ISCSI_TARGET_WRITE
+   */
+  'iscsi.target.update': {
+    params: [id: number, iscsi_target_update: IscsiTargetUpdate];
+    response: ISCSITargetEntry;
+  };
+
+  /**
+   * @roles SHARING_ISCSI_TARGETEXTENT_READ
+   */
+  'iscsi.targetextent.query': {
+    params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: QueryOptions<ISCSITargetToExtentEntry>];
+    response: ISCSITargetToExtentEntry[] | ISCSITargetToExtentEntry | ISCSITargetToExtentQueryResultItem[] | ISCSITargetToExtentQueryResultItem | number;
+  };
+
+  /**
+   * Create a new JBOF.
+   *
+   * This will use the supplied Redfish credentials to configure the data plane on the expansion shelf for direct connection to ROCE capable network cards on the TrueNAS head unit.
+   * @roles JBOF_WRITE
+   */
+  'jbof.create': {
+    params: [data: JBOFCreate];
+    response: JBOFEntry;
+  };
+
+  /**
+   * Delete a JBOF by ID.
+   * @roles JBOF_WRITE
+   */
+  'jbof.delete': {
+    params: [id: number, force?: boolean];
+    response: true;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles JBOF_READ
+   */
+  'jbof.get_instance': {
+    params: [id: number, options?: QueryOptions<JBOFEntry>];
+    response: JBOFEntry;
+  };
+
+  /**
+   * Return a count of the number of JBOF units licensed.
+   * @roles JBOF_READ
+   */
+  'jbof.licensed': {
+    params: [];
+    response: number;
+  };
+
+  /**
+   * @roles JBOF_READ
+   */
+  'jbof.query': {
+    params: [filters?: QueryFilters<JBOFEntry>, options?: QueryOptions<JBOFEntry>];
+    response: JBOFEntry[] | JBOFEntry | JBOFQueryResultItem[] | JBOFQueryResultItem | number;
+  };
+
+  /**
+   * Reapply the JBOF configuration to attached JBOFs.
+   *
+   * If an IOM is replaced in a JBOF, then it is expected to be configured to have the same redfish IP, user & password as was previously the case.
+   *
+   * This API can then be called to configure each JBOF with the expected data-plane IP configuration, and then attach NVMe drives.
+   * @roles JBOF_WRITE
+   */
+  'jbof.reapply_config': {
+    params: [];
+    response: null;
+  };
+
+  /**
+   * Update JBOF of ``id``.
+   * @roles JBOF_WRITE
+   */
+  'jbof.update': {
+    params: [id: number, data: JBOFUpdate];
+    response: JBOFEntry;
+  };
+
+  /**
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.config': {
+    params: [];
+    response: KerberosEntry;
+  };
+
+  /**
+   * Create a Kerberos keytab. Uploaded keytab files are merged with the system keytab under ``/etc/krb5.keytab``.
+   * @roles DIRECTORY_SERVICE_WRITE
+   */
+  'kerberos.keytab.create': {
+    params: [data: KerberosKeytabCreate];
+    response: KerberosKeytabEntry;
+  };
+
+  /**
+   * Delete kerberos keytab by id, and force regeneration of system keytab.
+   * @roles DIRECTORY_SERVICE_WRITE
+   */
+  'kerberos.keytab.delete': {
+    params: [id: number];
+    response: null;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.keytab.get_instance': {
+    params: [id: number, options?: QueryOptions<KerberosKeytabEntry>];
+    response: KerberosKeytabEntry;
+  };
+
+  /**
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.keytab.query': {
+    params: [filters?: QueryFilters<KerberosKeytabEntry>, options?: QueryOptions<KerberosKeytabEntry>];
+    response: KerberosKeytabEntry[] | KerberosKeytabEntry | KerberosKeytabQueryResultItem[] | KerberosKeytabQueryResultItem | number;
+  };
+
+  /**
+   * Update kerberos keytab by id.
+   * @roles DIRECTORY_SERVICE_WRITE
+   */
+  'kerberos.keytab.update': {
+    params: [id: number, data: KerberosKeytabUpdate];
+    response: KerberosKeytabEntry;
+  };
+
+  /**
+   * Create a new kerberos realm. This will be automatically populated during the domain join process in an Active Directory environment. Kerberos realm names are case-sensitive, but convention is to only use upper-case.
+   *
+   * Entries for kdc, admin_server, and kpasswd_server are not required. If they are unpopulated, then kerberos will use DNS srv records to discover the correct servers. The option to hard-code them is provided due to AD site discovery. Kerberos has no concept of Active Directory sites. This means that middleware performs the site discovery and sets the kerberos configuration based on the AD site.
+   * @roles DIRECTORY_SERVICE_WRITE
+   */
+  'kerberos.realm.create': {
+    params: [data: KerberosRealmCreate];
+    response: KerberosRealmEntry;
+  };
+
+  /**
+   * Delete a kerberos realm by ID.
+   * @roles DIRECTORY_SERVICE_WRITE
+   */
+  'kerberos.realm.delete': {
+    params: [id: number];
+    response: null;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.realm.get_instance': {
+    params: [id: number, options?: QueryOptions<KerberosRealmEntry>];
+    response: KerberosRealmEntry;
+  };
+
+  /**
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.realm.query': {
+    params: [filters?: QueryFilters<KerberosRealmEntry>, options?: QueryOptions<KerberosRealmEntry>];
+    response: KerberosRealmEntry[] | KerberosRealmEntry | KerberosRealmQueryResultItem[] | KerberosRealmQueryResultItem | number;
+  };
+
+  /**
+   * Update a kerberos realm by id. This will be automatically populated during the domain join process in an Active Directory environment. Kerberos realm names are case-sensitive, but convention is to only use upper-case.
+   * @roles DIRECTORY_SERVICE_WRITE
+   */
+  'kerberos.realm.update': {
+    params: [id: number, data: KerberosRealmUpdate];
+    response: KerberosRealmEntry;
+  };
+
+  /**
+   * ``appdefaults_aux`` add parameters to "appdefaults" section of the krb5.conf file.
+   *
+   * ``libdefaults_aux`` add parameters to "libdefaults" section of the krb5.conf file.
+   * @roles DIRECTORY_SERVICE_WRITE
+   */
+  'kerberos.update': {
+    params: [kerberos_update?: KerberosUpdateArgs];
+    response: KerberosEntry;
+  };
+
+  /**
    * Create a Keychain Credential.
    * @roles KEYCHAIN_CREDENTIAL_WRITE
    */
@@ -1232,6 +2926,43 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Clear all keys which are pending to be synced between KMIP server and TN database.
+   *
+   * For ZFS/SED keys, we remove the UID from local database with which we are able to retrieve ZFS/SED keys. It should be used with caution.
+   * @roles KMIP_WRITE
+   */
+  'kmip.clear_sync_pending_keys': {
+    params: [];
+    response: null;
+  };
+
+  /**
+   * @roles KMIP_READ
+   */
+  'kmip.config': {
+    params: [];
+    response: KMIPEntry;
+  };
+
+  /**
+   * Returns true or false based on if there are keys which are to be synced from local database to remote KMIP server or vice versa.
+   * @roles KMIP_READ
+   */
+  'kmip.kmip_sync_pending': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
+   * Sync ZFS/SED keys between KMIP Server and TN database.
+   * @roles KMIP_WRITE
+   */
+  'kmip.sync_keys': {
+    params: [];
+    response: null;
+  };
+
+  /**
    * Bridge choices for virtualization purposes.
    *
    * Empty means it will be managed/created automatically.
@@ -1268,12 +2999,313 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Return the email address of the local administrator.
+   *
+   * The local administrator is a local user account holding the ``FULL_ADMIN`` role that has an email address configured. When more than one such account exists, the address that sorts first alphabetically is returned. ``null`` is returned when no local administrator has an email address set.
+   * @roles ALERT_READ
+   */
+  'mail.local_administrator_email': {
+    params: [];
+    response: string | null;
+  };
+
+  /**
    * Update Mail Service Configuration.
    * @roles ALERT_WRITE
    */
   'mail.update': {
     params: [data: MailUpdate];
     response: MailEntry;
+  };
+
+  /**
+   * Returns allowed/forbidden network activity choices.
+   * @roles NETWORK_GENERAL_READ, READONLY_ADMIN
+   */
+  'network.configuration.activity_choices': {
+    params: [];
+    response: string[][];
+  };
+
+  /**
+   * @roles NETWORK_GENERAL_READ
+   */
+  'network.configuration.config': {
+    params: [];
+    response: NetworkConfigurationEntry;
+  };
+
+  /**
+   * Update Network Configuration Service configuration.
+   * @roles NETWORK_GENERAL_WRITE
+   */
+  'network.configuration.update': {
+    params: [data: NetWorkConfigurationUpdate];
+    response: NetworkConfigurationEntry;
+  };
+
+  /**
+   * Retrieve general information for current Network.
+   *
+   * Returns a dictionary. For example::
+   *
+   *     {
+   *         "ips": {
+   *             "vtnet0": {
+   *                 "IPV4": [
+   *                     "192.168.0.15/24"
+   *                 ]
+   *             }
+   *         },
+   *         "default_routes": [
+   *             "192.168.0.1"
+   *         ],
+   *         "nameservers": [
+   *             "192.168.0.1"
+   *         ]
+   *     }
+   * @roles NETWORK_GENERAL_READ
+   */
+  'network.general.summary': {
+    params: [];
+    response: NetworkGeneralSummaryResult;
+  };
+
+  /**
+   * Return currently connected clients count. Count may not be accurate if NFSv3 protocol is in use due to potentially stale rmtab entries.
+   * @roles SHARING_NFS_READ
+   */
+  'nfs.client_count': {
+    params: [];
+    response: number;
+  };
+
+  /**
+   * Read contents of rmtab. This information may not be accurate due to stale entries. This is ultimately a limitation of the NFSv3 protocol.
+   * @roles READONLY_ADMIN, SHARING_NFS_WRITE
+   */
+  'nfs.get_nfs3_clients': {
+    params: [filters?: QueryFilters<NFSGetNfs3ClientsEntry>, options?: QueryOptions<NFSGetNfs3ClientsEntry>];
+    response: NFSGetNfs3ClientsEntry[] | NFSGetNfs3ClientsEntry | NFSGetNfs3ClientsQueryResultItem[] | NFSGetNfs3ClientsQueryResultItem | number;
+  };
+
+  /**
+   * Read information about NFSv4 clients from /proc/fs/nfsd/clients.
+   *
+   * Sample output::
+   *
+   *     [{
+   *         "id": "4",
+   *         "info": {
+   *             "clientid": 6273260596088110000,
+   *             "address": "192.168.40.247:790",
+   *             "status": "confirmed",
+   *             "seconds from last renew": 45,
+   *             "name": "Linux NFSv4.2 debian12-hv",
+   *             "minor version": 2,
+   *             "Implementation domain": "kernel.org",
+   *             "Implementation name": "Linux 6.1.0-12-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.52-1 x86_64",
+   *             "Implementation time": [0, 0],
+   *             "callback state": "UP",
+   *             "callback address": "192.168.40.247:0"
+   *         },
+   *         "states": [
+   *             {
+   *                 "94850248556250062041657638912": {
+   *                     "type": "deleg",
+   *                     "access": "r",
+   *                     "superblock": "00:39:5",
+   *                     "filename": "/debian12-hv"
+   *                 }
+   *             },
+   *             {
+   *                 "94850248556250062041741524992": {
+   *                     "type": "open",
+   *                     "access": "rw",
+   *                     "deny": "--",
+   *                     "superblock": "00:39:137",
+   *                     "filename": "/.debian12-hv.swp",
+   *                     "owner": "open id:   8      þÀ²3"
+   *                 }
+   *             }
+   *         ]
+   *     }]
+   *
+   * Description of the fields (all per NFS client)::
+   *
+   *     'clientid': Hash generated for this client connection
+   *     'address':  The client IP and port. e.g. 10.20.30.40:768
+   *
+   *     'status':   The current client status:
+   *         'confirmed' An active connection.
+   *                     The status will convert to 'courtesy' in 90 seconds if not 'confirmed' by the client.
+   *         'courtesy'  A stalled connection from an inactive client.
+   *                     The status will convert to 'expirable' in 24hr.
+   *         'expirable' Waiting to be cleaned up.
+   *
+   *     'seconds from last renew':  The session timeout counter.  See 'status' field.
+   *                                 Gets reset by confirmation update from the client
+   *
+   *     'name': Supplied by the client.
+   *             Linux clients might offer something like 'Linux NFS4.2 clnt_name'.
+   *             FreeBSD clients might supply a UUID like name
+   *
+   *     'minor version':    The NFS4.x minor version.  E.G. '2' for NFSv4.2
+   *
+   *     'Implementation domain': NFSv4.1 info - e.g. 'kernel.org' or 'freebsd.org'.
+   *     'Implementation name':   NFSv4.1 info - e.g. equivalent to 'uname -a' on the client
+   *     'Implementation time':   NFSv4.1 info - Timestamp (time nfstime4) of client version (maybe unused?)
+   *
+   *     'callback state':   Current callback 'service' status for this client: 'UP', 'DOWN', 'FAULT' or 'UNKNOWN'
+   *                         Linux clients usually indicate 'UP'
+   *                         FreeBSD clients may indicate 'DOWN' but are still functional
+   * @roles READONLY_ADMIN, SHARING_NFS_WRITE
+   */
+  'nfs.get_nfs4_clients': {
+    params: [filters?: QueryFilters<NFSGetNfs4ClientsEntry>, options?: QueryOptions<NFSGetNfs4ClientsEntry>];
+    response: NFSGetNfs4ClientsEntry[] | NFSGetNfs4ClientsEntry | NFSGetNfs4ClientsQueryResultItem[] | NFSGetNfs4ClientsQueryResultItem | number;
+  };
+
+  /**
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.global.config': {
+    params: [];
+    response: NVMetGlobalEntry;
+  };
+
+  /**
+   * Update NVMe target global config.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.global.update': {
+    params: [nvmet_update?: NVMetGlobalUpdateArgs];
+    response: NVMetGlobalEntry;
+  };
+
+  /**
+   * Create an NVMe target ``host``.
+   *
+   * This may be then be associated with one or more ``subsystems`` to control access.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host.create': {
+    params: [nvmet_host_create: NVMetHostCreate];
+    response: NVMetHostEntry;
+  };
+
+  /**
+   * Delete NVMe target ``host`` of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host.delete': {
+    params: [id: number, options?: NVMetHostDeleteOptions];
+    response: true;
+  };
+
+  /**
+   * Returns possible choices for ``dhchap_dhgroup`` attribute of ``host`` create and update. None is an additional choice.
+   * @roles READONLY_ADMIN, SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host.dhchap_dhgroup_choices': {
+    params: [];
+    response: ('2048-BIT' | '3072-BIT' | '4096-BIT' | '6144-BIT' | '8192-BIT')[];
+  };
+
+  /**
+   * Returns possible choices for ``dhchap_hash`` attribute of ``host`` create and update.
+   * @roles READONLY_ADMIN, SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host.dhchap_hash_choices': {
+    params: [];
+    response: ('SHA-256' | 'SHA-384' | 'SHA-512')[];
+  };
+
+  /**
+   * Generate a secret key that may be used when configuring ``host`` authentication.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host.generate_key': {
+    params: [dhchap_hash?: 'SHA-256' | 'SHA-384' | 'SHA-512', nqn?: string | null];
+    response: string;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetHostEntry>];
+    response: NVMetHostEntry;
+  };
+
+  /**
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host.query': {
+    params: [filters?: QueryFilters<NVMetHostEntry>, options?: QueryOptions<NVMetHostEntry>];
+    response: NVMetHostEntry[] | NVMetHostEntry | NVMetHostQueryResultItem[] | NVMetHostQueryResultItem | number;
+  };
+
+  /**
+   * Update NVMe target ``host`` of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host.update': {
+    params: [id: number, nvmet_host_update: NVMetHostUpdate];
+    response: NVMetHostEntry;
+  };
+
+  /**
+   * Create an association between a ``host`` and a subsystem (``subsys``).
+   *
+   * This will enable the ``host`` to access the subsystem, even if the subsystem does not have the ``allow_any_host`` attribute set.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host_subsys.create': {
+    params: [nvmet_host_subsys_create: NVMetHostSubsysCreate];
+    response: NVMetHostSubsysEntry;
+  };
+
+  /**
+   * Delete ``host``/``subsys`` association of ``id``.
+   *
+   * If the subsystem does not have the ``allow_any_host`` attribute set, then this will remove access of the host to the subsystem.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host_subsys.delete': {
+    params: [id: number];
+    response: true;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host_subsys.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetHostSubsysEntry>];
+    response: NVMetHostSubsysEntry;
+  };
+
+  /**
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.host_subsys.query': {
+    params: [filters?: QueryFilters<NVMetHostSubsysEntry>, options?: QueryOptions<NVMetHostSubsysEntry>];
+    response: NVMetHostSubsysEntry[] | NVMetHostSubsysEntry | NVMetHostSubsysQueryResultItem[] | NVMetHostSubsysQueryResultItem | number;
+  };
+
+  /**
+   * Update ``host``/``subsys`` association of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.host_subsys.update': {
+    params: [id: number, nvmet_host_subsys_update: NVMetHostSubsysUpdate];
+    response: NVMetHostSubsysEntry;
   };
 
   /**
@@ -1285,6 +3317,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'nvmet.namespace.create': {
     params: [nvmet_namespace_create: NVMetNamespaceCreate];
     response: NVMetNamespaceEntry;
+  };
+
+  /**
+   * Delete NVMe target namespace of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.namespace.delete': {
+    params: [id: number, options?: NVMetNamespaceDeleteOptions];
+    response: true;
   };
 
   /**
@@ -1316,6 +3357,213 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Create a NVMe target ``port``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.port.create': {
+    params: [nvmet_port_create: NVMetPortCreateRDMATCP | NVMetPortCreateFC];
+    response: NVMetPortEntry;
+  };
+
+  /**
+   * Delete NVMe target ``port`` of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.port.delete': {
+    params: [id: number, options?: NVMetPortDeleteOptions];
+    response: true;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.port.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetPortEntry>];
+    response: NVMetPortEntry;
+  };
+
+  /**
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.port.query': {
+    params: [filters?: QueryFilters<NVMetPortEntry>, options?: QueryOptions<NVMetPortEntry>];
+    response: NVMetPortEntry[] | NVMetPortEntry | NVMetPortQueryResultItem[] | NVMetPortQueryResultItem | number;
+  };
+
+  /**
+   * Returns possible choices for ``addr_traddr`` attribute of ``port`` create and update.
+   * @roles READONLY_ADMIN, SHARING_NVME_TARGET_READ
+   */
+  'nvmet.port.transport_address_choices': {
+    params: [addr_trtype: 'TCP' | 'RDMA' | 'FC', force_ana?: boolean];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Update NVMe target ``port`` of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.port.update': {
+    params: [id: number, nvmet_port_update: NVMetPortUpdateRDMATCP | NVMetPortUpdateFC];
+    response: NVMetPortEntry;
+  };
+
+  /**
+   * Create an association between a ``port`` and a subsystem (``subsys``).
+   *
+   * This will make the subsystem accessible on that port (subject to access control by either the  ``allow_any_host`` subsystem attribute, or ``hosts`` associated with the subsystem).
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.port_subsys.create': {
+    params: [nvmet_port_subsys_create: NVMetPortSubsysCreate];
+    response: NVMetPortSubsysEntry;
+  };
+
+  /**
+   * Delete ``port``/``subsys`` association of ``id``.
+   *
+   * The specified subsystem will no longer be accessible on the ``port``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.port_subsys.delete': {
+    params: [id: number];
+    response: true;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.port_subsys.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetPortSubsysEntry>];
+    response: NVMetPortSubsysEntry;
+  };
+
+  /**
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.port_subsys.query': {
+    params: [filters?: QueryFilters<NVMetPortSubsysEntry>, options?: QueryOptions<NVMetPortSubsysEntry>];
+    response: NVMetPortSubsysEntry[] | NVMetPortSubsysEntry | NVMetPortSubsysQueryResultItem[] | NVMetPortSubsysQueryResultItem | number;
+  };
+
+  /**
+   * Update ``port``/``subsys`` association of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.port_subsys.update': {
+    params: [id: number, nvmet_port_subsys_update: NVMetPortSubsysUpdate];
+    response: NVMetPortSubsysEntry;
+  };
+
+  /**
+   * Create a NVMe target subsystem (``subsys``).
+   *
+   * When a ``subsys`` contains one of more ``namespaces``, and is associated with one or more ``ports`` then clients may access the storage using NVMe-oF.
+   *
+   * All clients may access the subsystem if the ``allow_any_host`` attribute is set.  Otherwise, access is only permitted to ``hosts`` who have been associated with the subsystem.
+   *
+   * See :doc:`nvmet.host.create <api_methods_nvmet.host.create>` and :doc:`nvmet.host_subsys.create <api_methods_nvmet.host_subsys.create>`.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.subsys.create': {
+    params: [nvmet_subsys_create: NVMetSubsysCreate];
+    response: NVMetSubsysEntry;
+  };
+
+  /**
+   * Delete NVMe target subsystem (``subsys``) of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.subsys.delete': {
+    params: [id: number, options?: NVMetSubsysDeleteOptions];
+    response: true;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.subsys.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetSubsysEntry>];
+    response: NVMetSubsysEntry;
+  };
+
+  /**
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.subsys.query': {
+    params: [filters?: QueryFilters<NVMetSubsysEntry>, options?: QueryOptions<NVMetSubsysEntry>];
+    response: NVMetSubsysEntry[] | NVMetSubsysEntry | NVMetSubsysQueryResultItem[] | NVMetSubsysQueryResultItem | number;
+  };
+
+  /**
+   * Update NVMe target subsystem (``subsys``) of ``id``.
+   * @roles SHARING_NVME_TARGET_WRITE
+   */
+  'nvmet.subsys.update': {
+    params: [id: number, nvmet_subsys_update: NVMetSubsysUpdate];
+    response: NVMetSubsysEntry;
+  };
+
+  /**
+   * Return a list of services dependent of this pool.
+   *
+   * Responsible for telling the user whether there is a related share, asking for confirmation.
+   * @roles POOL_READ
+   */
+  'pool.attachments': {
+    params: [id: number];
+    response: PoolAttachment[];
+  };
+
+  /**
+   * Return a list of services dependent of this dataset.
+   *
+   * Responsible for telling the user whether there is a related share, asking for confirmation.
+   *
+   * Example return value::
+   *
+   *     [
+   *       {
+   *         "type": "NFS Share",
+   *         "service": "nfs",
+   *         "attachments": ["/mnt/tank/work"]
+   *       }
+   *     ]
+   * @roles DATASET_READ
+   */
+  'pool.dataset.attachments': {
+    params: [id: string];
+    response: PoolAttachment[];
+  };
+
+  /**
+   * Retrieve checksums supported for ZFS dataset.
+   * @roles DATASET_READ, READONLY_ADMIN
+   */
+  'pool.dataset.checksum_choices': {
+    params: [];
+    response: PoolDatasetChecksumChoicesResult;
+  };
+
+  /**
+   * Retrieve compression algorithm supported by ZFS.
+   * @roles DATASET_READ, READONLY_ADMIN
+   */
+  'pool.dataset.compression_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
    * Creates a dataset/zvol.
    *
    * Create a dataset within tank pool::
@@ -1337,6 +3585,44 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Delete dataset/zvol ``id``.
+   *
+   * Delete "tank/myuser" dataset::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.dataset.delete",
+   *         "params": ["tank/myuser"]
+   *     }
+   * @roles DATASET_DELETE
+   */
+  'pool.dataset.delete': {
+    params: [id: string, options?: PoolDatasetDeleteOptions];
+    response: Result3;
+  };
+
+  /**
+   * Retrieve encryption algorithms supported for ZFS dataset encryption.
+   * @roles DATASET_READ, READONLY_ADMIN
+   */
+  'pool.dataset.encryption_algorithm_choices': {
+    params: [];
+    response: PoolDatasetEncryptionAlgorithmChoicesResult;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles DATASET_READ
+   */
+  'pool.dataset.get_instance': {
+    params: [id: string, options?: QueryOptions<PoolDatasetEntry>];
+    response: PoolDatasetEntry;
+  };
+
+  /**
    * Return a list of the specified ``quota_type`` of quotas on the ZFS dataset ``ds``. Supports ``query-filters`` and ``query-options``.
    *
    * .. note::
@@ -1347,6 +3633,200 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'pool.dataset.get_quota': {
     params: [dataset: string, quota_type: 'USER' | 'GROUP' | 'DATASET' | 'PROJECT', filters?: QueryFilters<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>, options?: QueryOptions<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>];
     response: (PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota)[] | PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota | number;
+  };
+
+  /**
+   * Allows inheriting parent's encryption root discarding its current encryption settings. This can only be done where ``id`` has an encrypted parent and ``id`` itself is an encryption root.
+   * @roles DATASET_WRITE
+   */
+  'pool.dataset.inherit_parent_encryption_properties': {
+    params: [id: string];
+    response: null;
+  };
+
+  /**
+   * Return a list of processes using this dataset.
+   *
+   * Example return value::
+   *
+   *     [
+   *       {
+   *         "pid": 2520,
+   *         "name": "smbd",
+   *         "service": "cifs"
+   *       },
+   *       {
+   *         "pid": 97778,
+   *         "name": "minio",
+   *         "cmdline": "/usr/local/bin/minio -C /usr/local/etc/minio server --address=0.0.0.0:9000 /mnt/tank/wk"
+   *       }
+   *     ]
+   * @roles DATASET_READ
+   */
+  'pool.dataset.processes': {
+    params: [id: string];
+    response: PoolProcess[];
+  };
+
+  /**
+   * Promote a cloned dataset.
+   * @roles DATASET_WRITE
+   */
+  'pool.dataset.promote': {
+    params: [id: string];
+    response: null;
+  };
+
+  /**
+   * Query pool datasets with ``query-filters`` and ``query-options``.
+   *
+   * Results can be returned as a flat structure or as a hierarchy of top-level datasets with their children nested, controlled by the ``query-options.extra.flat`` option.
+   *
+   * The following ``query-options.extra`` options are supported:
+   *
+   * ``flat`` *(bool)*:
+   *     Return all datasets as a flat list (``true``, the default) or only top-level datasets with their
+   *     children nested under a ``children`` key (``false``).
+   *
+   * ``retrieve_children`` *(bool)*:
+   *     Set to ``false`` to exclude child datasets from the results.
+   *
+   * ``properties`` *(list)*:
+   *     List of ZFS properties to retrieve. ``null`` (the default) retrieves all properties; an empty list
+   *     retrieves none, though user properties are still returned unless disabled.
+   *
+   * ``retrieve_user_props`` *(bool)*:
+   *     Set to ``false`` to exclude ZFS user properties.
+   *
+   * ``snapshots`` *(bool)*:
+   *     Include each dataset's snapshots in the results.
+   *
+   * ``snapshots_recursive`` *(bool)*:
+   *     Include each dataset's snapshots recursively.
+   *
+   * ``snapshots_properties`` *(list)*:
+   *     List of snapshot properties to retrieve.
+   * @roles DATASET_READ
+   */
+  'pool.dataset.query': {
+    params: [filters?: QueryFilters<PoolDatasetEntry>, options?: QueryOptions<PoolDatasetEntry>];
+    response: PoolDatasetEntry[] | PoolDatasetEntry | PoolDatasetQueryResultItem[] | PoolDatasetQueryResultItem | number;
+  };
+
+  /**
+   * Helper method to get recommended size for a new zvol (dataset of type VOLUME).
+   *
+   * Get blocksize for pool "tank"::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.dataset.recommended_zvol_blocksize",
+   *         "params": ["tank"]
+   *     }
+   * @roles DATASET_READ
+   */
+  'pool.dataset.recommended_zvol_blocksize': {
+    params: [pool: string];
+    response: string;
+  };
+
+  /**
+   * Retrieve recordsize choices for datasets.
+   * @roles DATASET_READ, READONLY_ADMIN
+   */
+  'pool.dataset.recordsize_choices': {
+    params: [pool_name?: string | null];
+    response: string[];
+  };
+
+  /**
+   * Rename a ZFS resource (filesystem, snapshot, or zvolume) identified by ``id``.
+   *
+   * .. warning::
+   *
+   *     No safety checks are performed when renaming ZFS resources. If the resource is in use by services
+   *     such as SMB, iSCSI, snapshot tasks, replication, or cloud sync, renaming may cause disruptions or
+   *     service failures. Proceed only if you are certain the resource is not in use and fully understand
+   *     the risks; set ``force`` to continue.
+   *
+   * The ``recursive`` option is only valid for renaming snapshots. If ``true``, and a snapshot is given, the snapshot is renamed recursively for all children -- for example, ``dozer/a@now`` and ``dozer/a/b@now`` are renamed to ``dozer/a@new`` and ``dozer/a/b@new``. Renaming snapshots is likewise not recommended.
+   * @roles DATASET_WRITE
+   */
+  'pool.dataset.rename': {
+    params: [id: string, data: PoolDatasetRenameOptions];
+    response: null;
+  };
+
+  /**
+   * Allow users to set multiple quotas simultaneously by submitting a list of quotas.
+   * @roles DATASET_WRITE
+   */
+  'pool.dataset.set_quota': {
+    params: [dataset: string, quotas?: PoolDatasetSetQuota[]];
+    response: null;
+  };
+
+  /**
+   * Updates a dataset/zvol ``id``.
+   *
+   * Update the ``comments`` for "tank/myuser"::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.dataset.update",
+   *         "params": ["tank/myuser", {
+   *             "comments": "Dataset for myuser, UPDATE #1"
+   *         }]
+   *     }
+   * @roles DATASET_WRITE
+   */
+  'pool.dataset.update': {
+    params: [id: string, data: PoolDatasetUpdate];
+    response: PoolDatasetEntry;
+  };
+
+  /**
+   * Detach a disk from pool of id ``id``.
+   *
+   * Example::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.detach",
+   *         "params": [1, {
+   *             "label": "80802394992848654"
+   *         }]
+   *     }
+   * @roles POOL_WRITE
+   */
+  'pool.detach': {
+    params: [id: number, options: PoolDetachOptions];
+    response: true;
+  };
+
+  /**
+   * Returns all available zfs resources based on ``types``.
+   * @roles DATASET_READ, POOL_READ, READONLY_ADMIN
+   */
+  'pool.filesystem_choices': {
+    params: [types?: ('FILESYSTEM' | 'VOLUME')[]];
+    response: string[];
+  };
+
+  /**
+   * Return the device names of all disks belonging to a pool.
+   *
+   * Queries the database for the pool matching the given ``id`` and resolves each vdev, cache, log, special, dedup, and spare device to its whole-disk device name (e.g. sda, nvme0n1). If ``id`` is not provided, disks for all imported pools in the database are returned. Pools that are not currently imported are skipped.
+   *
+   * Raises a ``ValidationError`` if ``id`` is provided but does not match any pool in the database.
+   * @roles POOL_READ
+   */
+  'pool.get_disks': {
+    params: [id?: number | null];
+    response: string[];
   };
 
   /**
@@ -1361,11 +3841,124 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Returns whether the pool of ``id`` is on the latest version and with all feature flags enabled.
+   *
+   * Queries the database for the pool matching the given ``id``, then checks each ZFS feature flag on the pool. Returns ``true`` only when every feature flag is in the ENABLED or ACTIVE state.
+   *
+   * Raises a ``ValidationError`` if ``id`` does not match any pool in the database.
+   * @roles POOL_READ
+   * @deprecated Removed in API version v26.
+   */
+  'pool.is_upgraded': {
+    params: [id: number];
+    response: boolean;
+  };
+
+  /**
+   * Offline a disk from pool of id ``id``.
+   *
+   * Example::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.offline",
+   *         "params": [1, {
+   *             "label": "80802394992848654"
+   *         }]
+   *     }
+   * @roles POOL_WRITE
+   */
+  'pool.offline': {
+    params: [id: number, options: PoolLabel];
+    response: true;
+  };
+
+  /**
+   * Online a disk from pool of id ``id``.
+   *
+   * Example::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.online",
+   *         "params": [1, {
+   *             "label": "80802394992848654"
+   *         }]
+   *     }
+   * @roles POOL_WRITE
+   */
+  'pool.online': {
+    params: [id: number, options: PoolLabel];
+    response: true;
+  };
+
+  /**
+   * Returns a list of running processes using this pool.
+   * @roles POOL_READ
+   */
+  'pool.processes': {
+    params: [id: number];
+    response: PoolProcess[];
+  };
+
+  /**
    * @roles POOL_READ
    */
   'pool.query': {
     params: [filters?: QueryFilters<PoolEntry>, options?: QueryOptions<PoolEntry>];
     response: PoolEntry[] | PoolEntry | PoolQueryResultItem[] | PoolQueryResultItem | number;
+  };
+
+  /**
+   * Create a scrub task for a pool.
+   *
+   * Create a scrub task for pool of id 1, to run every Sunday at 3AM with a threshold of 35 days::
+   *
+   *     {
+   *         "jsonrpc": "2.0",
+   *         "id": 1,
+   *         "method": "pool.scrub.create",
+   *         "params": [{
+   *             "pool": 1,
+   *             "threshold": 35,
+   *             "description": "Monthly scrub for tank",
+   *             "schedule": "0 3 * * 7",
+   *             "enabled": true
+   *         }]
+   *     }
+   * @roles POOL_SCRUB_WRITE
+   */
+  'pool.scrub.create': {
+    params: [data: PoolScrubCreate];
+    response: PoolScrubEntry;
+  };
+
+  /**
+   * @roles POOL_SCRUB_READ
+   */
+  'pool.scrub.query': {
+    params: [filters?: QueryFilters<PoolScrubEntry>, options?: QueryOptions<PoolScrubEntry>];
+    response: PoolScrubEntry[] | PoolScrubEntry | PoolScrubQueryResultItem[] | PoolScrubQueryResultItem | number;
+  };
+
+  /**
+   * Update scrub task of ``id``.
+   * @roles POOL_SCRUB_WRITE
+   */
+  'pool.scrub.update': {
+    params: [id_: number, data: PoolScrubUpdate];
+    response: PoolScrubEntry;
+  };
+
+  /**
+   * Clone a given snapshot to a new dataset.
+   * @roles DATASET_WRITE, SNAPSHOT_WRITE
+   */
+  'pool.snapshot.clone': {
+    params: [data: PoolSnapshotCloneArgs];
+    response: true;
   };
 
   /**
@@ -1378,6 +3971,76 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Delete the snapshot identified by ``id``.
+   *
+   * Set ``recursive`` to also delete identically named snapshots of child datasets. Set ``defer`` to request a deferred (asynchronous) destroy, which lets the snapshot be removed even while it still has holds or clones.
+   * @roles SNAPSHOT_DELETE
+   */
+  'pool.snapshot.delete': {
+    params: [id: string, options?: PoolSnapshotDeleteOptions];
+    response: true;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SNAPSHOT_READ
+   */
+  'pool.snapshot.get_instance': {
+    params: [id: string, options?: QueryOptions<PoolSnapshotEntry>];
+    response: PoolSnapshotEntry;
+  };
+
+  /**
+   * Hold snapshot ``id``.
+   *
+   * Add ``truenas`` tag to the snapshot's tag namespace.
+   * @roles SNAPSHOT_WRITE
+   */
+  'pool.snapshot.hold': {
+    params: [id: string, options?: PoolSnapshotHoldOptions];
+    response: null;
+  };
+
+  /**
+   * Query all ZFS snapshots with the standard ``query-filters`` and ``query-options``.
+   *
+   * The following ``query-options.extra`` options are supported:
+   *
+   * ``holds`` *(bool)*:
+   *     Include hold tags for snapshots in the query result (``false`` by default).
+   *
+   * ``min_txg`` *(int)*:
+   *     Limit snapshot retrieval based on minimum transaction group.
+   *
+   * ``max_txg`` *(int)*:
+   *     Limit snapshot retrieval based on maximum transaction group.
+   *
+   * ``retention`` *(bool)*:
+   *     Include retention information in the query result (``false`` by default).
+   *
+   * ``properties`` *(list)*:
+   *     List of ZFS property names to retrieve.
+   * @roles SNAPSHOT_READ
+   */
+  'pool.snapshot.query': {
+    params: [filters?: QueryFilters<PoolSnapshotEntry>, options?: QueryOptions<PoolSnapshotEntry>];
+    response: PoolSnapshotEntry[] | PoolSnapshotEntry | PoolSnapshotQueryResultItem[] | PoolSnapshotQueryResultItem | number;
+  };
+
+  /**
+   * Release hold on snapshot ``id``.
+   *
+   * Remove all hold tags from the specified snapshot.
+   * @roles SNAPSHOT_WRITE
+   */
+  'pool.snapshot.release': {
+    params: [id: string, options?: PoolSnapshotReleaseOptions];
+    response: null;
+  };
+
+  /**
    * Rename a snapshot ``id`` to ``new_name``.
    *
    * No safety checks are performed when renaming ZFS resources. If the dataset is in use by services such as SMB, iSCSI, snapshot tasks, replication, or cloud sync, renaming may cause disruptions or service failures.
@@ -1387,6 +4050,22 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
    */
   'pool.snapshot.rename': {
     params: [id: string, options: PoolSnapshotRenameOptions];
+    response: null;
+  };
+
+  /**
+   * Roll the dataset of snapshot ``id`` back to the state captured by that snapshot.
+   *
+   * .. warning::
+   *
+   *     This operation is destructive. Any data written to the dataset after the snapshot was taken is
+   *     permanently lost. Snapshots and bookmarks more recent than ``id`` must also be destroyed for the
+   *     rollback to proceed; use the ``recursive``, ``recursive_clones``, or ``recursive_rollback`` options to
+   *     control how newer snapshots and their clones are handled.
+   * @roles POOL_WRITE, SNAPSHOT_WRITE
+   */
+  'pool.snapshot.rollback': {
+    params: [id: string, options?: PoolSnapshotRollbackOptions];
     response: null;
   };
 
@@ -1439,12 +4118,125 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Returns a list of snapshots which will change the retention if periodic snapshot task ``id`` is updated with ``data``.
+   * @roles SNAPSHOT_TASK_READ
+   */
+  'pool.snapshottask.update_will_change_retention_for': {
+    params: [id: number, data: PoolSnapshotTaskUpdateWillChangeRetentionFor];
+    response: Record<string, string[]>;
+  };
+
+  /**
+   * Upgrade pool of ``id`` to latest version with all feature flags.
+   *
+   * Queries the database for the pool matching the given ``id``, then enables all supported ZFS feature flags on the pool. This is a one-way operation and cannot be reversed. Once upgraded, the pool will not be importable on systems running older ZFS versions that do not support the newly enabled features.
+   *
+   * Raises a ``ValidationError`` if no pool matches the given ``id`` or if the pool is not currently imported.
+   * @roles POOL_WRITE
+   */
+  'pool.upgrade': {
+    params: [id: number];
+    response: true;
+  };
+
+  /**
+   * Validates ``pool_name`` is a valid name for a pool.
+   * @roles POOL_READ
+   */
+  'pool.validate_name': {
+    params: [pool_name: string];
+    response: true;
+  };
+
+  /**
    * Reduce the privileges of the current user credentials to ``READONLY_ADMINS``. This action prevents the session from making configuration changes. It also redacts sensitive data in API output.
    * @roles READONLY_ADMIN
    */
   'privilege.become_readonly': {
     params: [];
     response: null;
+  };
+
+  /**
+   * Create a privilege.
+   * @roles PRIVILEGE_WRITE
+   */
+  'privilege.create': {
+    params: [privilege_create: PrivilegeCreate];
+    response: PrivilegeEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles PRIVILEGE_READ
+   */
+  'privilege.get_instance': {
+    params: [id: number, options?: QueryOptions<PrivilegeEntry>];
+    response: PrivilegeEntry;
+  };
+
+  /**
+   * @roles PRIVILEGE_READ
+   */
+  'privilege.query': {
+    params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptions<PrivilegeEntry>];
+    response: PrivilegeEntry[] | PrivilegeEntry | PrivilegeQueryResultItem[] | PrivilegeQueryResultItem | number;
+  };
+
+  /**
+   * Get all available roles.
+   */
+  'privilege.roles': {
+    params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: QueryOptions<PrivilegeRolesEntry>];
+    response: PrivilegeRolesEntry[] | PrivilegeRolesEntry | PrivilegeRolesQueryResultItem[] | PrivilegeRolesQueryResultItem | number;
+  };
+
+  /**
+   * Update the privilege ``id``.
+   * @roles PRIVILEGE_WRITE
+   */
+  'privilege.update': {
+    params: [id: number, privilege_update: PrivilegeUpdate];
+    response: PrivilegeEntry;
+  };
+
+  /**
+   * Return the list of RDMA-capable protocols supported by this system.
+   *
+   * Possible values are ``NFS``, ``ISER``, and ``NVMET``. An empty array is returned when the system is not enterprise, is a MINI, or has no RDMA-capable network cards installed.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'rdma.capable_protocols': {
+    params: [];
+    response: ('ISER' | 'NFS' | 'NVMET')[];
+  };
+
+  /**
+   * @roles REPLICATION_TASK_CONFIG_READ
+   */
+  'replication.config.config': {
+    params: [];
+    response: ReplicationConfigEntry;
+  };
+
+  /**
+   * Update the global replication configuration shared by all replication tasks.
+   * @roles REPLICATION_TASK_CONFIG_WRITE
+   */
+  'replication.config.update': {
+    params: [replication_config_update?: ReplicationConfigUpdateArgs];
+    response: ReplicationConfigEntry;
+  };
+
+  /**
+   * Count how many existing snapshots of ``dataset`` match ``naming_schema``.
+   * @roles REPLICATION_TASK_WRITE
+   */
+  'replication.count_eligible_manual_snapshots': {
+    params: [count_eligible_manual_snapshots: ReplicationCountEligibleManualSnapshotsArgs];
+    response: ReplicationCountEligibleManualSnapshotsResult;
   };
 
   /**
@@ -1457,6 +4249,24 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Creates dataset on remote side.
+   * @roles REPLICATION_TASK_WRITE
+   */
+  'replication.create_dataset': {
+    params: [dataset: string, transport: TransportInput, ssh_credentials?: number | null];
+    response: null;
+  };
+
+  /**
+   * Delete a replication task with the given ``id``.
+   * @roles REPLICATION_TASK_WRITE
+   */
+  'replication.delete': {
+    params: [id: number];
+    response: boolean;
+  };
+
+  /**
    * Returns instance matching `id`. If `id` is not found, Validation error is raised.
    *
    * Please see `query` method documentation for `options`.
@@ -1465,6 +4275,24 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'replication.get_instance': {
     params: [id: number, options?: QueryOptions<ReplicationEntry>];
     response: ReplicationEntry;
+  };
+
+  /**
+   * List datasets on remote side.
+   * @roles REPLICATION_TASK_WRITE
+   */
+  'replication.list_datasets': {
+    params: [transport: TransportInput, ssh_credentials?: number | null];
+    response: string[];
+  };
+
+  /**
+   * List all naming schemas used in periodic snapshot and replication tasks.
+   * @roles REPLICATION_TASK_WRITE
+   */
+  'replication.list_naming_schemas': {
+    params: [];
+    response: string[];
   };
 
   /**
@@ -1508,6 +4336,32 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
    */
   'reporting.exporters.create': {
     params: [reporting_exporter_create: ReportingExportsCreateArgs];
+    response: ReportingExportsEntry;
+  };
+
+  /**
+   * Get the schemas for all the reporting export types we support with their respective attributes required for successfully exporting reporting metrics to them.
+   * @roles REPORTING_READ
+   */
+  'reporting.exporters.exporter_schemas': {
+    params: [];
+    response: ReportingExporterSchema[];
+  };
+
+  /**
+   * @roles REPORTING_READ
+   */
+  'reporting.exporters.query': {
+    params: [filters?: QueryFilters<ReportingExportsEntry>, options?: QueryOptions<ReportingExportsEntry>];
+    response: ReportingExportsEntry[] | ReportingExportsEntry | ReportingExportsQueryResultItem[] | ReportingExportsQueryResultItem | number;
+  };
+
+  /**
+   * Update Reporting Exporter of ``id``.
+   * @roles REPORTING_WRITE
+   */
+  'reporting.exporters.update': {
+    params: [id: number, reporting_exporter_update: ReportingExporterUpdate];
     response: ReportingExportsEntry;
   };
 
@@ -1563,12 +4417,41 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Get the IPv4 gateway and verify if it is reachable by any interface.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'route.ipv4gw_reachable': {
+    params: [ipv4_gateway: string];
+    response: boolean;
+  };
+
+  /**
+   * Query IPv4 and IPv6 routes from the kernel's main routing table.
+   *
+   * Returns routes currently installed in the system, including static routes, DHCP-learned routes, and directly connected networks. The default route (0.0.0.0/0 or ::/0) will have both network and netmask set to all zeros.
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'route.system_routes': {
+    params: [filters?: QueryFilters<RouteSystemRoutesItem>, options?: QueryOptions<RouteSystemRoutesItem>];
+    response: RouteSystemRoutesItem[] | RouteSystemRoutesItem | RouteSystemRoutesItemQueryResultItem[] | RouteSystemRoutesItemQueryResultItem | number;
+  };
+
+  /**
    * Create a Rsync Task.
    * @roles SNAPSHOT_TASK_WRITE
    */
   'rsynctask.create': {
     params: [rsync_task_create: RsyncTaskCreate];
     response: RsyncTaskEntry;
+  };
+
+  /**
+   * Delete Rsync Task of ``id``.
+   * @roles SNAPSHOT_TASK_WRITE
+   */
+  'rsynctask.delete': {
+    params: [id: number];
+    response: boolean;
   };
 
   /**
@@ -1597,6 +4480,59 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'rsynctask.update': {
     params: [id: number, rsync_task_update: RsyncTaskUpdate];
     response: RsyncTaskEntry;
+  };
+
+  /**
+   * Returns instance matching `id`. If `id` is not found, Validation error is raised.
+   *
+   * Please see `query` method documentation for `options`.
+   * @roles SERVICE_READ
+   */
+  'service.get_instance': {
+    params: [id: number, options?: QueryOptions<ServiceEntry>];
+    response: ServiceEntry;
+  };
+
+  /**
+   * Query all system services with ``query-filters`` and ``query-options``.
+   *
+   * The following ``query-options.extra`` options are supported:
+   *
+   * ``include_state`` *(bool)*:
+   *     Include the running state of each service (``true`` by default). Set to ``false`` as a performance
+   *     optimization when service state is not needed.
+   * @roles SERVICE_READ
+   */
+  'service.query': {
+    params: [filters?: QueryFilters<ServiceEntry>, options?: QueryOptions<ServiceEntry>];
+    response: ServiceEntry[] | ServiceEntry | ServiceQueryResultItem[] | ServiceQueryResultItem | number;
+  };
+
+  /**
+   * Test if service specified by ``service`` has been started.
+   * @roles SERVICE_READ
+   */
+  'service.started': {
+    params: [service: string];
+    response: boolean;
+  };
+
+  /**
+   * Test if service specified by ``service`` is started or enabled to start automatically.
+   * @roles SERVICE_READ
+   */
+  'service.started_or_enabled': {
+    params: [service: string];
+    response: boolean;
+  };
+
+  /**
+   * Update service entry of ``id_or_name``.
+   * @roles SERVICE_WRITE, SHARING_FTP_WRITE, SHARING_ISCSI_WRITE, SHARING_NFS_WRITE, SHARING_NVME_TARGET_WRITE, SHARING_SMB_WRITE
+   */
+  'service.update': {
+    params: [id_or_name: number | string, service_update: ServiceUpdate];
+    response: number;
   };
 
   /**
@@ -1654,6 +4590,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Delete SMB Share of ``id``. This will forcibly disconnect SMB clients that are accessing the share.
+   * @roles SHARING_SMB_WRITE
+   */
+  'sharing.smb.delete': {
+    params: [id: number];
+    response: true;
+  };
+
+  /**
    * Returns instance matching `id`. If `id` is not found, Validation error is raised.
    *
    * Please see `query` method documentation for `options`.
@@ -1692,6 +4637,19 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'sharing.smb.setacl': {
     params: [smb_setacl: SharingSMBSetaclArgs];
     response: SMBShareAcl;
+  };
+
+  /**
+   * Validate prerequisites for creating an SMB share before calling :doc:`sharing.smb.create <api_methods_sharing.smb.create>`.
+   *
+   * This is used by the UI to determine whether it should prompt to create SMB users when auto-creating a share. It verifies that the server is joined to a directory service or has at least one local SMB user, and, when ``name`` is supplied, that the share name is valid and not already in use.
+   *
+   * Returns ``null`` on success. If any check fails, a JSON-RPC ``error`` response (code ``-32602``, *Invalid params*) is returned describing the problem.
+   * @roles READONLY_ADMIN
+   */
+  'sharing.smb.share_precheck': {
+    params: [smb_share_precheck?: SharingSMBSharePrecheckArgs];
+    response: null;
   };
 
   /**
@@ -1823,12 +4781,201 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Available choices for the bindiface attribute of SSH service.
+   * @roles NETWORK_INTERFACE_READ, READONLY_ADMIN, SSH_READ
+   */
+  'ssh.bindiface_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * @roles SSH_READ
+   */
+  'ssh.config': {
+    params: [];
+    response: SSHEntry;
+  };
+
+  /**
+   * Update settings of SSH daemon service.
+   *
+   * If ``bindiface`` is empty it will listen for all available addresses.
+   * @roles SSH_WRITE
+   */
+  'ssh.update': {
+    params: [data: SSHUpdate];
+    response: SSHEntry;
+  };
+
+  /**
+   * Create a Static Route.
+   *
+   * Address families of ``gateway`` and ``destination`` should match when creating a static route.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'staticroute.create': {
+    params: [data: StaticRouteCreate];
+    response: StaticRouteEntry;
+  };
+
+  /**
+   * @roles NETWORK_INTERFACE_READ
+   */
+  'staticroute.query': {
+    params: [filters?: QueryFilters<StaticRouteEntry>, options?: QueryOptions<StaticRouteEntry>];
+    response: StaticRouteEntry[] | StaticRouteEntry | StaticRouteQueryResultItem[] | StaticRouteQueryResultItem | number;
+  };
+
+  /**
+   * Update Static Route of ``id``.
+   * @roles NETWORK_INTERFACE_WRITE
+   */
+  'staticroute.update': {
+    params: [id: number, data: StaticRouteUpdate];
+    response: StaticRouteEntry;
+  };
+
+  /**
+   * Returns maximum uploaded file size for :doc:`support.attach_ticket <api_methods_support.attach_ticket>`.
+   * @roles SUPPORT_READ
+   */
+  'support.attach_ticket_max_size': {
+    params: [];
+    response: number;
+  };
+
+  /**
+   * @roles SUPPORT_READ
+   */
+  'support.config': {
+    params: [];
+    response: SupportEntry;
+  };
+
+  /**
+   * Returns list of pairs of field names and field titles for Proactive Support.
+   * @roles SUPPORT_READ
+   */
+  'support.fields': {
+    params: [];
+    response: string[][];
+  };
+
+  /**
+   * Returns whether Proactive Support is available for this product type and current license.
+   * @roles SUPPORT_READ
+   */
+  'support.is_available': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
+   * Returns whether Proactive Support is available and enabled.
+   * @roles SUPPORT_READ
+   */
+  'support.is_available_and_enabled': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
+   * Returns a list of similar issues for the given ``query`` from the support knowledge base.
+   * @roles SUPPORT_READ
+   */
+  'support.similar_issues': {
+    params: [query: string];
+    response: SupportSimilarIssue[];
+  };
+
+  /**
+   * Update Proactive Support settings.
+   * @roles SUPPORT_WRITE
+   */
+  'support.update': {
+    params: [data: SupportUpdate];
+    response: SupportEntry;
+  };
+
+  /**
+   * @roles SYSTEM_ADVANCED_READ
+   */
+  'system.advanced.config': {
+    params: [];
+    response: SystemAdvancedEntry;
+  };
+
+  /**
+   * This endpoint gives all the gpu pci ids/slots that can be isolated.
+   * @roles READONLY_ADMIN, SYSTEM_ADVANCED_READ
+   */
+  'system.advanced.get_gpu_pci_choices': {
+    params: [];
+    response: Record<string, unknown>;
+  };
+
+  /**
+   * Returns user set login banner.
+   */
+  'system.advanced.login_banner': {
+    params: [];
+    response: string;
+  };
+
+  /**
    * Returns whether a non-isolated NVIDIA GPU is present in the system.
    * @roles SYSTEM_ADVANCED_READ
    */
   'system.advanced.nvidia_present': {
     params: [];
     response: boolean;
+  };
+
+  /**
+   * Returns configured global SED password in clear-text if one is configured, otherwise an empty string.
+   * @roles SYSTEM_ADVANCED_READ
+   */
+  'system.advanced.sed_global_password': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * Returns a boolean identifying whether or not a global SED password has been set.
+   * @roles SYSTEM_ADVANCED_READ
+   */
+  'system.advanced.sed_global_password_is_set': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
+   * Get available choices for ``serialport``.
+   * @roles READONLY_ADMIN, SYSTEM_ADVANCED_READ
+   */
+  'system.advanced.serial_port_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Return choices of certificate authorities which can be used for ``syslog_tls_certificate_authority``.
+   * @roles READONLY_ADMIN, SYSTEM_ADVANCED_READ
+   * @deprecated Removed in API version v27.
+   */
+  'system.advanced.syslog_certificate_authority_choices': {
+    params: [];
+    response: EmptyDict;
+  };
+
+  /**
+   * Return choices of certificates which can be used for ``syslogservers.N.tls_certificate``.
+   * @roles READONLY_ADMIN, SYSTEM_ADVANCED_READ
+   */
+  'system.advanced.syslog_certificate_choices': {
+    params: [];
+    response: Record<string, string>;
   };
 
   /**
@@ -1841,6 +4988,25 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Update the list of GPU PCI IDs isolated from the host system.
+   * @roles SYSTEM_ADVANCED_WRITE
+   */
+  'system.advanced.update_gpu_pci_ids': {
+    params: [data: string[]];
+    response: null;
+  };
+
+  /**
+   * Returns a unique boot identifier.
+   *
+   * It is supposed to be unique every system boot.
+   */
+  'system.boot_id': {
+    params: [];
+    response: string;
+  };
+
+  /**
    * Returns whether the ``feature`` is enabled.
    * @roles SYSTEM_PRODUCT_READ
    */
@@ -1850,11 +5016,105 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * After UI settings are saved with ``rollback_timeout`` this method needs to be called within that timeout limit to prevent reverting the changes.
+   *
+   * This is to ensure user verifies the changes went as planned and its working.
+   * @roles SYSTEM_GENERAL_WRITE
+   */
+  'system.general.checkin': {
+    params: [];
+    response: null;
+  };
+
+  /**
+   * Determines whether we are waiting user to check in the applied UI settings changes before they are rolled back. Returns a number of seconds before the automatic rollback or null if there are no changes pending.
+   * @roles SYSTEM_GENERAL_WRITE
+   */
+  'system.general.checkin_waiting': {
+    params: [];
+    response: number | null;
+  };
+
+  /**
    * @roles SYSTEM_GENERAL_READ
    */
   'system.general.config': {
     params: [];
     response: SystemGeneralEntry;
+  };
+
+  /**
+   * Returns keyboard map choices.
+   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
+   */
+  'system.general.kbdmap_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Returns configured local url in the format of protocol://host:port.
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'system.general.local_url': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * Returns available timezones.
+   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
+   */
+  'system.general.timezone_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Returns network interfaces that have statically configured IPv4 address(es). These addresses can be used to bind the UI server.
+   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
+   */
+  'system.general.ui_address_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Return available certificates that may be used to bind the webserver to when connecting via HTTPS protocol.
+   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
+   */
+  'system.general.ui_certificate_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Returns available HTTPS protocols.
+   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
+   */
+  'system.general.ui_httpsprotocols_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Restart HTTP server to use latest UI settings.
+   *
+   * HTTP server will be restarted after ``delay`` seconds.
+   * @roles SYSTEM_GENERAL_WRITE
+   */
+  'system.general.ui_restart': {
+    params: [delay?: number];
+    response: null;
+  };
+
+  /**
+   * Returns network interfaces that have statically configured IPv6 address(es). These addresses can be used to bind the UI server.
+   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
+   */
+  'system.general.ui_v6address_choices': {
+    params: [];
+    response: Record<string, string>;
   };
 
   /**
@@ -1868,6 +5128,129 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'system.general.update': {
     params: [general_settings?: SystemGeneralUpdateArgs];
     response: SystemGeneralEntry;
+  };
+
+  /**
+   * Retrieve a 128 bit hexadecimal UUID value unique for each TrueNAS system.
+   * @roles READONLY_ADMIN
+   */
+  'system.global.id': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * Retrieve a hex string that is generated based on the contents of the ``/etc/hostid`` file. This is a permanent value that persists across reboots/upgrades and can be used as a unique identifier for the machine.
+   * @roles READONLY_ADMIN
+   */
+  'system.host_id': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * Returns basic system information.
+   * @roles READONLY_ADMIN
+   */
+  'system.info': {
+    params: [];
+    response: SystemInfoResult;
+  };
+
+  /**
+   * Update license file.
+   * @roles SYSTEM_PRODUCT_WRITE
+   */
+  'system.license_update': {
+    params: [license: string];
+    response: null;
+  };
+
+  /**
+   * @roles NETWORK_GENERAL_READ
+   */
+  'system.ntpserver.query': {
+    params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptions<NTPServerEntry>];
+    response: NTPServerEntry[] | NTPServerEntry | NTPServerQueryResultItem[] | NTPServerQueryResultItem | number;
+  };
+
+  /**
+   * Returns the type of the product.
+   * @roles SYSTEM_PRODUCT_READ
+   */
+  'system.product_type': {
+    params: [];
+    response: Result2;
+  };
+
+  /**
+   * Returns whether the system completed boot and is ready to use.
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'system.ready': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
+   * Returns the release notes URL for a version of SCALE.
+   *
+   * If a version is not provided, the URL for the currently installed version is returned.
+   * @roles SYSTEM_PRODUCT_READ
+   */
+  'system.release_notes_url': {
+    params: [version_str?: string | null];
+    response: string;
+  };
+
+  /**
+   * @roles SYSTEM_SECURITY_READ
+   */
+  'system.security.config': {
+    params: [];
+    response: SystemSecurityEntry;
+  };
+
+  /**
+   * Returns the current system state.
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'system.state': {
+    params: [];
+    response: Result;
+  };
+
+  /**
+   * Returns the full name of the software version of the system.
+   */
+  'system.version': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * Returns the short name of the software version of the system.
+   */
+  'system.version_short': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * @roles DATASET_READ
+   */
+  'systemdataset.config': {
+    params: [];
+    response: SystemDatasetEntry;
+  };
+
+  /**
+   * Retrieve pool choices which can be used for configuring system dataset.
+   * @roles DATASET_READ, POOL_READ, READONLY_ADMIN
+   */
+  'systemdataset.pool_choices': {
+    params: [include_current_pool?: boolean];
+    response: Record<string, string>;
   };
 
   /**
@@ -1962,6 +5345,85 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Retrieve the supported tunable types that can be changed.
+   * @roles READONLY_ADMIN, SYSTEM_TUNABLE_READ
+   */
+  'tunable.tunable_type_choices': {
+    params: [];
+    response: TunableTunableTypeChoices;
+  };
+
+  /**
+   * TrueNAS versions available for update.
+   * @roles SYSTEM_UPDATE_READ
+   */
+  'update.available_versions': {
+    params: [];
+    response: UpdateAvailableVersion[];
+  };
+
+  /**
+   * @roles SYSTEM_UPDATE_READ
+   */
+  'update.config': {
+    params: [];
+    response: UpdateEntry;
+  };
+
+  /**
+   * ``profile`` choices for configuration update.
+   * @roles READONLY_ADMIN, SYSTEM_UPDATE_READ
+   */
+  'update.profile_choices': {
+    params: [];
+    response: Record<string, UpdateProfileChoice>;
+  };
+
+  /**
+   * Update status.
+   * @roles SYSTEM_UPDATE_READ
+   */
+  'update.status': {
+    params: [];
+    response: UpdateStatus;
+  };
+
+  /**
+   * Update update configuration.
+   * @roles SYSTEM_UPDATE_WRITE
+   */
+  'update.update': {
+    params: [data: UpdateUpdate];
+    response: UpdateEntry;
+  };
+
+  /**
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'ups.config': {
+    params: [];
+    response: UPSEntry;
+  };
+
+  /**
+   * Returns choices of UPS drivers supported by the system.
+   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
+   */
+  'ups.driver_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Returns available UPS device ports for the system (serial ports, USB HID devices, and "auto").
+   * @roles READONLY_ADMIN, SYSTEM_GENERAL_READ
+   */
+  'ups.port_choices': {
+    params: [];
+    response: string[];
+  };
+
+  /**
    * Update UPS Service Configuration.
    * @roles SYSTEM_GENERAL_WRITE
    */
@@ -1988,6 +5450,19 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'user.get_instance': {
     params: [id: number, options?: QueryOptions<UserEntry>];
     response: UserEntry;
+  };
+
+  /**
+   * Returns dictionary containing information from struct passwd for the user specified by either the ``username`` or ``uid``. Bypasses user cache.
+   *
+   * .. note::
+   *
+   *     Results will not include nested groups for Active Directory users.
+   * @roles ACCOUNT_READ
+   */
+  'user.get_user_obj': {
+    params: [get_user_obj?: UserGetUserObjArgs];
+    response: UserGetUserObj;
   };
 
   /**
@@ -2042,6 +5517,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Clone the VM ``id``.
+   * @roles VM_WRITE
+   */
+  'vm.clone': {
+    params: [id: number, name?: string | null];
+    response: boolean;
+  };
+
+  /**
    * Retrieve CPU Model choices which can be used with a VM guest to emulate the CPU in the guest.
    * @roles READONLY_ADMIN, VM_READ
    */
@@ -2093,6 +5577,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Delete a VM device of ``id``.
+   * @roles VM_DEVICE_WRITE
+   */
+  'vm.device.delete': {
+    params: [id: number, options?: VMDeviceDeleteOptions];
+    response: boolean;
+  };
+
+  /**
    * Returns disk choices for device type "DISK".
    * @roles READONLY_ADMIN, VM_DEVICE_READ
    */
@@ -2113,6 +5606,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Returns "true" if iommu is enabled, "false" otherwise.
+   * @roles VM_DEVICE_READ
+   */
+  'vm.device.iommu_enabled': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
    * IO-type choices for storage devices.
    * @roles READONLY_ADMIN, VM_DEVICE_READ
    */
@@ -2128,6 +5630,24 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'vm.device.nic_attach_choices': {
     params: [];
     response: VMDeviceNicAttachChoicesResult;
+  };
+
+  /**
+   * Retrieve details about ``device`` PCI device.
+   * @roles VM_DEVICE_READ
+   */
+  'vm.device.passthrough_device': {
+    params: [device: string];
+    response: VMDevicePassthroughDevice;
+  };
+
+  /**
+   * Available choices for PCI passthru devices.
+   * @roles READONLY_ADMIN, VM_DEVICE_READ
+   */
+  'vm.device.passthrough_device_choices': {
+    params: [];
+    response: VMDevicePassthroughInfo;
   };
 
   /**
@@ -2195,6 +5715,40 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Get the current maximum amount of available memory to be allocated for VMs.
+   *
+   * In case of ``overcommit`` being ``true``, calculations are done in the following manner:
+   *
+   * 1. If a VM has requested 10G but is only consuming 5G, only 5G will be counted
+   *
+   * 2. System will consider shrinkable ZFS ARC as free memory ( shrinkable ZFS ARC is current ZFS ARC
+   *    minus ZFS ARC minimum )
+   *
+   * In case of ``overcommit`` being ``false``, calculations are done in the following manner:
+   *
+   * 1. Complete VM requested memory will be taken into account regardless of how much actual physical
+   *    memory the VM is consuming
+   *
+   * 2. System will not consider shrinkable ZFS ARC as free memory
+   *
+   * Memory is of course a very "volatile" resource, values may change abruptly between a second but I deem it good enough to give the user a clue about how much memory is available at the current moment and if a VM should be allowed to be launched.
+   * @roles VM_READ
+   */
+  'vm.get_available_memory': {
+    params: [overcommit?: boolean];
+    response: number;
+  };
+
+  /**
+   * Get the console device from a given guest.
+   * @roles VM_READ
+   */
+  'vm.get_console': {
+    params: [id: number];
+    response: string;
+  };
+
+  /**
    * Get the display devices from a given guest.
    * @roles VM_READ
    */
@@ -2221,6 +5775,15 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'vm.get_instance': {
     params: [id: number, options?: QueryOptions<VMEntry>];
     response: VMEntry;
+  };
+
+  /**
+   * Get the memory usage of a given VM.
+   * @roles VM_READ
+   */
+  'vm.get_memory_usage': {
+    params: [id: number];
+    response: number;
   };
 
   /**
@@ -2255,6 +5818,26 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Retrieve log file path of ``id`` VM.
+   *
+   * It will return path of the log file if it exists and ``null`` otherwise.
+   * @roles VM_READ
+   */
+  'vm.log_file_path': {
+    params: [id: number];
+    response: string | null;
+  };
+
+  /**
+   * Returns maximum supported VCPU's.
+   * @roles VM_READ
+   */
+  'vm.maximum_supported_vcpus': {
+    params: [];
+    response: number;
+  };
+
+  /**
    * It returns the next available Display Server Port and Web Port.
    *
    * Returns a dict with two keys ``port`` and ``web``.
@@ -2266,11 +5849,62 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   };
 
   /**
+   * Poweroff a VM.
+   * @roles VM_WRITE
+   */
+  'vm.poweroff': {
+    params: [id: number];
+    response: null;
+  };
+
+  /**
    * @roles VM_READ
    */
   'vm.query': {
     params: [filters?: QueryFilters<VMEntry>, options?: QueryOptions<VMEntry>];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
+  };
+
+  /**
+   * Create a random mac address.
+   * @roles VM_READ
+   */
+  'vm.random_mac': {
+    params: [];
+    response: string;
+  };
+
+  /**
+   * Retrieve supported resolution choices for VM Display devices.
+   * @roles READONLY_ADMIN, VM_READ
+   */
+  'vm.resolution_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  /**
+   * Resume suspended ``id`` VM.
+   * @roles VM_WRITE
+   */
+  'vm.resume': {
+    params: [id: number];
+    response: null;
+  };
+
+  /**
+   * Start a VM.
+   *
+   * options.overcommit defaults to false, meaning VMs are not allowed to start if there is not enough available memory to hold all configured VMs. If true, VM starts even if there is not enough memory for all configured VMs.
+   *
+   * Error codes:
+   *
+   *     ENOMEM(12): not enough free memory to run the VM without overcommit
+   * @roles VM_WRITE
+   */
+  'vm.start': {
+    params: [id: number, options?: VMStartOptions];
+    response: null;
   };
 
   /**
@@ -2284,6 +5918,24 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'vm.status': {
     params: [id: number];
     response: VMStatus;
+  };
+
+  /**
+   * Returns "true" if system supports virtualization, "false" otherwise.
+   * @roles VM_READ
+   */
+  'vm.supports_virtualization': {
+    params: [];
+    response: boolean;
+  };
+
+  /**
+   * Suspend ``id`` VM.
+   * @roles VM_WRITE
+   */
+  'vm.suspend': {
+    params: [id: number];
+    response: null;
   };
 
   /**
@@ -2319,6 +5971,33 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'vmware.create': {
     params: [vmware_create: VMWareCreate];
     response: VMWareEntry;
+  };
+
+  /**
+   * Returns "true" if ``dataset`` is configured with a VMWare snapshot.
+   * @roles READONLY_ADMIN
+   */
+  'vmware.dataset_has_vms': {
+    params: [dataset: string, recursive: boolean];
+    response: boolean;
+  };
+
+  /**
+   * Delete VMWare snapshot of ``id``.
+   * @roles SNAPSHOT_TASK_WRITE
+   */
+  'vmware.delete': {
+    params: [id: number];
+    response: true;
+  };
+
+  /**
+   * Get datastores from VMWare.
+   * @roles READONLY_ADMIN
+   */
+  'vmware.get_datastores': {
+    params: [vmware_creds: VMWareGetDatastoresArgs];
+    response: string[];
   };
 
   /**
@@ -2384,6 +6063,17 @@ export interface ApiCallDirectory extends ApiCallDirectoryBase {
   'webshare.update': {
     params: [webshare_update: WebshareUpdate];
     response: WebshareEntry;
+  };
+
+  /**
+   * Return the domain names associated with a certificate.
+   *
+   * This includes the Common Name (if set) followed by any Subject Alternative Names (SANs).
+   * @roles READONLY_ADMIN
+   */
+  'webui.crypto.get_certificate_domain_names': {
+    params: [cert_id: number];
+    response: unknown[];
   };
 
   /**

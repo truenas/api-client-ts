@@ -90,7 +90,7 @@ import type {
 } from '../v25_10_0/api-types';
 import type {
   CertificateEntry,
-} from '../v25_10_2/api-types';
+} from './api-types';
 
 export interface ApiJobDirectory extends ApiJobDirectoryBase {
   /**
