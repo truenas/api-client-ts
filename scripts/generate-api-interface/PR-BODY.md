@@ -60,6 +60,39 @@ ghcr.io/truenas/middleware:master ──┴─▶ middlewared --dump-api --keep-
   against the raw dump, and byte-identical regeneration.
 - 164 existing client tests unaffected.
 
+## Next steps (deliberately not in this PR)
+
+This PR delivers the type pipeline and the packaged generated surface; the
+client itself still binds to the hand-written directory. Planned follow-ups,
+in order:
+
+1. **Client integration** (next PR): make the client generic over a version's
+   directory (`TrueNasApiClient<D>`), bind it in the factory via the generated
+   `ApiDirectoryByVersion` registry — pinned mode (`version: 'v27.0.0'` →
+   fully-typed client, discovery validates) and discovered mode (negotiated
+   version, base-directory typing plus `is()`/`supports()` narrowing). Ends
+   with deleting `src/types/*` hand-written API shapes and `TrueNasEndpoint`
+   — the semver-major release. Consumers can migrate imports to the generated
+   names beforehand, since both surfaces co-exist as of this PR.
+2. **CI drift check**: a scheduled workflow running
+   `yarn generate:api --fetch docker && git diff --exit-code src/generated`
+   against middleware master — API drift becomes a red build with a readable
+   diff instead of a runtime bug report.
+3. **Runtime conformance harness**: we now hold a JSON Schema for every
+   method's response, so a smoke test can call read-only endpoints on a lab
+   box and validate live payloads against the schemas (ajv). Closes the one
+   assumption types can't prove — that middleware's serialized output always
+   matches its returns models — and doubles as a middleware regression
+   detector.
+4. **Query ergonomics**: `call()` overloads so `{count: true}` returns
+   `number` and `{get: true}` returns the entry itself; a `byVersion()`
+   helper for consumers with per-version behavior forks.
+5. **Upstream niceties (middleware asks, non-blocking)**: enum member names
+   (`x-enum-varnames`) would make generated enum keys exact instead of
+   value-derived; consistent `required` between query-result and entry models
+   would collapse most remaining `*QueryResultItem` near-duplicates and make
+   entry fields non-optional where they're always present on the wire.
+
 ## Notes for reviewers
 
 - `src/generated/**` is marked `linguist-generated` — the reviewable surface is
