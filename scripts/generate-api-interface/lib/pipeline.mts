@@ -115,9 +115,13 @@ export async function generateFromDump(
 
   // Chained materialization: each shape is declared once, in the version where
   // it first appeared; later versions re-export from the declaring version.
-  const { declared, homes } = multi
+  const { declared, homes, changeKind } = multi
     ? chainAssign(models)
-    : { declared: models.map((m) => m.definitions), homes: models.map((m) => new Map(Object.keys(m.definitions).map((n) => [n, 0]))) };
+    : {
+      declared: models.map((m) => m.definitions),
+      homes: models.map((m) => new Map(Object.keys(m.definitions).map((n) => [n, 0]))),
+      changeKind: models.map(() => new Map<string, 'docs' | 'refs'>()),
+    };
 
   const dirOf = (i: number): string => versionDir(models[i].version);
 
@@ -176,25 +180,37 @@ export async function generateFromDump(
     perVersion: T[][],
     entryText: (item: T) => string,
     refs: (item: T) => Set<string>,
-  ): { own: T[][]; removed: string[][] } {
+  ): { own: T[][]; removed: string[][]; kinds: Map<string, 'docs' | 'refs'>[] } {
     const own: T[][] = [];
     const removed: string[][] = [];
+    const kinds: Map<string, 'docs' | 'refs'>[] = [];
     for (let i = 0; i < perVersion.length; i++) {
       if (i === 0 || !multi) {
         own.push(perVersion[i]);
         removed.push([]);
+        kinds.push(new Map());
         continue;
       }
       const prev = new Map(perVersion[i - 1].map((item) => [item.name, item]));
+      const versionKinds = new Map<string, 'docs' | 'refs'>();
       own.push(perVersion[i].filter((item) => {
         const before = prev.get(item.name);
         if (!before || entryText(before) !== entryText(item)) return true;
-        return [...refs(item)].some((r) => homes[i].get(r) === i);
+        if ([...refs(item)].some((r) => homes[i].get(r) === i)) {
+          // Entry text identical; pulled in because a referenced type was
+          // re-declared here. Inherit that re-declaration's reason if it was
+          // itself docs-only.
+          const reasons = [...refs(item)].filter((r) => homes[i].get(r) === i).map((r) => changeKind[i].get(r));
+          versionKinds.set(item.name, reasons.every((r) => r === 'docs') ? 'docs' : 'refs');
+          return true;
+        }
+        return false;
       }));
+      kinds.push(versionKinds);
       const current = new Set(perVersion[i].map((item) => item.name));
       removed.push(perVersion[i - 1].filter((item) => !current.has(item.name)).map((item) => item.name));
     }
-    return { own, removed };
+    return { own, removed, kinds };
   }
 
   const callDelta = directoryDelta(models.map((m) => m.methods.filter((x) => !x.job)), directoryEntry, methodRefs);
@@ -248,13 +264,18 @@ export async function generateFromDump(
   }
 
   if (multi) {
+    const KIND_LABEL = { docs: ' (docs)', refs: ' (via referenced types)' } as const;
     const manifestRows: ManifestRow[] = [];
-    const collectRows = (kind: ManifestRow['kind'], delta: { own: { name: string }[][]; removed: string[][] }) => {
+    const collectRows = (
+      kind: ManifestRow['kind'],
+      delta: { own: { name: string }[][]; removed: string[][]; kinds: Map<string, 'docs' | 'refs'>[] },
+    ) => {
       const byName = new Map<string, ManifestRow>();
       delta.own.forEach((items, i) => {
         for (const item of items) {
           const row = byName.get(item.name) ?? { name: item.name, kind, declaredIn: [], removedIn: [] };
-          row.declaredIn.push(models[i].version);
+          const reason = delta.kinds[i].get(item.name);
+          row.declaredIn.push(`${models[i].version}${reason ? KIND_LABEL[reason] : ''}`);
           byName.set(item.name, row);
         }
       });
@@ -266,6 +287,24 @@ export async function generateFromDump(
     collectRows('call', callDelta);
     collectRows('job', jobDelta);
     collectRows('event', eventDelta);
+
+    // Types get their own section: declared where materialized, labeled with
+    // the change reason; removed when they leave a version's reachable surface.
+    const typeRows = new Map<string, ManifestRow>();
+    models.forEach((model, i) => {
+      for (const name of Object.keys(declared[i])) {
+        const row = typeRows.get(name) ?? { name, kind: 'type', declaredIn: [], removedIn: [] };
+        const reason = changeKind[i].get(name);
+        row.declaredIn.push(`${model.version}${reason ? KIND_LABEL[reason] : ''}`);
+        typeRows.set(name, row);
+      }
+      if (i > 0) {
+        for (const name of Object.keys(models[i - 1].definitions)) {
+          if (!(name in model.definitions)) typeRows.get(name)?.removedIn.push(model.version);
+        }
+      }
+    });
+    manifestRows.push(...typeRows.values());
     files.set('MANIFEST.md', emitManifest(manifestRows, models.map((m) => m.version)));
 
     files.set('index.ts', emitRootIndex(models.map((m) => m.version)));

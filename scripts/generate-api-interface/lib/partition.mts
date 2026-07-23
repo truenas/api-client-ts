@@ -57,6 +57,29 @@ export interface ChainedDefs {
   declared: Record<string, DefSchema>[];
   /** Parallel to models: for every name in that version's surface, the model index of its declaration. */
   homes: Map<string, number>[];
+  /**
+   * Parallel to models: why a re-declared name changed — 'docs' (structure
+   * identical, documentation differs) or 'refs' (body byte-identical, pulled
+   * in because a referenced definition changed). Absent = structural change
+   * or first appearance.
+   */
+  changeKind: Map<string, 'docs' | 'refs'>[];
+}
+
+/** Structure-only canonical (documentation stripped), used to label change reasons. */
+const DOC_KEYS = new Set(['title', '_usedBy', 'description', 'examples']);
+function structural(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(structural);
+  if (node !== null && typeof node === 'object') {
+    const record = node as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(record).sort()) {
+      if (DOC_KEYS.has(key)) continue;
+      out[key] = structural(record[key]);
+    }
+    return out;
+  }
+  return node;
 }
 
 export function chainAssign(models: VersionModel[]): ChainedDefs {
@@ -71,6 +94,7 @@ export function chainAssign(models: VersionModel[]): ChainedDefs {
   };
 
   const homes: Map<string, number>[] = [];
+  const changeKind: Map<string, 'docs' | 'refs'>[] = [];
   for (let i = 0; i < models.length; i++) {
     const defs = models[i].definitions;
     const prev = i > 0 ? models[i - 1].definitions : {};
@@ -97,6 +121,17 @@ export function chainAssign(models: VersionModel[]): ChainedDefs {
       }
     }
 
+    const kinds = new Map<string, 'docs' | 'refs'>();
+    for (const name of changed) {
+      if (!(name in prev)) continue; // first appearance, not a change
+      if (shape(defs[name]) === shape(prev[name])) {
+        kinds.set(name, 'refs');
+      } else if (JSON.stringify(structural(defs[name])) === JSON.stringify(structural(prev[name]))) {
+        kinds.set(name, 'docs');
+      }
+    }
+    changeKind.push(kinds);
+
     const h = new Map<string, number>();
     for (const name of Object.keys(defs)) {
       h.set(name, changed.has(name) ? i : (prevHomes.get(name) ?? i));
@@ -119,5 +154,5 @@ export function chainAssign(models: VersionModel[]): ChainedDefs {
     }
   }
 
-  return { declared, homes };
+  return { declared, homes, changeKind };
 }
