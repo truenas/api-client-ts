@@ -27,7 +27,7 @@
     "prepack": "yarn build",
     "dev": "tsup --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.spec.json && tsc -p tsconfig.scripts.json",
-    "generate:api": "tsx scripts/generate-api-interface/generate.mts",
+    "generate:api": "tsx scripts/generate-api-interface/generate.mts --api-version v25.04.0,v25.04.1,v25.04.2,v25.10.0,v25.10.1,v25.10.2,v25.10.3,v25.10.4,v25.10.5,v26.0.0,v27.0.0",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

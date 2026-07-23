@@ -9,17 +9,19 @@
  *     --api-version v25.10.5,v26.0.0,v27.0.0 \
  *     --out scripts/generate-api-interface/generated
  *
- * Usage (fetch a fresh dump via the middleware container):
- *   yarn generate:api \
- *     --fetch docker \
- *     --middleware-repo ~/Projects/middleware \
- *     --api-version v25.10.5,v26.0.0,v27.0.0
+ * Usage (fetch a fresh dump via the middleware container — no local setup):
+ *   yarn generate:api --fetch docker --api-version all
  *
- * `--fetch docker` runs `middlewared --dump-api --keep-refs` inside the
- * published middleware image (default ghcr.io/truenas/middleware:master) with
- * the local middleware checkout mounted — the image supplies the dependency
- * environment, the checkout supplies the code, so the dump reflects whatever
- * branch is checked out. With `--fetch`, `--schema` (if given) becomes the
+ * `--fetch docker` pulls the published middleware image (default
+ * ghcr.io/truenas/middleware:master) and runs its bundled `middlewared`
+ * (`--dump-api --keep-refs`). The bundled copy is a snapshot from image
+ * build time (nightly-ish); its package version is logged so every run
+ * records what it generated from.
+ *
+ * To generate from exact code instead — a specific commit, branch, or local
+ * changes — pass `--middleware-repo <path>`: the checkout is mounted over
+ * the bundled copy and supplies the code, while the image supplies only the
+ * dependency environment. With `--fetch`, `--schema` (if given) becomes the
  * cache path the fetched dump is written to.
  *
  * The dump may be either a full `{"versions": [...]}` document or a single
@@ -28,7 +30,7 @@
  * versions the output is a chain: each type is declared in the version where
  * its shape first appeared and re-exported by later versions.
  */
-import { spawnSync } from 'node:child_process';
+import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
@@ -41,28 +43,51 @@ const { values: args } = parseArgs({
     schema: { type: 'string' },
     fetch: { type: 'string' },
     image: { type: 'string', default: 'ghcr.io/truenas/middleware:master' },
-    'middleware-repo': { type: 'string', default: path.resolve(import.meta.dirname, '../../../middleware') },
+    'middleware-repo': { type: 'string' },
     'api-version': { type: 'string' },
     include: { type: 'string', default: '' },
     out: { type: 'string', default: path.resolve(import.meta.dirname, '../../src/generated') },
   },
 });
 
-/** Run `middlewared --dump-api --keep-refs` inside the published middleware container. */
-function fetchDumpViaDocker(): string {
-  const repo = args['middleware-repo'];
-  console.error(`Dumping API from ${repo} via ${args.image}...`);
-  const result = spawnSync('docker', [
-    'run', '--rm',
-    '-e', 'FAKE_ENV=1',
-    '-v', `${repo}:/mnt/middleware`,
-    '-w', '/mnt/middleware/src/middlewared',
-    args.image,
-    'sh', '-c', 'PYTHONPATH=. python3 -m middlewared.main --dump-api --keep-refs',
-  ], { encoding: 'utf8', maxBuffer: 1024 * 1024 * 1024 });
+function runDocker(dockerArgs: string[]): SpawnSyncReturns<string> {
+  const result = spawnSync('docker', dockerArgs, { encoding: 'utf8', maxBuffer: 1024 * 1024 * 1024 });
   if (result.error && 'code' in result.error && result.error.code === 'ENOENT') {
     console.error('docker not found on PATH — install Docker or use --schema <file> instead.');
     process.exit(1);
+  }
+  return result;
+}
+
+/** Run `middlewared --dump-api --keep-refs` inside the published middleware container. */
+function fetchDumpViaDocker(): string {
+  const repo = args['middleware-repo'];
+  let result;
+  if (repo) {
+    // Pinned mode: the mounted checkout supplies the code, the image only the deps.
+    console.error(`Dumping API from ${repo} via ${args.image}...`);
+    result = runDocker([
+      'run', '--rm',
+      '-e', 'FAKE_ENV=1',
+      '-v', `${repo}:/mnt/middleware`,
+      '-w', '/mnt/middleware/src/middlewared',
+      args.image,
+      'sh', '-c', 'PYTHONPATH=. python3 -m middlewared.main --dump-api --keep-refs',
+    ]);
+  } else {
+    // Default: latest image, its bundled middlewared. Record what we ran.
+    console.error(`Pulling ${args.image} and dumping from its bundled middlewared...`);
+    const stamp = runDocker([
+      'run', '--pull', 'always', '--rm', args.image,
+      'dpkg-query', '-W', '-f', '${Package} ${Version}', 'middlewared',
+    ]);
+    if (stamp.status === 0) console.error(`image provides: ${stamp.stdout.trim()}`);
+    result = runDocker([
+      'run', '--rm',
+      '-e', 'FAKE_ENV=1',
+      args.image,
+      'python3', '-m', 'middlewared.main', '--dump-api', '--keep-refs',
+    ]);
   }
   if (result.status !== 0) {
     console.error(result.stderr?.split('\n').slice(-15).join('\n'));
