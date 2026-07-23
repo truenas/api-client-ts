@@ -404,6 +404,7 @@ import type { ApiEventDirectoryBase } from '../shared/api-event-directory-base';
 
 import type {
   TestChangedAddedEvent,
+  TestRemoveAddedEvent,
 } from './api-types';
 
 export interface ApiEventDirectory extends ApiEventDirectoryBase {
@@ -413,6 +414,14 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
    */
   'test.changed': {
     added: TestChangedAddedEvent;
+  };
+
+  /**
+   * Dynamic event source for test.remove progress. Middleware emits this event in every version's dump even though the method is v2-only.
+   * @roles TEST_READ
+   */
+  'test.remove': {
+    added: TestRemoveAddedEvent;
   };
 }
 ",
@@ -453,6 +462,12 @@ export interface TestEntry {
    * New in v2.
    */
   extra_flag?: boolean;
+}
+/**
+ * Used by: test.remove (event)
+ */
+export interface TestRemoveAddedEvent {
+  id: number;
 }
 ",
   "v2_0_0/index.ts": "/**

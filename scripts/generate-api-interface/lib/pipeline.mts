@@ -83,6 +83,23 @@ export async function generateFromDump(
     throw new Error(`Dump contains ${versions.length} versions; pick with apiVersions.`);
   }
 
+  // Middleware's dumper version-filters methods (a method is omitted from
+  // versions that lack its models) but emits the SAME event set for every
+  // version — so e.g. the zfs.tier.rewrite_job_query event source appears in
+  // v25.04 dumps although the feature ships in v26. Mitigate for method-named
+  // events (dynamic event sources and CRUD-change events): keep such an event
+  // only in versions where its method exists. Events not named after any
+  // method in any generated version are kept everywhere (nothing to infer
+  // from). Proper fix is upstream: version-filter events in --dump-api.
+  const allMethodNames = new Set(versions.flatMap((v) => v.methods.map((m) => m.name)));
+  versions = versions.map((v) => {
+    const own = new Set(v.methods.map((m) => m.name));
+    return {
+      ...v,
+      events: v.events.filter((e) => own.has(e.name) || !allMethodNames.has(e.name)),
+    };
+  });
+
   const multi = versions.length > 1;
   const files = new Map<string, string>();
   const write = (dir: string, name: string, content: string) => files.set(dir ? `${dir}/${name}` : name, content);

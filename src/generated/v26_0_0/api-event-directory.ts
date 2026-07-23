@@ -13,15 +13,10 @@ import type {
   AppRemovedEvent,
   AuthSessionsRemovedEvent,
   BootEnvironmentRemovedEvent,
-  CertificateRemovedEvent,
   CloudBackupRemovedEvent,
-  CloudSyncRemovedEvent,
-  ContainerDeviceRemovedEvent,
-  ContainerRemovedEvent,
   CredentialsRemovedEvent,
   CronJobRemovedEvent,
   DNSAuthenticatorRemovedEvent,
-  DiskQueryRemovedEvent,
   DockerNetworkRemovedEvent,
   FCHostAddedEvent,
   FCHostChangedEvent,
@@ -41,37 +36,20 @@ import type {
   ISCSITargetRemovedEvent,
   ISCSITargetToExtentRemovedEvent,
   InitShutdownScriptRemovedEvent,
-  InterfaceRemovedEvent,
-  JBOFRemovedEvent,
   KeychainCredentialRemovedEvent,
   NTPServerRemovedEvent,
-  NVMetHostRemovedEvent,
-  NVMetHostSubsysRemovedEvent,
-  NVMetNamespaceRemovedEvent,
-  NVMetPortSubsysRemovedEvent,
-  NVMetSubsysRemovedEvent,
   PeriodicSnapshotTaskRemovedEvent,
-  PoolDatasetRemovedEvent,
-  PoolRemovedEvent,
   PoolScrubRemovedEvent,
-  PoolSnapshotRemovedEvent,
   PrivilegeRemovedEvent,
-  ReplicationRemovedEvent,
   ReportingExportsRemovedEvent,
-  RsyncTaskRemovedEvent,
   SharingNFSRemovedEvent,
-  SharingSMBRemovedEvent,
-  SharingWebshareRemovedEvent,
   StaticRouteRemovedEvent,
-  TunableRemovedEvent,
   UserRemovedEvent,
+} from '../v25_04_0/api-types';
+import type {
   VMDeviceRemovedEvent,
   VMRemovedEvent,
-  VMWareRemovedEvent,
-  ZPoolQueryRemovedEvent,
-  ZfsTierRewriteJobQueryEventSourceArgs,
-  ZfsTierRewriteJobStatusEventSourceArgs,
-} from '../v25_04_0/api-types';
+} from '../v25_04_2/api-types';
 import type {
   ACLTemplateAddedEvent,
   ACLTemplateChangedEvent,
@@ -82,14 +60,22 @@ import type {
   AuthSessionsAddedEvent,
   BootEnvironmentAddedEvent,
   BootEnvironmentChangedEvent,
+  CertificateRemovedEvent,
+  CloudSyncRemovedEvent,
+  CoreGetJobsAddedEvent,
+  CoreGetJobsChangedEvent,
   DNSAuthenticatorAddedEvent,
   DNSAuthenticatorChangedEvent,
+  DirectoryServicesStatusChangedEvent,
   DiskQueryAddedEvent,
   DiskQueryChangedEvent,
+  DiskQueryRemovedEvent,
   DockerNetworkAddedEvent,
   DockerNetworkChangedEvent,
   DockerStateChangedEvent,
+  FailoverDisabledReasonsChangedEvent,
   FailoverRebootInfoChangedEvent,
+  FailoverStatusChangedEvent,
   GroupAddedEvent,
   GroupChangedEvent,
   ISCSIPortalAddedEvent,
@@ -104,40 +90,63 @@ import type {
   InitShutdownScriptChangedEvent,
   InterfaceAddedEvent,
   InterfaceChangedEvent,
+  InterfaceRemovedEvent,
   JBOFAddedEvent,
   JBOFChangedEvent,
-  KeychainCredentialAddedEvent,
-  KeychainCredentialChangedEvent,
+  JBOFRemovedEvent,
+  KerberosKeytabAddedEvent,
+  KerberosKeytabChangedEvent,
+  KerberosKeytabRemovedEvent,
+  KerberosRealmAddedEvent,
+  KerberosRealmChangedEvent,
+  KerberosRealmRemovedEvent,
   NTPServerAddedEvent,
   NTPServerChangedEvent,
+  NVMetHostRemovedEvent,
+  NVMetHostSubsysRemovedEvent,
   NVMetNamespaceAddedEvent,
   NVMetNamespaceChangedEvent,
+  NVMetNamespaceRemovedEvent,
+  NVMetPortAddedEvent,
+  NVMetPortChangedEvent,
+  NVMetPortRemovedEvent,
   NVMetPortSubsysAddedEvent,
   NVMetPortSubsysChangedEvent,
+  NVMetPortSubsysRemovedEvent,
   NVMetSubsysAddedEvent,
   NVMetSubsysChangedEvent,
+  NVMetSubsysRemovedEvent,
   PeriodicSnapshotTaskAddedEvent,
   PeriodicSnapshotTaskChangedEvent,
   PoolDatasetAddedEvent,
   PoolDatasetChangedEvent,
+  PoolDatasetRemovedEvent,
+  PoolRemovedEvent,
   PoolScrubAddedEvent,
   PoolScrubChangedEvent,
   PoolSnapshotAddedEvent,
   PoolSnapshotChangedEvent,
+  PoolSnapshotRemovedEvent,
   PrivilegeAddedEvent,
   PrivilegeChangedEvent,
+  ReplicationRemovedEvent,
   ReportingExportsAddedEvent,
   ReportingExportsChangedEvent,
-  RsyncTaskAddedEvent,
-  RsyncTaskChangedEvent,
+  RsyncTaskRemovedEvent,
+  ServiceAddedEvent,
+  ServiceChangedEvent,
+  ServiceRemovedEvent,
+  SharingSMBRemovedEvent,
   StaticRouteAddedEvent,
   StaticRouteChangedEvent,
+  SystemReadyAddedEvent,
   SystemRebootInfoChangedEvent,
   TruecommandConfigChangedEvent,
-  TunableAddedEvent,
-  TunableChangedEvent,
+  TunableRemovedEvent,
+  UpdateStatusChangedEvent,
   VMDeviceAddedEvent,
   VMDeviceChangedEvent,
+  VMWareRemovedEvent,
 } from '../v25_10_0/api-types';
 import type {
   CertificateAddedEvent,
@@ -156,10 +165,14 @@ import type {
   ContainerChangedEvent,
   ContainerDeviceAddedEvent,
   ContainerDeviceChangedEvent,
+  ContainerDeviceRemovedEvent,
+  ContainerRemovedEvent,
   CredentialsAddedEvent,
   CredentialsChangedEvent,
   CronJobAddedEvent,
   CronJobChangedEvent,
+  KeychainCredentialAddedEvent,
+  KeychainCredentialChangedEvent,
   NVMetHostAddedEvent,
   NVMetHostChangedEvent,
   NVMetHostSubsysAddedEvent,
@@ -169,12 +182,17 @@ import type {
   PoolScanChangedEvent,
   ReplicationAddedEvent,
   ReplicationChangedEvent,
+  RsyncTaskAddedEvent,
+  RsyncTaskChangedEvent,
   SharingNFSAddedEvent,
   SharingNFSChangedEvent,
   SharingSMBAddedEvent,
   SharingSMBChangedEvent,
   SharingWebshareAddedEvent,
   SharingWebshareChangedEvent,
+  SharingWebshareRemovedEvent,
+  TunableAddedEvent,
+  TunableChangedEvent,
   UserAddedEvent,
   UserChangedEvent,
   VMAddedEvent,
@@ -183,7 +201,10 @@ import type {
   VMWareChangedEvent,
   ZPoolQueryAddedEvent,
   ZPoolQueryChangedEvent,
+  ZPoolQueryRemovedEvent,
+  ZfsTierRewriteJobQueryEventSourceArgs,
   ZfsTierRewriteJobQueryEventSourceEvent2,
+  ZfsTierRewriteJobStatusEventSourceArgs,
   ZfsTierRewriteJobStatusEventSourceEvent2,
 } from './api-types';
 
@@ -318,6 +339,14 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Updates on job changes.
+   */
+  'core.get_jobs': {
+    added: CoreGetJobsAddedEvent;
+    changed: CoreGetJobsChangedEvent;
+  };
+
+  /**
    * Sent on cronjob changes.
    * @roles SYSTEM_CRON_READ
    */
@@ -325,6 +354,14 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: CronJobAddedEvent;
     changed: CronJobChangedEvent;
     removed: CronJobRemovedEvent;
+  };
+
+  /**
+   * Sent on directory service state changes.
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'directoryservices.status': {
+    changed: DirectoryServicesStatusChangedEvent;
   };
 
   /**
@@ -356,11 +393,27 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent when failover status reasons change.
+   * @roles FAILOVER_READ
+   */
+  'failover.disabled.reasons': {
+    changed: FailoverDisabledReasonsChangedEvent;
+  };
+
+  /**
    * Sent when a system reboot is required.
    * @roles FAILOVER_READ
    */
   'failover.reboot.info': {
     changed: FailoverRebootInfoChangedEvent;
+  };
+
+  /**
+   * Sent when failover status changes.
+   * @roles FAILOVER_READ
+   */
+  'failover.status': {
+    changed: FailoverStatusChangedEvent;
   };
 
   /**
@@ -494,6 +547,26 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on kerberos.keytab changes.
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.keytab.query': {
+    added: KerberosKeytabAddedEvent;
+    changed: KerberosKeytabChangedEvent;
+    removed: KerberosKeytabRemovedEvent;
+  };
+
+  /**
+   * Sent on kerberos.realm changes.
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.realm.query': {
+    added: KerberosRealmAddedEvent;
+    changed: KerberosRealmChangedEvent;
+    removed: KerberosRealmRemovedEvent;
+  };
+
+  /**
    * Sent on keychaincredential changes.
    * @roles KEYCHAIN_CREDENTIAL_READ
    */
@@ -531,6 +604,16 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: NVMetNamespaceAddedEvent;
     changed: NVMetNamespaceChangedEvent;
     removed: NVMetNamespaceRemovedEvent;
+  };
+
+  /**
+   * Sent on nvmet.port changes.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.port.query': {
+    added: NVMetPortAddedEvent;
+    changed: NVMetPortChangedEvent;
+    removed: NVMetPortRemovedEvent;
   };
 
   /**
@@ -652,6 +735,16 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on service changes.
+   * @roles SERVICE_READ
+   */
+  'service.query': {
+    added: ServiceAddedEvent;
+    changed: ServiceChangedEvent;
+    removed: ServiceRemovedEvent;
+  };
+
+  /**
    * Sent on sharing.nfs changes.
    * @roles SHARING_NFS_READ
    */
@@ -702,6 +795,14 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Finished boot process
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'system.ready': {
+    added: SystemReadyAddedEvent;
+  };
+
+  /**
    * Sent when a system reboot is required.
    * @roles SYSTEM_GENERAL_READ
    */
@@ -725,6 +826,14 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: TunableAddedEvent;
     changed: TunableChangedEvent;
     removed: TunableRemovedEvent;
+  };
+
+  /**
+   * Updated on update status changes.
+   * @roles SYSTEM_UPDATE_READ
+   */
+  'update.status': {
+    changed: UpdateStatusChangedEvent;
   };
 
   /**

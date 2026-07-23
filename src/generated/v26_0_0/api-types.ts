@@ -5,7 +5,6 @@
 
 import type {
   AddressPool,
-  Advpowermgmt,
   Aggregations,
   AppImageParsedRepoTags,
   AuthUserInfo,
@@ -13,19 +12,11 @@ import type {
   AzureBlobCredentialsModel,
   B2CredentialsModel,
   Blocksize,
-  Bootloader,
   BoxCredentialsModel,
   CatalogTrainInfo,
   CloudCron,
-  CloudSyncBwlimit,
-  ContainerFilesystemDevice,
-  ContainerGPUDevice,
   CronJobEntry,
   CronJobSchedule,
-  DefaultIdmapConfiguration,
-  Direction,
-  Direction2,
-  DiskEntryEnclosure,
   DropboxCredentialsModel,
   Encryption,
   EncryptionInput,
@@ -35,54 +26,39 @@ import type {
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
-  Hddstandby,
   HubicCredentialsModel,
-  IsolatedIdmapConfiguration,
   Maintainer,
   MegaCredentialsModel,
   NFS4ACL_Flags,
-  NVMetHostEntry,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
   POSIXACE,
   PoolSnapshotTaskCron,
-  PoolTopology,
-  Readonly,
-  ReplicationLifetimeModel,
-  ReplicationTimeCronModel,
-  Resolution,
   Rpm,
-  RsyncTaskSchedule,
   SFTPCredentialsModel,
   SSHCredentials,
   SSHKeyPair,
-  SmbAuditConfig,
-  StateInput2,
-  StateInput3,
-  StateInput4,
   StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
-  Time,
-  Transport,
   Unixcharset,
   UpgradeOptions,
   UserTwofactorConfigEntry,
   WebDavCredentialsModel,
   YandexCredentialsModel,
   ZFSFileAttrsData,
-  ZPoolExpand,
-  ZPoolFeature,
-  ZPoolPropertyValue,
-  ZPoolTopology,
-  ZfsTierRewriteJobStats,
 } from '../v25_04_0/api-types';
 import type {
+  Bootloader,
+  Resolution,
   StorjIxCredentialsModel,
+  Time,
   Type6,
+  USBAttributes,
 } from '../v25_04_2/api-types';
 import type {
   Aclmode,
   AcltypeInput2,
+  Advpowermgmt,
   Algorithm,
   AppActiveWorkloads,
   Atime,
@@ -90,44 +66,60 @@ import type {
   Casesensitivity,
   Checksum,
   Checksum2,
+  CloudSyncBwlimit,
   CloudTaskAttributes,
   CloudTaskAttributesInput,
   Compression,
-  ContainerUSBDevice,
   Deduplication,
   Deduplication2,
   DefaultOptInput,
+  Direction,
+  Direction2,
+  DirectionInput,
   DirectionInput2,
+  DiskEntryEnclosure,
   Exec,
   ExternalOpt,
   ExternalOptInput,
-  KeychainCredentialEntryInput,
+  Hddstandby,
+  InterfaceCreateAlias,
+  InterfaceCreateFailoverAlias,
   LegacyOpt,
   LegacyOptInput,
   Mode3,
   ModeInput2,
+  ModeInput3,
   MultiprotocolOptInput,
   NFS4ACEInput,
+  NVMetHostEntry,
   NVMetSubsysEntry,
   NVMetSubsysEntryInput,
   PoolCreateTopologyCacheVdev,
   PoolDatasetCreateUserProperty,
   PoolSnapshotTaskDBEntryInput,
+  PoolTopology,
   PrivateDatasetOptInput,
   QueryOptionsModel,
+  Readonly,
   ReadonlyInput,
   ReadonlyInput2,
+  ReplicationLifetimeModel,
+  ReplicationTimeCronModel,
+  RsyncTaskSchedule,
   SMBShareAclEntryWhoId,
   Serialspeed,
   Shutdown,
+  SmbAuditConfig,
   Snapdev,
   Snapdir,
+  StateInput2,
   StatusInput2,
   Sync,
   SyslogServer,
   Sysloglevel,
   TimeLockedOptInput,
   TimeMachineOptInput,
+  Transport,
   TransportInput,
   USBCapability,
   VMDeviceEntry,
@@ -257,6 +249,25 @@ export const State3 = {
 export type State3 = (typeof State3)[keyof typeof State3];
 
 /**
+ * Used by: container.query (event)
+ */
+export const StateInput3 = {
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+} as const;
+export type StateInput3 = (typeof StateInput3)[keyof typeof StateInput3];
+
+/**
+ * Used by: pool.query (event), pool.scan (event), zpool.query (event)
+ */
+export const StateInput4 = {
+  Scanning: 'SCANNING',
+  Finished: 'FINISHED',
+  Canceled: 'CANCELED',
+} as const;
+export type StateInput4 = (typeof StateInput4)[keyof typeof StateInput4];
+
+/**
  * Used by: sharing.nfs.create (response), sharing.nfs.get_instance (params), sharing.nfs.get_instance (response), sharing.nfs.query (params), sharing.nfs.query (response), sharing.nfs.update (response), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (params) … and 14 more
  */
 export const Status = {
@@ -352,6 +363,44 @@ export const TypeInput10 = {
 export type TypeInput10 = (typeof TypeInput10)[keyof typeof TypeInput10];
 
 /**
+ * Used by: device.get_info (params)
+ */
+export const TypeInput11 = {
+  Serial: 'SERIAL',
+  Gpu: 'GPU',
+} as const;
+export type TypeInput11 = (typeof TypeInput11)[keyof typeof TypeInput11];
+
+/**
+ * Used by: keychaincredential.query (event), replication.query (event), rsynctask.query (event)
+ */
+export const TypeInput12 = {
+  SshKeyPair: 'SSH_KEY_PAIR',
+  SshCredentials: 'SSH_CREDENTIALS',
+} as const;
+export type TypeInput12 = (typeof TypeInput12)[keyof typeof TypeInput12];
+
+/**
+ * Used by: tunable.create (params), tunable.query (event)
+ */
+export const TypeInput13 = {
+  Sysctl: 'SYSCTL',
+  Udev: 'UDEV',
+  Zfs: 'ZFS',
+} as const;
+export type TypeInput13 = (typeof TypeInput13)[keyof typeof TypeInput13];
+
+/**
+ * Used by: disk.details (params)
+ */
+export const TypeInput14 = {
+  Used: 'USED',
+  Unused: 'UNUSED',
+  Both: 'BOTH',
+} as const;
+export type TypeInput14 = (typeof TypeInput14)[keyof typeof TypeInput14];
+
+/**
  * Used by: container.device.create (params), container.device.query (event), container.query (event)
  */
 export const TypeInput7 = {
@@ -359,25 +408,6 @@ export const TypeInput7 = {
   Virtio: 'VIRTIO',
 } as const;
 export type TypeInput7 = (typeof TypeInput7)[keyof typeof TypeInput7];
-
-/**
- * Used by: core.ping_remote (params)
- */
-export const TypeInput8 = {
-  Icmp: 'ICMP',
-  Icmpv4: 'ICMPV4',
-  Icmpv6: 'ICMPV6',
-} as const;
-export type TypeInput8 = (typeof TypeInput8)[keyof typeof TypeInput8];
-
-/**
- * Used by: interface.update (params)
- */
-export const TypeInput9 = {
-  Inet: 'INET',
-  Inet6: 'INET6',
-} as const;
-export type TypeInput9 = (typeof TypeInput9)[keyof typeof TypeInput9];
 
 /**
  * Used by: audit.query (response)
@@ -433,6 +463,13 @@ export type ZFSResourceSnapshotPropertiesEntry = Record<string, unknown>;
  * Used by: zfs.tier.rewrite_job_failures (response)
  */
 export type ZfsTierRewriteJobFailureQueryResultItem = Record<string, unknown>;
+
+/**
+ * No arguments — subscribes to all rewrite job lifecycle events.
+ *
+ * Used by: zfs.tier.rewrite_job_query (event)
+ */
+export type ZfsTierRewriteJobQueryEventSourceArgs = Record<string, never>;
 
 /**
  * Used by: zfs.tier.rewrite_job_query (response)
@@ -2284,6 +2321,40 @@ export interface ContainerDeviceEntryInput {
   container: number;
 }
 /**
+ * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 5 more
+ */
+export interface ContainerFilesystemDevice {
+  /**
+   * Device type identifier for FILESYSTEM devices.
+   */
+  dtype: "FILESYSTEM";
+  /**
+   * Path inside the container to mount the source at. Must not contain braces.
+   */
+  target: string;
+  /**
+   * Host path to bind-mount into the container. Must reside within a pool (under `/mnt`) and must not contain braces.
+   */
+  source: string;
+}
+/**
+ * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 5 more
+ */
+export interface ContainerGPUDevice {
+  /**
+   * Device type identifier for GPU devices.
+   */
+  dtype: "GPU";
+  /**
+   * GPU device type.
+   */
+  gpu_type: "AMD" | "INTEL" | "NVIDIA";
+  /**
+   * PCI address of the GPU device on the host system.
+   */
+  pci_address: string;
+}
+/**
  * Used by: container.device.query (event), container.query (event)
  */
 export interface ContainerNICDeviceInput2 {
@@ -2304,6 +2375,45 @@ export interface ContainerNICDeviceInput2 {
    * MAC address for the virtual network interface. `null` for auto-generation.
    */
   mac?: string | null;
+}
+/**
+ * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 5 more
+ */
+export interface ContainerUSBDevice {
+  /**
+   * Device type identifier for USB devices.
+   */
+  dtype: "USB";
+  /**
+   * USB device attributes for identification. `null` for USB host controller only.
+   */
+  usb?: USBAttributes | null;
+  /**
+   * Host USB device path to pass through. `null` for controller only.
+   */
+  device?: string | null;
+}
+/**
+ * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (response)
+ */
+export interface DefaultIdmapConfiguration {
+  /**
+   * Configuration type for default ID mapping.
+   */
+  type: "DEFAULT";
+}
+/**
+ * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (response)
+ */
+export interface IsolatedIdmapConfiguration {
+  /**
+   * Configuration type for isolated ID mapping.
+   */
+  type: "ISOLATED";
+  /**
+   * `null` when creating means we'll look up an unused slice on backend.
+   */
+  slice: number | null;
 }
 /**
  * Used by: container.query (event)
@@ -2529,6 +2639,12 @@ export interface ContainerDeviceNicAttachChoicesResult {
   MACVLAN: string[];
 }
 /**
+ * Used by: container.device.query (event)
+ */
+export interface ContainerDeviceRemovedEvent {
+  id: number;
+}
+/**
  * Used by: container.device.update (params)
  */
 export interface ContainerDeviceUpdate {
@@ -2663,6 +2779,12 @@ export interface ContainerImageQueryRegistryResultImageVersion {
   version: string;
 }
 /**
+ * Used by: container.query (event)
+ */
+export interface ContainerRemovedEvent {
+  id: number;
+}
+/**
  * Used by: container.stop (params)
  */
 export interface ContainerStopOptions {
@@ -2736,32 +2858,6 @@ export interface ContainerUpdate {
   capabilities_state?: {
     [k: string]: boolean;
   };
-}
-/**
- * Used by: core.ping_remote (params)
- */
-export interface CorePingRemoteArgs {
-  type?: TypeInput8;
-  /**
-   * Target hostname or IP address to ping.
-   */
-  hostname: string;
-  /**
-   * Timeout in seconds for each ping attempt.
-   */
-  timeout?: number;
-  /**
-   * Number of ping packets to send or `null` for default.
-   */
-  count?: number | null;
-  /**
-   * Network interface to use for pinging or `null` for default.
-   */
-  interface?: string | null;
-  /**
-   * Interval between ping packets or `null` for default.
-   */
-  interval?: string | null;
 }
 /**
  * Used by: cloudsync.credentials.query (event)
@@ -2850,6 +2946,24 @@ export interface CronJobUpdate {
    * System user account to run the command as.
    */
   user?: string;
+}
+/**
+ * Used by: device.get_info (params)
+ */
+export interface DeviceGetInfoOther {
+  type: TypeInput11;
+}
+/**
+ * Used by: disk.details (params)
+ */
+export interface DiskDetails {
+  /**
+   * Return all partitions currently written to disk.
+   *
+   * **NOTE: This is an expensive operation.**
+   */
+  join_partitions?: boolean;
+  type?: TypeInput14;
 }
 /**
  * Used by: disk.reset_sed (params)
@@ -3152,30 +3266,6 @@ export interface GraphIdentifier {
    * Specific instance identifier for the metric (e.g., device name, interface name). `null` for system-wide metrics.
    */
   identifier?: string | null;
-}
-/**
- * Used by: interface.update (params)
- */
-export interface InterfaceCreateAlias {
-  type?: TypeInput9;
-  /**
-   * The IP address for the failover alias.
-   */
-  address: "" | string;
-  /**
-   * The network mask in CIDR notation.
-   */
-  netmask: number;
-}
-/**
- * Used by: interface.update (params)
- */
-export interface InterfaceCreateFailoverAlias {
-  type?: TypeInput9;
-  /**
-   * The IP address for the failover alias.
-   */
-  address: "" | string;
 }
 /**
  * Used by: interface.update (params)
@@ -3508,6 +3598,38 @@ export interface ISCSITargetExtentEntry {
    * - `null`: Lock status is not available because path locking information was not requested.
    */
   locked: boolean | null;
+}
+/**
+ * Used by: keychaincredential.query (event)
+ */
+export interface KeychainCredentialAddedEvent {
+  id: number;
+  fields: KeychainCredentialEntryInput;
+}
+/**
+ * Used by: keychaincredential.query (event), replication.query (event), rsynctask.query (event)
+ */
+export interface KeychainCredentialEntryInput {
+  /**
+   * Unique identifier for this keychain credential.
+   */
+  id: number;
+  /**
+   * Distinguishes this Keychain Credential from others.
+   */
+  name: string;
+  type: TypeInput12;
+  /**
+   * Credential-specific configuration and authentication data.
+   */
+  attributes: SSHKeyPair | SSHCredentials;
+}
+/**
+ * Used by: keychaincredential.query (event)
+ */
+export interface KeychainCredentialChangedEvent {
+  id: number;
+  fields: KeychainCredentialEntryInput;
 }
 /**
  * Used by: keychaincredential.create (response), keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response), keychaincredential.update (response), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (params) … and 9 more
@@ -5715,6 +5837,126 @@ export interface ReportingGetDataResponse {
   legend: string[];
 }
 /**
+ * Used by: rsynctask.query (event)
+ */
+export interface RsyncTaskAddedEvent {
+  id: number;
+  fields: RsyncTaskEntryInput;
+}
+/**
+ * Used by: rsynctask.query (event)
+ */
+export interface RsyncTaskEntryInput {
+  /**
+   * Unique identifier for the rsync task.
+   */
+  id: number;
+  /**
+   * Local filesystem path to synchronize.
+   */
+  path: string;
+  /**
+   * The ZFS dataset containing the rsync task path (e.g., 'tank/data'). Returns `null` if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
+   */
+  dataset: string | null;
+  /**
+   * The path of the rsync task relative to the dataset mountpoint (e.g., 'backups/daily'). An empty string indicates the task path is at the dataset root. Returns `null` if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
+   */
+  relative_path: string | null;
+  /**
+   * Username to run the rsync task as.
+   */
+  user: string;
+  mode?: ModeInput3;
+  /**
+   * IP address or hostname of the remote system. If username differs on the remote host, "username@remote_host" format should be used.
+   */
+  remotehost?: string | null;
+  /**
+   * Port number for SSH connection. Only applies when `mode` is SSH.
+   */
+  remoteport?: number | null;
+  /**
+   * Name of remote module, this attribute should be specified when `mode` is set to MODULE.
+   */
+  remotemodule?: string | null;
+  /**
+   * In SSH mode, if `ssh_credentials` (a keychain credential of `SSH_CREDENTIALS` type) is specified then it is used to connect to the remote host. If it is not specified, then keys in `user`'s .ssh directory are used.
+   */
+  ssh_credentials?: KeychainCredentialEntryInput | null;
+  /**
+   * Path on the remote system to synchronize with.
+   */
+  remotepath?: string;
+  direction?: DirectionInput;
+  /**
+   * Description of the rsync task.
+   */
+  desc?: string;
+  schedule?: RsyncTaskSchedule;
+  /**
+   * Recursively transfer subdirectories.
+   */
+  recursive?: boolean;
+  /**
+   * Preserve modification times of files.
+   */
+  times?: boolean;
+  /**
+   * Reduce the size of the data to be transmitted.
+   */
+  compress?: boolean;
+  /**
+   * Make rsync run recursively, preserving symlinks, permissions, modification times, group, and special files.
+   */
+  archive?: boolean;
+  /**
+   * Delete files in the destination directory that do not exist in the source directory.
+   */
+  delete?: boolean;
+  /**
+   * Suppress informational messages from rsync.
+   */
+  quiet?: boolean;
+  /**
+   * Preserve original file permissions.
+   */
+  preserveperm?: boolean;
+  /**
+   * Preserve extended attributes of files.
+   */
+  preserveattr?: boolean;
+  /**
+   * Delay updating destination files until all transfers are complete.
+   */
+  delayupdates?: boolean;
+  /**
+   * Array of additional rsync command-line options.
+   */
+  extra?: string[];
+  /**
+   * Whether this rsync task is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Whether this rsync task is currently locked (running).
+   */
+  locked: boolean;
+  /**
+   * Information about the currently running job. `null` if no job is running.
+   */
+  job: {
+    [k: string]: unknown;
+  } | null;
+}
+/**
+ * Used by: rsynctask.query (event)
+ */
+export interface RsyncTaskChangedEvent {
+  id: number;
+  fields: RsyncTaskEntryInput;
+}
+/**
  * Used by: rsynctask.create (response), rsynctask.get_instance (params), rsynctask.get_instance (response), rsynctask.query (params), rsynctask.query (response), rsynctask.update (response)
  */
 export interface RsyncTaskEntry {
@@ -6433,6 +6675,12 @@ export interface SharingWebshareEntry {
    * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
    */
   tier?: TierInfo | null;
+}
+/**
+ * Used by: sharing.webshare.query (event)
+ */
+export interface SharingWebshareRemovedEvent {
+  id: number;
 }
 /**
  * Used by: sharing.webshare.update (params)
@@ -7173,6 +7421,76 @@ export interface TrueNASLicenseUploadOptions {
    * Propagate to another HA system.
    */
   ha_propagate?: boolean;
+}
+/**
+ * Used by: tunable.query (event)
+ */
+export interface TunableAddedEvent {
+  id: number;
+  fields: TunableEntryInput;
+}
+/**
+ * Used by: tunable.query (event)
+ */
+export interface TunableEntryInput {
+  type?: TypeInput13;
+  /**
+   * Name or identifier of the system parameter to tune.
+   */
+  var: string;
+  /**
+   * Value to assign to the tunable parameter.
+   */
+  value: string;
+  /**
+   * Optional descriptive comment explaining the purpose of this tunable.
+   */
+  comment?: string;
+  /**
+   * Whether this tunable is active and should be applied.
+   */
+  enabled?: boolean;
+  /**
+   * Unique identifier for the tunable configuration.
+   */
+  id: number;
+  /**
+   * Original system value of the parameter before this tunable was applied.
+   */
+  orig_value: string;
+}
+/**
+ * Used by: tunable.query (event)
+ */
+export interface TunableChangedEvent {
+  id: number;
+  fields: TunableEntryInput;
+}
+/**
+ * Used by: tunable.create (params)
+ */
+export interface TunableCreate {
+  type?: TypeInput13;
+  /**
+   * Name or identifier of the system parameter to tune.
+   */
+  var: string;
+  /**
+   * Value to assign to the tunable parameter.
+   */
+  value: string;
+  /**
+   * Optional descriptive comment explaining the purpose of this tunable.
+   */
+  comment?: string;
+  /**
+   * Whether this tunable is active and should be applied.
+   */
+  enabled?: boolean;
+  /**
+   * If `false`, then initramfs will not be updated after creating a ZFS tunable and you will need to run `system boot update_initramfs` manually.
+   */
+  update_initramfs?: boolean;
 }
 /**
  * Used by: tunable.create (response), tunable.get_instance (params), tunable.get_instance (response), tunable.query (params), tunable.query (response), tunable.update (response)
@@ -8903,6 +9221,55 @@ export interface ZfsTierRewriteJobRecoverArgs {
   tier_job_id: string;
 }
 /**
+ * Used by: zfs.tier.rewrite_job_status (event), zfs.tier.rewrite_job_status (response)
+ */
+export interface ZfsTierRewriteJobStats {
+  /**
+   * Unix timestamp (seconds) when the current run started. Reset each time the job is resumed or recovered.
+   */
+  start_time: number;
+  /**
+   * Unix timestamp (seconds) when the job was first created. Preserved across resumes.
+   */
+  initial_time: number;
+  /**
+   * Unix timestamp (seconds) of the most recent statistics update.
+   */
+  update_time: number;
+  /**
+   * Number of files processed in the current run. Reset to zero on each resume.
+   */
+  count_items: number;
+  /**
+   * Bytes processed in the current run. Reset to zero on each resume.
+   */
+  count_bytes: number;
+  /**
+   * Total number of files to process across the entire dataset.
+   */
+  total_items: number;
+  /**
+   * Total bytes to process across the entire dataset.
+   */
+  total_bytes: number;
+  /**
+   * Cumulative count of files that failed rewriting across all runs of this job.
+   */
+  failures: number;
+  /**
+   * Cumulative count of files successfully rewritten across all runs of this job.
+   */
+  success: number;
+  /**
+   * Directory path of the file currently being processed. Also used as the resume checkpoint if the job is interrupted.
+   */
+  parent: string;
+  /**
+   * Name of the file currently being processed.
+   */
+  name: string;
+}
+/**
  * Used by: zfs.tier.rewrite_job_status (params)
  */
 export interface ZfsTierRewriteJobStatusArgs {
@@ -8962,6 +9329,15 @@ export interface ZfsTierRewriteJobStatusEntryInput {
    * Error message describing why the job entered `ERROR` state, otherwise `null`.
    */
   error: string | null;
+}
+/**
+ * Used by: zfs.tier.rewrite_job_status (event)
+ */
+export interface ZfsTierRewriteJobStatusEventSourceArgs {
+  /**
+   * Rewrite job to subscribe to, in `dataset_name@job_uuid` format. Receives updates whenever the job status or statistics change.
+   */
+  tier_job_id: string;
 }
 /**
  * Used by: zfs.tier.rewrite_job_status (event)
@@ -9064,6 +9440,195 @@ export interface ZPoolEntry {
   features?: ZPoolFeature[] | null;
 }
 /**
+ * Used by: zpool.query (event), zpool.query (response)
+ */
+export interface ZPoolPropertyValue {
+  /**
+   * The raw string representation of the property.
+   */
+  raw: string;
+  /**
+   * The source from where this property received its value (DEFAULT, LOCAL, NONE, etc.).
+   */
+  source: string | null;
+  /**
+   * The native Python value of the property.
+   */
+  value: number | string | boolean | null;
+}
+/**
+ * Used by: zpool.query (event), zpool.query (response)
+ */
+export interface ZPoolTopology {
+  /**
+   * Array of data vdev configurations.
+   */
+  data: ZPoolVdev[];
+  /**
+   * Array of ZFS Intent Log (ZIL) vdev configurations.
+   */
+  log: ZPoolVdev[];
+  /**
+   * Array of L2ARC cache vdev configurations.
+   */
+  cache: ZPoolVdev[];
+  /**
+   * Array of spare disk configurations.
+   */
+  spares: ZPoolVdev[];
+  /**
+   * Array of special vdev configurations for metadata.
+   */
+  special: ZPoolVdev[];
+  /**
+   * Array of deduplication table vdev configurations.
+   */
+  dedup: ZPoolVdev[];
+}
+/**
+ * Used by: zpool.query (event), zpool.query (response)
+ */
+export interface ZPoolVdev {
+  /**
+   * Vdev name (e.g., 'mirror-0', '/dev/sda1').
+   */
+  name: string;
+  /**
+   * Vdev type (e.g., 'mirror', 'raidz1', 'disk').
+   */
+  vdev_type: string;
+  /**
+   * Globally unique identifier for this vdev.
+   */
+  guid: number;
+  /**
+   * Current state (ONLINE, DEGRADED, FAULTED, OFFLINE, UNAVAIL, etc.).
+   */
+  state: string;
+  stats: ZPoolVdevStats;
+  /**
+   * Child vdevs.
+   */
+  children: ZPoolVdev[];
+  /**
+   * GUID of the top-level vdev this belongs to.
+   */
+  top_guid?: number | null;
+  /**
+   * Device path stored in the vdev config (e.g. '/dev/disk/by-partuuid/<uuid>'). Unlike `name`, this is preserved for devices that were missing at pool import time. dRAID distributed spares store their synthetic spare name as the config path. `null` for interior vdevs (mirror, raidz, draid) that have no config path.
+   */
+  path?: string | null;
+}
+/**
+ * Used by: zpool.query (event), zpool.query (response)
+ */
+export interface ZPoolVdevStats {
+  /**
+   * High-resolution timestamp (nanoseconds).
+   */
+  timestamp?: number;
+  /**
+   * Allocated space in bytes.
+   */
+  allocated?: number;
+  /**
+   * Total space in bytes.
+   */
+  space?: number;
+  /**
+   * Deflated (compressed) space.
+   */
+  dspace?: number;
+  /**
+   * Physical space.
+   */
+  pspace?: number;
+  /**
+   * Replaceable dev size.
+   */
+  rsize?: number;
+  /**
+   * Expandable dev size.
+   */
+  esize?: number;
+  /**
+   * Number of read errors.
+   */
+  read_errors?: number;
+  /**
+   * Number of write errors.
+   */
+  write_errors?: number;
+  /**
+   * Number of checksum errors.
+   */
+  checksum_errors?: number;
+  /**
+   * Number of initialize errors.
+   */
+  initialize_errors?: number;
+  /**
+   * Number of direct I/O verify errors.
+   */
+  dio_verify_errors?: number;
+  /**
+   * Number of slow I/Os.
+   */
+  slow_ios?: number | null;
+  /**
+   * Self-healed bytes.
+   */
+  self_healed_bytes?: number;
+  /**
+   * Fragmentation percentage.
+   */
+  fragmentation?: number;
+  /**
+   * Bytes processed by scan.
+   */
+  scan_processed?: number;
+  /**
+   * Bytes processed by removal.
+   */
+  scan_removing?: number;
+  /**
+   * Bytes processed by rebuild.
+   */
+  rebuild_processed?: number;
+  /**
+   * Allocations halted.
+   */
+  noalloc?: number;
+  /**
+   * Read operations.
+   */
+  ops_read?: number;
+  /**
+   * Write operations.
+   */
+  ops_write?: number;
+  /**
+   * Bytes read.
+   */
+  bytes_read?: number;
+  /**
+   * Bytes written.
+   */
+  bytes_write?: number;
+  /**
+   * Configured ashift value.
+   */
+  configured_ashift?: number | null;
+  /**
+   * Logical ashift value.
+   */
+  logical_ashift?: number | null;
+  /**
+   * Physical ashift value.
+   */
+  physical_ashift?: number | null;
+}
+/**
  * Used by: zpool.query (response)
  */
 export interface ZPoolScan {
@@ -9105,6 +9670,68 @@ export interface ZPoolScan {
    * Number of seconds left (`null` if the scan is not running).
    */
   total_secs_left: number | null;
+}
+/**
+ * Used by: zpool.query (event), zpool.query (response)
+ */
+export interface ZPoolExpand {
+  /**
+   * Expansion state (e.g., SCANNING, FINISHED).
+   */
+  state: string;
+  /**
+   * Index of the vdev being expanded.
+   */
+  expanding_vdev: number;
+  /**
+   * Expansion start time (unix timestamp).
+   */
+  start_time: number;
+  /**
+   * Expansion end time as unix timestamp (`null` while expanding).
+   */
+  end_time: number | null;
+  /**
+   * Total bytes that need to be reflowed.
+   */
+  bytes_to_reflow: number;
+  /**
+   * Total bytes reflowed so far.
+   */
+  bytes_reflowed: number;
+  /**
+   * Non-zero if expansion is waiting for a resilver to complete.
+   */
+  waiting_for_resilver: number;
+  /**
+   * Estimated seconds remaining (`null` if not expanding).
+   */
+  total_secs_left: number | null;
+  /**
+   * Expansion progress (between 0 and 100%).
+   */
+  percentage: number;
+}
+/**
+ * Used by: zpool.query (event), zpool.query (response)
+ */
+export interface ZPoolFeature {
+  /**
+   * Feature name.
+   */
+  name: string;
+  /**
+   * Feature GUID.
+   */
+  guid: string;
+  /**
+   * Feature description.
+   */
+  description: string;
+  /**
+   * Feature state.
+   */
+  state: string;
 }
 /**
  * Used by: zpool.query (event)
@@ -9264,6 +9891,15 @@ export interface ZPoolQueryChangedEvent {
    */
   id: number;
   fields: ZPoolEntryInput;
+}
+/**
+ * Used by: zpool.query (event)
+ */
+export interface ZPoolQueryRemovedEvent {
+  /**
+   * Database id of the pool.
+   */
+  id: number;
 }
 /**
  * Used by: zpool.scrub.run (params)

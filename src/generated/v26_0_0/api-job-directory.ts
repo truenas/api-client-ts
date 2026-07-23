@@ -65,7 +65,6 @@ import type {
   SystemDatasetUpdate,
   SystemSecurityEntry,
   SystemSecurityUpdateArgs,
-  TunableCreate,
   TunableUpdate,
   UpdateFileOptions,
   UpdateManualOptions,
@@ -96,6 +95,7 @@ import type {
   PoolUpdate,
   ReplicationRunOnetimeArgs,
   SupportNewTicket,
+  TunableCreate,
   TunableEntry,
   ZpoolScrubRun,
 } from './api-types';

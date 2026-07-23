@@ -6,7 +6,9 @@
       "methods": [
         {
           "name": "test.create",
-          "roles": ["TEST_WRITE"],
+          "roles": [
+            "TEST_WRITE"
+          ],
           "doc": "Create a test item.",
           "removed_in": null,
           "job": false,
@@ -15,51 +17,110 @@
               "title": "TestCreateArgs",
               "type": "object",
               "additionalProperties": false,
-              "required": ["data"],
+              "required": [
+                "data"
+              ],
               "properties": {
-                "data": { "$ref": "#/$defs/TestCreate", "description": "The item to create." }
+                "data": {
+                  "$ref": "#/$defs/TestCreate",
+                  "description": "The item to create."
+                }
               },
               "$defs": {
                 "TestCreate": {
                   "title": "TestCreate",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["name"],
+                  "required": [
+                    "name"
+                  ],
                   "properties": {
-                    "name": { "title": "Name", "type": "string", "description": "Item name." },
-                    "kind": { "$ref": "#/$defs/KindEnum", "default": "A" },
-                    "tag": { "enum": ["RED", "BLUE"], "title": "TagChoice", "type": "string", "default": "RED", "description": "Display tag." }
+                    "name": {
+                      "title": "Name",
+                      "type": "string",
+                      "description": "Item name."
+                    },
+                    "kind": {
+                      "$ref": "#/$defs/KindEnum",
+                      "default": "A"
+                    },
+                    "tag": {
+                      "enum": [
+                        "RED",
+                        "BLUE"
+                      ],
+                      "title": "TagChoice",
+                      "type": "string",
+                      "default": "RED",
+                      "description": "Display tag."
+                    }
                   }
                 },
-                "KindEnum": { "enum": ["A", "B"], "title": "KindEnum", "type": "string", "description": "Kind of item." }
+                "KindEnum": {
+                  "enum": [
+                    "A",
+                    "B"
+                  ],
+                  "title": "KindEnum",
+                  "type": "string",
+                  "description": "Kind of item."
+                }
               }
             },
             "returns": {
               "title": "TestCreateResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "$ref": "#/$defs/TestEntry", "description": "The created item." } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "$ref": "#/$defs/TestEntry",
+                  "description": "The created item."
+                }
+              },
               "$defs": {
                 "TestEntry": {
                   "title": "TestEntry",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["id", "name"],
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
-                    "id": { "title": "Id", "type": "integer" },
-                    "name": { "title": "Name", "type": "string" },
-                    "kind": { "$ref": "#/$defs/KindEnum" }
+                    "id": {
+                      "title": "Id",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "$ref": "#/$defs/KindEnum"
+                    }
                   }
                 },
-                "KindEnum": { "enum": ["A", "B"], "title": "KindEnum", "type": "string", "description": "Kind of item." }
+                "KindEnum": {
+                  "enum": [
+                    "A",
+                    "B"
+                  ],
+                  "title": "KindEnum",
+                  "type": "string",
+                  "description": "Kind of item."
+                }
               }
             }
           }
         },
         {
           "name": "test.update",
-          "roles": ["TEST_WRITE"],
+          "roles": [
+            "TEST_WRITE"
+          ],
           "doc": "Update a widget.",
           "removed_in": "v3.0.0",
           "job": false,
@@ -68,15 +129,28 @@
               "title": "TestUpdateArgs",
               "type": "object",
               "additionalProperties": false,
-              "required": ["widget"],
-              "properties": { "widget": { "$ref": "#/$defs/Widget" } },
+              "required": [
+                "widget"
+              ],
+              "properties": {
+                "widget": {
+                  "$ref": "#/$defs/Widget"
+                }
+              },
               "$defs": {
                 "Widget": {
                   "title": "Widget",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["a"],
-                  "properties": { "a": { "title": "A", "type": "string" } }
+                  "required": [
+                    "a"
+                  ],
+                  "properties": {
+                    "a": {
+                      "title": "A",
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -84,15 +158,23 @@
               "title": "TestUpdateResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "type": "null" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "type": "null"
+                }
+              },
               "$defs": {}
             }
           }
         },
         {
           "name": "test.get",
-          "roles": ["TEST_READ"],
+          "roles": [
+            "TEST_READ"
+          ],
           "doc": "Get the widget.",
           "removed_in": null,
           "job": false,
@@ -109,17 +191,32 @@
               "title": "TestGetResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "$ref": "#/$defs/Widget" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "$ref": "#/$defs/Widget"
+                }
+              },
               "$defs": {
                 "Widget": {
                   "title": "Widget",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["a", "computed"],
+                  "required": [
+                    "a",
+                    "computed"
+                  ],
                   "properties": {
-                    "a": { "title": "A", "type": "string" },
-                    "computed": { "title": "Computed", "type": "integer" }
+                    "a": {
+                      "title": "A",
+                      "type": "string"
+                    },
+                    "computed": {
+                      "title": "Computed",
+                      "type": "integer"
+                    }
                   }
                 }
               }
@@ -128,7 +225,9 @@
         },
         {
           "name": "test.query",
-          "roles": ["TEST_READ"],
+          "roles": [
+            "TEST_READ"
+          ],
           "doc": "Query test items.",
           "removed_in": null,
           "job": false,
@@ -139,8 +238,17 @@
               "additionalProperties": false,
               "required": [],
               "properties": {
-                "filters": { "title": "filters", "type": "array", "items": {}, "default": [], "description": "Query filters." },
-                "options": { "$ref": "#/$defs/QueryOptions", "default": {} }
+                "filters": {
+                  "title": "filters",
+                  "type": "array",
+                  "items": {},
+                  "default": [],
+                  "description": "Query filters."
+                },
+                "options": {
+                  "$ref": "#/$defs/QueryOptions",
+                  "default": {}
+                }
               },
               "$defs": {
                 "QueryOptions": {
@@ -148,14 +256,42 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "count": { "type": "boolean", "default": false },
-                    "get": { "type": "boolean", "default": false },
-                    "limit": { "type": "integer", "default": 0 },
-                    "offset": { "type": "integer", "default": 0 },
-                    "order_by": { "type": "array", "items": { "type": "string" }, "default": [] },
-                    "select": { "type": "array", "items": {}, "default": [] },
-                    "extra": { "type": "object", "default": {} },
-                    "force_sql_filters": { "type": "boolean", "default": false }
+                    "count": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "get": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "default": 0
+                    },
+                    "offset": {
+                      "type": "integer",
+                      "default": 0
+                    },
+                    "order_by": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "select": {
+                      "type": "array",
+                      "items": {},
+                      "default": []
+                    },
+                    "extra": {
+                      "type": "object",
+                      "default": {}
+                    },
+                    "force_sql_filters": {
+                      "type": "boolean",
+                      "default": false
+                    }
                   }
                 }
               }
@@ -164,13 +300,24 @@
               "title": "TestQueryResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
+              "required": [
+                "result"
+              ],
               "properties": {
                 "result": {
                   "anyOf": [
-                    { "type": "array", "items": { "$ref": "#/$defs/TestEntry" } },
-                    { "$ref": "#/$defs/TestEntry" },
-                    { "type": "integer" }
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/TestEntry"
+                      }
+                    },
+                    {
+                      "$ref": "#/$defs/TestEntry"
+                    },
+                    {
+                      "type": "integer"
+                    }
                   ]
                 }
               },
@@ -179,21 +326,42 @@
                   "title": "TestEntry",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["id", "name"],
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
-                    "id": { "title": "Id", "type": "integer" },
-                    "name": { "title": "Name", "type": "string" },
-                    "kind": { "$ref": "#/$defs/KindEnum" }
+                    "id": {
+                      "title": "Id",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "$ref": "#/$defs/KindEnum"
+                    }
                   }
                 },
-                "KindEnum": { "enum": ["A", "B"], "title": "KindEnum", "type": "string", "description": "Kind of item." }
+                "KindEnum": {
+                  "enum": [
+                    "A",
+                    "B"
+                  ],
+                  "title": "KindEnum",
+                  "type": "string",
+                  "description": "Kind of item."
+                }
               }
             }
           }
         },
         {
           "name": "test.run",
-          "roles": ["TEST_WRITE"],
+          "roles": [
+            "TEST_WRITE"
+          ],
           "doc": "Run the long task.",
           "removed_in": null,
           "job": true,
@@ -202,23 +370,38 @@
               "title": "TestRunArgs",
               "type": "object",
               "additionalProperties": false,
-              "required": ["id"],
-              "properties": { "id": { "title": "Id", "type": "integer" } },
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "type": "integer"
+                }
+              },
               "$defs": {}
             },
             "returns": {
               "title": "TestRunResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "type": "boolean" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "type": "boolean"
+                }
+              },
               "$defs": {}
             }
           }
         },
         {
           "name": "iscsi.fetch",
-          "roles": ["TEST_READ"],
+          "roles": [
+            "TEST_READ"
+          ],
           "doc": "Fetch the iSCSI thing.",
           "removed_in": null,
           "job": false,
@@ -235,15 +418,28 @@
               "title": "IscsiFetchResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "$ref": "#/$defs/iSCSIThing" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "$ref": "#/$defs/iSCSIThing"
+                }
+              },
               "$defs": {
                 "iSCSIThing": {
                   "title": "iSCSIThing",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["iqn"],
-                  "properties": { "iqn": { "title": "Iqn", "type": "string" } }
+                  "required": [
+                    "iqn"
+                  ],
+                  "properties": {
+                    "iqn": {
+                      "title": "Iqn",
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -253,7 +449,9 @@
       "events": [
         {
           "name": "test.changed",
-          "roles": ["TEST_READ"],
+          "roles": [
+            "TEST_READ"
+          ],
           "doc": "Sent on test item changes.",
           "removed_in": null,
           "schemas": {
@@ -261,25 +459,76 @@
               "title": "TestChangedAddedEvent",
               "type": "object",
               "additionalProperties": false,
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "properties": {
-                "id": { "title": "Id", "type": "integer" },
-                "fields": { "$ref": "#/$defs/TestEntry" }
+                "id": {
+                  "title": "Id",
+                  "type": "integer"
+                },
+                "fields": {
+                  "$ref": "#/$defs/TestEntry"
+                }
               },
               "$defs": {
                 "TestEntry": {
                   "title": "TestEntry",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["id", "name"],
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
-                    "id": { "title": "Id", "type": "integer" },
-                    "name": { "title": "Name", "type": "string" },
-                    "kind": { "$ref": "#/$defs/KindEnum" }
+                    "id": {
+                      "title": "Id",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "$ref": "#/$defs/KindEnum"
+                    }
                   }
                 },
-                "KindEnum": { "enum": ["A", "B"], "title": "KindEnum", "type": "string", "description": "Kind of item." }
+                "KindEnum": {
+                  "enum": [
+                    "A",
+                    "B"
+                  ],
+                  "title": "KindEnum",
+                  "type": "string",
+                  "description": "Kind of item."
+                }
               }
+            }
+          }
+        },
+        {
+          "name": "test.remove",
+          "roles": [
+            "TEST_READ"
+          ],
+          "doc": "Dynamic event source for test.remove progress. Middleware emits this event in every version's dump even though the method is v2-only.",
+          "removed_in": null,
+          "schemas": {
+            "ADDED": {
+              "title": "TestRemoveAddedEvent",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "type": "integer"
+                }
+              },
+              "$defs": {}
             }
           }
         }
@@ -291,7 +540,9 @@
       "methods": [
         {
           "name": "test.create",
-          "roles": ["TEST_WRITE"],
+          "roles": [
+            "TEST_WRITE"
+          ],
           "doc": "Create a test item.",
           "removed_in": null,
           "job": false,
@@ -300,52 +551,115 @@
               "title": "TestCreateArgs",
               "type": "object",
               "additionalProperties": false,
-              "required": ["data"],
+              "required": [
+                "data"
+              ],
               "properties": {
-                "data": { "$ref": "#/$defs/TestCreate", "description": "The item to create." }
+                "data": {
+                  "$ref": "#/$defs/TestCreate",
+                  "description": "The item to create."
+                }
               },
               "$defs": {
                 "TestCreate": {
                   "title": "TestCreate",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["name"],
+                  "required": [
+                    "name"
+                  ],
                   "properties": {
-                    "name": { "title": "Name", "type": "string", "description": "Item name." },
-                    "kind": { "$ref": "#/$defs/KindEnum", "default": "A" },
-                    "tag": { "enum": ["RED", "BLUE"], "title": "TagChoice", "type": "string", "default": "RED", "description": "Display tag." }
+                    "name": {
+                      "title": "Name",
+                      "type": "string",
+                      "description": "Item name."
+                    },
+                    "kind": {
+                      "$ref": "#/$defs/KindEnum",
+                      "default": "A"
+                    },
+                    "tag": {
+                      "enum": [
+                        "RED",
+                        "BLUE"
+                      ],
+                      "title": "TagChoice",
+                      "type": "string",
+                      "default": "RED",
+                      "description": "Display tag."
+                    }
                   }
                 },
-                "KindEnum": { "enum": ["A", "B"], "title": "KindEnum", "type": "string", "description": "Kind of item." }
+                "KindEnum": {
+                  "enum": [
+                    "A",
+                    "B"
+                  ],
+                  "title": "KindEnum",
+                  "type": "string",
+                  "description": "Kind of item."
+                }
               }
             },
             "returns": {
               "title": "TestCreateResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "$ref": "#/$defs/TestEntry", "description": "The created item." } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "$ref": "#/$defs/TestEntry",
+                  "description": "The created item."
+                }
+              },
               "$defs": {
                 "TestEntry": {
                   "title": "TestEntry",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["id", "name"],
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
-                    "id": { "title": "Id", "type": "integer" },
-                    "name": { "title": "Name", "type": "string" },
-                    "kind": { "$ref": "#/$defs/KindEnum" },
-                    "extra_flag": { "title": "Extra Flag", "type": "boolean", "description": "New in v2." }
+                    "id": {
+                      "title": "Id",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "$ref": "#/$defs/KindEnum"
+                    },
+                    "extra_flag": {
+                      "title": "Extra Flag",
+                      "type": "boolean",
+                      "description": "New in v2."
+                    }
                   }
                 },
-                "KindEnum": { "enum": ["A", "B"], "title": "KindEnum", "type": "string", "description": "Kind of item." }
+                "KindEnum": {
+                  "enum": [
+                    "A",
+                    "B"
+                  ],
+                  "title": "KindEnum",
+                  "type": "string",
+                  "description": "Kind of item."
+                }
               }
             }
           }
         },
         {
           "name": "test.update",
-          "roles": ["TEST_WRITE"],
+          "roles": [
+            "TEST_WRITE"
+          ],
           "doc": "Update a widget.",
           "removed_in": "v3.0.0",
           "job": false,
@@ -354,15 +668,28 @@
               "title": "TestUpdateArgs",
               "type": "object",
               "additionalProperties": false,
-              "required": ["widget"],
-              "properties": { "widget": { "$ref": "#/$defs/Widget" } },
+              "required": [
+                "widget"
+              ],
+              "properties": {
+                "widget": {
+                  "$ref": "#/$defs/Widget"
+                }
+              },
               "$defs": {
                 "Widget": {
                   "title": "Widget",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["a"],
-                  "properties": { "a": { "title": "A", "type": "string" } }
+                  "required": [
+                    "a"
+                  ],
+                  "properties": {
+                    "a": {
+                      "title": "A",
+                      "type": "string"
+                    }
+                  }
                 }
               }
             },
@@ -370,15 +697,23 @@
               "title": "TestUpdateResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "type": "null" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "type": "null"
+                }
+              },
               "$defs": {}
             }
           }
         },
         {
           "name": "test.get",
-          "roles": ["TEST_READ"],
+          "roles": [
+            "TEST_READ"
+          ],
           "doc": "Get the widget.",
           "removed_in": null,
           "job": false,
@@ -395,17 +730,32 @@
               "title": "TestGetResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "$ref": "#/$defs/Widget" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "$ref": "#/$defs/Widget"
+                }
+              },
               "$defs": {
                 "Widget": {
                   "title": "Widget",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["a", "computed"],
+                  "required": [
+                    "a",
+                    "computed"
+                  ],
                   "properties": {
-                    "a": { "title": "A", "type": "string" },
-                    "computed": { "title": "Computed", "type": "integer" }
+                    "a": {
+                      "title": "A",
+                      "type": "string"
+                    },
+                    "computed": {
+                      "title": "Computed",
+                      "type": "integer"
+                    }
                   }
                 }
               }
@@ -414,7 +764,9 @@
         },
         {
           "name": "test.query",
-          "roles": ["TEST_READ"],
+          "roles": [
+            "TEST_READ"
+          ],
           "doc": "Query test items.",
           "removed_in": null,
           "job": false,
@@ -425,8 +777,17 @@
               "additionalProperties": false,
               "required": [],
               "properties": {
-                "filters": { "title": "filters", "type": "array", "items": {}, "default": [], "description": "Query filters." },
-                "options": { "$ref": "#/$defs/QueryOptions", "default": {} }
+                "filters": {
+                  "title": "filters",
+                  "type": "array",
+                  "items": {},
+                  "default": [],
+                  "description": "Query filters."
+                },
+                "options": {
+                  "$ref": "#/$defs/QueryOptions",
+                  "default": {}
+                }
               },
               "$defs": {
                 "QueryOptions": {
@@ -434,14 +795,42 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
-                    "count": { "type": "boolean", "default": false },
-                    "get": { "type": "boolean", "default": false },
-                    "limit": { "type": "integer", "default": 0 },
-                    "offset": { "type": "integer", "default": 0 },
-                    "order_by": { "type": "array", "items": { "type": "string" }, "default": [] },
-                    "select": { "type": "array", "items": {}, "default": [] },
-                    "extra": { "type": "object", "default": {} },
-                    "force_sql_filters": { "type": "boolean", "default": false }
+                    "count": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "get": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "default": 0
+                    },
+                    "offset": {
+                      "type": "integer",
+                      "default": 0
+                    },
+                    "order_by": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "select": {
+                      "type": "array",
+                      "items": {},
+                      "default": []
+                    },
+                    "extra": {
+                      "type": "object",
+                      "default": {}
+                    },
+                    "force_sql_filters": {
+                      "type": "boolean",
+                      "default": false
+                    }
                   }
                 }
               }
@@ -450,13 +839,24 @@
               "title": "TestQueryResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
+              "required": [
+                "result"
+              ],
               "properties": {
                 "result": {
                   "anyOf": [
-                    { "type": "array", "items": { "$ref": "#/$defs/TestEntry" } },
-                    { "$ref": "#/$defs/TestEntry" },
-                    { "type": "integer" }
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/TestEntry"
+                      }
+                    },
+                    {
+                      "$ref": "#/$defs/TestEntry"
+                    },
+                    {
+                      "type": "integer"
+                    }
                   ]
                 }
               },
@@ -465,22 +865,47 @@
                   "title": "TestEntry",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["id", "name"],
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
-                    "id": { "title": "Id", "type": "integer" },
-                    "name": { "title": "Name", "type": "string" },
-                    "kind": { "$ref": "#/$defs/KindEnum" },
-                    "extra_flag": { "title": "Extra Flag", "type": "boolean", "description": "New in v2." }
+                    "id": {
+                      "title": "Id",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "$ref": "#/$defs/KindEnum"
+                    },
+                    "extra_flag": {
+                      "title": "Extra Flag",
+                      "type": "boolean",
+                      "description": "New in v2."
+                    }
                   }
                 },
-                "KindEnum": { "enum": ["A", "B"], "title": "KindEnum", "type": "string", "description": "Kind of item." }
+                "KindEnum": {
+                  "enum": [
+                    "A",
+                    "B"
+                  ],
+                  "title": "KindEnum",
+                  "type": "string",
+                  "description": "Kind of item."
+                }
               }
             }
           }
         },
         {
           "name": "test.run",
-          "roles": ["TEST_WRITE"],
+          "roles": [
+            "TEST_WRITE"
+          ],
           "doc": "Run the long task.",
           "removed_in": null,
           "job": true,
@@ -489,23 +914,38 @@
               "title": "TestRunArgs",
               "type": "object",
               "additionalProperties": false,
-              "required": ["id"],
-              "properties": { "id": { "title": "Id", "type": "integer" } },
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "type": "integer"
+                }
+              },
               "$defs": {}
             },
             "returns": {
               "title": "TestRunResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "type": "boolean" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "type": "boolean"
+                }
+              },
               "$defs": {}
             }
           }
         },
         {
           "name": "iscsi.fetch",
-          "roles": ["TEST_READ"],
+          "roles": [
+            "TEST_READ"
+          ],
           "doc": "Fetch the iSCSI thing.",
           "removed_in": null,
           "job": false,
@@ -522,15 +962,28 @@
               "title": "IscsiFetchResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "$ref": "#/$defs/iSCSIThing" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "$ref": "#/$defs/iSCSIThing"
+                }
+              },
               "$defs": {
                 "iSCSIThing": {
                   "title": "iSCSIThing",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["iqn"],
-                  "properties": { "iqn": { "title": "Iqn", "type": "string" } }
+                  "required": [
+                    "iqn"
+                  ],
+                  "properties": {
+                    "iqn": {
+                      "title": "Iqn",
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -538,7 +991,9 @@
         },
         {
           "name": "test.remove",
-          "roles": ["TEST_WRITE"],
+          "roles": [
+            "TEST_WRITE"
+          ],
           "doc": "Remove a test item. New in v2.",
           "removed_in": null,
           "job": false,
@@ -547,16 +1002,29 @@
               "title": "TestRemoveArgs",
               "type": "object",
               "additionalProperties": false,
-              "required": ["id"],
-              "properties": { "id": { "title": "Id", "type": "integer" } },
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "type": "integer"
+                }
+              },
               "$defs": {}
             },
             "returns": {
               "title": "TestRemoveResult",
               "type": "object",
               "additionalProperties": false,
-              "required": ["result"],
-              "properties": { "result": { "type": "null" } },
+              "required": [
+                "result"
+              ],
+              "properties": {
+                "result": {
+                  "type": "null"
+                }
+              },
               "$defs": {}
             }
           }
@@ -565,7 +1033,9 @@
       "events": [
         {
           "name": "test.changed",
-          "roles": ["TEST_READ"],
+          "roles": [
+            "TEST_READ"
+          ],
           "doc": "Sent on test item changes.",
           "removed_in": null,
           "schemas": {
@@ -573,26 +1043,81 @@
               "title": "TestChangedAddedEvent",
               "type": "object",
               "additionalProperties": false,
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "properties": {
-                "id": { "title": "Id", "type": "integer" },
-                "fields": { "$ref": "#/$defs/TestEntry" }
+                "id": {
+                  "title": "Id",
+                  "type": "integer"
+                },
+                "fields": {
+                  "$ref": "#/$defs/TestEntry"
+                }
               },
               "$defs": {
                 "TestEntry": {
                   "title": "TestEntry",
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["id", "name"],
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
-                    "id": { "title": "Id", "type": "integer" },
-                    "name": { "title": "Name", "type": "string" },
-                    "kind": { "$ref": "#/$defs/KindEnum" },
-                    "extra_flag": { "title": "Extra Flag", "type": "boolean", "description": "New in v2." }
+                    "id": {
+                      "title": "Id",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "$ref": "#/$defs/KindEnum"
+                    },
+                    "extra_flag": {
+                      "title": "Extra Flag",
+                      "type": "boolean",
+                      "description": "New in v2."
+                    }
                   }
                 },
-                "KindEnum": { "enum": ["A", "B"], "title": "KindEnum", "type": "string", "description": "Kind of item." }
+                "KindEnum": {
+                  "enum": [
+                    "A",
+                    "B"
+                  ],
+                  "title": "KindEnum",
+                  "type": "string",
+                  "description": "Kind of item."
+                }
               }
+            }
+          }
+        },
+        {
+          "name": "test.remove",
+          "roles": [
+            "TEST_READ"
+          ],
+          "doc": "Dynamic event source for test.remove progress. Middleware emits this event in every version's dump even though the method is v2-only.",
+          "removed_in": null,
+          "schemas": {
+            "ADDED": {
+              "title": "TestRemoveAddedEvent",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "type": "integer"
+                }
+              },
+              "$defs": {}
             }
           }
         }

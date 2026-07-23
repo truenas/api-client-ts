@@ -15,17 +15,12 @@ import type {
   AppRemovedEvent,
   AuthSessionsRemovedEvent,
   BootEnvironmentRemovedEvent,
-  CertificateRemovedEvent,
   CloudBackupRemovedEvent,
-  CloudSyncRemovedEvent,
-  ContainerDeviceRemovedEvent,
-  ContainerRemovedEvent,
   CredentialsRemovedEvent,
   CronJobAddedEvent,
   CronJobChangedEvent,
   CronJobRemovedEvent,
   DNSAuthenticatorRemovedEvent,
-  DiskQueryRemovedEvent,
   DockerNetworkRemovedEvent,
   FCHostAddedEvent,
   FCHostChangedEvent,
@@ -45,42 +40,22 @@ import type {
   ISCSITargetRemovedEvent,
   ISCSITargetToExtentRemovedEvent,
   InitShutdownScriptRemovedEvent,
-  InterfaceRemovedEvent,
-  JBOFRemovedEvent,
   KeychainCredentialRemovedEvent,
   NTPServerRemovedEvent,
-  NVMetHostRemovedEvent,
-  NVMetHostSubsysRemovedEvent,
-  NVMetNamespaceRemovedEvent,
-  NVMetPortSubsysRemovedEvent,
-  NVMetSubsysRemovedEvent,
   PeriodicSnapshotTaskRemovedEvent,
-  PoolDatasetRemovedEvent,
-  PoolRemovedEvent,
-  PoolScanChangedEvent,
   PoolScrubRemovedEvent,
-  PoolSnapshotRemovedEvent,
   PrivilegeRemovedEvent,
-  ReplicationRemovedEvent,
   ReportingExportsRemovedEvent,
-  RsyncTaskRemovedEvent,
   SharingNFSRemovedEvent,
-  SharingSMBRemovedEvent,
-  SharingWebshareRemovedEvent,
   StaticRouteRemovedEvent,
-  TunableRemovedEvent,
   UserAddedEvent,
   UserChangedEvent,
   UserRemovedEvent,
+} from '../v25_04_0/api-types';
+import type {
   VMDeviceRemovedEvent,
   VMRemovedEvent,
-  VMWareRemovedEvent,
-  ZPoolQueryAddedEvent,
-  ZPoolQueryChangedEvent,
-  ZPoolQueryRemovedEvent,
-  ZfsTierRewriteJobQueryEventSourceArgs,
-  ZfsTierRewriteJobStatusEventSourceArgs,
-} from '../v25_04_0/api-types';
+} from '../v25_04_2/api-types';
 import type {
   ACLTemplateAddedEvent,
   ACLTemplateChangedEvent,
@@ -95,24 +70,28 @@ import type {
   BootEnvironmentChangedEvent,
   CertificateAddedEvent,
   CertificateChangedEvent,
+  CertificateRemovedEvent,
   CloudBackupAddedEvent,
   CloudBackupChangedEvent,
   CloudSyncAddedEvent,
   CloudSyncChangedEvent,
-  ContainerAddedEvent,
-  ContainerChangedEvent,
-  ContainerDeviceAddedEvent,
-  ContainerDeviceChangedEvent,
+  CloudSyncRemovedEvent,
+  CoreGetJobsAddedEvent,
+  CoreGetJobsChangedEvent,
   CredentialsAddedEvent,
   CredentialsChangedEvent,
   DNSAuthenticatorAddedEvent,
   DNSAuthenticatorChangedEvent,
+  DirectoryServicesStatusChangedEvent,
   DiskQueryAddedEvent,
   DiskQueryChangedEvent,
+  DiskQueryRemovedEvent,
   DockerNetworkAddedEvent,
   DockerNetworkChangedEvent,
   DockerStateChangedEvent,
+  FailoverDisabledReasonsChangedEvent,
   FailoverRebootInfoChangedEvent,
+  FailoverStatusChangedEvent,
   GroupAddedEvent,
   GroupChangedEvent,
   ISCSIPortalAddedEvent,
@@ -127,58 +106,84 @@ import type {
   InitShutdownScriptChangedEvent,
   InterfaceAddedEvent,
   InterfaceChangedEvent,
+  InterfaceRemovedEvent,
   JBOFAddedEvent,
   JBOFChangedEvent,
+  JBOFRemovedEvent,
+  KerberosKeytabAddedEvent,
+  KerberosKeytabChangedEvent,
+  KerberosKeytabRemovedEvent,
+  KerberosRealmAddedEvent,
+  KerberosRealmChangedEvent,
+  KerberosRealmRemovedEvent,
   KeychainCredentialAddedEvent,
   KeychainCredentialChangedEvent,
   NTPServerAddedEvent,
   NTPServerChangedEvent,
   NVMetHostAddedEvent,
   NVMetHostChangedEvent,
+  NVMetHostRemovedEvent,
   NVMetHostSubsysAddedEvent,
   NVMetHostSubsysChangedEvent,
+  NVMetHostSubsysRemovedEvent,
   NVMetNamespaceAddedEvent,
   NVMetNamespaceChangedEvent,
+  NVMetNamespaceRemovedEvent,
+  NVMetPortAddedEvent,
+  NVMetPortChangedEvent,
+  NVMetPortRemovedEvent,
   NVMetPortSubsysAddedEvent,
   NVMetPortSubsysChangedEvent,
+  NVMetPortSubsysRemovedEvent,
   NVMetSubsysAddedEvent,
   NVMetSubsysChangedEvent,
+  NVMetSubsysRemovedEvent,
   PeriodicSnapshotTaskAddedEvent,
   PeriodicSnapshotTaskChangedEvent,
   PoolAddedEvent,
   PoolChangedEvent,
   PoolDatasetAddedEvent,
   PoolDatasetChangedEvent,
+  PoolDatasetRemovedEvent,
+  PoolRemovedEvent,
+  PoolScanChangedEvent,
   PoolScrubAddedEvent,
   PoolScrubChangedEvent,
   PoolSnapshotAddedEvent,
   PoolSnapshotChangedEvent,
+  PoolSnapshotRemovedEvent,
   PrivilegeAddedEvent,
   PrivilegeChangedEvent,
   ReplicationAddedEvent,
   ReplicationChangedEvent,
+  ReplicationRemovedEvent,
   ReportingExportsAddedEvent,
   ReportingExportsChangedEvent,
   RsyncTaskAddedEvent,
   RsyncTaskChangedEvent,
+  RsyncTaskRemovedEvent,
+  ServiceAddedEvent,
+  ServiceChangedEvent,
+  ServiceRemovedEvent,
   SharingNFSAddedEvent,
   SharingNFSChangedEvent,
-  SharingWebshareAddedEvent,
-  SharingWebshareChangedEvent,
+  SharingSMBRemovedEvent,
   StaticRouteAddedEvent,
   StaticRouteChangedEvent,
+  SystemReadyAddedEvent,
   SystemRebootInfoChangedEvent,
   TruecommandConfigChangedEvent,
   TunableAddedEvent,
   TunableChangedEvent,
+  TunableRemovedEvent,
+  UpdateStatusChangedEvent,
   VMAddedEvent,
   VMChangedEvent,
   VMDeviceAddedEvent,
   VMDeviceChangedEvent,
   VMWareAddedEvent,
   VMWareChangedEvent,
-  ZfsTierRewriteJobQueryEventSourceEvent2,
-  ZfsTierRewriteJobStatusEventSourceEvent2,
+  VMWareRemovedEvent,
 } from '../v25_10_0/api-types';
 import type {
   SharingSMBAddedEvent,
@@ -296,23 +301,11 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on container.device changes.
-   * @roles CONTAINER_DEVICE_READ
+   * Updates on job changes.
    */
-  'container.device.query': {
-    added: ContainerDeviceAddedEvent;
-    changed: ContainerDeviceChangedEvent;
-    removed: ContainerDeviceRemovedEvent;
-  };
-
-  /**
-   * Sent on container changes.
-   * @roles CONTAINER_READ
-   */
-  'container.query': {
-    added: ContainerAddedEvent;
-    changed: ContainerChangedEvent;
-    removed: ContainerRemovedEvent;
+  'core.get_jobs': {
+    added: CoreGetJobsAddedEvent;
+    changed: CoreGetJobsChangedEvent;
   };
 
   /**
@@ -323,6 +316,14 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: CronJobAddedEvent;
     changed: CronJobChangedEvent;
     removed: CronJobRemovedEvent;
+  };
+
+  /**
+   * Sent on directory service state changes.
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'directoryservices.status': {
+    changed: DirectoryServicesStatusChangedEvent;
   };
 
   /**
@@ -354,11 +355,27 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent when failover status reasons change.
+   * @roles FAILOVER_READ
+   */
+  'failover.disabled.reasons': {
+    changed: FailoverDisabledReasonsChangedEvent;
+  };
+
+  /**
    * Sent when a system reboot is required.
    * @roles FAILOVER_READ
    */
   'failover.reboot.info': {
     changed: FailoverRebootInfoChangedEvent;
+  };
+
+  /**
+   * Sent when failover status changes.
+   * @roles FAILOVER_READ
+   */
+  'failover.status': {
+    changed: FailoverStatusChangedEvent;
   };
 
   /**
@@ -492,6 +509,26 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on kerberos.keytab changes.
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.keytab.query': {
+    added: KerberosKeytabAddedEvent;
+    changed: KerberosKeytabChangedEvent;
+    removed: KerberosKeytabRemovedEvent;
+  };
+
+  /**
+   * Sent on kerberos.realm changes.
+   * @roles DIRECTORY_SERVICE_READ
+   */
+  'kerberos.realm.query': {
+    added: KerberosRealmAddedEvent;
+    changed: KerberosRealmChangedEvent;
+    removed: KerberosRealmRemovedEvent;
+  };
+
+  /**
    * Sent on keychaincredential changes.
    * @roles KEYCHAIN_CREDENTIAL_READ
    */
@@ -529,6 +566,16 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: NVMetNamespaceAddedEvent;
     changed: NVMetNamespaceChangedEvent;
     removed: NVMetNamespaceRemovedEvent;
+  };
+
+  /**
+   * Sent on nvmet.port changes.
+   * @roles SHARING_NVME_TARGET_READ
+   */
+  'nvmet.port.query': {
+    added: NVMetPortAddedEvent;
+    changed: NVMetPortChangedEvent;
+    removed: NVMetPortRemovedEvent;
   };
 
   /**
@@ -650,6 +697,16 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
+   * Sent on service changes.
+   * @roles SERVICE_READ
+   */
+  'service.query': {
+    added: ServiceAddedEvent;
+    changed: ServiceChangedEvent;
+    removed: ServiceRemovedEvent;
+  };
+
+  /**
    * Sent on sharing.nfs changes.
    * @roles SHARING_NFS_READ
    */
@@ -670,16 +727,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on sharing.webshare changes.
-   * @roles SHARING_WEBSHARE_READ
-   */
-  'sharing.webshare.query': {
-    added: SharingWebshareAddedEvent;
-    changed: SharingWebshareChangedEvent;
-    removed: SharingWebshareRemovedEvent;
-  };
-
-  /**
    * Sent on staticroute changes.
    * @roles NETWORK_INTERFACE_READ
    */
@@ -697,6 +744,14 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: NTPServerAddedEvent;
     changed: NTPServerChangedEvent;
     removed: NTPServerRemovedEvent;
+  };
+
+  /**
+   * Finished boot process
+   * @roles SYSTEM_GENERAL_READ
+   */
+  'system.ready': {
+    added: SystemReadyAddedEvent;
   };
 
   /**
@@ -723,6 +778,14 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: TunableAddedEvent;
     changed: TunableChangedEvent;
     removed: TunableRemovedEvent;
+  };
+
+  /**
+   * Updated on update status changes.
+   * @roles SYSTEM_UPDATE_READ
+   */
+  'update.status': {
+    changed: UpdateStatusChangedEvent;
   };
 
   /**
@@ -763,41 +826,5 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: VMWareAddedEvent;
     changed: VMWareChangedEvent;
     removed: VMWareRemovedEvent;
-  };
-
-  /**
-   * Subscribe to ZFS rewrite job collection events (ADDED, CHANGED, REMOVED).
-   * On subscribe, sends ADDED for all existing jobs, then polls every 5 seconds
-   * and fires CHANGED when a job transitions state or REMOVED when it disappears.
-   *
-   * This event is generated by a dynamic source. If you want to specify subscription params, subscribe to it using the name in the following format `zfs.tier.rewrite_job_query:{"param": "value"}`
-   * @roles DATASET_READ
-   */
-  'zfs.tier.rewrite_job_query': {
-    subscriptionParams: ZfsTierRewriteJobQueryEventSourceArgs;
-    added: ZfsTierRewriteJobQueryEventSourceEvent2;
-  };
-
-  /**
-   * Subscribe to real-time status updates for a specific ZFS rewrite job, identified by
-   * its ``dataset_name@job_uuid`` tier job id. Polls every 2 seconds and emits a CHANGED
-   * event when status or statistics change.
-   *
-   * This event is generated by a dynamic source. If you want to specify subscription params, subscribe to it using the name in the following format `zfs.tier.rewrite_job_status:{"param": "value"}`
-   * @roles DATASET_READ
-   */
-  'zfs.tier.rewrite_job_status': {
-    subscriptionParams: ZfsTierRewriteJobStatusEventSourceArgs;
-    added: ZfsTierRewriteJobStatusEventSourceEvent2;
-  };
-
-  /**
-   * Sent on zpool changes.
-   * @roles POOL_READ
-   */
-  'zpool.query': {
-    added: ZPoolQueryAddedEvent;
-    changed: ZPoolQueryChangedEvent;
-    removed: ZPoolQueryRemovedEvent;
   };
 }

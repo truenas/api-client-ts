@@ -86,6 +86,16 @@ describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
     expect(base).toContain('@deprecated Removed in API version v3.0.0.');
   });
 
+  it('gates method-named events on the method existing in that version', async () => {
+    // Middleware's dump emits the same event set for every version; the
+    // test.remove event source must only appear where the method does (v2).
+    const files = await generate();
+    expect(files.get('v2_0_0/api-event-directory.ts')).toContain("'test.remove':");
+    expect(files.get('v1_0_0/api-event-directory.ts')).not.toContain("'test.remove':");
+    // Non-method-named events stay everywhere.
+    expect(files.get('v1_0_0/api-event-directory.ts')).toContain("'test.changed':");
+  });
+
   it('emits the version registry in the root index', async () => {
     const root = (await generate()).get('index.ts') ?? '';
     expect(root).toContain("'v1.0.0': ApiDirectoryV1_0_0;");

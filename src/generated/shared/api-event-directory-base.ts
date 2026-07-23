@@ -10,33 +10,14 @@ import type {
   AppStatsEventSourceEvent,
   ContainersMetricsEventSourceArgs,
   ContainersMetricsEventSourceEvent,
-  CoreGetJobsAddedEvent,
-  CoreGetJobsChangedEvent,
-  DirectoryServicesStatusChangedEvent,
   DockerEventsAddedEvent,
-  FailoverDisabledReasonsChangedEvent,
-  FailoverStatusChangedEvent,
   FileFollowTailEventSourceArgs,
   FileFollowTailEventSourceEvent2,
-  KerberosKeytabAddedEvent,
-  KerberosKeytabChangedEvent,
-  KerberosKeytabRemovedEvent,
-  KerberosRealmAddedEvent,
-  KerberosRealmChangedEvent,
-  KerberosRealmRemovedEvent,
-  NVMetPortAddedEvent,
-  NVMetPortChangedEvent,
-  NVMetPortRemovedEvent,
   ReportingRealtimeEventSourceArgs,
   ReportingRealtimeEventSourceEvent2,
-  ServiceAddedEvent,
-  ServiceChangedEvent,
-  ServiceRemovedEvent,
-  SystemReadyAddedEvent,
   SystemRebootAddedEvent,
   SystemShutdownAddedEvent,
   TrueNASConnectConfigChangedEvent,
-  UpdateStatusChangedEvent,
   UserWebUiLoginDisabledAddedEvent,
 } from '../v25_04_0/api-types';
 
@@ -73,43 +54,11 @@ export interface ApiEventDirectoryBase {
   };
 
   /**
-   * Updates on job changes.
-   */
-  'core.get_jobs': {
-    added: CoreGetJobsAddedEvent;
-    changed: CoreGetJobsChangedEvent;
-  };
-
-  /**
-   * Sent on directory service state changes.
-   * @roles DIRECTORY_SERVICE_READ
-   */
-  'directoryservices.status': {
-    changed: DirectoryServicesStatusChangedEvent;
-  };
-
-  /**
    * Docker container events
    * @roles DOCKER_READ
    */
   'docker.events': {
     added: DockerEventsAddedEvent;
-  };
-
-  /**
-   * Sent when failover status reasons change.
-   * @roles FAILOVER_READ
-   */
-  'failover.disabled.reasons': {
-    changed: FailoverDisabledReasonsChangedEvent;
-  };
-
-  /**
-   * Sent when failover status changes.
-   * @roles FAILOVER_READ
-   */
-  'failover.status': {
-    changed: FailoverStatusChangedEvent;
   };
 
   /**
@@ -124,36 +73,6 @@ export interface ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on kerberos.keytab changes.
-   * @roles DIRECTORY_SERVICE_READ
-   */
-  'kerberos.keytab.query': {
-    added: KerberosKeytabAddedEvent;
-    changed: KerberosKeytabChangedEvent;
-    removed: KerberosKeytabRemovedEvent;
-  };
-
-  /**
-   * Sent on kerberos.realm changes.
-   * @roles DIRECTORY_SERVICE_READ
-   */
-  'kerberos.realm.query': {
-    added: KerberosRealmAddedEvent;
-    changed: KerberosRealmChangedEvent;
-    removed: KerberosRealmRemovedEvent;
-  };
-
-  /**
-   * Sent on nvmet.port changes.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.port.query': {
-    added: NVMetPortAddedEvent;
-    changed: NVMetPortChangedEvent;
-    removed: NVMetPortRemovedEvent;
-  };
-
-  /**
    * Retrieve real time statistics for CPU, network,
    * virtual memory and zfs arc.
    *
@@ -163,24 +82,6 @@ export interface ApiEventDirectoryBase {
   'reporting.realtime': {
     subscriptionParams: ReportingRealtimeEventSourceArgs;
     added: ReportingRealtimeEventSourceEvent2;
-  };
-
-  /**
-   * Sent on service changes.
-   * @roles SERVICE_READ
-   */
-  'service.query': {
-    added: ServiceAddedEvent;
-    changed: ServiceChangedEvent;
-    removed: ServiceRemovedEvent;
-  };
-
-  /**
-   * Finished boot process
-   * @roles SYSTEM_GENERAL_READ
-   */
-  'system.ready': {
-    added: SystemReadyAddedEvent;
   };
 
   /**
@@ -205,14 +106,6 @@ export interface ApiEventDirectoryBase {
    */
   'tn_connect.config': {
     changed: TrueNASConnectConfigChangedEvent;
-  };
-
-  /**
-   * Updated on update status changes.
-   * @roles SYSTEM_UPDATE_READ
-   */
-  'update.status': {
-    changed: UpdateStatusChangedEvent;
   };
 
   /**

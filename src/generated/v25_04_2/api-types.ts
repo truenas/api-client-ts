@@ -10,19 +10,14 @@ import type {
   B2CredentialsModel,
   B2CredentialsModelInput2,
   Blocksize,
-  Bootloader,
   BoxCredentialsModel,
   BoxCredentialsModelInput2,
   CloudBackupCron,
-  ContainerFilesystemDevice,
-  ContainerGPUDevice,
-  ContainerNICDevice,
-  ContainerStatus,
-  DefaultIdmapConfiguration,
   DropboxCredentialsModel,
   DropboxCredentialsModelInput2,
   FTPCredentialsModel,
   FTPCredentialsModelInput2,
+  FilesystemSetAclOptions,
   GoogleCloudStorageCredentialsModel,
   GoogleCloudStorageCredentialsModelInput2,
   GoogleDriveCredentialsModel,
@@ -33,41 +28,89 @@ import type {
   HTTPCredentialsModelInput2,
   HubicCredentialsModel,
   HubicCredentialsModelInput2,
-  Iotype,
-  IsolatedIdmapConfiguration,
   NFS4ACE_AdvancedFlags,
+  NFS4ACE_AdvancedFlagsInput,
+  NFS4ACE_AdvancedFlagsInput2,
   NFS4ACE_AdvancedPerms,
+  NFS4ACE_AdvancedPermsInput,
+  NFS4ACE_AdvancedPermsInput2,
   NFS4ACE_BasicFlags,
+  NFS4ACE_BasicFlagsInput,
+  NFS4ACE_BasicFlagsInput2,
   NFS4ACE_BasicPerms,
+  NFS4ACE_BasicPermsInput,
+  NFS4ACE_BasicPermsInput2,
   NFS4ACL_Flags,
   OneDriveCredentialsModel,
   OneDriveCredentialsModelInput2,
   PCloudCredentialsModel,
   PCloudCredentialsModelInput2,
   POSIXACE,
-  Resolution,
+  POSIXACEInput,
+  POSIXACEInput2,
   Rpm,
   S3CredentialsModel,
   S3CredentialsModelInput2,
   SFTPCredentialsModel,
   SFTPCredentialsModelInput2,
   SSHCredentials,
+  SSHCredentialsInput,
   SSHKeyPair,
+  SSHKeyPairInput,
   SwiftCredentialsModel,
   SwiftCredentialsModelInput2,
   Tag,
-  Time,
-  TypeInput,
-  VMISCSIDiskDevice,
-  VMNICPciAddress,
-  VMPCIDevice,
-  VMUSBDevice,
   WebDavCredentialsModel,
   WebDavCredentialsModelInput2,
   When,
   YandexCredentialsModel,
   YandexCredentialsModelInput2,
 } from '../v25_04_0/api-types';
+
+/**
+ * Used by: vm.create (params), vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (event), vm.query (params), vm.query (response), vm.update (params), vm.update (response)
+ */
+export const Bootloader = {
+  UefiCsm: 'UEFI_CSM',
+  Uefi: 'UEFI',
+} as const;
+export type Bootloader = (typeof Bootloader)[keyof typeof Bootloader];
+
+/**
+ * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (params), vm.device.update (response) … and 6 more
+ */
+export const Iotype = {
+  Native: 'NATIVE',
+  Threads: 'THREADS',
+  IoUring: 'IO_URING',
+} as const;
+export type Iotype = (typeof Iotype)[keyof typeof Iotype];
+
+/**
+ * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (params), vm.device.update (response) … and 7 more
+ */
+export const Resolution = {
+  '1920x1200': '1920x1200',
+  '1920x1080': '1920x1080',
+  '1600x1200': '1600x1200',
+  '1600x900': '1600x900',
+  '1400x1050': '1400x1050',
+  '1280x1024': '1280x1024',
+  '1280x720': '1280x720',
+  '1024x768': '1024x768',
+  '800x600': '800x600',
+  '640x480': '640x480',
+} as const;
+export type Resolution = (typeof Resolution)[keyof typeof Resolution];
+
+/**
+ * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (params), container.update (response), vm.create (params) … and 8 more
+ */
+export const Time = {
+  Local: 'LOCAL',
+  Utc: 'UTC',
+} as const;
+export type Time = (typeof Time)[keyof typeof Time];
 
 /**
  * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
@@ -135,6 +178,60 @@ export const Type7 = {
 export type Type7 = (typeof Type7)[keyof typeof Type7];
 
 /**
+ * Used by: vm.device.create (params), vm.device.query (event), vm.device.update (params), vm.query (event)
+ */
+export const TypeInput = {
+  Ahci: 'AHCI',
+  Virtio: 'VIRTIO',
+} as const;
+export type TypeInput = (typeof TypeInput)[keyof typeof TypeInput];
+
+/**
+ * Used by: filesystem.acltemplate.create (params), filesystem.acltemplate.query (event), filesystem.acltemplate.update (params), filesystem.setacl (params), network.configuration.update (params)
+ */
+export const TypeInput2 = {
+  Allow: 'ALLOW',
+  Deny: 'DENY',
+} as const;
+export type TypeInput2 = (typeof TypeInput2)[keyof typeof TypeInput2];
+
+/**
+ * Used by: initshutdownscript.create (params), initshutdownscript.query (event), initshutdownscript.update (params)
+ */
+export const TypeInput3 = {
+  Command: 'COMMAND',
+  Script: 'SCRIPT',
+} as const;
+export type TypeInput3 = (typeof TypeInput3)[keyof typeof TypeInput3];
+
+/**
+ * Used by: iscsi.extent.create (params), iscsi.extent.query (event), iscsi.extent.update (params)
+ */
+export const TypeInput4 = {
+  Disk: 'DISK',
+  File: 'FILE',
+} as const;
+export type TypeInput4 = (typeof TypeInput4)[keyof typeof TypeInput4];
+
+/**
+ * Used by: device.get_info (params)
+ */
+export const TypeInput5 = {
+  Serial: 'SERIAL',
+  Gpu: 'GPU',
+} as const;
+export type TypeInput5 = (typeof TypeInput5)[keyof typeof TypeInput5];
+
+/**
+ * Used by: keychaincredential.query (event)
+ */
+export const TypeInput6 = {
+  SshKeyPair: 'SSH_KEY_PAIR',
+  SshCredentials: 'SSH_CREDENTIALS',
+} as const;
+export type TypeInput6 = (typeof TypeInput6)[keyof typeof TypeInput6];
+
+/**
  * Used by: vm.device.bind_choices (response)
  */
 export type VMDeviceBindChoicesResult = Record<string, unknown>;
@@ -159,6 +256,89 @@ export type VMDeviceQueryResultItem = Record<string, unknown>;
  */
 export type VMQueryResultItem = Record<string, unknown>;
 
+/**
+ * Used by: filesystem.acltemplate.query (event)
+ */
+export interface ACLTemplateAddedEvent {
+  id: number;
+  fields: ACLTemplateEntryInput;
+}
+/**
+ * Used by: filesystem.acltemplate.query (event)
+ */
+export interface ACLTemplateEntryInput {
+  /**
+   * Unique identifier for the ACL template.
+   */
+  id: number;
+  /**
+   * Whether this is a built-in system template or user-created.
+   */
+  builtin: boolean;
+  /**
+   * Human-readable name for the ACL template.
+   */
+  name: string;
+  acltype: Acltype;
+  /**
+   * Array of Access Control Entries defined by this template.
+   */
+  acl: NFS4ACEInput[] | POSIXACEInput[];
+  /**
+   * Optional descriptive comment about the template's purpose.
+   */
+  comment?: string;
+}
+/**
+ * Used by: filesystem.acltemplate.query (event)
+ */
+export interface NFS4ACEInput {
+  tag: Tag;
+  type: TypeInput2;
+  /**
+   * Permissions granted or denied by this ACE.
+   */
+  perms: NFS4ACE_AdvancedPermsInput | NFS4ACE_BasicPermsInput;
+  /**
+   * Inheritance and other behavioral flags for this ACE.
+   */
+  flags: NFS4ACE_AdvancedFlagsInput | NFS4ACE_BasicFlagsInput;
+  /**
+   * UID or GID when `tag` is "USER" or "GROUP". `null` for special entries.
+   */
+  id?: number | null;
+  /**
+   * Username or group name when `tag` is "USER" or "GROUP". `null` for special entries.
+   */
+  who?: string | null;
+}
+/**
+ * Used by: filesystem.acltemplate.query (event)
+ */
+export interface ACLTemplateChangedEvent {
+  id: number;
+  fields: ACLTemplateEntryInput;
+}
+/**
+ * Used by: filesystem.acltemplate.create (params)
+ */
+export interface AclTemplateCreate {
+  name: string;
+  acltype: Acltype;
+  acl: NFS4ACEInput2[] | POSIXACEInput2[];
+  comment?: string;
+}
+/**
+ * Used by: filesystem.acltemplate.create (params), filesystem.acltemplate.update (params), filesystem.setacl (params)
+ */
+export interface NFS4ACEInput2 {
+  tag: Tag;
+  type: TypeInput2;
+  perms: NFS4ACE_AdvancedPermsInput2 | NFS4ACE_BasicPermsInput2;
+  flags: NFS4ACE_AdvancedFlagsInput2 | NFS4ACE_BasicFlagsInput2;
+  id?: number | null;
+  who?: string | null;
+}
 /**
  * Used by: filesystem.acltemplate.by_path (response), filesystem.acltemplate.create (response), filesystem.acltemplate.get_instance (params), filesystem.acltemplate.get_instance (response), filesystem.acltemplate.query (params), filesystem.acltemplate.query (response), filesystem.acltemplate.update (response)
  */
@@ -207,6 +387,15 @@ export interface NFS4ACE {
    * Username or group name when `tag` is "USER" or "GROUP". `null` for special entries.
    */
   who?: string | null;
+}
+/**
+ * Used by: filesystem.acltemplate.update (params)
+ */
+export interface AclTemplateUpdate {
+  name?: string;
+  acltype?: Acltype;
+  acl?: NFS4ACEInput2[] | POSIXACEInput2[];
+  comment?: string;
 }
 /**
  * Used by: cloud_backup.create (response), cloud_backup.get_instance (params), cloud_backup.get_instance (response), cloud_backup.query (params), cloud_backup.query (response), cloud_backup.update (response)
@@ -422,162 +611,10 @@ export interface CloudCredentialUpdate {
     | YandexCredentialsModelInput2;
 }
 /**
- * Used by: container.query (event)
+ * Used by: device.get_info (params)
  */
-export interface ContainerAddedEvent {
-  id: number;
-  fields: ContainerEntry;
-}
-/**
- * Used by: container.query (event)
- */
-export interface ContainerEntry {
-  /**
-   * Container ID.
-   */
-  id: number;
-  /**
-   * Container UUID (for libvirt).
-   */
-  uuid: string;
-  /**
-   * Container name.
-   */
-  name: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * Container's devices.
-   */
-  devices?: ContainerDeviceEntry[];
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
-  cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
-  autostart?: boolean;
-  time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
-  shutdown_timeout?: number;
-  /**
-   * Which dataset to use as the container root filesystem.
-   */
-  dataset: string;
-  /**
-   * "init" process commandline.
-   */
-  init?: string;
-  /**
-   * "init" process working dir.
-   */
-  initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
-  initenv?: {
-    [k: string]: string;
-  };
-  /**
-   * "init" process username.
-   */
-  inituser?: string | null;
-  /**
-   * "init" process group.
-   */
-  initgroup?: string | null;
-  /**
-   * Idmap configuration for the container There are three two possible values: DEFAULT: This applies the standard TrueNAS idmap namespace configuration. It changes user ID (UID) 0 (root) in the container to UID 2147000001 (truenas_container_unpriv_root). It offsets the other container UIDs by the same amount. For example, UID 1000 in the container becomes UID 2147001001 in the host. ISOLATED: Same as `DEFAULT`, but UID will be calculated as `2147000001 + 65536 * slice`. This will ensure unique ID for each container (provided that the `slice` is also unique). None: The container does not apply any idmap namespace. Container UIDs map directly to host UIDs. For example, UID 0 in the container is UID 0 in the host. WARNING: For security, use the DEFAULT value. Security best practice is to run containers with idmap namespaces.
-   */
-  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
-  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
-  capabilities_state?: {
-    [k: string]: boolean;
-  };
-  /**
-   * The default network bridge this container will use when no NIC devices are explicitly attached. When the container has explicitly configured NIC devices, this is `null` because the NIC configuration is visible in the `devices` list.
-   */
-  default_network?: string | null;
-  status: ContainerStatus;
-}
-/**
- * Used by: container.device.query (event), container.query (event)
- */
-export interface ContainerDeviceEntry {
-  /**
-   * Unique identifier for the containers device.
-   */
-  id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
-  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDevice | ContainerUSBDevice;
-  /**
-   * ID of the container this device belongs to.
-   */
-  container: number;
-}
-/**
- * Used by: container.device.query (event), container.query (event)
- */
-export interface ContainerUSBDevice {
-  /**
-   * Device type identifier for USB devices.
-   */
-  dtype: "USB";
-  /**
-   * USB device attributes for identification. `null` for USB host controller only.
-   */
-  usb?: USBAttributesInput2 | null;
-  /**
-   * Host USB device path to pass through. `null` for controller only.
-   */
-  device?: string | null;
-}
-/**
- * Used by: container.device.query (event), container.query (event), vm.device.query (event), vm.query (event)
- */
-export interface USBAttributesInput2 {
-  /**
-   * USB vendor identifier in hexadecimal format (e.g., '0x1d6b' for Linux Foundation).
-   */
-  vendor_id: string;
-  /**
-   * USB product identifier in hexadecimal format (e.g., '0x0002' for 2.0 root hub).
-   */
-  product_id: string;
-}
-/**
- * Used by: container.query (event)
- */
-export interface ContainerChangedEvent {
-  id: number;
-  fields: ContainerEntry;
-}
-/**
- * Used by: container.device.query (event)
- */
-export interface ContainerDeviceAddedEvent {
-  id: number;
-  fields: ContainerDeviceEntry;
-}
-/**
- * Used by: container.device.query (event)
- */
-export interface ContainerDeviceChangedEvent {
-  id: number;
-  fields: ContainerDeviceEntry;
+export interface DeviceGetInfoOther {
+  type: TypeInput5;
 }
 /**
  * Used by: vm.get_display_devices (response)
@@ -687,6 +724,20 @@ export interface FilesystemDirEntry {
         | "SPARSE"
       )[]
     | null;
+}
+/**
+ * Used by: filesystem.setacl (params)
+ */
+export interface FilesystemSetaclArgs {
+  path: string;
+  dacl: NFS4ACEInput2[] | POSIXACEInput2[];
+  options?: FilesystemSetAclOptions;
+  nfs41_flags?: NFS4ACL_Flags;
+  uid?: number | null;
+  user?: string | null;
+  gid?: number | null;
+  group?: string | null;
+  acltype?: ("NFS4" | "POSIX1E") | null;
 }
 /**
  * Used by: filesystem.stat (response)
@@ -844,6 +895,76 @@ export interface GroupUpdate {
   users?: number[];
 }
 /**
+ * Used by: initshutdownscript.query (event)
+ */
+export interface InitShutdownScriptAddedEvent {
+  id: number;
+  fields: InitShutdownScriptEntryInput;
+}
+/**
+ * Used by: initshutdownscript.query (event)
+ */
+export interface InitShutdownScriptEntryInput {
+  type: TypeInput3;
+  /**
+   * Must be given if `type="COMMAND"`.
+   */
+  command?: string | null;
+  /**
+   * Must be given if `type="SCRIPT"`.
+   */
+  script?: string | null;
+  when: When;
+  /**
+   * Whether the init/shutdown script is enabled to execute.
+   */
+  enabled?: boolean;
+  /**
+   * An integer time in seconds that the system should wait for the execution of the script/command.
+   *
+   * A hard limit for a timeout is configured by the base OS, so when a script/command is set to execute on SHUTDOWN, the hard limit configured by the base OS is changed adding the timeout specified by script/command so it can be ensured that it executes as desired and is not interrupted by the base OS's limit.
+   */
+  timeout?: number;
+  /**
+   * Optional comment describing the purpose of this script.
+   */
+  comment?: string;
+  /**
+   * Unique identifier for the init/shutdown script.
+   */
+  id: number;
+}
+/**
+ * Used by: initshutdownscript.query (event)
+ */
+export interface InitShutdownScriptChangedEvent {
+  id: number;
+  fields: InitShutdownScriptEntryInput;
+}
+/**
+ * Used by: initshutdownscript.create (params)
+ */
+export interface InitShutdownScriptCreate {
+  type: TypeInput3;
+  /**
+   * Must be given if `type="COMMAND"`.
+   */
+  command?: string | null;
+  /**
+   * Must be given if `type="SCRIPT"`.
+   */
+  script?: string | null;
+  when: When;
+  enabled?: boolean;
+  /**
+   * An integer time in seconds that the system should wait for the execution of the script/command.
+   *
+   * A hard limit for a timeout is configured by the base OS, so when a script/command is set to execute on SHUTDOWN, the hard limit configured by the base OS is changed adding the timeout specified by script/command so it can be ensured that it executes as desired and is not interrupted by the base OS's limit.
+   */
+  timeout?: number;
+  comment?: string;
+}
+/**
  * Used by: initshutdownscript.create (response), initshutdownscript.get_instance (params), initshutdownscript.get_instance (response), initshutdownscript.query (params), initshutdownscript.query (response), initshutdownscript.update (response)
  */
 export interface InitShutdownScriptEntry {
@@ -877,6 +998,171 @@ export interface InitShutdownScriptEntry {
   id: number;
 }
 /**
+ * Used by: initshutdownscript.update (params)
+ */
+export interface InitShutdownScriptUpdate {
+  type?: TypeInput3;
+  /**
+   * Must be given if `type="COMMAND"`.
+   */
+  command?: string | null;
+  /**
+   * Must be given if `type="SCRIPT"`.
+   */
+  script?: string | null;
+  when?: When;
+  enabled?: boolean;
+  /**
+   * An integer time in seconds that the system should wait for the execution of the script/command.
+   *
+   * A hard limit for a timeout is configured by the base OS, so when a script/command is set to execute on SHUTDOWN, the hard limit configured by the base OS is changed adding the timeout specified by script/command so it can be ensured that it executes as desired and is not interrupted by the base OS's limit.
+   */
+  timeout?: number;
+  comment?: string;
+}
+/**
+ * Used by: iscsi.extent.create (params)
+ */
+export interface IscsiExtentCreate {
+  name: string;
+  type?: TypeInput4;
+  disk?: string | null;
+  serial?: string | null;
+  path?: string | null;
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  pblocksize?: boolean;
+  avail_threshold?: number | null;
+  comment?: string;
+  insecure_tpc?: boolean;
+  xen?: boolean;
+  rpm?: Rpm;
+  ro?: boolean;
+  enabled?: boolean;
+}
+/**
+ * Used by: iscsi.extent.update (params)
+ */
+export interface IscsiExtentUpdate {
+  name?: string;
+  type?: TypeInput4;
+  disk?: string | null;
+  serial?: string | null;
+  path?: string | null;
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  pblocksize?: boolean;
+  avail_threshold?: number | null;
+  comment?: string;
+  insecure_tpc?: boolean;
+  xen?: boolean;
+  rpm?: Rpm;
+  ro?: boolean;
+  enabled?: boolean;
+}
+/**
+ * Used by: iscsi.extent.query (event)
+ */
+export interface ISCSITargetExtentAddedEvent {
+  id: number;
+  fields: ISCSITargetExtentEntryInput;
+}
+/**
+ * Used by: iscsi.extent.query (event)
+ */
+export interface ISCSITargetExtentEntryInput {
+  /**
+   * Unique identifier for the iSCSI extent.
+   */
+  id: number;
+  /**
+   * Name of the iSCSI extent.
+   */
+  name: string;
+  type?: TypeInput4;
+  /**
+   * Disk device to use for the extent or `null` if using a file.
+   */
+  disk?: string | null;
+  /**
+   * Serial number for the extent or `null` to auto-generate.
+   */
+  serial?: string | null;
+  /**
+   * File path for file-based extents or `null` if using a disk.
+   */
+  path?: string | null;
+  /**
+   * The ZFS dataset containing the file-based extent (e.g., 'tank/iscsi'). Returns `null` for non-FILE extent types (DISK, ZVOL) or if the FILE path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
+   */
+  dataset: string | null;
+  /**
+   * The path of the file-based extent relative to the dataset mountpoint (e.g., 'extents/lun0.img'). An empty string indicates the file is at the dataset root. Returns `null` for non-FILE types or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
+   */
+  relative_path: string | null;
+  /**
+   * Size of the file-based extent in bytes. If non-zero, must be a multiple of `blocksize`.
+   */
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  /**
+   * Whether to use physical block size reporting.
+   */
+  pblocksize?: boolean;
+  /**
+   * Available space threshold percentage or `null` to disable.
+   */
+  avail_threshold?: number | null;
+  /**
+   * Optional comment describing the extent.
+   */
+  comment?: string;
+  /**
+   * Network Address Authority (NAA) identifier for the extent.
+   */
+  naa: string;
+  /**
+   * Whether to allow initiators to bypass normal access control for XCOPY (Third Party Copy) operations. Disable if XCOPY cross-target access is not required.
+   */
+  insecure_tpc?: boolean;
+  /**
+   * Whether to enable Xen compatibility mode. Set to `true` when Xen is the iSCSI initiator.
+   */
+  xen?: boolean;
+  rpm?: Rpm;
+  /**
+   * Whether the extent is read-only.
+   */
+  ro?: boolean;
+  /**
+   * Whether the extent is enabled and available for use.
+   */
+  enabled?: boolean;
+  /**
+   * Vendor string reported by the extent.
+   */
+  vendor: string;
+  /**
+   * Product ID string for the extent or `null` for default.
+   */
+  product_id?: string | null;
+  /**
+   * Read-only value indicating whether the iscsi extent is located on a locked dataset.
+   *
+   * - `true`: The extent is in a locked dataset.
+   * - `false`: The extent is not in a locked dataset.
+   * - `null`: Lock status is not available because path locking information was not requested.
+   */
+  locked: boolean | null;
+}
+/**
+ * Used by: iscsi.extent.query (event)
+ */
+export interface ISCSITargetExtentChangedEvent {
+  id: number;
+  fields: ISCSITargetExtentEntryInput;
+}
+/**
  * Used by: iscsi.extent.create (response), iscsi.extent.get_instance (params), iscsi.extent.get_instance (response), iscsi.extent.query (params), iscsi.extent.query (response), iscsi.extent.update (response)
  */
 export interface ISCSITargetExtentEntry {
@@ -899,6 +1185,38 @@ export interface ISCSITargetExtentEntry {
   enabled?: boolean;
   vendor: string;
   locked: boolean | null;
+}
+/**
+ * Used by: keychaincredential.query (event)
+ */
+export interface KeychainCredentialAddedEvent {
+  id: number;
+  fields: KeychainCredentialEntryInput;
+}
+/**
+ * Used by: keychaincredential.query (event)
+ */
+export interface KeychainCredentialEntryInput {
+  /**
+   * Unique identifier for this keychain credential.
+   */
+  id: number;
+  /**
+   * Distinguishes this Keychain Credential from others.
+   */
+  name: string;
+  type: TypeInput6;
+  /**
+   * Credential-specific configuration and authentication data.
+   */
+  attributes: SSHKeyPairInput | SSHCredentialsInput;
+}
+/**
+ * Used by: keychaincredential.query (event)
+ */
+export interface KeychainCredentialChangedEvent {
+  id: number;
+  fields: KeychainCredentialEntryInput;
 }
 /**
  * Used by: keychaincredential.get_instance (params), keychaincredential.get_instance (response), keychaincredential.query (params), keychaincredential.query (response)
@@ -951,6 +1269,19 @@ export interface NFS4ACLResult {
   trivial: boolean;
 }
 /**
+ * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 20 more
+ */
+export interface USBAttributes {
+  /**
+   * USB vendor identifier in hexadecimal format (e.g., '0x1d6b' for Linux Foundation).
+   */
+  vendor_id: string;
+  /**
+   * USB product identifier in hexadecimal format (e.g., '0x0002' for 2.0 root hub).
+   */
+  product_id: string;
+}
+/**
  * Used by: vm.device.create (params), vm.device.update (params)
  */
 export interface USBAttributesInput {
@@ -960,6 +1291,19 @@ export interface USBAttributesInput {
   vendor_id: string;
   /**
    * Product id must start with "0x" prefix e.g 0x16a8.
+   */
+  product_id: string;
+}
+/**
+ * Used by: vm.device.query (event), vm.query (event)
+ */
+export interface USBAttributesInput2 {
+  /**
+   * USB vendor identifier in hexadecimal format (e.g., '0x1d6b' for Linux Foundation).
+   */
+  vendor_id: string;
+  /**
+   * USB product identifier in hexadecimal format (e.g., '0x0002' for 2.0 root hub).
    */
   product_id: string;
 }
@@ -1179,6 +1523,48 @@ export interface VMDisplayDeviceInput {
   type?: "SPICE" | "VNC";
 }
 /**
+ * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
+ */
+export interface VMISCSIDiskDevice {
+  /**
+   * Device type identifier for iSCSI disk devices.
+   */
+  dtype: "ISCSI_DISK";
+  /**
+   * IP address of the iSCSI target portal.
+   */
+  portal_address: "" | string;
+  /**
+   * iSCSI targets to attach, one entry per target IQN.
+   *
+   * @minItems 1
+   */
+  targets: [VMISCSIDiskTarget, ...VMISCSIDiskTarget[]];
+  /**
+   * IQN identifying this VM as an iSCSI initiator.
+   */
+  initiator_iqn: string;
+  /**
+   * PCI slot for the virtio-scsi-pci controller on the root bus (pcie.0 on q35/aarch64, pci.0 on i440fx). Conflicts with other explicitly-placed devices are detected at device creation time.
+   */
+  controller_slot?: number;
+}
+/**
+ * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
+ */
+export interface VMISCSIDiskTarget {
+  /**
+   * iSCSI Qualified Name of the target.
+   */
+  iqn: string;
+  /**
+   * LUN numbers to access on this target.
+   *
+   * @minItems 1
+   */
+  luns?: [number, ...number[]];
+}
+/**
  * Used by: vm.device.query (event), vm.query (event)
  */
 export interface VMNICDeviceInput {
@@ -1206,6 +1592,27 @@ export interface VMNICDeviceInput {
    * Pin this NIC to a specific PCI controller bus rather than letting libvirt auto-assign an address. `null` for automatic assignment.
    */
   pci_address?: VMNICPciAddress | null;
+}
+/**
+ * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
+ */
+export interface VMNICPciAddress {
+  /**
+   * PCI bus number. Must be >= 1; bus 0 is the root complex.
+   */
+  bus: number;
+  /**
+   * PCI slot number (0-31). No default: correct value depends on machine type.
+   */
+  slot: number;
+  /**
+   * PCI function number (0-7).
+   */
+  function?: number;
+  /**
+   * PCI domain number. Must be 0; multi-segment topologies are not supported.
+   */
+  domain?: number;
 }
 /**
  * Used by: vm.device.query (event), vm.query (event)
@@ -1625,6 +2032,19 @@ export interface VMNICDevice {
   mac?: string | null;
 }
 /**
+ * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
+ */
+export interface VMPCIDevice {
+  /**
+   * Device type identifier for PCI passthrough devices.
+   */
+  dtype: "PCI";
+  /**
+   * Host PCI device identifier to pass through to the VM.
+   */
+  pptdev: string;
+}
+/**
  * Used by: vm.create (response), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params), vm.get_instance (response), vm.query (params) … and 2 more
  */
 export interface VMRAWDevice {
@@ -1703,6 +2123,28 @@ export interface VMDiskDevice {
   serial?: string | null;
 }
 /**
+ * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
+ */
+export interface VMUSBDevice {
+  /**
+   * Device type identifier for USB devices.
+   */
+  dtype: "USB";
+  /**
+   * USB device attributes for identification. `null` for USB host controller only.
+   */
+  usb?: USBAttributes | null;
+  /**
+   * USB controller type for the virtual machine.
+   */
+  controller_type?:
+    "piix3-uhci" | "piix4-uhci" | "ehci" | "ich9-ehci1" | "vt82c686b-uhci" | "pci-ohci" | "nec-xhci" | "qemu-xhci";
+  /**
+   * Host USB device path to pass through. `null` for controller only.
+   */
+  device?: string | null;
+}
+/**
  * Used by: vm.device.passthrough_device (response), vm.device.passthrough_device_choices (response)
  */
 export interface VMDeviceIOMMUGroup {
@@ -1777,6 +2219,12 @@ export interface VMDevicePassthroughDevice {
    * Device filesystem path. `null` if not available.
    */
   device_path: string | null;
+}
+/**
+ * Used by: vm.device.query (event)
+ */
+export interface VMDeviceRemovedEvent {
+  id: number;
 }
 /**
  * Used by: vm.device.update (params)
@@ -1880,6 +2328,12 @@ export interface VMPortWizardResult {
    * Web port to be used based on available port
    */
   web: number;
+}
+/**
+ * Used by: vm.query (event)
+ */
+export interface VMRemovedEvent {
+  id: number;
 }
 /**
  * Used by: vm.start (params)

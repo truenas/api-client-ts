@@ -17,7 +17,6 @@ import type {
   DISABLED_ACLResult,
   DockerEntry,
   FilesystemSetZfsAttributesArgs,
-  FilesystemSetaclArgs,
   POSIXACLResult,
   UpgradeOptions,
   ZFSFileAttrsData,
@@ -28,6 +27,7 @@ import type {
   SystemSecurityUpdateArgs,
 } from '../v25_04_1/api-types';
 import type {
+  FilesystemSetaclArgs,
   NFS4ACLResult,
   VMStopOptions,
 } from './api-types';

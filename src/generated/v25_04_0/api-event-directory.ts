@@ -26,21 +26,9 @@ import type {
   BootEnvironmentAddedEvent,
   BootEnvironmentChangedEvent,
   BootEnvironmentRemovedEvent,
-  CertificateAddedEvent,
-  CertificateChangedEvent,
-  CertificateRemovedEvent,
   CloudBackupAddedEvent,
   CloudBackupChangedEvent,
   CloudBackupRemovedEvent,
-  CloudSyncAddedEvent,
-  CloudSyncChangedEvent,
-  CloudSyncRemovedEvent,
-  ContainerAddedEvent,
-  ContainerChangedEvent,
-  ContainerDeviceAddedEvent,
-  ContainerDeviceChangedEvent,
-  ContainerDeviceRemovedEvent,
-  ContainerRemovedEvent,
   CredentialsAddedEvent,
   CredentialsChangedEvent,
   CredentialsRemovedEvent,
@@ -50,9 +38,6 @@ import type {
   DNSAuthenticatorAddedEvent,
   DNSAuthenticatorChangedEvent,
   DNSAuthenticatorRemovedEvent,
-  DiskQueryAddedEvent,
-  DiskQueryChangedEvent,
-  DiskQueryRemovedEvent,
   DockerNetworkAddedEvent,
   DockerNetworkChangedEvent,
   DockerNetworkRemovedEvent,
@@ -88,97 +73,35 @@ import type {
   InitShutdownScriptAddedEvent,
   InitShutdownScriptChangedEvent,
   InitShutdownScriptRemovedEvent,
-  InterfaceAddedEvent,
-  InterfaceChangedEvent,
-  InterfaceRemovedEvent,
-  JBOFAddedEvent,
-  JBOFChangedEvent,
-  JBOFRemovedEvent,
   KeychainCredentialAddedEvent,
   KeychainCredentialChangedEvent,
   KeychainCredentialRemovedEvent,
   NTPServerAddedEvent,
   NTPServerChangedEvent,
   NTPServerRemovedEvent,
-  NVMetHostAddedEvent,
-  NVMetHostChangedEvent,
-  NVMetHostRemovedEvent,
-  NVMetHostSubsysAddedEvent,
-  NVMetHostSubsysChangedEvent,
-  NVMetHostSubsysRemovedEvent,
-  NVMetNamespaceAddedEvent,
-  NVMetNamespaceChangedEvent,
-  NVMetNamespaceRemovedEvent,
-  NVMetPortSubsysAddedEvent,
-  NVMetPortSubsysChangedEvent,
-  NVMetPortSubsysRemovedEvent,
-  NVMetSubsysAddedEvent,
-  NVMetSubsysChangedEvent,
-  NVMetSubsysRemovedEvent,
   PeriodicSnapshotTaskAddedEvent,
   PeriodicSnapshotTaskChangedEvent,
   PeriodicSnapshotTaskRemovedEvent,
-  PoolAddedEvent,
-  PoolChangedEvent,
-  PoolDatasetAddedEvent,
-  PoolDatasetChangedEvent,
-  PoolDatasetRemovedEvent,
-  PoolRemovedEvent,
   PoolScanChangedEvent,
   PoolScrubAddedEvent,
   PoolScrubChangedEvent,
   PoolScrubRemovedEvent,
-  PoolSnapshotAddedEvent,
-  PoolSnapshotChangedEvent,
-  PoolSnapshotRemovedEvent,
   PrivilegeAddedEvent,
   PrivilegeChangedEvent,
   PrivilegeRemovedEvent,
-  ReplicationAddedEvent,
-  ReplicationChangedEvent,
-  ReplicationRemovedEvent,
   ReportingExportsAddedEvent,
   ReportingExportsChangedEvent,
   ReportingExportsRemovedEvent,
-  RsyncTaskAddedEvent,
-  RsyncTaskChangedEvent,
-  RsyncTaskRemovedEvent,
   SharingNFSAddedEvent,
   SharingNFSChangedEvent,
   SharingNFSRemovedEvent,
-  SharingSMBAddedEvent,
-  SharingSMBChangedEvent,
-  SharingSMBRemovedEvent,
-  SharingWebshareAddedEvent,
-  SharingWebshareChangedEvent,
-  SharingWebshareRemovedEvent,
   StaticRouteAddedEvent,
   StaticRouteChangedEvent,
   StaticRouteRemovedEvent,
   SystemRebootInfoChangedEvent,
-  TruecommandConfigChangedEvent,
-  TunableAddedEvent,
-  TunableChangedEvent,
-  TunableRemovedEvent,
   UserAddedEvent,
   UserChangedEvent,
   UserRemovedEvent,
-  VMAddedEvent,
-  VMChangedEvent,
-  VMDeviceAddedEvent,
-  VMDeviceChangedEvent,
-  VMDeviceRemovedEvent,
-  VMRemovedEvent,
-  VMWareAddedEvent,
-  VMWareChangedEvent,
-  VMWareRemovedEvent,
-  ZPoolQueryAddedEvent,
-  ZPoolQueryChangedEvent,
-  ZPoolQueryRemovedEvent,
-  ZfsTierRewriteJobQueryEventSourceArgs,
-  ZfsTierRewriteJobQueryEventSourceEvent2,
-  ZfsTierRewriteJobStatusEventSourceArgs,
-  ZfsTierRewriteJobStatusEventSourceEvent2,
 } from './api-types';
 
 export interface ApiEventDirectory extends ApiEventDirectoryBase {
@@ -252,16 +175,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on certificate changes.
-   * @roles CERTIFICATE_READ
-   */
-  'certificate.query': {
-    added: CertificateAddedEvent;
-    changed: CertificateChangedEvent;
-    removed: CertificateRemovedEvent;
-  };
-
-  /**
    * Sent on cloud_backup changes.
    * @roles CLOUD_BACKUP_READ
    */
@@ -282,36 +195,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on cloudsync changes.
-   * @roles CLOUD_SYNC_READ
-   */
-  'cloudsync.query': {
-    added: CloudSyncAddedEvent;
-    changed: CloudSyncChangedEvent;
-    removed: CloudSyncRemovedEvent;
-  };
-
-  /**
-   * Sent on container.device changes.
-   * @roles CONTAINER_DEVICE_READ
-   */
-  'container.device.query': {
-    added: ContainerDeviceAddedEvent;
-    changed: ContainerDeviceChangedEvent;
-    removed: ContainerDeviceRemovedEvent;
-  };
-
-  /**
-   * Sent on container changes.
-   * @roles CONTAINER_READ
-   */
-  'container.query': {
-    added: ContainerAddedEvent;
-    changed: ContainerChangedEvent;
-    removed: ContainerRemovedEvent;
-  };
-
-  /**
    * Sent on cronjob changes.
    * @roles SYSTEM_CRON_READ
    */
@@ -319,16 +202,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: CronJobAddedEvent;
     changed: CronJobChangedEvent;
     removed: CronJobRemovedEvent;
-  };
-
-  /**
-   * Sent on disk changes.
-   * @roles READONLY_ADMIN
-   */
-  'disk.query': {
-    added: DiskQueryAddedEvent;
-    changed: DiskQueryChangedEvent;
-    removed: DiskQueryRemovedEvent;
   };
 
   /**
@@ -408,16 +281,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on interface changes.
-   * @roles NETWORK_INTERFACE_READ
-   */
-  'interface.query': {
-    added: InterfaceAddedEvent;
-    changed: InterfaceChangedEvent;
-    removed: InterfaceRemovedEvent;
-  };
-
-  /**
    * Sent on iscsi.auth changes.
    * @roles SHARING_ISCSI_AUTH_READ
    */
@@ -478,16 +341,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on jbof changes.
-   * @roles JBOF_READ
-   */
-  'jbof.query': {
-    added: JBOFAddedEvent;
-    changed: JBOFChangedEvent;
-    removed: JBOFRemovedEvent;
-  };
-
-  /**
    * Sent on keychaincredential changes.
    * @roles KEYCHAIN_CREDENTIAL_READ
    */
@@ -495,76 +348,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: KeychainCredentialAddedEvent;
     changed: KeychainCredentialChangedEvent;
     removed: KeychainCredentialRemovedEvent;
-  };
-
-  /**
-   * Sent on nvmet.host changes.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.host.query': {
-    added: NVMetHostAddedEvent;
-    changed: NVMetHostChangedEvent;
-    removed: NVMetHostRemovedEvent;
-  };
-
-  /**
-   * Sent on nvmet.host_subsys changes.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.host_subsys.query': {
-    added: NVMetHostSubsysAddedEvent;
-    changed: NVMetHostSubsysChangedEvent;
-    removed: NVMetHostSubsysRemovedEvent;
-  };
-
-  /**
-   * Sent on nvmet.namespace changes.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.namespace.query': {
-    added: NVMetNamespaceAddedEvent;
-    changed: NVMetNamespaceChangedEvent;
-    removed: NVMetNamespaceRemovedEvent;
-  };
-
-  /**
-   * Sent on nvmet.port_subsys changes.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.port_subsys.query': {
-    added: NVMetPortSubsysAddedEvent;
-    changed: NVMetPortSubsysChangedEvent;
-    removed: NVMetPortSubsysRemovedEvent;
-  };
-
-  /**
-   * Sent on nvmet.subsys changes.
-   * @roles SHARING_NVME_TARGET_READ
-   */
-  'nvmet.subsys.query': {
-    added: NVMetSubsysAddedEvent;
-    changed: NVMetSubsysChangedEvent;
-    removed: NVMetSubsysRemovedEvent;
-  };
-
-  /**
-   * Sent on pool.dataset changes.
-   * @roles DATASET_READ
-   */
-  'pool.dataset.query': {
-    added: PoolDatasetAddedEvent;
-    changed: PoolDatasetChangedEvent;
-    removed: PoolDatasetRemovedEvent;
-  };
-
-  /**
-   * Sent on pool changes.
-   * @roles POOL_READ
-   */
-  'pool.query': {
-    added: PoolAddedEvent;
-    changed: PoolChangedEvent;
-    removed: PoolRemovedEvent;
   };
 
   /**
@@ -583,16 +366,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: PoolScrubAddedEvent;
     changed: PoolScrubChangedEvent;
     removed: PoolScrubRemovedEvent;
-  };
-
-  /**
-   * Sent on pool.snapshot changes.
-   * @roles SNAPSHOT_READ
-   */
-  'pool.snapshot.query': {
-    added: PoolSnapshotAddedEvent;
-    changed: PoolSnapshotChangedEvent;
-    removed: PoolSnapshotRemovedEvent;
   };
 
   /**
@@ -616,16 +389,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on replication changes.
-   * @roles REPLICATION_TASK_READ
-   */
-  'replication.query': {
-    added: ReplicationAddedEvent;
-    changed: ReplicationChangedEvent;
-    removed: ReplicationRemovedEvent;
-  };
-
-  /**
    * Sent on reporting.exporters changes.
    * @roles REPORTING_READ
    */
@@ -636,16 +399,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on rsynctask changes.
-   * @roles SNAPSHOT_TASK_READ
-   */
-  'rsynctask.query': {
-    added: RsyncTaskAddedEvent;
-    changed: RsyncTaskChangedEvent;
-    removed: RsyncTaskRemovedEvent;
-  };
-
-  /**
    * Sent on sharing.nfs changes.
    * @roles SHARING_NFS_READ
    */
@@ -653,26 +406,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: SharingNFSAddedEvent;
     changed: SharingNFSChangedEvent;
     removed: SharingNFSRemovedEvent;
-  };
-
-  /**
-   * Sent on sharing.smb changes.
-   * @roles SHARING_SMB_READ
-   */
-  'sharing.smb.query': {
-    added: SharingSMBAddedEvent;
-    changed: SharingSMBChangedEvent;
-    removed: SharingSMBRemovedEvent;
-  };
-
-  /**
-   * Sent on sharing.webshare changes.
-   * @roles SHARING_WEBSHARE_READ
-   */
-  'sharing.webshare.query': {
-    added: SharingWebshareAddedEvent;
-    changed: SharingWebshareChangedEvent;
-    removed: SharingWebshareRemovedEvent;
   };
 
   /**
@@ -704,24 +437,6 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
   };
 
   /**
-   * Sent on TrueCommand configuration changes.
-   * @roles READONLY_ADMIN
-   */
-  'truecommand.config': {
-    changed: TruecommandConfigChangedEvent;
-  };
-
-  /**
-   * Sent on tunable changes.
-   * @roles SYSTEM_TUNABLE_READ
-   */
-  'tunable.query': {
-    added: TunableAddedEvent;
-    changed: TunableChangedEvent;
-    removed: TunableRemovedEvent;
-  };
-
-  /**
    * Sent on user changes.
    * @roles ACCOUNT_READ
    */
@@ -729,71 +444,5 @@ export interface ApiEventDirectory extends ApiEventDirectoryBase {
     added: UserAddedEvent;
     changed: UserChangedEvent;
     removed: UserRemovedEvent;
-  };
-
-  /**
-   * Sent on vm.device changes.
-   * @roles VM_DEVICE_READ
-   */
-  'vm.device.query': {
-    added: VMDeviceAddedEvent;
-    changed: VMDeviceChangedEvent;
-    removed: VMDeviceRemovedEvent;
-  };
-
-  /**
-   * Sent on vm changes.
-   * @roles VM_READ
-   */
-  'vm.query': {
-    added: VMAddedEvent;
-    changed: VMChangedEvent;
-    removed: VMRemovedEvent;
-  };
-
-  /**
-   * Sent on vmware changes.
-   * @roles SNAPSHOT_TASK_READ
-   */
-  'vmware.query': {
-    added: VMWareAddedEvent;
-    changed: VMWareChangedEvent;
-    removed: VMWareRemovedEvent;
-  };
-
-  /**
-   * Subscribe to ZFS rewrite job collection events (ADDED, CHANGED, REMOVED).
-   * On subscribe, sends ADDED for all existing jobs, then polls every 5 seconds
-   * and fires CHANGED when a job transitions state or REMOVED when it disappears.
-   *
-   * This event is generated by a dynamic source. If you want to specify subscription params, subscribe to it using the name in the following format `zfs.tier.rewrite_job_query:{"param": "value"}`
-   * @roles DATASET_READ
-   */
-  'zfs.tier.rewrite_job_query': {
-    subscriptionParams: ZfsTierRewriteJobQueryEventSourceArgs;
-    added: ZfsTierRewriteJobQueryEventSourceEvent2;
-  };
-
-  /**
-   * Subscribe to real-time status updates for a specific ZFS rewrite job, identified by
-   * its ``dataset_name@job_uuid`` tier job id. Polls every 2 seconds and emits a CHANGED
-   * event when status or statistics change.
-   *
-   * This event is generated by a dynamic source. If you want to specify subscription params, subscribe to it using the name in the following format `zfs.tier.rewrite_job_status:{"param": "value"}`
-   * @roles DATASET_READ
-   */
-  'zfs.tier.rewrite_job_status': {
-    subscriptionParams: ZfsTierRewriteJobStatusEventSourceArgs;
-    added: ZfsTierRewriteJobStatusEventSourceEvent2;
-  };
-
-  /**
-   * Sent on zpool changes.
-   * @roles POOL_READ
-   */
-  'zpool.query': {
-    added: ZPoolQueryAddedEvent;
-    changed: ZPoolQueryChangedEvent;
-    removed: ZPoolQueryRemovedEvent;
   };
 }

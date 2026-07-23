@@ -4,9 +4,6 @@
  */
 
 import type {
-  SmbAuditConfig,
-} from '../v25_04_0/api-types';
-import type {
   DefaultOptInput,
   ExternalOpt,
   ExternalOptInput,
@@ -14,6 +11,7 @@ import type {
   LegacyOptInput,
   MultiprotocolOptInput,
   PrivateDatasetOptInput,
+  SmbAuditConfig,
   SmbAuditConfigInput,
   SmbAuditConfigInput2,
   TierInfo,

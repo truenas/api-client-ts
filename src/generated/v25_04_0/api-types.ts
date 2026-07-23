@@ -23,20 +23,6 @@ export const Action = {
 export type Action = (typeof Action)[keyof typeof Action];
 
 /**
- * Used by: disk.query (event), disk.update (params)
- */
-export const Advpowermgmt = {
-  Disabled: 'DISABLED',
-  '1': '1',
-  '64': '64',
-  '127': '127',
-  '128': '128',
-  '192': '192',
-  '254': '254',
-} as const;
-export type Advpowermgmt = (typeof Advpowermgmt)[keyof typeof Advpowermgmt];
-
-/**
  * Used by: auth.login_ex (response), auth.login_ex_continue (response)
  */
 export const Authenticator = {
@@ -76,24 +62,6 @@ export const Blocksize = {
 export type Blocksize = (typeof Blocksize)[keyof typeof Blocksize];
 
 /**
- * Used by: vm.create (params), vm.create (response), vm.get_instance (params), vm.get_instance (response), vm.query (event), vm.query (params), vm.query (response), vm.update (params), vm.update (response)
- */
-export const Bootloader = {
-  UefiCsm: 'UEFI_CSM',
-  Uefi: 'UEFI',
-} as const;
-export type Bootloader = (typeof Bootloader)[keyof typeof Bootloader];
-
-/**
- * Used by: update.status (event), update.status (response)
- */
-export const Code = {
-  Normal: 'NORMAL',
-  Error: 'ERROR',
-} as const;
-export type Code = (typeof Code)[keyof typeof Code];
-
-/**
  * Used by: auth.sessions (event), auth.sessions (params), auth.sessions (response)
  */
 export const Credentials = {
@@ -106,24 +74,6 @@ export const Credentials = {
   TruenasNode: 'TRUENAS_NODE',
 } as const;
 export type Credentials = (typeof Credentials)[keyof typeof Credentials];
-
-/**
- * Used by: rsynctask.create (response), rsynctask.get_instance (params), rsynctask.get_instance (response), rsynctask.query (event), rsynctask.query (params), rsynctask.query (response), rsynctask.update (response)
- */
-export const Direction = {
-  Pull: 'PULL',
-  Push: 'PUSH',
-} as const;
-export type Direction = (typeof Direction)[keyof typeof Direction];
-
-/**
- * Used by: cloudsync.create (response), cloudsync.get_instance (params), cloudsync.get_instance (response), cloudsync.query (event), cloudsync.query (params), cloudsync.query (response), cloudsync.restore (response), cloudsync.update (response), replication.create (response), replication.get_instance (params) … and 6 more
- */
-export const Direction2 = {
-  Push: 'PUSH',
-  Pull: 'PULL',
-} as const;
-export type Direction2 = (typeof Direction2)[keyof typeof Direction2];
 
 /**
  * Used by: smb.config (response), smb.update (response)
@@ -180,34 +130,6 @@ export const Function = {
 export type Function = (typeof Function)[keyof typeof Function];
 
 /**
- * Used by: disk.query (event), disk.update (params)
- */
-export const Hddstandby = {
-  AlwaysOn: 'ALWAYS ON',
-  '5': '5',
-  '10': '10',
-  '20': '20',
-  '30': '30',
-  '60': '60',
-  '120': '120',
-  '180': '180',
-  '240': '240',
-  '300': '300',
-  '330': '330',
-} as const;
-export type Hddstandby = (typeof Hddstandby)[keyof typeof Hddstandby];
-
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (params), vm.device.update (response) … and 6 more
- */
-export const Iotype = {
-  Native: 'NATIVE',
-  Threads: 'THREADS',
-  IoUring: 'IO_URING',
-} as const;
-export type Iotype = (typeof Iotype)[keyof typeof Iotype];
-
-/**
  * Used by: alertclasses.update (params), alertservice.create (params), alertservice.create (response), alertservice.get_instance (params), alertservice.get_instance (response), alertservice.query (event), alertservice.query (params), alertservice.query (response), alertservice.test (params), alertservice.update (params) … and 1 more
  */
 export const Level = {
@@ -222,7 +144,7 @@ export const Level = {
 export type Level = (typeof Level)[keyof typeof Level];
 
 /**
- * Used by: iscsi.target.create (response), iscsi.target.get_instance (params), iscsi.target.get_instance (response), iscsi.target.query (params), iscsi.target.query (response), iscsi.target.update (response)
+ * Used by: iscsi.target.create (params), iscsi.target.create (response), iscsi.target.get_instance (params), iscsi.target.get_instance (response), iscsi.target.query (event), iscsi.target.query (params), iscsi.target.query (response), iscsi.target.update (params), iscsi.target.update (response)
  */
 export const Mode = {
   Iscsi: 'ISCSI',
@@ -230,68 +152,6 @@ export const Mode = {
   Both: 'BOTH',
 } as const;
 export type Mode = (typeof Mode)[keyof typeof Mode];
-
-/**
- * Used by: iscsi.target.create (params), iscsi.target.query (event), iscsi.target.update (params)
- */
-export const ModeInput = {
-  Iscsi: 'ISCSI',
-  Fc: 'FC',
-  Both: 'BOTH',
-} as const;
-export type ModeInput = (typeof ModeInput)[keyof typeof ModeInput];
-
-/**
- * Used by: rsynctask.query (event)
- */
-export const ModeInput2 = {
-  Module: 'MODULE',
-  Ssh: 'SSH',
-} as const;
-export type ModeInput2 = (typeof ModeInput2)[keyof typeof ModeInput2];
-
-/**
- * Used by: sharing.smb.query (event)
- */
-export const Purpose = {
-  DefaultShare: 'DEFAULT_SHARE',
-  LegacyShare: 'LEGACY_SHARE',
-  TimemachineShare: 'TIMEMACHINE_SHARE',
-  MultiprotocolShare: 'MULTIPROTOCOL_SHARE',
-  TimeLockedShare: 'TIME_LOCKED_SHARE',
-  PrivateDatasetsShare: 'PRIVATE_DATASETS_SHARE',
-  ExternalShare: 'EXTERNAL_SHARE',
-  VeeamRepositoryShare: 'VEEAM_REPOSITORY_SHARE',
-  FcpShare: 'FCP_SHARE',
-} as const;
-export type Purpose = (typeof Purpose)[keyof typeof Purpose];
-
-/**
- * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
- */
-export const Readonly = {
-  Set: 'SET',
-  Require: 'REQUIRE',
-  Ignore: 'IGNORE',
-} as const;
-export type Readonly = (typeof Readonly)[keyof typeof Readonly];
-
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (params), vm.device.update (response) … and 7 more
- */
-export const Resolution = {
-  '1920x1200': '1920x1200',
-  '1920x1080': '1920x1080',
-  '1600x1200': '1600x1200',
-  '1600x900': '1600x900',
-  '1400x1050': '1400x1050',
-  '1280x1024': '1280x1024',
-  '1280x720': '1280x720',
-  '1024x768': '1024x768',
-  '800x600': '800x600',
-  '640x480': '640x480',
-} as const;
-export type Resolution = (typeof Resolution)[keyof typeof Resolution];
 
 /**
  * Used by: iscsi.extent.create (params), iscsi.extent.create (response), iscsi.extent.get_instance (params), iscsi.extent.get_instance (response), iscsi.extent.query (event), iscsi.extent.query (params), iscsi.extent.query (response), iscsi.extent.update (params), iscsi.extent.update (response)
@@ -315,19 +175,6 @@ export const Source = {
   Ldap: 'LDAP',
 } as const;
 export type Source = (typeof Source)[keyof typeof Source];
-
-/**
- * Used by: pool.snapshot.query (event)
- */
-export const SourceInput = {
-  None: 'NONE',
-  Default: 'DEFAULT',
-  Local: 'LOCAL',
-  Temporary: 'TEMPORARY',
-  Inherited: 'INHERITED',
-  Received: 'RECEIVED',
-} as const;
-export type SourceInput = (typeof SourceInput)[keyof typeof SourceInput];
 
 /**
  * Used by: app.container_console_choices (response), app.container_ids (response), app.convert_to_custom (response), app.create (response), app.get_instance (params), app.get_instance (response), app.query (params), app.query (response), app.redeploy (response), app.rollback (response) … and 3 more
@@ -354,34 +201,14 @@ export const StateInput = {
 export type StateInput = (typeof StateInput)[keyof typeof StateInput];
 
 /**
- * Used by: vmware.query (event)
+ * Used by: pool.scan (event)
  */
 export const StateInput2 = {
-  Pending: 'PENDING',
-  Success: 'SUCCESS',
-  Error: 'ERROR',
-  Blocked: 'BLOCKED',
-} as const;
-export type StateInput2 = (typeof StateInput2)[keyof typeof StateInput2];
-
-/**
- * Used by: container.query (event)
- */
-export const StateInput3 = {
-  Running: 'RUNNING',
-  Stopped: 'STOPPED',
-} as const;
-export type StateInput3 = (typeof StateInput3)[keyof typeof StateInput3];
-
-/**
- * Used by: pool.query (event), pool.scan (event), zpool.query (event)
- */
-export const StateInput4 = {
   Scanning: 'SCANNING',
   Finished: 'FINISHED',
   Canceled: 'CANCELED',
 } as const;
-export type StateInput4 = (typeof StateInput4)[keyof typeof StateInput4];
+export type StateInput2 = (typeof StateInput2)[keyof typeof StateInput2];
 
 /**
  * Used by: docker.status (response)
@@ -408,7 +235,7 @@ export const StatusInput = {
 export type StatusInput = (typeof StatusInput)[keyof typeof StatusInput];
 
 /**
- * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event), zfs.tier.rewrite_job_query (event), zfs.tier.rewrite_job_status (event)
+ * Used by: sharing.nfs.query (event)
  */
 export const StatusInput2 = {
   Complete: 'COMPLETE',
@@ -421,20 +248,9 @@ export const StatusInput2 = {
 export type StatusInput2 = (typeof StatusInput2)[keyof typeof StatusInput2];
 
 /**
- * Used by: truecommand.config (event)
- */
-export const StatusInput3 = {
-  Connected: 'CONNECTED',
-  Connecting: 'CONNECTING',
-  Disabled: 'DISABLED',
-  Failed: 'FAILED',
-} as const;
-export type StatusInput3 = (typeof StatusInput3)[keyof typeof StatusInput3];
-
-/**
  * Used by: docker.state (event)
  */
-export const StatusInput4 = {
+export const StatusInput3 = {
   Pending: 'PENDING',
   Running: 'RUNNING',
   Stopped: 'STOPPED',
@@ -445,7 +261,7 @@ export const StatusInput4 = {
   Migrating: 'MIGRATING',
   MigrationFailed: 'MIGRATION_FAILED',
 } as const;
-export type StatusInput4 = (typeof StatusInput4)[keyof typeof StatusInput4];
+export type StatusInput3 = (typeof StatusInput3)[keyof typeof StatusInput3];
 
 /**
  * Currently we are only attempting to meet a single STIG (General Purpose
@@ -472,25 +288,6 @@ export const Tag = {
   'GROUP': 'GROUP',
 } as const;
 export type Tag = (typeof Tag)[keyof typeof Tag];
-
-/**
- * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (params), container.update (response), vm.create (params) … and 8 more
- */
-export const Time = {
-  Local: 'LOCAL',
-  Utc: 'UTC',
-} as const;
-export type Time = (typeof Time)[keyof typeof Time];
-
-/**
- * Used by: replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.update (response)
- */
-export const Transport = {
-  Ssh: 'SSH',
-  SshNetcat: 'SSH+NETCAT',
-  Local: 'LOCAL',
-} as const;
-export type Transport = (typeof Transport)[keyof typeof Transport];
 
 /**
  * Used by: filesystem.acltemplate.by_path (response), filesystem.acltemplate.create (response), filesystem.acltemplate.get_instance (params), filesystem.acltemplate.get_instance (response), filesystem.acltemplate.query (params), filesystem.acltemplate.query (response), filesystem.acltemplate.update (response), filesystem.getacl (response), filesystem.setacl (response)
@@ -549,77 +346,49 @@ export const Type6 = {
 export type Type6 = (typeof Type6)[keyof typeof Type6];
 
 /**
- * Used by: vm.device.create (params), vm.device.query (event), vm.device.update (params), vm.query (event)
+ * Used by: filesystem.acltemplate.create (params), filesystem.acltemplate.query (event), filesystem.acltemplate.update (params), filesystem.setacl (params)
  */
 export const TypeInput = {
-  Ahci: 'AHCI',
-  Virtio: 'VIRTIO',
+  Allow: 'ALLOW',
+  Deny: 'DENY',
 } as const;
 export type TypeInput = (typeof TypeInput)[keyof typeof TypeInput];
 
 /**
- * Used by: filesystem.acltemplate.create (params), filesystem.acltemplate.query (event), filesystem.acltemplate.update (params), filesystem.setacl (params), network.configuration.update (params)
+ * Used by: initshutdownscript.create (params), initshutdownscript.query (event), initshutdownscript.update (params)
  */
 export const TypeInput2 = {
-  Allow: 'ALLOW',
-  Deny: 'DENY',
+  Command: 'COMMAND',
+  Script: 'SCRIPT',
 } as const;
 export type TypeInput2 = (typeof TypeInput2)[keyof typeof TypeInput2];
 
 /**
- * Used by: initshutdownscript.create (params), initshutdownscript.query (event), initshutdownscript.update (params)
+ * Used by: iscsi.extent.create (params), iscsi.extent.query (event), iscsi.extent.update (params)
  */
 export const TypeInput3 = {
-  Command: 'COMMAND',
-  Script: 'SCRIPT',
+  Disk: 'DISK',
+  File: 'FILE',
 } as const;
 export type TypeInput3 = (typeof TypeInput3)[keyof typeof TypeInput3];
 
 /**
- * Used by: iscsi.extent.create (params), iscsi.extent.query (event), iscsi.extent.update (params)
+ * Used by: device.get_info (params)
  */
 export const TypeInput4 = {
-  Disk: 'DISK',
-  File: 'FILE',
+  Serial: 'SERIAL',
+  Gpu: 'GPU',
 } as const;
 export type TypeInput4 = (typeof TypeInput4)[keyof typeof TypeInput4];
 
 /**
- * Used by: container.device.query (event), container.query (event)
+ * Used by: keychaincredential.query (event)
  */
 export const TypeInput5 = {
-  E1000: 'E1000',
-  Virtio: 'VIRTIO',
-} as const;
-export type TypeInput5 = (typeof TypeInput5)[keyof typeof TypeInput5];
-
-/**
- * Used by: device.get_info (params)
- */
-export const TypeInput6 = {
-  Serial: 'SERIAL',
-  Gpu: 'GPU',
-} as const;
-export type TypeInput6 = (typeof TypeInput6)[keyof typeof TypeInput6];
-
-/**
- * Used by: keychaincredential.query (event), replication.query (event), rsynctask.query (event)
- */
-export const TypeInput7 = {
   SshKeyPair: 'SSH_KEY_PAIR',
   SshCredentials: 'SSH_CREDENTIALS',
 } as const;
-export type TypeInput7 = (typeof TypeInput7)[keyof typeof TypeInput7];
-
-/**
- * Used by: tunable.query (event)
- */
-export const TypeInput8 = {
-  Sysctl: 'SYSCTL',
-  Udev: 'UDEV',
-  Zfs: 'ZFS',
-} as const;
-export type TypeInput8 = (typeof TypeInput8)[keyof typeof TypeInput8];
+export type TypeInput5 = (typeof TypeInput5)[keyof typeof TypeInput5];
 
 /**
  * Used by: smb.config (response), smb.update (params), smb.update (response)
@@ -958,11 +727,6 @@ export type SharingNFSQueryResultItem = Record<string, unknown>;
 export type StaticRouteQueryResultItem = Record<string, unknown>;
 
 /**
- * Used by: system.ready (event)
- */
-export type SystemReadyAddedEvent = Record<string, never>;
-
-/**
  * Used by: system.shutdown (event)
  */
 export type SystemShutdownAddedEvent = Record<string, never>;
@@ -971,13 +735,6 @@ export type SystemShutdownAddedEvent = Record<string, never>;
  * Used by: user.query (response)
  */
 export type UserQueryResultItem = Record<string, unknown>;
-
-/**
- * No arguments — subscribes to all rewrite job lifecycle events.
- *
- * Used by: zfs.tier.rewrite_job_query (event)
- */
-export type ZfsTierRewriteJobQueryEventSourceArgs = Record<string, never>;
 
 /**
  * Used by: filesystem.acltemplate.query (event)
@@ -1017,7 +774,7 @@ export interface ACLTemplateEntryInput {
  */
 export interface NFS4ACEInput {
   tag: Tag;
-  type: TypeInput2;
+  type: TypeInput;
   /**
    * Permissions granted or denied by this ACE.
    */
@@ -1274,7 +1031,7 @@ export interface AclTemplateCreate {
  */
 export interface NFS4ACEInput2 {
   tag: Tag;
-  type: TypeInput2;
+  type: TypeInput;
   perms: NFS4ACE_AdvancedPermsInput2 | NFS4ACE_BasicPermsInput2;
   flags: NFS4ACE_AdvancedFlagsInput2 | NFS4ACE_BasicFlagsInput2;
   id?: number | null;
@@ -3787,7 +3544,7 @@ export interface AzureBlobCredentialsModel {
   endpoint?: "" | string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface AzureBlobCredentialsModelInput {
   /**
@@ -3834,7 +3591,7 @@ export interface B2CredentialsModel {
   key: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface B2CredentialsModelInput {
   /**
@@ -4068,7 +3825,7 @@ export interface BoxCredentialsModel {
   token: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface BoxCredentialsModelInput {
   /**
@@ -4236,205 +3993,6 @@ export interface CatalogUpdateArgs {
   preferred_trains?: string[];
 }
 /**
- * Used by: certificate.query (event)
- */
-export interface CertificateAddedEvent {
-  id: number;
-  fields: CertificateEntry;
-}
-/**
- * Used by: certificate.query (event)
- */
-export interface CertificateEntry {
-  /**
-   * Unique identifier for this certificate entry.
-   */
-  id: number;
-  /**
-   * Internal certificate type identifier used to determine certificate capabilities.
-   */
-  type: number;
-  /**
-   * Human-readable name for this certificate. Must be unique and contain only alphanumeric characters, dashes, and underscores.
-   */
-  name: string;
-  /**
-   * PEM-encoded X.509 certificate data. `null` for certificate signing requests (CSR) that have not yet been signed.
-   */
-  certificate: string | null;
-  /**
-   * PEM-encoded private key corresponding to the certificate. `null` if no private key is available or for imported certificates without keys.
-   */
-  privatekey: string | null;
-  /**
-   * PEM-encoded Certificate Signing Request (CSR) data. `null` for imported certificates or completed ACME certificates.
-   */
-  CSR: string | null;
-  /**
-   * ACME directory server URI used for automated certificate management. `null` for non-ACME certificates.
-   */
-  acme_uri: string | null;
-  /**
-   * Mapping of domain names to ACME DNS authenticator IDs for domain validation. `null` for non-ACME certificates.
-   */
-  domains_authenticators: {
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Number of days before expiration to attempt automatic renewal. Only applicable for ACME certificates. `null` for non-renewable certificates.
-   */
-  renew_days: number | null;
-  /**
-   * ACME registration and account information used for certificate lifecycle management. `null` for non-ACME certificates.
-   */
-  acme: {
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Whether this certificate should be added to the system's trusted certificate store.
-   */
-  add_to_trusted_store: boolean;
-  /**
-   * Filesystem path where certificate-related files are stored.
-   */
-  root_path: string;
-  /**
-   * Filesystem path to the certificate file (.crt). `null` if no certificate is available.
-   */
-  certificate_path: string | null;
-  /**
-   * Filesystem path to the private key file (.key). `null` if no private key is available.
-   */
-  privatekey_path: string | null;
-  /**
-   * Filesystem path to the certificate signing request file (.csr). `null` if no CSR is available.
-   */
-  csr_path: string | null;
-  /**
-   * Human-readable certificate type, typically 'CERTIFICATE' for standard certificates.
-   */
-  cert_type: string;
-  /**
-   * Whether this is an existing certificate (imported or generated).
-   */
-  cert_type_existing: boolean;
-  /**
-   * Whether this entry represents a Certificate Signing Request (CSR) rather than a signed certificate.
-   */
-  cert_type_CSR: boolean;
-  /**
-   * Whether this certificate is a Certificate Authority (CA) certificate.
-   */
-  cert_type_CA: boolean;
-  /**
-   * Array of PEM-encoded certificates in the certificate chain, starting with the leaf certificate.
-   */
-  chain_list: string[];
-  /**
-   * Size of the cryptographic key in bits. `null` if key information is unavailable.
-   */
-  key_length: number | null;
-  /**
-   * Type of cryptographic key algorithm (e.g., 'RSA', 'EC', 'DSA'). `null` if key information is unavailable.
-   */
-  key_type: string | null;
-  /**
-   * ISO 3166-1 alpha-2 country code from the certificate subject. `null` if not specified.
-   */
-  country: string | null;
-  /**
-   * State or province name from the certificate subject. `null` if not specified.
-   */
-  state: string | null;
-  /**
-   * City or locality name from the certificate subject. `null` if not specified.
-   */
-  city: string | null;
-  /**
-   * Organization name from the certificate subject. `null` if not specified.
-   */
-  organization: string | null;
-  /**
-   * Organizational unit from the certificate subject. `null` if not specified.
-   */
-  organizational_unit: string | null;
-  /**
-   * Common name (CN) from the certificate subject. `null` if not specified.
-   */
-  common: string | null;
-  /**
-   * Subject Alternative Names (SAN) from the certificate extension. `null` if no SAN extension is present.
-   */
-  san: string[] | null;
-  /**
-   * Email address from the certificate subject. `null` if not specified.
-   */
-  email: string | null;
-  /**
-   * Distinguished Name (DN) of the certificate subject in RFC 2253 format. `null` if certificate parsing failed.
-   */
-  DN: string | null;
-  /**
-   * Hash of the certificate subject name. `null` if certificate parsing failed.
-   */
-  subject_name_hash: number | null;
-  /**
-   * X.509 certificate extensions parsed into a dictionary structure.
-   */
-  extensions: {
-    [k: string]: unknown;
-  };
-  /**
-   * Cryptographic hash algorithm used for certificate signing (e.g., 'SHA256'). `null` if unavailable.
-   */
-  digest_algorithm: string | null;
-  /**
-   * Certificate validity period in seconds. `null` if certificate parsing failed.
-   */
-  lifetime: number | null;
-  /**
-   * Certificate validity start date in ISO 8601 format. `null` if certificate parsing failed.
-   */
-  from: string | null;
-  /**
-   * Certificate validity end date in ISO 8601 format. `null` if certificate parsing failed.
-   */
-  until: string | null;
-  /**
-   * Certificate serial number. `null` if certificate parsing failed.
-   */
-  serial: number | null;
-  /**
-   * Whether this certificate has an associated certificate chain. `null` if unavailable.
-   */
-  chain: boolean | null;
-  /**
-   * SHA-256 fingerprint of the certificate in hexadecimal format. `null` if certificate parsing failed.
-   */
-  fingerprint: string | null;
-  /**
-   * Whether the certificate has expired. `null` if certificate parsing failed.
-   */
-  expired: boolean | null;
-  /**
-   * Whether the certificate data was successfully parsed and validated.
-   */
-  parsed: boolean;
-}
-/**
- * Used by: certificate.query (event)
- */
-export interface CertificateChangedEvent {
-  id: number;
-  fields: CertificateEntry;
-}
-/**
- * Used by: certificate.query (event)
- */
-export interface CertificateRemovedEvent {
-  id: number;
-}
-/**
  * Used by: cloud_backup.query (event)
  */
 export interface CloudBackupAddedEvent {
@@ -4544,7 +4102,7 @@ export interface CloudBackupEntryInput {
   rate_limit?: number | null;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface CredentialsEntryInput {
   /**
@@ -4580,7 +4138,7 @@ export interface CredentialsEntryInput {
     | YandexCredentialsModelInput;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface DropboxCredentialsModelInput {
   /**
@@ -4601,7 +4159,7 @@ export interface DropboxCredentialsModelInput {
   token: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface FTPCredentialsModelInput {
   /**
@@ -4626,7 +4184,7 @@ export interface FTPCredentialsModelInput {
   pass: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface GoogleCloudStorageCredentialsModelInput {
   /**
@@ -4639,7 +4197,7 @@ export interface GoogleCloudStorageCredentialsModelInput {
   service_account_credentials: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface GoogleDriveCredentialsModelInput {
   /**
@@ -4664,7 +4222,7 @@ export interface GoogleDriveCredentialsModelInput {
   team_drive?: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface GooglePhotosCredentialsModelInput {
   /**
@@ -4685,7 +4243,7 @@ export interface GooglePhotosCredentialsModelInput {
   token: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface HTTPCredentialsModelInput {
   /**
@@ -4698,7 +4256,7 @@ export interface HTTPCredentialsModelInput {
   url: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface HubicCredentialsModelInput {
   /**
@@ -4728,7 +4286,7 @@ export interface MegaCredentialsModel {
   pass: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface OneDriveCredentialsModelInput {
   /**
@@ -4757,7 +4315,7 @@ export interface OneDriveCredentialsModelInput {
   drive_id: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface PCloudCredentialsModelInput {
   /**
@@ -4831,7 +4389,7 @@ export interface S3CredentialsModelInput {
   sign_accept_encoding?: boolean;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface SFTPCredentialsModelInput {
   /**
@@ -4881,7 +4439,7 @@ export interface StorjIxCredentialsModelInput {
   endpoint?: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface SwiftCredentialsModelInput {
   /**
@@ -4965,7 +4523,7 @@ export interface SwiftCredentialsModelInput {
   endpoint_type: ("public" | "internal" | "admin") | null;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface WebDavCredentialsModelInput {
   /**
@@ -4987,7 +4545,7 @@ export interface WebDavCredentialsModelInput {
   pass: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.credentials.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event), cloudsync.credentials.query (event)
  */
 export interface YandexCredentialsModelInput {
   /**
@@ -5008,7 +4566,7 @@ export interface YandexCredentialsModelInput {
   token: string;
 }
 /**
- * Used by: cloud_backup.query (event), cloudsync.query (event)
+ * Used by: cloud_backup.query (event)
  */
 export interface CloudTaskAttributes {
   /**
@@ -6092,140 +5650,6 @@ export interface CloudFlareSchemaInput {
   api_token?: string | null;
 }
 /**
- * Used by: cloudsync.query (event)
- */
-export interface CloudSyncAddedEvent {
-  id: number;
-  fields: CloudSyncEntry;
-}
-/**
- * Used by: cloudsync.query (event)
- */
-export interface CloudSyncEntry {
-  /**
-   * Unique identifier for this cloud storage configuration.
-   */
-  id: number;
-  /**
-   * The name of the task to display in the UI.
-   */
-  description?: string;
-  /**
-   * The local path to back up beginning with `/mnt` or `/dev/zvol`.
-   */
-  path: string;
-  /**
-   * The ZFS dataset containing this path (e.g., 'tank/backup'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
-  dataset: string | null;
-  /**
-   * The path relative to the dataset mountpoint (e.g., 'subdir/data'). This is a read-only field automatically resolved from "path". May be `null` if dataset is unavailable.
-   */
-  relative_path: string | null;
-  credentials: CredentialsEntryInput;
-  attributes: CloudTaskAttributes;
-  schedule?: CloudCron;
-  /**
-   * A Bash script to run immediately before every backup.
-   */
-  pre_script?: string;
-  /**
-   * A Bash script to run immediately after every backup if it succeeds.
-   */
-  post_script?: string;
-  /**
-   * Whether to create a temporary snapshot of the dataset before every backup.
-   */
-  snapshot?: boolean;
-  /**
-   * Paths to pass to `restic backup --include`.
-   */
-  include?: string[];
-  /**
-   * Paths to pass to `restic backup --exclude`.
-   */
-  exclude?: string[];
-  /**
-   * (Slated for removal).
-   */
-  args?: string;
-  /**
-   * Can enable/disable the task.
-   */
-  enabled?: boolean;
-  /**
-   * Information regarding the task's job state, e.g. progress.
-   */
-  job: {
-    [k: string]: unknown;
-  } | null;
-  /**
-   * A locked task cannot run.
-   */
-  locked: boolean;
-  /**
-   * Schedule of bandwidth limits.
-   */
-  bwlimit?: CloudSyncBwlimit[];
-  /**
-   * Maximum number of parallel file transfers. `null` for default.
-   */
-  transfers?: number | null;
-  direction: Direction2;
-  /**
-   * How files are transferred between local and cloud storage.
-   *
-   * * `SYNC`: Synchronize directories (add new, update changed, remove deleted)
-   * * `COPY`: Copy files without removing any existing files
-   * * `MOVE`: Move files (copy then delete from source)
-   */
-  transfer_mode: "SYNC" | "COPY" | "MOVE";
-  /**
-   * Whether to encrypt files before uploading to cloud storage.
-   */
-  encryption?: boolean;
-  /**
-   * Whether to encrypt filenames in addition to file contents.
-   */
-  filename_encryption?: boolean;
-  /**
-   * Password for client-side encryption. Empty string if encryption is disabled.
-   */
-  encryption_password?: string;
-  /**
-   * Salt value for encryption key derivation. Empty string if encryption is disabled.
-   */
-  encryption_salt?: string;
-  /**
-   * Whether to create empty directories in the destination that exist in the source.
-   */
-  create_empty_src_dirs?: boolean;
-  /**
-   * Whether to follow symbolic links and sync the files they point to.
-   */
-  follow_symlinks?: boolean;
-}
-/**
- * Used by: cloudsync.create (params), cloudsync.create (response), cloudsync.get_instance (params), cloudsync.get_instance (response), cloudsync.query (event), cloudsync.query (params), cloudsync.query (response), cloudsync.restore (response), cloudsync.sync_onetime (params), cloudsync.update (params) … and 1 more
- */
-export interface CloudSyncBwlimit {
-  /**
-   * Time at which the bandwidth limit takes effect in 24-hour format.
-   */
-  time: string;
-  /**
-   * Bandwidth limit in bytes per second (upload and download).
-   */
-  bandwidth: number | null;
-}
-/**
- * Used by: cloudsync.query (event)
- */
-export interface CloudSyncChangedEvent {
-  id: number;
-  fields: CloudSyncEntry;
-}
-/**
  * Used by: cloudsync.onedrive_list_drives (params)
  */
 export interface CloudSyncOneDriveListDrivesArgs {
@@ -6264,12 +5688,6 @@ export interface CloudSyncOneDriveListDrivesDrive {
   description: string;
 }
 /**
- * Used by: cloudsync.query (event)
- */
-export interface CloudSyncRemovedEvent {
-  id: number;
-}
-/**
  * Used by: config.reset (params)
  */
 export interface ConfigReset {
@@ -6296,242 +5714,6 @@ export interface ConfigSave {
   root_authorized_keys?: boolean;
 }
 /**
- * Used by: container.query (event)
- */
-export interface ContainerAddedEvent {
-  id: number;
-  fields: ContainerEntry;
-}
-/**
- * Used by: container.query (event)
- */
-export interface ContainerEntry {
-  /**
-   * Container ID.
-   */
-  id: number;
-  /**
-   * Container UUID (for libvirt).
-   */
-  uuid: string;
-  /**
-   * Container name.
-   */
-  name: string;
-  /**
-   * Container description.
-   */
-  description?: string;
-  /**
-   * Container's devices.
-   */
-  devices?: ContainerDeviceEntry[];
-  /**
-   * List of physical CPU numbers that domain process and virtual CPUs can be pinned to by default.
-   */
-  cpuset?: string | null;
-  /**
-   * Automatically start the container on boot.
-   */
-  autostart?: boolean;
-  time?: Time;
-  /**
-   * How many seconds to wait for container to shut down before killing it.
-   */
-  shutdown_timeout?: number;
-  /**
-   * Which dataset to use as the container root filesystem.
-   */
-  dataset: string;
-  /**
-   * "init" process commandline.
-   */
-  init?: string;
-  /**
-   * "init" process working dir.
-   */
-  initdir?: string | null;
-  /**
-   * "init" process environment variables.
-   */
-  initenv?: {
-    [k: string]: string;
-  };
-  /**
-   * "init" process username.
-   */
-  inituser?: string | null;
-  /**
-   * "init" process group.
-   */
-  initgroup?: string | null;
-  /**
-   * Idmap configuration for the container There are three two possible values: DEFAULT: This applies the standard TrueNAS idmap namespace configuration. It changes user ID (UID) 0 (root) in the container to UID 2147000001 (truenas_container_unpriv_root). It offsets the other container UIDs by the same amount. For example, UID 1000 in the container becomes UID 2147001001 in the host. ISOLATED: Same as `DEFAULT`, but UID will be calculated as `2147000001 + 65536 * slice`. This will ensure unique ID for each container (provided that the `slice` is also unique). None: The container does not apply any idmap namespace. Container UIDs map directly to host UIDs. For example, UID 0 in the container is UID 0 in the host. WARNING: For security, use the DEFAULT value. Security best practice is to run containers with idmap namespaces.
-   */
-  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  /**
-   * Default rules for capabilities: either keep the default behavior that is dropping the following capabilities: sys_module, sys_time, mknod, audit_control, mac_admin. Or keep all capabilities, or drop all capabilities.
-   */
-  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  /**
-   * Enable or disable specific capabilities.
-   */
-  capabilities_state?: {
-    [k: string]: boolean;
-  };
-  /**
-   * The default network bridge this container will use when no NIC devices are explicitly attached. When the container has explicitly configured NIC devices, this is `null` because the NIC configuration is visible in the `devices` list.
-   */
-  default_network?: string | null;
-  status: ContainerStatus;
-}
-/**
- * Used by: container.device.query (event), container.query (event)
- */
-export interface ContainerDeviceEntry {
-  /**
-   * Unique identifier for the containers device.
-   */
-  id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
-  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDevice | ContainerUSBDevice;
-  /**
-   * ID of the container this device belongs to.
-   */
-  container: number;
-}
-/**
- * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 5 more
- */
-export interface ContainerFilesystemDevice {
-  /**
-   * Device type identifier for FILESYSTEM devices.
-   */
-  dtype: "FILESYSTEM";
-  /**
-   * Path inside the container to mount the source at. Must not contain braces.
-   */
-  target: string;
-  /**
-   * Host path to bind-mount into the container. Must reside within a pool (under `/mnt`) and must not contain braces.
-   */
-  source: string;
-}
-/**
- * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 5 more
- */
-export interface ContainerGPUDevice {
-  /**
-   * Device type identifier for GPU devices.
-   */
-  dtype: "GPU";
-  /**
-   * GPU device type.
-   */
-  gpu_type: "AMD" | "INTEL" | "NVIDIA";
-  /**
-   * PCI address of the GPU device on the host system.
-   */
-  pci_address: string;
-}
-/**
- * Used by: container.device.query (event), container.query (event)
- */
-export interface ContainerNICDevice {
-  /**
-   * Device type identifier for network interface cards.
-   */
-  dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
-  trust_guest_rx_filters?: boolean;
-  type?: TypeInput5;
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
-  nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
-  mac?: string | null;
-}
-/**
- * Used by: container.device.query (event), container.query (event)
- */
-export interface ContainerUSBDevice {
-  /**
-   * Device type identifier for USB devices.
-   */
-  dtype: "USB";
-  /**
-   * USB device attributes for identification. `null` for USB host controller only.
-   */
-  usb?: USBAttributes | null;
-  /**
-   * Host USB device path to pass through. `null` for controller only.
-   */
-  device?: string | null;
-}
-/**
- * Used by: container.create (response), container.device.create (params), container.device.create (response), container.device.get_instance (params), container.device.get_instance (response), container.device.query (event), container.device.query (params), container.device.query (response), container.device.update (response), container.get_instance (params) … and 20 more
- */
-export interface USBAttributes {
-  /**
-   * USB vendor identifier in hexadecimal format (e.g., '0x1d6b' for Linux Foundation).
-   */
-  vendor_id: string;
-  /**
-   * USB product identifier in hexadecimal format (e.g., '0x0002' for 2.0 root hub).
-   */
-  product_id: string;
-}
-/**
- * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (response)
- */
-export interface DefaultIdmapConfiguration {
-  /**
-   * Configuration type for default ID mapping.
-   */
-  type: "DEFAULT";
-}
-/**
- * Used by: container.create (params), container.create (response), container.get_instance (params), container.get_instance (response), container.query (event), container.query (params), container.query (response), container.update (response)
- */
-export interface IsolatedIdmapConfiguration {
-  /**
-   * Configuration type for isolated ID mapping.
-   */
-  type: "ISOLATED";
-  /**
-   * `null` when creating means we'll look up an unused slice on backend.
-   */
-  slice: number | null;
-}
-/**
- * Used by: container.query (event)
- */
-export interface ContainerStatus {
-  state: StateInput3;
-  /**
-   * Container host PID (if running). Informational only do not rely on this value to identify the container's init process.
-   */
-  pid: number | null;
-  /**
-   * Domain state reported by libvirt.
-   */
-  domain_state: string | null;
-}
-/**
- * Used by: container.query (event)
- */
-export interface ContainerChangedEvent {
-  id: number;
-  fields: ContainerEntry;
-}
-/**
  * Used by: app.container_console_choices (response), app.container_ids (response)
  */
 export interface ContainerDetails {
@@ -6548,32 +5730,6 @@ export interface ContainerDetails {
    */
   image: string;
   state: State;
-}
-/**
- * Used by: container.device.query (event)
- */
-export interface ContainerDeviceAddedEvent {
-  id: number;
-  fields: ContainerDeviceEntry;
-}
-/**
- * Used by: container.device.query (event)
- */
-export interface ContainerDeviceChangedEvent {
-  id: number;
-  fields: ContainerDeviceEntry;
-}
-/**
- * Used by: container.device.query (event)
- */
-export interface ContainerDeviceRemovedEvent {
-  id: number;
-}
-/**
- * Used by: container.query (event)
- */
-export interface ContainerRemovedEvent {
-  id: number;
 }
 /**
  * Used by: container.metrics (event)
@@ -6593,165 +5749,6 @@ export interface ContainersMetricsEventSourceEvent {
       [k: string]: unknown;
     };
   };
-}
-/**
- * Used by: core.get_jobs (event)
- */
-export interface CoreGetJobsAddedEvent {
-  /**
-   * ID of the job that was added.
-   */
-  id: number;
-  fields: CoreGetJobsItem;
-}
-/**
- * Used by: core.get_jobs (event), core.get_jobs (params), core.get_jobs (response)
- */
-export interface CoreGetJobsItem {
-  /**
-   * Unique identifier for this job.
-   */
-  id: number;
-  /**
-   * Array of message IDs associated with this job.
-   */
-  message_ids: unknown[];
-  /**
-   * Name of the method/service being executed by this job.
-   */
-  method: string;
-  /**
-   * Array of arguments passed to the job method.
-   */
-  arguments: unknown[];
-  /**
-   * Whether this is a temporary job that will be automatically cleaned up.
-   */
-  transient: boolean;
-  /**
-   * Human-readable description of what this job does. `null` if not provided.
-   */
-  description: string | null;
-  /**
-   * Whether this job can be cancelled/aborted.
-   */
-  abortable: boolean;
-  /**
-   * File system path to detailed job logs. `null` if no logs available.
-   */
-  logs_path: string | null;
-  /**
-   * Brief excerpt from job logs for quick preview. `null` if no logs available.
-   */
-  logs_excerpt: string | null;
-  progress: CoreGetJobsItemProgress;
-  /**
-   * The result data returned by the job upon successful completion.
-   */
-  result: {
-    [k: string]: unknown;
-  };
-  /**
-   * Encoding error information if result serialization failed.
-   */
-  result_encoding_error: {
-    [k: string]: unknown;
-  };
-  /**
-   * Error message if the job failed. `null` if no error occurred.
-   */
-  error: string | null;
-  /**
-   * Exception details if the job encountered an exception. `null` if no exception occurred.
-   */
-  exception: string | null;
-  /**
-   * Detailed exception information. `null` if no exception occurred.
-   */
-  exc_info: CoreGetJobsItemExcInfo | null;
-  /**
-   * Current execution state of the job.
-   */
-  state: string;
-  /**
-   * Timestamp when the job started execution. `null` if not yet started.
-   */
-  time_started: string | null;
-  /**
-   * Timestamp when the job completed execution. `null` if still running or not started.
-   */
-  time_finished: string | null;
-  /**
-   * Authentication credentials used for this job. `null` if no authentication required.
-   */
-  credentials: CoreGetJobsItemCredentials | null;
-}
-/**
- * Used by: core.get_jobs (event), core.get_jobs (params), core.get_jobs (response)
- */
-export interface CoreGetJobsItemProgress {
-  /**
-   * Completion percentage of the job. `null` if not available.
-   */
-  percent: number | null;
-  /**
-   * Human-readable description of the current progress. `null` if not available.
-   */
-  description: string | null;
-  /**
-   * Additional progress information specific to the job type.
-   */
-  extra: {
-    [k: string]: unknown;
-  };
-}
-/**
- * Used by: core.get_jobs (event), core.get_jobs (params), core.get_jobs (response)
- */
-export interface CoreGetJobsItemExcInfo {
-  /**
-   * String representation of the exception. `null` if no exception occurred.
-   */
-  repr: string | null;
-  /**
-   * Exception type name. `null` if no exception occurred.
-   */
-  type: string | null;
-  /**
-   * System error number if applicable. `null` otherwise.
-   */
-  errno: number | null;
-  /**
-   * Additional exception information.
-   */
-  extra: {
-    [k: string]: unknown;
-  };
-}
-/**
- * Used by: core.get_jobs (event), core.get_jobs (params), core.get_jobs (response)
- */
-export interface CoreGetJobsItemCredentials {
-  /**
-   * Authentication type used for the job.
-   */
-  type: string;
-  /**
-   * Authentication data and credentials for the job.
-   */
-  data: {
-    [k: string]: unknown;
-  };
-}
-/**
- * Used by: core.get_jobs (event)
- */
-export interface CoreGetJobsChangedEvent {
-  /**
-   * ID of the job that was updated.
-   */
-  id: number;
-  fields: CoreGetJobsItem;
 }
 /**
  * Used by: core.set_options (params)
@@ -7022,34 +6019,6 @@ export interface CronJobUpdate {
   user?: string;
 }
 /**
- * Each field can either be a single value or a comma-separated list of values.
- * A "*" represents the full list of values.
- *
- * Used by: replication.create (params), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.run_onetime (params), replication.update (params) … and 1 more
- */
-export interface CronModel {
-  /**
-   * "00" - "59".
-   */
-  minute?: string;
-  /**
-   * "00" - "23".
-   */
-  hour?: string;
-  /**
-   * "1" - "31".
-   */
-  dom?: string;
-  /**
-   * "1" (January) - "12" (December).
-   */
-  month?: string;
-  /**
-   * "1" (Monday) - "7" (Sunday).
-   */
-  dow?: string;
-}
-/**
  * Used by: webui.crypto.csr_profiles (response)
  */
 export interface CSRProfilesModel {
@@ -7176,32 +6145,6 @@ export interface ECCKeyUsageModel {
   digital_signature?: boolean;
 }
 /**
- * These configuration options apply to shares with the `DEFAULT_SHARE` purpose.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface DefaultOpt {
-  purpose: "DEFAULT_SHARE";
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
-  aapl_name_mangling?: boolean;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
-  hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
-  hostsdeny?: string[];
-}
-/**
  * Used by: device.get_info (params)
  */
 export interface DeviceGetInfoDisk {
@@ -7222,7 +6165,7 @@ export interface DeviceGetInfoDisk {
  * Used by: device.get_info (params)
  */
 export interface DeviceGetInfoOther {
-  type: TypeInput6;
+  type: TypeInput4;
 }
 /**
  * Used by: acme.dns.authenticator.create (params), acme.dns.authenticator.create (response), acme.dns.authenticator.get_instance (params), acme.dns.authenticator.get_instance (response), acme.dns.authenticator.query (event), acme.dns.authenticator.query (params), acme.dns.authenticator.query (response), acme.dns.authenticator.update (params), acme.dns.authenticator.update (response)
@@ -7249,29 +6192,6 @@ export interface DigitalOceanSchemaInput {
    * DigitalOcean Token.
    */
   digitalocean_token: string;
-}
-/**
- * Used by: directoryservices.status (event), directoryservices.status (response)
- */
-export interface DirectoryServicesStatus {
-  /**
-   * The type of enabled directory service.
-   */
-  type: ("ACTIVEDIRECTORY" | "IPA" | "LDAP") | null;
-  /**
-   * This field shows the directory service status from the last health check. The status is null if directory services are disabled.
-   */
-  status?: ("DISABLED" | "FAULTED" | "LEAVING" | "JOINING" | "HEALTHY") | null;
-  /**
-   * This field shows the reason why the directory service is FAULTED after a failed health check. If the directory service is not faulted, the field is null.
-   */
-  status_msg?: string | null;
-}
-/**
- * Used by: directoryservices.status (event)
- */
-export interface DirectoryServicesStatusChangedEvent {
-  fields: DirectoryServicesStatus;
 }
 /**
  * Used by: filesystem.getacl (response), filesystem.setacl (response)
@@ -7309,143 +6229,6 @@ export interface DISABLED_ACLResult {
    * Always `true` when ACLs are disabled - only basic POSIX permissions apply.
    */
   trivial: true;
-}
-/**
- * Used by: disk.query (event)
- */
-export interface DiskEntry {
-  /**
-   * Unique identifier for the disk device.
-   */
-  identifier: string;
-  /**
-   * System name of the disk device.
-   */
-  name: string;
-  /**
-   * Storage subsystem type.
-   */
-  subsystem: string;
-  /**
-   * Numeric identifier assigned to the disk.
-   */
-  number: number;
-  /**
-   * Manufacturer serial number of the disk.
-   */
-  serial: string;
-  /**
-   * Logical unit number identifier or `null` if not applicable.
-   */
-  lunid: string | null;
-  /**
-   * Total size of the disk in bytes. `null` if not available.
-   */
-  size: number | null;
-  /**
-   * Human-readable description of the disk device.
-   */
-  description: string;
-  /**
-   * Data transfer mode and capabilities of the disk.
-   */
-  transfermode: string;
-  hddstandby: Hddstandby;
-  advpowermgmt: Advpowermgmt;
-  /**
-   * Expiration timestamp for disk data or `null` if not applicable.
-   */
-  expiretime: string | null;
-  /**
-   * Manufacturer model name/number of the disk. `null` if not available.
-   */
-  model: string | null;
-  /**
-   * Disk rotation speed in RPM or `null` for SSDs and unknown devices.
-   */
-  rotationrate: number | null;
-  /**
-   * Disk type classification or `null` if not determined.
-   */
-  type: string | null;
-  /**
-   * ZFS globally unique identifier for this disk or `null` if not used in ZFS.
-   */
-  zfs_guid: string | null;
-  /**
-   * System bus type the disk is connected to.
-   */
-  bus: string;
-  /**
-   * Device name in the operating system.
-   */
-  devname: string;
-  /**
-   * Physical enclosure information or `null` if not in an enclosure.
-   */
-  enclosure: DiskEntryEnclosure | null;
-  /**
-   * Name of the storage pool this disk belongs to. `null` if not part of any pool.
-   */
-  pool: string | null;
-  /**
-   * Disk encryption password (masked for security).
-   */
-  passwd?: string;
-  /**
-   * KMIP (Key Management Interoperability Protocol) unique identifier or `null`.
-   */
-  kmip_uid?: string | null;
-  /**
-   * Whether the disk is SED (Self-Encrypting Drive) capable. `null` if not yet determined.
-   */
-  sed: boolean | null;
-  /**
-   * SED Status of the disk. `null` if not yet determined.
-   */
-  sed_status?: string | null;
-}
-/**
- * Used by: disk.query (event), disk.update (params)
- */
-export interface DiskEntryEnclosure {
-  /**
-   * Enclosure number where the disk is located.
-   */
-  number: number;
-  /**
-   * Physical slot position within the enclosure.
-   */
-  slot: number;
-}
-/**
- * Used by: disk.query (event)
- */
-export interface DiskQueryAddedEvent {
-  /**
-   * Disk identifier.
-   */
-  id: string;
-  fields: DiskEntry;
-}
-/**
- * Used by: disk.query (event)
- */
-export interface DiskQueryChangedEvent {
-  /**
-   * Disk identifier.
-   */
-  id: string;
-  fields: DiskEntry;
-}
-/**
- * Used by: disk.query (event)
- */
-export interface DiskQueryRemovedEvent {
-  /**
-   * Disk identifier.
-   */
-  id: string;
 }
 /**
  * Used by: acme.dns.authenticator.query (event)
@@ -7782,7 +6565,7 @@ export interface DockerStatusInfo {
    * Human-readable description of the current Docker service status.
    */
   description: string;
-  status: StatusInput4;
+  status: StatusInput3;
 }
 /**
  * Used by: docker.update (params)
@@ -7802,35 +6585,6 @@ export interface Enclosure2SetSlotStatusArgs {
   enclosure_id: string;
   slot: number;
   status: StatusInput;
-}
-/**
- * These configuration options apply to shares with the `EXTERNAL_SHARE` purpose.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface ExternalOpt {
-  purpose: "EXTERNAL_SHARE";
-  /**
-   * This is the path to the external server and share. Each server entry must include a full domain name or IP address and share name. Separate the server and share with the `\` character.
-   *
-   * WARNING: The SMB server and TrueNAS middleware do not check if external paths are reachable.
-   */
-  remote_path: string[];
-}
-/**
- * Used by: failover.disabled.reasons (event)
- */
-export interface FailoverDisabledReasonsChangedEvent {
-  fields: FailoverDisabledReasonsChangedEventFields;
-}
-/**
- * Used by: failover.disabled.reasons (event)
- */
-export interface FailoverDisabledReasonsChangedEventFields {
-  /**
-   * Array of reasons why failover is currently disabled.
-   */
-  disabled_reasons: string[];
 }
 /**
  * Used by: failover.reboot.info (event)
@@ -7913,21 +6667,6 @@ export interface RebootRequiredReason {
    * Human-readable description of why a reboot is required.
    */
   reason: string;
-}
-/**
- * Used by: failover.status (event)
- */
-export interface FailoverStatusChangedEvent {
-  fields: FailoverStatusChangedEventFields;
-}
-/**
- * Used by: failover.status (event)
- */
-export interface FailoverStatusChangedEventFields {
-  /**
-   * Current status of the failover system.
-   */
-  status: string;
 }
 /**
  * Used by: fc.fc_host.query (event)
@@ -8153,30 +6892,6 @@ export interface FCPortUpdate {
    * ID of the target to associate with this FC port.
    */
   target_id?: number;
-}
-/**
- * These configuration options apply to shares with the `FCP_SHARE` purpose as a storage location     for Final Cut Pro data.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface FCPStorageOpt {
-  purpose: "FCP_SHARE";
-  /**
-   * Illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   */
-  aapl_name_mangling?: true;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
-  hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
-  hostsdeny?: string[];
 }
 /**
  * Used by: filesystem.file_tail_follow (event)
@@ -9448,7 +8163,7 @@ export interface InitShutdownScriptAddedEvent {
  * Used by: initshutdownscript.query (event)
  */
 export interface InitShutdownScriptEntryInput {
-  type: TypeInput3;
+  type: TypeInput2;
   /**
    * Must be given if `type="COMMAND"`.
    */
@@ -9488,7 +8203,7 @@ export interface InitShutdownScriptChangedEvent {
  * Used by: initshutdownscript.create (params)
  */
 export interface InitShutdownScriptCreate {
-  type: TypeInput3;
+  type: TypeInput2;
   /**
    * Must be given if `type="COMMAND"`.
    */
@@ -9541,7 +8256,7 @@ export interface InitShutdownScriptRemovedEvent {
  * Used by: initshutdownscript.update (params)
  */
 export interface InitShutdownScriptUpdate {
-  type?: TypeInput3;
+  type?: TypeInput2;
   /**
    * Must be given if `type="COMMAND"`.
    */
@@ -9559,310 +8274,6 @@ export interface InitShutdownScriptUpdate {
    */
   timeout?: number;
   comment?: string;
-}
-/**
- * Used by: interface.query (event)
- */
-export interface InterfaceAddedEvent {
-  id: string;
-  fields: InterfaceEntry;
-}
-/**
- * Used by: interface.query (event)
- */
-export interface InterfaceEntry {
-  /**
-   * Unique identifier for the network interface.
-   */
-  id: string;
-  /**
-   * Name of the network interface.
-   */
-  name: string;
-  /**
-   * Whether this is a fake/simulated interface for testing purposes.
-   */
-  fake: boolean;
-  /**
-   * Type of interface (PHYSICAL, BRIDGE, LINK_AGGREGATION, VLAN, etc.).
-   */
-  type: string;
-  state: InterfaceEntryState;
-  /**
-   * List of IP address aliases configured on the interface.
-   */
-  aliases: InterfaceEntryAlias[];
-  /**
-   * Whether IPv4 DHCP is enabled for automatic IP address assignment.
-   */
-  ipv4_dhcp: boolean;
-  /**
-   * Whether IPv6 autoconfiguration is enabled.
-   */
-  ipv6_auto: boolean;
-  /**
-   * Human-readable description of the interface.
-   */
-  description: string;
-  /**
-   * Maximum transmission unit size for the interface.
-   */
-  mtu: number | null;
-  /**
-   * Forward Error Correction (FEC) mode. Only valid for physical interfaces.
-   *
-   * * "AUTO": Selects the best FEC mode based on cable/port capabilities
-   * * "RS": RS-FEC (Reed-Solomon), often used for 25GbE/100GbE+ NICs
-   * * "BASER": BaseR-FEC (FireCode)
-   * * "OFF": Disables FEC
-   * * "LLRS": Low Latency Reed-Solomon FEC, used for 25GBASE-KR/CR
-   */
-  fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
-  /**
-   * Parent interface for VLAN configuration.
-   */
-  vlan_parent_interface?: string | null;
-  /**
-   * VLAN tag number for VLAN interfaces.
-   */
-  vlan_tag?: number | null;
-  /**
-   * Priority Code Point for VLAN traffic prioritization.
-   */
-  vlan_pcp?: number | null;
-  /**
-   * Link aggregation protocol (LACP, FAILOVER, LOADBALANCE, etc.).
-   */
-  lag_protocol?: string;
-  /**
-   * List of interface names that are members of this link aggregation group.
-   */
-  lag_ports?: string[];
-  /**
-   * List of interface names that are members of this bridge.
-   */
-  bridge_members?: string[];
-  /**
-   * Whether MAC address learning is enabled for bridge interfaces.
-   */
-  enable_learning?: boolean;
-  /**
-   * Whether this interface is critical for failover. Only present on HA-capable systems.
-   */
-  failover_critical?: boolean;
-  /**
-   * Failover group identifier for clustering. Only present on HA-capable systems.
-   */
-  failover_group?: number | null;
-  /**
-   * VRRP Virtual Host ID for failover. Only present on HA-capable systems.
-   */
-  failover_vhid?: number | null;
-  /**
-   * Standby node IP aliases for failover. Only present on HA-capable systems. Unlike the `failover_aliases` accepted by `interface.create` and `interface.update`, each entry here also includes a `netmask`.
-   */
-  failover_aliases?: InterfaceEntryAlias[];
-  /**
-   * Virtual (floating) IP aliases shared between nodes during failover. Only present on HA-capable systems. Unlike the `failover_virtual_aliases` accepted by `interface.create` and `interface.update`, each entry here also includes a `netmask`.
-   */
-  failover_virtual_aliases?: InterfaceEntryAlias[];
-  [k: string]: unknown;
-}
-/**
- * Used by: interface.query (event)
- */
-export interface InterfaceEntryState {
-  /**
-   * Current name of the network interface.
-   */
-  name: string;
-  /**
-   * Original name of the network interface before any renaming.
-   */
-  orig_name: string;
-  /**
-   * Human-readable description of the network interface.
-   */
-  description: string;
-  /**
-   * Maximum transmission unit size for the interface.
-   */
-  mtu: number;
-  /**
-   * Whether the interface is a cloned/virtual interface.
-   */
-  cloned: boolean;
-  /**
-   * List of interface flags indicating various states and capabilities. Common flags include UP, DOWN, RUNNING, MULTICAST, BROADCAST, LOOPBACK, and POINTOPOINT.
-   */
-  flags: string[];
-  /**
-   * IPv6 neighbor discovery flags. These control IPv6 autoconfiguration behavior and include flags like AUTO_LINKLOCAL, ACCEPT_RTADV, and PERFORMNUD.
-   */
-  nd6_flags: unknown[];
-  /**
-   * List of hardware capabilities supported by the interface. Common capabilities include VLAN_MTU, JUMBO_MTU, VLAN_HWTAGGING, VLAN_HWCSUM, and TSO4.
-   */
-  capabilities: unknown[];
-  /**
-   * Current link state of the interface (up, down, etc.).
-   */
-  link_state: string;
-  /**
-   * Type of media/connection for the interface. Examples include Ethernet, 802.11, or loopback.
-   */
-  media_type: string;
-  /**
-   * Subtype of media/connection for the interface. Examples include 1000baseT, 100baseTX, or autoselect.
-   */
-  media_subtype: string;
-  /**
-   * Currently active media type. This may differ from configured media_type during autonegotiation.
-   */
-  active_media_type: string;
-  /**
-   * Currently active media subtype. This reflects the actual negotiated connection speed and type.
-   */
-  active_media_subtype: string;
-  /**
-   * List of supported media types for the interface. Contains media descriptors like '1000baseT <full-duplex>' or 'autoselect'.
-   */
-  supported_media: unknown[];
-  /**
-   * Available media options for the interface. Options may include 'full-duplex', 'half-duplex', 'flowcontrol', or 'rxpause'.
-   */
-  media_options: unknown[] | null;
-  /**
-   * MAC address of the interface.
-   */
-  link_address: string;
-  /**
-   * Permanent MAC address of the interface if different from current.
-   */
-  permanent_link_address: string | null;
-  /**
-   * Hardware MAC address of the interface.
-   */
-  hardware_link_address: string;
-  /**
-   * Number of receive queues configured for the interface.
-   */
-  rx_queues?: number;
-  /**
-   * Number of transmit queues configured for the interface.
-   */
-  tx_queues?: number;
-  /**
-   * List of IP address aliases configured on the interface.
-   */
-  aliases: InterfaceEntryStateAlias[];
-  /**
-   * VRRP (Virtual Router Redundancy Protocol) configuration for the interface.
-   */
-  vrrp_config?: unknown[] | null;
-  /**
-   * Link aggregation protocol used (LACP, FAILOVER, etc.).
-   */
-  protocol?: string | null;
-  /**
-   * List of ports that are members of this link aggregation group.
-   */
-  ports?: InterfaceEntryStatePort[];
-  /**
-   * Transmit hash policy for load balancing in link aggregation. LAYER2 uses MAC addresses, LAYER2+3 adds IP addresses, and LAYER3+4 includes TCP/UDP ports for distribution.
-   */
-  xmit_hash_policy?: string | null;
-  /**
-   * LACP data unit transmission rate. SLOW sends LACPDUs every 30 seconds, FAST sends every 1 second for quicker link failure detection.
-   */
-  lacpdu_rate?: string | null;
-  /**
-   * Parent interface for VLAN configuration.
-   */
-  parent?: string | null;
-  /**
-   * VLAN tag number.
-   */
-  tag?: number | null;
-  /**
-   * Priority Code Point for VLAN traffic prioritization. Values 0-7 map to different QoS priority levels, with 0 being lowest and 7 highest priority.
-   */
-  pcp?: number | null;
-  /**
-   * Currently active Forward Error Correction mode from the hardware. Only present for physical interfaces.
-   *
-   * * "AUTO": Selects the best FEC mode based on cable/port capabilities
-   * * "RS": RS-FEC (Reed-Solomon), often used for 25GbE/100GbE+ NICs
-   * * "BASER": BaseR-FEC (FireCode)
-   * * "OFF": Disables FEC
-   * * "LLRS": Low Latency Reed-Solomon FEC, used for 25GBASE-KR/CR
-   * * `null`: FEC not supported or mode cannot be determined
-   */
-  fec_mode?: ("AUTO" | "OFF" | "RS" | "BASER" | "LLRS") | null;
-}
-/**
- * Used by: interface.query (event)
- */
-export interface InterfaceEntryStateAlias {
-  /**
-   * The type of IP address (INET for IPv4, INET6 for IPv6).
-   */
-  type: string;
-  /**
-   * The IP address value.
-   */
-  address: string;
-  /**
-   * The network mask for the IP address, either as a string or CIDR notation integer.
-   */
-  netmask?: string | number;
-  /**
-   * Broadcast address for the network interface.
-   */
-  broadcast?: string;
-}
-/**
- * Used by: interface.query (event)
- */
-export interface InterfaceEntryStatePort {
-  /**
-   * The name of the port interface.
-   */
-  name: string;
-  /**
-   * List of flags associated with the port.
-   */
-  flags: string[];
-}
-/**
- * Used by: interface.query (event)
- */
-export interface InterfaceEntryAlias {
-  /**
-   * The type of IP address (INET for IPv4, INET6 for IPv6).
-   */
-  type: string;
-  /**
-   * The IP address value.
-   */
-  address: string;
-  /**
-   * The network mask for the IP address, either as a string or CIDR notation integer.
-   */
-  netmask: string | number;
-}
-/**
- * Used by: interface.query (event)
- */
-export interface InterfaceChangedEvent {
-  id: string;
-  fields: InterfaceEntry;
-}
-/**
- * Used by: interface.query (event)
- */
-export interface InterfaceRemovedEvent {
-  id: string;
 }
 /**
  * Used by: iscsi.auth.create (params)
@@ -9927,7 +8338,7 @@ export interface IscsiAuthUpdate {
  */
 export interface IscsiExtentCreate {
   name: string;
-  type?: TypeInput4;
+  type?: TypeInput3;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -9947,7 +8358,7 @@ export interface IscsiExtentCreate {
  */
 export interface IscsiExtentUpdate {
   name?: string;
-  type?: TypeInput4;
+  type?: TypeInput3;
   disk?: string | null;
   serial?: string | null;
   path?: string | null;
@@ -10310,7 +8721,7 @@ export interface ISCSITargetEntryInput {
    * Optional alias name for the iSCSI target.
    */
   alias?: string | null;
-  mode?: ModeInput;
+  mode?: Mode;
   /**
    * Array of portal-initiator group associations for this target.
    */
@@ -10493,7 +8904,7 @@ export interface ISCSITargetChangedEvent {
 export interface IscsiTargetCreate {
   name: string;
   alias?: string | null;
-  mode?: ModeInput;
+  mode?: Mode;
   groups?: IscsiGroupInput2[];
   auth_networks?: string[];
   iscsi_parameters?: IscsiTargetParametersInput2 | null;
@@ -10569,7 +8980,7 @@ export interface ISCSITargetExtentEntryInput {
    * Name of the iSCSI extent.
    */
   name: string;
-  type?: TypeInput4;
+  type?: TypeInput3;
   /**
    * Disk device to use for the extent or `null` if using a file.
    */
@@ -10794,153 +9205,10 @@ export interface IscsiTargetToExtentUpdate {
 export interface IscsiTargetUpdate {
   name?: string;
   alias?: string | null;
-  mode?: ModeInput;
+  mode?: Mode;
   groups?: IscsiGroupInput2[];
   auth_networks?: string[];
   iscsi_parameters?: IscsiTargetParametersInput2 | null;
-}
-/**
- * Used by: jbof.query (event)
- */
-export interface JBOFAddedEvent {
-  id: number;
-  fields: JBOFEntry;
-}
-/**
- * Used by: jbof.query (event)
- */
-export interface JBOFEntry {
-  /**
-   * Unique identifier for the JBOF configuration.
-   */
-  id: number;
-  /**
-   * Optional description of the JBOF.
-   */
-  description?: string;
-  /**
-   * IP of first Redfish management interface.
-   */
-  mgmt_ip1: "" | string;
-  /**
-   * Optional IP of second Redfish management interface.
-   */
-  mgmt_ip2?: "" | string;
-  /**
-   * Redfish administrative username.
-   */
-  mgmt_username: string;
-  /**
-   * Redfish administrative password.
-   */
-  mgmt_password: string;
-  /**
-   * Index of the JBOF.  Used to determine data plane IP addresses.
-   */
-  index: number;
-  /**
-   * UUID of the JBOF as reported by the enclosure firmware.
-   */
-  uuid: string;
-}
-/**
- * Used by: jbof.query (event)
- */
-export interface JBOFChangedEvent {
-  id: number;
-  fields: JBOFEntry;
-}
-/**
- * Used by: jbof.query (event)
- */
-export interface JBOFRemovedEvent {
-  id: number;
-}
-/**
- * Used by: kerberos.keytab.query (event)
- */
-export interface KerberosKeytabAddedEvent {
-  id: number;
-  fields: KerberosKeytabEntry;
-}
-/**
- * Used by: kerberos.keytab.create (response), kerberos.keytab.get_instance (params), kerberos.keytab.get_instance (response), kerberos.keytab.query (event), kerberos.keytab.query (params), kerberos.keytab.query (response), kerberos.keytab.update (response)
- */
-export interface KerberosKeytabEntry {
-  /**
-   * Unique identifier for the Kerberos keytab entry.
-   */
-  id: number;
-  /**
-   * Name of the kerberos keytab entry. This is an identifier for the keytab and not the name of the keytab file. Some names are used for internal purposes such as AD_MACHINE_ACCOUNT and IPA_MACHINE_ACCOUNT.
-   */
-  name: string;
-  /**
-   * Base64 encoded kerberos keytab entries to append to the system keytab.
-   */
-  file: string | null;
-}
-/**
- * Used by: kerberos.keytab.query (event)
- */
-export interface KerberosKeytabChangedEvent {
-  id: number;
-  fields: KerberosKeytabEntry;
-}
-/**
- * Used by: kerberos.keytab.query (event)
- */
-export interface KerberosKeytabRemovedEvent {
-  id: number;
-}
-/**
- * Used by: kerberos.realm.query (event)
- */
-export interface KerberosRealmAddedEvent {
-  id: number;
-  fields: KerberosRealmEntry;
-}
-/**
- * Used by: kerberos.realm.create (response), kerberos.realm.get_instance (params), kerberos.realm.get_instance (response), kerberos.realm.query (event), kerberos.realm.query (params), kerberos.realm.query (response), kerberos.realm.update (response)
- */
-export interface KerberosRealmEntry {
-  /**
-   * Unique identifier for the Kerberos realm configuration.
-   */
-  id: number;
-  /**
-   * Kerberos realm name. This is external to TrueNAS and is case-sensitive. The general convention for kerberos realms is that they are upper-case.
-   */
-  realm: string;
-  /**
-   * The master Kerberos domain controller for this realm. TrueNAS uses this as a fallback if it cannot get credentials because of an invalid password. This can help in environments where the domain uses a hub-and-spoke topology. Use this setting to reduce credential errors after TrueNAS automatically changes its machine password.
-   */
-  primary_kdc?: string | null;
-  /**
-   * List of kerberos domain controllers. If the list is empty then the kerberos libraries will use DNS to look up KDCs. In some situations this is undesirable as kerberos libraries are, for intance, not active directory site aware and so may be suboptimal.
-   */
-  kdc?: string[];
-  /**
-   * List of kerberos admin servers. If the list is empty then the kerberos libraries will use DNS to look them up.
-   */
-  admin_server?: string[];
-  /**
-   * List of kerberos kpasswd servers. If the list is empty then DNS will be used to look them up if needed.
-   */
-  kpasswd_server?: string[];
-}
-/**
- * Used by: kerberos.realm.query (event)
- */
-export interface KerberosRealmChangedEvent {
-  id: number;
-  fields: KerberosRealmEntry;
-}
-/**
- * Used by: kerberos.realm.query (event)
- */
-export interface KerberosRealmRemovedEvent {
-  id: number;
 }
 /**
  * Used by: keychaincredential.query (event)
@@ -10950,7 +9218,7 @@ export interface KeychainCredentialAddedEvent {
   fields: KeychainCredentialEntryInput;
 }
 /**
- * Used by: keychaincredential.query (event), replication.query (event), rsynctask.query (event)
+ * Used by: keychaincredential.query (event)
  */
 export interface KeychainCredentialEntryInput {
   /**
@@ -10961,7 +9229,7 @@ export interface KeychainCredentialEntryInput {
    * Distinguishes this Keychain Credential from others.
    */
   name: string;
-  type: TypeInput7;
+  type: TypeInput5;
   /**
    * Credential-specific configuration and authentication data.
    */
@@ -10970,7 +9238,7 @@ export interface KeychainCredentialEntryInput {
 /**
  * At least one of the two keys must be provided on creation.
  *
- * Used by: keychaincredential.query (event), replication.query (event), rsynctask.query (event)
+ * Used by: keychaincredential.query (event)
  */
 export interface SSHKeyPairInput {
   /**
@@ -10983,7 +9251,7 @@ export interface SSHKeyPairInput {
   public_key?: string | null;
 }
 /**
- * Used by: keychaincredential.query (event), replication.query (event), rsynctask.query (event)
+ * Used by: keychaincredential.query (event)
  */
 export interface SSHCredentialsInput {
   /**
@@ -11305,138 +9573,6 @@ export interface KeychainCredentialUpdateSSHKeyPairEntry {
    */
   name?: string;
   attributes?: SSHKeyPairInput2;
-}
-/**
- * These configuration options apply to shares with the `LEGACY_SHARE` purpose.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface LegacyOpt {
-  purpose: "LEGACY_SHARE";
-  /**
-   * If set, deleted files are moved to per-user subdirectories in the `.recycle` directory. The SMB server creates the `.recycle` directory at the root of the SMB share if the file is in the same ZFS dataset as the share `path`. If the file is in a child ZFS dataset, the server uses the `mountpoint` of that dataset to create the `.recycle` directory.
-   *
-   * NOTE: This feature does not work with recycle bin features in client operating systems.
-   *
-   * WARNING: Do not use this feature instead of backups or ZFS snapshots.
-   */
-  recyclebin?: boolean;
-  /**
-   * Path suffix template for dynamic path generation. Uses SMB variable substitution patterns like `%D` (domain) and `%U` (username).
-   */
-  path_suffix?: string | null;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
-  hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
-  hostsdeny?: string[];
-  /**
-   * If set, guest access to the share is allowed. This should not be used in production environments.
-   *
-   * NOTE: If a user account does not exist, the SMB server maps access to the guest account.
-   *
-   * WARNING: Additional client-side configuration downgrading security settings may be required in order to use this feature.
-   */
-  guestok?: boolean;
-  /**
-   * If set, support for SMB alternate data streams is enabled.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
-  streams?: boolean;
-  /**
-   * If set, support for SMB durable handles is enabled.
-   *
-   * WARNING: This feature is incompatible with multiprotocol and local filesystem access.
-   */
-  durablehandle?: boolean;
-  /**
-   * If set, previous versions of files contained in ZFS snapshots are accessible through standard SMB protocol operations on previous versions of files.
-   */
-  shadowcopy?: boolean;
-  /**
-   * If set, enable support for the File Server Remote VSS Protocol. This allows clients to manage snapshots for the specified SMB share.
-   */
-  fsrvp?: boolean;
-  /**
-   * Use the `path` to store user home directories. Each user has a personal home directory and share. Users cannot access other user directories when connecting to shares.
-   *
-   * NOTE: This parameter changes the share `name` to `homes`. It also creates a dynamic share that mirrors the username of the user. Both shares use the same `path`. You can hide the homes share by turning off `browsable`. The dynamic user home share cannot be hidden.
-   *
-   * WARNING: This parameter changes the global server configuration. The SMB server will not authenticate users without a valid home directory or shell.
-   */
-  home?: boolean;
-  /**
-   * If set, enable mapping of local filesystem ACLs to NT ACLs for SMB clients.
-   */
-  acl?: boolean;
-  /**
-   * If set, SMB server will read and store file metadata in an on-disk format compatible with the legacy AFP file server.
-   *
-   * WARNING: This should not be set unless the SMB server is sharing data that was originally written via the AFP protocol.
-   */
-  afp?: boolean;
-  /**
-   * If set, MacOS clients can use the share as a time machine target.
-   */
-  timemachine?: boolean;
-  /**
-   * If set, it defines the maximum size of a single time machine sparsebundle volume by limiting the reported disk size to the SMB client. A value of zero means no quota is applied to the share.
-   *
-   * NOTE: Modern MacOS versions you set Time Machine quotas client-side. This gives more predictable server and client behavior.
-   */
-  timemachine_quota?: number;
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
-  aapl_name_mangling?: boolean;
-  /**
-   * This value is the Time Machine volume UUID for the SMB share. The TrueNAS server uses this value in the mDNS advertisement for the Time Machine share. MacOS clients may use it to identify the volume. When you create or update a share, setting this value to null makes the TrueNAS server generate a new UUID for the share.
-   */
-  vuid?: string | null;
-  /**
-   * Additional parameters to set on the SMB share. Parameters must be separated by the new-line character.
-   *
-   * WARNING: These parameters are not validated and may cause undefined server behavior including data corruption or data loss.
-   *
-   * WARNING: Auxiliary parameters are an unsupported configuration.
-   */
-  auxsmbconf?: string;
-}
-/**
- * These configuration options apply to shares with the `MULTIPROTOCOL_SHARE` purpose.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface MultiprotocolOpt {
-  purpose: "MULTIPROTOCOL_SHARE";
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
-  aapl_name_mangling?: boolean;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
-  hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
-  hostsdeny?: string[];
 }
 /**
  * Used by: filesystem.getacl (response), filesystem.setacl (response)
@@ -11857,360 +9993,6 @@ export interface NTPServerUpdate {
   force?: boolean;
 }
 /**
- * Used by: nvmet.host.query (event)
- */
-export interface NVMetHostAddedEvent {
-  id: number;
-  fields: NVMetHostEntry;
-}
-/**
- * Used by: nvmet.host.create (response), nvmet.host.get_instance (params), nvmet.host.get_instance (response), nvmet.host.query (event), nvmet.host.query (params), nvmet.host.query (response), nvmet.host.update (response), nvmet.host_subsys.create (response), nvmet.host_subsys.get_instance (params), nvmet.host_subsys.get_instance (response) … and 4 more
- */
-export interface NVMetHostEntry {
-  /**
-   * Unique identifier for the NVMe-oF host.
-   */
-  id: number;
-  /**
-   * NQN of the host that will connect to this TrueNAS.
-   */
-  hostnqn: string;
-  /**
-   * Description of the NVMet host.
-   */
-  description?: string;
-  /**
-   * If set, the secret that the host must present when connecting.
-   *
-   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
-   */
-  dhchap_key?: string | null;
-  /**
-   * If set, the secret that this TrueNAS will present to the host when the host is connecting (Bi-Directional Authentication).
-   *
-   * A suitable secret can be generated using `nvme gen-dhchap-key`, or by using the `nvmet.host.generate_key` API.
-   */
-  dhchap_ctrl_key?: string | null;
-  /**
-   * If selected, the DH (Diffie-Hellman) key exchange built on top of CHAP to be used for authentication.
-   */
-  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
-  /**
-   * HMAC (Hashed Message Authentication Code) to be used in conjunction if a `dhchap_dhgroup` is selected.
-   */
-  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
-}
-/**
- * Used by: nvmet.host.query (event)
- */
-export interface NVMetHostChangedEvent {
-  id: number;
-  fields: NVMetHostEntry;
-}
-/**
- * Used by: nvmet.host.query (event)
- */
-export interface NVMetHostRemovedEvent {
-  id: number;
-}
-/**
- * Used by: nvmet.host_subsys.query (event)
- */
-export interface NVMetHostSubsysAddedEvent {
-  id: number;
-  fields: NVMetHostSubsysEntry;
-}
-/**
- * Used by: nvmet.host_subsys.query (event)
- */
-export interface NVMetHostSubsysEntry {
-  /**
-   * Unique identifier for the host-subsystem association.
-   */
-  id: number;
-  host: NVMetHostEntry;
-  subsys: NVMetSubsysEntry;
-}
-/**
- * Used by: nvmet.host_subsys.query (event), nvmet.namespace.query (event), nvmet.port_subsys.query (event), nvmet.subsys.query (event)
- */
-export interface NVMetSubsysEntry {
-  /**
-   * Unique identifier for the NVMe-oF subsystem.
-   */
-  id: number;
-  /**
-   * Human readable name for the subsystem.
-   *
-   * If `subnqn` is not provided on creation, then this name will be appended to the `basenqn` from `nvmet.global.config` to generate a subnqn.
-   */
-  name: string;
-  /**
-   * NVMe Qualified Name (NQN) for the subsystem.
-   *
-   * If not provided during creation, will be auto-generated by appending the `name` to the `basenqn` from `nvmet.global.config`.
-   */
-  subnqn?: string | null;
-  /**
-   * Serial number assigned to the subsystem.
-   */
-  serial: string;
-  /**
-   * Any host can access the storage associated with this subsystem (i.e. no access control).
-   */
-  allow_any_host?: boolean;
-  /**
-   * Enable Protection Information (PI) for data integrity checking.
-   */
-  pi_enable?: boolean | null;
-  /**
-   * Maximum number of queue IDs allowed for this subsystem.
-   */
-  qid_max?: number | null;
-  /**
-   * IEEE Organizationally Unique Identifier for the subsystem.
-   */
-  ieee_oui?: string | null;
-  /**
-   * If set to either `True` or `False`, then *override* the global `ana` setting from `nvmet.global.config` for this subsystem only.
-   *
-   * If `null`, then the global `ana` setting will take effect.
-   */
-  ana?: boolean | null;
-  /**
-   * List of host ids which have access to this subsystem.
-   *
-   * Only populated on query if `extra.options.verbose` is set.
-   */
-  hosts?: number[] | null;
-  /**
-   * List of namespaces ids in this subsystem.
-   *
-   * Only populated on query if `extra.options.verbose` is set.
-   */
-  namespaces?: number[] | null;
-  /**
-   * List of ports ids on which this subsystem is available.
-   *
-   * Only populated on query if `extra.options.verbose` is set.
-   */
-  ports?: number[] | null;
-}
-/**
- * Used by: nvmet.host_subsys.query (event)
- */
-export interface NVMetHostSubsysChangedEvent {
-  id: number;
-  fields: NVMetHostSubsysEntry;
-}
-/**
- * Used by: nvmet.host_subsys.query (event)
- */
-export interface NVMetHostSubsysRemovedEvent {
-  id: number;
-}
-/**
- * Used by: nvmet.namespace.query (event)
- */
-export interface NVMetNamespaceAddedEvent {
-  id: number;
-  fields: NVMetNamespaceEntry;
-}
-/**
- * Used by: nvmet.namespace.query (event)
- */
-export interface NVMetNamespaceEntry {
-  /**
-   * Unique identifier for the NVMe-oF namespace.
-   */
-  id: number;
-  /**
-   * Namespace ID (NSID).
-   *
-   * Each namespace within a subsystem has an associated NSID, unique within that subsystem.
-   *
-   * If not supplied during `namespace` creation then the next available NSID will be used.
-   */
-  nsid?: number | null;
-  subsys: NVMetSubsysEntry;
-  /**
-   * Type of device (or file) used to implement the namespace.
-   */
-  device_type: "ZVOL" | "FILE";
-  /**
-   * Path to the device or file being used to implement the namespace.
-   *
-   * When `device_type` is:
-   *
-   * * "ZVOL": `device_path` is e.g. "zvol/poolname/zvolname"
-   * * "FILE": `device_path` is e.g. "/mnt/poolmnt/path/to/file". The file will be created if necessary.
-   */
-  device_path: string;
-  /**
-   * The ZFS dataset containing the file-based namespace (e.g., 'tank/nvmet'). Returns `null` for ZVOL-based namespaces or if the FILE path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "device_path".
-   */
-  dataset: string | null;
-  /**
-   * The path of the file-based namespace relative to the dataset mountpoint (e.g., 'namespaces/ns1.img'). An empty string indicates the file is at the dataset root. Returns `null` for ZVOL-based namespaces or if the path cannot be resolved yet. This is a read-only field automatically populated from "device_path".
-   */
-  relative_path: string | null;
-  /**
-   * When `device_type` is "FILE" then this will be the size of the file in bytes.
-   */
-  filesize?: number | null;
-  /**
-   * Unique device identifier for the namespace.
-   */
-  device_uuid: string;
-  /**
-   * Namespace Globally Unique Identifier for the namespace.
-   */
-  device_nguid: string;
-  /**
-   * If `enabled` is `False` then the namespace will not be accessible.
-   *
-   * Some namespace configuration changes are blocked when that namespace is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Reflect the locked state of the namespace.
-   *
-   * The underlying `device_path` could be an encrypted ZVOL, or a file on an encrypted dataset. In either case `locked` will be `True` if the underlying entity is locked.
-   */
-  locked: boolean | null;
-}
-/**
- * Used by: nvmet.namespace.query (event)
- */
-export interface NVMetNamespaceChangedEvent {
-  id: number;
-  fields: NVMetNamespaceEntry;
-}
-/**
- * Used by: nvmet.namespace.query (event)
- */
-export interface NVMetNamespaceRemovedEvent {
-  id: number;
-}
-/**
- * Used by: nvmet.port.query (event)
- */
-export interface NVMetPortAddedEvent {
-  id: number;
-  fields: NVMetPortEntry;
-}
-/**
- * Used by: nvmet.port.create (response), nvmet.port.get_instance (params), nvmet.port.get_instance (response), nvmet.port.query (event), nvmet.port.query (params), nvmet.port.query (response), nvmet.port.update (response), nvmet.port_subsys.create (response), nvmet.port_subsys.get_instance (params), nvmet.port_subsys.get_instance (response) … and 4 more
- */
-export interface NVMetPortEntry {
-  /**
-   * Unique identifier for the NVMe-oF port.
-   */
-  id: number;
-  /**
-   * Index of the port, for internal use.
-   */
-  index: number;
-  /**
-   * Fabric transport technology name.
-   */
-  addr_trtype: "TCP" | "RDMA" | "FC";
-  /**
-   * Transport-specific TRSVCID field.  When configured for TCP/IP or RDMA this will be the port number.
-   */
-  addr_trsvcid: number | string | null;
-  /**
-   * A transport-specific field identifying the NVMe host port to use for the connection to the controller.
-   *
-   * For TCP or RDMA transports, this will be an IPv4 or IPv6 address.
-   */
-  addr_traddr: string;
-  /**
-   * Address family.
-   */
-  addr_adrfam: "IPV4" | "IPV6" | "FC";
-  /**
-   * Maximum size for inline data transfers or `null` for default.
-   */
-  inline_data_size?: number | null;
-  /**
-   * Maximum number of queue entries or `null` for default.
-   */
-  max_queue_size?: number | null;
-  /**
-   * Whether Protection Information (PI) is enabled or `null` for default.
-   */
-  pi_enable?: boolean | null;
-  /**
-   * Port enabled.  When NVMe target is running, cannot make changes to an enabled port.
-   */
-  enabled?: boolean;
-}
-/**
- * Used by: nvmet.port.query (event)
- */
-export interface NVMetPortChangedEvent {
-  id: number;
-  fields: NVMetPortEntry;
-}
-/**
- * Used by: nvmet.port.query (event)
- */
-export interface NVMetPortRemovedEvent {
-  id: number;
-}
-/**
- * Used by: nvmet.port_subsys.query (event)
- */
-export interface NVMetPortSubsysAddedEvent {
-  id: number;
-  fields: NVMetPortSubsysEntry;
-}
-/**
- * Used by: nvmet.port_subsys.query (event)
- */
-export interface NVMetPortSubsysEntry {
-  /**
-   * Unique identifier for the port-subsystem association.
-   */
-  id: number;
-  port: NVMetPortEntry;
-  subsys: NVMetSubsysEntry;
-}
-/**
- * Used by: nvmet.port_subsys.query (event)
- */
-export interface NVMetPortSubsysChangedEvent {
-  id: number;
-  fields: NVMetPortSubsysEntry;
-}
-/**
- * Used by: nvmet.port_subsys.query (event)
- */
-export interface NVMetPortSubsysRemovedEvent {
-  id: number;
-}
-/**
- * Used by: nvmet.subsys.query (event)
- */
-export interface NVMetSubsysAddedEvent {
-  id: number;
-  fields: NVMetSubsysEntry;
-}
-/**
- * Used by: nvmet.subsys.query (event)
- */
-export interface NVMetSubsysChangedEvent {
-  id: number;
-  fields: NVMetSubsysEntry;
-}
-/**
- * Used by: nvmet.subsys.query (event)
- */
-export interface NVMetSubsysRemovedEvent {
-  id: number;
-}
-/**
  * Used by: pool.snapshottask.query (event)
  */
 export interface PeriodicSnapshotTaskAddedEvent {
@@ -12270,7 +10052,7 @@ export interface PeriodicSnapshotTaskEntryInput {
   };
 }
 /**
- * Used by: pool.snapshottask.query (event), replication.query (event)
+ * Used by: pool.snapshottask.query (event)
  */
 export interface PoolSnapshotTaskCronInput {
   /**
@@ -12366,347 +10148,6 @@ export interface PeriodicSnapshotTaskRemovedEvent {
   id: number;
 }
 /**
- * Used by: pool.query (event)
- */
-export interface PoolAddedEvent {
-  id: number;
-  fields: PoolEntry;
-}
-/**
- * Used by: pool.query (event)
- */
-export interface PoolEntry {
-  /**
-   * Unique identifier for this storage pool.
-   */
-  id: number;
-  /**
-   * Name of the storage pool.
-   */
-  name: string;
-  /**
-   * Globally unique identifier (GUID) for this pool.
-   */
-  guid: string;
-  /**
-   * Set when pool is made up of SED disks.
-   */
-  all_sed: boolean | null;
-  /**
-   * Current status of the pool.
-   */
-  status: string;
-  /**
-   * Filesystem path where the pool is mounted.
-   */
-  path: string;
-  /**
-   * Information about the most recent scrub or resilver operation. `null` if no scan data is available.
-   */
-  scan: PoolScan | null;
-  /**
-   * Information about any active pool expansion operation. `null` if no expansion is running.
-   */
-  expand: {
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Whether this pool has been upgraded to the latest feature flags.
-   */
-  is_upgraded?: boolean;
-  /**
-   * Whether the pool is in a healthy state with no errors or warnings.
-   */
-  healthy: boolean;
-  /**
-   * Whether the pool has warning conditions that require attention.
-   */
-  warning: boolean;
-  /**
-   * Detailed status code for the pool condition. `null` if not applicable.
-   */
-  status_code: string | null;
-  /**
-   * Human-readable description of the pool status. `null` if not available.
-   */
-  status_detail: string | null;
-  /**
-   * Total size of the pool in bytes. `null` if not available.
-   */
-  size: number | null;
-  /**
-   * Amount of space currently allocated in the pool in bytes. `null` if not available.
-   */
-  allocated: number | null;
-  /**
-   * Amount of free space available in the pool in bytes. `null` if not available.
-   */
-  free: number | null;
-  /**
-   * Amount of space being freed (in bytes) by ongoing operations. `null` if not available.
-   */
-  freeing: number | null;
-  /**
-   * Size of the deduplication table in bytes. `null` if deduplication is not enabled.
-   */
-  dedup_table_size: number | null;
-  /**
-   * Quota limit for the deduplication table. `null` if no quota is set.
-   */
-  dedup_table_quota: string | null;
-  /**
-   * Percentage of pool fragmentation as a string. `null` if not available.
-   */
-  fragmentation: string | null;
-  /**
-   * Human-readable string representation of the pool size. `null` if not available.
-   */
-  size_str: string | null;
-  /**
-   * Human-readable string representation of allocated space. `null` if not available.
-   */
-  allocated_str: string | null;
-  /**
-   * Human-readable string representation of free space. `null` if not available.
-   */
-  free_str: string | null;
-  /**
-   * Human-readable string representation of space being freed. `null` if not available.
-   */
-  freeing_str: string | null;
-  /**
-   * Auto-trim configuration for the pool indicating whether automatic TRIM operations are enabled.
-   */
-  autotrim: {
-    [k: string]: unknown;
-  };
-  /**
-   * Physical topology and structure of the pool including vdevs. `null` if not available.
-   */
-  topology: PoolTopology | null;
-}
-/**
- * Used by: pool.query (event), pool.scan (event)
- */
-export interface PoolScan {
-  function: Function;
-  state: StateInput4;
-  /**
-   * Scan start time.
-   */
-  start_time: string;
-  /**
-   * Scan end time (`null` while the scan is still running).
-   */
-  end_time: string | null;
-  /**
-   * Scan progress (between 0 and 100%).
-   */
-  percentage: number;
-  /**
-   * Total bytes located by scanner.
-   */
-  bytes_to_process: number;
-  /**
-   * Total bytes to scan.
-   */
-  bytes_processed: number;
-  /**
-   * Issued bytes per scan pass.
-   */
-  bytes_issued: number;
-  /**
-   * Pause time of a scrub pass (`null` if the scan is not paused).
-   */
-  pause: string | null;
-  /**
-   * Number of scan errors.
-   */
-  errors: number;
-  /**
-   * Number of seconds left (`null` if the scan is not running).
-   */
-  total_secs_left: number | null;
-}
-/**
- * Used by: boot.get_state (response), pool.create (response), pool.get_instance (params), pool.get_instance (response), pool.query (event), pool.query (params), pool.query (response), pool.update (response)
- */
-export interface PoolTopology {
-  /**
-   * Array of data vdev configurations in the pool.
-   */
-  data: unknown[];
-  /**
-   * Array of ZFS Intent Log (ZIL) vdev configurations.
-   */
-  log: unknown[];
-  /**
-   * Array of L2ARC cache vdev configurations.
-   */
-  cache: unknown[];
-  /**
-   * Array of spare disk configurations.
-   */
-  spare: unknown[];
-  /**
-   * Array of special vdev configurations for metadata.
-   */
-  special: unknown[];
-  /**
-   * Array of deduplication table vdev configurations.
-   */
-  dedup: unknown[];
-}
-/**
- * Used by: pool.query (event)
- */
-export interface PoolChangedEvent {
-  id: number;
-  fields: PoolEntry;
-}
-/**
- * Used by: pool.dataset.query (event)
- */
-export interface PoolDatasetAddedEvent {
-  id: string;
-  fields: PoolDatasetEntry;
-}
-/**
- * Used by: pool.dataset.query (event)
- */
-export interface PoolDatasetEntry {
-  /**
-   * The full dataset path including pool name.
-   */
-  id?: string;
-  /**
-   * The dataset type.
-   */
-  type?: string;
-  /**
-   * The dataset name without the pool prefix.
-   */
-  name?: string;
-  /**
-   * The name of the ZFS pool containing this dataset.
-   */
-  pool?: string;
-  /**
-   * Whether the dataset is encrypted.
-   */
-  encrypted?: boolean;
-  /**
-   * The root dataset where encryption is enabled. `null` if the dataset is not encrypted.
-   */
-  encryption_root?: string | null;
-  /**
-   * Whether the encryption key is currently loaded for encrypted datasets. `null` for unencrypted datasets.
-   */
-  key_loaded?: boolean | null;
-  /**
-   * Array of child dataset objects nested under this dataset.
-   */
-  children?: unknown[];
-  /**
-   * Custom user-defined ZFS properties set on this dataset as key-value pairs.
-   */
-  user_properties?: {
-    [k: string]: unknown;
-  };
-  /**
-   * Whether an encrypted dataset is currently locked (key not loaded).
-   */
-  locked?: boolean;
-  comments?: PoolDatasetEntryProperty;
-  quota_warning?: PoolDatasetEntryProperty;
-  quota_critical?: PoolDatasetEntryProperty;
-  refquota_warning?: PoolDatasetEntryProperty;
-  refquota_critical?: PoolDatasetEntryProperty;
-  managedby?: PoolDatasetEntryProperty;
-  deduplication?: PoolDatasetEntryProperty;
-  aclmode?: PoolDatasetEntryProperty;
-  acltype?: PoolDatasetEntryProperty;
-  xattr?: PoolDatasetEntryProperty;
-  atime?: PoolDatasetEntryProperty;
-  casesensitivity?: PoolDatasetEntryProperty;
-  checksum?: PoolDatasetEntryProperty;
-  exec?: PoolDatasetEntryProperty;
-  sync?: PoolDatasetEntryProperty;
-  compression?: PoolDatasetEntryProperty;
-  compressratio?: PoolDatasetEntryProperty;
-  origin?: PoolDatasetEntryProperty;
-  quota?: PoolDatasetEntryProperty;
-  refquota?: PoolDatasetEntryProperty;
-  reservation?: PoolDatasetEntryProperty;
-  refreservation?: PoolDatasetEntryProperty;
-  copies?: PoolDatasetEntryProperty;
-  snapdir?: PoolDatasetEntryProperty;
-  readonly?: PoolDatasetEntryProperty;
-  recordsize?: PoolDatasetEntryProperty;
-  sparse?: PoolDatasetEntryProperty;
-  volsize?: PoolDatasetEntryProperty;
-  volblocksize?: PoolDatasetEntryProperty;
-  key_format?: PoolDatasetEntryProperty;
-  encryption_algorithm?: PoolDatasetEntryProperty;
-  used?: PoolDatasetEntryProperty;
-  usedbychildren?: PoolDatasetEntryProperty;
-  usedbydataset?: PoolDatasetEntryProperty;
-  usedbyrefreservation?: PoolDatasetEntryProperty;
-  usedbysnapshots?: PoolDatasetEntryProperty;
-  available?: PoolDatasetEntryProperty;
-  special_small_block_size?: PoolDatasetEntryProperty;
-  pbkdf2iters?: PoolDatasetEntryProperty;
-  creation?: PoolDatasetEntryProperty;
-  snapdev?: PoolDatasetEntryProperty;
-  /**
-   * Filesystem path where this dataset is mounted. Null for unmounted datasets or volumes.
-   */
-  mountpoint?: string | null;
-  [k: string]: unknown;
-}
-/**
- * Used by: pool.dataset.query (event)
- */
-export interface PoolDatasetEntryProperty {
-  /**
-   * The ZFS property value parsed into the appropriate type (string, boolean, integer, etc.).
-   */
-  parsed?: {
-    [k: string]: unknown;
-  };
-  /**
-   * The raw string value of the ZFS property as stored in the pool. Can be null if not set.
-   */
-  rawvalue?: string | null;
-  /**
-   * The current effective value of the ZFS property as a string. Can be null if inherited or not set.
-   */
-  value?: string | null;
-  /**
-   * Indicates where the property value originates from.
-   */
-  source?: string | null;
-  /**
-   * Additional metadata about the property source, such as the parent dataset for inherited values.
-   */
-  source_info?: {
-    [k: string]: unknown;
-  };
-}
-/**
- * Used by: pool.dataset.query (event)
- */
-export interface PoolDatasetChangedEvent {
-  id: string;
-  fields: PoolDatasetEntry;
-}
-/**
- * Used by: pool.dataset.query (event)
- */
-export interface PoolDatasetRemovedEvent {
-  id: string;
-}
-/**
  * Used by: pool.ddt_prune (params)
  */
 export interface PoolDdtPruneArgs {
@@ -12722,12 +10163,6 @@ export interface PoolDdtPruneArgs {
    * Remove entries older than this many days.
    */
   days?: number | null;
-}
-/**
- * Used by: pool.query (event)
- */
-export interface PoolRemovedEvent {
-  id: number;
 }
 /**
  * Used by: pool.resilver.config (response), pool.resilver.update (response)
@@ -12774,6 +10209,49 @@ export interface PoolResilverUpdate {
    * Array of weekdays when resilver operations are allowed (1=Monday through 7=Sunday).
    */
   weekday?: number[];
+}
+/**
+ * Used by: pool.scan (event)
+ */
+export interface PoolScan {
+  function: Function;
+  state: StateInput2;
+  /**
+   * Scan start time.
+   */
+  start_time: string;
+  /**
+   * Scan end time (`null` while the scan is still running).
+   */
+  end_time: string | null;
+  /**
+   * Scan progress (between 0 and 100%).
+   */
+  percentage: number;
+  /**
+   * Total bytes located by scanner.
+   */
+  bytes_to_process: number;
+  /**
+   * Total bytes to scan.
+   */
+  bytes_processed: number;
+  /**
+   * Issued bytes per scan pass.
+   */
+  bytes_issued: number;
+  /**
+   * Pause time of a scrub pass (`null` if the scan is not paused).
+   */
+  pause: string | null;
+  /**
+   * Number of scan errors.
+   */
+  errors: number;
+  /**
+   * Number of seconds left (`null` if the scan is not running).
+   */
+  total_secs_left: number | null;
 }
 /**
  * Used by: pool.scan (event)
@@ -12952,129 +10430,6 @@ export interface PoolScrubUpdate {
   enabled?: boolean;
 }
 /**
- * Used by: pool.snapshot.query (event)
- */
-export interface PoolSnapshotAddedEvent {
-  id: string;
-  fields: PoolSnapshotEntry;
-}
-/**
- * Used by: pool.snapshot.query (event)
- */
-export interface PoolSnapshotEntry {
-  /**
-   * Full snapshot identifier including dataset and snapshot name.
-   */
-  id: string;
-  /**
-   * Object mapping ZFS property names to their values and metadata.
-   */
-  properties: {
-    [k: string]: PoolSnapshotEntryPropertyFields;
-  };
-  /**
-   * Name of the ZFS pool containing this snapshot.
-   */
-  pool: string;
-  /**
-   * Full name of the snapshot including dataset path.
-   */
-  name: string;
-  /**
-   * Type identifier indicating this is a ZFS snapshot.
-   */
-  type: "SNAPSHOT";
-  /**
-   * Just the snapshot name portion without the dataset path.
-   */
-  snapshot_name: string;
-  /**
-   * Name of the dataset this snapshot was taken from.
-   */
-  dataset: string;
-  /**
-   * Transaction group ID when the snapshot was created.
-   */
-  createtxg: string;
-  holds?: PoolSnapshotHoldTag;
-  /**
-   * Returned when options.extra.retention is set.
-   */
-  retention?: (PoolSnapshotRetentionPST | PoolSnapshotRetentionProperty) | null;
-}
-/**
- * Used by: pool.snapshot.query (event)
- */
-export interface PoolSnapshotEntryPropertyFields {
-  /**
-   * Current effective value of the ZFS property as a string.
-   */
-  value: string;
-  /**
-   * Raw string value of the ZFS property as stored.
-   */
-  rawvalue: string;
-  source: SourceInput;
-  /**
-   * Property value parsed into the appropriate type (string, boolean, integer, etc.).
-   */
-  parsed: {
-    [k: string]: unknown;
-  };
-}
-/**
- * Used by: pool.snapshot.query (event)
- */
-export interface PoolSnapshotHoldTag {
-  /**
-   * Present if a hold has been placed on the snapshot.
-   */
-  truenas?: number;
-}
-/**
- * Used by: pool.snapshot.query (event)
- */
-export interface PoolSnapshotRetentionPST {
-  /**
-   * Timestamp when the snapshot will be eligible for removal.
-   */
-  datetime: string;
-  /**
-   * Indicates retention is managed by a periodic snapshot task.
-   */
-  source: "periodic_snapshot_task";
-  /**
-   * ID of the periodic snapshot task managing this retention.
-   */
-  periodic_snapshot_task_id: number;
-}
-/**
- * Used by: pool.snapshot.query (event)
- */
-export interface PoolSnapshotRetentionProperty {
-  /**
-   * Timestamp when the snapshot will be eligible for removal.
-   */
-  datetime: string;
-  /**
-   * Indicates retention is managed by ZFS properties.
-   */
-  source: "property";
-}
-/**
- * Used by: pool.snapshot.query (event)
- */
-export interface PoolSnapshotChangedEvent {
-  id: string;
-  fields: PoolSnapshotEntry;
-}
-/**
- * Used by: pool.snapshot.query (event)
- */
-export interface PoolSnapshotRemovedEvent {
-  id: string;
-}
-/**
  * Used by: pool.snapshottask.create (params)
  */
 export interface PoolSnapshotTaskCreate {
@@ -13111,49 +10466,6 @@ export interface PoolSnapshotTaskCronInput2 {
   dow?: string;
   begin?: string;
   end?: string;
-}
-/**
- * Used by: replication.query (event)
- */
-export interface PoolSnapshotTaskDBEntry {
-  /**
-   * Unique identifier for the periodic snapshot task.
-   */
-  id: number;
-  /**
-   * The dataset to take snapshots of.
-   */
-  dataset: string;
-  /**
-   * Whether to recursively snapshot child datasets.
-   */
-  recursive?: boolean;
-  /**
-   * Number of time units to retain snapshots. `lifetime_unit` gives the time unit.
-   */
-  lifetime_value?: number;
-  /**
-   * Unit of time for snapshot retention.
-   */
-  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-  /**
-   * Whether this periodic snapshot task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Array of dataset patterns to exclude from recursive snapshots.
-   */
-  exclude?: string[];
-  /**
-   * Naming pattern for generated snapshots using strftime format. Must contain `%Y`, `%m`, `%d`, `%H`, and `%M` (unless `%s` is used).
-   */
-  naming_schema?: string;
-  /**
-   * Whether to take snapshots even if no data has changed.
-   */
-  allow_empty?: boolean;
-  schedule?: PoolSnapshotTaskCronInput;
-  state: string;
 }
 /**
  * Used by: pool.snapshottask.delete (params)
@@ -13229,42 +10541,6 @@ export interface POSIXACLResult {
    * Whether this ACL is a simple/trivial ACL equivalent to standard POSIX permissions.
    */
   trivial: boolean;
-}
-/**
- * These configuration options apply to shares with the `PRIVATE_DATASETS_SHARE` purpose.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface PrivateDatasetOpt {
-  purpose: "PRIVATE_DATASETS_SHARE";
-  /**
-   * The naming schema to use. If you do not set a schema, the server uses `%U` (username) if it is not joined to Active Directory. If the server is joined to Active Directory it uses `%D/%U` (domain/username).
-   *
-   * WARNING: ZFS dataset naming rules are more restrictive than normal path rules.
-   */
-  dataset_naming_schema?: string | null;
-  /**
-   * Set the specified ZFS quota (in gibibytes) on new datasets. If the value is zero, TrueNAS disables automatic quotas for the share.
-   */
-  auto_quota?: number;
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
-  aapl_name_mangling?: boolean;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
-  hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
-  hostsdeny?: string[];
 }
 /**
  * Used by: privilege.query (event)
@@ -13473,289 +10749,6 @@ export interface RdmaLinkConfig {
    * Name of the corresponding network device.
    */
   netdev: string;
-}
-/**
- * Used by: replication.query (event)
- */
-export interface ReplicationAddedEvent {
-  id: number;
-  fields: ReplicationEntry;
-}
-/**
- * Used by: replication.query (event)
- */
-export interface ReplicationEntry {
-  /**
-   * Unique identifier for this replication task.
-   */
-  id: number;
-  /**
-   * Name for replication task.
-   */
-  name: string;
-  direction: Direction2;
-  transport: Transport;
-  /**
-   * Keychain Credential of type `SSH_CREDENTIALS`.
-   */
-  ssh_credentials?: KeychainCredentialEntryInput | null;
-  /**
-   * Which side actively establishes the netcat connection for `SSH+NETCAT` transport.
-   *
-   * * `LOCAL`: Local system initiates the connection
-   * * `REMOTE`: Remote system initiates the connection
-   * * `null`: Not applicable for other transport types
-   */
-  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
-  /**
-   * IP address for the active side to listen on for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_active_side_listen_address?: string | null;
-  /**
-   * Minimum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_min?: number | null;
-  /**
-   * Maximum port number in the range for netcat connections. `null` if not applicable.
-   */
-  netcat_active_side_port_max?: number | null;
-  /**
-   * IP address for the passive side to connect to for `SSH+NETCAT` transport. `null` if not applicable.
-   */
-  netcat_passive_side_connect_address?: string | null;
-  /**
-   * `SSH` and `SSH+NETCAT` transports should use sudo (which is expected to be passwordless) to run `zfs` command on the remote machine.
-   */
-  sudo?: boolean;
-  /**
-   * List of datasets to replicate snapshots from.
-   *
-   * @minItems 1
-   */
-  source_datasets: [string, ...string[]];
-  /**
-   * Dataset to put snapshots into.
-   */
-  target_dataset: string;
-  /**
-   * Whether to recursively replicate child datasets.
-   */
-  recursive: boolean;
-  /**
-   * Array of dataset patterns to exclude from replication.
-   */
-  exclude?: string[];
-  /**
-   * Send dataset properties along with snapshots.
-   */
-  properties?: boolean;
-  /**
-   * Array of dataset property names to exclude from replication.
-   */
-  properties_exclude?: string[];
-  /**
-   * Object mapping dataset property names to override values during replication.
-   */
-  properties_override?: {
-    [k: string]: string;
-  };
-  /**
-   * Whether to use full ZFS replication.
-   */
-  replicate?: boolean;
-  /**
-   * Whether to enable encryption for the replicated datasets.
-   */
-  encryption?: boolean;
-  /**
-   * Whether replicated datasets should inherit encryption from parent. `null` if encryption is disabled.
-   */
-  encryption_inherit?: boolean | null;
-  /**
-   * Encryption key for replicated datasets. `null` if not specified.
-   */
-  encryption_key?: string | null;
-  /**
-   * Format of the encryption key.
-   *
-   * * `HEX`: Hexadecimal-encoded key
-   * * `PASSPHRASE`: Text passphrase
-   * * `null`: Not applicable when encryption is disabled
-   */
-  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
-  /**
-   * Filesystem path where encryption key is stored. `null` if not using key file.
-   */
-  encryption_key_location?: string | null;
-  /**
-   * List of periodic snapshot tasks that are sources of snapshots for this replication task. Only push replication tasks can be bound to periodic snapshot tasks.
-   */
-  periodic_snapshot_tasks: PoolSnapshotTaskDBEntry[];
-  /**
-   * List of naming schemas for pull replication.
-   */
-  naming_schema?: string[];
-  /**
-   * List of naming schemas for push replication.
-   */
-  also_include_naming_schema?: string[];
-  /**
-   * Replicate all snapshots which names match specified regular expression.
-   */
-  name_regex?: string | null;
-  /**
-   * Allow replication to run automatically on schedule or after bound periodic snapshot task.
-   */
-  auto: boolean;
-  /**
-   * Schedule to run replication task. Only `auto` replication tasks without bound periodic snapshot tasks can have a schedule.
-   */
-  schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Restricts when replication task with bound periodic snapshot tasks runs. For example, you can have periodic snapshot tasks that run every 15 minutes, but only run replication task every hour.
-   */
-  restrict_schedule?: ReplicationTimeCronModel | null;
-  /**
-   * Will only replicate snapshots that match `schedule` or `restrict_schedule`.
-   */
-  only_matching_schedule?: boolean;
-  /**
-   * Will destroy all snapshots on target side and replicate everything from scratch if none of the snapshots on target side matches source snapshots.
-   */
-  allow_from_scratch?: boolean;
-  readonly?: Readonly;
-  /**
-   * Prevent source snapshots from being deleted by retention of replication fails for some reason.
-   */
-  hold_pending_snapshots?: boolean;
-  /**
-   * How to delete old snapshots on target side:
-   *
-   * * `SOURCE`: Delete snapshots that are absent on source side.
-   * * `CUSTOM`: Delete snapshots that are older than `lifetime_value` and `lifetime_unit`.
-   * * `NONE`: Do not delete any snapshots.
-   */
-  retention_policy: "SOURCE" | "CUSTOM" | "NONE";
-  /**
-   * Number of time units to retain snapshots for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_value?: number | null;
-  /**
-   * Time unit for snapshot retention for custom retention policy. Only applies when `retention_policy` is CUSTOM.
-   */
-  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
-  /**
-   * Array of different retention schedules with their own cron schedules and lifetime settings.
-   */
-  lifetimes?: ReplicationLifetimeModel[];
-  /**
-   * Compresses SSH stream. Available only for SSH transport.
-   */
-  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
-  /**
-   * Limits speed of SSH stream. Available only for SSH transport.
-   */
-  speed_limit?: number | null;
-  /**
-   * Enable large block support for ZFS send streams.
-   */
-  large_block?: boolean;
-  /**
-   * Enable embedded block support for ZFS send streams.
-   */
-  embed?: boolean;
-  /**
-   * Enable compressed ZFS send streams.
-   */
-  compressed?: boolean;
-  /**
-   * Number of retries before considering replication failed.
-   */
-  retries?: number;
-  /**
-   * Log level for replication task execution. Controls verbosity of replication logs.
-   */
-  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
-  /**
-   * Whether this replication task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Current state information for the replication task.
-   */
-  state: {
-    [k: string]: unknown;
-  };
-  /**
-   * Information about the currently running job. `null` if no job is running.
-   */
-  job: {
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Whether this replication task has encrypted dataset keys available.
-   */
-  has_encrypted_dataset_keys: boolean;
-}
-/**
- * Used by: replication.create (params), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.run_onetime (params), replication.update (params) … and 1 more
- */
-export interface ReplicationTimeCronModel {
-  /**
-   * "00" - "59".
-   */
-  minute?: string;
-  /**
-   * "00" - "23".
-   */
-  hour?: string;
-  /**
-   * "1" - "31".
-   */
-  dom?: string;
-  /**
-   * "1" (January) - "12" (December).
-   */
-  month?: string;
-  /**
-   * "1" (Monday) - "7" (Sunday).
-   */
-  dow?: string;
-  /**
-   * Start time for the time window in HH:MM format.
-   */
-  begin?: string;
-  /**
-   * End time for the time window in HH:MM format.
-   */
-  end?: string;
-}
-/**
- * Used by: replication.create (params), replication.create (response), replication.get_instance (params), replication.get_instance (response), replication.query (event), replication.query (params), replication.query (response), replication.restore (response), replication.run_onetime (params), replication.update (params) … and 1 more
- */
-export interface ReplicationLifetimeModel {
-  schedule: CronModel;
-  /**
-   * Number of time units to retain snapshots.
-   */
-  lifetime_value: number;
-  /**
-   * Time unit for snapshot retention.
-   */
-  lifetime_unit: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-}
-/**
- * Used by: replication.query (event)
- */
-export interface ReplicationChangedEvent {
-  id: number;
-  fields: ReplicationEntry;
-}
-/**
- * Used by: replication.query (event)
- */
-export interface ReplicationRemovedEvent {
-  id: number;
 }
 /**
  * Used by: reporting.config (response), reporting.update (response)
@@ -14170,157 +11163,6 @@ export interface ReportingUpdateArgs {
   tier1_update_interval?: number;
 }
 /**
- * Used by: rsynctask.query (event)
- */
-export interface RsyncTaskAddedEvent {
-  id: number;
-  fields: RsyncTaskEntry;
-}
-/**
- * Used by: rsynctask.query (event)
- */
-export interface RsyncTaskEntry {
-  /**
-   * Unique identifier for the rsync task.
-   */
-  id: number;
-  /**
-   * Local filesystem path to synchronize.
-   */
-  path: string;
-  /**
-   * The ZFS dataset containing the rsync task path (e.g., 'tank/data'). Returns `null` if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
-  dataset: string | null;
-  /**
-   * The path of the rsync task relative to the dataset mountpoint (e.g., 'backups/daily'). An empty string indicates the task path is at the dataset root. Returns `null` if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
-  relative_path: string | null;
-  /**
-   * Username to run the rsync task as.
-   */
-  user: string;
-  mode?: ModeInput2;
-  /**
-   * IP address or hostname of the remote system. If username differs on the remote host, "username@remote_host" format should be used.
-   */
-  remotehost?: string | null;
-  /**
-   * Port number for SSH connection. Only applies when `mode` is SSH.
-   */
-  remoteport?: number | null;
-  /**
-   * Name of remote module, this attribute should be specified when `mode` is set to MODULE.
-   */
-  remotemodule?: string | null;
-  /**
-   * In SSH mode, if `ssh_credentials` (a keychain credential of `SSH_CREDENTIALS` type) is specified then it is used to connect to the remote host. If it is not specified, then keys in `user`'s .ssh directory are used.
-   */
-  ssh_credentials?: KeychainCredentialEntryInput | null;
-  /**
-   * Path on the remote system to synchronize with.
-   */
-  remotepath?: string;
-  direction?: Direction;
-  /**
-   * Description of the rsync task.
-   */
-  desc?: string;
-  schedule?: RsyncTaskSchedule;
-  /**
-   * Recursively transfer subdirectories.
-   */
-  recursive?: boolean;
-  /**
-   * Preserve modification times of files.
-   */
-  times?: boolean;
-  /**
-   * Reduce the size of the data to be transmitted.
-   */
-  compress?: boolean;
-  /**
-   * Make rsync run recursively, preserving symlinks, permissions, modification times, group, and special files.
-   */
-  archive?: boolean;
-  /**
-   * Delete files in the destination directory that do not exist in the source directory.
-   */
-  delete?: boolean;
-  /**
-   * Suppress informational messages from rsync.
-   */
-  quiet?: boolean;
-  /**
-   * Preserve original file permissions.
-   */
-  preserveperm?: boolean;
-  /**
-   * Preserve extended attributes of files.
-   */
-  preserveattr?: boolean;
-  /**
-   * Delay updating destination files until all transfers are complete.
-   */
-  delayupdates?: boolean;
-  /**
-   * Array of additional rsync command-line options.
-   */
-  extra?: string[];
-  /**
-   * Whether this rsync task is enabled.
-   */
-  enabled?: boolean;
-  /**
-   * Whether this rsync task is currently locked (running).
-   */
-  locked: boolean;
-  /**
-   * Information about the currently running job. `null` if no job is running.
-   */
-  job: {
-    [k: string]: unknown;
-  } | null;
-}
-/**
- * Used by: rsynctask.create (params), rsynctask.create (response), rsynctask.get_instance (params), rsynctask.get_instance (response), rsynctask.query (event), rsynctask.query (params), rsynctask.query (response), rsynctask.update (params), rsynctask.update (response)
- */
-export interface RsyncTaskSchedule {
-  /**
-   * Minute when the rsync task should run (cron format).
-   */
-  minute?: string;
-  /**
-   * "00" - "23".
-   */
-  hour?: string;
-  /**
-   * "1" - "31".
-   */
-  dom?: string;
-  /**
-   * "1" (January) - "12" (December).
-   */
-  month?: string;
-  /**
-   * "1" (Monday) - "7" (Sunday).
-   */
-  dow?: string;
-}
-/**
- * Used by: rsynctask.query (event)
- */
-export interface RsyncTaskChangedEvent {
-  id: number;
-  fields: RsyncTaskEntry;
-}
-/**
- * Used by: rsynctask.query (event)
- */
-export interface RsyncTaskRemovedEvent {
-  id: number;
-}
-/**
  * Used by: device.get_info (response)
  */
 export interface SerialInfo {
@@ -14348,51 +11190,6 @@ export interface SerialInfo {
    * Human-readable description of the serial device.
    */
   description: string;
-}
-/**
- * Used by: service.query (event)
- */
-export interface ServiceAddedEvent {
-  id: number;
-  fields: ServiceEntry;
-}
-/**
- * Used by: service.get_instance (params), service.get_instance (response), service.query (event), service.query (params), service.query (response)
- */
-export interface ServiceEntry {
-  /**
-   * Unique identifier for the service.
-   */
-  id: number;
-  /**
-   * Name of the system service.
-   */
-  service: string;
-  /**
-   * Whether the service is enabled to start on boot.
-   */
-  enable: boolean;
-  /**
-   * Current state of the service (e.g., 'RUNNING', 'STOPPED').
-   */
-  state: string;
-  /**
-   * Array of process IDs associated with this service.
-   */
-  pids: number[];
-}
-/**
- * Used by: service.query (event)
- */
-export interface ServiceChangedEvent {
-  id: number;
-  fields: ServiceEntry;
-}
-/**
- * Used by: service.query (event)
- */
-export interface ServiceRemovedEvent {
-  id: number;
 }
 /**
  * Used by: keychaincredential.setup_ssh_connection (params)
@@ -14545,7 +11342,7 @@ export interface SharingNFSEntryInput {
   tier?: TierInfo | null;
 }
 /**
- * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event)
+ * Used by: sharing.nfs.query (event)
  */
 export interface TierInfo {
   /**
@@ -14558,7 +11355,7 @@ export interface TierInfo {
   tier_job?: ZfsTierRewriteJobEntry | null;
 }
 /**
- * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event), zfs.tier.rewrite_job_query (event)
+ * Used by: sharing.nfs.query (event)
  */
 export interface ZfsTierRewriteJobEntry {
   /**
@@ -14655,225 +11452,6 @@ export interface SharingNFSRemovedEvent {
   id: number;
 }
 /**
- * Used by: sharing.smb.query (event)
- */
-export interface SharingSMBAddedEvent {
-  id: number;
-  fields: SharingSMBEntry;
-}
-/**
- * SMB share entry on the TrueNAS server.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface SharingSMBEntry {
-  /**
-   * Unique identifier for this SMB share.
-   */
-  id: number;
-  purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
-  name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
-  path: string | "EXTERNAL";
-  /**
-   * The ZFS dataset containing this SMB share (e.g., 'tank/share'). Returns `null` for external shares or if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
-  dataset: string | null;
-  /**
-   * The path of the share relative to the dataset mountpoint (e.g., 'subfolder/data'). An empty string indicates the share is at the dataset root. Returns `null` for external shares or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
-  relative_path: string | null;
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
-  enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
-  readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
-  access_based_share_enumeration?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
-  locked: boolean | null;
-  audit?: SmbAuditConfig;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
-  options?:
-    | (
-        | LegacyOpt
-        | DefaultOpt
-        | TimeMachineOpt
-        | MultiprotocolOpt
-        | TimeLockedOpt
-        | PrivateDatasetOpt
-        | ExternalOpt
-        | VeeamRepositoryOpt
-        | FCPStorageOpt
-      )
-    | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
-  tier?: TierInfo | null;
-}
-/**
- * Settings for auditing SMB shares.
- *
- * NOTE: If a user is a member of groups in the `watch_list` and the `ignore_list`, the `watch_list`     has priority, and the SMB session is audited.
- *
- * Used by: sharing.smb.create (params), sharing.smb.create (response), sharing.smb.get_instance (params), sharing.smb.get_instance (response), sharing.smb.query (event), sharing.smb.query (params), sharing.smb.query (response), sharing.smb.update (params), sharing.smb.update (response)
- */
-export interface SmbAuditConfig {
-  /**
-   * Turn on auditing for the SMB share. SMB share auditing may not be enabled if `minimum_protocol` is `SMB1` in the SMB service configuration.
-   */
-  enable?: boolean;
-  /**
-   * Only audit the listed group accounts. If the list is empty, all groups will be audited.
-   */
-  watch_list?: string[];
-  /**
-   * List of groups that will not be audited.
-   */
-  ignore_list?: string[];
-}
-/**
- * These configuration options apply to shares with the `TIMEMACHINE_SHARE` purpose.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface TimeMachineOpt {
-  purpose: "TIMEMACHINE_SHARE";
-  /**
-   * If set, it defines the maximum size in bytes of a single time machine sparsebundle volume by limiting the reported disk size to the SMB client. A value of zero means no quota is set.
-   *
-   * NOTE: Modern MacOS versions you set Time Machine quotas client-side. This gives more predictable server and client behavior.
-   */
-  timemachine_quota?: number;
-  /**
-   * If set, the server makes a ZFS snapshot of the share dataset when the client makes a new Time Machine backup.
-   */
-  auto_snapshot?: boolean;
-  /**
-   * If set, the server uses the `dataset_naming_schema` to make a new ZFS dataset when the client connects. The server uses this dataset as the share path during the SMB session.
-   *
-   * NOTE: this setting requires the share path to be a dataset mountpoint.
-   */
-  auto_dataset_creation?: boolean;
-  /**
-   * The naming schema to use when `auto_dataset_creation` is specified. If you do not set a schema, the server uses `%U` (username) if it is not joined to Active Directory. If the server is joined to Active Directory it uses `%D/%U` (domain/username). See the `VARIABLE SUBSTITUTIONS` section in the smb.conf manpage for valid strings.
-   *
-   * WARNING: ZFS dataset naming rules are more restrictive than normal path rules. For example, if `%u` is specified then the character `\` may be inserted in the username (which is not supported in ZFS).
-   */
-  dataset_naming_schema?: string | null;
-  /**
-   * This value is the Time Machine volume UUID for the SMB share. The TrueNAS server uses this value in the mDNS advertisement for the Time Machine share. MacOS clients may use it to identify the volume. When you create or update a share, setting this value to null makes the TrueNAS server generate a new UUID for the share.
-   */
-  vuid?: string | null;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
-  hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
-  hostsdeny?: string[];
-}
-/**
- * These configuration options apply to shares with the `TIME_LOCKED_SHARE` purpose.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface TimeLockedOpt {
-  purpose: "TIME_LOCKED_SHARE";
-  /**
-   * Time in seconds when write access to the file or directory is allowed.
-   */
-  grace_period?: number;
-  /**
-   * If set, illegal NTFS characters commonly used by MacOS clients are stored with their native values on the SMB server's local filesystem.
-   *
-   * NOTE: Files with illegal NTFS characters in their names may not be accessible to non-MacOS SMB clients.
-   *
-   * WARNING: This value should not be changed once data is written to the SMB share.
-   */
-  aapl_name_mangling?: boolean;
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
-  hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
-  hostsdeny?: string[];
-}
-/**
- * These configuration options apply to shares with the `VEEAM_REPOSITORY_SHARE` purpose.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface VeeamRepositoryOpt {
-  purpose: "VEEAM_REPOSITORY_SHARE";
-  /**
-   * A list of IP addresses or subnets that are allowed to access the SMB share. The EXCEPT keyword may be used to limit a wildcard list.
-   *
-   * NOTE: Hostname lookups are disabled on the SMB server for performance reasons.
-   */
-  hostsallow?: string[];
-  /**
-   * A list of IP addresses or subnets that are not allowed to access the SMB share. The keyword `ALL` or the netmask `0.0.0.0/0` may be used to deny all by default.
-   */
-  hostsdeny?: string[];
-}
-/**
- * Used by: sharing.smb.query (event)
- */
-export interface SharingSMBChangedEvent {
-  id: number;
-  fields: SharingSMBEntry;
-}
-/**
  * Used by: sharing.smb.getacl (params)
  */
 export interface SharingSMBGetaclArgs {
@@ -14881,12 +11459,6 @@ export interface SharingSMBGetaclArgs {
    * Name of the SMB share to retrieve ACL for.
    */
   share_name: string;
-}
-/**
- * Used by: sharing.smb.query (event)
- */
-export interface SharingSMBRemovedEvent {
-  id: number;
 }
 /**
  * Used by: sharing.smb.setacl (params)
@@ -14931,76 +11503,6 @@ export interface SMBShareAclEntry {
  */
 export interface SMBShareAclEntryWhoId {
   id_type: "USER" | "GROUP" | "BOTH";
-  id: number;
-}
-/**
- * Used by: sharing.webshare.query (event)
- */
-export interface SharingWebshareAddedEvent {
-  id: number;
-  fields: SharingWebshareEntry;
-}
-/**
- * Webshare share entry on the TrueNAS server.
- *
- * Used by: sharing.webshare.query (event)
- */
-export interface SharingWebshareEntry {
-  /**
-   * Unique identifier for this Webshare share.
-   */
-  id: number;
-  /**
-   * Webshare share name.
-   */
-  name: string;
-  /**
-   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   */
-  path: string;
-  /**
-   * Dataset name component of the path (e.g., 'tank/webshare'). Null if path cannot be resolved.
-   */
-  dataset: string | null;
-  /**
-   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
-   */
-  relative_path: string | null;
-  /**
-   * If unset, the Webshare share is not available.
-   */
-  enabled?: boolean;
-  /**
-   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
-   */
-  is_home_base?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
-  locked: boolean | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
-   *
-   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
-  tier?: TierInfo | null;
-}
-/**
- * Used by: sharing.webshare.query (event)
- */
-export interface SharingWebshareChangedEvent {
-  id: number;
-  fields: SharingWebshareEntry;
-}
-/**
- * Used by: sharing.webshare.query (event)
- */
-export interface SharingWebshareRemovedEvent {
   id: number;
 }
 /**
@@ -15543,44 +12045,6 @@ export interface SystemShutdownOptions {
   delay?: number | null;
 }
 /**
- * Used by: truecommand.config (event)
- */
-export interface TruecommandConfigChangedEvent {
-  fields: TruecommandConfigChangedEventFields;
-}
-/**
- * Used by: truecommand.config (event)
- */
-export interface TruecommandConfigChangedEventFields {
-  /**
-   * Unique identifier for the TrueCommand configuration.
-   */
-  id: number;
-  status: StatusInput3;
-  /**
-   * Explanation of the current TrueCommand connection status.
-   */
-  status_reason:
-    | "Truecommand service is connected."
-    | "Pending Confirmation From iX Portal for Truecommand API Key."
-    | "Truecommand service is disabled."
-    | "Truecommand API Key Disabled by iX Portal."
-    | "Waiting for connection from Truecommand."
-    | "Truecommand service is disabled on standby controller";
-  /**
-   * URL of the connected TrueCommand instance. `null` if not connected.
-   */
-  remote_url: string | null;
-  /**
-   * IP address of the connected TrueCommand instance. `null` if not connected.
-   */
-  remote_ip_address: string | null;
-  /**
-   * Whether TrueCommand integration is enabled.
-   */
-  enabled: boolean;
-}
-/**
  * Used by: tn_connect.config (event)
  */
 export interface TrueNASConnectConfigChangedEvent {
@@ -15671,56 +12135,6 @@ export interface TrueNASConnectUpdateArgs {
   heartbeat_url?: string;
 }
 /**
- * Used by: tunable.query (event)
- */
-export interface TunableAddedEvent {
-  id: number;
-  fields: TunableEntry;
-}
-/**
- * Used by: tunable.query (event)
- */
-export interface TunableEntry {
-  type?: TypeInput8;
-  /**
-   * Name or identifier of the system parameter to tune.
-   */
-  var: string;
-  /**
-   * Value to assign to the tunable parameter.
-   */
-  value: string;
-  /**
-   * Optional descriptive comment explaining the purpose of this tunable.
-   */
-  comment?: string;
-  /**
-   * Whether this tunable is active and should be applied.
-   */
-  enabled?: boolean;
-  /**
-   * Unique identifier for the tunable configuration.
-   */
-  id: number;
-  /**
-   * Original system value of the parameter before this tunable was applied.
-   */
-  orig_value: string;
-}
-/**
- * Used by: tunable.query (event)
- */
-export interface TunableChangedEvent {
-  id: number;
-  fields: TunableEntry;
-}
-/**
- * Used by: tunable.query (event)
- */
-export interface TunableRemovedEvent {
-  id: number;
-}
-/**
  * Used by: user.renew_2fa_secret (params)
  */
 export interface TwofactorOptions {
@@ -15732,110 +12146,6 @@ export interface TwofactorOptions {
    * Time duration in seconds specifying OTP expiration time from its creation time.
    */
   interval?: number;
-}
-/**
- * Used by: update.status (event), update.status (response)
- */
-export interface UpdateDownloadProgress {
-  /**
-   * Download completion percentage (0.0 to 100.0).
-   */
-  percent: number;
-  /**
-   * Human-readable description of the current download activity.
-   */
-  description: string;
-  /**
-   * Version number being downloaded.
-   */
-  version: string;
-}
-/**
- * Used by: update.status (event), update.status (response)
- */
-export interface UpdateStatus {
-  code: Code;
-  /**
-   * Detailed update status information. `null` if code is ERROR.
-   */
-  status: UpdateStatusStatus | null;
-  /**
-   * Error message if code is ERROR. `null` otherwise.
-   */
-  error: UpdateStatusError | null;
-  /**
-   * Current update download progress.
-   */
-  update_download_progress: UpdateDownloadProgress | null;
-}
-/**
- * Used by: update.status (event), update.status (response)
- */
-export interface UpdateStatusStatus {
-  current_version: UpdateStatusCurrentVersion;
-  /**
-   * New system version information (or `null` if no new system version is available).
-   */
-  new_version: UpdateStatusNewVersion | null;
-}
-/**
- * Used by: update.status (event), update.status (response)
- */
-export interface UpdateStatusCurrentVersion {
-  /**
-   * Train name.
-   */
-  train: string;
-  /**
-   * Update profile assigned for the version.
-   */
-  profile: string;
-  /**
-   * Whether the system version running matches the configured update profile.
-   */
-  matches_profile: boolean;
-}
-/**
- * Used by: update.available_versions (response), update.status (event), update.status (response)
- */
-export interface UpdateStatusNewVersion {
-  /**
-   * Newly available version number.
-   */
-  version: string;
-  /**
-   * Object containing detailed version information and metadata.
-   */
-  manifest: {
-    [k: string]: unknown;
-  };
-  /**
-   * Release notes.
-   */
-  release_notes: string | null;
-  /**
-   * Release notes URL.
-   */
-  release_notes_url: string;
-}
-/**
- * Used by: update.status (event), update.status (response)
- */
-export interface UpdateStatusError {
-  /**
-   * Error code (i.e. ENONET).
-   */
-  errname: string;
-  /**
-   * Error text.
-   */
-  reason: string;
-}
-/**
- * Used by: update.status (event)
- */
-export interface UpdateStatusChangedEvent {
-  status: UpdateStatus;
 }
 /**
  * Used by: app.upgrade (params), app.upgrade_bulk (params)
@@ -16432,1036 +12742,4 @@ export interface UserWebUiLoginDisabledAddedEventFields {
    * Local administrator accounts that can be used instead.
    */
   usernames: string[];
-}
-/**
- * Used by: vm.query (event)
- */
-export interface VMAddedEvent {
-  id: number;
-  fields: VMEntry;
-}
-/**
- * Used by: vm.query (event)
- */
-export interface VMEntry {
-  /**
-   * Additional command line arguments passed to the VM hypervisor.
-   */
-  command_line_args?: string;
-  /**
-   * CPU virtualization mode.
-   *
-   * * `CUSTOM`: Use specified model.
-   * * `HOST-MODEL`: Mirror host CPU.
-   * * `HOST-PASSTHROUGH`: Provide direct access to host CPU features.
-   */
-  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  /**
-   * Specific CPU model to emulate. `null` to use hypervisor default.
-   */
-  cpu_model?: string | null;
-  /**
-   * Display name of the virtual machine.
-   */
-  name: string;
-  /**
-   * Optional description or notes about the virtual machine.
-   */
-  description?: string;
-  /**
-   * Number of virtual CPU sockets. The total number of guest vCPUs is `vcpus` * `cores` * `threads` (maximum 16).
-   */
-  vcpus?: number;
-  /**
-   * Number of CPU cores per socket.
-   */
-  cores?: number;
-  /**
-   * Number of threads per CPU core.
-   */
-  threads?: number;
-  /**
-   * Set of host CPU cores to pin VM CPUs to. `null` for no pinning.
-   */
-  cpuset?: string | null;
-  /**
-   * Set of NUMA nodes to constrain VM memory allocation. `null` for no constraints.
-   */
-  nodeset?: string | null;
-  /**
-   * Whether to expose detailed CPU topology information to the guest OS.
-   */
-  enable_cpu_topology_extension?: boolean;
-  /**
-   * Whether to pin virtual CPUs to specific host CPU cores. Improves performance but reduces host flexibility.
-   */
-  pin_vcpus?: boolean;
-  /**
-   * Whether to automatically suspend the VM when a periodic snapshot task runs. For manual snapshots, the VM is suspended only if explicitly included in the snapshot's VM pause list.
-   */
-  suspend_on_snapshot?: boolean;
-  /**
-   * Whether to enable virtual Trusted Platform Module (TPM) for the VM.
-   */
-  trusted_platform_module?: boolean;
-  /**
-   * Amount of memory allocated to the VM in mebibytes (MiB).
-   */
-  memory: number;
-  /**
-   * Minimum memory allocation for dynamic memory ballooning in mebibytes (MiB). Allows VM memory to shrink during low usage but guarantees this minimum. `null` to disable ballooning.
-   */
-  min_memory?: number | null;
-  /**
-   * Whether to enable Hyper-V enlightenments for improved Windows guest performance.
-   */
-  hyperv_enlightenments?: boolean;
-  bootloader?: Bootloader;
-  /**
-   * OVMF firmware file to use for UEFI boot.
-   */
-  bootloader_ovmf?: string;
-  /**
-   * Whether to automatically start the VM when the host system boots.
-   */
-  autostart?: boolean;
-  /**
-   * Whether to hide the KVM hypervisor from standard MSR-based discovery. Useful when doing GPU passthrough.
-   */
-  hide_from_msr?: boolean;
-  /**
-   * Whether to ensure the guest always has access to a video device. Required for headless OS installations (e.g. Ubuntu Server). Set to `false` when using GPU passthrough without a separate display device.
-   */
-  ensure_display_device?: boolean;
-  time?: Time;
-  /**
-   * Maximum time in seconds to wait for graceful shutdown before forcing power off. Default 90s balances allowing sufficient time for clean shutdown while avoiding indefinite hangs.
-   */
-  shutdown_timeout?: number;
-  /**
-   * Guest architecture type. `null` to use hypervisor default.
-   */
-  arch_type?: string | null;
-  /**
-   * Virtual machine type/chipset. `null` to use hypervisor default.
-   */
-  machine_type?: string | null;
-  /**
-   * Unique UUID for the VM.
-   */
-  uuid: string;
-  /**
-   * Array of virtual devices attached to this VM.
-   */
-  devices: VMDeviceEntry[];
-  /**
-   * Whether at least one display device is available for this VM.
-   */
-  display_available: boolean;
-  /**
-   * Unique identifier for the virtual machine.
-   */
-  id: number;
-  status: VMStatus;
-  /**
-   * Whether to enable UEFI Secure Boot for enhanced security.
-   */
-  enable_secure_boot?: boolean;
-}
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMDeviceEntry {
-  /**
-   * Unique identifier for the VM device.
-   */
-  id: number;
-  /**
-   * Device-specific configuration attributes.
-   */
-  attributes:
-    | VMCDROMDevice
-    | VMDisplayDevice
-    | VMISCSIDiskDevice
-    | VMNICDevice
-    | VMPCIDevice
-    | VMRAWDevice
-    | VMDiskDevice
-    | VMUSBDevice;
-  /**
-   * ID of the virtual machine this device belongs to.
-   */
-  vm: number;
-  /**
-   * Boot order priority for this device (lower numbers boot first).
-   */
-  order: number;
-}
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMCDROMDevice {
-  /**
-   * Device type identifier for CD-ROM/DVD devices.
-   */
-  dtype: "CDROM";
-  /**
-   * Path must not contain "{", "}" characters, and it should start with "/mnt/".
-   */
-  path: string;
-}
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMDisplayDevice {
-  /**
-   * Device type identifier for display/graphics devices.
-   */
-  dtype: "DISPLAY";
-  resolution?: Resolution;
-  /**
-   * VNC/SPICE port number for remote display access. `null` for auto-assignment.
-   */
-  port?: number | null;
-  /**
-   * Web-based display access port number. `null` for auto-assignment.
-   */
-  web_port?: number | null;
-  /**
-   * IP address to bind the display server to.
-   */
-  bind?: string;
-  /**
-   * Whether to wait for a client connection before starting the VM.
-   */
-  wait?: boolean;
-  /**
-   * Password for display server authentication.
-   */
-  password?: string | null;
-  /**
-   * Whether to enable web-based display access.
-   */
-  web?: boolean;
-  /**
-   * Display protocol type.
-   */
-  type?: "SPICE" | "VNC";
-}
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
-export interface VMISCSIDiskDevice {
-  /**
-   * Device type identifier for iSCSI disk devices.
-   */
-  dtype: "ISCSI_DISK";
-  /**
-   * IP address of the iSCSI target portal.
-   */
-  portal_address: "" | string;
-  /**
-   * iSCSI targets to attach, one entry per target IQN.
-   *
-   * @minItems 1
-   */
-  targets: [VMISCSIDiskTarget, ...VMISCSIDiskTarget[]];
-  /**
-   * IQN identifying this VM as an iSCSI initiator.
-   */
-  initiator_iqn: string;
-  /**
-   * PCI slot for the virtio-scsi-pci controller on the root bus (pcie.0 on q35/aarch64, pci.0 on i440fx). Conflicts with other explicitly-placed devices are detected at device creation time.
-   */
-  controller_slot?: number;
-}
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
-export interface VMISCSIDiskTarget {
-  /**
-   * iSCSI Qualified Name of the target.
-   */
-  iqn: string;
-  /**
-   * LUN numbers to access on this target.
-   *
-   * @minItems 1
-   */
-  luns?: [number, ...number[]];
-}
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMNICDevice {
-  /**
-   * Device type identifier for network interface cards.
-   */
-  dtype: "NIC";
-  /**
-   * Whether to trust guest OS receive filter settings for better performance.
-   */
-  trust_guest_rx_filters?: boolean;
-  /**
-   * Network interface controller type. `E1000` for Intel compatibility, `VIRTIO` for performance.
-   */
-  type?: "E1000" | "VIRTIO";
-  /**
-   * Host network interface or bridge to attach to. `null` for no attachment.
-   */
-  nic_attach?: string | null;
-  /**
-   * MAC address for the virtual network interface. `null` for auto-generation.
-   */
-  mac?: string | null;
-  /**
-   * Pin this NIC to a specific PCI controller bus rather than letting libvirt auto-assign an address. `null` for automatic assignment.
-   */
-  pci_address?: VMNICPciAddress | null;
-}
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
-export interface VMNICPciAddress {
-  /**
-   * PCI bus number. Must be >= 1; bus 0 is the root complex.
-   */
-  bus: number;
-  /**
-   * PCI slot number (0-31). No default: correct value depends on machine type.
-   */
-  slot: number;
-  /**
-   * PCI function number (0-7).
-   */
-  function?: number;
-  /**
-   * PCI domain number. Must be 0; multi-segment topologies are not supported.
-   */
-  domain?: number;
-}
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
-export interface VMPCIDevice {
-  /**
-   * Device type identifier for PCI passthrough devices.
-   */
-  dtype: "PCI";
-  /**
-   * Host PCI device identifier to pass through to the VM.
-   */
-  pptdev: string;
-}
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMRAWDevice {
-  /**
-   * Device type identifier for raw disk devices.
-   */
-  dtype: "RAW";
-  /**
-   * Filesystem path to the raw disk device or image file.
-   */
-  path: string;
-  type?: TypeInput;
-  /**
-   * Whether the disk file already exists or should be created.
-   */
-  exists?: boolean;
-  /**
-   * Whether this disk should be marked as bootable.
-   */
-  boot?: boolean;
-  /**
-   * Size of the disk in bytes. Required if creating a new disk file.
-   */
-  size?: number | null;
-  /**
-   * Logical sector size for the disk. `null` for default.
-   */
-  logical_sectorsize?: (null | 512 | 4096) | null;
-  /**
-   * Physical sector size for the disk. `null` for default.
-   */
-  physical_sectorsize?: (null | 512 | 4096) | null;
-  iotype?: Iotype;
-  /**
-   * Serial number to assign to the virtual disk. `null` for auto-generated.
-   */
-  serial?: string | null;
-}
-/**
- * Used by: vm.device.query (event), vm.query (event)
- */
-export interface VMDiskDevice {
-  /**
-   * Device type identifier for virtual disk devices.
-   */
-  dtype: "DISK";
-  /**
-   * Path to existing disk file or ZFS volume. `null` if creating a new ZFS volume.
-   */
-  path?: string | null;
-  type?: TypeInput;
-  /**
-   * Whether to create a new ZFS volume for this disk.
-   */
-  create_zvol?: boolean;
-  /**
-   * Name for the new ZFS volume. Required if `create_zvol` is true.
-   */
-  zvol_name?: string | null;
-  /**
-   * Size of the new ZFS volume in bytes. Required if `create_zvol` is true.
-   */
-  zvol_volsize?: number | null;
-  /**
-   * Logical sector size for the disk. `null` for default.
-   */
-  logical_sectorsize?: (null | 512 | 4096) | null;
-  /**
-   * Physical sector size for the disk. `null` for default.
-   */
-  physical_sectorsize?: (null | 512 | 4096) | null;
-  iotype?: Iotype;
-  /**
-   * Serial number to assign to the virtual disk. `null` for auto-generated.
-   */
-  serial?: string | null;
-}
-/**
- * Used by: vm.create (response), vm.device.create (params), vm.device.create (response), vm.device.get_instance (params), vm.device.get_instance (response), vm.device.query (event), vm.device.query (params), vm.device.query (response), vm.device.update (response), vm.get_instance (params) … and 5 more
- */
-export interface VMUSBDevice {
-  /**
-   * Device type identifier for USB devices.
-   */
-  dtype: "USB";
-  /**
-   * USB device attributes for identification. `null` for USB host controller only.
-   */
-  usb?: USBAttributes | null;
-  /**
-   * USB controller type for the virtual machine.
-   */
-  controller_type?:
-    "piix3-uhci" | "piix4-uhci" | "ehci" | "ich9-ehci1" | "vt82c686b-uhci" | "pci-ohci" | "nec-xhci" | "qemu-xhci";
-  /**
-   * Host USB device path to pass through. `null` for controller only.
-   */
-  device?: string | null;
-}
-/**
- * Used by: vm.query (event)
- */
-export interface VMStatus {
-  /**
-   * Current state of the virtual machine.
-   */
-  state: string;
-  /**
-   * Process ID of the running VM. `null` if not running.
-   */
-  pid: number | null;
-  /**
-   * Hypervisor-specific domain state.
-   */
-  domain_state: string | null;
-}
-/**
- * Used by: vm.query (event)
- */
-export interface VMChangedEvent {
-  id: number;
-  fields: VMEntry;
-}
-/**
- * Used by: vm.device.query (event)
- */
-export interface VMDeviceAddedEvent {
-  id: number;
-  fields: VMDeviceEntry;
-}
-/**
- * Used by: vm.device.query (event)
- */
-export interface VMDeviceChangedEvent {
-  id: number;
-  fields: VMDeviceEntry;
-}
-/**
- * Used by: vm.device.query (event)
- */
-export interface VMDeviceRemovedEvent {
-  id: number;
-}
-/**
- * Used by: vm.query (event)
- */
-export interface VMRemovedEvent {
-  id: number;
-}
-/**
- * Used by: vmware.query (event)
- */
-export interface VMWareAddedEvent {
-  id: number;
-  fields: VMWareEntry;
-}
-/**
- * Used by: vmware.query (event)
- */
-export interface VMWareEntry {
-  /**
-   * Unique identifier for the VMware configuration.
-   */
-  id: number;
-  /**
-   * Valid datastore name which exists on the VMWare host.
-   */
-  datastore: string;
-  /**
-   * ZFS filesystem or dataset to use for VMware storage.
-   */
-  filesystem: string;
-  /**
-   * Valid IP address / hostname of a VMWare host. When clustering, this is the vCenter server for the cluster.
-   */
-  hostname: string;
-  /**
-   * Credentials used to authorize access to the VMWare host.
-   */
-  username: string;
-  /**
-   * Password for VMware host authentication.
-   */
-  password: string;
-  state: VMWareEntryState;
-}
-/**
- * Used by: vmware.query (event)
- */
-export interface VMWareEntryState {
-  state?: StateInput2;
-  /**
-   * Error text (if any).
-   */
-  error?: string;
-  /**
-   * State update datetime.
-   */
-  datetime?: string;
-}
-/**
- * Used by: vmware.query (event)
- */
-export interface VMWareChangedEvent {
-  id: number;
-  fields: VMWareEntry;
-}
-/**
- * Used by: vmware.query (event)
- */
-export interface VMWareRemovedEvent {
-  id: number;
-}
-/**
- * Used by: zfs.tier.rewrite_job_query (event)
- */
-export interface ZfsTierRewriteJobQueryEventSourceEvent {
-  fields: ZfsTierRewriteJobEntry;
-}
-/**
- * Used by: zfs.tier.rewrite_job_query (event)
- */
-export interface ZfsTierRewriteJobQueryEventSourceEvent2 {
-  fields: ZfsTierRewriteJobQueryEventSourceEvent;
-}
-/**
- * Used by: zfs.tier.rewrite_job_status (event), zfs.tier.rewrite_job_status (response)
- */
-export interface ZfsTierRewriteJobStats {
-  /**
-   * Unix timestamp (seconds) when the current run started. Reset each time the job is resumed or recovered.
-   */
-  start_time: number;
-  /**
-   * Unix timestamp (seconds) when the job was first created. Preserved across resumes.
-   */
-  initial_time: number;
-  /**
-   * Unix timestamp (seconds) of the most recent statistics update.
-   */
-  update_time: number;
-  /**
-   * Number of files processed in the current run. Reset to zero on each resume.
-   */
-  count_items: number;
-  /**
-   * Bytes processed in the current run. Reset to zero on each resume.
-   */
-  count_bytes: number;
-  /**
-   * Total number of files to process across the entire dataset.
-   */
-  total_items: number;
-  /**
-   * Total bytes to process across the entire dataset.
-   */
-  total_bytes: number;
-  /**
-   * Cumulative count of files that failed rewriting across all runs of this job.
-   */
-  failures: number;
-  /**
-   * Cumulative count of files successfully rewritten across all runs of this job.
-   */
-  success: number;
-  /**
-   * Directory path of the file currently being processed. Also used as the resume checkpoint if the job is interrupted.
-   */
-  parent: string;
-  /**
-   * Name of the file currently being processed.
-   */
-  name: string;
-}
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
-export interface ZfsTierRewriteJobStatusEntry {
-  /**
-   * Rewrite job identifier in `dataset_name@job_uuid` format.
-   */
-  tier_job_id: string;
-  /**
-   * ZFS dataset this job is operating on.
-   */
-  dataset_name: string;
-  /**
-   * Unique identifier for this rewrite job.
-   */
-  job_uuid: string;
-  status: StatusInput2;
-  /**
-   * Progress statistics, or `null` if no statistics have been recorded yet.
-   */
-  stats: ZfsTierRewriteJobStats | null;
-  /**
-   * Error message describing why the job entered `ERROR` state, otherwise `null`.
-   */
-  error: string | null;
-}
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
-export interface ZfsTierRewriteJobStatusEventSourceArgs {
-  /**
-   * Rewrite job to subscribe to, in `dataset_name@job_uuid` format. Receives updates whenever the job status or statistics change.
-   */
-  tier_job_id: string;
-}
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
-export interface ZfsTierRewriteJobStatusEventSourceEvent {
-  fields: ZfsTierRewriteJobStatusEntry;
-}
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
-export interface ZfsTierRewriteJobStatusEventSourceEvent2 {
-  fields: ZfsTierRewriteJobStatusEventSourceEvent;
-}
-/**
- * Used by: zpool.query (event)
- */
-export interface ZPoolEntry {
-  /**
-   * Database id from `storage.volume`. `null` for the boot pool and for any pool not present in the database.
-   */
-  id?: number | null;
-  /**
-   * Name of the zpool.
-   */
-  name: string;
-  /**
-   * Globally unique identifier for the pool.
-   */
-  guid: number;
-  /**
-   * Current pool status (ONLINE, DEGRADED, FAULTED, OFFLINE, etc.).
-   */
-  status: string;
-  /**
-   * Whether the pool is in a healthy state.
-   */
-  healthy: boolean;
-  /**
-   * Whether the pool has warning conditions.
-   */
-  warning: boolean;
-  /**
-   * Detailed status code (e.g., OK, ERRATA, FEAT_DISABLED, LOCKED_SED_DISKS).
-   */
-  status_code: string | null;
-  /**
-   * Human-readable status description.
-   */
-  status_detail: string | null;
-  /**
-   * Whether every ZFS feature flag on the pool is enabled. `null` for OFFLINE pools.
-   */
-  is_upgraded?: boolean | null;
-  /**
-   * `true` when every disk backing the pool is a Self-Encrypting Drive, `false` when at least one is not. `null` when the SED status of the pool has not yet been determined or does not apply.
-   */
-  all_sed?: boolean | null;
-  /**
-   * Pool properties, keyed by property name.
-   */
-  properties?: {
-    [k: string]: ZPoolPropertyValue;
-  } | null;
-  /**
-   * Pool vdev topology.
-   */
-  topology?: ZPoolTopology | null;
-  /**
-   * Most recent scrub or resilver information.
-   */
-  scan?: ZPoolScan | null;
-  /**
-   * RAIDZ expansion information.
-   */
-  expand?: ZPoolExpand | null;
-  /**
-   * Pool feature flags.
-   */
-  features?: ZPoolFeature[] | null;
-}
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
-export interface ZPoolPropertyValue {
-  /**
-   * The raw string representation of the property.
-   */
-  raw: string;
-  /**
-   * The source from where this property received its value (DEFAULT, LOCAL, NONE, etc.).
-   */
-  source: string | null;
-  /**
-   * The native Python value of the property.
-   */
-  value: number | string | boolean | null;
-}
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
-export interface ZPoolTopology {
-  /**
-   * Array of data vdev configurations.
-   */
-  data: ZPoolVdev[];
-  /**
-   * Array of ZFS Intent Log (ZIL) vdev configurations.
-   */
-  log: ZPoolVdev[];
-  /**
-   * Array of L2ARC cache vdev configurations.
-   */
-  cache: ZPoolVdev[];
-  /**
-   * Array of spare disk configurations.
-   */
-  spares: ZPoolVdev[];
-  /**
-   * Array of special vdev configurations for metadata.
-   */
-  special: ZPoolVdev[];
-  /**
-   * Array of deduplication table vdev configurations.
-   */
-  dedup: ZPoolVdev[];
-}
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
-export interface ZPoolVdev {
-  /**
-   * Vdev name (e.g., 'mirror-0', '/dev/sda1').
-   */
-  name: string;
-  /**
-   * Vdev type (e.g., 'mirror', 'raidz1', 'disk').
-   */
-  vdev_type: string;
-  /**
-   * Globally unique identifier for this vdev.
-   */
-  guid: number;
-  /**
-   * Current state (ONLINE, DEGRADED, FAULTED, OFFLINE, UNAVAIL, etc.).
-   */
-  state: string;
-  stats: ZPoolVdevStats;
-  /**
-   * Child vdevs.
-   */
-  children: ZPoolVdev[];
-  /**
-   * GUID of the top-level vdev this belongs to.
-   */
-  top_guid?: number | null;
-  /**
-   * Device path stored in the vdev config (e.g. '/dev/disk/by-partuuid/<uuid>'). Unlike `name`, this is preserved for devices that were missing at pool import time. dRAID distributed spares store their synthetic spare name as the config path. `null` for interior vdevs (mirror, raidz, draid) that have no config path.
-   */
-  path?: string | null;
-}
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
-export interface ZPoolVdevStats {
-  /**
-   * High-resolution timestamp (nanoseconds).
-   */
-  timestamp?: number;
-  /**
-   * Allocated space in bytes.
-   */
-  allocated?: number;
-  /**
-   * Total space in bytes.
-   */
-  space?: number;
-  /**
-   * Deflated (compressed) space.
-   */
-  dspace?: number;
-  /**
-   * Physical space.
-   */
-  pspace?: number;
-  /**
-   * Replaceable dev size.
-   */
-  rsize?: number;
-  /**
-   * Expandable dev size.
-   */
-  esize?: number;
-  /**
-   * Number of read errors.
-   */
-  read_errors?: number;
-  /**
-   * Number of write errors.
-   */
-  write_errors?: number;
-  /**
-   * Number of checksum errors.
-   */
-  checksum_errors?: number;
-  /**
-   * Number of initialize errors.
-   */
-  initialize_errors?: number;
-  /**
-   * Number of direct I/O verify errors.
-   */
-  dio_verify_errors?: number;
-  /**
-   * Number of slow I/Os.
-   */
-  slow_ios?: number | null;
-  /**
-   * Self-healed bytes.
-   */
-  self_healed_bytes?: number;
-  /**
-   * Fragmentation percentage.
-   */
-  fragmentation?: number;
-  /**
-   * Bytes processed by scan.
-   */
-  scan_processed?: number;
-  /**
-   * Bytes processed by removal.
-   */
-  scan_removing?: number;
-  /**
-   * Bytes processed by rebuild.
-   */
-  rebuild_processed?: number;
-  /**
-   * Allocations halted.
-   */
-  noalloc?: number;
-  /**
-   * Read operations.
-   */
-  ops_read?: number;
-  /**
-   * Write operations.
-   */
-  ops_write?: number;
-  /**
-   * Bytes read.
-   */
-  bytes_read?: number;
-  /**
-   * Bytes written.
-   */
-  bytes_write?: number;
-  /**
-   * Configured ashift value.
-   */
-  configured_ashift?: number | null;
-  /**
-   * Logical ashift value.
-   */
-  logical_ashift?: number | null;
-  /**
-   * Physical ashift value.
-   */
-  physical_ashift?: number | null;
-}
-/**
- * Used by: zpool.query (event)
- */
-export interface ZPoolScan {
-  function: Function;
-  state: StateInput4;
-  /**
-   * Scan start time (unix timestamp).
-   */
-  start_time: number;
-  /**
-   * Scan end time as unix timestamp (`null` while the scan is still running).
-   */
-  end_time: number | null;
-  /**
-   * Scan progress (between 0 and 100%).
-   */
-  percentage: number;
-  /**
-   * Total bytes located by scanner.
-   */
-  bytes_to_process: number;
-  /**
-   * Total bytes to scan.
-   */
-  bytes_processed: number;
-  /**
-   * Issued bytes per scan pass.
-   */
-  bytes_issued: number;
-  /**
-   * Pause time as unix timestamp (`null` if the scan is not paused).
-   */
-  pause: number | null;
-  /**
-   * Number of scan errors.
-   */
-  errors: number;
-  /**
-   * Number of seconds left (`null` if the scan is not running).
-   */
-  total_secs_left: number | null;
-}
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
-export interface ZPoolExpand {
-  /**
-   * Expansion state (e.g., SCANNING, FINISHED).
-   */
-  state: string;
-  /**
-   * Index of the vdev being expanded.
-   */
-  expanding_vdev: number;
-  /**
-   * Expansion start time (unix timestamp).
-   */
-  start_time: number;
-  /**
-   * Expansion end time as unix timestamp (`null` while expanding).
-   */
-  end_time: number | null;
-  /**
-   * Total bytes that need to be reflowed.
-   */
-  bytes_to_reflow: number;
-  /**
-   * Total bytes reflowed so far.
-   */
-  bytes_reflowed: number;
-  /**
-   * Non-zero if expansion is waiting for a resilver to complete.
-   */
-  waiting_for_resilver: number;
-  /**
-   * Estimated seconds remaining (`null` if not expanding).
-   */
-  total_secs_left: number | null;
-  /**
-   * Expansion progress (between 0 and 100%).
-   */
-  percentage: number;
-}
-/**
- * Used by: zpool.query (event), zpool.query (response)
- */
-export interface ZPoolFeature {
-  /**
-   * Feature name.
-   */
-  name: string;
-  /**
-   * Feature GUID.
-   */
-  guid: string;
-  /**
-   * Feature description.
-   */
-  description: string;
-  /**
-   * Feature state.
-   */
-  state: string;
-}
-/**
- * Used by: zpool.query (event)
- */
-export interface ZPoolQueryAddedEvent {
-  /**
-   * Database id of the pool.
-   */
-  id: number;
-  fields: ZPoolEntry;
-}
-/**
- * Used by: zpool.query (event)
- */
-export interface ZPoolQueryChangedEvent {
-  /**
-   * Database id of the pool.
-   */
-  id: number;
-  fields: ZPoolEntry;
-}
-/**
- * Used by: zpool.query (event)
- */
-export interface ZPoolQueryRemovedEvent {
-  /**
-   * Database id of the pool.
-   */
-  id: number;
 }

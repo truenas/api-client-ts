@@ -5,23 +5,11 @@
 
 import type {
   AddressPool,
-  DefaultOpt,
-  ExternalOpt,
-  FCPStorageOpt,
-  LegacyOpt,
-  MultiprotocolOpt,
-  PrivateDatasetOpt,
-  Purpose,
-  SmbAuditConfig,
-  TimeLockedOpt,
-  TimeMachineOpt,
   UserTwofactorConfigEntry,
-  VeeamRepositoryOpt,
-  ZfsTierRewriteJobStats,
 } from '../v25_04_0/api-types';
 
 /**
- * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event), zfs.tier.rewrite_job_query (event), zfs.tier.rewrite_job_status (event)
+ * Used by: sharing.nfs.query (event)
  */
 export const StatusInput = {
   Complete: 'COMPLETE',
@@ -34,20 +22,9 @@ export const StatusInput = {
 export type StatusInput = (typeof StatusInput)[keyof typeof StatusInput];
 
 /**
- * Used by: truecommand.config (event)
- */
-export const StatusInput2 = {
-  Connected: 'CONNECTED',
-  Connecting: 'CONNECTING',
-  Disabled: 'DISABLED',
-  Failed: 'FAILED',
-} as const;
-export type StatusInput2 = (typeof StatusInput2)[keyof typeof StatusInput2];
-
-/**
  * Used by: docker.state (event)
  */
-export const StatusInput3 = {
+export const StatusInput2 = {
   Pending: 'PENDING',
   Running: 'RUNNING',
   Stopped: 'STOPPED',
@@ -58,7 +35,7 @@ export const StatusInput3 = {
   Migrating: 'MIGRATING',
   MigrationFailed: 'MIGRATION_FAILED',
 } as const;
-export type StatusInput3 = (typeof StatusInput3)[keyof typeof StatusInput3];
+export type StatusInput2 = (typeof StatusInput2)[keyof typeof StatusInput2];
 
 /**
  * Used by: core.set_options (params)
@@ -81,7 +58,7 @@ export interface DockerStatusInfo {
    * Human-readable description of the current Docker service status.
    */
   description: string;
-  status: StatusInput3;
+  status: StatusInput2;
 }
 /**
  * Used by: docker.update (params)
@@ -183,7 +160,7 @@ export interface SharingNFSEntryInput {
   tier?: TierInfo | null;
 }
 /**
- * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event)
+ * Used by: sharing.nfs.query (event)
  */
 export interface TierInfo {
   /**
@@ -196,7 +173,7 @@ export interface TierInfo {
   tier_job?: ZfsTierRewriteJobEntry | null;
 }
 /**
- * Used by: sharing.nfs.query (event), sharing.smb.query (event), sharing.webshare.query (event), zfs.tier.rewrite_job_query (event)
+ * Used by: sharing.nfs.query (event)
  */
 export interface ZfsTierRewriteJobEntry {
   /**
@@ -219,176 +196,6 @@ export interface ZfsTierRewriteJobEntry {
 export interface SharingNFSChangedEvent {
   id: number;
   fields: SharingNFSEntryInput;
-}
-/**
- * Used by: sharing.smb.query (event)
- */
-export interface SharingSMBAddedEvent {
-  id: number;
-  fields: SharingSMBEntry;
-}
-/**
- * SMB share entry on the TrueNAS server.
- *
- * Used by: sharing.smb.query (event)
- */
-export interface SharingSMBEntry {
-  /**
-   * Unique identifier for this SMB share.
-   */
-  id: number;
-  purpose?: Purpose;
-  /**
-   * SMB share name. SMB share names are case-insensitive and must be unique, and are subject to the following restrictions:
-   *
-   * * A share name must be no more than 80 characters in length.
-   *
-   * * The following characters are illegal in a share name: `\ / [ ] : | < > + = ; , * ? "`
-   *
-   * * Unicode control characters are illegal in a share name.
-   *
-   * * The following share names are not allowed: global, printers, homes.
-   */
-  name: string;
-  /**
-   * Local server path to share by using the SMB protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   *
-   * Use the string `EXTERNAL` if the share works as a DFS proxy.
-   *
-   * WARNING: The TrueNAS server does not check if external paths are reachable.
-   */
-  path: string | "EXTERNAL";
-  /**
-   * The ZFS dataset containing this SMB share (e.g., 'tank/share'). Returns `null` for external shares or if the path cannot be resolved yet (encrypted dataset not unlocked, etc.). This is a read-only field automatically populated from "path".
-   */
-  dataset: string | null;
-  /**
-   * The path of the share relative to the dataset mountpoint (e.g., 'subfolder/data'). An empty string indicates the share is at the dataset root. Returns `null` for external shares or if the path cannot be resolved yet. This is a read-only field automatically populated from "path".
-   */
-  relative_path: string | null;
-  /**
-   * If unset, the SMB share is not available over the SMB protocol.
-   */
-  enabled?: boolean;
-  /**
-   * Text field that is seen next to a share when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  comment?: string;
-  /**
-   * If set, SMB clients cannot create or change files and directories in the SMB share.
-   *
-   * NOTE: If set, the share path is still writeable by local processes or other file sharing protocols.
-   */
-  readonly?: boolean;
-  /**
-   * If set, the share is included when an SMB client requests a list of SMB shares on the TrueNAS server.
-   */
-  browsable?: boolean;
-  /**
-   * If set, the share is only included when an SMB client requests a list of shares on the SMB server if the share (not filesystem) access control list (see `sharing.smb.getacl`) grants access to the user.
-   */
-  access_based_share_enumeration?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
-  locked: boolean | null;
-  audit?: SmbAuditConfig;
-  /**
-   * Additional configuration related to the configured SMB share purpose. If null, then the default options related to the share purpose will be applied.
-   */
-  options?:
-    | (
-        | LegacyOpt
-        | DefaultOpt
-        | TimeMachineOpt
-        | MultiprotocolOpt
-        | TimeLockedOpt
-        | PrivateDatasetOpt
-        | ExternalOpt
-        | VeeamRepositoryOpt
-        | FCPStorageOpt
-      )
-    | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`. NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
-  tier?: TierInfo | null;
-}
-/**
- * Used by: sharing.smb.query (event)
- */
-export interface SharingSMBChangedEvent {
-  id: number;
-  fields: SharingSMBEntry;
-}
-/**
- * Used by: sharing.webshare.query (event)
- */
-export interface SharingWebshareAddedEvent {
-  id: number;
-  fields: SharingWebshareEntry;
-}
-/**
- * Webshare share entry on the TrueNAS server.
- *
- * Used by: sharing.webshare.query (event)
- */
-export interface SharingWebshareEntry {
-  /**
-   * Unique identifier for this Webshare share.
-   */
-  id: number;
-  /**
-   * Webshare share name.
-   */
-  name: string;
-  /**
-   * Local server path to share by using the Webshare protocol. The path must start with `/mnt/` and must be in a ZFS pool.
-   */
-  path: string;
-  /**
-   * Dataset name component of the path (e.g., 'tank/webshare'). Null if path cannot be resolved.
-   */
-  dataset: string | null;
-  /**
-   * Relative path component within the dataset (e.g., 'subdir/data'). Null if path cannot be resolved.
-   */
-  relative_path: string | null;
-  /**
-   * If unset, the Webshare share is not available.
-   */
-  enabled?: boolean;
-  /**
-   * If set, this share is used as the base path for user home directories. Only one share can have this enabled.
-   */
-  is_home_base?: boolean;
-  /**
-   * Read-only value indicating whether the share is located on a locked dataset.
-   *
-   * Returns:
-   *     - True: The share is in a locked dataset.
-   *     - False: The share is not in a locked dataset.
-   *     - None: Lock status is not available because path locking information was not requested.
-   */
-  locked: boolean | null;
-  /**
-   * Storage tier in which the share's underlying dataset is located. This field is read-only; configure the dataset's tier via `zfs.tier.dataset_set_tier`.
-   *
-   * NOTE: this is a licensed feature. Will be `null` if TrueNAS is unlicensed, if tiering is disabled, or if the pool has no SPECIAL vdev.
-   */
-  tier?: TierInfo | null;
-}
-/**
- * Used by: sharing.webshare.query (event)
- */
-export interface SharingWebshareChangedEvent {
-  id: number;
-  fields: SharingWebshareEntry;
 }
 /**
  * Used by: system.security.config (response), system.security.update (response)
@@ -456,44 +263,6 @@ export interface SystemSecurityUpdateArgs {
    * The number of password generations to keep in history for checks against password reuse for local user accounts. The value of None means that history checks for password reuse are not performed.
    */
   password_history_length?: number | null;
-}
-/**
- * Used by: truecommand.config (event)
- */
-export interface TruecommandConfigChangedEvent {
-  fields: TruecommandConfigChangedEventFields;
-}
-/**
- * Used by: truecommand.config (event)
- */
-export interface TruecommandConfigChangedEventFields {
-  /**
-   * Unique identifier for the TrueCommand configuration.
-   */
-  id: number;
-  status: StatusInput2;
-  /**
-   * Explanation of the current TrueCommand connection status.
-   */
-  status_reason:
-    | "Truecommand service is connected."
-    | "Pending Confirmation From iX Portal for Truecommand API Key."
-    | "Truecommand service is disabled."
-    | "Truecommand API Key Disabled by iX Portal."
-    | "Waiting for connection from Truecommand."
-    | "Truecommand service is disabled on standby controller";
-  /**
-   * URL of the connected TrueCommand instance. `null` if not connected.
-   */
-  remote_url: string | null;
-  /**
-   * IP address of the connected TrueCommand instance. `null` if not connected.
-   */
-  remote_ip_address: string | null;
-  /**
-   * Whether TrueCommand integration is enabled.
-   */
-  enabled: boolean;
 }
 /**
  * Used by: user.create (response), user.update (response)
@@ -691,54 +460,4 @@ export interface UserRenew2FaSecretResult {
   roles: string[];
   api_keys: number[];
   twofactor_config: UserTwofactorConfigEntry;
-}
-/**
- * Used by: zfs.tier.rewrite_job_query (event)
- */
-export interface ZfsTierRewriteJobQueryEventSourceEvent {
-  fields: ZfsTierRewriteJobEntry;
-}
-/**
- * Used by: zfs.tier.rewrite_job_query (event)
- */
-export interface ZfsTierRewriteJobQueryEventSourceEvent2 {
-  fields: ZfsTierRewriteJobQueryEventSourceEvent;
-}
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
-export interface ZfsTierRewriteJobStatusEntry {
-  /**
-   * Rewrite job identifier in `dataset_name@job_uuid` format.
-   */
-  tier_job_id: string;
-  /**
-   * ZFS dataset this job is operating on.
-   */
-  dataset_name: string;
-  /**
-   * Unique identifier for this rewrite job.
-   */
-  job_uuid: string;
-  status: StatusInput;
-  /**
-   * Progress statistics, or `null` if no statistics have been recorded yet.
-   */
-  stats: ZfsTierRewriteJobStats | null;
-  /**
-   * Error message describing why the job entered `ERROR` state, otherwise `null`.
-   */
-  error: string | null;
-}
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
-export interface ZfsTierRewriteJobStatusEventSourceEvent {
-  fields: ZfsTierRewriteJobStatusEntry;
-}
-/**
- * Used by: zfs.tier.rewrite_job_status (event)
- */
-export interface ZfsTierRewriteJobStatusEventSourceEvent2 {
-  fields: ZfsTierRewriteJobStatusEventSourceEvent;
 }
