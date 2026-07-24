@@ -16,13 +16,46 @@ import { concat, from, map, switchMap, toArray } from 'rxjs';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
-import { ClientSupportedVersion } from '@/types/api-surface.type';
+import type { ContainerEntry } from '@/generated/v26_0_0';
+import {
+  ApiCallResponseFor,
+  ClientSupportedVersion,
+} from '@/types/api-surface.type';
 import { AppState } from '@/types/app-query.type';
-import { Container, ContainerQueryV26 } from '@/types/container.type';
+import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
 
 /** The supported v26.x.y versions this client can be speaking. */
 export type V26ApiVersion = Extract<ClientSupportedVersion, `v26.${string}`>;
+
+/** What `container.query` may return, per the generated directory. */
+type ContainerQueryResponse = ApiCallResponseFor<
+  V26ApiVersion,
+  'container.query'
+>;
+
+/**
+ * Narrows a `container.query` response to full entries.
+ *
+ * The generated signature admits a count (`number`), a single entry, and
+ * `select`-projected rows (`Record<string, unknown>`) as well as a list — the
+ * shape depends on the query options. `containerQuery` passes filters only,
+ * so entries are what comes back; this asserts that at the boundary instead
+ * of assuming it, so an unexpected shape fails loudly here rather than as
+ * `containers.map is not a function` or silently-undefined fields.
+ */
+function toContainerEntries(
+  response: ContainerQueryResponse
+): ContainerEntry[] {
+  if (!Array.isArray(response)) {
+    throw new Error(
+      `container.query returned ${typeof response}, expected a list of entries`
+    );
+  }
+  // Projected rows only occur when `select`/`get` is passed, which this call
+  // site does not do.
+  return response as ContainerEntry[];
+}
 
 /**
  * API client for TrueNAS API v26
@@ -82,11 +115,7 @@ export class TrueNasApiClientV26<
       containerQuery: () =>
         this.familyApi
           .call(TrueNasEndpoint.ContainerQuery, [[]])
-          .pipe(
-            map(containers =>
-              (containers as ContainerQueryV26[]).map(this.toContainer)
-            )
-          ),
+          .pipe(map(response => toContainerEntries(response).map(this.toContainer))),
 
       // container.start is synchronous in v26.0.0 - emit null
       containerStart: (id: string) =>
@@ -138,17 +167,21 @@ export class TrueNasApiClientV26<
   }
 
   /**
-   * Transform v26 ContainerQueryV26 to unified Container type
+   * Transform a generated v26 `ContainerEntry` to the unified Container type.
+   *
+   * `autostart` is optional in the generated entry, so it is defaulted rather
+   * than passed through — the unified type declares it required, and letting
+   * `undefined` through would make a container read as "not autostart" while
+   * typed `boolean`.
+   *
+   * cpu, memory, image and description are not part of v26 `container.query`.
    */
-  private toContainer(container: ContainerQueryV26): Container {
+  private toContainer(container: ContainerEntry): Container {
     return {
       id: container.id.toString(),
       name: container.name,
       status: TrueNasApiClientV26.mapStatus(container.status.state),
-      autostart: container.autostart,
-      description: container.description,
-      // cpu and memory are not available in v26 container.query
-      // image is not available in v26 container.query
+      autostart: container.autostart ?? false,
     };
   }
 }

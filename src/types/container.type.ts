@@ -15,7 +15,6 @@ export interface Container {
   name: string;
   status: AppState;
   autostart: boolean;
-  description?: string;
   cpu?: string;
   memory?: number;
   image?: {
@@ -47,47 +46,8 @@ export interface ContainerStopOptionsV26 {
   force_after_timeout: boolean;
 }
 
-/**
- * v26+ container.query response structure
- * Used internally for transformation to unified Container type
- */
-export interface ContainerQueryV26 {
-  id: number;
-  uuid: string;
-  name: string;
-  description: string;
-  autostart: boolean;
-  status: {
-    state: string;
-    pid: number | null;
-    domain_state: string | null;
-  };
-  cpuset: string | null;
-  dataset: string;
-  devices: ContainerDeviceV26[];
-  time: string;
-  shutdown_timeout: number;
-  init: string;
-  initdir: string | null;
-  initenv: Record<string, string>;
-  inituser: string | null;
-  initgroup: string | null;
-  idmap: {
-    type: string;
-  };
-  capabilities_policy: string;
-  capabilities_state: Record<string, unknown>;
-}
-
-export interface ContainerDeviceV26 {
-  id: number;
-  attributes: {
-    dtype: string;
-    usb?: {
-      vendor_id: string;
-      product_id: string;
-    };
-    device: string | null;
-  };
-  container: number;
-}
+// NOTE: the v26 `container.query` response and its device rows used to be
+// duplicated here as ContainerQueryV26 / ContainerDeviceV26. They are the
+// generated `ContainerEntry` / `ContainerDeviceEntry` — use those. The
+// hand-written copies had drifted: they declared a `description` field the
+// API does not return, and `autostart` as required where it is optional.

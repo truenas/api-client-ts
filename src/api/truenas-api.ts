@@ -273,8 +273,10 @@ export class TrueNasApi<
     const currentJobState$ = this.rawCall(TrueNasEndpoint.CoreGetJobs, [
       [['id', '=', jobId]],
     ]).pipe(
-      // R is caller-asserted (see doc comment); the hand-written Job bridges
-      // the generated core.get_jobs entry until the phase-4 types migration.
+      // R is caller-asserted (see doc comment). The cast to the hand-written
+      // Job is deliberate and documented on `Job` itself (DIVERGES-FROM-DUMP):
+      // the generated core.get_jobs item models dates as strings, but the wire
+      // format is `{$date: number}`. The divergence is pinned by a type test.
       map(jobs => (jobs as Job<R>[])[0]),
       filter(job => job !== undefined)
     );

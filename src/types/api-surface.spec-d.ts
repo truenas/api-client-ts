@@ -35,6 +35,7 @@ import type {
   ClientSupportedVersion,
 } from '@/types/api-surface.type';
 import type { Job } from '@/types/job.type';
+import type { TrueNasDate } from '@/types/truenas-date.type';
 
 declare const api: TrueNasApi;
 
@@ -268,6 +269,26 @@ function pinnedFromALiteral() {
 void supportsRejectsOutOfRange;
 void pinnedFromANonLiteral;
 void pinnedFromALiteral;
+
+// ── Recorded divergence: hand-written Job vs generated core.get_jobs ─────────
+// `trackJob` casts to the hand-written Job because the generated item is
+// wrong about dates (see the DIVERGES-FROM-DUMP note on `Job`). These pin the
+// divergences that justify the cast, so that if middleware's modelling
+// changes, this fails and prompts a re-review instead of the cast silently
+// absorbing a new mismatch.
+type GeneratedJob = v25_10_0.CoreGetJobsItem;
+
+// The reason the cast exists: dates are strings in the dump, `{$date}` on the
+// wire (production code reads `job.time_started.$date`).
+expectTypeOf<GeneratedJob['time_started']>().toEqualTypeOf<string | null>();
+expectTypeOf<Job['time_started']>().toEqualTypeOf<TrueNasDate>();
+
+// Fields the generated item types more loosely than the client does.
+expectTypeOf<GeneratedJob['state']>().toEqualTypeOf<string>();
+expectTypeOf<GeneratedJob['arguments']>().toEqualTypeOf<unknown[]>();
+
+// The generated item has no `description`; the client's Job does.
+expectTypeOf<GeneratedJob>().not.toExtend<{ description: unknown }>();
 
 void insideAnInstanceofBranch;
 void afterAnInstanceofBranch;

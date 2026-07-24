@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 import { AppState } from '@/types/app-query.type';
 import { ApiVersion } from '@/types/api-version.type';
-import { ContainerQueryV26 } from '@/types/container.type';
+import type { ContainerEntry } from '@/generated/v26_0_0';
 import { Job, JobState } from '@/types/job.type';
 import { TrueNasApiClientV26 } from './truenas-api-client-v26';
 
@@ -33,10 +33,9 @@ describe('TrueNasApiClientV26', () => {
     const container = {
       id: 5,
       name: 'c1',
-      description: 'my container',
       autostart: true,
       status: { state: 'RUNNING' },
-    } as unknown as ContainerQueryV26;
+    } as unknown as ContainerEntry;
     const callSpy = vi
       .spyOn(client.api, 'call')
       .mockReturnValue(of([container]) as never);
@@ -50,9 +49,35 @@ describe('TrueNasApiClientV26', () => {
         name: 'c1',
         status: AppState.Running,
         autostart: true,
-        description: 'my container',
       },
     ]);
+  });
+
+  // `autostart` is optional in the generated entry; the unified Container
+  // declares it required, so an absent value must default rather than pass
+  // `undefined` through under a `boolean` type.
+  it('containerQuery defaults autostart when the entry omits it', async () => {
+    const container = {
+      id: 6,
+      name: 'c2',
+      status: { state: 'STOPPED' },
+    } as unknown as ContainerEntry;
+    vi.spyOn(client.api, 'call').mockReturnValue(of([container]) as never);
+
+    const [mapped] = await firstValueFrom(client.ops.containerQuery());
+
+    expect(mapped.autostart).toBe(false);
+  });
+
+  // container.query can also return a count or projected rows depending on
+  // query options; an unexpected shape must fail loudly at the boundary
+  // rather than as `containers.map is not a function`.
+  it('containerQuery rejects a non-list container.query response', async () => {
+    vi.spyOn(client.api, 'call').mockReturnValue(of(3) as never);
+
+    await expect(
+      firstValueFrom(client.ops.containerQuery())
+    ).rejects.toThrow(/expected a list of entries/);
   });
 
   it('containerStart calls container.start (numeric id) synchronously and emits null', async () => {

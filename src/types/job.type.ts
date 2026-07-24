@@ -1,5 +1,27 @@
 import { TrueNasDate } from '@/types/truenas-date.type';
 
+/**
+ * A middleware job.
+ *
+ * DIVERGES-FROM-DUMP: this is deliberately NOT the generated
+ * `CoreGetJobsItem`, and `TrueNasApi.trackJob` casts to it. The generated
+ * shape is wrong about dates — it models `time_started`/`time_finished` as
+ * `string | null`, but the wire format is TrueNAS's `{$date: number}`
+ * envelope, which production code reads directly (the Connect UI does
+ * `job.time_started.$date` when sorting, and `new Date(job.time_finished.$date)`
+ * when formatting). Adopting the generated shape would break that.
+ *
+ * Other recorded divergences: the generated item has no `description`, types
+ * `state` as `string` rather than the JobState enum, `arguments` as
+ * `unknown[]`, `message_ids` as a required `unknown[]`, and models progress as
+ * `{percent: number | null; extra: unknown}` with no `description`.
+ *
+ * The divergences are pinned by a type test in `api-surface.spec-d.ts` so
+ * they cannot grow silently: if middleware's modelling changes, that test
+ * fails and this comment gets re-reviewed rather than the cast quietly
+ * absorbing something new. See [[dump-api-retroactive-removal]] for the other
+ * known dump-fidelity gaps.
+ */
 export interface Job<R = unknown> {
   id: number;
   method: string;
