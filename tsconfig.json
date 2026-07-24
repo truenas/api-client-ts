@@ -26,5 +26,9 @@
     "rootDir": "."
   },
   "include": ["src"],
-  "exclude": ["dist", "node_modules", "**/*.spec.ts"]
+  // `*.spec-d.ts` are type tests, checked by tsconfig.spec.json. Without them
+  // excluded here they also compile into the library program — which drags
+  // vitest's declarations into a graph that has `declaration: true`, and
+  // quadruples this config's type count for no benefit.
+  "exclude": ["dist", "node_modules", "**/*.spec.ts", "**/*.spec-d.ts"]
 }

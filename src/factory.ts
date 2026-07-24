@@ -9,11 +9,19 @@ import {
   V26ApiVersion,
 } from '@/client/truenas-api-client-v26';
 import { apiVersionConfig } from '@/config/api-version.config';
-import { VersionDiscoveryNetworkError } from '@/errors/version-discovery.errors';
+import {
+  VersionDiscoveryNetworkError,
+  VersionTooNewError,
+  VersionTooOldError,
+} from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import { ClientSupportedVersion } from '@/types/api-surface.type';
-import { ApiVersion } from '@/types/api-version.type';
-import { legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
+import { ApiVersion, VersionCompatibility } from '@/types/api-version.type';
+import {
+  checkVersionCompatibility,
+  legacyCutoffYear,
+  parseApiVersion,
+} from '@/utils/api-version.utils';
 import { VersionDiscovery } from '@/version-discovery';
 
 /**
@@ -133,6 +141,12 @@ export async function createTrueNasClient(
   }
 
   // Explicit version: the caller already knows what it is talking to.
+  //
+  // This skips the `/api/versions` round trip by design, but NOT the range
+  // check — a pin outside the supported range must fail the same way, and
+  // with the same typed error, as a server that reported it. `version` is
+  // typed to the supported range, so this catches JavaScript callers and
+  // values that were cast or read from config.
   if (opts.version) {
     const pinned = parseApiVersion(opts.version);
     if (!pinned) {
@@ -140,6 +154,19 @@ export async function createTrueNasClient(
         `Cannot create client for system ${uuid}: invalid version ${opts.version}`
       );
     }
+
+    const compatibility = checkVersionCompatibility(pinned);
+    if (compatibility !== VersionCompatibility.Compatible) {
+      logger.error('Pinned API version is outside the supported range', {
+        uuid: uuid.slice(0, 8),
+        version: opts.version,
+        compatibility,
+      });
+      throw compatibility === VersionCompatibility.TooOld
+        ? new VersionTooOldError(hostnames[0], [opts.version])
+        : new VersionTooNewError(hostnames[0], [opts.version]);
+    }
+
     logger.info('Creating API client for explicitly pinned version', {
       uuid: uuid.slice(0, 8),
       version: opts.version,

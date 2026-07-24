@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
-import { VersionTooOldError } from '@/errors/version-discovery.errors';
+import {
+  VersionTooNewError,
+  VersionTooOldError,
+} from '@/errors/version-discovery.errors';
+import { ClientSupportedVersion } from '@/types/api-surface.type';
 import { AnyTrueNasApiClient, createTrueNasClient } from './factory';
 
 function fakeResponse(body: unknown, status = 200): Response {
@@ -14,7 +18,10 @@ function fakeResponse(body: unknown, status = 200): Response {
 
 describe('createTrueNasClient', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
-  const created: AnyTrueNasApiClient[] = [];
+  // Typed by what cleanup actually needs: version-pinned clients are
+  // deliberately not assignable to the range-typed AnyTrueNasApiClient, so a
+  // heterogeneous list of them has no common client type.
+  const created: { close: () => void }[] = [];
 
   beforeEach(() => {
     fetchMock = vi.fn();
@@ -80,5 +87,75 @@ describe('createTrueNasClient', () => {
     await expect(
       createTrueNasClient({ uuid: 'u', hostnames: [], enabled: false })
     ).rejects.toThrow(/hostnames array is empty/);
+  });
+
+  describe('pinned version', () => {
+    it('skips discovery and selects the client for the pinned version', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234',
+        hostnames: ['box'],
+        enabled: false,
+        version: 'v26.0.0',
+      });
+      created.push(client);
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(client).toBeInstanceOf(TrueNasApiClientV26);
+      expect(client.version.version).toBe('v26.0.0');
+      // The socket path is pinned to the negotiated version, which is what
+      // makes supports() answer about the wire protocol rather than a guess.
+      expect(client.version.websocketPath).toBe('/api/v26.0.0');
+    });
+
+    it('pins the exact patch, not just the family', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234',
+        hostnames: ['box'],
+        enabled: false,
+        version: 'v25.10.2',
+      });
+      created.push(client);
+
+      expect(client).toBeInstanceOf(TrueNasApiClientV2510);
+      expect(client.version.version).toBe('v25.10.2');
+      expect(client.supports('v25.10.2')).toBe(true);
+      expect(client.supports('v25.10.5')).toBe(false);
+    });
+
+    // A pin bypasses `/api/versions`, but must not bypass the range check:
+    // an out-of-range pin fails the same way a server reporting it would.
+    it('rejects a pinned version below the supported range', async () => {
+      await expect(
+        createTrueNasClient({
+          uuid: 'u',
+          hostnames: ['box'],
+          enabled: false,
+          version: 'v25.04.0' as ClientSupportedVersion,
+        })
+      ).rejects.toBeInstanceOf(VersionTooOldError);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('rejects a pinned version above the supported range', async () => {
+      await expect(
+        createTrueNasClient({
+          uuid: 'u',
+          hostnames: ['box'],
+          enabled: false,
+          version: 'v27.0.0' as ClientSupportedVersion,
+        })
+      ).rejects.toBeInstanceOf(VersionTooNewError);
+    });
+
+    it('rejects an unparseable pinned version', async () => {
+      await expect(
+        createTrueNasClient({
+          uuid: 'u',
+          hostnames: ['box'],
+          enabled: false,
+          version: 'not-a-version' as ClientSupportedVersion,
+        })
+      ).rejects.toThrow(/invalid version/);
+    });
   });
 });
