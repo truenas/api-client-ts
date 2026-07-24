@@ -56,22 +56,28 @@ export class TrueNasApiClientV26 extends TrueNasApiClient {
    * - Sync operations emit null once
    */
   protected createOperations(): OperationMappings {
+    // container.* was introduced in v26, so it is outside the
+    // version-agnostic surface `call`/`callAndGetJobId` admit.
+    // TODO(phase-3): type against this client's pinned v26 directory
+    // instead of the unsafe escape hatches.
     return {
       containerQuery: () =>
         this.api
-          .call(TrueNasEndpoint.ContainerQuery, [[]])
+          .callUnsafe<ContainerQueryV26[]>(TrueNasEndpoint.ContainerQuery, [
+            [],
+          ])
           .pipe(map(containers => containers.map(this.toContainer))),
 
       // container.start is synchronous in v26.0.0 - emit null
       containerStart: (id: string) =>
         this.api
-          .call(TrueNasEndpoint.ContainerStart, [parseInt(id, 10)])
+          .callUnsafe(TrueNasEndpoint.ContainerStart, [parseInt(id, 10)])
           .pipe(map(() => null)),
 
       // container.stop emits job updates
       containerStop: (id, options) =>
         this.api
-          .callAndGetJobId(TrueNasEndpoint.ContainerStop, [
+          .callAndGetJobIdUnsafe(TrueNasEndpoint.ContainerStop, [
             parseInt(id, 10),
             {
               force: options.force,
@@ -85,7 +91,7 @@ export class TrueNasApiClientV26 extends TrueNasApiClient {
       containerRestart: (id, options) => {
         const numericId = parseInt(id, 10);
         return this.api
-          .callAndGetJobId(TrueNasEndpoint.ContainerStop, [
+          .callAndGetJobIdUnsafe(TrueNasEndpoint.ContainerStop, [
             numericId,
             {
               force: options.force,
@@ -102,7 +108,7 @@ export class TrueNasApiClientV26 extends TrueNasApiClient {
               concat(
                 from(jobUpdates),
                 this.api
-                  .call(TrueNasEndpoint.ContainerStart, [numericId])
+                  .callUnsafe(TrueNasEndpoint.ContainerStart, [numericId])
                   .pipe(map(() => null))
               )
             )

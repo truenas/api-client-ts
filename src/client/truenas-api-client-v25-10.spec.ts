@@ -45,7 +45,7 @@ describe('TrueNasApiClientV2510', () => {
       image: { description: 'debian' },
     };
     const callSpy = vi
-      .spyOn(client.api, 'call')
+      .spyOn(client.api, 'callUnsafe')
       .mockReturnValue(of([instance]) as never);
 
     const result = await firstValueFrom(client.ops.containerQuery());
@@ -69,7 +69,7 @@ describe('TrueNasApiClientV2510', () => {
   it('containerStart calls virt.instance.start and tracks the job', async () => {
     const job = { id: 42, state: JobState.Success } as Job;
     const callJobSpy = vi
-      .spyOn(client.api, 'callAndGetJobId')
+      .spyOn(client.api, 'callAndGetJobIdUnsafe')
       .mockReturnValue(of(42) as never);
     const trackSpy = vi
       .spyOn(client.api, 'trackJob')
@@ -89,7 +89,7 @@ describe('TrueNasApiClientV2510', () => {
     const job = { id: 7, state: JobState.Success } as Job;
     const options = { force: true };
     const callJobSpy = vi
-      .spyOn(client.api, 'callAndGetJobId')
+      .spyOn(client.api, 'callAndGetJobIdUnsafe')
       .mockReturnValue(of(7) as never);
     vi.spyOn(client.api, 'trackJob').mockReturnValue(of(job) as never);
 
@@ -108,7 +108,7 @@ describe('TrueNasApiClientV2510', () => {
     const job = { id: 8, state: JobState.Success } as Job;
     const options = { force: false };
     const callJobSpy = vi
-      .spyOn(client.api, 'callAndGetJobId')
+      .spyOn(client.api, 'callAndGetJobIdUnsafe')
       .mockReturnValue(of(8) as never);
     vi.spyOn(client.api, 'trackJob').mockReturnValue(of(job) as never);
 

@@ -15,7 +15,9 @@ import {
   ApiCallMethod,
   ApiCallParams,
   ApiCallResponse,
-} from '@/types/api-call-directory.type';
+  ApiJobMethod,
+  ApiJobParams,
+} from '@/types/api-surface.type';
 import { getApiErrorMessage } from '@/types/api-error.type';
 import { Job, JobState } from '@/types/job.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
@@ -68,6 +70,26 @@ export class TrueNasApi {
     method: M,
     params?: ApiCallParams<M>
   ): Observable<ApiCallResponse<M>> {
+    return this.rawCall(method, params) as Observable<ApiCallResponse<M>>;
+  }
+
+  /**
+   * Escape hatch: call a method outside the version-agnostic surface.
+   *
+   * `call` only admits methods that exist with a compatible signature on every
+   * API version in the supported range. Methods that don't (version-specific
+   * APIs like `container.*` or `virt.instance.*`) must go through here, with
+   * the caller vouching for the response type — there is no compile-time
+   * checking of `method`, `params`, or `R`.
+   */
+  callUnsafe<R = unknown>(
+    method: string,
+    params?: unknown[]
+  ): Observable<R> {
+    return this.rawCall(method, params) as Observable<R>;
+  }
+
+  private rawCall(method: string, params?: unknown): Observable<unknown> {
     const message = createJsonRpcMessage(method, params);
 
     this.connection.ws.next(message);
@@ -84,7 +106,7 @@ export class TrueNasApi {
           const errorMessage = getApiErrorMessage(msg.error, 'API call failed');
           throw new Error(errorMessage);
         }
-        return msg.result as ApiCallResponse<M>;
+        return msg.result;
       }),
       take(1)
     );
@@ -101,9 +123,27 @@ export class TrueNasApi {
    * @param params The parameters for the API call
    * @returns Observable that emits the job ID when received from websocket events
    */
-  callAndGetJobId<M extends ApiCallMethod>(
+  callAndGetJobId<M extends ApiJobMethod>(
     method: M,
-    params?: ApiCallParams<M>
+    params?: ApiJobParams<M>
+  ): Observable<number> {
+    return this.rawCallAndGetJobId(method, params);
+  }
+
+  /**
+   * Escape hatch twin of {@link callAndGetJobId} — see {@link callUnsafe} for
+   * when this is appropriate.
+   */
+  callAndGetJobIdUnsafe(
+    method: string,
+    params?: unknown[]
+  ): Observable<number> {
+    return this.rawCallAndGetJobId(method, params);
+  }
+
+  private rawCallAndGetJobId(
+    method: string,
+    params?: unknown
   ): Observable<number> {
     const message = createJsonRpcMessage(method, params);
 
@@ -166,10 +206,12 @@ export class TrueNasApi {
     ];
 
     // First, get the current job state
-    const currentJobState$ = this.call('core.get_jobs' as ApiCallMethod, [
+    const currentJobState$ = this.call('core.get_jobs', [
       [['id', '=', jobId]],
     ]).pipe(
-      map(jobs => (jobs as Job[])[0]),
+      // TODO(phase-2): type job tracking end-to-end via the generated job
+      // directory instead of the hand-written Job type.
+      map(jobs => (jobs as unknown as Job[])[0]),
       filter(job => job !== undefined)
     );
 

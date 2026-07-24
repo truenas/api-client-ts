@@ -2,7 +2,6 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
-import { ApiCallDirectory } from '@/types/api-call-directory.type';
 import { Job, JobState } from '@/types/job.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import alerts from 'test-data/alerts.json';
@@ -52,7 +51,7 @@ describe('TrueNasApi', () => {
       } as unknown as TrueNasMessage;
 
       api
-        .call(mockMethod as keyof ApiCallDirectory, mockParams)
+        .call(mockMethod, mockParams)
         .subscribe(response => {
           try {
             expect(response).toEqual(mockResponse.result);
@@ -90,7 +89,7 @@ describe('TrueNasApi', () => {
         },
       } as unknown as TrueNasMessage;
 
-      api.call(mockMethod as keyof ApiCallDirectory).subscribe({
+      api.call(mockMethod).subscribe({
         next: () => reject(new Error('Should have thrown an error')),
         error: (error: Error) => {
           try {
@@ -226,7 +225,8 @@ describe('TrueNasApi', () => {
       const requestId = `mock-id-${method}`; // from the createJsonRpcMessage mock
 
       api
-        .callAndGetJobId(method as keyof ApiCallDirectory)
+        // virt.instance.* is v25.10-only, so it is outside the typed surface.
+        .callAndGetJobIdUnsafe(method)
         .subscribe({
           next: jobId => {
             try {

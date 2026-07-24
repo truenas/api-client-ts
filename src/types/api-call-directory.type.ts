@@ -297,8 +297,7 @@ export interface ApiCallDirectory {
 
 export type ApiQueryFilter = [string, string, string | number | boolean];
 
-export type ApiCallMethod = keyof ApiCallDirectory;
-export type ApiCallParams<T extends ApiCallMethod> =
-  ApiCallDirectory[T]['params'];
-export type ApiCallResponse<T extends ApiCallMethod> =
-  ApiCallDirectory[T]['response'];
+// NOTE: ApiCallMethod/ApiCallParams/ApiCallResponse now live in
+// api-surface.type.ts, derived from the generated per-version directories.
+// This hand-written directory remains only as a reference for the ops layer
+// and is slated for removal (phase-4 of the types integration).

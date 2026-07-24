@@ -46,12 +46,20 @@ export type { Logger } from '@/logger';
 // ── Method names + version-agnostic operations ───────────────────────────────
 export { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 export type { OperationMappings } from '@/types/operation-mappings.interface';
+// The version-agnostic API surface, derived from the generated per-version
+// directories and the supported range: methods present on every supported
+// version, with params an intersection and responses a union across the range.
 export type {
-  ApiCallDirectory,
   ApiCallMethod,
   ApiCallParams,
   ApiCallResponse,
-} from '@/types/api-call-directory.type';
+  ApiJobMethod,
+  ApiJobParams,
+  ApiJobResponse,
+  ClientSupportedVersion,
+} from '@/types/api-surface.type';
+/** @deprecated Superseded by the generated directories; removed in phase-4. */
+export type { ApiCallDirectory } from '@/types/api-call-directory.type';
 
 // ── Core types ───────────────────────────────────────────────────────────────
 export { VersionCompatibility } from '@/types/api-version.type';

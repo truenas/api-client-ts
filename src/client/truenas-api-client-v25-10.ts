@@ -43,27 +43,35 @@ export class TrueNasApiClientV2510 extends TrueNasApiClient {
    * All operations emit Job updates until the operation completes.
    */
   protected createOperations(): OperationMappings {
+    // virt.instance.* was removed in v26, so it is outside the
+    // version-agnostic surface `call`/`callAndGetJobId` admit.
+    // TODO(phase-3): type against this client's pinned v25.10 directory
+    // instead of the unsafe escape hatches.
     return {
       containerQuery: () =>
         this.api
-          .call(TrueNasEndpoint.VirtualInstanceQuery, [
-            [['type', '=', VirtualInstanceType.Container]],
-          ])
+          .callUnsafe<VirtualInstanceQuery[]>(
+            TrueNasEndpoint.VirtualInstanceQuery,
+            [[['type', '=', VirtualInstanceType.Container]]]
+          )
           .pipe(map(instances => instances.map(this.toContainer))),
 
       containerStart: (id: string) =>
         this.api
-          .callAndGetJobId(TrueNasEndpoint.VirtualInstanceStart, [id])
+          .callAndGetJobIdUnsafe(TrueNasEndpoint.VirtualInstanceStart, [id])
           .pipe(switchMap(jobId => this.api.trackJob(jobId))),
 
       containerStop: (id, options) =>
         this.api
-          .callAndGetJobId(TrueNasEndpoint.VirtualInstanceStop, [id, options])
+          .callAndGetJobIdUnsafe(TrueNasEndpoint.VirtualInstanceStop, [
+            id,
+            options,
+          ])
           .pipe(switchMap(jobId => this.api.trackJob(jobId))),
 
       containerRestart: (id, options) =>
         this.api
-          .callAndGetJobId(TrueNasEndpoint.VirtualInstanceRestart, [
+          .callAndGetJobIdUnsafe(TrueNasEndpoint.VirtualInstanceRestart, [
             id,
             options,
           ])
