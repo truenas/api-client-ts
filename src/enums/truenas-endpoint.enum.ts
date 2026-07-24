@@ -1,3 +1,18 @@
+/**
+ * Named constants for frequently-used method names.
+ *
+ * This is a **convenience subset, not the API surface** — it predates the
+ * generated types, where the full surface (~1000 methods) lives. Any method
+ * name may be passed to `call`/`job`/`events` as a plain string literal and is
+ * checked just as strictly; these members exist only so call sites can be
+ * written with a name rather than a string.
+ *
+ * They stay compatible because TypeScript string-enum members are assignable
+ * to their literal values, which is what the generated directories are keyed
+ * by. Members are NOT guaranteed to be in the version-agnostic surface: a
+ * method that is version-specific (or, like `virt.instance.*`, missing from
+ * the dump) will be rejected by `call` and needs narrowing or an escape hatch.
+ */
 export enum TrueNasEndpoint {
   UpdateStatus = 'update.status',
   AppQuery = 'app.query',

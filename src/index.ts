@@ -82,8 +82,6 @@ export type {
   ApiJobResponseFor,
   CollectionUpdateMessageFor,
 } from '@/types/api-surface.type';
-/** @deprecated Superseded by the generated directories; removed in phase-4. */
-export type { ApiCallDirectory } from '@/types/api-call-directory.type';
 
 // ── Core types ───────────────────────────────────────────────────────────────
 export { VersionCompatibility } from '@/types/api-version.type';
