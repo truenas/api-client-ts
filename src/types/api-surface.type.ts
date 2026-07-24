@@ -29,6 +29,7 @@ import {
   ApiDirectoryByVersion,
   SUPPORTED_API_VERSIONS,
 } from '@/generated';
+import { TrueNasMessage } from '@/types/truenas-message.type';
 
 type VersionList = typeof SUPPORTED_API_VERSIONS;
 type MinVersion = typeof apiVersionConfig.MIN_SUPPORTED_VERSION;
@@ -104,3 +105,49 @@ export type ApiJobParams<M extends ApiJobMethod> = UnionToIntersection<
 /** Final job result for job `method` as any supported version may produce it. */
 export type ApiJobResponse<M extends ApiJobMethod> =
   SupportedJobDirectories[M]['response'];
+
+/** Union of every in-range version's event directory. */
+type SupportedEventDirectories = {
+  [V in ClientSupportedVersion]: ApiDirectoryByVersion[V]['event'];
+}[ClientSupportedVersion];
+
+/** Events (`core.subscribe` collections) present on every supported version. */
+export type ApiEventName = keyof SupportedEventDirectories & string;
+
+/**
+ * Notification kinds for `event` that actually carry a `fields` payload.
+ *
+ * `removed` notifications usually carry only `{ id }`; `TrueNasApi.events`
+ * filters payload-less notifications out at runtime, so they are excluded
+ * from the emitted type too.
+ */
+type EventKindsWithFields<E extends ApiEventName> = {
+  [K in keyof SupportedEventDirectories[E]]: SupportedEventDirectories[E][K] extends {
+    fields: unknown;
+  }
+    ? K
+    : never;
+}[keyof SupportedEventDirectories[E]];
+
+/**
+ * One `collection_update` notification payload for `event`, as any supported
+ * version may emit it — a discriminated union over the notification kind
+ * (`msg: 'added' | 'changed' | …`), each carrying its own typed `fields`.
+ */
+export type ApiEventUpdate<E extends ApiEventName> = {
+  [K in EventKindsWithFields<E>]: {
+    msg: K;
+    collection: E;
+  } & SupportedEventDirectories[E][K];
+}[EventKindsWithFields<E>];
+
+/**
+ * The JSON-RPC notification envelope `TrueNasApi.events` emits for `event`:
+ * a `collection_update` message whose params are the typed
+ * {@link ApiEventUpdate} payload.
+ */
+export interface CollectionUpdateMessage<E extends ApiEventName>
+  extends TrueNasMessage {
+  method: 'collection_update';
+  params: ApiEventUpdate<E>;
+}

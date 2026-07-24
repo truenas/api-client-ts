@@ -1,6 +1,6 @@
 import { TrueNasDate } from '@/types/truenas-date.type';
 
-export interface Job {
+export interface Job<R = unknown> {
   id: number;
   method: string;
   arguments: string[];
@@ -13,6 +13,12 @@ export interface Job {
   time_started: TrueNasDate;
   time_finished: TrueNasDate | null;
   state: JobState;
+  /**
+   * The job's final result — `null` until the job reaches a terminal
+   * success state. Typed end-to-end (from the generated job directory)
+   * when the job is started via `TrueNasApi.job()`.
+   */
+  result?: R | null;
   /**
    * Array of JSON-RPC request IDs that triggered this job.
    * Used in v26+ to correlate API calls with their jobs.

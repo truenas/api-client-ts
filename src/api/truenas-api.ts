@@ -15,9 +15,13 @@ import {
   ApiCallMethod,
   ApiCallParams,
   ApiCallResponse,
+  ApiEventName,
   ApiJobMethod,
   ApiJobParams,
+  ApiJobResponse,
+  CollectionUpdateMessage,
 } from '@/types/api-surface.type';
+import { TrueNasMessage } from '@/types/truenas-message.type';
 import { getApiErrorMessage } from '@/types/api-error.type';
 import { Job, JobState } from '@/types/job.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
@@ -160,7 +164,31 @@ export class TrueNasApi {
     );
   }
 
-  events(eventName: string) {
+  /**
+   * Subscribe to a collection's `collection_update` notifications, typed from
+   * the generated event directory.
+   *
+   * Note: notifications without a `fields` payload (typically `removed`) are
+   * filtered out at runtime, so the emitted type only includes the kinds that
+   * carry one.
+   */
+  events<E extends ApiEventName>(
+    eventName: E
+  ): Observable<CollectionUpdateMessage<E>> {
+    // The filter below guarantees the collection_update shape at runtime.
+    return this.rawEvents(eventName) as Observable<CollectionUpdateMessage<E>>;
+  }
+
+  /**
+   * Escape hatch twin of {@link events} for collections outside the
+   * version-agnostic surface — see {@link callUnsafe} for when this is
+   * appropriate.
+   */
+  eventsUnsafe(eventName: string): Observable<TrueNasMessage> {
+    return this.rawEvents(eventName);
+  }
+
+  private rawEvents(eventName: string): Observable<TrueNasMessage> {
     this.authenticated.pipe(filter(Boolean), take(1)).subscribe(() => {
       const message = createJsonRpcMessage('core.subscribe', [eventName]);
       this.connection.ws.next(message);
@@ -196,7 +224,27 @@ export class TrueNasApi {
     ]);
   }
 
-  trackJob(jobId: number): Observable<Job> {
+  /**
+   * Start a long-running job and stream its lifecycle to completion, with
+   * `result` typed from the generated job directory. This is the typed
+   * composition of {@link callAndGetJobId} + {@link trackJob}.
+   */
+  job<M extends ApiJobMethod>(
+    method: M,
+    params?: ApiJobParams<M>
+  ): Observable<Job<ApiJobResponse<M>>> {
+    return this.callAndGetJobId(method, params).pipe(
+      switchMap(jobId => this.trackJob<ApiJobResponse<M>>(jobId))
+    );
+  }
+
+  /**
+   * Track a job by id until it reaches a terminal state.
+   *
+   * `R` types the job's `result` and is asserted by the caller — a bare job
+   * id carries no method information, so prefer {@link job}, which infers it.
+   */
+  trackJob<R = unknown>(jobId: number): Observable<Job<R>> {
     const completedStates = [
       JobState.Success,
       JobState.Failed,
@@ -209,9 +257,9 @@ export class TrueNasApi {
     const currentJobState$ = this.call('core.get_jobs', [
       [['id', '=', jobId]],
     ]).pipe(
-      // TODO(phase-2): type job tracking end-to-end via the generated job
-      // directory instead of the hand-written Job type.
-      map(jobs => (jobs as unknown as Job[])[0]),
+      // R is caller-asserted (see doc comment); the hand-written Job bridges
+      // the generated core.get_jobs entry until the phase-4 types migration.
+      map(jobs => (jobs as unknown as Job<R>[])[0]),
       filter(job => job !== undefined)
     );
 
@@ -219,7 +267,7 @@ export class TrueNasApi {
     const jobUpdates$ = this.jobEvents.pipe(
       filter(job => job.id === jobId),
       takeWhile(job => !completedStates.includes(job.state), true) // Include the final state
-    );
+    ) as unknown as Observable<Job<R>>;
 
     // Start with current state, then merge with updates
     // This ensures we don't miss already-completed jobs

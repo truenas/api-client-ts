@@ -53,10 +53,13 @@ export type {
   ApiCallMethod,
   ApiCallParams,
   ApiCallResponse,
+  ApiEventName,
+  ApiEventUpdate,
   ApiJobMethod,
   ApiJobParams,
   ApiJobResponse,
   ClientSupportedVersion,
+  CollectionUpdateMessage,
 } from '@/types/api-surface.type';
 /** @deprecated Superseded by the generated directories; removed in phase-4. */
 export type { ApiCallDirectory } from '@/types/api-call-directory.type';

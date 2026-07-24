@@ -15,9 +15,13 @@ import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 import type { v25_10_0, v26_0_0 } from '@/generated';
 import type {
   ApiCallMethod,
+  ApiEventName,
+  ApiEventUpdate,
   ApiJobMethod,
+  ApiJobResponse,
   ClientSupportedVersion,
 } from '@/types/api-surface.type';
+import type { Job } from '@/types/job.type';
 
 declare const api: TrueNasApi;
 
@@ -88,3 +92,38 @@ api.callAndGetJobId(TrueNasEndpoint.AppUpgrade, ['my-app']);
 
 // Job-kind enum members are correctly rejected by call():
 expectTypeOf<TrueNasEndpoint.AppStart>().not.toExtend<ApiCallMethod>();
+
+// ── Typed job results (phase 2) ──────────────────────────────────────────────
+// job() composes callAndGetJobId + trackJob and types the job's result from
+// the generated job directory.
+expectTypeOf(api.job('boot.scrub')).toEqualTypeOf<Observable<Job<null>>>();
+
+// A job whose result shape changed within the supported range yields the
+// honest union of both versions' shapes.
+expectTypeOf<ApiJobResponse<'pool.create'>>().toEqualTypeOf<
+  v25_10_0.PoolEntry | v26_0_0.PoolEntry
+>();
+
+// trackJob's result type is caller-asserted (a bare job id has no method
+// info); the default stays unknown.
+expectTypeOf(api.trackJob(42)).toEqualTypeOf<Observable<Job<unknown>>>();
+
+// @ts-expect-error pool.create requires a data argument
+api.job('pool.create', []);
+
+// ── Typed events (phase 2) ───────────────────────────────────────────────────
+expectTypeOf<'alert.list'>().toExtend<ApiEventName>();
+expectTypeOf<'core.get_jobs'>().toExtend<ApiEventName>();
+
+// @ts-expect-error unknown event name
+api.events('alert.lst');
+
+// Payloads are a discriminated union over the notification kind, and
+// payload-less kinds (`removed` — filtered out at runtime) are excluded.
+declare const alertEvent: ApiEventUpdate<'alert.list'>;
+expectTypeOf(alertEvent.msg).toEqualTypeOf<'added' | 'changed'>();
+if (alertEvent.msg === 'changed') {
+  expectTypeOf(alertEvent.fields).toEqualTypeOf<
+    v25_10_0.Alert | v26_0_0.Alert
+  >();
+}
