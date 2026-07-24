@@ -22,6 +22,11 @@ const authErrResponse = {
   response_type: 'AUTH_ERR',
 } satisfies AuthResponse;
 
+/** v26+ refusal. The pre-generated-types enum had no equivalent. */
+const deniedResponse = {
+  response_type: 'DENIED',
+} satisfies AuthResponse;
+
 describe('TrueNasAuthenticator', () => {
   let authenticator: TrueNasAuthenticator;
   let messages$: Subject<TrueNasMessage>;
@@ -75,6 +80,35 @@ describe('TrueNasAuthenticator', () => {
       });
 
       respondWith(successResponse([UserRole.FullAdmin]));
+    }));
+
+  // `attributes` is the opaque dict the dump does not describe, so a server
+  // may omit it (e.g. a directory-services account). Login must still
+  // succeed, falling back to the default session lifetime.
+  it('password login succeeds when user_info omits attributes', () =>
+    new Promise<void>((resolve, reject) => {
+      authenticator.loginWithUserPass('admin', 'pw').subscribe({
+        next: () => {
+          try {
+            expect(authenticator.authenticated$.value).toBe(true);
+            expect(authenticator.sessionLifetime).toBe(
+              TrueNasAuthenticator.DefaultSessionLifetime
+            );
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      respondWith({
+        response_type: 'SUCCESS',
+        user_info: {
+          privilege: { roles: { $set: [UserRole.FullAdmin] } },
+          // no `attributes` at all
+        },
+      });
     }));
 
   it('password auth failure throws AuthError(PasswordAuthFailed)', () =>
@@ -156,6 +190,33 @@ describe('TrueNasAuthenticator', () => {
         });
 
       respondWith(authErrResponse);
+    }));
+
+  // A v26 server refuses a revoked/policy-blocked key with DENIED. Before the
+  // generated union admitted that variant it fell through as a non-failure,
+  // and the unguarded tap marked the session authenticated.
+  it('API-key DENIED throws and leaves the session unauthenticated', () =>
+    new Promise<void>((resolve, reject) => {
+      authenticator
+        .loginWithApiKey({ username: 'admin', key: 'revoked-key' })
+        .subscribe({
+          next: () =>
+            reject(new Error('DENIED must not be treated as success')),
+          error: (err: unknown) => {
+            try {
+              expect(err).toBeInstanceOf(AuthError);
+              expect((err as AuthError).code).toBe(
+                AuthErrorCode.ApiKeyAuthFailed
+              );
+              expect(authenticator.authenticated$.value).toBe(false);
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
+          },
+        });
+
+      respondWith(deniedResponse);
     }));
 
   it('logout clears authentication', () =>

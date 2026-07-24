@@ -18,24 +18,50 @@ import {
   ApiKeyCreateResult,
   AuthLoginParams,
   AuthResponse,
+  AuthResponseType,
   isAuthSuccess,
 } from '@/types/auth.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
 import { randomUUID, withId } from '@/utils/utils';
 
+/**
+ * Response kinds that mean the login was refused.
+ *
+ * `DENIED` is v26+. Moving to the generated union widened AuthResponse to
+ * admit it, and the old hand-written enum had no equivalent — so before this
+ * it fell through as a non-failure and `loginWithApiKey` reported the session
+ * authenticated for a login the server had denied.
+ *
+ * (`SCRAM_RESPONSE`, also v26+, is an intermediate handshake step rather than
+ * a failure. This client never initiates SCRAM, so it cannot arrive.)
+ */
+const authFailureResponses = ['AUTH_ERR', 'DENIED'] as const satisfies readonly AuthResponseType[];
+
 const throwOnAuthenticationFailure = (code: AuthErrorCode, message: string) =>
   switchMap((response: AuthResponse) => {
-    if (response.response_type === 'AUTH_ERR') {
+    if (
+      (authFailureResponses as readonly string[]).includes(
+        response.response_type
+      )
+    ) {
       return throwError(() => new AuthError(code, message));
     }
 
     return of(response);
   });
 
-/** Session lifetime the server reports, if it reported one. */
+/**
+ * Session lifetime the server reports, if it reported one.
+ *
+ * Every hop is optional-chained on purpose. `attributes` is declared required
+ * by the generated types, but it is the opaque `{[k: string]: unknown}` dict
+ * that `AuthUserInfoRefinements` flags as not described by the dump — a type,
+ * not a runtime guarantee. A response without it must fall back to the
+ * default lifetime, not throw and fail an otherwise successful login.
+ */
 const lifetimeOf = (response: AuthResponse): number | undefined =>
   isAuthSuccess(response)
-    ? response.user_info?.attributes.preferences?.lifetime
+    ? response.user_info?.attributes?.preferences?.lifetime
     : undefined;
 
 /**
