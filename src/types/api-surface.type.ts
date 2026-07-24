@@ -156,22 +156,33 @@ export type ApiEventNameFor<V extends ApiVersionString> = keyof EventDirectories
   string;
 
 /**
- * Notification kinds for `E` that actually carry a `fields` payload.
+ * The payload-carrying notifications of ONE version's entry for `E`.
  *
  * `removed` notifications usually carry only `{ id }`; `TrueNasApi.events`
  * filters payload-less notifications out at runtime, so they are excluded
  * from the emitted type too.
  */
-type EventKindsWithFields<
-  V extends ApiVersionString,
-  E extends ApiEventNameFor<V>,
-> = {
-  [K in keyof EventDirectories<V>[E]]: EventDirectories<V>[E][K] extends {
-    fields: unknown;
-  }
-    ? K
+type UpdatesOfEntry<Entry, E> = {
+  [K in keyof Entry]: Entry[K] extends { fields: unknown }
+    ? { msg: K; collection: E } & Entry[K]
     : never;
-}[keyof EventDirectories<V>[E]];
+}[keyof Entry];
+
+/**
+ * Distributes over the per-version entries so the result is the UNION of each
+ * version's notifications.
+ *
+ * Events are output, so they follow the same rule as responses: a client that
+ * might be speaking any version in `V` might receive any of their
+ * notifications. (Event *names* are input — you subscribe by name — so
+ * {@link ApiEventNameFor} intersects instead.) Taking the union here is also
+ * what keeps the type covariant in `V`; intersecting kinds while unioning
+ * `fields` would make it invariant, which in turn makes differently-pinned
+ * clients mutually unassignable.
+ */
+type UpdatesOf<Entry, E> = Entry extends unknown
+  ? UpdatesOfEntry<Entry, E>
+  : never;
 
 /**
  * One `collection_update` notification payload for `E`, as any version in `V`
@@ -181,12 +192,7 @@ type EventKindsWithFields<
 export type ApiEventUpdateFor<
   V extends ApiVersionString,
   E extends ApiEventNameFor<V>,
-> = {
-  [K in EventKindsWithFields<V, E>]: {
-    msg: K;
-    collection: E;
-  } & EventDirectories<V>[E][K];
-}[EventKindsWithFields<V, E>];
+> = UpdatesOf<EventDirectories<V>[E], E>;
 
 /**
  * The JSON-RPC notification envelope `TrueNasApi.events` emits for `E`: a

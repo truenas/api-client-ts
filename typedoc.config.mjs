@@ -13,9 +13,11 @@ export default {
     GitHub: 'https://github.com/truenas/api-client-ts',
   },
   validation: {
-    // ~30 types are referenced by public signatures (ApiCallDirectory etc.)
-    // but intentionally not re-exported from the barrel; re-enable if the
-    // public surface is ever widened to include them.
+    // The generated API types are reachable through the per-version
+    // namespaces (`v26_0_0.PoolEntry`) rather than re-exported flat from the
+    // barrel, so public signatures reference many types TypeDoc considers
+    // "not exported". That is intentional — a flat re-export would collide
+    // across versions.
     notExported: false,
     invalidLink: true,
     notDocumented: false,

@@ -178,10 +178,47 @@ if (discovered.supports('v26.0.0')) {
   discovered.api.call('container.query', [[]]);
 }
 
-// instanceof remains a valid (family-level) narrowing.
-if (discovered instanceof TrueNasApiClientV26) {
-  discovered.api.call('api_key.convert_raw_key', ['raw-key']);
+// Narrowing behavior is asserted against a `const` binding — the shape real
+// call sites have (`const client = await createTrueNasClient(…)`). A function
+// *parameter* behaves differently: its flow type resets to the declared type
+// at the merge, which would hide the instanceof caveat below.
+declare function makeClient(): AnyTrueNasApiClient;
+
+// instanceof is a valid (family-level) narrowing INSIDE the branch…
+function insideAnInstanceofBranch() {
+  const client = makeClient();
+  if (client instanceof TrueNasApiClientV26) {
+    client.api.call('api_key.convert_raw_key', ['raw-key']);
+  }
 }
+
+// …but it fragments the client type once the branches merge: the flow type
+// becomes a union of differently-pinned clients, and the version-generic
+// methods no longer resolve to a single call signature. Pinned clients are
+// deliberately not mutually assignable — v26 genuinely offers a different
+// surface than v25.10 — so this is inherent, not a bug to work around.
+function afterAnInstanceofBranch() {
+  const client = makeClient();
+  if (client instanceof TrueNasApiClientV26) {
+    client.api.call('container.query', [[]]);
+  }
+  // @ts-expect-error the flow type is now a union of differently-pinned clients
+  client.api.call('alert.list');
+}
+
+// supports() is the composable alternative: it leaves the client's type
+// untouched outside the guard.
+function afterASupportsGuard() {
+  const client = makeClient();
+  if (client.supports('v26.0.0')) {
+    client.api.call('api_key.convert_raw_key', ['raw-key']);
+  }
+  client.api.call('alert.list');
+}
+
+void insideAnInstanceofBranch;
+void afterAnInstanceofBranch;
+void afterASupportsGuard;
 
 // ── Auth response narrowing (phase 4b) ───────────────────────────────────────
 declare const login: AuthResponse;
