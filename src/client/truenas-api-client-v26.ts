@@ -13,11 +13,16 @@
  */
 
 import { concat, from, map, switchMap, toArray } from 'rxjs';
+import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+import { ClientSupportedVersion } from '@/types/api-surface.type';
 import { AppState } from '@/types/app-query.type';
 import { Container, ContainerQueryV26 } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
+
+/** The supported v26.x.y versions this client can be speaking. */
+export type V26ApiVersion = Extract<ClientSupportedVersion, `v26.${string}`>;
 
 /**
  * API client for TrueNAS API v26
@@ -31,7 +36,22 @@ import { OperationMappings } from '@/types/operation-mappings.interface';
  * - containerStop → container.stop (emits Job updates)
  * - containerRestart → container.stop + container.start (emits Job, then null)
  */
-export class TrueNasApiClientV26 extends TrueNasApiClient {
+export class TrueNasApiClientV26<
+  V extends V26ApiVersion = V26ApiVersion,
+> extends TrueNasApiClient<V> {
+  /**
+   * This client's API typed against the whole v26 family.
+   *
+   * Sound for any `V` this class can be instantiated with: the family-wide
+   * surface only admits what every v26 version agrees on, so its methods
+   * exist on `V`, its params are accepted by `V`, and its responses cover
+   * `V`'s. The ops below need it because `V` is still an unresolved type
+   * parameter inside the class body.
+   */
+  protected get familyApi(): TrueNasApi<V26ApiVersion> {
+    return this.api as unknown as TrueNasApi<V26ApiVersion>;
+  }
+
   /**
    * Map v26 status state string to AppState enum
    */
@@ -56,28 +76,28 @@ export class TrueNasApiClientV26 extends TrueNasApiClient {
    * - Sync operations emit null once
    */
   protected createOperations(): OperationMappings {
-    // container.* was introduced in v26, so it is outside the
-    // version-agnostic surface `call`/`callAndGetJobId` admit.
-    // TODO(phase-3): type against this client's pinned v26 directory
-    // instead of the unsafe escape hatches.
+    // container.* is v26+, so it is outside the version-agnostic surface —
+    // but this client is pinned to v26, so it is fully typed here.
     return {
       containerQuery: () =>
-        this.api
-          .callUnsafe<ContainerQueryV26[]>(TrueNasEndpoint.ContainerQuery, [
-            [],
-          ])
-          .pipe(map(containers => containers.map(this.toContainer))),
+        this.familyApi
+          .call(TrueNasEndpoint.ContainerQuery, [[]])
+          .pipe(
+            map(containers =>
+              (containers as ContainerQueryV26[]).map(this.toContainer)
+            )
+          ),
 
       // container.start is synchronous in v26.0.0 - emit null
       containerStart: (id: string) =>
-        this.api
-          .callUnsafe(TrueNasEndpoint.ContainerStart, [parseInt(id, 10)])
+        this.familyApi
+          .call(TrueNasEndpoint.ContainerStart, [parseInt(id, 10)])
           .pipe(map(() => null)),
 
       // container.stop emits job updates
       containerStop: (id, options) =>
-        this.api
-          .callAndGetJobIdUnsafe(TrueNasEndpoint.ContainerStop, [
+        this.familyApi
+          .callAndGetJobId(TrueNasEndpoint.ContainerStop, [
             parseInt(id, 10),
             {
               force: options.force,
@@ -90,8 +110,8 @@ export class TrueNasApiClientV26 extends TrueNasApiClient {
       // Emits Job updates during stop, then null when start completes
       containerRestart: (id, options) => {
         const numericId = parseInt(id, 10);
-        return this.api
-          .callAndGetJobIdUnsafe(TrueNasEndpoint.ContainerStop, [
+        return this.familyApi
+          .callAndGetJobId(TrueNasEndpoint.ContainerStop, [
             numericId,
             {
               force: options.force,
@@ -107,8 +127,8 @@ export class TrueNasApiClientV26 extends TrueNasApiClient {
             switchMap(jobUpdates =>
               concat(
                 from(jobUpdates),
-                this.api
-                  .callUnsafe(TrueNasEndpoint.ContainerStart, [numericId])
+                this.familyApi
+                  .call(TrueNasEndpoint.ContainerStart, [numericId])
                   .pipe(map(() => null))
               )
             )

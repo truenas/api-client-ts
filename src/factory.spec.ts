@@ -1,9 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { VersionTooOldError } from '@/errors/version-discovery.errors';
-import { createTrueNasClient } from './factory';
+import { AnyTrueNasApiClient, createTrueNasClient } from './factory';
 
 function fakeResponse(body: unknown, status = 200): Response {
   return {
@@ -15,7 +14,7 @@ function fakeResponse(body: unknown, status = 200): Response {
 
 describe('createTrueNasClient', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
-  const created: TrueNasApiClient[] = [];
+  const created: AnyTrueNasApiClient[] = [];
 
   beforeEach(() => {
     fetchMock = vi.fn();
@@ -30,7 +29,7 @@ describe('createTrueNasClient', () => {
   });
 
   // `enabled: false` keeps the connection gate shut, so no real socket is opened.
-  async function create(hostnames = ['box']): Promise<TrueNasApiClient> {
+  async function create(hostnames = ['box']): Promise<AnyTrueNasApiClient> {
     const client = await createTrueNasClient({
       uuid: 'uuid-1234',
       hostnames,

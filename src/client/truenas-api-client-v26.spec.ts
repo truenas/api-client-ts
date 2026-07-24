@@ -38,7 +38,7 @@ describe('TrueNasApiClientV26', () => {
       status: { state: 'RUNNING' },
     } as unknown as ContainerQueryV26;
     const callSpy = vi
-      .spyOn(client.api, 'callUnsafe')
+      .spyOn(client.api, 'call')
       .mockReturnValue(of([container]) as never);
 
     const result = await firstValueFrom(client.ops.containerQuery());
@@ -57,7 +57,7 @@ describe('TrueNasApiClientV26', () => {
 
   it('containerStart calls container.start (numeric id) synchronously and emits null', async () => {
     const callSpy = vi
-      .spyOn(client.api, 'callUnsafe')
+      .spyOn(client.api, 'call')
       .mockReturnValue(of(null) as never);
 
     const result = await firstValueFrom(client.ops.containerStart('5'));
@@ -69,7 +69,7 @@ describe('TrueNasApiClientV26', () => {
   it('containerStop calls container.stop (numeric id) and tracks the job', async () => {
     const job = { id: 9, state: JobState.Success } as Job;
     const callJobSpy = vi
-      .spyOn(client.api, 'callAndGetJobIdUnsafe')
+      .spyOn(client.api, 'callAndGetJobId')
       .mockReturnValue(of(9) as never);
     vi.spyOn(client.api, 'trackJob').mockReturnValue(of(job) as never);
 
@@ -87,11 +87,11 @@ describe('TrueNasApiClientV26', () => {
   it('containerRestart synthesizes stop -> start, emitting job updates then null', async () => {
     const job = { id: 11, state: JobState.Success } as Job;
     const callJobSpy = vi
-      .spyOn(client.api, 'callAndGetJobIdUnsafe')
+      .spyOn(client.api, 'callAndGetJobId')
       .mockReturnValue(of(11) as never);
     vi.spyOn(client.api, 'trackJob').mockReturnValue(of(job) as never);
     const callSpy = vi
-      .spyOn(client.api, 'callUnsafe')
+      .spyOn(client.api, 'call')
       .mockReturnValue(of(null) as never);
 
     const emissions = await firstValueFrom(

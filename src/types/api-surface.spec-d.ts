@@ -11,7 +11,10 @@
 import { Observable } from 'rxjs';
 import { expectTypeOf } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
+import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
+import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+import type { AnyTrueNasApiClient } from '@/factory';
 import type { v25_10_0, v26_0_0 } from '@/generated';
 import type {
   ApiCallMethod,
@@ -126,4 +129,49 @@ if (alertEvent.msg === 'changed') {
   expectTypeOf(alertEvent.fields).toEqualTypeOf<
     v25_10_0.Alert | v26_0_0.Alert
   >();
+}
+
+// ── Version-pinned clients (phase 3) ─────────────────────────────────────────
+declare const v2510: TrueNasApiClientV2510;
+declare const v26: TrueNasApiClientV26;
+
+// A v26-only method is available on the v26 client…
+v26.api.call('api_key.convert_raw_key', ['raw-key']);
+// …and rejected on the v25.10 client, which never had it.
+// @ts-expect-error api_key.convert_raw_key was introduced in v26.0.0
+v2510.api.call('api_key.convert_raw_key', ['raw-key']);
+
+// container.* likewise: v26+ only.
+v26.api.call('container.query', [[]]);
+// @ts-expect-error container.* was introduced in v26.0.0
+v2510.api.call('container.query', [[]]);
+
+// Pinning an exact patch narrows further still: the v25.10 family surface is
+// the intersection over its patches, while a pinned patch is exact.
+declare const v2510exact: TrueNasApiClientV2510<'v25.10.5'>;
+expectTypeOf(v2510exact.version.version).toEqualTypeOf<string>();
+
+// A method the whole range shares is callable on either client with no
+// narrowing — this is what keeps version-agnostic call sites working.
+v2510.api.call('alert.list');
+v26.api.call('alert.list');
+
+// ── supports() narrowing (phase 3) ───────────────────────────────────────────
+declare const discovered: AnyTrueNasApiClient;
+
+// Before narrowing, only the common surface is callable.
+discovered.api.call('alert.list');
+// @ts-expect-error v26-only until narrowed
+discovered.api.call('api_key.convert_raw_key', ['raw-key']);
+
+// supports() narrows the union to the members that satisfy the minimum, so
+// the v26-only surface becomes callable inside the guard.
+if (discovered.supports('v26.0.0')) {
+  discovered.api.call('api_key.convert_raw_key', ['raw-key']);
+  discovered.api.call('container.query', [[]]);
+}
+
+// instanceof remains a valid (family-level) narrowing.
+if (discovered instanceof TrueNasApiClientV26) {
+  discovered.api.call('api_key.convert_raw_key', ['raw-key']);
 }

@@ -15,11 +15,30 @@ import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import { Logger, noopLogger } from '@/logger';
+import {
+  ApiVersionsAtLeast,
+  ApiVersionString,
+  ClientSupportedVersion,
+} from '@/types/api-surface.type';
 import { ApiVersion } from '@/types/api-version.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
-import { getWebSocketPath } from '@/utils/api-version.utils';
+import {
+  compareVersions,
+  getWebSocketPath,
+  parseApiVersion,
+} from '@/utils/api-version.utils';
 
-export abstract class TrueNasApiClient {
+/**
+ * `V` is the set of API versions this client might be speaking; it types the
+ * whole `api` surface (see `api-surface.type.ts`). Version-specific subclasses
+ * pin it to their family, and callers who know their exact target can pin it
+ * further (`new TrueNasApiClientV2510<'v25.10.5'>(…)`). The default — the
+ * configured supported range — is the honest surface when the version is only
+ * discovered at runtime.
+ */
+export abstract class TrueNasApiClient<
+  V extends ApiVersionString = ClientSupportedVersion,
+> {
   /** API version information for this client */
   readonly version: ApiVersion;
 
@@ -29,8 +48,8 @@ export abstract class TrueNasApiClient {
   /** Authentication manager */
   readonly authenticator: TrueNasAuthenticator;
 
-  /** API call handler */
-  readonly api: TrueNasApi;
+  /** API call handler, typed to this client's API version(s). */
+  readonly api: TrueNasApi<V>;
 
   /**
    * Version-agnostic operation mappings
@@ -137,11 +156,41 @@ export abstract class TrueNasApiClient {
   }
 
   /**
+   * Narrows this client to API versions at or above `minimum`, unlocking the
+   * methods those versions guarantee.
+   *
+   * This is the blessed way to reach version-specific API surface. Prefer it
+   * over `instanceof`: client classes cover a whole family (one class for all
+   * of v25.10.x), so `instanceof` cannot distinguish patch-level differences,
+   * whereas the negotiated version this compares against is exact — it is the
+   * version pinned in the WebSocket path.
+   *
+   * ```ts
+   * if (client.supports('v26.0.0')) {
+   *   client.api.call('api_key.convert_raw_key', [rawKey]);
+   * }
+   * ```
+   *
+   * Caveat: when version discovery falls back to an assumed version (see
+   * `createTrueNasClient`), this reports on the assumption, not on what the
+   * server actually speaks.
+   */
+  supports<T extends ApiVersionString>(
+    minimum: T
+  ): this is TrueNasApiClient<Extract<V, ApiVersionsAtLeast<T>>> {
+    const min = parseApiVersion(minimum);
+    return min !== null && compareVersions(this.version, min) >= 0;
+  }
+
+  /**
    * Factory method to create the API handler.
    * Override in subclasses to provide version-specific API implementations.
    */
-  protected createApi(): TrueNasApi {
-    return new TrueNasApi(this.authenticator.authenticated$, this.connection);
+  protected createApi(): TrueNasApi<V> {
+    return new TrueNasApi<V>(
+      this.authenticator.authenticated$,
+      this.connection
+    );
   }
 
   /**

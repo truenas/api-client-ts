@@ -1,13 +1,43 @@
 import { firstValueFrom } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
-import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
-import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
+import {
+  TrueNasApiClientV2510,
+  V2510ApiVersion,
+} from '@/client/truenas-api-client-v25-10';
+import {
+  TrueNasApiClientV26,
+  V26ApiVersion,
+} from '@/client/truenas-api-client-v26';
 import { apiVersionConfig } from '@/config/api-version.config';
 import { VersionDiscoveryNetworkError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
+import { ClientSupportedVersion } from '@/types/api-surface.type';
 import { ApiVersion } from '@/types/api-version.type';
 import { legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
 import { VersionDiscovery } from '@/version-discovery';
+
+/**
+ * The client type produced when the API version is discovered at runtime.
+ *
+ * It is typed at the version-agnostic surface — everything the supported
+ * range agrees on — because the concrete implementation is not known until
+ * discovery completes. Version-specific surface is reached by narrowing with
+ * `client.supports('vX.Y.Z')` (preferred) or `instanceof`.
+ *
+ * Deliberately NOT a union of the concrete client classes: a union of
+ * classes has no single callable `call` signature, so even shared methods
+ * would require narrowing first — which would break every version-agnostic
+ * call site for no safety gain.
+ */
+export type AnyTrueNasApiClient = TrueNasApiClient<ClientSupportedVersion>;
+
+/** The client implementation that serves API version `V`. */
+export type ClientForVersion<V extends ClientSupportedVersion> =
+  V extends V2510ApiVersion
+    ? TrueNasApiClientV2510<V>
+    : V extends V26ApiVersion
+      ? TrueNasApiClientV26<V>
+      : never;
 
 /** Options for {@link createTrueNasClient}. */
 export interface CreateClientOptions {
@@ -28,7 +58,30 @@ export interface CreateClientOptions {
    * through the client, to the connection.
    */
   logger?: Logger;
+  /**
+   * Skip version discovery and connect as this exact API version.
+   *
+   * For callers that already know what they are talking to — an on-appliance
+   * UI shipped alongside its middleware, or a tool pinned to one system.
+   * Passing a literal (`version: 'v26.0.0'`) types the returned client to
+   * that version exactly, so its whole API surface is available with no
+   * narrowing.
+   *
+   * Omit it for fleet/multi-system callers: discovery then negotiates per
+   * system and the return type is {@link AnyTrueNasApiClient}.
+   */
+  version?: ClientSupportedVersion;
 }
+
+/**
+ * Creates a client pinned to a known API version, skipping discovery.
+ *
+ * The literal `version` selects the client implementation *and* types its
+ * whole API surface to that exact version — no narrowing needed.
+ */
+export async function createTrueNasClient<V extends ClientSupportedVersion>(
+  opts: CreateClientOptions & { version: V }
+): Promise<ClientForVersion<V>>;
 
 /**
  * Creates a version-specific TrueNAS API client.
@@ -47,7 +100,11 @@ export interface CreateClientOptions {
  */
 export async function createTrueNasClient(
   opts: CreateClientOptions
-): Promise<TrueNasApiClient> {
+): Promise<AnyTrueNasApiClient>;
+
+export async function createTrueNasClient(
+  opts: CreateClientOptions
+): Promise<AnyTrueNasApiClient> {
   const { uuid, hostnames, systemName } = opts;
   const logger = opts.logger ?? noopLogger;
 
@@ -55,6 +112,22 @@ export async function createTrueNasClient(
     throw new Error(
       `Cannot create client for system ${uuid}: hostnames array is empty`
     );
+  }
+
+  // Explicit version: the caller already knows what it is talking to.
+  if (opts.version) {
+    const pinned = parseApiVersion(opts.version);
+    if (!pinned) {
+      throw new Error(
+        `Cannot create client for system ${uuid}: invalid version ${opts.version}`
+      );
+    }
+    logger.info('Creating API client for explicitly pinned version', {
+      uuid: uuid.slice(0, 8),
+      version: opts.version,
+      systemName,
+    });
+    return instantiateClientForVersion(pinned, opts, logger);
   }
 
   const primaryHostname = hostnames[0];
@@ -135,11 +208,17 @@ export async function createTrueNasClient(
  * Maps a discovered version to its client implementation by `year.month` (v25.x)
  * or `year` (v26+): `25.10` -> V2510, `26` -> V26.
  */
+/**
+ * Widening a version-pinned client to the version-agnostic type is sound: the
+ * agnostic surface only admits what every supported version agrees on, so
+ * every call it permits is one the pinned client accepts, and every response
+ * the pinned client returns is covered by the agnostic union.
+ */
 function instantiateClientForVersion(
   version: ApiVersion,
   opts: CreateClientOptions,
   logger: Logger
-): TrueNasApiClient {
+): AnyTrueNasApiClient {
   const { uuid, hostnames, enabled, systemName } = opts;
 
   let versionKey: string;
@@ -166,7 +245,7 @@ function instantiateClientForVersion(
         enabled,
         systemName,
         logger
-      );
+      ) as unknown as AnyTrueNasApiClient;
 
     case '26':
       logger.info('Instantiating TrueNasApiClientV26', {
@@ -181,7 +260,7 @@ function instantiateClientForVersion(
         enabled,
         systemName,
         logger
-      );
+      ) as unknown as AnyTrueNasApiClient;
 
     default:
       // Should not happen: discovery only yields compatible versions. Defensive.

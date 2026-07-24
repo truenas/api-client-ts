@@ -12,14 +12,16 @@ import {
 } from 'rxjs';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 import {
-  ApiCallMethod,
-  ApiCallParams,
-  ApiCallResponse,
-  ApiEventName,
-  ApiJobMethod,
-  ApiJobParams,
-  ApiJobResponse,
-  CollectionUpdateMessage,
+  ApiCallMethodFor,
+  ApiCallParamsFor,
+  ApiCallResponseFor,
+  ApiEventNameFor,
+  ApiJobMethodFor,
+  ApiJobParamsFor,
+  ApiJobResponseFor,
+  ApiVersionString,
+  ClientSupportedVersion,
+  CollectionUpdateMessageFor,
 } from '@/types/api-surface.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { getApiErrorMessage } from '@/types/api-error.type';
@@ -46,8 +48,17 @@ interface CollectionUpdateParams {
  * - JSON-RPC 2.0 response parsing (result/error)
  * - Event subscriptions
  * - Job tracking
+ *
+ * `V` is the set of API versions this handler might be speaking, and types
+ * its whole surface accordingly (see `api-surface.type.ts`). A version-pinned
+ * client supplies a single version and gets that version's exact API; the
+ * default is the full supported range, i.e. only what every supported version
+ * agrees on — the correct surface when the negotiated version is known only
+ * at runtime.
  */
-export class TrueNasApi {
+export class TrueNasApi<
+  V extends ApiVersionString = ClientSupportedVersion,
+> {
   /**
    * Stream of job events from websocket.
    * JSON-RPC 2.0 events have structure: { method: 'collection_update', params: { collection, fields, ... } }
@@ -70,11 +81,11 @@ export class TrueNasApi {
     this.initializeJobEventsSubscription();
   }
 
-  call<M extends ApiCallMethod>(
+  call<M extends ApiCallMethodFor<V>>(
     method: M,
-    params?: ApiCallParams<M>
-  ): Observable<ApiCallResponse<M>> {
-    return this.rawCall(method, params) as Observable<ApiCallResponse<M>>;
+    params?: ApiCallParamsFor<V, M>
+  ): Observable<ApiCallResponseFor<V, M>> {
+    return this.rawCall(method, params) as Observable<ApiCallResponseFor<V, M>>;
   }
 
   /**
@@ -127,9 +138,9 @@ export class TrueNasApi {
    * @param params The parameters for the API call
    * @returns Observable that emits the job ID when received from websocket events
    */
-  callAndGetJobId<M extends ApiJobMethod>(
+  callAndGetJobId<M extends ApiJobMethodFor<V>>(
     method: M,
-    params?: ApiJobParams<M>
+    params?: ApiJobParamsFor<V, M>
   ): Observable<number> {
     return this.rawCallAndGetJobId(method, params);
   }
@@ -172,11 +183,13 @@ export class TrueNasApi {
    * filtered out at runtime, so the emitted type only includes the kinds that
    * carry one.
    */
-  events<E extends ApiEventName>(
+  events<E extends ApiEventNameFor<V>>(
     eventName: E
-  ): Observable<CollectionUpdateMessage<E>> {
+  ): Observable<CollectionUpdateMessageFor<V, E>> {
     // The filter below guarantees the collection_update shape at runtime.
-    return this.rawEvents(eventName) as Observable<CollectionUpdateMessage<E>>;
+    return this.rawEvents(eventName) as Observable<
+      CollectionUpdateMessageFor<V, E>
+    >;
   }
 
   /**
@@ -216,12 +229,14 @@ export class TrueNasApi {
     matchOrigin = false,
     singleUse = true
   ): Observable<string> {
-    return this.call(TrueNasEndpoint.GenerateToken, [
+    // Protocol-level plumbing: present on every API version, but not provably
+    // so for an unresolved `V`, so it goes through the raw path.
+    return this.rawCall(TrueNasEndpoint.GenerateToken, [
       ttl,
       {},
       matchOrigin,
       singleUse,
-    ]);
+    ]) as Observable<string>;
   }
 
   /**
@@ -229,12 +244,12 @@ export class TrueNasApi {
    * `result` typed from the generated job directory. This is the typed
    * composition of {@link callAndGetJobId} + {@link trackJob}.
    */
-  job<M extends ApiJobMethod>(
+  job<M extends ApiJobMethodFor<V>>(
     method: M,
-    params?: ApiJobParams<M>
-  ): Observable<Job<ApiJobResponse<M>>> {
+    params?: ApiJobParamsFor<V, M>
+  ): Observable<Job<ApiJobResponseFor<V, M>>> {
     return this.callAndGetJobId(method, params).pipe(
-      switchMap(jobId => this.trackJob<ApiJobResponse<M>>(jobId))
+      switchMap(jobId => this.trackJob<ApiJobResponseFor<V, M>>(jobId))
     );
   }
 
@@ -253,13 +268,14 @@ export class TrueNasApi {
       JobState.Finished,
     ];
 
-    // First, get the current job state
-    const currentJobState$ = this.call('core.get_jobs', [
+    // First, get the current job state. Protocol-level plumbing — see
+    // generateToken for why this uses the raw path.
+    const currentJobState$ = this.rawCall(TrueNasEndpoint.CoreGetJobs, [
       [['id', '=', jobId]],
     ]).pipe(
       // R is caller-asserted (see doc comment); the hand-written Job bridges
       // the generated core.get_jobs entry until the phase-4 types migration.
-      map(jobs => (jobs as unknown as Job<R>[])[0]),
+      map(jobs => (jobs as Job<R>[])[0]),
       filter(job => job !== undefined)
     );
 

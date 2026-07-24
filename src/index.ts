@@ -9,7 +9,11 @@
 
 // ── Factory (primary entry point) ────────────────────────────────────────────
 export { createTrueNasClient } from '@/factory';
-export type { CreateClientOptions } from '@/factory';
+export type {
+  AnyTrueNasApiClient,
+  ClientForVersion,
+  CreateClientOptions,
+} from '@/factory';
 
 // ── Generated API types (from `middlewared --dump-api --keep-refs`) ──────────
 // Version namespaces (v25_10_5, v26_0_0, v27_0_0, …), version-suffixed
@@ -20,7 +24,9 @@ export * from '@/generated';
 // ── Clients ──────────────────────────────────────────────────────────────────
 export { TrueNasApiClient } from '@/client/truenas-api-client';
 export { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
+export type { V2510ApiVersion } from '@/client/truenas-api-client-v25-10';
 export { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
+export type { V26ApiVersion } from '@/client/truenas-api-client-v26';
 
 // ── Version discovery (advanced) ─────────────────────────────────────────────
 export { VersionDiscovery } from '@/version-discovery';
@@ -58,8 +64,23 @@ export type {
   ApiJobMethod,
   ApiJobParams,
   ApiJobResponse,
+  ApiVersionString,
+  ApiVersionsAtLeast,
   ClientSupportedVersion,
   CollectionUpdateMessage,
+} from '@/types/api-surface.type';
+// Version-parameterized forms of the above, for typing code against a
+// specific API version (or set of them) rather than the supported range.
+export type {
+  ApiCallMethodFor,
+  ApiCallParamsFor,
+  ApiCallResponseFor,
+  ApiEventNameFor,
+  ApiEventUpdateFor,
+  ApiJobMethodFor,
+  ApiJobParamsFor,
+  ApiJobResponseFor,
+  CollectionUpdateMessageFor,
 } from '@/types/api-surface.type';
 /** @deprecated Superseded by the generated directories; removed in phase-4. */
 export type { ApiCallDirectory } from '@/types/api-call-directory.type';

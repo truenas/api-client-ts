@@ -62,6 +62,43 @@ describe('TrueNasApiClient', () => {
     expect(client.ops.containerQuery).toBeDefined();
   });
 
+  describe('supports()', () => {
+    // The client under test negotiated v26.0.0 (see `version` above).
+    it('is true at and below the negotiated version', () => {
+      const client = make();
+      expect(client.supports('v26.0.0')).toBe(true);
+      expect(client.supports('v25.10.5')).toBe(true);
+      expect(client.supports('v25.04.0')).toBe(true);
+    });
+
+    it('is false above the negotiated version', () => {
+      const client = make();
+      expect(client.supports('v27.0.0')).toBe(false);
+    });
+
+    it('compares the exact negotiated version, not the client family', () => {
+      // A v25.10.2 server: patches below it are supported, later ones are not,
+      // even though all of v25.10.x shares one client implementation.
+      const client = new TestClient(
+        'uuid-2',
+        ['h1.local'],
+        {
+          version: 'v25.10.2',
+          year: 25,
+          minor: 10,
+          patch: 2,
+          websocketPath: '/api/v25.10.2',
+        },
+        false
+      );
+      clients.push(client);
+      expect(client.supports('v25.10.2')).toBe(true);
+      expect(client.supports('v25.10.1')).toBe(true);
+      expect(client.supports('v25.10.5')).toBe(false);
+      expect(client.supports('v26.0.0')).toBe(false);
+    });
+  });
+
   it('does not expose a data cache', () => {
     const client = make();
     expect((client as unknown as { data?: unknown }).data).toBeUndefined();
