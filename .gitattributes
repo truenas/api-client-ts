@@ -1,0 +1,5 @@
+# Generated API types (scripts/generate-api-interface) — collapse in diffs.
+src/generated/** linguist-generated=true
+
+# Vitest golden snapshots — committed expected output, collapsed in diffs.
+**/__snapshots__/** linguist-generated=true

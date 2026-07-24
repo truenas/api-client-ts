@@ -11,6 +11,12 @@
 export { createTrueNasClient } from '@/factory';
 export type { CreateClientOptions } from '@/factory';
 
+// ── Generated API types (from `middlewared --dump-api --keep-refs`) ──────────
+// Version namespaces (v25_10_5, v26_0_0, v27_0_0, …), version-suffixed
+// directory aliases (ApiCallDirectoryV27_0_0, ApiDirectoryV27_0_0, …), and the
+// query grammar re-exported per version. Regenerate with `yarn generate:api`.
+export * from '@/generated';
+
 // ── Clients ──────────────────────────────────────────────────────────────────
 export { TrueNasApiClient } from '@/client/truenas-api-client';
 export { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';

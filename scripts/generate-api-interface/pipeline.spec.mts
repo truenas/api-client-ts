@@ -1,0 +1,144 @@
+import { readFile } from 'node:fs/promises';
+import { describe, expect, it } from 'vitest';
+import { generateFromDump } from './lib/pipeline.mts';
+import type { ApiDumpFile } from './lib/types.mts';
+
+const loadFixture = async (): Promise<ApiDumpFile> => JSON.parse(
+  await readFile(new URL('./fixtures/mini-dump.json', import.meta.url), 'utf8'),
+) as ApiDumpFile;
+
+const generate = async () => generateFromDump(await loadFixture(), { apiVersions: ['v1.0.0', 'v2.0.0'] });
+
+describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
+  it('matches the golden snapshot', async () => {
+    const files = await generate();
+    expect(Object.fromEntries([...files.entries()].sort())).toMatchSnapshot();
+  });
+
+  it('is deterministic', async () => {
+    expect(await generate()).toEqual(await generate());
+  });
+
+  it('declares changed types per version and inherits unchanged ones', async () => {
+    const files = await generate();
+    const v1 = files.get('v1_0_0/api-types.ts') ?? '';
+    const v2 = files.get('v2_0_0/api-types.ts') ?? '';
+    // TestEntry gained a field in v2: declared in both versions.
+    expect(v1).toMatch(/^export interface TestEntry /m);
+    expect(v2).toMatch(/^export interface TestEntry /m);
+    expect(v2).toContain('extra_flag');
+    // TestCreate is unchanged: declared at the root, re-exported by v2.
+    expect(v1).toMatch(/^export interface TestCreate /m);
+    expect(v2).not.toMatch(/^export interface TestCreate /m);
+    expect(files.get('v2_0_0/index.ts')).toMatch(/^ {2}TestCreate,$/m);
+  });
+
+  it('re-declares transitively affected types (event model referencing TestEntry)', async () => {
+    const files = await generate();
+    expect(files.get('v1_0_0/api-types.ts')).toMatch(/^export interface TestChangedAddedEvent /m);
+    expect(files.get('v2_0_0/api-types.ts')).toMatch(/^export interface TestChangedAddedEvent /m);
+  });
+
+  it('splits mode-diverging models into Name and NameInput', async () => {
+    const v1 = (await generate()).get('v1_0_0/api-types.ts') ?? '';
+    expect(v1).toMatch(/^export interface Widget /m);
+    expect(v1).toMatch(/^export interface WidgetInput /m);
+    expect(v1).toContain('computed'); // serialization render keeps the bare name
+  });
+
+  it('hoists inline titled enums and normalizes leading-lowercase names', async () => {
+    const v1 = (await generate()).get('v1_0_0/api-types.ts') ?? '';
+    expect(v1).toMatch(/^export const TagChoice = \{/m);
+    expect(v1).toMatch(/^export const KindEnum = \{/m);
+    expect(v1).toMatch(/^export interface ISCSIThing /m); // iSCSIThing normalized
+  });
+
+  it('types query methods with the grammar generics and prunes the options model', async () => {
+    const files = await generate();
+    for (const dir of ['v1_0_0', 'v2_0_0']) {
+      const calls = files.get(`${dir}/api-call-directory.ts`) ?? '';
+      expect(calls).toContain('filters?: QueryFilters<TestEntry>');
+      expect(calls).toContain('options?: QueryOptions<TestEntry>');
+    }
+    for (const [, content] of files) {
+      expect(content).not.toContain('QueryOptionsModel'); // orphaned and pruned
+    }
+  });
+
+  it('chains directories: versions declare only added/changed entries', async () => {
+    const files = await generate();
+    const v1 = files.get('v1_0_0/api-call-directory.ts') ?? '';
+    const v2 = files.get('v2_0_0/api-call-directory.ts') ?? '';
+    // Root declares everything.
+    expect(v1).toContain("'iscsi.fetch':");
+    expect(v1).toContain("'test.create':");
+    // iscsi.fetch is unchanged in v2 -> inherited through the Omit chain, not re-declared.
+    expect(v2).not.toContain("'iscsi.fetch':");
+    // test.create's text is identical, but TestEntry was re-declared in v2 -> in the delta.
+    expect(v2).toContain("'test.create':");
+    expect(v2).toContain('export interface ApiCallDirectoryDelta {');
+    expect(v2).toContain('export type ApiCallDirectory = Omit<PreviousApiCallDirectory, keyof ApiCallDirectoryDelta>');
+    // test.remove is new in v2.
+    expect(v2).toContain("'test.remove':");
+    // Jobs are unchanged in v2 -> pure alias of the previous version.
+    expect(files.get('v2_0_0/api-job-directory.ts')).toContain('export type ApiJobDirectory = PreviousApiJobDirectory;');
+  });
+
+  it('emits bases as a Pick from the chain root, without entry duplication', async () => {
+    const files = await generate();
+    const base = files.get('shared/api-call-directory-base.ts') ?? '';
+    expect(base).toContain('Pick<');
+    expect(base).toContain("| 'iscsi.fetch'"); // identical everywhere, stable refs
+    expect(base).not.toContain("| 'test.create'"); // references TestEntry, which diverges
+    expect(base).not.toContain("'iscsi.fetch':"); // no materialized entries in the base
+    expect(files.get('shared/api-job-directory-base.ts')).toContain("| 'test.run'");
+  });
+
+
+  it('gates method-named events on the method existing in that version', async () => {
+    // Middleware's dump emits the same event set for every version; the
+    // test.remove event source must only appear where the method does (v2).
+    const files = await generate();
+    expect(files.get('v2_0_0/api-event-directory.ts')).toContain("'test.remove':");
+    expect(files.get('v1_0_0/api-event-directory.ts')).not.toContain("'test.remove':");
+    // Non-method-named events stay everywhere.
+    expect(files.get('v1_0_0/api-event-directory.ts')).toContain("'test.changed':");
+  });
+
+  it('emits a greppable manifest recording each entry\'s history with change reasons', async () => {
+    const manifest = (await generate()).get('MANIFEST.md') ?? '';
+    expect(manifest).toContain('| iscsi.fetch | call | introduced v1.0.0 |');
+    // Entry text unchanged; re-declared because TestEntry changed in v2.
+    expect(manifest).toContain('| test.create | call | introduced v1.0.0; changed v2.0.0 (via referenced types) |');
+    expect(manifest).toContain('| test.remove | call | introduced v2.0.0 |');
+    expect(manifest).toContain('| test.run | job | introduced v1.0.0 |');
+    expect(manifest).toContain('| test.remove | event | introduced v2.0.0 |');
+    // Types section: structural change unlabeled; ref-driven change labeled.
+    expect(manifest).toContain('| TestEntry | type | introduced v1.0.0; changed v2.0.0 |');
+    expect(manifest).toContain('| TestChangedAddedEvent | type | introduced v1.0.0; changed v2.0.0 (via referenced types) |');
+    expect(manifest).toContain('| TestCreate | type | introduced v1.0.0 |');
+  });
+
+  it('emits the version registry in the root index', async () => {
+    const root = (await generate()).get('index.ts') ?? '';
+    expect(root).toContain("'v1.0.0': ApiDirectoryV1_0_0;");
+    expect(root).toContain("'v2.0.0': ApiDirectoryV2_0_0;");
+    expect(root).toContain('export type SupportedApiVersion = keyof ApiDirectoryByVersion;');
+    expect(root).toMatch(/SUPPORTED_API_VERSIONS = \[\n {2}'v1\.0\.0',\n {2}'v2\.0\.0',\n\] as const/);
+  });
+
+  it("selects every dump version with apiVersions: ['all']", async () => {
+    const files = await generateFromDump(await loadFixture(), { apiVersions: ['all'] });
+    expect(files.has('v1_0_0/index.ts')).toBe(true);
+    expect(files.has('v2_0_0/index.ts')).toBe(true);
+  });
+
+  it('rejects non-keep-refs dumps and unknown versions', async () => {
+    const fixture = await loadFixture();
+    await expect(generateFromDump({ versions: [{
+      ...fixture.versions![0],
+      methods: [{ ...fixture.versions![0].methods[0], schemas: { properties: {} } as never }],
+    }] })).rejects.toThrow(/keep-refs/);
+    await expect(generateFromDump(fixture, { apiVersions: ['v9.9.9'] })).rejects.toThrow(/No version v9\.9\.9/);
+  });
+});

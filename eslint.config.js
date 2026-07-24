@@ -7,7 +7,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     // Node-run build scripts (not part of the published sources).
-    files: ['scripts/**/*.mjs'],
+    files: ['scripts/**/*.mjs', 'scripts/**/*.mts'],
     languageOptions: {
       globals: { process: 'readonly', console: 'readonly' },
     },
