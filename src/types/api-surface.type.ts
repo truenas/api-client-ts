@@ -47,14 +47,24 @@ type SkipTo<
     : SkipTo<R, V>
   : [];
 
-/** Prefix of `T` up to and including the first element equal to `V` (or `[]` if absent). */
+/**
+ * Prefix of `T` up to and including the first element equal to `V`, or `[]`
+ * when `V` is absent.
+ *
+ * The accumulator is load-bearing: building the prefix on the way out
+ * (`[H, ...TakeTo<R, V>]`) would return the whole remaining list when `V` is
+ * never matched, silently WIDENING the range instead of emptying it. Failing
+ * closed matters because a too-wide range quietly changes the surface rather
+ * than breaking the build.
+ */
 type TakeTo<
   T extends readonly string[],
   V extends string,
+  Acc extends string[] = [],
 > = T extends readonly [infer H extends string, ...infer R extends string[]]
   ? [H] extends [V]
-    ? [H]
-    : [H, ...TakeTo<R, V>]
+    ? [...Acc, H]
+    : TakeTo<R, V, [...Acc, H]>
   : [];
 
 /**
@@ -113,11 +123,28 @@ type EventDirectories<V extends ApiVersionString> = {
   [K in V]: ApiDirectoryByVersion[K]['event'];
 }[V];
 
+/**
+ * `never` means "no version" — which must make the surface UNCALLABLE, not
+ * unconstrained.
+ *
+ * Without this guard an empty `V` silently disables every guarantee in this
+ * module: `keyof never` widens to `string | number | symbol`, so
+ * `keyof CallDirectories<never> & string` is plain `string` and the params
+ * intersection is `unknown`, i.e. `call()` would accept any method name with
+ * any arguments. An empty `V` is reachable from a misconfigured version range
+ * and from narrowing to a version outside it, so it has to fail closed.
+ */
+type IfVersions<V extends ApiVersionString, T> = [V] extends [never]
+  ? never
+  : T;
+
 // ── Calls ────────────────────────────────────────────────────────────────────
 
 /** Methods callable on every version in `V`. */
-export type ApiCallMethodFor<V extends ApiVersionString> = keyof CallDirectories<V> &
-  string;
+export type ApiCallMethodFor<V extends ApiVersionString> = IfVersions<
+  V,
+  keyof CallDirectories<V> & string
+>;
 
 /** Params for `M` accepted by every version in `V`. */
 export type ApiCallParamsFor<
@@ -134,8 +161,10 @@ export type ApiCallResponseFor<
 // ── Jobs ─────────────────────────────────────────────────────────────────────
 
 /** Job methods (long-running, tracked via `core.get_jobs`) present on every version in `V`. */
-export type ApiJobMethodFor<V extends ApiVersionString> = keyof JobDirectories<V> &
-  string;
+export type ApiJobMethodFor<V extends ApiVersionString> = IfVersions<
+  V,
+  keyof JobDirectories<V> & string
+>;
 
 /** Params for job `M` accepted by every version in `V`. */
 export type ApiJobParamsFor<
@@ -152,8 +181,10 @@ export type ApiJobResponseFor<
 // ── Events ───────────────────────────────────────────────────────────────────
 
 /** Events (`core.subscribe` collections) present on every version in `V`. */
-export type ApiEventNameFor<V extends ApiVersionString> = keyof EventDirectories<V> &
-  string;
+export type ApiEventNameFor<V extends ApiVersionString> = IfVersions<
+  V,
+  keyof EventDirectories<V> & string
+>;
 
 /**
  * The payload-carrying notifications of ONE version's entry for `E`.

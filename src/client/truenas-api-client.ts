@@ -175,7 +175,7 @@ export abstract class TrueNasApiClient<
    * `createTrueNasClient`), this reports on the assumption, not on what the
    * server actually speaks.
    */
-  supports<T extends ApiVersionString>(
+  supports<T extends ClientSupportedVersion>(
     minimum: T
   ): this is TrueNasApiClient<Extract<V, ApiVersionsAtLeast<T>>> {
     const min = parseApiVersion(minimum);

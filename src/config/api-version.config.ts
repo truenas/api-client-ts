@@ -11,6 +11,15 @@
  *   - Example: v26.0.0 = 2026, minor 0, patch 0
  *   - Breaking changes only in yearly releases (v26.0.0, v27.0.0, etc.)
  */
+import type { SupportedApiVersion } from '@/generated';
+
+/**
+ * The `satisfies` constraint below is load-bearing, not decoration: these
+ * three strings are what `ClientSupportedVersion` (api-surface.type.ts) slices
+ * the generated version list with. A value that is not a generated version —
+ * a typo, or a release middleware shipped before types were regenerated —
+ * would silently produce an empty or over-wide range rather than an error.
+ */
 export const apiVersionConfig = {
   /**
    * Minimum supported API version.
@@ -39,4 +48,7 @@ export const apiVersionConfig = {
    * attempt connection (and fail during WebSocket handshake instead of immediately).
    */
   FALLBACK_VERSION: 'v25.10.0',
-} as const;
+} as const satisfies Record<
+  'MIN_SUPPORTED_VERSION' | 'MAX_SUPPORTED_VERSION' | 'FALLBACK_VERSION',
+  SupportedApiVersion
+>;

@@ -15,7 +15,7 @@ import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 import { UserRole } from '@/enums/user-role.enum';
-import type { AnyTrueNasApiClient } from '@/factory';
+import type { AnyTrueNasApiClient, ClientForVersion } from '@/factory';
 import { isAuthSuccess } from '@/types/auth.type';
 import type {
   AuthLoginParams,
@@ -25,9 +25,12 @@ import type {
 import type { v25_10_0, v26_0_0 } from '@/generated';
 import type {
   ApiCallMethod,
+  ApiCallMethodFor,
   ApiEventName,
+  ApiEventNameFor,
   ApiEventUpdate,
   ApiJobMethod,
+  ApiJobMethodFor,
   ApiJobResponse,
   ClientSupportedVersion,
 } from '@/types/api-surface.type';
@@ -215,6 +218,56 @@ function afterASupportsGuard() {
   }
   client.api.call('alert.list');
 }
+
+// A version outside the configured range can never be negotiated, so asking
+// about it is a compile error. Previously it was accepted and narrowed V to
+// `never`, which silently disabled ALL checking inside the guard — the exact
+// block that reaches for version-specific API.
+function supportsRejectsOutOfRange() {
+  const client = makeClient();
+  // @ts-expect-error v27.0.0 is outside the configured supported range
+  client.supports('v27.0.0');
+  // @ts-expect-error v25.04.0 is below the configured supported range
+  client.supports('v25.04.0');
+}
+
+// The `never` guard itself: an empty version set makes the surface
+// uncallable rather than unconstrained. Without it `keyof never & string`
+// widens to `string` and params to `unknown`.
+expectTypeOf<ApiCallMethodFor<never>>().toEqualTypeOf<never>();
+expectTypeOf<ApiJobMethodFor<never>>().toEqualTypeOf<never>();
+expectTypeOf<ApiEventNameFor<never>>().toEqualTypeOf<never>();
+expectTypeOf<'anything.at.all'>().not.toExtend<ApiCallMethodFor<never>>();
+
+// Every supported version must map to a client implementation. Widening the
+// range without adding a client class fails here rather than silently
+// producing an unusable client type at every call site.
+type UnmappedVersions = {
+  [V in ClientSupportedVersion]: [ClientForVersion<V>] extends [never]
+    ? V
+    : never;
+}[ClientSupportedVersion];
+expectTypeOf<UnmappedVersions>().toEqualTypeOf<never>();
+
+// Pinning from a config value (declared type = the whole union, not a
+// literal) must still yield a usable client, not a union of pinned classes
+// whose generic call signatures cannot be resolved.
+declare function makePinned<V extends ClientSupportedVersion>(
+  v: V
+): ClientForVersion<V>;
+function pinnedFromANonLiteral(configured: ClientSupportedVersion) {
+  const client = makePinned(configured);
+  client.api.call('alert.list');
+}
+function pinnedFromALiteral() {
+  const client = makePinned('v26.0.0');
+  // A literal pin keeps full v26 precision.
+  client.api.call('api_key.convert_raw_key', ['raw-key']);
+}
+
+void supportsRejectsOutOfRange;
+void pinnedFromANonLiteral;
+void pinnedFromALiteral;
 
 void insideAnInstanceofBranch;
 void afterAnInstanceofBranch;

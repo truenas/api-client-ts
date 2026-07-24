@@ -31,13 +31,31 @@ import { VersionDiscovery } from '@/version-discovery';
  */
 export type AnyTrueNasApiClient = TrueNasApiClient<ClientSupportedVersion>;
 
-/** The client implementation that serves API version `V`. */
-export type ClientForVersion<V extends ClientSupportedVersion> =
-  V extends V2510ApiVersion
-    ? TrueNasApiClientV2510<V>
-    : V extends V26ApiVersion
-      ? TrueNasApiClientV26<V>
-      : never;
+/**
+ * The client implementation that serves API version `V`.
+ *
+ * Deliberately NON-distributive (`[V] extends [X]`): a distributive form turns
+ * a union `V` into a union of differently-pinned client classes, whose generic
+ * `call`/`job`/`events` signatures cannot be resolved to one call signature —
+ * so `client.api.call(…)` would fail with "no signatures compatible". A union
+ * `V` (what a caller pinning from a config value produces, since the value's
+ * declared type is the whole union rather than a literal) therefore falls
+ * through to {@link AnyTrueNasApiClient}: the conservative surface, which is
+ * usable. A literal `V` still selects the exact class.
+ *
+ * The fallback is also `AnyTrueNasApiClient` rather than `never` for a
+ * version with no client implementation, because `never` is assignable to
+ * everything and would silently poison call sites instead of failing. That
+ * gap is caught at build time by the exhaustiveness assertion in
+ * `api-surface.spec-d.ts`.
+ */
+export type ClientForVersion<V extends ClientSupportedVersion> = [V] extends [
+  V2510ApiVersion,
+]
+  ? TrueNasApiClientV2510<V>
+  : [V] extends [V26ApiVersion]
+    ? TrueNasApiClientV26<V>
+    : AnyTrueNasApiClient;
 
 /** Options for {@link createTrueNasClient}. */
 export interface CreateClientOptions {

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
 import { TrueNasConnection } from '@/connection/truenas-connection';
+import { ClientSupportedVersion } from '@/types/api-surface.type';
 import { ApiVersion } from '@/types/api-version.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
 import { TrueNasApiClient } from './truenas-api-client';
@@ -68,12 +69,18 @@ describe('TrueNasApiClient', () => {
       const client = make();
       expect(client.supports('v26.0.0')).toBe(true);
       expect(client.supports('v25.10.5')).toBe(true);
-      expect(client.supports('v25.04.0')).toBe(true);
+      expect(client.supports('v25.10.0')).toBe(true);
     });
 
+    // `minimum` is bound to ClientSupportedVersion, so asking about a version
+    // outside the configured range is a compile error rather than a guard that
+    // narrows to `never` and silently disables type checking inside it. The
+    // runtime comparison still answers correctly for such versions — asserted
+    // here through a cast, since no in-range literal can express it.
     it('is false above the negotiated version', () => {
       const client = make();
-      expect(client.supports('v27.0.0')).toBe(false);
+      const outOfRange = 'v27.0.0' as ClientSupportedVersion;
+      expect(client.supports(outOfRange)).toBe(false);
     });
 
     it('compares the exact negotiated version, not the client family', () => {
