@@ -14,7 +14,14 @@ import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+import { UserRole } from '@/enums/user-role.enum';
 import type { AnyTrueNasApiClient } from '@/factory';
+import { isAuthSuccess } from '@/types/auth.type';
+import type {
+  AuthLoginParams,
+  AuthResponse,
+  AuthResponseType,
+} from '@/types/auth.type';
 import type { v25_10_0, v26_0_0 } from '@/generated';
 import type {
   ApiCallMethod,
@@ -175,3 +182,59 @@ if (discovered.supports('v26.0.0')) {
 if (discovered instanceof TrueNasApiClientV26) {
   discovered.api.call('api_key.convert_raw_key', ['raw-key']);
 }
+
+// ── Auth response narrowing (phase 4b) ───────────────────────────────────────
+declare const login: AuthResponse;
+
+// The discriminator covers every variant the supported range can return —
+// including SCRAM_RESPONSE and DENIED, which v26 added. Narrowing code must
+// handle them because a discovered client may be speaking v26.
+expectTypeOf<AuthResponseType>().toEqualTypeOf<
+  | 'SUCCESS'
+  | 'AUTH_ERR'
+  | 'EXPIRED'
+  | 'OTP_REQUIRED'
+  | 'REDIRECT'
+  | 'SCRAM_RESPONSE'
+  | 'DENIED'
+>();
+
+// @ts-expect-error user_info only exists on the SUCCESS variant
+void login.user_info;
+
+// @ts-expect-error urls only exists on the REDIRECT variant
+void login.urls;
+
+if (isAuthSuccess(login)) {
+  // Narrowed: user_info is available, with the opaque dicts refined.
+  expectTypeOf(login.user_info?.privilege.roles.$set).toEqualTypeOf<
+    UserRole[] | undefined
+  >();
+  expectTypeOf(
+    login.user_info?.attributes.preferences?.lifetime
+  ).toEqualTypeOf<number | undefined>();
+}
+
+if (login.response_type === 'REDIRECT') {
+  expectTypeOf(login.urls).toEqualTypeOf<string[]>();
+  // @ts-expect-error a REDIRECT response carries no user_info
+  void login.user_info;
+}
+
+// Login payloads are checked against the generated param models.
+const goodLogin = [
+  { mechanism: 'PASSWORD_PLAIN', username: 'u', password: 'p' },
+] satisfies AuthLoginParams;
+void goodLogin;
+
+// A payload missing a required field is rejected.
+expectTypeOf<
+  [{ mechanism: 'PASSWORD_PLAIN'; username: string }]
+>().not.toExtend<AuthLoginParams>();
+
+// SCRAM is v26-only, so it is not in the version-agnostic login params: the
+// intersection admits only payloads every supported version accepts.
+expectTypeOf<{
+  mechanism: 'SCRAM_SHA512';
+  username: string;
+}>().not.toExtend<AuthLoginParams[0]>();

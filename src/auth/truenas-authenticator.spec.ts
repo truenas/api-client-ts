@@ -4,13 +4,13 @@ import { TrueNasConnection } from '@/connection/truenas-connection';
 import { UserRole } from '@/enums/user-role.enum';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
 import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
-import { AuthResponse, AuthResponseType } from '@/types/auth.type';
+import { AuthResponse } from '@/types/auth.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { TrueNasAuthenticator } from './truenas-authenticator';
 
 function successResponse(roles: UserRole[], lifetime = 600): AuthResponse {
   return {
-    response_type: AuthResponseType.Success,
+    response_type: 'SUCCESS',
     user_info: {
       privilege: { roles: { $set: roles } },
       attributes: { preferences: { lifetime } },
@@ -19,8 +19,8 @@ function successResponse(roles: UserRole[], lifetime = 600): AuthResponse {
 }
 
 const authErrResponse = {
-  response_type: AuthResponseType.AuthErr,
-} as AuthResponse;
+  response_type: 'AUTH_ERR',
+} satisfies AuthResponse;
 
 describe('TrueNasAuthenticator', () => {
   let authenticator: TrueNasAuthenticator;

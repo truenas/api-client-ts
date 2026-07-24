@@ -14,19 +14,29 @@ import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 import { UserRole } from '@/enums/user-role.enum';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
 import { getApiErrorMessage } from '@/types/api-error.type';
-import { ApiKeyCreate } from '@/types/api-key-create.type';
-import { AuthResponse, AuthResponseType } from '@/types/auth.type';
+import {
+  ApiKeyCreateResult,
+  AuthLoginParams,
+  AuthResponse,
+  isAuthSuccess,
+} from '@/types/auth.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
 import { randomUUID, withId } from '@/utils/utils';
 
 const throwOnAuthenticationFailure = (code: AuthErrorCode, message: string) =>
   switchMap((response: AuthResponse) => {
-    if (response.response_type === AuthResponseType.AuthErr) {
+    if (response.response_type === 'AUTH_ERR') {
       return throwError(() => new AuthError(code, message));
     }
 
     return of(response);
   });
+
+/** Session lifetime the server reports, if it reported one. */
+const lifetimeOf = (response: AuthResponse): number | undefined =>
+  isAuthSuccess(response)
+    ? response.user_info?.attributes.preferences?.lifetime
+    : undefined;
 
 /**
  * TrueNAS authenticator using the JSON-RPC 2.0 protocol.
@@ -92,7 +102,7 @@ export class TrueNasAuthenticator {
         username,
         password,
       },
-    ]);
+    ] satisfies AuthLoginParams);
 
     this.authenticating$.next(true);
     this.connection.send(message);
@@ -117,15 +127,14 @@ export class TrueNasAuthenticator {
         'TrueNAS authentication failed. Please verify your TrueNAS user credentials and try again.'
       ),
       tap(res => {
-        if (res.response_type === AuthResponseType.Success) {
+        if (isAuthSuccess(res)) {
           if (
             res.user_info?.privilege.roles.$set.includes(UserRole.FullAdmin)
           ) {
             this.credentials.username = username;
             this.credentials.password = password;
             this.sessionLifetime =
-              res.user_info?.attributes?.preferences?.lifetime ??
-              TrueNasAuthenticator.DefaultSessionLifetime;
+              lifetimeOf(res) ?? TrueNasAuthenticator.DefaultSessionLifetime;
             this.authenticated$.next(true);
           } else {
             this.logout();
@@ -151,7 +160,7 @@ export class TrueNasAuthenticator {
         mechanism: TrueNasAuthMechanism.Otp,
         otp_token: code,
       },
-    ]);
+    ] satisfies AuthLoginParams);
 
     this.authenticating$.next(true);
     this.connection.send(message);
@@ -172,10 +181,9 @@ export class TrueNasAuthenticator {
         return msg.result as AuthResponse;
       }),
       tap(res => {
-        if (res?.response_type === AuthResponseType.Success) {
+        if (isAuthSuccess(res)) {
           this.sessionLifetime =
-            res.user_info?.attributes?.preferences?.lifetime ??
-            TrueNasAuthenticator.DefaultSessionLifetime;
+            lifetimeOf(res) ?? TrueNasAuthenticator.DefaultSessionLifetime;
           this.authenticated$.next(true);
         }
       }),
@@ -199,7 +207,7 @@ export class TrueNasAuthenticator {
         username,
         api_key: key,
       },
-    ]);
+    ] satisfies AuthLoginParams);
 
     this.authenticating$.next(true);
     this.connection.send(message);
@@ -227,8 +235,12 @@ export class TrueNasAuthenticator {
         this.credentials.username = username;
         this.credentials.key = key;
         this.sessionLifetime =
-          res.user_info?.attributes?.preferences?.lifetime ??
-          TrueNasAuthenticator.DefaultSessionLifetime;
+          lifetimeOf(res) ?? TrueNasAuthenticator.DefaultSessionLifetime;
+        // NOTE: behavior preserved from before the typed migration — this
+        // marks the session authenticated for ANY non-AUTH_ERR response,
+        // including EXPIRED and REDIRECT. The typed union made that visible
+        // (`res.user_info` no longer type-checks unnarrowed); gating this on
+        // `isAuthSuccess(res)` is a behavior change, so it is left alone here.
         this.authenticated$.next(true);
       }),
       finalize(() => {
@@ -258,7 +270,7 @@ export class TrueNasAuthenticator {
           );
           throw new Error(errorMessage);
         }
-        return msg.result as ApiKeyCreate;
+        return msg.result as ApiKeyCreateResult;
       }),
       take(1)
     );
