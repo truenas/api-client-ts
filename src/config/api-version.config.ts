@@ -17,13 +17,13 @@ export const apiVersionConfig = {
    *
    * DERIVED, not declared. The client supports exactly the versions it ships
    * types for, so the oldest generated version *is* the minimum — there is no
-   * second decision to make, and therefore nothing to keep in sync. Lowering
-   * or raising it means changing the generator's `--api-version` list in
-   * package.json and regenerating; this follows automatically.
+   * second decision to make, and therefore nothing to keep in sync.
    *
-   * Written as a literal it would be a duplicate of that list with nothing
-   * enforcing agreement, so bumping one and forgetting the other would
-   * silently reintroduce types for versions the client rejects.
+   * To move the floor, change `--min-version` in the `generate:api` script in
+   * package.json and regenerate; this follows on its own. Written as a literal
+   * it would duplicate that value with nothing enforcing agreement, so raising
+   * one and forgetting the other would silently keep generating types for
+   * versions the client rejects.
    */
   MIN_SUPPORTED_VERSION: SUPPORTED_API_VERSIONS[0],
 
