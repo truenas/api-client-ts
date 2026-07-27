@@ -11,10 +11,8 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  StaticRouteEntry,
-} from '../v25_04_0/api-types';
-import type {
   SharingSMBQueryResultItem,
+  StaticRouteEntry,
 } from '../v25_10_0/api-types';
 import type {
   SNMPEntry,

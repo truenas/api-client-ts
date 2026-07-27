@@ -4,14 +4,12 @@
  */
 
 import type {
-  TierInfo,
-} from '../v25_04_0/api-types';
-import type {
   ExternalOpt,
   ExternalOptInput,
   LegacyOpt,
   LegacyOptInput,
   SmbAuditConfig,
+  TierInfo,
 } from '../v25_10_0/api-types';
 
 export const DockerStatusInfoStatus = {
