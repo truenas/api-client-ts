@@ -509,7 +509,6 @@ export interface ApiCallDirectory {
   'acme.dns.authenticator.authenticator_schemas': {
     params: [];
     response: ACMEDNSAuthenticatorSchema[];
-    entity: ACMEDNSAuthenticatorSchema;
   };
 
   'acme.dns.authenticator.create': {
@@ -546,13 +545,11 @@ export interface ApiCallDirectory {
   'alert.list': {
     params: [];
     response: Alert[];
-    entity: Alert;
   };
 
   'alert.list_categories': {
     params: [];
     response: AlertCategory[];
-    entity: AlertCategory;
   };
 
   'alert.list_policies': {
@@ -624,7 +621,6 @@ export interface ApiCallDirectory {
   'api_key.my_keys': {
     params: [];
     response: ApiKeyEntry[];
-    entity: ApiKeyEntry;
   };
 
   'api_key.query': {
@@ -651,7 +647,6 @@ export interface ApiCallDirectory {
   'app.certificate_choices': {
     params: [];
     response: AppCertificate[];
-    entity: AppCertificate;
   };
 
   'app.config': {
@@ -761,7 +756,6 @@ export interface ApiCallDirectory {
   'app.similar': {
     params: [app_name: string, train: string];
     response: AppAvailableItem[];
-    entity: AppAvailableItem;
   };
 
   'app.upgrade_summary': {
@@ -787,7 +781,6 @@ export interface ApiCallDirectory {
   'audit.query': {
     params: [data?: AuditQuery];
     response: number | AuditQueryResultItem | AuditQueryResultItem[];
-    entity: AuditQueryResultItem;
   };
 
   'audit.update': {
@@ -1006,13 +999,11 @@ export interface ApiCallDirectory {
   'cloud_backup.list_snapshot_directory': {
     params: [id: number, snapshot_id: string, path: string];
     response: CloudBackupSnapshotItem[];
-    entity: CloudBackupSnapshotItem;
   };
 
   'cloud_backup.list_snapshots': {
     params: [id: number];
     response: CloudBackupSnapshot[];
-    entity: CloudBackupSnapshot;
   };
 
   'cloud_backup.query': {
@@ -1100,13 +1091,11 @@ export interface ApiCallDirectory {
   'cloudsync.onedrive_list_drives': {
     params: [onedrive_list_drives: CloudSyncOneDriveListDrivesArgs];
     response: CloudSyncOneDriveListDrivesDrive[];
-    entity: CloudSyncOneDriveListDrivesDrive;
   };
 
   'cloudsync.providers': {
     params: [];
     response: CloudSyncProvider[];
-    entity: CloudSyncProvider;
   };
 
   'cloudsync.query': {
@@ -1220,7 +1209,6 @@ export interface ApiCallDirectory {
   'device.get_info': {
     params: [data: DeviceGetInfoDisk | DeviceGetInfoOther];
     response: Record<string, string> | Record<string, Record<string, unknown>> | SerialInfo[] | GPUInfo[];
-    entity: SerialInfo;
   };
 
   'directoryservices.certificate_choices': {
@@ -1262,7 +1250,6 @@ export interface ApiCallDirectory {
   'disk.temperature_alerts': {
     params: [names: string[]];
     response: Alert[];
-    entity: Alert;
   };
 
   'disk.temperatures': {
@@ -1458,7 +1445,6 @@ export interface ApiCallDirectory {
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
-    entity: ACLTemplateEntry;
   };
 
   'filesystem.acltemplate.create': {
@@ -1500,7 +1486,6 @@ export interface ApiCallDirectory {
   'filesystem.listdir': {
     params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel];
     response: FilesystemDirEntry[] | FilesystemDirEntry | FilesystemDirQueryResultItem[] | FilesystemDirQueryResultItem | number;
-    entity: FilesystemDirEntry;
   };
 
   'filesystem.mkdir': {
@@ -1653,7 +1638,6 @@ export interface ApiCallDirectory {
   'interface.ip_in_use': {
     params: [options?: InterfaceIPInUseOptions];
     response: InterfaceIPInUseItem[];
-    entity: InterfaceIPInUseItem;
   };
 
   'interface.lacpdu_rate_choices': {
@@ -1690,7 +1674,6 @@ export interface ApiCallDirectory {
   'interface.services_restarted_on_sync': {
     params: [];
     response: InterfaceServicesRestartedOnSyncItem[];
-    entity: InterfaceServicesRestartedOnSyncItem;
   };
 
   'interface.update': {
@@ -1741,7 +1724,6 @@ export interface ApiCallDirectory {
   'ipmi.lan.query': {
     params: [data?: IPMILanQuery];
     response: IPMILanEntry[] | IPMILanEntry | IPMILanQueryResultItem[] | IPMILanQueryResultItem | number;
-    entity: IPMILanEntry;
   };
 
   'ipmi.lan.update': {
@@ -2098,7 +2080,6 @@ export interface ApiCallDirectory {
   'keychaincredential.used_by': {
     params: [id: number];
     response: UsedKeychainCredential[];
-    entity: UsedKeychainCredential;
   };
 
   'kmip.clear_sync_pending_keys': {
@@ -2377,13 +2358,11 @@ export interface ApiCallDirectory {
   'pool.attachments': {
     params: [id: number];
     response: PoolAttachment[];
-    entity: PoolAttachment;
   };
 
   'pool.dataset.attachments': {
     params: [id: string];
     response: PoolAttachment[];
-    entity: PoolAttachment;
   };
 
   'pool.dataset.checksum_choices': {
@@ -2435,7 +2414,6 @@ export interface ApiCallDirectory {
   'pool.dataset.processes': {
     params: [id: string];
     response: PoolProcess[];
-    entity: PoolProcess;
   };
 
   'pool.dataset.promote': {
@@ -2517,7 +2495,6 @@ export interface ApiCallDirectory {
   'pool.processes': {
     params: [id: number];
     response: PoolProcess[];
-    entity: PoolProcess;
   };
 
   'pool.query': {
@@ -2714,7 +2691,6 @@ export interface ApiCallDirectory {
   'rdma.get_card_choices': {
     params: [];
     response: RdmaCardConfig[];
-    entity: RdmaCardConfig;
   };
 
   'replication.config.config': {
@@ -2801,7 +2777,6 @@ export interface ApiCallDirectory {
   'reporting.exporters.exporter_schemas': {
     params: [];
     response: ReportingExporterSchema[];
-    entity: ReportingExporterSchema;
   };
 
   'reporting.exporters.get_instance': {
@@ -2823,25 +2798,21 @@ export interface ApiCallDirectory {
   'reporting.get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.update': {
@@ -3083,7 +3054,6 @@ export interface ApiCallDirectory {
   'support.similar_issues': {
     params: [query: string];
     response: SupportSimilarIssue[];
-    entity: SupportSimilarIssue;
   };
 
   'support.update': {
@@ -3406,7 +3376,6 @@ export interface ApiCallDirectory {
   'update.available_versions': {
     params: [];
     response: UpdateAvailableVersion[];
-    entity: UpdateAvailableVersion;
   };
 
   'update.config': {
@@ -3639,7 +3608,6 @@ export interface ApiCallDirectory {
   'vm.get_display_devices': {
     params: [id: number];
     response: DisplayDevice[];
-    entity: DisplayDevice;
   };
 
   'vm.get_display_web_uri': {
@@ -3807,6 +3775,5 @@ export interface ApiCallDirectory {
   'zfs.resource.query': {
     params: [data?: ZFSResourceQuery];
     response: ZFSResourceEntry[];
-    entity: ZFSResourceEntry;
   };
 }

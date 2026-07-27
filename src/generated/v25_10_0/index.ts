@@ -14,7 +14,7 @@ export type {
   QueryFilters,
   QueryOperator,
   QueryOptions,
-  QueryResult,
+  QueryProjection,
 } from '../shared/query-types';
 
 export * from './api-types';

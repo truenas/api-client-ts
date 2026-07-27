@@ -238,7 +238,6 @@ export interface ApiJobDirectory {
   'core.bulk': {
     params: [method: string, params: unknown[][]];
     response: CoreBulkResultItem[];
-    entity: CoreBulkResultItem;
   };
 
   'core.job_wait': {
@@ -380,7 +379,6 @@ export interface ApiJobDirectory {
   'pool.dataset.encryption_summary': {
     params: [id: string, options?: PoolDatasetEncryptionSummaryOptions];
     response: PoolDatasetEncryptionSummary[];
-    entity: PoolDatasetEncryptionSummary;
   };
 
   'pool.dataset.export_key': {
@@ -431,7 +429,6 @@ export interface ApiJobDirectory {
   'pool.import_find': {
     params: [];
     response: PoolImportFind[];
-    entity: PoolImportFind;
   };
 
   'pool.import_pool': {

@@ -33,7 +33,7 @@ import type {
  * interfaces) — middleware model names must never claim them.
  */
 const RESERVED_NAMES = new Set([
-  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions', 'QueryResult',
+  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions', 'QueryProjection',
   'ApiCallDirectory', 'ApiJobDirectory', 'ApiEventDirectory', 'ApiDirectory',
   'ApiCallDirectoryDelta', 'ApiJobDirectoryDelta', 'ApiEventDirectoryDelta',
   'ApiCallDirectoryBase', 'ApiJobDirectoryBase', 'ApiEventDirectoryBase',
@@ -390,12 +390,7 @@ function applyQueryTyping(methods: MethodModel[], definitions: Record<string, De
     // (`.get_instance(id, options)`): entity is the returned entry itself.
     const listEntity = inferEntityExpr(method.returns, definitions);
     const entity = listEntity ?? refIn(method.returns) ?? 'Record<string, unknown>';
-
-    // Only a true query method — one whose return is the polymorphic
-    // `list | single | count` union — can have its response resolved from the
-    // options argument. `get_instance(id, options)` takes QueryOptions too but
-    // returns exactly one entry, so it is deliberately not marked.
-    if (listEntity) method.queryEntity = listEntity;
+    let takesQueryOptions = false;
 
     for (let i = 0; i < method.params.length; i++) {
       const param = method.params[i];
@@ -403,8 +398,23 @@ function applyQueryTyping(methods: MethodModel[], definitions: Record<string, De
         param.schema = { tsType: `QueryFilters<${entity}>`, _refs: entityRefs(entity) };
       } else if (param.name === 'options' && isQueryOptionsDef(param.schema)) {
         param.schema = { tsType: `QueryOptions<${entity}>`, _refs: entityRefs(entity) };
+        takesQueryOptions = true;
       }
     }
+
+    // `entity` marks the methods whose response the caller cannot determine
+    // from the method name alone, so it needs BOTH halves:
+    //
+    //   - a polymorphic return (`list | single | count`), which rules out
+    //     `alert.list`, `auth.sessions`, `core.get_jobs` and ~30 others that
+    //     merely return an array and accept no options at all;
+    //   - query options actually being accepted, which rules out
+    //     `get_instance`, which takes them but always returns exactly one
+    //     entry, so there is nothing to disambiguate.
+    //
+    // Marking on the return alone conflated "returns a list of E" with "is a
+    // query", which would have offered filters to methods that take none.
+    if (listEntity && takesQueryOptions) method.queryEntity = listEntity;
   }
 }
 

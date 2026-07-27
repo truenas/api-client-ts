@@ -244,13 +244,11 @@ export interface ApiCallDirectoryDelta {
   'alert.list': {
     params: [];
     response: Alert[];
-    entity: Alert;
   };
 
   'alert.list_categories': {
     params: [options?: AlertListCategoriesOptions];
     response: AlertCategory[];
-    entity: AlertCategory;
   };
 
   'api_key.convert_raw_key': {
@@ -271,7 +269,6 @@ export interface ApiCallDirectoryDelta {
   'api_key.my_keys': {
     params: [];
     response: ApiKeyEntry[];
-    entity: ApiKeyEntry;
   };
 
   'api_key.query': {
@@ -320,7 +317,6 @@ export interface ApiCallDirectoryDelta {
   'audit.query': {
     params: [data?: AuditQuery];
     response: AuditQueryResultItem[] | AuditQueryResultItem | AuditQueryResultItemQueryResultItem[] | AuditQueryResultItemQueryResultItem | number;
-    entity: AuditQueryResultItem;
   };
 
   'auth.login_ex': {
@@ -495,7 +491,6 @@ export interface ApiCallDirectoryDelta {
   'container.image.query_registry': {
     params: [];
     response: ContainerImageQueryRegistryResultImage[];
-    entity: ContainerImageQueryRegistryResultImage;
   };
 
   'container.pool_choices': {
@@ -537,7 +532,6 @@ export interface ApiCallDirectoryDelta {
   'disk.temperature_alerts': {
     params: [names: string[]];
     response: Alert[];
-    entity: Alert;
   };
 
   'disk.unlock_sed': {
@@ -563,7 +557,6 @@ export interface ApiCallDirectoryDelta {
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
-    entity: ACLTemplateEntry;
   };
 
   'interface.available_fec_modes': {
@@ -746,25 +739,21 @@ export interface ApiCallDirectoryDelta {
   'reporting.get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'rsynctask.create': {
@@ -1077,7 +1066,6 @@ export interface ApiCallDirectoryDelta {
   'zfs.resource.query': {
     params: [data?: ZFSResourceQuery];
     response: ZFSResourceEntry[];
-    entity: ZFSResourceEntry;
   };
 
   'zfs.resource.snapshot.clone': {
@@ -1113,7 +1101,6 @@ export interface ApiCallDirectoryDelta {
   'zfs.resource.snapshot.query': {
     params: [data?: ZFSResourceSnapshotQuery];
     response: ZFSResourceSnapshotEntry[];
-    entity: ZFSResourceSnapshotEntry;
   };
 
   'zfs.resource.snapshot.release': {
@@ -1154,13 +1141,11 @@ export interface ApiCallDirectoryDelta {
   'zfs.tier.rewrite_job_failures': {
     params: [zfs_tier_rewrite_job_failures: ZfsTierRewriteJobFailuresArgs];
     response: ZfsTierRewriteJobFailureEntry[] | ZfsTierRewriteJobFailureEntry | ZfsTierRewriteJobFailureQueryResultItem[] | ZfsTierRewriteJobFailureQueryResultItem | number;
-    entity: ZfsTierRewriteJobFailureEntry;
   };
 
   'zfs.tier.rewrite_job_query': {
     params: [zfs_tier_rewrite_job_query?: ZfsTierRewriteJobQueryArgs];
     response: ZfsTierRewriteJobEntry[] | ZfsTierRewriteJobEntry | ZfsTierRewriteJobQueryResultItem[] | ZfsTierRewriteJobQueryResultItem | number;
-    entity: ZfsTierRewriteJobEntry;
   };
 
   'zfs.tier.rewrite_job_recover': {
@@ -1181,7 +1166,6 @@ export interface ApiCallDirectoryDelta {
   'zpool.query': {
     params: [data?: ZPoolQuery];
     response: ZPoolEntry[];
-    entity: ZPoolEntry;
   };
 }
 

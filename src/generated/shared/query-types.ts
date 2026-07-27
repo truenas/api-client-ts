@@ -68,71 +68,34 @@ export interface QueryOptions<T> {
 }
 
 /**
- * The shape a `select` projection returns.
+ * What a query verb returns for a given options object.
+ *
+ * `api.query` / `queryOne` / `queryCount` each fix the *shape* of the result,
+ * so the only thing left to compute is which FIELDS come back. That is decided
+ * by `select`, and unlike the shape it cannot be moved into the method name —
+ * the fields are data.
  *
  * Plain field names project to an exact `Pick`. Dotted paths select nested
  * values whose type cannot be computed from `E`, so any select containing one
- * degrades to "some subset of `E`, plus unknown extras" — still far better
- * than the dump's model, which types every projection as an opaque
- * `Record<string, unknown>`.
+ * degrades to "some subset of `E`, plus unknown extras" — still far better than
+ * the dump, which types every projection as an opaque `Record<string, unknown>`.
+ *
+ * The three cases are kept distinct on purpose:
+ *
+ *   select absent    -> `E`, every field present
+ *   select literal   -> exactly those fields
+ *   select unknown   -> `Partial<E>`, because fields MAY be missing
+ *
+ * The last one matters. Options built into a variable widen `select` to
+ * `QueryFilterField<E>[] | undefined`, and claiming `E` there would promise
+ * fields that a projection will not return.
  */
-type Projected<E, O> = O extends { select: readonly (infer S)[] }
-  ? [Extract<S, `${string}.${string}`>] extends [never]
-    ? Pick<E, Extract<S, keyof E>>
-    : Partial<E> & Record<string, unknown>
-  : E;
+type SelectOf<O> = 'select' extends keyof O ? O['select'] : undefined;
 
-/**
- * What a query method actually returns, resolved from the options passed.
- *
- * Middleware's query signature is polymorphic in `options`: `count` returns a
- * number, `get` returns one entry, otherwise a list, and `select` projects
- * whichever of those. The dump states all four outcomes as one flat `anyOf`
- * with no discriminator, so the generated response is an unusable union — this
- * recovers the correlation the schema cannot express.
- *
- * `count` is checked first because middleware evaluates it first.
- *
- * Resolution needs literal types, so it only fires when options are passed
- * inline (a `const` type parameter preserves the literals). Options built into
- * a variable widen `count: true` to `count?: boolean`, and the correlation is
- * genuinely gone.
- *
- * The critical distinction is between "provably not a count or a get" and
- * "cannot tell". Only the former may be narrowed to a list: assuming a list
- * whenever `{count: true}` fails to match would hand back `E[]` for a call that
- * returns a number at runtime, which is worse than the union this replaces —
- * the caller gets `.map is not a function` instead of a compile error. Where
- * the literals were lost, the honest answer is every shape still possible.
- */
-/**
- * The value of one option flag, or `false` when the key is absent entirely.
- *
- * Tested per key rather than by matching the whole options object against
- * `{count?: false; get?: false}`: an all-optional target is a *weak type*, and
- * TypeScript rejects sources sharing no properties with it — so `{select: [...]}`
- * and `{limit: 10}` would fail to match despite plainly setting no flags.
- *
- * `K extends keyof O` distinguishes the two cases that matter: a key that is
- * absent (definitely not set) from one that is present but widened to
- * `boolean | undefined` (unknowable).
- */
-type OptionFlag<O, K extends PropertyKey> = K extends keyof O ? O[K] : false;
-
-export type QueryResult<E, O> = [O] extends [undefined]
-  ? E[]
-  : unknown extends O
-    ? // Options omitted entirely, so `O` never got inferred.
-      E[]
-    : OptionFlag<O, 'count'> extends true
-      ? number
-      : OptionFlag<O, 'get'> extends true
-        ? Projected<E, O>
-        : [OptionFlag<O, 'count'>] extends [false | undefined]
-          ? [OptionFlag<O, 'get'>] extends [false | undefined]
-            ? // Both flags known absent or false — not assumed, established.
-              Projected<E, O>[]
-            : number | Partial<E> | Partial<E>[]
-          : // Literals lost. `Partial<E>` because a `select` may or may not
-            // have been passed, so fields may or may not be present.
-            number | Partial<E> | Partial<E>[];
+export type QueryProjection<E, O> = [SelectOf<O>] extends [undefined]
+  ? E
+  : SelectOf<O> extends readonly (infer S)[]
+    ? [Extract<S, `${string}.${string}`>] extends [never]
+      ? Pick<E, Extract<S, keyof E>>
+      : Partial<E> & Record<string, unknown>
+    : Partial<E>;

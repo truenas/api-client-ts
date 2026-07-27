@@ -146,7 +146,6 @@ export interface ApiCallDirectoryDelta {
   'alert.list': {
     params: [];
     response: Alert[];
-    entity: Alert;
   };
 
   'app.available': {
@@ -179,7 +178,6 @@ export interface ApiCallDirectoryDelta {
   'audit.query': {
     params: [data?: AuditQuery];
     response: AuditQueryResultItem[] | AuditQueryResultItem | AuditQueryResultItemQueryResultItem[] | AuditQueryResultItemQueryResultItem | number;
-    entity: AuditQueryResultItem;
   };
 
   'boot.environment.activate': {
@@ -272,7 +270,6 @@ export interface ApiCallDirectoryDelta {
   'disk.temperature_alerts': {
     params: [names: string[]];
     response: Alert[];
-    entity: Alert;
   };
 
   'docker.config': {
@@ -298,13 +295,11 @@ export interface ApiCallDirectoryDelta {
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
-    entity: ACLTemplateEntry;
   };
 
   'filesystem.listdir': {
     params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel];
     response: FilesystemDirEntry[] | FilesystemDirEntry | FilesystemDirQueryResultItem[] | FilesystemDirQueryResultItem | number;
-    entity: FilesystemDirEntry;
   };
 
   'filesystem.mkdir': {
@@ -361,13 +356,11 @@ export interface ApiCallDirectoryDelta {
   'reporting.get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.graphs': {
@@ -379,13 +372,11 @@ export interface ApiCallDirectoryDelta {
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
-    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_graphs': {
@@ -509,7 +500,6 @@ export interface ApiCallDirectoryDelta {
   'vm.get_display_devices': {
     params: [id: number];
     response: VMDisplayDeviceInfo[];
-    entity: VMDisplayDeviceInfo;
   };
 
   'vm.get_display_web_uri': {
@@ -520,7 +510,6 @@ export interface ApiCallDirectoryDelta {
   'vm.get_guest_network_interfaces': {
     params: [id: number];
     response: VMGuestNetworkInterface[];
-    entity: VMGuestNetworkInterface;
   };
 
   'vm.get_instance': {
@@ -572,13 +561,11 @@ export interface ApiCallDirectoryDelta {
   'zfs.tier.rewrite_job_failures': {
     params: [zfs_tier_rewrite_job_failures: ZfsTierRewriteJobFailuresArgs];
     response: ZfsTierRewriteJobFailureEntry[] | ZfsTierRewriteJobFailureEntry | ZfsTierRewriteJobFailureQueryResultItem[] | ZfsTierRewriteJobFailureQueryResultItem | number;
-    entity: ZfsTierRewriteJobFailureEntry;
   };
 
   'zfs.tier.rewrite_job_query': {
     params: [zfs_tier_rewrite_job_query?: ZfsTierRewriteJobQueryArgs];
     response: ZfsTierRewriteJobEntry[] | ZfsTierRewriteJobEntry | ZfsTierRewriteJobQueryResultItem[] | ZfsTierRewriteJobQueryResultItem | number;
-    entity: ZfsTierRewriteJobEntry;
   };
 }
 

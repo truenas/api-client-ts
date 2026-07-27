@@ -76,7 +76,6 @@ export interface ApiJobDirectoryDelta {
   'app.upgrade_bulk': {
     params: [apps: AppUpgradeBulkEntry[]];
     response: AppBulkUpgradeJobResult[];
-    entity: AppBulkUpgradeJobResult;
   };
 
   'audit.export': {

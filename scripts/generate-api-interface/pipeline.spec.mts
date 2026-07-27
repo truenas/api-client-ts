@@ -70,9 +70,9 @@ describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
     expect(entry('iscsi.fetch')).not.toContain('entity:');
   });
 
-  it('exports the query-result resolver in the grammar', async () => {
+  it('exports the projection resolver in the grammar', async () => {
     const q = (await generate()).get('shared/query-types.ts') ?? '';
-    expect(q).toContain('export type QueryResult<E, O>');
+    expect(q).toContain('export type QueryProjection<E, O>');
     expect(q).toContain('Pick<E, Extract<S, keyof E>>');
   });
 
