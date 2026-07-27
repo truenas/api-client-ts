@@ -88,12 +88,46 @@ type Projected<E, O> = O extends { select: readonly (infer S)[] }
  *
  * `count` is checked first because middleware evaluates it first.
  *
- * Resolution needs literal types, which requires the call site to pass options
- * inline (a `const` type parameter preserves them). Options built into a
- * variable first widen to `boolean`, and the type falls back to the list shape.
+ * Resolution needs literal types, so it only fires when options are passed
+ * inline (a `const` type parameter preserves the literals). Options built into
+ * a variable widen `count: true` to `count?: boolean`, and the correlation is
+ * genuinely gone.
+ *
+ * The critical distinction is between "provably not a count or a get" and
+ * "cannot tell". Only the former may be narrowed to a list: assuming a list
+ * whenever `{count: true}` fails to match would hand back `E[]` for a call that
+ * returns a number at runtime, which is worse than the union this replaces —
+ * the caller gets `.map is not a function` instead of a compile error. Where
+ * the literals were lost, the honest answer is every shape still possible.
  */
-export type QueryResult<E, O> = O extends { count: true }
-  ? number
-  : O extends { get: true }
-    ? Projected<E, O>
-    : Projected<E, O>[];
+/**
+ * The value of one option flag, or `false` when the key is absent entirely.
+ *
+ * Tested per key rather than by matching the whole options object against
+ * `{count?: false; get?: false}`: an all-optional target is a *weak type*, and
+ * TypeScript rejects sources sharing no properties with it — so `{select: [...]}`
+ * and `{limit: 10}` would fail to match despite plainly setting no flags.
+ *
+ * `K extends keyof O` distinguishes the two cases that matter: a key that is
+ * absent (definitely not set) from one that is present but widened to
+ * `boolean | undefined` (unknowable).
+ */
+type OptionFlag<O, K extends PropertyKey> = K extends keyof O ? O[K] : false;
+
+export type QueryResult<E, O> = [O] extends [undefined]
+  ? E[]
+  : unknown extends O
+    ? // Options omitted entirely, so `O` never got inferred.
+      E[]
+    : OptionFlag<O, 'count'> extends true
+      ? number
+      : OptionFlag<O, 'get'> extends true
+        ? Projected<E, O>
+        : [OptionFlag<O, 'count'>] extends [false | undefined]
+          ? [OptionFlag<O, 'get'>] extends [false | undefined]
+            ? // Both flags known absent or false — not assumed, established.
+              Projected<E, O>[]
+            : number | Partial<E> | Partial<E>[]
+          : // Literals lost. `Partial<E>` because a `select` may or may not
+            // have been passed, so fields may or may not be present.
+            number | Partial<E> | Partial<E>[];
