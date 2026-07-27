@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { apiVersionConfig } from '@/config/api-version.config';
+import { SUPPORTED_API_VERSIONS } from '@/generated';
 import {
   ApiVersion,
   VersionCompatibility,
@@ -352,6 +354,45 @@ describe('API Version Utils', () => {
 
       expect(path).not.toContain('/websocket');
       expect(path).toBe('/api/v26.0.0');
+    });
+  });
+
+  // MIN_SUPPORTED_VERSION is derived from SUPPORTED_API_VERSIONS[0], which is
+  // only the minimum if the generated list really is oldest-first. The
+  // generator sorts it that way and its doc comment says so, but nothing else
+  // checks — and if the order ever flipped, the client would silently start
+  // rejecting every version it supports except the newest.
+  describe('supported-version range is anchored to the generated list', () => {
+    it('lists generated versions oldest first', () => {
+      const ascending = [...SUPPORTED_API_VERSIONS].sort((a, b) =>
+        a.localeCompare(b, undefined, { numeric: true })
+      );
+      expect([...SUPPORTED_API_VERSIONS]).toEqual(ascending);
+    });
+
+    it('derives the minimum from the oldest generated version', () => {
+      expect(apiVersionConfig.MIN_SUPPORTED_VERSION).toBe(
+        SUPPORTED_API_VERSIONS[0]
+      );
+      // Belt and braces: whatever it resolves to must parse, since
+      // checkVersionCompatibility compares against it on every connection.
+      expect(parseApiVersion(apiVersionConfig.MIN_SUPPORTED_VERSION)).not.toBeNull();
+    });
+
+    // MAX deliberately lags the newest generated version until a v27 client
+    // exists (see the config). It must still name a version we generated, or
+    // the range would admit something with no types behind it.
+    it('keeps the maximum within the generated list', () => {
+      expect([...SUPPORTED_API_VERSIONS]).toContain(
+        apiVersionConfig.MAX_SUPPORTED_VERSION
+      );
+      const maxIndex = SUPPORTED_API_VERSIONS.indexOf(
+        apiVersionConfig.MAX_SUPPORTED_VERSION
+      );
+      expect(maxIndex).toBeGreaterThanOrEqual(0);
+      expect(maxIndex).toBeGreaterThanOrEqual(
+        SUPPORTED_API_VERSIONS.indexOf(apiVersionConfig.MIN_SUPPORTED_VERSION)
+      );
     });
   });
 });
