@@ -10,16 +10,14 @@ import type {
   AppRollbackOptions,
   AppUpdate,
   DISABLED_ACLResult,
-  NFS4ACLResult,
-  POSIXACLResult,
-  UpgradeOptions,
-  ZFSFileAttrsData,
-} from '../v25_04_0/api-types';
-import type {
   MailSendMessage,
   MailUpdate,
+  NFS4ACLResult,
+  POSIXACLResult,
   SupportNewTicketCommunity,
   SupportNewTicketEnterprise,
+  UpgradeOptions,
+  ZFSFileAttrsData,
 } from '../v25_10_0/api-types';
 import type {
   AppBulkUpgradeJobResult,

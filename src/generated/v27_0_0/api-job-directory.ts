@@ -6,13 +6,11 @@
 import type { ApiJobDirectory as PreviousApiJobDirectory } from '../v26_0_0/api-job-directory';
 
 import type {
-  ZFSFileAttrsData,
-} from '../v25_04_0/api-types';
-import type {
   KMIPEntry,
   SystemSecurityEntry,
   TunableCreate,
   TunableUpdate,
+  ZFSFileAttrsData,
 } from '../v25_10_0/api-types';
 import type {
   CertificateEntry,

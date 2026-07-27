@@ -338,17 +338,21 @@ export function emitEventDirectory(ownEvents: EventModel[], externals?: External
 }
 
 /**
- * A base directory in shared/: the entries stable across every generated
- * version, expressed as a Pick from the chain root's directory (where each of
- * those entries is materialized) — no entry duplication.
+ * The stable directory in shared/: the entries identical across every
+ * supported version, expressed as a Pick from the chain root's directory
+ * (where each of those entries is materialized) — no entry duplication.
+ *
+ * This is the surface a client can call without knowing which version it
+ * negotiated. Because the generated set is the supported set, "every generated
+ * version" and "every supported version" are the same statement.
  */
-export function emitDirectoryBase(interfaceName: string, sourceInterface: string, sourcePath: string, names: string[]): string {
+export function emitStableDirectory(interfaceName: string, sourceInterface: string, sourcePath: string, names: string[]): string {
   if (names.length === 0) {
-    return `${HEADER}\n/** Nothing is stable across every generated version. */\n// eslint-disable-next-line @typescript-eslint/no-empty-object-type\nexport interface ${interfaceName} {\n}\n`;
+    return `${HEADER}\n/** Nothing is stable across every supported version. */\n// eslint-disable-next-line @typescript-eslint/no-empty-object-type\nexport interface ${interfaceName} {\n}\n`;
   }
   const source = `Source${sourceInterface}`;
   const union = names.sort().map((n) => `  | '${n}'`).join('\n');
-  return `${HEADER}\nimport type { ${sourceInterface} as ${source} } from '${sourcePath}';\n\n/** The entries whose signature (and referenced types) are identical in every generated version. */\nexport type ${interfaceName} = Pick<\n  ${source},\n${union}\n>;\n`;
+  return `${HEADER}\nimport type { ${sourceInterface} as ${source} } from '${sourcePath}';\n\n/**\n * The entries whose signature (and referenced types) are identical in every\n * supported version — callable with no version narrowing and no union response.\n */\nexport type ${interfaceName} = Pick<\n  ${source},\n${union}\n>;\n`;
 }
 
 export interface InheritedGroup {

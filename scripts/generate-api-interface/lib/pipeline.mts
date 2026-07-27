@@ -14,7 +14,7 @@ import {
   emitCallDirectory,
   emitJobDirectory,
   emitEventDirectory,
-  emitDirectoryBase,
+  emitStableDirectory,
   emitIndex,
   emitManifest,
   emitRootIndex,
@@ -130,7 +130,15 @@ export async function generateFromDump(
     [...homes[i]].filter(([, home]) => home !== i).map(([name, home]) => [name, `../${dirOf(home)}/api-types`]),
   );
 
-  /** Names whose shape never changes across the whole chain (declared once, at the root). */
+  /**
+   * Names whose shape never changes across the whole chain (declared once, at
+   * the root).
+   *
+   * "The whole chain" is also "every version the client supports": the
+   * generated set IS the supported set. Anything older than the minimum
+   * supported version is not generated at all, so there is no separate notion
+   * of a supported sub-range to track.
+   */
   const chainStable = new Set(
     Object.keys(declared[0] ?? {}).filter((name) => models.every((_, i) => homes[i].get(name) === 0)),
   );
@@ -142,12 +150,15 @@ export async function generateFromDump(
   const queryPath = multi ? '../shared/query-types' : './query-types';
 
   /**
-   * Base-directory eligibility: an entry hoists into shared/ iff its emitted
+   * Stable-directory eligibility: an entry hoists into shared/ iff its emitted
    * text is identical in every version AND every type it references is
    * chain-stable (identical text over re-declared types would mean different
    * things per version).
+   *
+   * The result is the surface a client can call without knowing which version
+   * it negotiated — no narrowing, no union response.
    */
-  function computeDirectoryBase<T extends { name: string }>(
+  function computeStableDirectory<T extends { name: string }>(
     perVersion: T[][],
     entryText: (item: T) => string,
     refs: (item: T) => Set<string>,
@@ -164,10 +175,10 @@ export async function generateFromDump(
   }
 
   const methodRefs = (m: MethodModel) => refNames({ params: m.params.map((p) => p.schema), returns: m.returns });
-  const bases = multi ? {
-    call: computeDirectoryBase(models.map((m) => m.methods.filter((x) => !x.job)), directoryEntry, methodRefs),
-    job: computeDirectoryBase(models.map((m) => m.methods.filter((x) => x.job)), directoryEntry, methodRefs),
-    event: computeDirectoryBase(models.map((m) => m.events), eventEntry, (e) => refNames(e.models)),
+  const stable = multi ? {
+    call: computeStableDirectory(models.map((m) => m.methods.filter((x) => !x.job)), directoryEntry, methodRefs),
+    job: computeStableDirectory(models.map((m) => m.methods.filter((x) => x.job)), directoryEntry, methodRefs),
+    event: computeStableDirectory(models.map((m) => m.events), eventEntry, (e) => refNames(e.models)),
   } : null;
 
   /**
@@ -215,15 +226,16 @@ export async function generateFromDump(
   const jobDelta = directoryDelta(models.map((m) => m.methods.filter((x) => x.job)), directoryEntry, methodRefs);
   const eventDelta = directoryDelta(models.map((m) => m.events), eventEntry, (e) => refNames(e.models));
 
-  if (multi && bases) {
+  if (multi && stable) {
     write('shared', 'query-types.ts', queryTypesSource);
-    write('shared', 'api-call-directory-base.ts', emitDirectoryBase('ApiCallDirectoryBase', 'ApiCallDirectory',
-      `../${dirOf(0)}/api-call-directory`, [...bases.call]));
-    write('shared', 'api-job-directory-base.ts', emitDirectoryBase('ApiJobDirectoryBase', 'ApiJobDirectory',
-      `../${dirOf(0)}/api-job-directory`, [...bases.job]));
-    write('shared', 'api-event-directory-base.ts', emitDirectoryBase('ApiEventDirectoryBase', 'ApiEventDirectory',
-      `../${dirOf(0)}/api-event-directory`, [...bases.event]));
-    log(`Directory bases: ${bases.call.size} calls, ${bases.job.size} jobs, ${bases.event.size} events shared across versions`);
+    write('shared', 'api-call-directory-stable.ts', emitStableDirectory('ApiCallDirectoryStable', 'ApiCallDirectory',
+      `../${dirOf(0)}/api-call-directory`, [...stable.call]));
+    write('shared', 'api-job-directory-stable.ts', emitStableDirectory('ApiJobDirectoryStable', 'ApiJobDirectory',
+      `../${dirOf(0)}/api-job-directory`, [...stable.job]));
+    write('shared', 'api-event-directory-stable.ts', emitStableDirectory('ApiEventDirectoryStable', 'ApiEventDirectory',
+      `../${dirOf(0)}/api-event-directory`, [...stable.event]));
+    log(`Stable across all supported versions (${models[0].version}..${models[models.length - 1].version}): `
+      + `${stable.call.size} calls, ${stable.job.size} jobs, ${stable.event.size} events`);
   }
 
   for (const [i, model] of models.entries()) {

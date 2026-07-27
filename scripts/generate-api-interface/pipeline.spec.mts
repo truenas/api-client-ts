@@ -84,14 +84,27 @@ describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
     expect(files.get('v2_0_0/api-job-directory.ts')).toContain('export type ApiJobDirectory = PreviousApiJobDirectory;');
   });
 
-  it('emits bases as a Pick from the chain root, without entry duplication', async () => {
+  it('emits the stable directory as a Pick from the chain root, without entry duplication', async () => {
     const files = await generate();
-    const base = files.get('shared/api-call-directory-base.ts') ?? '';
-    expect(base).toContain('Pick<');
-    expect(base).toContain("| 'iscsi.fetch'"); // identical everywhere, stable refs
-    expect(base).not.toContain("| 'test.create'"); // references TestEntry, which diverges
-    expect(base).not.toContain("'iscsi.fetch':"); // no materialized entries in the base
-    expect(files.get('shared/api-job-directory-base.ts')).toContain("| 'test.run'");
+    const stable = files.get('shared/api-call-directory-stable.ts') ?? '';
+    expect(stable).toContain('Pick<');
+    expect(stable).toContain("| 'iscsi.fetch'"); // identical everywhere, stable refs
+    expect(stable).not.toContain("| 'test.create'"); // references TestEntry, which diverges
+    expect(stable).not.toContain("'iscsi.fetch':"); // no materialized entries here
+    expect(files.get('shared/api-job-directory-stable.ts')).toContain("| 'test.run'");
+  });
+
+  // The stable directory is only meaningful if "generated" and "supported" are
+  // the same set. Nothing below the minimum supported version is generated, so
+  // there is no sub-range to track and no way for the two to drift apart.
+  it('treats every generated version as supported', async () => {
+    const files = await generate();
+    const stable = files.get('shared/api-call-directory-stable.ts') ?? '';
+    // Picked from the oldest generated version, which is the minimum supported one.
+    expect(stable).toContain("from '../v1_0_0/api-call-directory'");
+    // No supported-range machinery leaks into the output.
+    expect(files.get('index.ts')).not.toContain('STABLE_RANGE');
+    for (const [name] of files) expect(name).not.toContain('directory-base');
   });
 
 

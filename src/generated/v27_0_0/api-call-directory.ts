@@ -12,13 +12,16 @@ import type {
 
 import type {
   ACLTemplateEntry,
+  AppAvailableItem,
   AppsIxVolumeEntry,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
   BootEnvironmentEntry,
   BoxCredentialsModel,
   DNSAuthenticatorEntry,
+  DiskEntry,
   DropboxCredentialsModel,
+  Enclosure2SetSlotStatusArgs,
   FTPCredentialsModel,
   FTPEntry,
   FilesystemDirQueryResultItem,
@@ -35,28 +38,21 @@ import type {
   MegaCredentialsModel,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
+  QueryOptionsModel,
   ReportingEntry,
   ReportingExportsEntry,
   ReportingQuery,
   SFTPCredentialsModel,
   SSHKeyPair,
+  StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
+  TunableQueryResultItem,
+  VMDeviceQueryResultItem,
+  VMDeviceUpdate,
+  VMQueryResultItem,
+  VMUpdate,
   WebDavCredentialsModel,
   YandexCredentialsModel,
-} from '../v25_04_0/api-types';
-import type {
-  StorjIxCredentialsModelInput,
-  VMDeviceQueryResultItem,
-  VMQueryResultItem,
-} from '../v25_04_2/api-types';
-import type {
-  AppAvailableItem,
-  DiskEntry,
-  Enclosure2SetSlotStatusArgs,
-  QueryOptionsModel,
-  TunableQueryResultItem,
-  VMDeviceUpdate,
-  VMUpdate,
 } from '../v25_10_0/api-types';
 import type {
   AuditQueryResultItem,
@@ -535,6 +531,11 @@ export interface ApiCallDirectoryDelta {
   'vm.query': {
     params: [filters?: QueryFilters<VMEntry>, options?: QueryOptions<VMEntry>];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
+  };
+
+  'vm.reset': {
+    params: [id: number];
+    response: null;
   };
 
   'vm.update': {
