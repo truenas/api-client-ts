@@ -3,7 +3,14 @@ import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { VersionTooOldError } from '@/errors/version-discovery.errors';
-import { createTrueNasClient } from './factory';
+import { apiVersionConfig } from '@/config/api-version.config';
+import { SUPPORTED_API_VERSIONS } from '@/generated';
+import { VersionCompatibility } from '@/types/api-version.type';
+import {
+  checkVersionCompatibility,
+  parseApiVersion,
+} from '@/utils/api-version.utils';
+import { canBuildClientFor, createTrueNasClient } from './factory';
 
 function fakeResponse(body: unknown, status = 200): Response {
   return {
@@ -81,5 +88,39 @@ describe('createTrueNasClient', () => {
     await expect(
       createTrueNasClient({ uuid: 'u', hostnames: [], enabled: false })
     ).rejects.toThrow(/hostnames array is empty/);
+  });
+
+  // The mirror image of the MIN derivation. MIN cannot drift because it is
+  // derived; MAX can, because it deliberately lags the newest generated
+  // version until a client exists for it. Both directions of that lag are
+  // failure modes, so both are asserted.
+  describe('supported range agrees with the available clients', () => {
+    const supported = SUPPORTED_API_VERSIONS.map((v) => {
+      const parsed = parseApiVersion(v);
+      if (!parsed) throw new Error(`generated version ${v} does not parse`);
+      return { version: v, parsed };
+    });
+
+    // MAX too HIGH: the range admits a version with no client, so discovery
+    // clears the compatibility check and then throws on selection.
+    it('every version within [MIN, MAX] can be built', () => {
+      const inRange = supported.filter(
+        ({ parsed }) =>
+          checkVersionCompatibility(parsed) === VersionCompatibility.Compatible
+      );
+      expect(inRange.length).toBeGreaterThan(0);
+      for (const { version, parsed } of inRange) {
+        expect(canBuildClientFor(parsed), `${version} has no client`).toBe(true);
+      }
+    });
+
+    // MAX too LOW: a client was added but MAX was not raised, so the version
+    // stays rejected and nothing says so.
+    it('MAX reaches the newest version a client can build', () => {
+      const buildable = supported.filter(({ parsed }) => canBuildClientFor(parsed));
+      expect(buildable.at(-1)?.version).toBe(
+        apiVersionConfig.MAX_SUPPORTED_VERSION
+      );
+    });
   });
 });

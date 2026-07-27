@@ -363,11 +363,24 @@ describe('API Version Utils', () => {
   // checks — and if the order ever flipped, the client would silently start
   // rejecting every version it supports except the newest.
   describe('supported-version range is anchored to the generated list', () => {
-    it('lists generated versions oldest first', () => {
-      const ascending = [...SUPPORTED_API_VERSIONS].sort((a, b) =>
-        a.localeCompare(b, undefined, { numeric: true })
-      );
-      expect([...SUPPORTED_API_VERSIONS]).toEqual(ascending);
+    // Ordered with the client's OWN comparator rather than re-implementing the
+    // generator's string collation. The two live on opposite sides of the build
+    // (the generator is not shipped, so it cannot be imported here) and are
+    // independently correct — what matters is that they agree. Re-implementing
+    // the collation would assert the generator against a copy of itself and
+    // would still pass if the two ever diverged.
+    it('lists generated versions oldest first, by the comparator the client uses', () => {
+      const parsed = SUPPORTED_API_VERSIONS.map((v) => {
+        const p = parseApiVersion(v);
+        expect(p, `generated version ${v} must parse`).not.toBeNull();
+        return p as ApiVersion;
+      });
+      for (let i = 1; i < parsed.length; i++) {
+        expect(
+          compareVersions(parsed[i - 1], parsed[i]),
+          `${SUPPORTED_API_VERSIONS[i - 1]} should sort before ${SUPPORTED_API_VERSIONS[i]}`
+        ).toBeLessThan(0);
+      }
     });
 
     it('derives the minimum from the oldest generated version', () => {

@@ -131,70 +131,76 @@ export async function createTrueNasClient(
   return instantiateClientForVersion(version, opts, logger);
 }
 
+/** Constructor shape shared by every version-specific client. */
+type ClientConstructor = new (
+  uuid: string,
+  hostnames: string[],
+  version: ApiVersion,
+  enabled: boolean,
+  systemName?: string,
+  logger?: Logger
+) => TrueNasApiClient;
+
 /**
- * Maps a discovered version to its client implementation by `year.month` (v25.x)
- * or `year` (v26+): `25.10` -> V2510, `26` -> V26.
+ * Version key -> client implementation.
+ *
+ * The single source of truth for which versions can actually be built. Kept as
+ * data rather than a `switch` so it can be asserted against
+ * `MAX_SUPPORTED_VERSION`: adding a client here without raising MAX would leave
+ * the new version rejected by the range check, which is the same silent
+ * divergence that made MIN worth deriving.
  */
+const CLIENT_BY_VERSION_KEY: Readonly<Record<string, ClientConstructor>> = {
+  '25.10': TrueNasApiClientV2510,
+  '26': TrueNasApiClientV26,
+};
+
+/**
+ * The key that selects a client: `year.month` for the legacy vYY.MM scheme
+ * (all patches of a month share one client), `year` for v26+.
+ */
+export function clientVersionKey(version: ApiVersion): string {
+  if (version.year <= legacyCutoffYear) {
+    return `${version.year.toString()}.${version.minor.toString().padStart(2, '0')}`;
+  }
+  return version.year.toString();
+}
+
+/** Whether a client implementation exists for `version`. */
+export function canBuildClientFor(version: ApiVersion): boolean {
+  return clientVersionKey(version) in CLIENT_BY_VERSION_KEY;
+}
+
+/** Maps a discovered version to its client implementation. */
 function instantiateClientForVersion(
   version: ApiVersion,
   opts: CreateClientOptions,
   logger: Logger
 ): TrueNasApiClient {
   const { uuid, hostnames, enabled, systemName } = opts;
+  const versionKey = clientVersionKey(version);
+  const Client = CLIENT_BY_VERSION_KEY[versionKey];
 
-  let versionKey: string;
-  if (version.year <= legacyCutoffYear) {
-    // Legacy scheme (vYY.MM): all patches of a month share one client.
-    const monthPadded = version.minor.toString().padStart(2, '0');
-    versionKey = `${version.year.toString()}.${monthPadded}`;
-  } else {
-    // Yearly scheme (v26+): the year selects the client.
-    versionKey = version.year.toString();
+  if (!Client) {
+    // Should not happen: discovery only yields compatible versions. Defensive.
+    logger.error('No client implementation for version', {
+      uuid: uuid.slice(0, 8),
+      version: version.version,
+      versionKey,
+    });
+    throw new Error(
+      `No client implementation for API version ${version.version}. ` +
+        `Version keys with a client: ${Object.keys(CLIENT_BY_VERSION_KEY).join(', ')}. ` +
+        `Version key: ${versionKey}`
+    );
   }
 
-  switch (versionKey) {
-    case '25.10':
-      logger.info('Instantiating TrueNasApiClientV2510', {
-        uuid: uuid.slice(0, 8),
-        version: version.version,
-        versionKey,
-      });
-      return new TrueNasApiClientV2510(
-        uuid,
-        hostnames,
-        version,
-        enabled,
-        systemName,
-        logger
-      );
-
-    case '26':
-      logger.info('Instantiating TrueNasApiClientV26', {
-        uuid: uuid.slice(0, 8),
-        version: version.version,
-        versionKey,
-      });
-      return new TrueNasApiClientV26(
-        uuid,
-        hostnames,
-        version,
-        enabled,
-        systemName,
-        logger
-      );
-
-    default:
-      // Should not happen: discovery only yields compatible versions. Defensive.
-      logger.error('No client implementation for version', {
-        uuid: uuid.slice(0, 8),
-        version: version.version,
-        versionKey,
-      });
-      throw new Error(
-        `No client implementation for API version ${version.version}. ` +
-          `Supported versions: v25.10.x, v26.x.y. Version key: ${versionKey}`
-      );
-  }
+  logger.info(`Instantiating ${Client.name}`, {
+    uuid: uuid.slice(0, 8),
+    version: version.version,
+    versionKey,
+  });
+  return new Client(uuid, hostnames, version, enabled, systemName, logger);
 }
 
 /**
