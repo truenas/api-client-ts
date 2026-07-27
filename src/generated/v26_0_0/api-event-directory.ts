@@ -9,19 +9,15 @@ import type {
   AlertListRemovedEvent,
   ApiKeyRemovedEvent,
   CloudBackupRemovedEvent,
+  CloudSyncRemovedEvent,
   CredentialsRemovedEvent,
   PeriodicSnapshotTaskRemovedEvent,
-  SharingNFSRemovedEvent,
-  UserRemovedEvent,
-} from '../v25_04_0/api-types';
-import type {
-  VMRemovedEvent,
-} from '../v25_04_2/api-types';
-import type {
-  CloudSyncRemovedEvent,
   PoolRemovedEvent,
   ReplicationRemovedEvent,
+  SharingNFSRemovedEvent,
   SharingSMBRemovedEvent,
+  UserRemovedEvent,
+  VMRemovedEvent,
   VMWareRemovedEvent,
 } from '../v25_10_0/api-types';
 import type {

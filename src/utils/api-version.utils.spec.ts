@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { apiVersionConfig } from '@/config/api-version.config';
+import { SUPPORTED_API_VERSIONS } from '@/generated';
 import {
   ApiVersion,
   VersionCompatibility,
@@ -352,6 +354,58 @@ describe('API Version Utils', () => {
 
       expect(path).not.toContain('/websocket');
       expect(path).toBe('/api/v26.0.0');
+    });
+  });
+
+  // MIN_SUPPORTED_VERSION is derived from SUPPORTED_API_VERSIONS[0], which is
+  // only the minimum if the generated list really is oldest-first. The
+  // generator sorts it that way and its doc comment says so, but nothing else
+  // checks — and if the order ever flipped, the client would silently start
+  // rejecting every version it supports except the newest.
+  describe('supported-version range is anchored to the generated list', () => {
+    // Ordered with the client's OWN comparator rather than re-implementing the
+    // generator's string collation. The two live on opposite sides of the build
+    // (the generator is not shipped, so it cannot be imported here) and are
+    // independently correct — what matters is that they agree. Re-implementing
+    // the collation would assert the generator against a copy of itself and
+    // would still pass if the two ever diverged.
+    it('lists generated versions oldest first, by the comparator the client uses', () => {
+      const parsed = SUPPORTED_API_VERSIONS.map((v) => {
+        const p = parseApiVersion(v);
+        expect(p, `generated version ${v} must parse`).not.toBeNull();
+        return p as ApiVersion;
+      });
+      for (let i = 1; i < parsed.length; i++) {
+        expect(
+          compareVersions(parsed[i - 1], parsed[i]),
+          `${SUPPORTED_API_VERSIONS[i - 1]} should sort before ${SUPPORTED_API_VERSIONS[i]}`
+        ).toBeLessThan(0);
+      }
+    });
+
+    it('derives the minimum from the oldest generated version', () => {
+      expect(apiVersionConfig.MIN_SUPPORTED_VERSION).toBe(
+        SUPPORTED_API_VERSIONS[0]
+      );
+      // Belt and braces: whatever it resolves to must parse, since
+      // checkVersionCompatibility compares against it on every connection.
+      expect(parseApiVersion(apiVersionConfig.MIN_SUPPORTED_VERSION)).not.toBeNull();
+    });
+
+    // MAX deliberately lags the newest generated version until a v27 client
+    // exists (see the config). It must still name a version we generated, or
+    // the range would admit something with no types behind it.
+    it('keeps the maximum within the generated list', () => {
+      expect([...SUPPORTED_API_VERSIONS]).toContain(
+        apiVersionConfig.MAX_SUPPORTED_VERSION
+      );
+      const maxIndex = SUPPORTED_API_VERSIONS.indexOf(
+        apiVersionConfig.MAX_SUPPORTED_VERSION
+      );
+      expect(maxIndex).toBeGreaterThanOrEqual(0);
+      expect(maxIndex).toBeGreaterThanOrEqual(
+        SUPPORTED_API_VERSIONS.indexOf(apiVersionConfig.MIN_SUPPORTED_VERSION)
+      );
     });
   });
 });

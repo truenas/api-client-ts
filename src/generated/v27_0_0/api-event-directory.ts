@@ -7,11 +7,9 @@ import type { ApiEventDirectory as PreviousApiEventDirectory } from '../v26_0_0/
 
 import type {
   AlertListRemovedEvent,
-} from '../v25_04_0/api-types';
-import type {
   VMDeviceRemovedEvent,
   VMRemovedEvent,
-} from '../v25_04_2/api-types';
+} from '../v25_10_0/api-types';
 import type {
   ContainerDeviceRemovedEvent,
   ContainerRemovedEvent,

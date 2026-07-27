@@ -6,11 +6,17 @@
  * Usage (offline, from a dump file):
  *   yarn generate:api \
  *     --schema dump.json \
- *     --api-version v25.10.5,v26.0.0,v27.0.0 \
+ *     --min-version v25.10.0 \
  *     --out scripts/generate-api-interface/generated
  *
  * Usage (fetch a fresh dump via the middleware container — no local setup):
- *   yarn generate:api --fetch docker --api-version all
+ *   yarn generate:api --fetch docker --min-version v25.10.0
+ *
+ * `--min-version` generates that version and everything newer, which is how
+ * the committed tree is produced: the supported floor is stated once and new
+ * middleware releases are picked up by regenerating. `--api-version` selects
+ * exact versions (or `all`) instead, for ad-hoc runs — previewing a single
+ * version, or narrowing a repro. The two are mutually exclusive.
  *
  * `--fetch docker` pulls the published middleware image (default
  * ghcr.io/truenas/middleware:master) and runs its bundled `middlewared`
@@ -36,6 +42,7 @@ import { parseArgs } from 'node:util';
 import path from 'node:path';
 
 import { generateFromDump } from './lib/pipeline.mts';
+import { selectVersions } from './lib/select-versions.mts';
 import type { ApiDumpFile, ApiDumpVersion } from './lib/types.mts';
 
 const { values: args } = parseArgs({
@@ -44,6 +51,7 @@ const { values: args } = parseArgs({
     fetch: { type: 'string' },
     image: { type: 'string', default: 'ghcr.io/truenas/middleware:master' },
     'middleware-repo': { type: 'string' },
+    'min-version': { type: 'string' },
     'api-version': { type: 'string' },
     include: { type: 'string', default: '' },
     out: { type: 'string', default: path.resolve(import.meta.dirname, '../../src/generated') },
@@ -115,8 +123,23 @@ if (args.fetch && args.fetch !== 'docker') {
 }
 
 const dump = JSON.parse(raw) as ApiDumpFile | ApiDumpVersion;
-const apiVersions = args['api-version']?.split(',').map((s) => s.trim()).filter(Boolean);
 const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Boolean);
+
+// `--min-version` is how the committed tree is produced: the supported floor,
+// with everything newer following automatically. `--api-version` remains for
+// ad-hoc runs (previewing one version, narrowing a repro).
+let apiVersions: string[] | undefined;
+try {
+  apiVersions = selectVersions({
+    available: ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => v.version),
+    minVersion: args['min-version'],
+    apiVersions: args['api-version']?.split(',').map((s) => s.trim()).filter(Boolean),
+  });
+} catch (error) {
+  console.error(error instanceof Error ? error.message : error);
+  process.exit(1);
+}
+if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} versions from ${args['min-version']} upward.`);
 
 let files: Map<string, string>;
 try {
