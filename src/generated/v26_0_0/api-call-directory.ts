@@ -244,11 +244,13 @@ export interface ApiCallDirectoryDelta {
   'alert.list': {
     params: [];
     response: Alert[];
+    entity: Alert;
   };
 
   'alert.list_categories': {
     params: [options?: AlertListCategoriesOptions];
     response: AlertCategory[];
+    entity: AlertCategory;
   };
 
   'api_key.convert_raw_key': {
@@ -269,11 +271,13 @@ export interface ApiCallDirectoryDelta {
   'api_key.my_keys': {
     params: [];
     response: ApiKeyEntry[];
+    entity: ApiKeyEntry;
   };
 
   'api_key.query': {
     params: [filters?: QueryFilters<ApiKeyEntry>, options?: QueryOptions<ApiKeyEntry>];
     response: ApiKeyEntry[] | ApiKeyEntry | ApiKeyQueryResultItem[] | ApiKeyQueryResultItem | number;
+    entity: ApiKeyEntry;
   };
 
   'api_key.update': {
@@ -304,16 +308,19 @@ export interface ApiCallDirectoryDelta {
   'app.image.query': {
     params: [filters?: QueryFilters<AppImageEntry>, options?: QueryOptions<AppImageEntry>];
     response: AppImageEntry[] | AppImageEntry | AppImageQueryResultItem[] | AppImageQueryResultItem | number;
+    entity: AppImageEntry;
   };
 
   'app.query': {
     params: [filters?: QueryFilters<AppEntry>, options?: QueryOptions<AppEntry>];
     response: AppEntry[] | AppEntry | AppQueryResultItem[] | AppQueryResultItem | number;
+    entity: AppEntry;
   };
 
   'audit.query': {
     params: [data?: AuditQuery];
     response: AuditQueryResultItem[] | AuditQueryResultItem | AuditQueryResultItemQueryResultItem[] | AuditQueryResultItemQueryResultItem | number;
+    entity: AuditQueryResultItem;
   };
 
   'auth.login_ex': {
@@ -369,6 +376,7 @@ export interface ApiCallDirectoryDelta {
   'cloud_backup.query': {
     params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptions<CloudBackupEntry>];
     response: CloudBackupEntry[] | CloudBackupEntry | CloudBackupQueryResultItem[] | CloudBackupQueryResultItem | number;
+    entity: CloudBackupEntry;
   };
 
   'cloud_backup.update': {
@@ -394,6 +402,7 @@ export interface ApiCallDirectoryDelta {
   'cloudsync.credentials.query': {
     params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptions<CredentialsEntry>];
     response: CredentialsEntry[] | CredentialsEntry | CredentialsQueryResultItem[] | CredentialsQueryResultItem | number;
+    entity: CredentialsEntry;
   };
 
   'cloudsync.credentials.s3_provider_choices': {
@@ -419,6 +428,7 @@ export interface ApiCallDirectoryDelta {
   'cloudsync.query': {
     params: [filters?: QueryFilters<CloudSyncEntry>, options?: QueryOptions<CloudSyncEntry>];
     response: CloudSyncEntry[] | CloudSyncEntry | CloudSyncQueryResultItem[] | CloudSyncQueryResultItem | number;
+    entity: CloudSyncEntry;
   };
 
   'cloudsync.restore': {
@@ -464,6 +474,7 @@ export interface ApiCallDirectoryDelta {
   'container.device.query': {
     params: [filters?: QueryFilters<ContainerDeviceEntry>, options?: QueryOptions<ContainerDeviceEntry>];
     response: ContainerDeviceEntry[] | ContainerDeviceEntry | ContainerDeviceQueryResultItem[] | ContainerDeviceQueryResultItem | number;
+    entity: ContainerDeviceEntry;
   };
 
   'container.device.update': {
@@ -484,6 +495,7 @@ export interface ApiCallDirectoryDelta {
   'container.image.query_registry': {
     params: [];
     response: ContainerImageQueryRegistryResultImage[];
+    entity: ContainerImageQueryRegistryResultImage;
   };
 
   'container.pool_choices': {
@@ -494,6 +506,7 @@ export interface ApiCallDirectoryDelta {
   'container.query': {
     params: [filters?: QueryFilters<ContainerEntry>, options?: QueryOptions<ContainerEntry>];
     response: ContainerEntry[] | ContainerEntry | ContainerQueryResultItem[] | ContainerQueryResultItem | number;
+    entity: ContainerEntry;
   };
 
   'container.start': {
@@ -524,6 +537,7 @@ export interface ApiCallDirectoryDelta {
   'disk.temperature_alerts': {
     params: [names: string[]];
     response: Alert[];
+    entity: Alert;
   };
 
   'disk.unlock_sed': {
@@ -549,6 +563,7 @@ export interface ApiCallDirectoryDelta {
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
+    entity: ACLTemplateEntry;
   };
 
   'interface.available_fec_modes': {
@@ -574,6 +589,7 @@ export interface ApiCallDirectoryDelta {
   'iscsi.extent.query': {
     params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptions<ISCSITargetExtentEntry>];
     response: ISCSITargetExtentEntry[] | ISCSITargetExtentEntry | ISCSITargetExtentQueryResultItem[] | ISCSITargetExtentQueryResultItem | number;
+    entity: ISCSITargetExtentEntry;
   };
 
   'iscsi.extent.update': {
@@ -589,6 +605,7 @@ export interface ApiCallDirectoryDelta {
   'iscsi.global.sessions': {
     params: [filters?: QueryFilters<ISCSIGlobalSessionsItem>, options?: QueryOptions<ISCSIGlobalSessionsItem>];
     response: ISCSIGlobalSessionsItem[] | ISCSIGlobalSessionsItem | ISCSIGlobalSessionsItemQueryResultItem[] | ISCSIGlobalSessionsItemQueryResultItem | number;
+    entity: ISCSIGlobalSessionsItem;
   };
 
   'iscsi.global.update': {
@@ -624,6 +641,7 @@ export interface ApiCallDirectoryDelta {
   'nvmet.namespace.query': {
     params: [filters?: QueryFilters<NVMetNamespaceEntry>, options?: QueryOptions<NVMetNamespaceEntry>];
     response: NVMetNamespaceEntry[] | NVMetNamespaceEntry | NVMetNamespaceQueryResultItem[] | NVMetNamespaceQueryResultItem | number;
+    entity: NVMetNamespaceEntry;
   };
 
   'nvmet.namespace.update': {
@@ -639,6 +657,7 @@ export interface ApiCallDirectoryDelta {
   'pool.dataset.get_quota': {
     params: [dataset: string, quota_type: 'USER' | 'GROUP' | 'DATASET' | 'PROJECT', filters?: QueryFilters<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>, options?: QueryOptions<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>];
     response: (PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota)[] | PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota | number;
+    entity: PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota;
   };
 
   'pool.get_instance': {
@@ -649,6 +668,7 @@ export interface ApiCallDirectoryDelta {
   'pool.query': {
     params: [filters?: QueryFilters<PoolEntry>, options?: QueryOptions<PoolEntry>];
     response: PoolEntry[] | PoolEntry | PoolQueryResultItem[] | PoolQueryResultItem | number;
+    entity: PoolEntry;
   };
 
   'pool.snapshot.create': {
@@ -679,6 +699,7 @@ export interface ApiCallDirectoryDelta {
   'pool.snapshottask.query': {
     params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptions<PeriodicSnapshotTaskEntry>];
     response: PeriodicSnapshotTaskEntry[] | PeriodicSnapshotTaskEntry | PeriodicSnapshotTaskQueryResultItem[] | PeriodicSnapshotTaskQueryResultItem | number;
+    entity: PeriodicSnapshotTaskEntry;
   };
 
   'pool.snapshottask.update': {
@@ -704,6 +725,7 @@ export interface ApiCallDirectoryDelta {
   'replication.query': {
     params: [filters?: QueryFilters<ReplicationEntry>, options?: QueryOptions<ReplicationEntry>];
     response: ReplicationEntry[] | ReplicationEntry | ReplicationQueryResultItem[] | ReplicationQueryResultItem | number;
+    entity: ReplicationEntry;
   };
 
   'replication.restore': {
@@ -724,21 +746,25 @@ export interface ApiCallDirectoryDelta {
   'reporting.get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+    entity: ReportingGetDataResponse;
   };
 
   'reporting.graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+    entity: ReportingGetDataResponse;
   };
 
   'rsynctask.create': {
@@ -754,6 +780,7 @@ export interface ApiCallDirectoryDelta {
   'rsynctask.query': {
     params: [filters?: QueryFilters<RsyncTaskEntry>, options?: QueryOptions<RsyncTaskEntry>];
     response: RsyncTaskEntry[] | RsyncTaskEntry | RsyncTaskQueryResultItem[] | RsyncTaskQueryResultItem | number;
+    entity: RsyncTaskEntry;
   };
 
   'rsynctask.update': {
@@ -774,6 +801,7 @@ export interface ApiCallDirectoryDelta {
   'sharing.nfs.query': {
     params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptions<SharingNFSEntry>];
     response: SharingNFSEntry[] | SharingNFSEntry | SharingNFSQueryResultItem[] | SharingNFSQueryResultItem | number;
+    entity: SharingNFSEntry;
   };
 
   'sharing.nfs.update': {
@@ -799,6 +827,7 @@ export interface ApiCallDirectoryDelta {
   'sharing.smb.query': {
     params: [filters?: QueryFilters<SharingSMBEntry>, options?: QueryOptions<SharingSMBEntry>];
     response: SharingSMBEntry[] | SharingSMBEntry | SharingSMBQueryResultItem[] | SharingSMBQueryResultItem | number;
+    entity: SharingSMBEntry;
   };
 
   'sharing.smb.setacl': {
@@ -829,6 +858,7 @@ export interface ApiCallDirectoryDelta {
   'sharing.webshare.query': {
     params: [filters?: QueryFilters<SharingWebshareEntry>, options?: QueryOptions<SharingWebshareEntry>];
     response: SharingWebshareEntry[] | SharingWebshareEntry | SharingWebshareQueryResultItem[] | SharingWebshareQueryResultItem | number;
+    entity: SharingWebshareEntry;
   };
 
   'sharing.webshare.update': {
@@ -934,6 +964,7 @@ export interface ApiCallDirectoryDelta {
   'user.query': {
     params: [filters?: QueryFilters<UserEntry>, options?: QueryOptions<UserEntry>];
     response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
+    entity: UserEntry;
   };
 
   'user.renew_2fa_secret': {
@@ -984,6 +1015,7 @@ export interface ApiCallDirectoryDelta {
   'vm.query': {
     params: [filters?: QueryFilters<VMEntry>, options?: QueryOptions<VMEntry>];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
+    entity: VMEntry;
   };
 
   'vm.status': {
@@ -1009,6 +1041,7 @@ export interface ApiCallDirectoryDelta {
   'vmware.query': {
     params: [filters?: QueryFilters<VMWareEntry>, options?: QueryOptions<VMWareEntry>];
     response: VMWareEntry[] | VMWareEntry | VMWareQueryResultItem[] | VMWareQueryResultItem | number;
+    entity: VMWareEntry;
   };
 
   'vmware.update': {
@@ -1044,6 +1077,7 @@ export interface ApiCallDirectoryDelta {
   'zfs.resource.query': {
     params: [data?: ZFSResourceQuery];
     response: ZFSResourceEntry[];
+    entity: ZFSResourceEntry;
   };
 
   'zfs.resource.snapshot.clone': {
@@ -1079,6 +1113,7 @@ export interface ApiCallDirectoryDelta {
   'zfs.resource.snapshot.query': {
     params: [data?: ZFSResourceSnapshotQuery];
     response: ZFSResourceSnapshotEntry[];
+    entity: ZFSResourceSnapshotEntry;
   };
 
   'zfs.resource.snapshot.release': {
@@ -1119,11 +1154,13 @@ export interface ApiCallDirectoryDelta {
   'zfs.tier.rewrite_job_failures': {
     params: [zfs_tier_rewrite_job_failures: ZfsTierRewriteJobFailuresArgs];
     response: ZfsTierRewriteJobFailureEntry[] | ZfsTierRewriteJobFailureEntry | ZfsTierRewriteJobFailureQueryResultItem[] | ZfsTierRewriteJobFailureQueryResultItem | number;
+    entity: ZfsTierRewriteJobFailureEntry;
   };
 
   'zfs.tier.rewrite_job_query': {
     params: [zfs_tier_rewrite_job_query?: ZfsTierRewriteJobQueryArgs];
     response: ZfsTierRewriteJobEntry[] | ZfsTierRewriteJobEntry | ZfsTierRewriteJobQueryResultItem[] | ZfsTierRewriteJobQueryResultItem | number;
+    entity: ZfsTierRewriteJobEntry;
   };
 
   'zfs.tier.rewrite_job_recover': {
@@ -1144,6 +1181,7 @@ export interface ApiCallDirectoryDelta {
   'zpool.query': {
     params: [data?: ZPoolQuery];
     response: ZPoolEntry[];
+    entity: ZPoolEntry;
   };
 }
 

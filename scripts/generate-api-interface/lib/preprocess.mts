@@ -33,7 +33,7 @@ import type {
  * interfaces) — middleware model names must never claim them.
  */
 const RESERVED_NAMES = new Set([
-  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions',
+  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions', 'QueryResult',
   'ApiCallDirectory', 'ApiJobDirectory', 'ApiEventDirectory', 'ApiDirectory',
   'ApiCallDirectoryDelta', 'ApiJobDirectoryDelta', 'ApiEventDirectoryDelta',
   'ApiCallDirectoryBase', 'ApiJobDirectoryBase', 'ApiEventDirectoryBase',
@@ -353,7 +353,14 @@ function applyQueryTyping(methods: MethodModel[], definitions: Record<string, De
   for (const method of methods) {
     // `.query`-style: entity is the result item; single-entity methods
     // (`.get_instance(id, options)`): entity is the returned entry itself.
-    const entity = inferEntityExpr(method.returns) ?? refIn(method.returns) ?? 'Record<string, unknown>';
+    const listEntity = inferEntityExpr(method.returns);
+    const entity = listEntity ?? refIn(method.returns) ?? 'Record<string, unknown>';
+
+    // Only a true query method — one whose return is the polymorphic
+    // `list | single | count` union — can have its response resolved from the
+    // options argument. `get_instance(id, options)` takes QueryOptions too but
+    // returns exactly one entry, so it is deliberately not marked.
+    if (listEntity) method.queryEntity = listEntity;
 
     for (let i = 0; i < method.params.length; i++) {
       const param = method.params[i];

@@ -30,6 +30,7 @@ export interface ApiCallDirectoryDelta {
   'certificate.query': {
     params: [filters?: QueryFilters<CertificateEntry>, options?: QueryOptions<CertificateEntry>];
     response: CertificateEntry[] | CertificateEntry | CertificateQueryResultItem[] | CertificateQueryResultItem | number;
+    entity: CertificateEntry;
   };
 
   'ipmi.chassis.identify': {

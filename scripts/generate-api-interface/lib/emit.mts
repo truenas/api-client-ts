@@ -18,7 +18,7 @@ export const HEADER = `/**
  */
 `;
 
-const QUERY_TYPE_NAMES = ['QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions'];
+const QUERY_TYPE_NAMES = ['QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions', 'QueryResult'];
 
 const refName = (ref: string): string => ref.replace('#/definitions/', '');
 
@@ -238,7 +238,12 @@ export function directoryEntry(method: MethodModel): string {
     const label = toIdentifier(p.name);
     return `${label}${p.optional && i > lastRequired ? '?' : ''}: ${tsExpr(p.schema)}`;
   });
-  return `  ${quote(method.name)}: {\n    params: [${params.join(', ')}];\n    response: ${tsExpr(method.returns)};\n  };`;
+  // `entity` carries the element type of a query method so a caller can
+  // resolve `response` from the options it passed (see QueryResult in the
+  // query grammar). `response` stays the honest union: a consumer that ignores
+  // `entity` keeps today's behaviour rather than being silently mis-typed.
+  const entity = method.queryEntity ? `\n    entity: ${method.queryEntity};` : '';
+  return `  ${quote(method.name)}: {\n    params: [${params.join(', ')}];\n    response: ${tsExpr(method.returns)};${entity}\n  };`;
 }
 
 function collectRefs(node: unknown, into: Set<string>): Set<string> {

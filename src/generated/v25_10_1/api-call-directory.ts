@@ -46,6 +46,7 @@ export interface ApiCallDirectoryDelta {
   'sharing.smb.query': {
     params: [filters?: QueryFilters<SharingSMBEntry>, options?: QueryOptions<SharingSMBEntry>];
     response: SharingSMBEntry[] | SharingSMBEntry | SharingSMBQueryResultItem[] | SharingSMBQueryResultItem | number;
+    entity: SharingSMBEntry;
   };
 
   'sharing.smb.update': {

@@ -14,6 +14,7 @@ export type {
   QueryFilters,
   QueryOperator,
   QueryOptions,
+  QueryResult,
 } from '../shared/query-types';
 
 export {

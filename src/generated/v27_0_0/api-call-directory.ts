@@ -146,11 +146,13 @@ export interface ApiCallDirectoryDelta {
   'alert.list': {
     params: [];
     response: Alert[];
+    entity: Alert;
   };
 
   'app.available': {
     params: [filters?: QueryFilters<AppAvailableItem>, options?: QueryOptions<AppAvailableItem>];
     response: AppAvailableItem[] | AppAvailableItem | AppAvailableItemQueryResultItem[] | AppAvailableItemQueryResultItem | number;
+    entity: AppAvailableItem;
   };
 
   'app.image.dockerhub_rate_limit': {
@@ -166,6 +168,7 @@ export interface ApiCallDirectoryDelta {
   'app.latest': {
     params: [filters?: QueryFilters<AppLatestItem>, options?: QueryOptions<AppLatestItem>];
     response: AppLatestItem[] | AppLatestItem | AppLatestItemQueryResultItem[] | AppLatestItemQueryResultItem | number;
+    entity: AppLatestItem;
   };
 
   'app.upgrade_summary': {
@@ -176,6 +179,7 @@ export interface ApiCallDirectoryDelta {
   'audit.query': {
     params: [data?: AuditQuery];
     response: AuditQueryResultItem[] | AuditQueryResultItem | AuditQueryResultItemQueryResultItem[] | AuditQueryResultItemQueryResultItem | number;
+    entity: AuditQueryResultItem;
   };
 
   'boot.environment.activate': {
@@ -231,6 +235,7 @@ export interface ApiCallDirectoryDelta {
   'container.device.query': {
     params: [filters?: QueryFilters<ContainerDeviceEntry>, options?: QueryOptions<ContainerDeviceEntry>];
     response: ContainerDeviceEntry[] | ContainerDeviceEntry | ContainerDeviceQueryResultItem[] | ContainerDeviceQueryResultItem | number;
+    entity: ContainerDeviceEntry;
   };
 
   'container.device.update': {
@@ -251,6 +256,7 @@ export interface ApiCallDirectoryDelta {
   'container.query': {
     params: [filters?: QueryFilters<ContainerEntry>, options?: QueryOptions<ContainerEntry>];
     response: ContainerEntry[] | ContainerEntry | ContainerQueryResultItem[] | ContainerQueryResultItem | number;
+    entity: ContainerEntry;
   };
 
   'container.update': {
@@ -266,6 +272,7 @@ export interface ApiCallDirectoryDelta {
   'disk.temperature_alerts': {
     params: [names: string[]];
     response: Alert[];
+    entity: Alert;
   };
 
   'docker.config': {
@@ -291,11 +298,13 @@ export interface ApiCallDirectoryDelta {
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
+    entity: ACLTemplateEntry;
   };
 
   'filesystem.listdir': {
     params: [path: string, query_filters?: unknown[], query_options?: QueryOptionsModel];
     response: FilesystemDirEntry[] | FilesystemDirEntry | FilesystemDirQueryResultItem[] | FilesystemDirQueryResultItem | number;
+    entity: FilesystemDirEntry;
   };
 
   'filesystem.mkdir': {
@@ -341,6 +350,7 @@ export interface ApiCallDirectoryDelta {
   'nvmet.global.sessions': {
     params: [filters?: QueryFilters<NVMetGlobalSessionsItem>, options?: QueryOptions<NVMetGlobalSessionsItem>];
     response: NVMetGlobalSessionsItem[] | NVMetGlobalSessionsItem | NVMetGlobalSessionsItemQueryResultItem[] | NVMetGlobalSessionsItemQueryResultItem | number;
+    entity: NVMetGlobalSessionsItem;
   };
 
   'reporting.exporters.create': {
@@ -351,31 +361,37 @@ export interface ApiCallDirectoryDelta {
   'reporting.get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+    entity: ReportingGetDataResponse;
   };
 
   'reporting.graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+    entity: ReportingGetDataResponse;
   };
 
   'reporting.graphs': {
     params: [filters?: QueryFilters<ReportingGraphsItem>, options?: QueryOptions<ReportingGraphsItem>];
     response: ReportingGraphsItem[] | ReportingGraphsItem | ReportingGraphsItemQueryResultItem[] | ReportingGraphsItemQueryResultItem | number;
+    entity: ReportingGraphsItem;
   };
 
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+    entity: ReportingGetDataResponse;
   };
 
   'reporting.netdata_graphs': {
     params: [filters?: QueryFilters<ReportingNetdataGraphsItem>, options?: QueryOptions<ReportingNetdataGraphsItem>];
     response: ReportingNetdataGraphsItem[] | ReportingNetdataGraphsItem | ReportingNetdataGraphsItemQueryResultItem[] | ReportingNetdataGraphsItemQueryResultItem | number;
+    entity: ReportingNetdataGraphsItem;
   };
 
   'reporting.update': {
@@ -411,6 +427,7 @@ export interface ApiCallDirectoryDelta {
   'tunable.query': {
     params: [filters?: QueryFilters<TunableEntry>, options?: QueryOptions<TunableEntry>];
     response: TunableEntry[] | TunableEntry | TunableQueryResultItem[] | TunableQueryResultItem | number;
+    entity: TunableEntry;
   };
 
   'vm.bootloader_aavmf_choices': {
@@ -471,6 +488,7 @@ export interface ApiCallDirectoryDelta {
   'vm.device.query': {
     params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptions<VMDeviceEntry>];
     response: VMDeviceEntry[] | VMDeviceEntry | VMDeviceQueryResultItem[] | VMDeviceQueryResultItem | number;
+    entity: VMDeviceEntry;
   };
 
   'vm.device.update': {
@@ -491,6 +509,7 @@ export interface ApiCallDirectoryDelta {
   'vm.get_display_devices': {
     params: [id: number];
     response: VMDisplayDeviceInfo[];
+    entity: VMDisplayDeviceInfo;
   };
 
   'vm.get_display_web_uri': {
@@ -501,6 +520,7 @@ export interface ApiCallDirectoryDelta {
   'vm.get_guest_network_interfaces': {
     params: [id: number];
     response: VMGuestNetworkInterface[];
+    entity: VMGuestNetworkInterface;
   };
 
   'vm.get_instance': {
@@ -531,6 +551,7 @@ export interface ApiCallDirectoryDelta {
   'vm.query': {
     params: [filters?: QueryFilters<VMEntry>, options?: QueryOptions<VMEntry>];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
+    entity: VMEntry;
   };
 
   'vm.reset': {
@@ -551,11 +572,13 @@ export interface ApiCallDirectoryDelta {
   'zfs.tier.rewrite_job_failures': {
     params: [zfs_tier_rewrite_job_failures: ZfsTierRewriteJobFailuresArgs];
     response: ZfsTierRewriteJobFailureEntry[] | ZfsTierRewriteJobFailureEntry | ZfsTierRewriteJobFailureQueryResultItem[] | ZfsTierRewriteJobFailureQueryResultItem | number;
+    entity: ZfsTierRewriteJobFailureEntry;
   };
 
   'zfs.tier.rewrite_job_query': {
     params: [zfs_tier_rewrite_job_query?: ZfsTierRewriteJobQueryArgs];
     response: ZfsTierRewriteJobEntry[] | ZfsTierRewriteJobEntry | ZfsTierRewriteJobQueryResultItem[] | ZfsTierRewriteJobQueryResultItem | number;
+    entity: ZfsTierRewriteJobEntry;
   };
 }
 

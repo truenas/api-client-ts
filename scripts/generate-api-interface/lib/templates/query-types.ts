@@ -61,3 +61,39 @@ export interface QueryOptions<T> {
   extra?: Record<string, unknown>;
   force_sql_filters?: boolean;
 }
+
+/**
+ * The shape a `select` projection returns.
+ *
+ * Plain field names project to an exact `Pick`. Dotted paths select nested
+ * values whose type cannot be computed from `E`, so any select containing one
+ * degrades to "some subset of `E`, plus unknown extras" — still far better
+ * than the dump's model, which types every projection as an opaque
+ * `Record<string, unknown>`.
+ */
+type Projected<E, O> = O extends { select: readonly (infer S)[] }
+  ? [Extract<S, `${string}.${string}`>] extends [never]
+    ? Pick<E, Extract<S, keyof E>>
+    : Partial<E> & Record<string, unknown>
+  : E;
+
+/**
+ * What a query method actually returns, resolved from the options passed.
+ *
+ * Middleware's query signature is polymorphic in `options`: `count` returns a
+ * number, `get` returns one entry, otherwise a list, and `select` projects
+ * whichever of those. The dump states all four outcomes as one flat `anyOf`
+ * with no discriminator, so the generated response is an unusable union — this
+ * recovers the correlation the schema cannot express.
+ *
+ * `count` is checked first because middleware evaluates it first.
+ *
+ * Resolution needs literal types, which requires the call site to pass options
+ * inline (a `const` type parameter preserves them). Options built into a
+ * variable first widen to `boolean`, and the type falls back to the list shape.
+ */
+export type QueryResult<E, O> = O extends { count: true }
+  ? number
+  : O extends { get: true }
+    ? Projected<E, O>
+    : Projected<E, O>[];
