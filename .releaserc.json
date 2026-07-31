@@ -11,17 +11,17 @@
         { "breaking": true, "release": "minor" }
       ],
       "parserOpts": {
-        "headerPattern": "^(?:.+ / )?(\\w*)(?:\\(([\\w$.\\-*/ ]*)\\))?!?: (.+)$",
+        "headerPattern": "^(?:[^:]+ / )?(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(?:\\(([^)]+)\\))?!?: (.+)$",
         "headerCorrespondence": ["type", "scope", "subject"],
-        "breakingHeaderPattern": "^(?:.+ / )?(\\w*)(?:\\(([\\w$.\\-*/ ]*)\\))?!: (.+)$"
+        "breakingHeaderPattern": "^(?:[^:]+ / )?(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(?:\\(([^)]+)\\))?!: (.+)$"
       }
     }],
     ["@semantic-release/release-notes-generator", {
       "preset": "conventionalcommits",
       "parserOpts": {
-        "headerPattern": "^(?:.+ / )?(\\w*)(?:\\(([\\w$.\\-*/ ]*)\\))?!?: (.+)$",
+        "headerPattern": "^(?:[^:]+ / )?(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(?:\\(([^)]+)\\))?!?: (.+)$",
         "headerCorrespondence": ["type", "scope", "subject"],
-        "breakingHeaderPattern": "^(?:.+ / )?(\\w*)(?:\\(([\\w$.\\-*/ ]*)\\))?!: (.+)$"
+        "breakingHeaderPattern": "^(?:[^:]+ / )?(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(?:\\(([^)]+)\\))?!: (.+)$"
       },
       "presetConfig": {
         "types": [

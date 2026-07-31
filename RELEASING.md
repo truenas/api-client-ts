@@ -20,7 +20,9 @@ release, and npm publish are all derived from the commit history on `main`.
 
   If no releasable commits landed, it does nothing.
 - The commit subject may be prefixed with `"<ticket> / <version> / "` (the TrueNAS
-  convention) — the parser strips it. See `parserOpts.headerPattern` in `.releaserc.json`.
+  convention) — the parser strips it. The prefix may not contain a colon, so that it
+  can never be confused with the `type:` that follows it. See
+  `parserOpts.headerPattern` in `.releaserc.json`.
 
 ## What contributors do
 
