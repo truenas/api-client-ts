@@ -11,11 +11,22 @@ import {
   takeWhile,
 } from 'rxjs';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+import type {
+  QueryFilters,
+  QueryProjection,
+} from '@/generated/shared/query-types';
 import {
   ApiCallMethod,
   ApiCallParams,
   ApiCallResponse,
 } from '@/types/api-call-directory.type';
+import type {
+  QueryDirectory,
+  QueryEntity,
+  QueryListOptions,
+  QueryMethod,
+  QuerySingleOptions,
+} from '@/types/query.type';
 import { getApiErrorMessage } from '@/types/api-error.type';
 import { Job, JobState } from '@/types/job.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
@@ -41,7 +52,7 @@ interface CollectionUpdateParams {
  * - Event subscriptions
  * - Job tracking
  */
-export class TrueNasApi {
+export class TrueNasApi<Dir = QueryDirectory> {
   /**
    * Stream of job events from websocket.
    * JSON-RPC 2.0 events have structure: { method: 'collection_update', params: { collection, fields, ... } }
@@ -68,6 +79,17 @@ export class TrueNasApi {
     method: M,
     params?: ApiCallParams<M>
   ): Observable<ApiCallResponse<M>> {
+    return this.dispatch<ApiCallResponse<M>>(method, params);
+  }
+
+  /**
+   * Send a JSON-RPC request and emit its result.
+   *
+   * Shared by {@link call} and the query verbs, which type the same wire call
+   * against different directories — `call` against the hand-maintained one,
+   * the verbs against the generated one.
+   */
+  private dispatch<T>(method: string, params?: unknown): Observable<T> {
     const message = createJsonRpcMessage(method, params);
 
     this.connection.ws.next(message);
@@ -84,10 +106,74 @@ export class TrueNasApi {
           const errorMessage = getApiErrorMessage(msg.error, 'API call failed');
           throw new Error(errorMessage);
         }
-        return msg.result as ApiCallResponse<M>;
+        return msg.result as T;
       }),
       take(1)
     );
+  }
+
+  /**
+   * Query a collection and emit the matching entries.
+   *
+   * ```typescript
+   * api.query('user.query')                              // UserEntry[]
+   * api.query('user.query', [['uid', '>', 1000]])        // UserEntry[]
+   * api.query('user.query', [], { select: ['id', 'username'] })
+   *                                       // Pick<UserEntry, 'id' | 'username'>[]
+   * ```
+   *
+   * A `select` built into a variable loses its literal types, so which fields
+   * come back is genuinely unknown and the result degrades to `Partial<E>[]`
+   * rather than promising fields a projection will not return.
+   *
+   * `count` and `get` are rejected: they would change the shape of the
+   * response, which is {@link queryCount} and {@link queryOne}'s job.
+   */
+  query<
+    M extends QueryMethod<Dir> & string,
+    const O extends QueryListOptions<QueryEntity<Dir, M>> = Record<
+      never,
+      never
+    >,
+  >(
+    method: M,
+    filters?: QueryFilters<QueryEntity<Dir, M>>,
+    options?: O
+  ): Observable<QueryProjection<QueryEntity<Dir, M>, O>[]> {
+    return this.dispatch(method, [filters ?? [], options ?? {}]);
+  }
+
+  /**
+   * Query a collection and emit the single matching entry.
+   *
+   * Middleware errors unless exactly one entry matches, so this rejects
+   * `limit` and `offset` as well as the shape switches.
+   */
+  queryOne<
+    M extends QueryMethod<Dir> & string,
+    const O extends QuerySingleOptions<QueryEntity<Dir, M>> = Record<
+      never,
+      never
+    >,
+  >(
+    method: M,
+    filters?: QueryFilters<QueryEntity<Dir, M>>,
+    options?: O
+  ): Observable<QueryProjection<QueryEntity<Dir, M>, O>> {
+    return this.dispatch(method, [filters ?? [], { ...options, get: true }]);
+  }
+
+  /**
+   * Emit the number of entries matching the filters.
+   *
+   * Takes no options: `select` and `order_by` cannot affect a count, and
+   * `limit` / `offset` would silently cap it.
+   */
+  queryCount<M extends QueryMethod<Dir> & string>(
+    method: M,
+    filters?: QueryFilters<QueryEntity<Dir, M>>
+  ): Observable<number> {
+    return this.dispatch(method, [filters ?? [], { count: true }]);
   }
 
   /**

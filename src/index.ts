@@ -52,6 +52,13 @@ export type {
   ApiCallParams,
   ApiCallResponse,
 } from '@/types/api-call-directory.type';
+export type {
+  QueryDirectory,
+  QueryEntity,
+  QueryListOptions,
+  QueryMethod,
+  QuerySingleOptions,
+} from '@/types/query.type';
 
 // ── Core types ───────────────────────────────────────────────────────────────
 export { VersionCompatibility } from '@/types/api-version.type';

@@ -17,9 +17,16 @@ import { TrueNasConnection } from '@/connection/truenas-connection';
 import { Logger, noopLogger } from '@/logger';
 import { ApiVersion } from '@/types/api-version.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
+import type { QueryDirectory } from '@/types/query.type';
 import { getWebSocketPath } from '@/utils/api-version.utils';
 
-export abstract class TrueNasApiClient {
+/**
+ * @typeParam Dir - the generated call directory the query verbs are typed
+ * against. Defaults to {@link QueryDirectory}, the entries identical in every
+ * generated version; a version-specific subclass substitutes its own family's
+ * directory to reach the methods the shared base cannot include.
+ */
+export abstract class TrueNasApiClient<Dir = QueryDirectory> {
   /** API version information for this client */
   readonly version: ApiVersion;
 
@@ -30,7 +37,7 @@ export abstract class TrueNasApiClient {
   readonly authenticator: TrueNasAuthenticator;
 
   /** API call handler */
-  readonly api: TrueNasApi;
+  readonly api: TrueNasApi<Dir>;
 
   /**
    * Version-agnostic operation mappings
@@ -140,8 +147,8 @@ export abstract class TrueNasApiClient {
    * Factory method to create the API handler.
    * Override in subclasses to provide version-specific API implementations.
    */
-  protected createApi(): TrueNasApi {
-    return new TrueNasApi(this.authenticator.authenticated$, this.connection);
+  protected createApi(): TrueNasApi<Dir> {
+    return new TrueNasApi<Dir>(this.authenticator.authenticated$, this.connection);
   }
 
   /**
