@@ -12,7 +12,15 @@ import { describe, expect, it } from 'vitest';
 const repoFile = async (path: string): Promise<string> =>
   readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-/** The gate pattern, read from the workflow so the test can't drift from it. */
+/**
+ * The gate pattern, read from the workflow so the test can't drift from it.
+ *
+ * The gate itself runs under bash's POSIX ERE; this exercises it with JS
+ * `RegExp`. The two engines agree on whether a pattern of this shape matches
+ * (no backreferences, no lazy quantifiers), which is all that is asserted here
+ * — but they can differ on capture positions, so extract from the parser
+ * patterns rather than this one.
+ */
 const gatePattern = async (): Promise<string> => {
   const yaml = await repoFile('.github/workflows/pr-title.yml');
   const match = /^\s*pattern='(.+)'$/m.exec(yaml);
@@ -94,8 +102,12 @@ describe('PR title gate and semantic-release header pattern', () => {
   });
 
   it('accept the same commit types on both sides', async () => {
+    // The type alternation is the first parenthesised group that is a
+    // `|`-separated list of lowercase words — matched by shape rather than by a
+    // specific member, so reordering the types can't turn a consistent config
+    // into a confusing "no type alternation" failure.
     const types = (pattern: string): string[] => {
-      const alternation = /\((feat\|[a-z|]+)\)/.exec(pattern);
+      const alternation = /\(([a-z]+(?:\|[a-z]+)+)\)/.exec(pattern);
       if (!alternation) throw new Error(`no type alternation in: ${pattern}`);
       return alternation[1].split('|').sort();
     };
