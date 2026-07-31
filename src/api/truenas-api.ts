@@ -51,6 +51,18 @@ interface CollectionUpdateParams {
  * - JSON-RPC 2.0 response parsing (result/error)
  * - Event subscriptions
  * - Job tracking
+ *
+ * Note that two directories are in play, and they are not the same one.
+ * {@link call} is keyed off the hand-maintained `ApiCallDirectory`, while the
+ * query verbs resolve against `Dir`, the generated directory this instance was
+ * parameterised with. So on one instance, `call('pool.query')` and
+ * `query('pool.query')` take their types from different sources. That is
+ * deliberate — the verbs need the generator's `entity` marker, which the
+ * hand-maintained directory does not carry — and it is how the generated types
+ * are being adopted incrementally rather than in one breaking change.
+ *
+ * @typeParam Dir - the generated call directory the query verbs are typed
+ * against. Defaults to the entries identical in every generated version.
  */
 export class TrueNasApi<Dir = QueryDirectory> {
   /**
@@ -122,9 +134,23 @@ export class TrueNasApi<Dir = QueryDirectory> {
    *                                       // Pick<UserEntry, 'id' | 'username'>[]
    * ```
    *
-   * A `select` built into a variable loses its literal types, so which fields
-   * come back is genuinely unknown and the result degrades to `Partial<E>[]`
-   * rather than promising fields a projection will not return.
+   * The precise result type comes from reading the options *literal*. Options
+   * annotated as `QueryListOptions<E>` lose that, and the result degrades to
+   * `Partial<E>[]` — not only when a `select` is present, but whenever the
+   * annotation merely permits one:
+   *
+   * ```typescript
+   * const opts: QueryListOptions<UserEntry> = { limit: 10 };
+   * api.query('user.query', [], opts);          // Partial<UserEntry>[]
+   *
+   * const opts = { limit: 10 } satisfies QueryListOptions<UserEntry>;
+   * api.query('user.query', [], opts);          // UserEntry[]
+   * ```
+   *
+   * That is imprecise, never unsound: `Partial<E>` is a supertype of `E`, so a
+   * field is only ever reported as *possibly* missing, never as present when it
+   * is not. Reach for `satisfies` over an annotation to keep the precision —
+   * the checking is the same, the inferred type is narrower.
    *
    * `count` and `get` are rejected: they would change the shape of the
    * response, which is {@link queryCount} and {@link queryOne}'s job.

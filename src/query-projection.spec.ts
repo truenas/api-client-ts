@@ -64,6 +64,25 @@ describe('query verbs against the generated directory', () => {
     >();
   });
 
+  /**
+   * The degradation is not specific to `select`. `SelectOf` keys on whether
+   * `select` is in `keyof O`, and an annotated options object carries the whole
+   * optional surface — so annotating costs the precise type even when no
+   * projection is requested. `satisfies` checks the same thing without widening
+   * the inferred type, and keeps it.
+   */
+  it('degrades for any annotated options, and not for satisfies', () => {
+    const annotated: QueryListOptions<PoolEntry> = { limit: 10 };
+    expectTypeOf(api.query('pool.query', [], annotated)).toEqualTypeOf<
+      Observable<Partial<PoolEntry>[]>
+    >();
+
+    const satisfied = { limit: 10 } satisfies QueryListOptions<PoolEntry>;
+    expectTypeOf(api.query('pool.query', [], satisfied)).toEqualTypeOf<
+      Observable<PoolEntry[]>
+    >();
+  });
+
   it('fixes the shape by verb, not by options', () => {
     expectTypeOf(api.queryOne('pool.query')).toEqualTypeOf<
       Observable<PoolEntry>
