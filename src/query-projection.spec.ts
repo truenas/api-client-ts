@@ -14,7 +14,12 @@
 import type { Observable } from 'rxjs';
 import { describe, expectTypeOf, it } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
-import type { ApiCallDirectoryV25_10_0, v25_10_0 } from '@/generated';
+import type { DefaultApiDirectory } from '@/factory';
+import type {
+  ApiCallDirectoryV25_10_0,
+  ApiCallDirectoryV26_0_0,
+  v25_10_0,
+} from '@/generated';
 import type { QueryListOptions, QueryMethod } from '@/types/query.type';
 
 type Dir = ApiCallDirectoryV25_10_0;
@@ -149,5 +154,65 @@ describe('query verbs against the generated directory', () => {
     api.query('core.ping');
     // @ts-expect-error `pool.get_instance` is not polymorphic.
     api.query('pool.get_instance');
+  });
+});
+
+/**
+ * The factory is the documented entry point, so what its result can reach IS
+ * the public surface of the query verbs.
+ *
+ * This exists because it once reached almost nothing. `TrueNasApiClient`
+ * defaulted to the directory shared by every generated version, which sounds
+ * conservative and costs 22 of the 66 query methods — including `user.query`
+ * and `pool.query`, the two most called. The default is now the oldest
+ * *supported* version instead: still conservative against a newer server,
+ * without the hole.
+ *
+ * The methods below are named individually on purpose. A count would pass while
+ * the endpoints people actually use went missing.
+ */
+describe('the directory the factory hands back', () => {
+  // Asserted against `DefaultApiDirectory`, not against
+  // `ReturnType<typeof createTrueNasClient>` — TypeScript erases a type
+  // parameter's default to `unknown` there, and `QueryMethod<unknown>` is
+  // `never`, which makes every assertion below vacuously true. The first
+  // version of this test did exactly that and passed against the broken
+  // default it was written to catch.
+  const fromFactory = () =>
+    ({ query: () => undefined }) as unknown as TrueNasApi<DefaultApiDirectory>;
+
+  it('reaches the query methods callers actually use', () => {
+    const api = fromFactory();
+
+    expectTypeOf(api.query('user.query')).toEqualTypeOf<
+      Observable<v25_10_0.UserEntry[]>
+    >();
+    expectTypeOf(api.query('pool.query')).toEqualTypeOf<
+      Observable<PoolEntry[]>
+    >();
+
+    // Present in the shared base too — these never regressed, and are here so a
+    // failure distinguishes "default is wrong" from "verbs are broken".
+    api.query('cronjob.query');
+    api.query('core.get_jobs');
+
+    // Outside the shared base, i.e. the ones the old default could not reach.
+    api.query('app.query');
+    api.query('vm.query');
+    api.query('sharing.smb.query');
+    api.query('certificate.query');
+  });
+
+  it('lets a caller name a newer surface, and holds them to it', () => {
+    const v26 = {
+      query: () => undefined,
+    } as unknown as TrueNasApi<ApiCallDirectoryV26_0_0>;
+
+    // v26 added containers; the default (v25.10) has never heard of them.
+    v26.query('container.query');
+
+    const api = fromFactory();
+    // @ts-expect-error not in v25.10 — declaring a newer directory is the fix.
+    api.query('container.query');
   });
 });
