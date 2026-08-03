@@ -4,7 +4,10 @@ import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { VersionTooOldError } from '@/errors/version-discovery.errors';
 import { apiVersionConfig } from '@/config/api-version.config';
-import { SUPPORTED_API_VERSIONS } from '@/generated';
+import {
+  SUPPORTED_API_VERSIONS,
+  type ApiCallDirectoryV26_0_0,
+} from '@/generated';
 import { VersionCompatibility } from '@/types/api-version.type';
 import {
   checkVersionCompatibility,
@@ -63,6 +66,32 @@ describe('createTrueNasClient', () => {
 
     expect(client).toBeInstanceOf(TrueNasApiClientV26);
     expect(client.version.version).toBe('v26.0.0');
+  });
+
+  /**
+   * `Dir` says which API surface the caller is *writing against*. It does not
+   * ask for a version and cannot get one — it is erased before anything runs,
+   * so discovery decides which client is built exactly as it did before.
+   *
+   * The consequence is worth pinning rather than leaving implied: a caller who
+   * declares a surface the server does not have gets a client that type-checks
+   * against v26 and is a v25.10 client. Calling a v26-only method on it fails
+   * at runtime, not at compile time.
+   */
+  it('builds the discovered version, not the declared one', async () => {
+    fetchMock.mockResolvedValue(fakeResponse(['v25.10.1']));
+
+    const client = await createTrueNasClient<ApiCallDirectoryV26_0_0>({
+      uuid: 'uuid-1234',
+      hostnames: ['box'],
+      enabled: false,
+    });
+    created.push(client as unknown as TrueNasApiClient);
+
+    // Declaring the v26 surface changed the types and nothing else.
+    expect(client).toBeInstanceOf(TrueNasApiClientV2510);
+    expect(client).not.toBeInstanceOf(TrueNasApiClientV26);
+    expect(client.version.version).toBe('v25.10.1');
   });
 
   it('falls back to the assumed version on a network/CORS error', async () => {
