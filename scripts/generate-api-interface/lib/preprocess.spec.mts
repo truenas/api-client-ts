@@ -50,6 +50,60 @@ describe('preprocess', () => {
     expect(methods[0].params[0].schema.$ref).toBe('#/definitions/WInput');
   });
 
+  /**
+   * Middleware renders return schemas in pydantic's serialization mode, where a
+   * functional `model_serializer` annotated `-> dict[str, Any]` flattens the
+   * whole model to a bare object. The accepts render survives, so the twin is
+   * the model's real shape.
+   */
+  describe('serialization-mode collapse', () => {
+    const populated: Schema = {
+      title: 'W', type: 'object', additionalProperties: false,
+      required: ['a'], properties: { a: { type: 'string' }, b: { type: 'integer' } },
+    };
+    /** What pydantic emits for a model with a dict-returning serializer. */
+    const collapsed: Schema = { title: 'W', type: 'object' };
+
+    it('recovers the shape from the surviving accepts render', () => {
+      const { definitions } = preprocess(version([
+        method('x.update', args({ w: { $ref: '#/$defs/W' } }, ['w'], { W: populated }), returnsDoc({ type: 'null' })),
+        method('x.query', args({}, []), returnsDoc({ $ref: '#/$defs/W' }, { W: collapsed })),
+      ]));
+
+      // One model, not a W/WInput split: both modes now agree on the shape.
+      expect(Object.keys(definitions)).toEqual(['W']);
+      expect(Object.keys(definitions['W'].properties ?? {})).toEqual(['a', 'b']);
+    });
+
+    /**
+     * The case that keeps the repair honest. A model that really is an open
+     * dict has no populated twin to borrow from, and must keep saying so —
+     * `enclosure2.query` is the real instance, assembling hardware-dependent
+     * structures at runtime.
+     */
+    it('leaves a genuinely open model alone', () => {
+      const { definitions } = preprocess(version([
+        method('x.query', args({}, []), returnsDoc({ $ref: '#/$defs/Open' }, {
+          Open: { title: 'Open', type: 'object' },
+        })),
+      ]));
+
+      expect(definitions['Open'].properties).toBeUndefined();
+    });
+
+    /** A twin in the wrong direction is not a twin: only accepts survives. */
+    it('does not borrow from another collapsed render', () => {
+      const { definitions } = preprocess(version([
+        method('x.query', args({}, []), returnsDoc({ $ref: '#/$defs/W' }, { W: collapsed })),
+        method('y.query', args({}, []), returnsDoc({ $ref: '#/$defs/W' }, { W: populated })),
+      ]));
+
+      // Both renders are output-mode, so there is nothing to recover from and
+      // the two shapes stay distinct rather than one silently winning.
+      expect(Object.keys(definitions).length).toBeGreaterThan(1);
+    });
+  });
+
   it('renames middleware models that collide with reserved query-grammar names', () => {
     const { definitions } = preprocess(version([
       method('x.get', args({}, []), returnsDoc({ $ref: '#/$defs/QueryFilters' }, {

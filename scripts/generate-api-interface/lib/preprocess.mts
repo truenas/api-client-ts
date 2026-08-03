@@ -117,14 +117,91 @@ class DefTable {
   }
 
   /**
+   * Undo middleware's serialization-mode collapse.
+   *
+   * `--dump-api` renders return schemas with pydantic's `mode="serialization"`
+   * and accepts schemas without it. Middleware attaches a functional
+   * `@model_serializer(mode="wrap")` to any model using the `NotRequired`
+   * sentinel, and unconditionally under `ForUpdateMetaclass`; both serializers
+   * are annotated `-> dict[str, Any]`, and pydantic derives the
+   * serialization-mode schema from that annotation rather than from the fields.
+   * The whole model flattens to `{"title": ..., "type": "object"}`, which we
+   * would otherwise emit as `Record<string, unknown>`.
+   *
+   * That hits seven query entities in v25.10 — `PoolDatasetEntry`, `DiskEntry`,
+   * `InterfaceEntry`, `PoolSnapshotEntry`, `JBOFEntry`, `NVMetSubsysEntry` —
+   * and collapsing the entity type also collapses `QueryFilterField<E>` to
+   * `string`, silently disabling field checking on exactly those endpoints.
+   *
+   * The accepts render of the same model survives, so where a collapsed output
+   * has a populated input twin we take the twin's shape as the model's real
+   * shape. The pairing is what makes this safe rather than a guess: a model
+   * that genuinely is an open dict has no populated twin to borrow from, and
+   * keeps its `Record<string, unknown>`. `Enclosure2Entry` is exactly that —
+   * a plain Service assembling hardware-dependent structures at runtime — and
+   * it is why this repairs six of the seven rather than all of them.
+   *
+   * Adopting the input shape means adopting its references too, so the output
+   * mode inherits the input mode's ref hashes. The claim being made is that
+   * these are one model, nested types included — which is the same claim the
+   * repair itself makes, applied consistently.
+   *
+   * @returns the names repaired, for the caller to report. Silent repair would
+   *   hide a middleware bug that ought to be visible and, eventually, fixed
+   *   upstream so this can be deleted.
+   */
+  repairSerializationCollapse(): string[] {
+    /** The shape that emits as `Record<string, unknown>` — an object saying nothing. */
+    const isBareObject = (s: Schema): boolean =>
+      s.type === 'object'
+      && Object.keys((s.properties ?? {}) as object).length === 0
+      && Object.keys((s.patternProperties ?? {}) as object).length === 0
+      && s.additionalProperties === undefined
+      && !s.anyOf && !s.oneOf && !s.allOf && !s.enum;
+
+    const hasProperties = (s: Schema): boolean =>
+      Object.keys((s.properties ?? {}) as object).length > 0;
+
+    const repaired: string[] = [];
+    for (const [name, variants] of this.byName) {
+      const entries = [...variants.entries()];
+      const collapsed = entries.filter(
+        ([, v]) => v.modes.has('output') && isBareObject(v.schema)
+      );
+      if (collapsed.length === 0) continue;
+      const twin = entries.find(
+        ([, v]) => v.modes.has('input') && hasProperties(v.schema)
+      )?.[1];
+      if (!twin) continue;
+
+      for (const [hash, variant] of collapsed) {
+        if (variant === twin) continue;
+        twin.modes.add('output');
+        twin.refHashes.output ??= twin.refHashes.input;
+        for (const origin of variant.origins) twin.origins.add(origin);
+        // Point the collapsed hash at the twin rather than dropping it:
+        // `resolve` keys off the shape as it appears in the *source* document,
+        // and the return documents still contain the collapsed render.
+        variants.set(hash, twin);
+      }
+      repaired.push(name);
+    }
+    return repaired.sort();
+  }
+
+  /**
    * Decide which names must split into Input/output variants: a name splits
    * when its renders differ between modes, or anything it references splits.
    */
   private computeSplit(): Set<string> {
     const split = new Set<string>();
     for (const [name, variants] of this.byName) {
-      if (variants.size > 1) {
-        const modes = [...variants.values()].flatMap((v) => [...v.modes]);
+      // By identity: after a repaired collapse one variant answers to two
+      // hashes, and that is one shape serving both modes — the opposite of a
+      // split — so counting keys here would split it right back apart.
+      const distinct = new Set(variants.values());
+      if (distinct.size > 1) {
+        const modes = [...distinct].flatMap((v) => [...v.modes]);
         if (modes.includes('input') && modes.includes('output')) split.add(name);
       }
     }
@@ -189,7 +266,18 @@ class DefTable {
         const normalized = (name[0].toUpperCase() + name.slice(1))
           .replace(/(\d)([a-z])/g, (_, d: string, c: string) => d + c.toUpperCase());
         const base = RESERVED_NAMES.has(normalized) ? `${normalized}Model` : normalized;
-        const ordered = [...variants.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, v]) => v);
+        // Deduped by identity: a repaired collapse leaves one variant reachable
+        // under two hashes (its own and the collapsed render's), and counting it
+        // twice would look like a name collision.
+        const seen = new Set<DefVariant>();
+        const ordered = [...variants.entries()]
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([, v]) => v)
+          .filter((v) => {
+            if (seen.has(v)) return false;
+            seen.add(v);
+            return true;
+          });
         const isSplit = split.has(name);
         return {
           base,
@@ -529,6 +617,14 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
         table.record(root.title, root as Schema, 'input', ($defs ?? {}) as Record<string, Schema>, event.name);
       }
     }
+  }
+  const repaired = table.repairSerializationCollapse();
+  if (repaired.length > 0) {
+    console.warn(
+      `note: ${versionDump.version}: recovered ${repaired.length.toString()} model(s) whose ` +
+      `serialization render collapsed to a bare object — ${repaired.join(', ')}. ` +
+      `Remove this once middleware stops applying a dict-returning model_serializer.`
+    );
   }
   table.assignNames();
   const definitions = table.definitions();
