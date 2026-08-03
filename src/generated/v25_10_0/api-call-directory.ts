@@ -529,6 +529,7 @@ export interface ApiCallDirectory {
   'acme.dns.authenticator.query': {
     params: [filters?: QueryFilters<DNSAuthenticatorEntry>, options?: QueryOptions<DNSAuthenticatorEntry>];
     response: DNSAuthenticatorEntry[] | DNSAuthenticatorEntry | DNSAuthenticatorQueryResultItem[] | DNSAuthenticatorQueryResultItem | number;
+    entity: DNSAuthenticatorEntry;
   };
 
   'acme.dns.authenticator.update': {
@@ -589,6 +590,7 @@ export interface ApiCallDirectory {
   'alertservice.query': {
     params: [filters?: QueryFilters<AlertServiceEntry>, options?: QueryOptions<AlertServiceEntry>];
     response: AlertServiceEntry[] | AlertServiceEntry | AlertServiceQueryResultItem[] | AlertServiceQueryResultItem | number;
+    entity: AlertServiceEntry;
   };
 
   'alertservice.test': {
@@ -624,6 +626,7 @@ export interface ApiCallDirectory {
   'api_key.query': {
     params: [filters?: QueryFilters<ApiKeyEntry>, options?: QueryOptions<ApiKeyEntry>];
     response: ApiKeyEntry[] | ApiKeyEntry | ApiKeyQueryResultItem[] | ApiKeyQueryResultItem | number;
+    entity: ApiKeyEntry;
   };
 
   'api_key.update': {
@@ -689,6 +692,7 @@ export interface ApiCallDirectory {
   'app.image.query': {
     params: [filters?: QueryFilters<AppImageEntry>, options?: QueryOptions<AppImageEntry>];
     response: AppImageEntry[] | AppImageEntry | AppImageQueryResultItem[] | AppImageQueryResultItem | number;
+    entity: AppImageEntry;
   };
 
   'app.ip_choices': {
@@ -704,6 +708,7 @@ export interface ApiCallDirectory {
   'app.ix_volume.query': {
     params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: QueryOptions<AppsIxVolumeEntry>];
     response: AppsIxVolumeEntry[] | AppsIxVolumeEntry | AppsIxVolumeQueryResultItem[] | AppsIxVolumeQueryResultItem | number;
+    entity: AppsIxVolumeEntry;
   };
 
   'app.outdated_docker_images': {
@@ -714,6 +719,7 @@ export interface ApiCallDirectory {
   'app.query': {
     params: [filters?: QueryFilters<AppEntry>, options?: QueryOptions<AppEntry>];
     response: AppEntry[] | AppEntry | AppQueryResultItem[] | AppQueryResultItem | number;
+    entity: AppEntry;
   };
 
   'app.registry.create': {
@@ -734,6 +740,7 @@ export interface ApiCallDirectory {
   'app.registry.query': {
     params: [filters?: QueryFilters<AppRegistryEntry>, options?: QueryOptions<AppRegistryEntry>];
     response: AppRegistryEntry[] | AppRegistryEntry | AppRegistryQueryResultItem[] | AppRegistryQueryResultItem | number;
+    entity: AppRegistryEntry;
   };
 
   'app.registry.update': {
@@ -834,6 +841,7 @@ export interface ApiCallDirectory {
   'auth.sessions': {
     params: [filters?: QueryFilters<AuthSessionsEntry>, options?: QueryOptions<AuthSessionsEntry>];
     response: AuthSessionsEntry[] | AuthSessionsEntry | AuthSessionsQueryResultItem[] | AuthSessionsQueryResultItem | number;
+    entity: AuthSessionsEntry;
   };
 
   'auth.set_attribute': {
@@ -894,6 +902,7 @@ export interface ApiCallDirectory {
   'boot.environment.query': {
     params: [filters?: QueryFilters<BootEnvironmentEntry>, options?: QueryOptions<BootEnvironmentEntry>];
     response: BootEnvironmentEntry[] | BootEnvironmentEntry | BootEnvironmentQueryResultItem[] | BootEnvironmentQueryResultItem | number;
+    entity: BootEnvironmentEntry;
   };
 
   'boot.get_disks': {
@@ -964,6 +973,7 @@ export interface ApiCallDirectory {
   'certificate.query': {
     params: [filters?: QueryFilters<CertificateEntry>, options?: QueryOptions<CertificateEntry>];
     response: CertificateEntry[] | CertificateEntry | CertificateQueryResultItem[] | CertificateQueryResultItem | number;
+    entity: CertificateEntry;
   };
 
   'cloud_backup.abort': {
@@ -999,6 +1009,7 @@ export interface ApiCallDirectory {
   'cloud_backup.query': {
     params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptions<CloudBackupEntry>];
     response: CloudBackupEntry[] | CloudBackupEntry | CloudBackupQueryResultItem[] | CloudBackupQueryResultItem | number;
+    entity: CloudBackupEntry;
   };
 
   'cloud_backup.transfer_setting_choices': {
@@ -1044,6 +1055,7 @@ export interface ApiCallDirectory {
   'cloudsync.credentials.query': {
     params: [filters?: QueryFilters<CredentialsEntry>, options?: QueryOptions<CredentialsEntry>];
     response: CredentialsEntry[] | CredentialsEntry | CredentialsQueryResultItem[] | CredentialsQueryResultItem | number;
+    entity: CredentialsEntry;
   };
 
   'cloudsync.credentials.update': {
@@ -1089,6 +1101,7 @@ export interface ApiCallDirectory {
   'cloudsync.query': {
     params: [filters?: QueryFilters<CloudSyncEntry>, options?: QueryOptions<CloudSyncEntry>];
     response: CloudSyncEntry[] | CloudSyncEntry | CloudSyncQueryResultItem[] | CloudSyncQueryResultItem | number;
+    entity: CloudSyncEntry;
   };
 
   'cloudsync.restore': {
@@ -1114,6 +1127,7 @@ export interface ApiCallDirectory {
   'core.get_jobs': {
     params: [filters?: QueryFilters<CoreGetJobsItem>, options?: QueryOptions<CoreGetJobsItem>];
     response: CoreGetJobsItem[] | CoreGetJobsItem | CoreGetJobsItemQueryResultItem[] | CoreGetJobsItemQueryResultItem | number;
+    entity: CoreGetJobsItem;
   };
 
   'core.get_methods': {
@@ -1184,6 +1198,7 @@ export interface ApiCallDirectory {
   'cronjob.query': {
     params: [filters?: QueryFilters<CronJobEntry>, options?: QueryOptions<CronJobEntry>];
     response: CronJobEntry[] | CronJobEntry | CronJobQueryResultItem[] | CronJobQueryResultItem | number;
+    entity: CronJobEntry;
   };
 
   'cronjob.update': {
@@ -1224,6 +1239,7 @@ export interface ApiCallDirectory {
   'disk.query': {
     params: [filters?: QueryFilters<DiskEntry>, options?: QueryOptions<DiskEntry>];
     response: DiskEntry[] | DiskEntry | DiskQueryResultItem[] | DiskQueryResultItem | number;
+    entity: DiskEntry;
   };
 
   'disk.temperature_agg': {
@@ -1249,6 +1265,7 @@ export interface ApiCallDirectory {
   'dns.query': {
     params: [filters?: QueryFilters<DNSQueryItem>, options?: QueryOptions<DNSQueryItem>];
     response: DNSQueryItem[] | DNSQueryItem | DNSQueryItemQueryResultItem[] | DNSQueryItemQueryResultItem | number;
+    entity: DNSQueryItem;
   };
 
   'docker.config': {
@@ -1274,6 +1291,7 @@ export interface ApiCallDirectory {
   'docker.network.query': {
     params: [filters?: QueryFilters<DockerNetworkEntry>, options?: QueryOptions<DockerNetworkEntry>];
     response: DockerNetworkEntry[] | DockerNetworkEntry | DockerNetworkQueryResultItem[] | DockerNetworkQueryResultItem | number;
+    entity: DockerNetworkEntry;
   };
 
   'docker.nvidia_present': {
@@ -1294,6 +1312,7 @@ export interface ApiCallDirectory {
   'enclosure2.query': {
     params: [filters?: QueryFilters<Enclosure2Entry>, options?: QueryOptions<Enclosure2Entry>];
     response: Enclosure2Entry[] | Enclosure2Entry | Enclosure2QueryResultItem[] | Enclosure2QueryResultItem | number;
+    entity: Enclosure2Entry;
   };
 
   'enclosure2.set_slot_status': {
@@ -1379,6 +1398,7 @@ export interface ApiCallDirectory {
   'fc.fc_host.query': {
     params: [filters?: QueryFilters<FCHostEntry>, options?: QueryOptions<FCHostEntry>];
     response: FCHostEntry[] | FCHostEntry | FCHostQueryResultItem[] | FCHostQueryResultItem | number;
+    entity: FCHostEntry;
   };
 
   'fc.fc_host.update': {
@@ -1409,6 +1429,7 @@ export interface ApiCallDirectory {
   'fcport.query': {
     params: [filters?: QueryFilters<FCPortEntry>, options?: QueryOptions<FCPortEntry>];
     response: FCPortEntry[] | FCPortEntry | FCPortQueryResultItem[] | FCPortQueryResultItem | number;
+    entity: FCPortEntry;
   };
 
   'fcport.status': {
@@ -1444,6 +1465,7 @@ export interface ApiCallDirectory {
   'filesystem.acltemplate.query': {
     params: [filters?: QueryFilters<ACLTemplateEntry>, options?: QueryOptions<ACLTemplateEntry>];
     response: ACLTemplateEntry[] | ACLTemplateEntry | ACLTemplateQueryResultItem[] | ACLTemplateQueryResultItem | number;
+    entity: ACLTemplateEntry;
   };
 
   'filesystem.acltemplate.update': {
@@ -1524,6 +1546,7 @@ export interface ApiCallDirectory {
   'group.query': {
     params: [filters?: QueryFilters<GroupEntry>, options?: QueryOptions<GroupEntry>];
     response: GroupEntry[] | GroupEntry | GroupQueryResultItem[] | GroupQueryResultItem | number;
+    entity: GroupEntry;
   };
 
   'group.update': {
@@ -1554,6 +1577,7 @@ export interface ApiCallDirectory {
   'initshutdownscript.query': {
     params: [filters?: QueryFilters<InitShutdownScriptEntry>, options?: QueryOptions<InitShutdownScriptEntry>];
     response: InitShutdownScriptEntry[] | InitShutdownScriptEntry | InitShutdownScriptQueryResultItem[] | InitShutdownScriptQueryResultItem | number;
+    entity: InitShutdownScriptEntry;
   };
 
   'initshutdownscript.update': {
@@ -1634,6 +1658,7 @@ export interface ApiCallDirectory {
   'interface.query': {
     params: [filters?: QueryFilters<InterfaceEntry>, options?: QueryOptions<InterfaceEntry>];
     response: InterfaceEntry[] | InterfaceEntry | InterfaceQueryResultItem[] | InterfaceQueryResultItem | number;
+    entity: InterfaceEntry;
   };
 
   'interface.rollback': {
@@ -1724,6 +1749,7 @@ export interface ApiCallDirectory {
   'iscsi.auth.query': {
     params: [filters?: QueryFilters<ISCSITargetAuthCredentialEntry>, options?: QueryOptions<ISCSITargetAuthCredentialEntry>];
     response: ISCSITargetAuthCredentialEntry[] | ISCSITargetAuthCredentialEntry | ISCSITargetAuthCredentialQueryResultItem[] | ISCSITargetAuthCredentialQueryResultItem | number;
+    entity: ISCSITargetAuthCredentialEntry;
   };
 
   'iscsi.auth.update': {
@@ -1754,6 +1780,7 @@ export interface ApiCallDirectory {
   'iscsi.extent.query': {
     params: [filters?: QueryFilters<ISCSITargetExtentEntry>, options?: QueryOptions<ISCSITargetExtentEntry>];
     response: ISCSITargetExtentEntry[] | ISCSITargetExtentEntry | ISCSITargetExtentQueryResultItem[] | ISCSITargetExtentQueryResultItem | number;
+    entity: ISCSITargetExtentEntry;
   };
 
   'iscsi.extent.update': {
@@ -1784,6 +1811,7 @@ export interface ApiCallDirectory {
   'iscsi.global.sessions': {
     params: [filters?: QueryFilters<IscsiSession>, options?: QueryOptions<IscsiSession>];
     response: IscsiSession[];
+    entity: IscsiSession;
   };
 
   'iscsi.global.update': {
@@ -1809,6 +1837,7 @@ export interface ApiCallDirectory {
   'iscsi.initiator.query': {
     params: [filters?: QueryFilters<ISCSITargetAuthorizedInitiatorEntry>, options?: QueryOptions<ISCSITargetAuthorizedInitiatorEntry>];
     response: ISCSITargetAuthorizedInitiatorEntry[] | ISCSITargetAuthorizedInitiatorEntry | ISCSITargetAuthorizedInitiatorQueryResultItem[] | ISCSITargetAuthorizedInitiatorQueryResultItem | number;
+    entity: ISCSITargetAuthorizedInitiatorEntry;
   };
 
   'iscsi.initiator.update': {
@@ -1839,6 +1868,7 @@ export interface ApiCallDirectory {
   'iscsi.portal.query': {
     params: [filters?: QueryFilters<ISCSIPortalEntry>, options?: QueryOptions<ISCSIPortalEntry>];
     response: ISCSIPortalEntry[] | ISCSIPortalEntry | ISCSIPortalQueryResultItem[] | ISCSIPortalQueryResultItem | number;
+    entity: ISCSIPortalEntry;
   };
 
   'iscsi.portal.update': {
@@ -1864,6 +1894,7 @@ export interface ApiCallDirectory {
   'iscsi.target.query': {
     params: [filters?: QueryFilters<ISCSITargetEntry>, options?: QueryOptions<ISCSITargetEntry>];
     response: ISCSITargetEntry[] | ISCSITargetEntry | ISCSITargetQueryResultItem[] | ISCSITargetQueryResultItem | number;
+    entity: ISCSITargetEntry;
   };
 
   'iscsi.target.update': {
@@ -1894,6 +1925,7 @@ export interface ApiCallDirectory {
   'iscsi.targetextent.query': {
     params: [filters?: QueryFilters<ISCSITargetToExtentEntry>, options?: QueryOptions<ISCSITargetToExtentEntry>];
     response: ISCSITargetToExtentEntry[] | ISCSITargetToExtentEntry | ISCSITargetToExtentQueryResultItem[] | ISCSITargetToExtentQueryResultItem | number;
+    entity: ISCSITargetToExtentEntry;
   };
 
   'iscsi.targetextent.update': {
@@ -1924,6 +1956,7 @@ export interface ApiCallDirectory {
   'jbof.query': {
     params: [filters?: QueryFilters<JBOFEntry>, options?: QueryOptions<JBOFEntry>];
     response: JBOFEntry[] | JBOFEntry | JBOFQueryResultItem[] | JBOFQueryResultItem | number;
+    entity: JBOFEntry;
   };
 
   'jbof.reapply_config': {
@@ -1959,6 +1992,7 @@ export interface ApiCallDirectory {
   'kerberos.keytab.query': {
     params: [filters?: QueryFilters<KerberosKeytabEntry>, options?: QueryOptions<KerberosKeytabEntry>];
     response: KerberosKeytabEntry[] | KerberosKeytabEntry | KerberosKeytabQueryResultItem[] | KerberosKeytabQueryResultItem | number;
+    entity: KerberosKeytabEntry;
   };
 
   'kerberos.keytab.update': {
@@ -1984,6 +2018,7 @@ export interface ApiCallDirectory {
   'kerberos.realm.query': {
     params: [filters?: QueryFilters<KerberosRealmEntry>, options?: QueryOptions<KerberosRealmEntry>];
     response: KerberosRealmEntry[] | KerberosRealmEntry | KerberosRealmQueryResultItem[] | KerberosRealmQueryResultItem | number;
+    entity: KerberosRealmEntry;
   };
 
   'kerberos.realm.update': {
@@ -2019,6 +2054,7 @@ export interface ApiCallDirectory {
   'keychaincredential.query': {
     params: [filters?: QueryFilters<KeychainCredentialEntry>, options?: QueryOptions<KeychainCredentialEntry>];
     response: KeychainCredentialEntry[] | KeychainCredentialEntry | KeychainCredentialQueryResultItem[] | KeychainCredentialQueryResultItem | number;
+    entity: KeychainCredentialEntry;
   };
 
   'keychaincredential.remote_ssh_host_key_scan': {
@@ -2119,11 +2155,13 @@ export interface ApiCallDirectory {
   'nfs.get_nfs3_clients': {
     params: [filters?: QueryFilters<NFSGetNfs3ClientsEntry>, options?: QueryOptions<NFSGetNfs3ClientsEntry>];
     response: NFSGetNfs3ClientsEntry[] | NFSGetNfs3ClientsEntry | NFSGetNfs3ClientsQueryResultItem[] | NFSGetNfs3ClientsQueryResultItem | number;
+    entity: NFSGetNfs3ClientsEntry;
   };
 
   'nfs.get_nfs4_clients': {
     params: [filters?: QueryFilters<NFSGetNfs4ClientsEntry>, options?: QueryOptions<NFSGetNfs4ClientsEntry>];
     response: NFSGetNfs4ClientsEntry[] | NFSGetNfs4ClientsEntry | NFSGetNfs4ClientsQueryResultItem[] | NFSGetNfs4ClientsQueryResultItem | number;
+    entity: NFSGetNfs4ClientsEntry;
   };
 
   'nfs.update': {
@@ -2174,6 +2212,7 @@ export interface ApiCallDirectory {
   'nvmet.host.query': {
     params: [filters?: QueryFilters<NVMetHostEntry>, options?: QueryOptions<NVMetHostEntry>];
     response: NVMetHostEntry[] | NVMetHostEntry | NVMetHostQueryResultItem[] | NVMetHostQueryResultItem | number;
+    entity: NVMetHostEntry;
   };
 
   'nvmet.host.update': {
@@ -2199,6 +2238,7 @@ export interface ApiCallDirectory {
   'nvmet.host_subsys.query': {
     params: [filters?: QueryFilters<NVMetHostSubsysEntry>, options?: QueryOptions<NVMetHostSubsysEntry>];
     response: NVMetHostSubsysEntry[] | NVMetHostSubsysEntry | NVMetHostSubsysQueryResultItem[] | NVMetHostSubsysQueryResultItem | number;
+    entity: NVMetHostSubsysEntry;
   };
 
   'nvmet.host_subsys.update': {
@@ -2224,6 +2264,7 @@ export interface ApiCallDirectory {
   'nvmet.namespace.query': {
     params: [filters?: QueryFilters<NVMetNamespaceEntry>, options?: QueryOptions<NVMetNamespaceEntry>];
     response: NVMetNamespaceEntry[] | NVMetNamespaceEntry | NVMetNamespaceQueryResultItem[] | NVMetNamespaceQueryResultItem | number;
+    entity: NVMetNamespaceEntry;
   };
 
   'nvmet.namespace.update': {
@@ -2249,6 +2290,7 @@ export interface ApiCallDirectory {
   'nvmet.port.query': {
     params: [filters?: QueryFilters<NVMetPortEntry>, options?: QueryOptions<NVMetPortEntry>];
     response: NVMetPortEntry[] | NVMetPortEntry | NVMetPortQueryResultItem[] | NVMetPortQueryResultItem | number;
+    entity: NVMetPortEntry;
   };
 
   'nvmet.port.transport_address_choices': {
@@ -2279,6 +2321,7 @@ export interface ApiCallDirectory {
   'nvmet.port_subsys.query': {
     params: [filters?: QueryFilters<NVMetPortSubsysEntry>, options?: QueryOptions<NVMetPortSubsysEntry>];
     response: NVMetPortSubsysEntry[] | NVMetPortSubsysEntry | NVMetPortSubsysQueryResultItem[] | NVMetPortSubsysQueryResultItem | number;
+    entity: NVMetPortSubsysEntry;
   };
 
   'nvmet.port_subsys.update': {
@@ -2304,6 +2347,7 @@ export interface ApiCallDirectory {
   'nvmet.subsys.query': {
     params: [filters?: QueryFilters<NVMetSubsysEntry>, options?: QueryOptions<NVMetSubsysEntry>];
     response: NVMetSubsysEntry[] | NVMetSubsysEntry | NVMetSubsysQueryResultItem[] | NVMetSubsysQueryResultItem | number;
+    entity: NVMetSubsysEntry;
   };
 
   'nvmet.subsys.update': {
@@ -2359,6 +2403,7 @@ export interface ApiCallDirectory {
   'pool.dataset.get_quota': {
     params: [dataset: string, quota_type: 'USER' | 'GROUP' | 'DATASET' | 'PROJECT', filters?: QueryFilters<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>, options?: QueryOptions<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>];
     response: (PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota)[];
+    entity: PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota;
   };
 
   'pool.dataset.inherit_parent_encryption_properties': {
@@ -2379,6 +2424,7 @@ export interface ApiCallDirectory {
   'pool.dataset.query': {
     params: [filters?: QueryFilters<PoolDatasetEntry>, options?: QueryOptions<PoolDatasetEntry>];
     response: PoolDatasetEntry[] | PoolDatasetEntry | PoolDatasetQueryResultItem[] | PoolDatasetQueryResultItem | number;
+    entity: PoolDatasetEntry;
   };
 
   'pool.dataset.recommended_zvol_blocksize': {
@@ -2454,6 +2500,7 @@ export interface ApiCallDirectory {
   'pool.query': {
     params: [filters?: QueryFilters<PoolEntry>, options?: QueryOptions<PoolEntry>];
     response: PoolEntry[] | PoolEntry | PoolQueryResultItem[] | PoolQueryResultItem | number;
+    entity: PoolEntry;
   };
 
   'pool.resilver.config': {
@@ -2484,6 +2531,7 @@ export interface ApiCallDirectory {
   'pool.scrub.query': {
     params: [filters?: QueryFilters<PoolScrubEntry>, options?: QueryOptions<PoolScrubEntry>];
     response: PoolScrubEntry[] | PoolScrubEntry | PoolScrubQueryResultItem[] | PoolScrubQueryResultItem | number;
+    entity: PoolScrubEntry;
   };
 
   'pool.scrub.run': {
@@ -2524,6 +2572,7 @@ export interface ApiCallDirectory {
   'pool.snapshot.query': {
     params: [filters?: QueryFilters<PoolSnapshotEntry>, options?: QueryOptions<PoolSnapshotEntry>];
     response: PoolSnapshotEntry[] | PoolSnapshotEntry | PoolSnapshotQueryResultItem[] | PoolSnapshotQueryResultItem | number;
+    entity: PoolSnapshotEntry;
   };
 
   'pool.snapshot.release': {
@@ -2579,6 +2628,7 @@ export interface ApiCallDirectory {
   'pool.snapshottask.query': {
     params: [filters?: QueryFilters<PeriodicSnapshotTaskEntry>, options?: QueryOptions<PeriodicSnapshotTaskEntry>];
     response: PeriodicSnapshotTaskEntry[] | PeriodicSnapshotTaskEntry | PeriodicSnapshotTaskQueryResultItem[] | PeriodicSnapshotTaskQueryResultItem | number;
+    entity: PeriodicSnapshotTaskEntry;
   };
 
   'pool.snapshottask.update': {
@@ -2619,11 +2669,13 @@ export interface ApiCallDirectory {
   'privilege.query': {
     params: [filters?: QueryFilters<PrivilegeEntry>, options?: QueryOptions<PrivilegeEntry>];
     response: PrivilegeEntry[] | PrivilegeEntry | PrivilegeQueryResultItem[] | PrivilegeQueryResultItem | number;
+    entity: PrivilegeEntry;
   };
 
   'privilege.roles': {
     params: [filters?: QueryFilters<PrivilegeRolesEntry>, options?: QueryOptions<PrivilegeRolesEntry>];
     response: PrivilegeRolesEntry[] | PrivilegeRolesEntry | PrivilegeRolesQueryResultItem[] | PrivilegeRolesQueryResultItem | number;
+    entity: PrivilegeRolesEntry;
   };
 
   'privilege.update': {
@@ -2689,6 +2741,7 @@ export interface ApiCallDirectory {
   'replication.query': {
     params: [filters?: QueryFilters<ReplicationEntry>, options?: QueryOptions<ReplicationEntry>];
     response: ReplicationEntry[] | ReplicationEntry | ReplicationQueryResultItem[] | ReplicationQueryResultItem | number;
+    entity: ReplicationEntry;
   };
 
   'replication.restore': {
@@ -2734,6 +2787,7 @@ export interface ApiCallDirectory {
   'reporting.exporters.query': {
     params: [filters?: QueryFilters<ReportingExportsEntry>, options?: QueryOptions<ReportingExportsEntry>];
     response: ReportingExportsEntry[] | ReportingExportsEntry | ReportingExportsQueryResultItem[] | ReportingExportsQueryResultItem | number;
+    entity: ReportingExportsEntry;
   };
 
   'reporting.exporters.update': {
@@ -2774,6 +2828,7 @@ export interface ApiCallDirectory {
   'route.system_routes': {
     params: [filters?: QueryFilters<RouteSystemRoutesItem>, options?: QueryOptions<RouteSystemRoutesItem>];
     response: RouteSystemRoutesItem[] | RouteSystemRoutesItem | RouteSystemRoutesItemQueryResultItem[] | RouteSystemRoutesItemQueryResultItem | number;
+    entity: RouteSystemRoutesItem;
   };
 
   'rsynctask.create': {
@@ -2794,6 +2849,7 @@ export interface ApiCallDirectory {
   'rsynctask.query': {
     params: [filters?: QueryFilters<RsyncTaskEntry>, options?: QueryOptions<RsyncTaskEntry>];
     response: RsyncTaskEntry[] | RsyncTaskEntry | RsyncTaskQueryResultItem[] | RsyncTaskQueryResultItem | number;
+    entity: RsyncTaskEntry;
   };
 
   'rsynctask.update': {
@@ -2809,6 +2865,7 @@ export interface ApiCallDirectory {
   'service.query': {
     params: [filters?: QueryFilters<ServiceEntry>, options?: QueryOptions<ServiceEntry>];
     response: ServiceEntry[] | ServiceEntry | ServiceQueryResultItem[] | ServiceQueryResultItem | number;
+    entity: ServiceEntry;
   };
 
   'service.started': {
@@ -2844,6 +2901,7 @@ export interface ApiCallDirectory {
   'sharing.nfs.query': {
     params: [filters?: QueryFilters<SharingNFSEntry>, options?: QueryOptions<SharingNFSEntry>];
     response: SharingNFSEntry[] | SharingNFSEntry | SharingNFSQueryResultItem[] | SharingNFSQueryResultItem | number;
+    entity: SharingNFSEntry;
   };
 
   'sharing.nfs.update': {
@@ -2879,6 +2937,7 @@ export interface ApiCallDirectory {
   'sharing.smb.query': {
     params: [filters?: QueryFilters<SharingSMBEntry>, options?: QueryOptions<SharingSMBEntry>];
     response: SharingSMBEntry[] | SharingSMBEntry | SharingSMBQueryResultItem[] | SharingSMBQueryResultItem | number;
+    entity: SharingSMBEntry;
   };
 
   'sharing.smb.setacl': {
@@ -2959,6 +3018,7 @@ export interface ApiCallDirectory {
   'staticroute.query': {
     params: [filters?: QueryFilters<StaticRouteEntry>, options?: QueryOptions<StaticRouteEntry>];
     response: StaticRouteEntry[] | StaticRouteEntry | StaticRouteQueryResultItem[] | StaticRouteQueryResultItem | number;
+    entity: StaticRouteEntry;
   };
 
   'staticroute.update': {
@@ -3164,6 +3224,7 @@ export interface ApiCallDirectory {
   'system.ntpserver.query': {
     params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptions<NTPServerEntry>];
     response: NTPServerEntry[] | NTPServerEntry | NTPServerQueryResultItem[] | NTPServerQueryResultItem | number;
+    entity: NTPServerEntry;
   };
 
   'system.ntpserver.update': {
@@ -3304,6 +3365,7 @@ export interface ApiCallDirectory {
   'tunable.query': {
     params: [filters?: QueryFilters<TunableEntry>, options?: QueryOptions<TunableEntry>];
     response: TunableEntry[] | TunableEntry | TunableQueryResultItem[] | TunableQueryResultItem | number;
+    entity: TunableEntry;
   };
 
   'tunable.tunable_type_choices': {
@@ -3389,6 +3451,7 @@ export interface ApiCallDirectory {
   'user.query': {
     params: [filters?: QueryFilters<UserEntry>, options?: QueryOptions<UserEntry>];
     response: UserEntry[] | UserEntry | UserQueryResultItem[] | UserQueryResultItem | number;
+    entity: UserEntry;
   };
 
   'user.renew_2fa_secret': {
@@ -3504,6 +3567,7 @@ export interface ApiCallDirectory {
   'vm.device.query': {
     params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptions<VMDeviceEntry>];
     response: VMDeviceEntry[] | VMDeviceEntry | VMDeviceQueryResultItem[] | VMDeviceQueryResultItem | number;
+    entity: VMDeviceEntry;
   };
 
   'vm.device.update': {
@@ -3599,6 +3663,7 @@ export interface ApiCallDirectory {
   'vm.query': {
     params: [filters?: QueryFilters<VMEntry>, options?: QueryOptions<VMEntry>];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
+    entity: VMEntry;
   };
 
   'vm.random_mac': {
@@ -3679,6 +3744,7 @@ export interface ApiCallDirectory {
   'vmware.query': {
     params: [filters?: QueryFilters<VMWareEntry>, options?: QueryOptions<VMWareEntry>];
     response: VMWareEntry[] | VMWareEntry | VMWareQueryResultItem[] | VMWareQueryResultItem | number;
+    entity: VMWareEntry;
   };
 
   'vmware.update': {

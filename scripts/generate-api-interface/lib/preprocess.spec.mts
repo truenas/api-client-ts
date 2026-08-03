@@ -161,4 +161,72 @@ describe('preprocess', () => {
     expect(preprocess(dump).methods.map((m) => m.job)).toEqual([true, false]);
     expect(preprocess(dump, ['a.']).methods.map((m) => m.name)).toEqual(['a.run']);
   });
+
+  // The dump's query return is `anyOf: [entity[], entity, projection[],
+  // projection, count]` with no discriminator. BOTH array members carry a
+  // $ref, so choosing by position would hand the projection model — which is
+  // content-free — to every query method the moment pydantic reorders the
+  // union. Entity selection must depend on content, not order.
+  describe('query entity selection', () => {
+    const queryReturn = (order: 'entity-first' | 'projection-first'): Schema => {
+      const entityList = { type: 'array', items: { $ref: '#/$defs/ThingEntry' } } as Schema;
+      const projList = { type: 'array', items: { $ref: '#/$defs/ThingQueryResultItem' } } as Schema;
+      return {
+        anyOf: order === 'entity-first'
+          ? [entityList, { $ref: '#/$defs/ThingEntry' }, projList, { type: 'integer' }]
+          : [projList, entityList, { $ref: '#/$defs/ThingEntry' }, { type: 'integer' }],
+      };
+    };
+    const defs = {
+      ThingEntry: {
+        type: 'object', additionalProperties: false, title: 'ThingEntry',
+        properties: { id: { type: 'integer' }, name: { type: 'string' } }, required: ['id', 'name'],
+      } as Schema,
+      // Exactly how middleware models a `select` projection: no shape at all.
+      ThingQueryResultItem: { type: 'object', title: 'ThingQueryResultItem' } as Schema,
+    };
+    const queryArgs = args({
+      filters: { type: 'array', title: 'Filters' },
+      options: { $ref: '#/$defs/ThingQueryOptions', title: 'Options' },
+    }, [], {
+      ...defs,
+      ThingQueryOptions: {
+        type: 'object', title: 'ThingQueryOptions',
+        properties: { count: { type: 'boolean' }, get: { type: 'boolean' }, select: { type: 'array' } },
+      } as Schema,
+    });
+
+    it('picks the content-bearing entity regardless of union order', () => {
+      for (const order of ['entity-first', 'projection-first'] as const) {
+        const { methods } = preprocess(version([
+          method('thing.query', structuredClone(queryArgs), returnsDoc(queryReturn(order), structuredClone(defs))),
+        ]));
+        expect(methods[0].queryEntity, `order: ${order}`).toBe('ThingEntry');
+      }
+    });
+
+    // Some services have no response model at all, so BOTH array members are
+    // `{"type": "object"}` — disk.query returns
+    // `DiskEntry[] | DiskQueryResultItem[]` with neither carrying a shape.
+    // There is nothing to prefer, so the first still wins: it has the better
+    // name, and resolving to `DiskEntry[]` beats the raw union regardless.
+    it('falls back to the first candidate when none is content-bearing', () => {
+      const { methods } = preprocess(version([
+        method('thing.query', structuredClone(queryArgs), returnsDoc(
+          {
+            anyOf: [
+              { type: 'array', items: { $ref: '#/$defs/ThingEntry' } },
+              { type: 'array', items: { $ref: '#/$defs/ThingQueryResultItem' } },
+              { type: 'integer' },
+            ],
+          },
+          {
+            ThingEntry: { type: 'object', title: 'ThingEntry' } as Schema,
+            ThingQueryResultItem: structuredClone(defs.ThingQueryResultItem),
+          },
+        )),
+      ]));
+      expect(methods[0].queryEntity).toBe('ThingEntry');
+    });
+  });
 });

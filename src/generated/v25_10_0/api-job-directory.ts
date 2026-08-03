@@ -343,6 +343,7 @@ export interface ApiJobDirectory {
   'ipmi.sel.elist': {
     params: [filters?: QueryFilters<IpmiSelElistEntry>, options?: QueryOptions<IpmiSelElistEntry>];
     response: IpmiSelElistEntry[] | IpmiSelElistEntry | IpmiSelElistQueryResultItem[] | IpmiSelElistQueryResultItem | number;
+    entity: IpmiSelElistEntry;
   };
 
   'ipmi.sel.info': {

@@ -9,7 +9,7 @@
 
 // ── Factory (primary entry point) ────────────────────────────────────────────
 export { createTrueNasClient } from '@/factory';
-export type { CreateClientOptions } from '@/factory';
+export type { CreateClientOptions, DefaultApiDirectory } from '@/factory';
 
 // ── Generated API types (from `middlewared --dump-api --keep-refs`) ──────────
 // Version namespaces (v25_10_5, v26_0_0, v27_0_0, …), version-suffixed
@@ -52,6 +52,13 @@ export type {
   ApiCallParams,
   ApiCallResponse,
 } from '@/types/api-call-directory.type';
+export type {
+  QueryDirectory,
+  QueryEntity,
+  QueryListOptions,
+  QueryMethod,
+  QuerySingleOptions,
+} from '@/types/query.type';
 
 // ── Core types ───────────────────────────────────────────────────────────────
 export { VersionCompatibility } from '@/types/api-version.type';

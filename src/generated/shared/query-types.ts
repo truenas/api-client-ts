@@ -66,3 +66,36 @@ export interface QueryOptions<T> {
   extra?: Record<string, unknown>;
   force_sql_filters?: boolean;
 }
+
+/**
+ * What a query verb returns for a given options object.
+ *
+ * `api.query` / `queryOne` / `queryCount` each fix the *shape* of the result,
+ * so the only thing left to compute is which FIELDS come back. That is decided
+ * by `select`, and unlike the shape it cannot be moved into the method name —
+ * the fields are data.
+ *
+ * Plain field names project to an exact `Pick`. Dotted paths select nested
+ * values whose type cannot be computed from `E`, so any select containing one
+ * degrades to "some subset of `E`, plus unknown extras" — still far better than
+ * the dump, which types every projection as an opaque `Record<string, unknown>`.
+ *
+ * The three cases are kept distinct on purpose:
+ *
+ *   select absent    -> `E`, every field present
+ *   select literal   -> exactly those fields
+ *   select unknown   -> `Partial<E>`, because fields MAY be missing
+ *
+ * The last one matters. Options built into a variable widen `select` to
+ * `QueryFilterField<E>[] | undefined`, and claiming `E` there would promise
+ * fields that a projection will not return.
+ */
+type SelectOf<O> = 'select' extends keyof O ? O['select'] : undefined;
+
+export type QueryProjection<E, O> = [SelectOf<O>] extends [undefined]
+  ? E
+  : SelectOf<O> extends readonly (infer S)[]
+    ? [Extract<S, `${string}.${string}`>] extends [never]
+      ? Pick<E, Extract<S, keyof E>>
+      : Partial<E> & Record<string, unknown>
+    : Partial<E>;

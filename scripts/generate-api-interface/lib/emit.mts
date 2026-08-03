@@ -18,7 +18,7 @@ export const HEADER = `/**
  */
 `;
 
-const QUERY_TYPE_NAMES = ['QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions'];
+const QUERY_TYPE_NAMES = ['QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions', 'QueryProjection'];
 
 const refName = (ref: string): string => ref.replace('#/definitions/', '');
 
@@ -238,7 +238,13 @@ export function directoryEntry(method: MethodModel): string {
     const label = toIdentifier(p.name);
     return `${label}${p.optional && i > lastRequired ? '?' : ''}: ${tsExpr(p.schema)}`;
   });
-  return `  ${quote(method.name)}: {\n    params: [${params.join(', ')}];\n    response: ${tsExpr(method.returns)};\n  };`;
+  // `entity` marks a polymorphic query method and carries its element type.
+  // The client uses it for two things: typing the query verbs (api.query /
+  // queryOne / queryCount), and identifying which method names to redirect
+  // away from `call`. `response` stays the honest union so a consumer that
+  // ignores `entity` keeps today's behaviour rather than being mis-typed.
+  const entity = method.queryEntity ? `\n    entity: ${method.queryEntity};` : '';
+  return `  ${quote(method.name)}: {\n    params: [${params.join(', ')}];\n    response: ${tsExpr(method.returns)};${entity}\n  };`;
 }
 
 function collectRefs(node: unknown, into: Set<string>): Set<string> {

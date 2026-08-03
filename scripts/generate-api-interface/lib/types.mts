@@ -113,6 +113,13 @@ export interface MethodModel {
   job: boolean;
   params: MethodParam[];
   returns: Schema;
+  /**
+   * Entity type expression for a `.query`-style method — set only when the
+   * return really is the polymorphic `list | single | count` union, so the
+   * response can be resolved from the options argument instead of being
+   * emitted as that union. Absent for everything else.
+   */
+  queryEntity?: string;
 }
 
 export interface EventModel {

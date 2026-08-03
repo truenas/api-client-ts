@@ -151,6 +151,7 @@ export interface ApiCallDirectoryDelta {
   'app.available': {
     params: [filters?: QueryFilters<AppAvailableItem>, options?: QueryOptions<AppAvailableItem>];
     response: AppAvailableItem[] | AppAvailableItem | AppAvailableItemQueryResultItem[] | AppAvailableItemQueryResultItem | number;
+    entity: AppAvailableItem;
   };
 
   'app.image.dockerhub_rate_limit': {
@@ -166,6 +167,7 @@ export interface ApiCallDirectoryDelta {
   'app.latest': {
     params: [filters?: QueryFilters<AppLatestItem>, options?: QueryOptions<AppLatestItem>];
     response: AppLatestItem[] | AppLatestItem | AppLatestItemQueryResultItem[] | AppLatestItemQueryResultItem | number;
+    entity: AppLatestItem;
   };
 
   'app.upgrade_summary': {
@@ -231,6 +233,7 @@ export interface ApiCallDirectoryDelta {
   'container.device.query': {
     params: [filters?: QueryFilters<ContainerDeviceEntry>, options?: QueryOptions<ContainerDeviceEntry>];
     response: ContainerDeviceEntry[] | ContainerDeviceEntry | ContainerDeviceQueryResultItem[] | ContainerDeviceQueryResultItem | number;
+    entity: ContainerDeviceEntry;
   };
 
   'container.device.update': {
@@ -251,6 +254,7 @@ export interface ApiCallDirectoryDelta {
   'container.query': {
     params: [filters?: QueryFilters<ContainerEntry>, options?: QueryOptions<ContainerEntry>];
     response: ContainerEntry[] | ContainerEntry | ContainerQueryResultItem[] | ContainerQueryResultItem | number;
+    entity: ContainerEntry;
   };
 
   'container.update': {
@@ -341,6 +345,7 @@ export interface ApiCallDirectoryDelta {
   'nvmet.global.sessions': {
     params: [filters?: QueryFilters<NVMetGlobalSessionsItem>, options?: QueryOptions<NVMetGlobalSessionsItem>];
     response: NVMetGlobalSessionsItem[] | NVMetGlobalSessionsItem | NVMetGlobalSessionsItemQueryResultItem[] | NVMetGlobalSessionsItemQueryResultItem | number;
+    entity: NVMetGlobalSessionsItem;
   };
 
   'reporting.exporters.create': {
@@ -361,6 +366,7 @@ export interface ApiCallDirectoryDelta {
   'reporting.graphs': {
     params: [filters?: QueryFilters<ReportingGraphsItem>, options?: QueryOptions<ReportingGraphsItem>];
     response: ReportingGraphsItem[] | ReportingGraphsItem | ReportingGraphsItemQueryResultItem[] | ReportingGraphsItemQueryResultItem | number;
+    entity: ReportingGraphsItem;
   };
 
   'reporting.netdata_get_data': {
@@ -376,6 +382,7 @@ export interface ApiCallDirectoryDelta {
   'reporting.netdata_graphs': {
     params: [filters?: QueryFilters<ReportingNetdataGraphsItem>, options?: QueryOptions<ReportingNetdataGraphsItem>];
     response: ReportingNetdataGraphsItem[] | ReportingNetdataGraphsItem | ReportingNetdataGraphsItemQueryResultItem[] | ReportingNetdataGraphsItemQueryResultItem | number;
+    entity: ReportingNetdataGraphsItem;
   };
 
   'reporting.update': {
@@ -411,6 +418,7 @@ export interface ApiCallDirectoryDelta {
   'tunable.query': {
     params: [filters?: QueryFilters<TunableEntry>, options?: QueryOptions<TunableEntry>];
     response: TunableEntry[] | TunableEntry | TunableQueryResultItem[] | TunableQueryResultItem | number;
+    entity: TunableEntry;
   };
 
   'vm.bootloader_aavmf_choices': {
@@ -471,6 +479,7 @@ export interface ApiCallDirectoryDelta {
   'vm.device.query': {
     params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptions<VMDeviceEntry>];
     response: VMDeviceEntry[] | VMDeviceEntry | VMDeviceQueryResultItem[] | VMDeviceQueryResultItem | number;
+    entity: VMDeviceEntry;
   };
 
   'vm.device.update': {
@@ -531,6 +540,7 @@ export interface ApiCallDirectoryDelta {
   'vm.query': {
     params: [filters?: QueryFilters<VMEntry>, options?: QueryOptions<VMEntry>];
     response: VMEntry[] | VMEntry | VMQueryResultItem[] | VMQueryResultItem | number;
+    entity: VMEntry;
   };
 
   'vm.reset': {

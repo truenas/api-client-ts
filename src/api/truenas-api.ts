@@ -11,11 +11,22 @@ import {
   takeWhile,
 } from 'rxjs';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+import type {
+  QueryFilters,
+  QueryProjection,
+} from '@/generated/shared/query-types';
 import {
   ApiCallMethod,
   ApiCallParams,
   ApiCallResponse,
 } from '@/types/api-call-directory.type';
+import type {
+  QueryDirectory,
+  QueryEntity,
+  QueryListOptions,
+  QueryMethod,
+  QuerySingleOptions,
+} from '@/types/query.type';
 import { getApiErrorMessage } from '@/types/api-error.type';
 import { Job, JobState } from '@/types/job.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
@@ -40,8 +51,20 @@ interface CollectionUpdateParams {
  * - JSON-RPC 2.0 response parsing (result/error)
  * - Event subscriptions
  * - Job tracking
+ *
+ * Note that two directories are in play, and they are not the same one.
+ * {@link call} is keyed off the hand-maintained `ApiCallDirectory`, while the
+ * query verbs resolve against `Dir`, the generated directory this instance was
+ * parameterised with. So on one instance, `call('pool.query')` and
+ * `query('pool.query')` take their types from different sources. That is
+ * deliberate — the verbs need the generator's `entity` marker, which the
+ * hand-maintained directory does not carry — and it is how the generated types
+ * are being adopted incrementally rather than in one breaking change.
+ *
+ * @typeParam Dir - the generated call directory the query verbs are typed
+ * against. Defaults to the entries identical in every generated version.
  */
-export class TrueNasApi {
+export class TrueNasApi<Dir = QueryDirectory> {
   /**
    * Stream of job events from websocket.
    * JSON-RPC 2.0 events have structure: { method: 'collection_update', params: { collection, fields, ... } }
@@ -68,6 +91,17 @@ export class TrueNasApi {
     method: M,
     params?: ApiCallParams<M>
   ): Observable<ApiCallResponse<M>> {
+    return this.dispatch<ApiCallResponse<M>>(method, params);
+  }
+
+  /**
+   * Send a JSON-RPC request and emit its result.
+   *
+   * Shared by {@link call} and the query verbs, which type the same wire call
+   * against different directories — `call` against the hand-maintained one,
+   * the verbs against the generated one.
+   */
+  private dispatch<T>(method: string, params?: unknown): Observable<T> {
     const message = createJsonRpcMessage(method, params);
 
     this.connection.ws.next(message);
@@ -84,10 +118,88 @@ export class TrueNasApi {
           const errorMessage = getApiErrorMessage(msg.error, 'API call failed');
           throw new Error(errorMessage);
         }
-        return msg.result as ApiCallResponse<M>;
+        return msg.result as T;
       }),
       take(1)
     );
+  }
+
+  /**
+   * Query a collection and emit the matching entries.
+   *
+   * ```typescript
+   * api.query('user.query')                              // UserEntry[]
+   * api.query('user.query', [['uid', '>', 1000]])        // UserEntry[]
+   * api.query('user.query', [], { select: ['id', 'username'] })
+   *                                       // Pick<UserEntry, 'id' | 'username'>[]
+   * ```
+   *
+   * The precise result type comes from reading the options *literal*. Options
+   * annotated as `QueryListOptions<E>` lose that, and the result degrades to
+   * `Partial<E>[]` — not only when a `select` is present, but whenever the
+   * annotation merely permits one:
+   *
+   * ```typescript
+   * const opts: QueryListOptions<UserEntry> = { limit: 10 };
+   * api.query('user.query', [], opts);          // Partial<UserEntry>[]
+   *
+   * const opts = { limit: 10 } satisfies QueryListOptions<UserEntry>;
+   * api.query('user.query', [], opts);          // UserEntry[]
+   * ```
+   *
+   * That is imprecise, never unsound: `Partial<E>` is a supertype of `E`, so a
+   * field is only ever reported as *possibly* missing, never as present when it
+   * is not. Reach for `satisfies` over an annotation to keep the precision —
+   * the checking is the same, the inferred type is narrower.
+   *
+   * `count` and `get` are rejected: they would change the shape of the
+   * response, which is {@link queryCount} and {@link queryOne}'s job.
+   */
+  query<
+    M extends QueryMethod<Dir> & string,
+    const O extends QueryListOptions<QueryEntity<Dir, M>> = Record<
+      never,
+      never
+    >,
+  >(
+    method: M,
+    filters?: QueryFilters<QueryEntity<Dir, M>>,
+    options?: O
+  ): Observable<QueryProjection<QueryEntity<Dir, M>, O>[]> {
+    return this.dispatch(method, [filters ?? [], options ?? {}]);
+  }
+
+  /**
+   * Query a collection and emit the single matching entry.
+   *
+   * Middleware errors unless exactly one entry matches, so this rejects
+   * `limit` and `offset` as well as the shape switches.
+   */
+  queryOne<
+    M extends QueryMethod<Dir> & string,
+    const O extends QuerySingleOptions<QueryEntity<Dir, M>> = Record<
+      never,
+      never
+    >,
+  >(
+    method: M,
+    filters?: QueryFilters<QueryEntity<Dir, M>>,
+    options?: O
+  ): Observable<QueryProjection<QueryEntity<Dir, M>, O>> {
+    return this.dispatch(method, [filters ?? [], { ...options, get: true }]);
+  }
+
+  /**
+   * Emit the number of entries matching the filters.
+   *
+   * Takes no options: `select` and `order_by` cannot affect a count, and
+   * `limit` / `offset` would silently cap it.
+   */
+  queryCount<M extends QueryMethod<Dir> & string>(
+    method: M,
+    filters?: QueryFilters<QueryEntity<Dir, M>>
+  ): Observable<number> {
+    return this.dispatch(method, [filters ?? [], { count: true }]);
   }
 
   /**

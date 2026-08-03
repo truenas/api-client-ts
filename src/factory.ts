@@ -3,11 +3,27 @@ import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { apiVersionConfig } from '@/config/api-version.config';
+import type { ApiCallDirectoryV25_10_0 } from '@/generated';
 import { VersionDiscoveryNetworkError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import { ApiVersion } from '@/types/api-version.type';
 import { legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
 import { VersionDiscovery } from '@/version-discovery';
+
+/**
+ * The API surface {@link createTrueNasClient} assumes when the caller does not
+ * say otherwise: the oldest supported version.
+ *
+ * Conservative in the direction that matters — against a newer server the types
+ * understate what is available, rather than promising methods that are not
+ * there. Move it in step with `--min-version` in the `generate:api` script.
+ *
+ * Named rather than written inline because a type parameter's default cannot be
+ * observed through `ReturnType`, which erases it to `unknown`. Tests assert
+ * against this alias; without it they pass whatever the default is, which is
+ * how the missing 22 methods went unnoticed in the first place.
+ */
+export type DefaultApiDirectory = ApiCallDirectoryV25_10_0;
 
 /** Options for {@link createTrueNasClient}. */
 export interface CreateClientOptions {
@@ -41,13 +57,38 @@ export interface CreateClientOptions {
  * Resolves exactly once with a single client instance — dispose of it with
  * `client.close()` when done.
  *
+ * ## Choosing `Dir`
+ *
+ * The version is discovered at *runtime*; the query verbs are typed at *compile
+ * time*. Something has to bridge that, and `Dir` is where the caller says which
+ * API surface they are writing against:
+ *
+ * ```typescript
+ * const client = await createTrueNasClient(opts);
+ * client.api.query('user.query');            // typed against v25.10
+ *
+ * const client = await createTrueNasClient<ApiCallDirectoryV26_0_0>(opts);
+ * client.api.query('container.query');       // v26-only methods reachable
+ * ```
+ *
+ * It defaults to the oldest supported version's directory, which is the
+ * conservative direction: against a newer server the types understate what is
+ * available rather than promising methods that are not there. Move it in step
+ * with `--min-version` in the `generate:api` script.
+ *
+ * Note this is a *claim*, not a guarantee — the connected server may be any
+ * supported version. Operations that must work across versions belong on
+ * `client.ops`, which resolves them at runtime.
+ *
+ * @typeParam Dir - the generated call directory the query verbs resolve
+ *   against. Does not affect `call`, which uses the hand-maintained directory.
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
  *   Rejects if `hostnames` is empty.
  */
-export async function createTrueNasClient(
+export async function createTrueNasClient<Dir = DefaultApiDirectory>(
   opts: CreateClientOptions
-): Promise<TrueNasApiClient> {
+): Promise<TrueNasApiClient<Dir>> {
   const { uuid, hostnames, systemName } = opts;
   const logger = opts.logger ?? noopLogger;
 
@@ -128,7 +169,7 @@ export async function createTrueNasClient(
     version = fallbackVersion;
   }
 
-  return instantiateClientForVersion(version, opts, logger);
+  return instantiateClientForVersion<Dir>(version, opts, logger);
 }
 
 /** Constructor shape shared by every version-specific client. */
@@ -171,12 +212,26 @@ export function canBuildClientFor(version: ApiVersion): boolean {
   return clientVersionKey(version) in CLIENT_BY_VERSION_KEY;
 }
 
-/** Maps a discovered version to its client implementation. */
-function instantiateClientForVersion(
+/**
+ * Maps a discovered version to its client implementation.
+ *
+ * The cast at the end is the one place where runtime and compile time disagree,
+ * and it is deliberate. `CLIENT_BY_VERSION_KEY` holds constructors for every
+ * supported version under a single type, which is only possible because the
+ * directories they are parameterised by have no common supertype — the versions
+ * are mutually unassignable (`alert.list_categories` takes no arguments in
+ * v25.10 and an options object in v26). So the map is typed against the shared
+ * base, and the caller's `Dir` is reapplied here.
+ *
+ * Widening it away would mean either giving every caller the base directory —
+ * which cannot reach `user.query` or `pool.query`, 22 of the 66 query methods —
+ * or pretending the constructors are interchangeable, which they are not.
+ */
+function instantiateClientForVersion<Dir>(
   version: ApiVersion,
   opts: CreateClientOptions,
   logger: Logger
-): TrueNasApiClient {
+): TrueNasApiClient<Dir> {
   const { uuid, hostnames, enabled, systemName } = opts;
   const versionKey = clientVersionKey(version);
   const Client = CLIENT_BY_VERSION_KEY[versionKey];
@@ -200,7 +255,14 @@ function instantiateClientForVersion(
     version: version.version,
     versionKey,
   });
-  return new Client(uuid, hostnames, version, enabled, systemName, logger);
+  return new Client(
+    uuid,
+    hostnames,
+    version,
+    enabled,
+    systemName,
+    logger
+  ) as unknown as TrueNasApiClient<Dir>;
 }
 
 /**

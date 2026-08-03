@@ -33,7 +33,7 @@ import type {
  * interfaces) — middleware model names must never claim them.
  */
 const RESERVED_NAMES = new Set([
-  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions',
+  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions', 'QueryProjection',
   'ApiCallDirectory', 'ApiJobDirectory', 'ApiEventDirectory', 'ApiDirectory',
   'ApiCallDirectoryDelta', 'ApiJobDirectoryDelta', 'ApiEventDirectoryDelta',
   'ApiCallDirectoryBase', 'ApiJobDirectoryBase', 'ApiEventDirectoryBase',
@@ -316,20 +316,55 @@ const refIn = (s: Schema | boolean | undefined): string | null => (
 
 /**
  * Entity type expression of a query method, from its return schema — the
- * standard shape is `anyOf: [array-of-entity, single-entity, count]`.
+ * standard shape is
+ * `anyOf: [entity[], entity, projection[], projection, count]`.
+ *
+ * BOTH array variants carry a `$ref`, so "first array wins" would be decided by
+ * pydantic's union ordering. The projection model is content-free in the dump
+ * (`PoolQueryResultItem` is literally `{"type": "object"}`, because a `select`
+ * result has no fixed shape), so picking it would silently degrade every query
+ * method to `Record<string, unknown>[]` with nothing to catch it. Candidates
+ * that resolve to a definition with no properties are therefore skipped, which
+ * makes the choice depend on content rather than order.
  */
-function inferEntityExpr(returns: Schema): string | null {
+function inferEntityExpr(returns: Schema, definitions: Record<string, DefSchema>): string | null {
+  /**
+   * A model that says nothing at all — `{"type": "object"}`, which is how the
+   * dump renders a `select` projection (and, for services with no response
+   * model, the entry itself: `DiskEntry` is exactly this).
+   */
+  const hasContent = (name: string | null): boolean => {
+    if (!name) return false;
+    const def = definitions[name];
+    // Absent from the table means declared elsewhere, not empty.
+    if (!def) return true;
+    return Object.keys(def.properties ?? {}).length > 0
+      || Array.isArray(def.enum)
+      || !!(def.anyOf ?? def.oneOf ?? def.allOf ?? def.patternProperties)
+      || (typeof def.additionalProperties === 'object' && def.additionalProperties !== null);
+  };
+
+  const candidates: string[] = [];
   const variants = returns.anyOf ?? returns.oneOf ?? [returns];
   for (const variant of variants) {
     if (variant.type !== 'array' || !variant.items) continue;
     const single = refIn(variant.items);
-    if (single) return single;
+    if (single) {
+      candidates.push(single);
+      continue;
+    }
     const union = variant.items.anyOf ?? variant.items.oneOf;
     if (union && union.every((u) => refIn(u))) {
-      return union.map((u) => refIn(u)).join(' | ');
+      candidates.push(union.map((u) => refIn(u)).join(' | '));
     }
   }
-  return null;
+  if (!candidates.length) return null;
+  // Prefer a candidate that actually describes a shape, falling back to the
+  // first. Where several are content-free — `disk.query` returns
+  // `DiskEntry[] | DiskQueryResultItem[]` and BOTH are `{"type": "object"}` —
+  // the first still carries the better name, and resolving the response to
+  // `DiskEntry[]` beats the five-member union either way.
+  return candidates.find((c) => c.split(' | ').every(hasContent)) ?? candidates[0];
 }
 
 /**
@@ -353,7 +388,9 @@ function applyQueryTyping(methods: MethodModel[], definitions: Record<string, De
   for (const method of methods) {
     // `.query`-style: entity is the result item; single-entity methods
     // (`.get_instance(id, options)`): entity is the returned entry itself.
-    const entity = inferEntityExpr(method.returns) ?? refIn(method.returns) ?? 'Record<string, unknown>';
+    const listEntity = inferEntityExpr(method.returns, definitions);
+    const entity = listEntity ?? refIn(method.returns) ?? 'Record<string, unknown>';
+    let takesQueryOptions = false;
 
     for (let i = 0; i < method.params.length; i++) {
       const param = method.params[i];
@@ -361,8 +398,23 @@ function applyQueryTyping(methods: MethodModel[], definitions: Record<string, De
         param.schema = { tsType: `QueryFilters<${entity}>`, _refs: entityRefs(entity) };
       } else if (param.name === 'options' && isQueryOptionsDef(param.schema)) {
         param.schema = { tsType: `QueryOptions<${entity}>`, _refs: entityRefs(entity) };
+        takesQueryOptions = true;
       }
     }
+
+    // `entity` marks the methods whose response the caller cannot determine
+    // from the method name alone, so it needs BOTH halves:
+    //
+    //   - a polymorphic return (`list | single | count`), which rules out
+    //     `alert.list`, `auth.sessions`, `core.get_jobs` and ~30 others that
+    //     merely return an array and accept no options at all;
+    //   - query options actually being accepted, which rules out
+    //     `get_instance`, which takes them but always returns exactly one
+    //     entry, so there is nothing to disambiguate.
+    //
+    // Marking on the return alone conflated "returns a list of E" with "is a
+    // query", which would have offered filters to methods that take none.
+    if (listEntity && takesQueryOptions) method.queryEntity = listEntity;
   }
 }
 

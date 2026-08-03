@@ -349,4 +349,74 @@ describe('TrueNasApi', () => {
         result: [completedJob],
       } as unknown as TrueNasMessage);
     }));
+
+  /**
+   * The verbs are typed against the generated directory, but on the wire they
+   * are ordinary `.query` calls — the verb only decides which options are sent.
+   * These pin that translation; `src/query-projection.spec.ts` pins the types.
+   */
+  describe('query verbs', () => {
+    /** `params` of the single JSON-RPC message the verb put on the wire. */
+    const sentParams = (): unknown =>
+      (vi.mocked(mockConnection.ws.next).mock.calls[0][0] as TrueNasMessage)
+        .params;
+
+    const queryApi = () =>
+      api as unknown as TrueNasApi<{
+        'user.query': { entity: { id: number; username: string; uid: number } };
+      }>;
+
+    it('sends filters and options unchanged for query', () => {
+      queryApi().query('user.query', [['uid', '>', 1000]], {
+        select: ['id'],
+        limit: 10,
+      });
+
+      expect(sentParams()).toEqual([
+        [['uid', '>', 1000]],
+        { select: ['id'], limit: 10 },
+      ]);
+    });
+
+    it('defaults to no filters and no options', () => {
+      queryApi().query('user.query');
+
+      expect(sentParams()).toEqual([[], {}]);
+    });
+
+    it('adds get:true for queryOne, preserving the caller options', () => {
+      queryApi().queryOne('user.query', [['id', '=', 1]], { select: ['id'] });
+
+      expect(sentParams()).toEqual([
+        [['id', '=', 1]],
+        { select: ['id'], get: true },
+      ]);
+    });
+
+    it('sends only count:true for queryCount', () => {
+      queryApi().queryCount('user.query', [['uid', '>', 1000]]);
+
+      expect(sentParams()).toEqual([[['uid', '>', 1000]], { count: true }]);
+    });
+
+    it('emits the result like any other call', () =>
+      new Promise<void>((resolve, reject) => {
+        queryApi()
+          .queryCount('user.query')
+          .subscribe(count => {
+            try {
+              expect(count).toBe(42);
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          });
+
+        messagesSubject.next({
+          jsonrpc: '2.0',
+          id: 'mock-id-user.query',
+          result: 42,
+        } as unknown as TrueNasMessage);
+      }));
+  });
 });

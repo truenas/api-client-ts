@@ -53,6 +53,29 @@ describe('generateFromDump (mini fixture, v1 -> v2 chain)', () => {
     expect(v1).toMatch(/^export interface ISCSIThing /m); // iSCSIThing normalized
   });
 
+  it('carries the entity of a query method so its response can be resolved', async () => {
+    const files = await generate();
+    const calls = files.get('v1_0_0/api-call-directory.ts') ?? '';
+    // Entries are blank-line separated; match per entry so an assertion cannot
+    // run past one entry's closing brace into the next one's body.
+    const entry = (name: string) => calls.split('\n\n').find((b) => b.includes(`'${name}':`)) ?? '';
+
+    expect(entry('test.query')).toContain('entity: TestEntry;');
+    // The union stays put: a consumer ignoring `entity` must not silently get
+    // the list shape when it passed `{count: true}`.
+    expect(entry('test.query')).toMatch(/response: [^\n]*number/);
+    // Non-query methods carry no entity — get_instance takes QueryOptions but
+    // returns exactly one entry, so there is nothing to resolve.
+    expect(entry('test.create')).not.toContain('entity:');
+    expect(entry('iscsi.fetch')).not.toContain('entity:');
+  });
+
+  it('exports the projection resolver in the grammar', async () => {
+    const q = (await generate()).get('shared/query-types.ts') ?? '';
+    expect(q).toContain('export type QueryProjection<E, O>');
+    expect(q).toContain('Pick<E, Extract<S, keyof E>>');
+  });
+
   it('types query methods with the grammar generics and prunes the options model', async () => {
     const files = await generate();
     for (const dir of ['v1_0_0', 'v2_0_0']) {
