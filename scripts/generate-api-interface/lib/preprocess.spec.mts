@@ -156,7 +156,12 @@ describe('preprocess', () => {
     ]));
     expect(methods[0].params[0].schema.tsType).toBe('QueryFilters<Entry>');
     expect(methods[0].params[1].schema.tsType).toBe('QueryOptions<Entry>');
-    expect(methods[1].params[1].schema.tsType).toBe('QueryOptions<Entry>');
+    // `get_instance` is stamped with the same options model by the CRUD
+    // metaclass, but its response has no list arm — nothing to shape, and
+    // `count`/`get` would make the underlying query return something the
+    // following `[0]` raises on. Narrowed to what implementations read.
+    expect(methods[1].params[1].schema.tsType).toBe('QueryInstanceOptions');
+    expect(methods[1].queryEntity).toBeUndefined();
     // non-uniform options models are left alone
     const { methods: other } = preprocess(version([
       method('y.do', args({ options: { $ref: '#/$defs/Custom' } }, [], {

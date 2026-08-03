@@ -18,7 +18,7 @@ export const HEADER = `/**
  */
 `;
 
-const QUERY_TYPE_NAMES = ['QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions', 'QueryProjection'];
+const QUERY_TYPE_NAMES = ['QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryInstanceOptions', 'QueryOperator', 'QueryOptions', 'QueryProjection'];
 
 const refName = (ref: string): string => ref.replace('#/definitions/', '');
 
@@ -264,9 +264,17 @@ function importLine(nodes: unknown, externals: Externals = new Map(), localPath 
   return out ? `${out}\n` : '';
 }
 
-/** Import for the query-grammar generics actually used in the emitted entries. */
+/**
+ * Import for the query-grammar types actually used in the emitted entries.
+ *
+ * Matched on the name followed by `<` or a non-identifier character, because
+ * not every grammar type is generic: `QueryInstanceOptions` takes no parameter,
+ * and matching `${n}<` alone would leave every file that references it without
+ * an import. The boundary check is what stops `QueryOptions` matching inside
+ * `QueryOptionsModel`.
+ */
 function queryImportLine(entries: string, queryPath: string): string {
-  const used = QUERY_TYPE_NAMES.filter((n) => entries.includes(`${n}<`));
+  const used = QUERY_TYPE_NAMES.filter((n) => new RegExp(`\\b${n}(?![A-Za-z0-9_])`).test(entries));
   return used.length
     ? `import type {\n${used.map((n) => `  ${n},`).join('\n')}\n} from '${queryPath}';\n\n`
     : '';

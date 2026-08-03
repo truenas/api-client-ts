@@ -198,6 +198,36 @@ export interface QueryOptions<T> {
 }
 
 /**
+ * Options a single-entity method accepts — \`get_instance\` and friends.
+ *
+ * The dump declares the full {@link QueryOptions} model on every one of these,
+ * because middleware's CRUD metaclass stamps the same signature onto each
+ * \`get_instance\` regardless of what the implementation does with it. Nothing
+ * reads that signature; it describes no behaviour.
+ *
+ * What the implementations actually consume is \`extra\`, and only \`extra\`. The
+ * generic base reduces to it explicitly, the hand-written overrides rebuild the
+ * options object around it, and two ignore even that. The classic base forwards
+ * everything only because it reuses \`.query\` internally — which is also why
+ * \`count\` and \`get\` are worse than inert there: they make \`.query\` return a
+ * number or a bare object, and taking \`[0]\` of it raises.
+ *
+ * \`select\` is the one real loss. It reaches the row and subsets it on services
+ * whose entry model allows extra keys — \`pool.dataset.get_instance\` genuinely
+ * projects today. On every stricter model the projection fails validation and
+ * survives only by falling back to the unvalidated dict. Use \`query\` when you
+ * want a projection; that is the supported path for it.
+ *
+ * \`extra\` stays \`Record<string, unknown>\` because it is genuinely per-endpoint:
+ * some 28 distinct keys across middleware, described only in prose on the
+ * corresponding \`query\` method's docstring, and incompletely even there.
+ */
+export interface QueryInstanceOptions {
+  /** Method-specific extra options (see the method's API documentation). */
+  extra?: Record<string, unknown>;
+}
+
+/**
  * What a query verb returns for a given options object.
  *
  * \`api.query\` / \`queryOne\` / \`queryCount\` each fix the *shape* of the result,
@@ -359,6 +389,7 @@ export type {
   QueryFilter,
   QueryFilterField,
   QueryFilters,
+  QueryInstanceOptions,
   QueryOperator,
   QueryOptions,
   QueryProjection,
@@ -490,6 +521,7 @@ export type {
   QueryFilter,
   QueryFilterField,
   QueryFilters,
+  QueryInstanceOptions,
   QueryOperator,
   QueryOptions,
   QueryProjection,

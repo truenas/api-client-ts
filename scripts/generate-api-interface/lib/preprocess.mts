@@ -33,7 +33,7 @@ import type {
  * interfaces) — middleware model names must never claim them.
  */
 const RESERVED_NAMES = new Set([
-  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryOperator', 'QueryOptions', 'QueryProjection',
+  'QueryFilter', 'QueryFilterField', 'QueryFilters', 'QueryInstanceOptions', 'QueryOperator', 'QueryOptions', 'QueryProjection',
   'ApiCallDirectory', 'ApiJobDirectory', 'ApiEventDirectory', 'ApiDirectory',
   'ApiCallDirectoryDelta', 'ApiJobDirectoryDelta', 'ApiEventDirectoryDelta',
   'ApiCallDirectoryBase', 'ApiJobDirectoryBase', 'ApiEventDirectoryBase',
@@ -485,7 +485,16 @@ function applyQueryTyping(methods: MethodModel[], definitions: Record<string, De
       if (param.name === 'filters' && method.params[i + 1]?.name === 'options') {
         param.schema = { tsType: `QueryFilters<${entity}>`, _refs: entityRefs(entity) };
       } else if (param.name === 'options' && isQueryOptionsDef(param.schema)) {
-        param.schema = { tsType: `QueryOptions<${entity}>`, _refs: entityRefs(entity) };
+        // A response with no list arm cannot be shaped by list options. Those
+        // methods are `get_instance`, which the CRUD metaclass stamps with the
+        // full options model whatever its implementation does — and the
+        // implementations consume `extra` and nothing else. Two of the rest do
+        // not merely go unused: `count` and `get` make the underlying `.query`
+        // return a number or a bare object, which the `[0]` that follows then
+        // raises on.
+        param.schema = listEntity
+          ? { tsType: `QueryOptions<${entity}>`, _refs: entityRefs(entity) }
+          : { tsType: 'QueryInstanceOptions', _refs: [] };
         takesQueryOptions = true;
       }
     }
