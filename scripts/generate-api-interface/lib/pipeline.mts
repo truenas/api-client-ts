@@ -246,7 +246,7 @@ export async function generateFromDump(
       types: names.filter((n) => declared[home][n]._kind !== 'enum').sort(),
     }));
 
-    const removedPrefixes = handRemoved[models[i].version] ?? [];
+    const removedPrefixes = handRemoved[model.version] ?? [];
     const link = (kind: string): DirectoryChainLink | undefined => (multi && i > 0
       ? { prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`, removed: [], removedPrefixes }
       : undefined);

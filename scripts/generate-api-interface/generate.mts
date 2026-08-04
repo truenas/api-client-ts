@@ -12,6 +12,9 @@
  * Usage (fetch a fresh dump via the middleware container — no local setup):
  *   yarn generate:api --fetch docker --min-version v25.10.0
  *
+ * Files carrying the FROZEN marker are left untouched (released versions are a
+ * record, not an output); everything else in the chain is still generated.
+ *
  * `--min-version` generates that version and everything newer, which is how
  * the committed tree is produced: the supported floor is stated once and new
  * middleware releases are picked up by regenerating. `--api-version` selects
@@ -54,6 +57,7 @@ const { values: args } = parseArgs({
     'min-version': { type: 'string' },
     'api-version': { type: 'string' },
     include: { type: 'string', default: '' },
+    'hand-removed': { type: 'string', default: path.resolve(import.meta.dirname, 'hand-removed.json') },
     out: { type: 'string', default: path.resolve(import.meta.dirname, '../../src/generated') },
   },
 });
@@ -141,18 +145,43 @@ try {
 }
 if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} versions from ${args['min-version']} upward.`);
 
+/**
+ * Version -> namespace prefixes, from the hand-removed manifest.
+ *
+ * Prefixes are interpolated into an emitted template literal, so a stray
+ * backtick or `${` would emit broken TypeScript rather than fail here. Rejected
+ * loudly instead. `$comment` keys are skipped, which is how the file documents
+ * itself.
+ */
+function parseHandRemoved(raw: unknown): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const [version, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (version.startsWith('$')) continue;
+    if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
+      console.error(`hand-removed: '${version}' must map to an array of strings.`);
+      process.exit(1);
+    }
+    for (const prefix of value as string[]) {
+      if (!/^[A-Za-z0-9_.]+$/.test(prefix)) {
+        console.error(`hand-removed: '${prefix}' is not a bare namespace prefix.`);
+        process.exit(1);
+      }
+    }
+    out[version] = value as string[];
+  }
+  return out;
+}
+
 let files: Map<string, string>;
 try {
   const handRemoved = JSON.parse(
-    await readFile(path.join(import.meta.dirname, 'hand-removed.json'), 'utf8')
+    await readFile(args['hand-removed'], 'utf8')
   ) as Record<string, string[] | string>;
   files = await generateFromDump(dump, {
     apiVersions,
     includePrefixes,
     log: console.log,
-    handRemoved: Object.fromEntries(
-      Object.entries(handRemoved).filter((e): e is [string, string[]] => Array.isArray(e[1]))
-    ),
+    handRemoved: parseHandRemoved(handRemoved),
   });
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
@@ -170,33 +199,44 @@ try {
  * Checked against what is already on disk rather than against a version number,
  * because the version number would need maintaining and this does not: freeze a
  * version by writing the marker into its files, unfreeze it by removing it.
- * `--min-version` is the polite default; this is the part that holds when
- * someone passes `--api-version all` or edits the script.
+ *
+ * Skipped rather than fatal. The whole chain still has to be generated — later
+ * versions are deltas against the frozen one, and the root index enumerates
+ * every version — so refusing to run would leave no way to pick up a new
+ * release, and narrowing `--min-version` past the frozen version would make the
+ * next one the chain root and drop the earlier ones from the package entirely.
+ * Skipping is safe precisely because a frozen file does not change: the rest of
+ * the tree is generated against the same model it already holds.
  */
 const FROZEN_MARKER = 'FROZEN — generated once, then hand-maintained.';
 
 const frozen: string[] = [];
 for (const relPath of files.keys()) {
-  const existing = await readFile(path.join(args.out, relPath), 'utf8').catch(() => null);
+  const target = path.join(args.out, relPath);
+  const existing = await readFile(target, 'utf8').catch((error: NodeJS.ErrnoException) => {
+    // Absent is fine — that is a new file. Anything else means we cannot tell
+    // whether it is frozen, and guessing "no" is the destructive guess.
+    if (error.code === 'ENOENT') return null;
+    console.error(`Cannot read ${target} to check for the frozen marker: ${error.message}`);
+    process.exit(1);
+  });
   if (existing?.includes(FROZEN_MARKER)) frozen.push(relPath);
 }
 
-// Abort before writing anything: a half-applied generation is worse than none.
-if (frozen.length > 0) {
-  console.error(
-    `Refusing to regenerate ${frozen.length.toString()} frozen file(s):\n` +
-    frozen.map((f) => `  ${f}`).join('\n') +
-    '\n\nThose versions are released and their directories are a record, not an ' +
-    'output; some carry hand-maintained entries that no dump can reproduce.\n' +
-    'Generate a narrower range (--min-version), or remove the marker from those ' +
-    'files if you genuinely mean to overwrite them.'
-  );
-  process.exit(1);
-}
-
 for (const [relPath, content] of files) {
+  if (frozen.includes(relPath)) continue;
   const target = path.join(args.out, relPath);
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, content);
 }
-console.log(`Wrote ${files.size} files -> ${args.out}`);
+
+if (frozen.length > 0) {
+  console.error(
+    `Left ${frozen.length.toString()} frozen file(s) untouched:\n` +
+    frozen.map((f) => `  ${f}`).join('\n') +
+    '\nThose versions are released; their directories are a record rather than ' +
+    'an output, and some carry hand-maintained entries no dump can reproduce.\n' +
+    'Remove the marker from a file to let generation overwrite it.'
+  );
+}
+console.log(`Wrote ${(files.size - frozen.length).toString()} files -> ${args.out}`);

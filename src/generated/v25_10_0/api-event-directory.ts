@@ -6,8 +6,8 @@
  * can reproduce: middleware deleted those models from every version directory
  * in b9c330ee94, so regenerating would silently delete them here too.
  *
- * `yarn generate:api` is pinned to v26.0.0 and upward for that reason. Edits
- * belong in the hand-maintained block at the foot of api-types.ts.
+ * `yarn generate:api` still generates the whole chain — later versions are
+ * deltas against this one — but leaves files carrying this marker untouched.
  */
 
 import type {

@@ -15,6 +15,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const FROZEN_HEADER = `/**
@@ -23,7 +24,7 @@ const FROZEN_HEADER = `/**
 export {};
 `;
 
-const HERE = path.dirname(new URL(import.meta.url).pathname);
+const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
 
 let out: string | undefined;
@@ -34,7 +35,7 @@ afterEach(() => {
 });
 
 /** Run the generator over the mini fixture, writing into a throwaway directory. */
-function generate(target: string) {
+function generate(target: string, handRemoved?: string) {
   return spawnSync(
     'node',
     [
@@ -43,27 +44,34 @@ function generate(target: string) {
       '--schema', path.join(HERE, 'fixtures/mini-dump.json'),
       '--api-version', 'all',
       '--out', target,
+      ...(handRemoved ? ['--hand-removed', handRemoved] : []),
     ],
     { cwd: REPO, encoding: 'utf8' }
   );
 }
 
 describe('the frozen-directory guard', () => {
-  it('refuses to overwrite a file marked frozen, and writes nothing', () => {
+  it('leaves a frozen file untouched while generating the rest', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-frozen-'));
     mkdirSync(path.join(out, 'v1_0_0'), { recursive: true });
     writeFileSync(path.join(out, 'v1_0_0/api-types.ts'), FROZEN_HEADER);
 
     const result = generate(out);
 
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain('Refusing to regenerate');
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain('Left 1 frozen file(s) untouched');
     expect(result.stderr).toContain('v1_0_0/api-types.ts');
 
-    // Aborts before writing anything — a half-applied generation is worse than
-    // none, and would leave the frozen version's siblings inconsistent with it.
-    expect(readdirSync(out)).toEqual(['v1_0_0']);
-    expect(readdirSync(path.join(out, 'v1_0_0'))).toEqual(['api-types.ts']);
+    // Byte-identical: the point is that the marker survives, not merely that a
+    // file with that name still exists.
+    expect(readFileSync(path.join(out, 'v1_0_0/api-types.ts'), 'utf8')).toBe(FROZEN_HEADER);
+
+    // The rest of the chain still has to be emitted — later versions are deltas
+    // against the frozen one and the root index enumerates every version, so
+    // aborting would leave no way to pick up a new release.
+    expect(readdirSync(out)).toContain('v2_0_0');
+    expect(readdirSync(out)).toContain('index.ts');
+    expect(readdirSync(path.join(out, 'v1_0_0'))).toContain('api-call-directory.ts');
   });
 
   it('writes normally when nothing is marked', () => {
@@ -88,11 +96,25 @@ describe('hand-declared removals', () => {
   it('are emitted into the inheriting version, so regeneration is idempotent', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-handremoved-'));
 
-    const result = generate(out);
+    const manifest = path.join(out, 'hand-removed.json');
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['test.'] }));
+
+    const result = generate(out, manifest);
 
     expect(result.status).toBe(0);
     // The fixture's v2.0.0 inherits from v1.0.0; the manifest drops `test.` there.
     const v2 = readFileSync(path.join(out, 'v2_0_0/api-call-directory.ts'), 'utf8');
     expect(v2).toContain('`test.${string}`');
+  });
+
+  it('rejects a prefix that would break the emitted type', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-badprefix-'));
+    const manifest = path.join(out, 'hand-removed.json');
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['`${evil}'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('not a bare namespace prefix');
   });
 });

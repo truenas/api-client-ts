@@ -9,6 +9,8 @@
  * the generator cannot reach back into the frozen versions.
  */
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Observable } from 'rxjs';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
@@ -108,17 +110,20 @@ describe('virt.* on the v25.10 directory', () => {
 
 describe('the freeze that keeps virt.* alive', () => {
   /**
-   * Hand-maintained entries in a generated directory survive only while nothing
-   * regenerates it. `--min-version` is what enforces that, so it is worth a test
-   * rather than a comment — this is the single line whose reversion would delete
-   * the work above with no other symptom.
+   * Narrowing `--min-version` past v25.10 would make v26 the chain root: the
+   * later versions would stop being deltas against a frozen directory, and
+   * v25.10 would drop out of `SUPPORTED_API_VERSIONS` and the package entirely.
+   * The freeze is the marker's job; this pins the range it operates over.
    */
-  it('pins generation to v26.0.0 and upward', () => {
-    const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as {
+  it('generates the whole chain, from v25.10.0 upward', () => {
+    const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+    const pkg = JSON.parse(readFileSync(path.join(repo, 'package.json'), 'utf8')) as {
       scripts: Record<string, string>;
     };
 
-    expect(pkg.scripts['generate:api']).toContain('--min-version v26.0.0');
-    expect(pkg.scripts['generate:api']).not.toContain('v25.10');
+    // v25.10.0, not v26: the whole chain must be generated, because later
+    // versions are deltas against v25.10 and the root index enumerates every
+    // version. The freeze is enforced by the marker, not by narrowing this.
+    expect(pkg.scripts['generate:api']).toContain('--min-version v25.10.0');
   });
 });

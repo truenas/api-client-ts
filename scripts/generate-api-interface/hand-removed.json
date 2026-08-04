@@ -1,9 +1,6 @@
 {
-  "$comment": "Namespaces removed from middleware in a way no dump can express. The generator computes removals by diffing consecutive dumps, which cannot see a namespace that was deleted from every version directory retroactively \u2014 see src/generated/v25_10_0/api-types.ts. Each prefix listed under a version is omitted from the surface that version inherits, as a `prefix${string}` template literal, so regeneration stays idempotent and the omission cannot drift out of sync with what v25.10 declares. The v2.0.0 entry exists only for the mini fixture used by frozen-guard.spec.mts; the real chain has no v2.0.0.",
+  "$comment": "Namespaces removed from middleware in a way no dump can express. The generator computes removals by diffing consecutive dumps, which cannot see a namespace that was deleted from every version directory retroactively \u2014 see src/generated/v25_10_0/api-types.ts. Each prefix listed under a version is omitted from the surface that version inherits, as a `prefix${string}` template literal, so regeneration stays idempotent and the omission cannot drift out of sync with what v25.10 declares.",
   "v26.0.0": [
     "virt."
-  ],
-  "v2.0.0": [
-    "test."
   ]
 }

@@ -6,8 +6,8 @@
  * can reproduce: middleware deleted those models from every version directory
  * in b9c330ee94, so regenerating would silently delete them here too.
  *
- * `yarn generate:api` is pinned to v26.0.0 and upward for that reason. Edits
- * belong in the hand-maintained block at the foot of api-types.ts.
+ * `yarn generate:api` still generates the whole chain — later versions are
+ * deltas against this one — but leaves files carrying this marker untouched.
  */
 
 export const Aclmode = {
@@ -8828,8 +8828,8 @@ export interface VirtInstanceCreate {
   root_disk_size?: number;
   root_disk_io_bus?: 'NVME' | 'VIRTIO-BLK' | 'VIRTIO-SCSI';
   remote?: 'LINUX_CONTAINERS';
-  instance_type?: 'CONTAINER' | 'VM';
-  autostart?: boolean;
+  instance_type?: 'CONTAINER';
+  autostart?: boolean | null;
   privileged_mode?: boolean;
   storage_pool?: string | null;
   environment?: Record<string, string> | null;
@@ -8840,7 +8840,7 @@ export interface VirtInstanceCreate {
 
 export interface VirtInstanceUpdate {
   environment?: Record<string, string> | null;
-  autostart?: boolean;
+  autostart?: boolean | null;
   cpu?: string | null;
   memory?: number | null;
   vnc_port?: number | null;
@@ -8848,8 +8848,9 @@ export interface VirtInstanceUpdate {
   vnc_password?: string | null;
   secure_boot?: boolean;
   root_disk_size?: number | null;
-  root_disk_io_bus?: 'NVME' | 'VIRTIO-BLK' | 'VIRTIO-SCSI';
-  image_os?: string;
+  /** `null` keeps the current setting. */
+  root_disk_io_bus?: 'NVME' | 'VIRTIO-BLK' | 'VIRTIO-SCSI' | null;
+  image_os?: string | null;
   privileged_mode?: boolean;
 }
 
@@ -8865,7 +8866,7 @@ export interface VirtInstanceImageChoice {
   release: string;
   archs: string[];
   variant: string;
-  instance_types: string[];
+  instance_types: ('CONTAINER' | 'VM')[];
   secureboot: boolean | null;
 }
 
@@ -8907,8 +8908,8 @@ export interface VirtDeviceUsbChoice {
 }
 
 export interface VirtDeviceGpuChoice {
-  bus: number;
-  slot: number;
+  bus: string;
+  slot: string;
   description: string;
   vendor: string | null;
   pci: string;
@@ -8920,7 +8921,10 @@ export interface VirtDeviceImportDiskImage {
 }
 
 export interface VirtDeviceExportDiskImage {
-  format: 'QCOW2' | 'QED' | 'RAW' | 'VDI' | 'VPC' | 'VMDK';
+  /** `NonEmptyString` upstream; the service lowercases it and accepts
+   *  qcow2, qed, raw, vdi, vpc, vmdk. Not narrowed here, because narrowing to
+   *  the uppercase spellings would reject the lowercase ones the API takes. */
+  format: string;
   directory: string;
   zvol: string;
 }
