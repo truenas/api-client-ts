@@ -149,6 +149,41 @@ try {
   process.exit(1);
 }
 
+/**
+ * Marker a released version's files carry once they are no longer an output.
+ *
+ * A released API cannot change, so its directory is a record. Some of them also
+ * hold entries no dump can reproduce — v25.10's `virt.*` namespace was deleted
+ * from every version directory in middleware, so regenerating that directory
+ * deletes it here rather than restoring it.
+ *
+ * Checked against what is already on disk rather than against a version number,
+ * because the version number would need maintaining and this does not: freeze a
+ * version by writing the marker into its files, unfreeze it by removing it.
+ * `--min-version` is the polite default; this is the part that holds when
+ * someone passes `--api-version all` or edits the script.
+ */
+const FROZEN_MARKER = 'FROZEN — generated once, then hand-maintained.';
+
+const frozen: string[] = [];
+for (const relPath of files.keys()) {
+  const existing = await readFile(path.join(args.out, relPath), 'utf8').catch(() => null);
+  if (existing?.includes(FROZEN_MARKER)) frozen.push(relPath);
+}
+
+// Abort before writing anything: a half-applied generation is worse than none.
+if (frozen.length > 0) {
+  console.error(
+    `Refusing to regenerate ${frozen.length.toString()} frozen file(s):\n` +
+    frozen.map((f) => `  ${f}`).join('\n') +
+    '\n\nThose versions are released and their directories are a record, not an ' +
+    'output; some carry hand-maintained entries that no dump can reproduce.\n' +
+    'Generate a narrower range (--min-version), or remove the marker from those ' +
+    'files if you genuinely mean to overwrite them.'
+  );
+  process.exit(1);
+}
+
 for (const [relPath, content] of files) {
   const target = path.join(args.out, relPath);
   await mkdir(path.dirname(target), { recursive: true });
