@@ -629,6 +629,11 @@ export interface ApiJobDirectory {
     response: VirtVolumeEntry;
   };
 
+  // The tuple label is upstream's: `VirtVolumeImportZvolArgs` is declared
+  // `@single_argument_args('virt_volume_import_iso')` in virt_volume.py, a
+  // copy-paste from `import_iso` above. Kept so this matches what a dump of
+  // 25.10 would have produced; the label is documentation only, since the wire
+  // carries positional params.
   'virt.volume.import_zvol': {
     params: [virt_volume_import_iso: VirtVolumeImportZvol];
     response: VirtVolumeEntry;

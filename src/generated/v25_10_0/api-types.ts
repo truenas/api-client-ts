@@ -8939,10 +8939,11 @@ export interface VirtInstanceRemovedEvent {
   id: string;
 }
 
-export interface VirtInstanceMetricsEventSourceArgs {
+export interface VirtInstancesMetricsEventSourceArgs {
+  /** Seconds between metrics updates. Middleware rejects anything below 2. */
   interval?: number;
 }
 
-export interface VirtInstanceMetricsEventSourceEvent {
+export interface VirtInstancesMetricsEventSourceEvent {
   result: Record<string, unknown>;
 }

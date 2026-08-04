@@ -15,6 +15,7 @@ import { TrueNasApi } from '@/api/truenas-api';
 import type {
   ApiCallDirectoryV25_10_0,
   ApiCallDirectoryV26_0_0,
+  ApiEventDirectoryV26_0_0,
   v25_10_0,
 } from '@/generated';
 import type { QueryDirectory, QueryMethod } from '@/types/query.type';
@@ -66,12 +67,32 @@ describe('virt.* on the v25.10 directory', () => {
     >();
   });
 
+  /**
+   * `virt.instance.metrics` is an event *source* rather than a CRUD event, so
+   * it takes subscription params. It was missed in the first pass — the two
+   * models were transcribed and the directory entry was not, which nothing
+   * caught because the tests only pinned `virt.instance.query`. Both event
+   * kinds are asserted now.
+   */
+  it('carries both event kinds', () => {
+    type Events = v25_10_0.ApiEventDirectory;
+
+    expectTypeOf<Events['virt.instance.query']['added']>().toEqualTypeOf<
+      v25_10_0.VirtInstanceAddedEvent
+    >();
+    expectTypeOf<
+      Events['virt.instance.metrics']['subscriptionParams']
+    >().toEqualTypeOf<v25_10_0.VirtInstancesMetricsEventSourceArgs>();
+  });
+
   it('does not leak into versions that never had it', () => {
     // v26 dropped virt for container.*; the shared base is the intersection of
     // every version, so virt must not appear in either.
     type V26Method = keyof ApiCallDirectoryV26_0_0;
+    type V26Event = keyof ApiEventDirectoryV26_0_0;
     expectTypeOf<'virt.instance.query'>().not.toExtend<V26Method>();
     expectTypeOf<'virt.instance.query'>().not.toExtend<QueryMethod<QueryDirectory>>();
+    expectTypeOf<'virt.instance.metrics'>().not.toExtend<V26Event>();
   });
 });
 

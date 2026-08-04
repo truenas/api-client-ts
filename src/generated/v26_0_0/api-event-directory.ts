@@ -197,5 +197,6 @@ export interface ApiEventDirectoryDelta {
 export type ApiEventDirectory = Omit<
   PreviousApiEventDirectory,
   | keyof ApiEventDirectoryDelta
+  | 'virt.instance.metrics'
   | 'virt.instance.query'
 > & ApiEventDirectoryDelta;
