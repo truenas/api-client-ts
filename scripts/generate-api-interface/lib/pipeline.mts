@@ -65,7 +65,8 @@ function pruneUnreachable(model: VersionModel): void {
   );
 }
 
-const versionDir = (version: string): string => version.replaceAll('.', '_');
+/** `v25.10.0` -> `v25_10_0`, the directory a version's files live in. */
+export const versionDir = (version: string): string => version.replaceAll('.', '_');
 
 /**
  * @returns generated files as `relative path -> content`

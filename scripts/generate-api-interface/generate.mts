@@ -45,7 +45,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 
-import { generateFromDump } from './lib/pipeline.mts';
+import { generateFromDump, versionDir } from './lib/pipeline.mts';
 import { selectVersions } from './lib/select-versions.mts';
 import type { ApiDumpFile, ApiDumpVersion } from './lib/types.mts';
 
@@ -277,7 +277,15 @@ const dumpSlices = new Map(
   ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => [v.version, v])
 );
 const hashOf = (value: unknown) =>
-  createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0, 16);
+  createHash('sha256')
+    // Documentation is not part of the generated output — the manifest says so
+    // in its own header — and middleware backports docstring edits into
+    // released version directories routinely. Including them would fire this
+    // check on changes that provably cannot affect a single emitted byte, and a
+    // check that cries wolf is a check that gets re-blessed reflexively.
+    .update(JSON.stringify(value, (key, v: unknown) => (key === 'doc' || key === 'description' ? undefined : v)))
+    .digest('hex')
+    .slice(0, 16);
 
 let recorded: Record<string, string>;
 try {
@@ -291,18 +299,38 @@ try {
   process.exit(1);
 }
 
-/** `v25_10_0/api-types.ts` -> `v25.10.0`, via the directory naming the pipeline uses. */
+/**
+ * `v25_10_0/api-types.ts` -> `v25.10.0`.
+ *
+ * Constructed forwards with the pipeline's own `versionDir` rather than parsed
+ * backwards: a reimplementation here would drift the day that changes, and the
+ * symptom would be frozen files silently mapping to no version, leaving the
+ * drift check covering nothing.
+ */
 const versionOfPath = (relPath: string): string | undefined => {
   const dir = relPath.split('/')[0];
-  return [...dumpSlices.keys()].find((v) => `v${v.slice(1).replace(/\./g, '_')}` === dir);
+  return [...dumpSlices.keys()].find((v) => versionDir(v) === dir);
 };
+
+const unmapped = frozen.filter((f) => versionOfPath(f) === undefined);
+if (unmapped.length > 0) {
+  // The only way the check can go quiet now that a missing baseline is fatal:
+  // no version means no baseline to miss, so it would pass while covering
+  // nothing.
+  console.error(
+    `Cannot tell which version these frozen files belong to:\n` +
+    unmapped.map((f) => `  ${f}`).join('\n') +
+    '\nThey would be skipped without being checked against the dump.'
+  );
+  process.exit(1);
+}
 
 const frozenVersions = [...new Set(frozen.map(versionOfPath).filter((v): v is string => !!v))];
 const drifted: string[] = [];
 const missing: Record<string, string> = {};
 for (const version of frozenVersions) {
   const digest = hashOf(dumpSlices.get(version));
-  const before = recorded[version];
+  const before = version.startsWith('$') ? undefined : recorded[version];
   if (before === undefined) missing[version] = digest;
   else if (before !== digest) drifted.push(`  ${version} (${before} -> ${digest})`);
 }
