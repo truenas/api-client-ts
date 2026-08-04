@@ -283,7 +283,12 @@ const hashOf = (value: unknown) =>
     // released version directories routinely. Including them would fire this
     // check on changes that provably cannot affect a single emitted byte, and a
     // check that cries wolf is a check that gets re-blessed reflexively.
-    .update(JSON.stringify(value, (key, v: unknown) => (key === 'doc' || key === 'description' ? undefined : v)))
+    // Discriminated on type, not key alone: `description` is also a legitimate
+    // model *field* name (31 models in v25.10 declare one), and dropping those
+    // schema nodes would hide a real change. Documentation is always a string;
+    // a field named `description` is always an object.
+    .update(JSON.stringify(value, (key, v: unknown) =>
+      (key === 'doc' || key === 'description') && typeof v === 'string' ? undefined : v))
     .digest('hex')
     .slice(0, 16);
 
@@ -330,7 +335,7 @@ const drifted: string[] = [];
 const missing: Record<string, string> = {};
 for (const version of frozenVersions) {
   const digest = hashOf(dumpSlices.get(version));
-  const before = version.startsWith('$') ? undefined : recorded[version];
+  const before = recorded[version];
   if (before === undefined) missing[version] = digest;
   else if (before !== digest) drifted.push(`  ${version} (${before} -> ${digest})`);
 }
