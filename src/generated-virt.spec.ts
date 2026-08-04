@@ -8,7 +8,7 @@
  * so the file is picked up by `tsconfig.spec.json` — plus one runtime check that
  * the generator cannot reach back into the frozen versions.
  */
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Observable } from 'rxjs';
@@ -108,6 +108,9 @@ describe('virt.* on the v25.10 directory', () => {
   });
 });
 
+const repoRoot = () =>
+  path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
 describe('the freeze that keeps virt.* alive', () => {
   /**
    * Narrowing `--min-version` past v25.10 would make v26 the chain root: the
@@ -115,9 +118,35 @@ describe('the freeze that keeps virt.* alive', () => {
    * v25.10 would drop out of `SUPPORTED_API_VERSIONS` and the package entirely.
    * The freeze is the marker's job; this pins the range it operates over.
    */
+  /**
+   * The marker is the whole mechanism, and it lives as a literal string in every
+   * released file. Strip or mistype one header and that file silently unfreezes;
+   * without this, the first symptom is a regeneration having already eaten it.
+   */
+  it('marks every file in the released 25.10 series', () => {
+    const generated = path.join(repoRoot(), 'src/generated');
+    const released = readdirSync(generated).filter((d) => d.startsWith('v25_10_'));
+
+    expect(released).toHaveLength(6);
+
+    for (const dir of released) {
+      const files = readdirSync(path.join(generated, dir))
+        .filter((f) => f.endsWith('.ts'));
+      expect(files.length).toBeGreaterThan(0);
+
+      for (const file of files) {
+        const full = path.join(generated, dir, file);
+        if (!statSync(full).isFile()) continue;
+        expect(
+          readFileSync(full, 'utf8'),
+          `${dir}/${file} is missing the frozen marker`
+        ).toContain('FROZEN — generated once, then hand-maintained.');
+      }
+    }
+  });
+
   it('generates the whole chain, from v25.10.0 upward', () => {
-    const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-    const pkg = JSON.parse(readFileSync(path.join(repo, 'package.json'), 'utf8')) as {
+    const pkg = JSON.parse(readFileSync(path.join(repoRoot(), 'package.json'), 'utf8')) as {
       scripts: Record<string, string>;
     };
 

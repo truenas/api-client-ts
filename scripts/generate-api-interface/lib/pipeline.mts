@@ -38,6 +38,12 @@ export interface PipelineOptions {
    * express. See `hand-removed.json`; the CLI loads it and passes it through.
    */
   handRemoved?: Record<string, string[]>;
+  /**
+   * Markdown appended to the generated MANIFEST.md, for entries no dump
+   * describes. Without it the manifest's completeness claim is false, and
+   * hand-adding the rows puts them in a regeneration target.
+   */
+  manifestAppendix?: string;
 }
 
 /**
@@ -67,7 +73,10 @@ const versionDir = (version: string): string => version.replaceAll('.', '_');
  */
 export async function generateFromDump(
   dump: ApiDumpFile | ApiDumpVersion,
-  { apiVersions, includePrefixes = [], log = () => {}, handRemoved = {} }: PipelineOptions = {},
+  {
+    apiVersions, includePrefixes = [], log = () => {},
+    handRemoved = {}, manifestAppendix = '',
+  }: PipelineOptions = {},
 ): Promise<Map<string, string>> {
   const available: ApiDumpVersion[] = (dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion];
   if (available[0] && !available[0].methods[0]?.schemas?.accepts) {
@@ -309,7 +318,7 @@ export async function generateFromDump(
       }
     });
     manifestRows.push(...typeRows.values());
-    files.set('MANIFEST.md', emitManifest(manifestRows, models.map((m) => m.version)));
+    files.set('MANIFEST.md', emitManifest(manifestRows, models.map((m) => m.version), manifestAppendix));
 
     files.set('index.ts', emitRootIndex(models.map((m) => m.version)));
     log(`Chain: root ${models[0].version} declares ${Object.keys(declared[0]).length} types; ${chainStable.size} stable across the whole chain`);

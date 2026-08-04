@@ -310,6 +310,30 @@ export interface DirectoryChainLink {
   removedPrefixes?: string[];
 }
 
+/**
+ * Explains a template-literal omission in the emitted comment.
+ *
+ * These come from the hand-removed manifest rather than from a dump diff, so
+ * without a note the next reader sees an omission with no visible cause. Emitted
+ * rather than hand-written, because a hand-written explanation would sit in a
+ * regeneration target and be deleted by the next run.
+ */
+function prefixNote(link: DirectoryChainLink): string {
+  const prefixes = link.removedPrefixes ?? [];
+  if (prefixes.length === 0) return '';
+  const list = prefixes.map((p) => '`' + p + '*`').join(', ');
+  const plural = prefixes.length > 1;
+  return [
+    '',
+    ' *',
+    ' * ' + list + (plural ? ' are' : ' is') + ' declared in an earlier version and removed here.',
+    ' * No dump describes ' + (plural ? 'them' : 'it') + ': the entries a diff would have to',
+    ' * compare were deleted from every version directory upstream. The omission',
+    ' * comes from `hand-removed.json`, so a regeneration reproduces it.',
+    '',
+  ].join('\n');
+}
+
 function chainedDirectory(
   interfaceName: string,
   entries: string,
@@ -334,7 +358,7 @@ function chainedDirectory(
   }
   const deltaName = `${interfaceName}Delta`;
   const omitted = hasRemovals ? `keyof ${deltaName} | ${removedUnion}` : `keyof ${deltaName}`;
-  return `${HEADER}\n${prevImport}${imports ? `\n${imports}` : '\n'}/** Entries added or changed in this version (directly, or through a referenced type). */\nexport interface ${deltaName} {\n${entries}\n}\n\n/** This version's surface: the previous version's, updated by the delta. */\nexport type ${interfaceName} = Omit<${prevAlias}, ${omitted}> & ${deltaName};\n`;
+  return `${HEADER}\n${prevImport}${imports ? `\n${imports}` : '\n'}/** Entries added or changed in this version (directly, or through a referenced type). */\nexport interface ${deltaName} {\n${entries}\n}\n\n/** This version's surface: the previous version's, updated by the delta.${prefixNote(link)} */\nexport type ${interfaceName} = Omit<${prevAlias}, ${omitted}> & ${deltaName};\n`;
 }
 
 export function emitCallDirectory(ownMethods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', link?: DirectoryChainLink): string {
@@ -433,7 +457,7 @@ export interface ManifestRow {
  * changes, so `grep <method> src/generated/` alone cannot distinguish
  * "unchanged since vX" from "absent after vX" — this manifest can.
  */
-export function emitManifest(rows: ManifestRow[], versions: string[]): string {
+export function emitManifest(rows: ManifestRow[], versions: string[], appendix = ''): string {
   const order = new Map(versions.map((v, i) => [v, i]));
   const bare = (token: string) => token.replace(/\s*\(.*\)$/, '');
   /**
@@ -497,7 +521,7 @@ ${table(surface)}
 
 | Name | Kind | History |
 |------|------|---------|
-${table(types)}
+${table(types)}${appendix ? `\n${appendix.trimEnd()}\n` : ''}
 `;
 }
 

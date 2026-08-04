@@ -40,6 +40,7 @@
  * its shape first appeared and re-exported by later versions.
  */
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
@@ -58,6 +59,8 @@ const { values: args } = parseArgs({
     'api-version': { type: 'string' },
     include: { type: 'string', default: '' },
     'hand-removed': { type: 'string', default: path.resolve(import.meta.dirname, 'hand-removed.json') },
+    'manifest-appendix': { type: 'string', default: path.resolve(import.meta.dirname, 'manifest-appendix.md') },
+    'frozen-hashes': { type: 'string', default: path.resolve(import.meta.dirname, 'frozen-hashes.json') },
     out: { type: 'string', default: path.resolve(import.meta.dirname, '../../src/generated') },
   },
 });
@@ -127,6 +130,7 @@ if (args.fetch && args.fetch !== 'docker') {
 }
 
 const dump = JSON.parse(raw) as ApiDumpFile | ApiDumpVersion;
+const availableVersions = ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => v.version);
 const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Boolean);
 
 // `--min-version` is how the committed tree is produced: the supported floor,
@@ -135,7 +139,7 @@ const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Bool
 let apiVersions: string[] | undefined;
 try {
   apiVersions = selectVersions({
-    available: ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => v.version),
+    available: availableVersions,
     minVersion: args['min-version'],
     apiVersions: args['api-version']?.split(',').map((s) => s.trim()).filter(Boolean),
   });
@@ -153,17 +157,31 @@ if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} v
  * loudly instead. `$comment` keys are skipped, which is how the file documents
  * itself.
  */
-function parseHandRemoved(raw: unknown): Record<string, string[]> {
+function parseHandRemoved(raw: unknown, available: string[]): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const [version, value] of Object.entries(raw as Record<string, unknown>)) {
     if (version.startsWith('$')) continue;
+    if (!available.includes(version)) {
+      // A key matching no version in the dump is a no-op, and its symptom is the
+      // namespace silently reappearing — worth failing on instead. Checked
+      // against the dump rather than the generated selection, so narrowing the
+      // range with --api-version does not trip it.
+      console.error(
+        `hand-removed: '${version}' is not a version in this dump ` +
+        `(${available.join(', ')}). Update the key.`
+      );
+      process.exit(1);
+    }
     if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
       console.error(`hand-removed: '${version}' must map to an array of strings.`);
       process.exit(1);
     }
     for (const prefix of value as string[]) {
-      if (!/^[A-Za-z0-9_.]+$/.test(prefix)) {
-        console.error(`hand-removed: '${prefix}' is not a bare namespace prefix.`);
+      // Trailing dot required: `virt` would emit `\`virt${string}\`` and swallow
+      // a future `virtual.*`. Interpolated into a template literal, so anything
+      // that is not a bare namespace is rejected rather than emitted.
+      if (!/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*\.$/.test(prefix)) {
+        console.error(`hand-removed: '${prefix}' is not a namespace prefix ending in '.'.`);
         process.exit(1);
       }
     }
@@ -181,7 +199,8 @@ try {
     apiVersions,
     includePrefixes,
     log: console.log,
-    handRemoved: parseHandRemoved(handRemoved),
+    handRemoved: parseHandRemoved(handRemoved, availableVersions),
+    manifestAppendix: await readFile(args['manifest-appendix'], 'utf8').catch(() => ''),
   });
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
@@ -223,11 +242,58 @@ for (const relPath of files.keys()) {
   if (existing?.includes(FROZEN_MARKER)) frozen.push(relPath);
 }
 
+/**
+ * A frozen file is skipped on the premise that the dump still describes it the
+ * same way — later versions are deltas against the freshly generated model,
+ * while the emitted code references the file on disk, and nothing else compares
+ * the two. Middleware does backport into released version directories, so the
+ * premise is not guaranteed.
+ *
+ * Recorded per file as a hash of the content generation *would* have written.
+ * Hand additions are not in that content, so they do not interfere; anything
+ * that moves the dump's account of a frozen version does. Files with no
+ * recording yet report their hash so it can be committed — there is no way to
+ * seed them without a dump.
+ */
+const hashOf = (content: string) => createHash('sha256').update(content).digest('hex').slice(0, 16);
+const recorded = JSON.parse(
+  await readFile(args['frozen-hashes'], 'utf8').catch(() => '{}')
+) as Record<string, string>;
+
+const drifted: string[] = [];
+const unrecorded: Record<string, string> = {};
+for (const relPath of frozen) {
+  const digest = hashOf(files.get(relPath) ?? '');
+  const before = recorded[relPath];
+  if (before === undefined) unrecorded[relPath] = digest;
+  else if (before !== digest) drifted.push(`  ${relPath} (${before} -> ${digest})`);
+}
+
 for (const [relPath, content] of files) {
   if (frozen.includes(relPath)) continue;
   const target = path.join(args.out, relPath);
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, content);
+}
+
+if (drifted.length > 0) {
+  console.error(
+    `The dump no longer matches ${drifted.length.toString()} frozen file(s):\n` +
+    drifted.join('\n') +
+    '\n\nThose files were left untouched, so the rest of the tree has now been ' +
+    'generated against a model they do not hold — later versions may reference ' +
+    'entries the frozen files lack, and stale shapes will not be re-declared.\n' +
+    'Reconcile them by hand, then update ' + args['frozen-hashes'] + '.'
+  );
+  process.exit(1);
+}
+
+if (Object.keys(unrecorded).length > 0) {
+  console.error(
+    `No baseline recorded for ${Object.keys(unrecorded).length.toString()} frozen file(s), ` +
+    `so drift cannot be detected for them. Add to ${args['frozen-hashes']}:\n` +
+    JSON.stringify(unrecorded, null, 2)
+  );
 }
 
 if (frozen.length > 0) {

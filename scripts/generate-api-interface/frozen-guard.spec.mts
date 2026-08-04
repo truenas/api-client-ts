@@ -35,7 +35,7 @@ afterEach(() => {
 });
 
 /** Run the generator over the mini fixture, writing into a throwaway directory. */
-function generate(target: string, handRemoved?: string) {
+function generate(target: string, handRemoved?: string, frozenHashes?: string) {
   return spawnSync(
     'node',
     [
@@ -44,7 +44,12 @@ function generate(target: string, handRemoved?: string) {
       '--schema', path.join(HERE, 'fixtures/mini-dump.json'),
       '--api-version', 'all',
       '--out', target,
-      ...(handRemoved ? ['--hand-removed', handRemoved] : []),
+      // Keep the real virt appendix out of fixture output.
+      '--manifest-appendix', path.join(HERE, 'fixtures/empty-appendix.md'),
+      // Always explicit: the production manifest names real versions the mini
+      // fixture does not have, and these tests should not depend on it.
+      '--hand-removed', handRemoved ?? path.join(HERE, 'fixtures/empty-hand-removed.json'),
+      ...(frozenHashes ? ['--frozen-hashes', frozenHashes] : []),
     ],
     { cwd: REPO, encoding: 'utf8' }
   );
@@ -96,7 +101,7 @@ describe('hand-declared removals', () => {
   it('are emitted into the inheriting version, so regeneration is idempotent', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-handremoved-'));
 
-    const manifest = path.join(out, 'hand-removed.json');
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
     writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['test.'] }));
 
     const result = generate(out, manifest);
@@ -107,14 +112,31 @@ describe('hand-declared removals', () => {
     expect(v2).toContain('`test.${string}`');
   });
 
+  it('fails when the dump no longer matches a frozen file', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-drift-'));
+    mkdirSync(path.join(out, 'v1_0_0'), { recursive: true });
+    writeFileSync(path.join(out, 'v1_0_0/api-types.ts'), FROZEN_HEADER);
+    const hashes = mkdtempSync(path.join(tmpdir(), 'gen-hashes-')) + '/frozen-hashes.json';
+    // A baseline that cannot match: the dump has moved under the frozen file.
+    writeFileSync(hashes, JSON.stringify({ 'v1_0_0/api-types.ts': 'deadbeefdeadbeef' }));
+
+    const result = generate(out, undefined, hashes);
+
+    // Loud, because the alternative is a tree quietly generated against a model
+    // its frozen files do not hold.
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('The dump no longer matches');
+    expect(result.stderr).toContain('v1_0_0/api-types.ts');
+  });
+
   it('rejects a prefix that would break the emitted type', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-badprefix-'));
-    const manifest = path.join(out, 'hand-removed.json');
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
     writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['`${evil}'] }));
 
     const result = generate(out, manifest);
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain('not a bare namespace prefix');
+    expect(result.stderr).toContain("is not a namespace prefix ending in '.'");
   });
 });
