@@ -186,4 +186,16 @@ export interface ApiEventDirectoryDelta {
 }
 
 /** This version's surface: the previous version's, updated by the delta. */
-export type ApiEventDirectory = Omit<PreviousApiEventDirectory, keyof ApiEventDirectoryDelta> & ApiEventDirectoryDelta;
+
+/**
+ * `virt.*` was removed in v26 — the namespace was replaced by `container.*`,
+ * which is a different service on a different backend rather than a rename.
+ * It is declared in v25_10_0 (hand-maintained; no dump can produce it) and so
+ * would otherwise be inherited forward through the chain, hence the explicit
+ * omission here.
+ */
+export type ApiEventDirectory = Omit<
+  PreviousApiEventDirectory,
+  | keyof ApiEventDirectoryDelta
+  | 'virt.instance.query'
+> & ApiEventDirectoryDelta;

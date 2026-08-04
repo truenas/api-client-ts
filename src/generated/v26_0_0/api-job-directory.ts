@@ -175,4 +175,26 @@ export interface ApiJobDirectoryDelta {
 }
 
 /** This version's surface: the previous version's, updated by the delta. */
-export type ApiJobDirectory = Omit<PreviousApiJobDirectory, keyof ApiJobDirectoryDelta> & ApiJobDirectoryDelta;
+
+/**
+ * `virt.*` was removed in v26 — the namespace was replaced by `container.*`,
+ * which is a different service on a different backend rather than a rename.
+ * It is declared in v25_10_0 (hand-maintained; no dump can produce it) and so
+ * would otherwise be inherited forward through the chain, hence the explicit
+ * omission here.
+ */
+export type ApiJobDirectory = Omit<
+  PreviousApiJobDirectory,
+  | keyof ApiJobDirectoryDelta
+  | 'virt.device.export_disk_image'
+  | 'virt.device.import_disk_image'
+  | 'virt.global.update'
+  | 'virt.instance.create'
+  | 'virt.instance.delete'
+  | 'virt.instance.restart'
+  | 'virt.instance.start'
+  | 'virt.instance.stop'
+  | 'virt.instance.update'
+  | 'virt.volume.import_iso'
+  | 'virt.volume.import_zvol'
+> & ApiJobDirectoryDelta;
