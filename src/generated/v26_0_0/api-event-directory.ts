@@ -185,8 +185,6 @@ export interface ApiEventDirectoryDelta {
   };
 }
 
-/** This version's surface: the previous version's, updated by the delta. */
-
 /** This version's surface: the previous version's, updated by the delta.
  *
  * `virt.*` is declared in an earlier version and removed here.

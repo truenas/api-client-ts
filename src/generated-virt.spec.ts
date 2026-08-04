@@ -125,22 +125,31 @@ describe('the freeze that keeps virt.* alive', () => {
    */
   it('marks every file in the released 25.10 series', () => {
     const generated = path.join(repoRoot(), 'src/generated');
-    const released = readdirSync(generated).filter((d) => d.startsWith('v25_10_'));
+    const MARKER = 'FROZEN — generated once, then hand-maintained.';
+    const filesIn = (dir: string) =>
+      readdirSync(path.join(generated, dir))
+        .filter((f) => f.endsWith('.ts'))
+        .filter((f) => statSync(path.join(generated, dir, f)).isFile());
 
-    expect(released).toHaveLength(6);
+    // Derived rather than listed: a directory counts as frozen if any of its
+    // files says so, which covers a future v26 frozen after release and does
+    // not break the day a v25_10_6 lands.
+    const versionDirs = readdirSync(generated).filter((d) => /^v\d/.test(d));
+    const frozen = versionDirs.filter((d) =>
+      filesIn(d).some((f) => readFileSync(path.join(generated, d, f), 'utf8').includes(MARKER))
+    );
 
-    for (const dir of released) {
-      const files = readdirSync(path.join(generated, dir))
-        .filter((f) => f.endsWith('.ts'));
-      expect(files.length).toBeGreaterThan(0);
+    expect(frozen).toContain('v25_10_0');
+    expect(frozen.length).toBeGreaterThan(0);
 
-      for (const file of files) {
-        const full = path.join(generated, dir, file);
-        if (!statSync(full).isFile()) continue;
+    // Every file of a frozen directory, not merely one: a half-marked directory
+    // silently unfreezes the files that lost their header.
+    for (const dir of frozen) {
+      for (const file of filesIn(dir)) {
         expect(
-          readFileSync(full, 'utf8'),
+          readFileSync(path.join(generated, dir, file), 'utf8'),
           `${dir}/${file} is missing the frozen marker`
-        ).toContain('FROZEN — generated once, then hand-maintained.');
+        ).toContain(MARKER);
       }
     }
   });

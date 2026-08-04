@@ -457,6 +457,13 @@ export interface ManifestRow {
  * changes, so `grep <method> src/generated/` alone cannot distinguish
  * "unchanged since vX" from "absent after vX" — this manifest can.
  */
+/**
+ * Drop maintainer-facing HTML comments from an appended fragment. The source
+ * file explains itself to whoever edits it; that note has no reader in the
+ * generated artifact.
+ */
+const stripHtmlComments = (markdown: string): string => markdown.replace(/<!--[\s\S]*?-->/g, '');
+
 export function emitManifest(rows: ManifestRow[], versions: string[], appendix = ''): string {
   const order = new Map(versions.map((v, i) => [v, i]));
   const bare = (token: string) => token.replace(/\s*\(.*\)$/, '');
@@ -521,7 +528,7 @@ ${table(surface)}
 
 | Name | Kind | History |
 |------|------|---------|
-${table(types)}${appendix ? `\n${appendix.trimEnd()}\n` : ''}
+${table(types)}${appendix ? `\n\n${stripHtmlComments(appendix).trim()}\n` : ''}
 `;
 }
 

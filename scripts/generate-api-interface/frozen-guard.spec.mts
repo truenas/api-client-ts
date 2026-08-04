@@ -35,6 +35,18 @@ afterEach(() => {
 });
 
 /** Run the generator over the mini fixture, writing into a throwaway directory. */
+/** Seed a baseline the way the CLI tells you to: run once, paste what it prints. */
+function seedBaseline(target: string): string {
+  const file = mkdtempSync(path.join(tmpdir(), 'gen-hashes-')) + '/frozen-hashes.json';
+  writeFileSync(file, '{}');
+  const first = generate(target, undefined, file);
+  expect(first.status).toBe(1);
+  expect(first.stderr).toContain('No baseline recorded');
+  const json = first.stderr.slice(first.stderr.indexOf('{'), first.stderr.lastIndexOf('}') + 1);
+  writeFileSync(file, json);
+  return file;
+}
+
 function generate(target: string, handRemoved?: string, frozenHashes?: string) {
   return spawnSync(
     'node',
@@ -61,7 +73,7 @@ describe('the frozen-directory guard', () => {
     mkdirSync(path.join(out, 'v1_0_0'), { recursive: true });
     writeFileSync(path.join(out, 'v1_0_0/api-types.ts'), FROZEN_HEADER);
 
-    const result = generate(out);
+    const result = generate(out, undefined, seedBaseline(out));
 
     expect(result.status).toBe(0);
     expect(result.stderr).toContain('Left 1 frozen file(s) untouched');
@@ -112,13 +124,13 @@ describe('hand-declared removals', () => {
     expect(v2).toContain('`test.${string}`');
   });
 
-  it('fails when the dump no longer matches a frozen file', () => {
+  it('fails when the dump no longer matches a frozen version', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-drift-'));
     mkdirSync(path.join(out, 'v1_0_0'), { recursive: true });
     writeFileSync(path.join(out, 'v1_0_0/api-types.ts'), FROZEN_HEADER);
     const hashes = mkdtempSync(path.join(tmpdir(), 'gen-hashes-')) + '/frozen-hashes.json';
     // A baseline that cannot match: the dump has moved under the frozen file.
-    writeFileSync(hashes, JSON.stringify({ 'v1_0_0/api-types.ts': 'deadbeefdeadbeef' }));
+    writeFileSync(hashes, JSON.stringify({ 'v1.0.0': 'deadbeefdeadbeef' }));
 
     const result = generate(out, undefined, hashes);
 
@@ -126,7 +138,23 @@ describe('hand-declared removals', () => {
     // its frozen files do not hold.
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('The dump no longer matches');
-    expect(result.stderr).toContain('v1_0_0/api-types.ts');
+    expect(result.stderr).toContain('v1.0.0');
+  });
+
+  it('refuses to run when a frozen version has no baseline', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-nobaseline-'));
+    mkdirSync(path.join(out, 'v1_0_0'), { recursive: true });
+    writeFileSync(path.join(out, 'v1_0_0/api-types.ts'), FROZEN_HEADER);
+    const hashes = mkdtempSync(path.join(tmpdir(), 'gen-hashes-')) + '/frozen-hashes.json';
+    writeFileSync(hashes, '{}');
+
+    const result = generate(out, undefined, hashes);
+
+    // Fatal rather than a warning: a check that has never been seeded is a
+    // check that has never run, and the warning would be read once and skipped.
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('No baseline recorded');
+    expect(result.stderr).toContain('v1.0.0');
   });
 
   it('rejects a prefix that would break the emitted type', () => {

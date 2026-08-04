@@ -157,20 +157,23 @@ if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} v
  * loudly instead. `$comment` keys are skipped, which is how the file documents
  * itself.
  */
-function parseHandRemoved(raw: unknown, available: string[]): Record<string, string[]> {
+function parseHandRemoved(raw: unknown, selected: string[], available: string[]): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const [version, value] of Object.entries(raw as Record<string, unknown>)) {
     if (version.startsWith('$')) continue;
     if (!available.includes(version)) {
-      // A key matching no version in the dump is a no-op, and its symptom is the
-      // namespace silently reappearing — worth failing on instead. Checked
-      // against the dump rather than the generated selection, so narrowing the
-      // range with --api-version does not trip it.
+      // Names no version this dump has: stale, and its symptom is the namespace
+      // silently reappearing. Fatal.
       console.error(
         `hand-removed: '${version}' is not a version in this dump ` +
         `(${available.join(', ')}). Update the key.`
       );
       process.exit(1);
+    }
+    if (!selected.includes(version) && !selected.includes('all')) {
+      // In the dump but outside this run's range — a narrowed --api-version or
+      // --min-version. Not an error: the key is fine, it just does not apply.
+      continue;
     }
     if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
       console.error(`hand-removed: '${version}' must map to an array of strings.`);
@@ -190,6 +193,21 @@ function parseHandRemoved(raw: unknown, available: string[]): Record<string, str
   return out;
 }
 
+/**
+ * Rows for entries no dump describes. Absent is fine — most trees have none —
+ * but an unreadable file is not, because the symptom is a manifest quietly
+ * claiming completeness it no longer has.
+ */
+async function readManifestAppendix(file: string): Promise<string> {
+  try {
+    return await readFile(file, 'utf8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return '';
+    console.error(`Cannot read ${file}: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  }
+}
+
 let files: Map<string, string>;
 try {
   const handRemoved = JSON.parse(
@@ -199,8 +217,8 @@ try {
     apiVersions,
     includePrefixes,
     log: console.log,
-    handRemoved: parseHandRemoved(handRemoved, availableVersions),
-    manifestAppendix: await readFile(args['manifest-appendix'], 'utf8').catch(() => ''),
+    handRemoved: parseHandRemoved(handRemoved, apiVersions ?? availableVersions, availableVersions),
+    manifestAppendix: await readManifestAppendix(args['manifest-appendix']),
   });
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
@@ -243,30 +261,72 @@ for (const relPath of files.keys()) {
 }
 
 /**
- * A frozen file is skipped on the premise that the dump still describes it the
- * same way — later versions are deltas against the freshly generated model,
- * while the emitted code references the file on disk, and nothing else compares
- * the two. Middleware does backport into released version directories, so the
- * premise is not guaranteed.
+ * A frozen file is skipped on the premise that the dump still describes its
+ * version the same way — later versions are deltas against the freshly
+ * generated model, while the emitted code references the file on disk, and
+ * nothing else compares the two. Middleware does backport into released version
+ * directories, so the premise is not guaranteed.
  *
- * Recorded per file as a hash of the content generation *would* have written.
- * Hand additions are not in that content, so they do not interfere; anything
- * that moves the dump's account of a frozen version does. Files with no
- * recording yet report their hash so it can be committed — there is no way to
- * seed them without a dump.
+ * Keyed on a hash of the dump's slice for that version, not on the emitted
+ * content: the emitted content also moves whenever the generator moves, which
+ * would report every emitter change as "the dump changed" and, worse, make the
+ * re-seed silently re-bless whatever the dump happened to say at that moment.
+ * The dump slice isolates the thing actually being assumed.
  */
-const hashOf = (content: string) => createHash('sha256').update(content).digest('hex').slice(0, 16);
-const recorded = JSON.parse(
-  await readFile(args['frozen-hashes'], 'utf8').catch(() => '{}')
-) as Record<string, string>;
+const dumpSlices = new Map(
+  ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => [v.version, v])
+);
+const hashOf = (value: unknown) =>
+  createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0, 16);
 
+let recorded: Record<string, string>;
+try {
+  recorded = JSON.parse(await readFile(args['frozen-hashes'], 'utf8')) as Record<string, string>;
+} catch (error) {
+  console.error(
+    `Cannot read ${args['frozen-hashes']}: ${error instanceof Error ? error.message : String(error)}\n` +
+    'It records what the dump said about each frozen version; without it a frozen ' +
+    'file cannot be checked for drift. Write {} to start from nothing.'
+  );
+  process.exit(1);
+}
+
+/** `v25_10_0/api-types.ts` -> `v25.10.0`, via the directory naming the pipeline uses. */
+const versionOfPath = (relPath: string): string | undefined => {
+  const dir = relPath.split('/')[0];
+  return [...dumpSlices.keys()].find((v) => `v${v.slice(1).replace(/\./g, '_')}` === dir);
+};
+
+const frozenVersions = [...new Set(frozen.map(versionOfPath).filter((v): v is string => !!v))];
 const drifted: string[] = [];
-const unrecorded: Record<string, string> = {};
-for (const relPath of frozen) {
-  const digest = hashOf(files.get(relPath) ?? '');
-  const before = recorded[relPath];
-  if (before === undefined) unrecorded[relPath] = digest;
-  else if (before !== digest) drifted.push(`  ${relPath} (${before} -> ${digest})`);
+const missing: Record<string, string> = {};
+for (const version of frozenVersions) {
+  const digest = hashOf(dumpSlices.get(version));
+  const before = recorded[version];
+  if (before === undefined) missing[version] = digest;
+  else if (before !== digest) drifted.push(`  ${version} (${before} -> ${digest})`);
+}
+
+if (Object.keys(missing).length > 0) {
+  console.error(
+    `No baseline recorded for ${Object.keys(missing).length.toString()} frozen version(s), ` +
+    'so their files cannot be checked against the dump. Add to ' +
+    `${args['frozen-hashes']}:\n${JSON.stringify(missing, null, 2)}`
+  );
+  process.exit(1);
+}
+
+if (drifted.length > 0) {
+  console.error(
+    `The dump no longer matches ${drifted.length.toString()} frozen version(s):\n` +
+    drifted.join('\n') +
+    '\n\nTheir files are frozen and would have been left untouched, so the rest of ' +
+    'the tree would have been generated against a model they do not hold — later ' +
+    'versions may reference entries the frozen files lack, and stale shapes will ' +
+    'not be re-declared.\n' +
+    `Reconcile them by hand, then update ${args['frozen-hashes']}.`
+  );
+  process.exit(1);
 }
 
 for (const [relPath, content] of files) {
@@ -276,25 +336,6 @@ for (const [relPath, content] of files) {
   await writeFile(target, content);
 }
 
-if (drifted.length > 0) {
-  console.error(
-    `The dump no longer matches ${drifted.length.toString()} frozen file(s):\n` +
-    drifted.join('\n') +
-    '\n\nThose files were left untouched, so the rest of the tree has now been ' +
-    'generated against a model they do not hold — later versions may reference ' +
-    'entries the frozen files lack, and stale shapes will not be re-declared.\n' +
-    'Reconcile them by hand, then update ' + args['frozen-hashes'] + '.'
-  );
-  process.exit(1);
-}
-
-if (Object.keys(unrecorded).length > 0) {
-  console.error(
-    `No baseline recorded for ${Object.keys(unrecorded).length.toString()} frozen file(s), ` +
-    `so drift cannot be detected for them. Add to ${args['frozen-hashes']}:\n` +
-    JSON.stringify(unrecorded, null, 2)
-  );
-}
 
 if (frozen.length > 0) {
   console.error(
