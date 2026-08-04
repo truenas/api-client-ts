@@ -1175,32 +1175,12 @@ export interface ApiCallDirectoryDelta {
  * `virt.*` was removed in v26 — the namespace was replaced by `container.*`,
  * which is a different service on a different backend rather than a rename.
  * It is declared in v25_10_0 (hand-maintained; no dump can produce it) and so
- * would otherwise be inherited forward through the chain, hence the explicit
- * omission here.
+ * would otherwise be inherited forward through the chain.
+ *
+ * Emitted from `hand-removed.json` rather than hand-edited here, so a
+ * regeneration reproduces it instead of dropping it.
  */
 export type ApiCallDirectory = Omit<
   PreviousApiCallDirectory,
-  | keyof ApiCallDirectoryDelta
-  | 'virt.device.disk_choices'
-  | 'virt.device.gpu_choices'
-  | 'virt.device.nic_choices'
-  | 'virt.device.pci_choices'
-  | 'virt.device.usb_choices'
-  | 'virt.global.bridge_choices'
-  | 'virt.global.config'
-  | 'virt.global.get_network'
-  | 'virt.global.pool_choices'
-  | 'virt.instance.device_add'
-  | 'virt.instance.device_delete'
-  | 'virt.instance.device_list'
-  | 'virt.instance.device_update'
-  | 'virt.instance.get_instance'
-  | 'virt.instance.image_choices'
-  | 'virt.instance.query'
-  | 'virt.instance.set_bootable_disk'
-  | 'virt.volume.create'
-  | 'virt.volume.delete'
-  | 'virt.volume.get_instance'
-  | 'virt.volume.query'
-  | 'virt.volume.update'
+  keyof ApiCallDirectoryDelta | `virt.${string}`
 > & ApiCallDirectoryDelta;

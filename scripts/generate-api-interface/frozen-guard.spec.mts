@@ -12,7 +12,7 @@
  * rather than a lifted copy of the check.
  */
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -74,5 +74,25 @@ describe('the frozen-directory guard', () => {
     expect(result.status).toBe(0);
     expect(readdirSync(out)).toContain('v1_0_0');
     expect(readdirSync(out)).toContain('shared');
+  });
+});
+
+/**
+ * The freeze protects v25.10, but what keeps `virt.*` out of v26 lives in a
+ * directory that is still a regeneration target. Deriving it from a dump is
+ * impossible — the entries a diff would have to notice were deleted from every
+ * version directory upstream — so it comes from `hand-removed.json`, and the
+ * thing worth testing is that regenerating reproduces it rather than dropping it.
+ */
+describe('hand-declared removals', () => {
+  it('are emitted into the inheriting version, so regeneration is idempotent', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-handremoved-'));
+
+    const result = generate(out);
+
+    expect(result.status).toBe(0);
+    // The fixture's v2.0.0 inherits from v1.0.0; the manifest drops `test.` there.
+    const v2 = readFileSync(path.join(out, 'v2_0_0/api-call-directory.ts'), 'utf8');
+    expect(v2).toContain('`test.${string}`');
   });
 });

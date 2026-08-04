@@ -296,6 +296,18 @@ export interface DirectoryChainLink {
   prevPath: string;
   /** Entries present in the previous version but absent from this one. */
   removed: string[];
+  /**
+   * Namespace prefixes to omit wholesale, e.g. `virt.`.
+   *
+   * `removed` is derived by diffing consecutive dumps, so it can only see a
+   * removal both sides of which are *in* a dump. A namespace deleted from every
+   * historical version directory upstream is invisible to it — the entries it
+   * would have to diff against were never there. Those are declared by hand
+   * (`hand-removed.json`) and rendered as template literals, which also keeps
+   * the omission from drifting out of sync with what the frozen version
+   * declares.
+   */
+  removedPrefixes?: string[];
 }
 
 function chainedDirectory(
@@ -309,15 +321,19 @@ function chainedDirectory(
   }
   const prevAlias = `Previous${interfaceName}`;
   const prevImport = `import type { ${interfaceName} as ${prevAlias} } from '${link.prevPath}';\n`;
-  const removedUnion = link.removed.map((n) => `'${n}'`).join(' | ');
+  const removedUnion = [
+    ...link.removed.map((n) => `'${n}'`),
+    ...(link.removedPrefixes ?? []).map((p) => `\`${p}\${string}\``),
+  ].join(' | ');
+  const hasRemovals = link.removed.length > 0 || (link.removedPrefixes ?? []).length > 0;
   if (!entries) {
-    if (link.removed.length === 0) {
+    if (!hasRemovals) {
       return `${HEADER}\n${prevImport}\n/** Identical to the previous version's surface. */\nexport type ${interfaceName} = ${prevAlias};\n`;
     }
     return `${HEADER}\n${prevImport}\n/** The previous version's surface, without entries removed in this version. */\nexport type ${interfaceName} = Omit<${prevAlias}, ${removedUnion}>;\n`;
   }
   const deltaName = `${interfaceName}Delta`;
-  const omitted = link.removed.length ? `keyof ${deltaName} | ${removedUnion}` : `keyof ${deltaName}`;
+  const omitted = hasRemovals ? `keyof ${deltaName} | ${removedUnion}` : `keyof ${deltaName}`;
   return `${HEADER}\n${prevImport}${imports ? `\n${imports}` : '\n'}/** Entries added or changed in this version (directly, or through a referenced type). */\nexport interface ${deltaName} {\n${entries}\n}\n\n/** This version's surface: the previous version's, updated by the delta. */\nexport type ${interfaceName} = Omit<${prevAlias}, ${omitted}> & ${deltaName};\n`;
 }
 

@@ -33,6 +33,11 @@ export interface PipelineOptions {
   includePrefixes?: string[];
   /** Progress logger; silent by default (the CLI passes console.log). */
   log?: (message: string) => void;
+  /**
+   * Version -> namespace prefixes that version drops, for removals no dump can
+   * express. See `hand-removed.json`; the CLI loads it and passes it through.
+   */
+  handRemoved?: Record<string, string[]>;
 }
 
 /**
@@ -62,7 +67,7 @@ const versionDir = (version: string): string => version.replaceAll('.', '_');
  */
 export async function generateFromDump(
   dump: ApiDumpFile | ApiDumpVersion,
-  { apiVersions, includePrefixes = [], log = () => {} }: PipelineOptions = {},
+  { apiVersions, includePrefixes = [], log = () => {}, handRemoved = {} }: PipelineOptions = {},
 ): Promise<Map<string, string>> {
   const available: ApiDumpVersion[] = (dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion];
   if (available[0] && !available[0].methods[0]?.schemas?.accepts) {
@@ -241,8 +246,9 @@ export async function generateFromDump(
       types: names.filter((n) => declared[home][n]._kind !== 'enum').sort(),
     }));
 
+    const removedPrefixes = handRemoved[models[i].version] ?? [];
     const link = (kind: string): DirectoryChainLink | undefined => (multi && i > 0
-      ? { prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`, removed: [] }
+      ? { prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`, removed: [], removedPrefixes }
       : undefined);
     const linkFor = (kind: string, removed: string[]): DirectoryChainLink | undefined => {
       const l = link(kind);

@@ -143,7 +143,17 @@ if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} v
 
 let files: Map<string, string>;
 try {
-  files = await generateFromDump(dump, { apiVersions, includePrefixes, log: console.log });
+  const handRemoved = JSON.parse(
+    await readFile(path.join(import.meta.dirname, 'hand-removed.json'), 'utf8')
+  ) as Record<string, string[] | string>;
+  files = await generateFromDump(dump, {
+    apiVersions,
+    includePrefixes,
+    log: console.log,
+    handRemoved: Object.fromEntries(
+      Object.entries(handRemoved).filter((e): e is [string, string[]] => Array.isArray(e[1]))
+    ),
+  });
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);

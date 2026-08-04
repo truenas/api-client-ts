@@ -191,12 +191,12 @@ export interface ApiEventDirectoryDelta {
  * `virt.*` was removed in v26 — the namespace was replaced by `container.*`,
  * which is a different service on a different backend rather than a rename.
  * It is declared in v25_10_0 (hand-maintained; no dump can produce it) and so
- * would otherwise be inherited forward through the chain, hence the explicit
- * omission here.
+ * would otherwise be inherited forward through the chain.
+ *
+ * Emitted from `hand-removed.json` rather than hand-edited here, so a
+ * regeneration reproduces it instead of dropping it.
  */
 export type ApiEventDirectory = Omit<
   PreviousApiEventDirectory,
-  | keyof ApiEventDirectoryDelta
-  | 'virt.instance.metrics'
-  | 'virt.instance.query'
+  keyof ApiEventDirectoryDelta | `virt.${string}`
 > & ApiEventDirectoryDelta;

@@ -16,6 +16,7 @@ import type {
   ApiCallDirectoryV25_10_0,
   ApiCallDirectoryV26_0_0,
   ApiEventDirectoryV26_0_0,
+  ApiJobDirectoryV26_0_0,
   v25_10_0,
 } from '@/generated';
 import type { QueryDirectory, QueryMethod } from '@/types/query.type';
@@ -88,11 +89,20 @@ describe('virt.* on the v25.10 directory', () => {
   it('does not leak into versions that never had it', () => {
     // v26 dropped virt for container.*; the shared base is the intersection of
     // every version, so virt must not appear in either.
-    type V26Method = keyof ApiCallDirectoryV26_0_0;
-    type V26Event = keyof ApiEventDirectoryV26_0_0;
-    expectTypeOf<'virt.instance.query'>().not.toExtend<V26Method>();
+    // Every key, not a chosen few: naming two of thirty-five would pass just as
+    // happily after a partial re-application, which is the shape the failure
+    // would actually take.
+    expectTypeOf<
+      Extract<keyof ApiCallDirectoryV26_0_0, `virt.${string}`>
+    >().toEqualTypeOf<never>();
+    expectTypeOf<
+      Extract<keyof ApiJobDirectoryV26_0_0, `virt.${string}`>
+    >().toEqualTypeOf<never>();
+    expectTypeOf<
+      Extract<keyof ApiEventDirectoryV26_0_0, `virt.${string}`>
+    >().toEqualTypeOf<never>();
+
     expectTypeOf<'virt.instance.query'>().not.toExtend<QueryMethod<QueryDirectory>>();
-    expectTypeOf<'virt.instance.metrics'>().not.toExtend<V26Event>();
   });
 });
 
