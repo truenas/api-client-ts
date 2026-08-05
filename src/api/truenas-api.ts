@@ -23,6 +23,7 @@ import type {
   CallResponse,
   JobMethod,
   JobParams,
+  JobResult,
 } from '@/types/api-directory.type';
 import type {
   QueryEntity,
@@ -31,7 +32,7 @@ import type {
   QuerySingleOptions,
 } from '@/types/query.type';
 import { getApiErrorMessage } from '@/types/api-error.type';
-import { Job, JobState } from '@/types/job.type';
+import { isJobFinished, Job } from '@/types/job.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
 import { withId } from '@/utils/utils';
 import { TrueNasConnection } from '@/connection/truenas-connection';
@@ -57,10 +58,11 @@ interface CollectionUpdateParams {
  *
  * Every method name it accepts comes from `D`, the generated surface it was
  * parameterised with, and each verb reads the facet that describes it:
- * {@link call} the call directory, {@link callAndGetJobId} the job directory,
- * the query verbs the `entity`-marked subset of the call directory. A name
- * that is not in the relevant facet does not compile, so reaching a method the
- * declared version does not have is a build error rather than a runtime one.
+ * {@link call} the call directory, {@link job} and {@link callAndGetJobId} the
+ * job directory, the query verbs the `entity`-marked subset of the call
+ * directory. A name that is not in the relevant facet does not compile, so
+ * reaching a method the declared version does not have is a build error rather
+ * than a runtime one.
  *
  * {@link events} is the exception and is still a bare `string`.
  *
@@ -118,9 +120,14 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   /**
    * Send a JSON-RPC request and emit its result.
    *
-   * Shared by {@link call} and the query verbs, which type the same wire call
-   * against different directories — `call` against the hand-maintained one,
-   * the verbs against the generated one.
+   * Shared by {@link call} and the query verbs, which read the same directory
+   * but resolve different things from it: `call` takes the entry's `response`
+   * verbatim, the verbs narrow its polymorphic union by the verb chosen.
+   *
+   * Also the way the class reaches methods on its own behalf — `core.get_jobs`,
+   * `auth.generate_token`. Inside the class body `D` is a type parameter, so
+   * the checker cannot know those are among its methods; they are, since both
+   * are in the shared base every surface extends.
    */
   private dispatch<T>(method: string, params?: unknown): Observable<T> {
     const message = createJsonRpcMessage(method, params);
@@ -257,6 +264,32 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     );
   }
 
+  /**
+   * Start a job and follow it to completion.
+   *
+   * Emits the job's state as it progresses and completes when the job reaches
+   * a terminal state, so `last()` gives the finished job and the intermediate
+   * emissions drive a progress indicator.
+   *
+   * ```typescript
+   * api.job('pool.dataset.unlock', ['tank/enc', { … }])
+   *    .subscribe(job => bar.set(job.progress.percent));
+   * ```
+   *
+   * The result is typed from the job directory, which is the whole reason to
+   * prefer this over {@link callAndGetJobId} plus {@link trackJob}: those two
+   * lose the connection between the method and its result, and the job comes
+   * back with `result: unknown`.
+   */
+  job<M extends JobMethod<D>>(
+    method: M,
+    ...params: ArgsOf<JobParams<D, M>>
+  ): Observable<Job<JobResult<D, M>>> {
+    return this.callAndGetJobId(method, ...params).pipe(
+      switchMap(jobId => this.trackJob<JobResult<D, M>>(jobId))
+    );
+  }
+
   events(eventName: string) {
     this.authenticated.pipe(filter(Boolean), take(1)).subscribe(() => {
       const message = createJsonRpcMessage('core.subscribe', [eventName]);
@@ -300,31 +333,32 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     ]);
   }
 
-  trackJob(jobId: number): Observable<Job> {
-    const completedStates = [
-      JobState.Success,
-      JobState.Failed,
-      JobState.Aborted,
-      JobState.Error,
-      JobState.Finished,
-    ];
-
+  /**
+   * Follow an already-started job to completion.
+   *
+   * @typeParam R - what the job resolves to. An id carries no evidence of
+   * which method produced it, so nothing here can infer this and the default
+   * is `unknown`; naming it is the caller's assertion. {@link job} knows the
+   * method and fills it in from the directory, which is the reason to prefer
+   * it whenever you are the one starting the job.
+   */
+  trackJob<R = unknown>(jobId: number): Observable<Job<R>> {
     // First, get the current job state. Dispatched directly for the same
-    // reason as generateToken, and typed as the hand-written `Job` rather than
-    // the generated `CoreGetJobsItem`: the latter types `state` as a bare
-    // string, omits `description`, and models the timestamps as strings when
-    // the wire sends `{$date: <ms>}`. Phase 3 reconciles the two.
-    const currentJobState$ = this.dispatch<Job[]>('core.get_jobs', [
+    // reason as generateToken.
+    const currentJobState$ = this.dispatch<Job<R>[]>('core.get_jobs', [
       [['id', '=', jobId]],
     ]).pipe(
       map(jobs => jobs[0]),
       filter(job => job !== undefined)
     );
 
-    // Then track ongoing updates
+    // Then track ongoing updates. The event stream carries jobs of every kind,
+    // so it is `Job<unknown>`; narrowing to this job's result type is the
+    // caller's `R` claim, made once here rather than at every emission.
     const jobUpdates$ = this.jobEvents.pipe(
       filter(job => job.id === jobId),
-      takeWhile(job => !completedStates.includes(job.state), true) // Include the final state
+      takeWhile(job => !isJobFinished(job), true), // Include the final state
+      map(job => job as Job<R>)
     );
 
     // Start with current state, then merge with updates
@@ -332,7 +366,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     return currentJobState$.pipe(
       switchMap(currentJob => {
         // If job is already complete, just return it
-        if (completedStates.includes(currentJob.state)) {
+        if (isJobFinished(currentJob)) {
           return of(currentJob);
         }
         // Otherwise, return current state and continue tracking

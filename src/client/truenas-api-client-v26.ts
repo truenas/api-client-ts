@@ -57,22 +57,20 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
 
       // container.stop emits job updates
       containerStop: (id, options) =>
-        this.api
-          .callAndGetJobId('container.stop', [
-            parseInt(id, 10),
-            {
-              force: options.force,
-              force_after_timeout: options.force,
-            },
-          ])
-          .pipe(switchMap(jobId => this.api.trackJob(jobId))),
+        this.api.job('container.stop', [
+          parseInt(id, 10),
+          {
+            force: options.force,
+            force_after_timeout: options.force,
+          },
+        ]),
 
       // v26.0.0 doesn't have container.restart - chain stop + start
       // Emits Job updates during stop, then null when start completes
       containerRestart: (id, options) => {
         const numericId = parseInt(id, 10);
         return this.api
-          .callAndGetJobId('container.stop', [
+          .job('container.stop', [
             numericId,
             {
               force: options.force,
@@ -80,8 +78,6 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
             },
           ])
           .pipe(
-            // Track stop job until it completes
-            switchMap(stopJobId => this.api.trackJob(stopJobId)),
             // Collect all job updates to ensure stop fully completes
             toArray(),
             // Re-emit job updates, then call start after stop is done

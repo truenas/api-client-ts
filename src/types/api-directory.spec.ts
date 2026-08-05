@@ -17,8 +17,11 @@ import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type {
   ApiCallDirectoryV26_0_0,
   ApiDirectoryV26_0_0,
+  v25_10_0,
 } from '@/generated';
 import type { BaseApiDirectory } from '@/types/api-directory.type';
+import type { Job, JobProgress, JobState } from '@/types/job.type';
+import type { TrueNasDate } from '@/types/truenas-date.type';
 
 describe('the surface a client is typed against', () => {
   /**
@@ -143,5 +146,60 @@ describe('call and callAndGetJobId', () => {
     api.callAndGetJobId('system.info');
     // @ts-expect-error a job's params are checked the same way.
     api.callAndGetJobId('app.start', [7]);
+  });
+});
+
+describe('job results', () => {
+  const api = {
+    job: () => undefined,
+    trackJob: () => undefined,
+  } as unknown as TrueNasApi;
+
+  /**
+   * The reason `job` exists rather than leaving callers to compose
+   * `callAndGetJobId` with `trackJob`: composing them by hand throws away the
+   * link between the method and its result.
+   */
+  it('carries the result type from the job directory', () => {
+    expectTypeOf(api.job('pool.import_find')).toEqualTypeOf<
+      Observable<Job<v25_10_0.PoolImportFind[]>>
+    >();
+    expectTypeOf(api.job('pool.dataset.export_key', ['tank/enc'])).toEqualTypeOf<
+      Observable<Job<string | null>>
+    >();
+    expectTypeOf(api.job('app.start', ['my-app'])).toEqualTypeOf<
+      Observable<Job<null>>
+    >();
+  });
+
+  /**
+   * A job id says nothing about which method produced it, so `trackJob` cannot
+   * infer the result and must not pretend to. `unknown` forces the caller to
+   * narrow; naming `R` explicitly is their assertion, not an inference.
+   */
+  it('degrades to unknown when a job is reached by id alone', () => {
+    expectTypeOf(api.trackJob(42)).toEqualTypeOf<Observable<Job<unknown>>>();
+    expectTypeOf(api.trackJob<string>(42)).toEqualTypeOf<
+      Observable<Job<string>>
+    >();
+  });
+
+  /**
+   * `Job` is the generated `core.get_jobs` entity with named overrides, so
+   * fields nobody overrode must still arrive from the dump — otherwise the
+   * refinement has quietly become a hand-written type again, and stops
+   * tracking the generated surface.
+   */
+  it('refines the generated shape rather than replacing it', () => {
+    // Overridden, because the dump is weaker than what the server sends.
+    expectTypeOf<Job['state']>().toEqualTypeOf<JobState>();
+    expectTypeOf<Job['time_started']>().toEqualTypeOf<TrueNasDate>();
+    expectTypeOf<Job['progress']>().toEqualTypeOf<JobProgress>();
+    expectTypeOf<Job['description']>().toEqualTypeOf<string | null>();
+
+    // Inherited from the generated entity, untouched.
+    expectTypeOf<Job['id']>().toEqualTypeOf<number>();
+    expectTypeOf<Job['transient']>().toEqualTypeOf<boolean>();
+    expectTypeOf<Job['exception']>().toEqualTypeOf<string | null>();
   });
 });

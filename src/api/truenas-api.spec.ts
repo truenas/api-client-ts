@@ -269,6 +269,80 @@ describe('TrueNasApi', () => {
       } as unknown as TrueNasMessage);
     }));
 
+  /**
+   * `job` is `callAndGetJobId` followed by `trackJob`, and the seam between
+   * them is where it can go wrong: the id has to come from the event
+   * correlation and be handed to the tracker, which then has to reach a
+   * terminal state for the stream to complete. Driven end to end rather than
+   * by spying on the two halves, which would pass even if the seam were wired
+   * backwards.
+   */
+  it('job starts the method, then follows the job it started to completion', () =>
+    new Promise<void>((resolve, reject) => {
+      const requestId = 'mock-id-app.start';
+      const seen: { id: number; state: JobState }[] = [];
+
+      api.job('app.start', ['my-app']).subscribe({
+        next: job => seen.push({ id: job.id, state: job.state }),
+        complete: () => {
+          try {
+            // The running state fetched by id, then the terminal event — and
+            // both for job 77, the one the request actually started.
+            expect(seen).toEqual([
+              { id: 77, state: JobState.Running },
+              { id: 77, state: JobState.Success },
+            ]);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      // The job event that identifies which job the request started.
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        method: 'collection_update',
+        params: {
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 77, message_ids: [requestId], state: JobState.Running },
+        },
+      } as unknown as TrueNasMessage);
+
+      // trackJob's opening core.get_jobs read.
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        id: 'mock-id-core.get_jobs',
+        result: [{ id: 77, state: JobState.Running }],
+      } as unknown as TrueNasMessage);
+
+      // A different job finishing must not complete our stream. Deliberately
+      // not an id adjacent to 77: an off-by-one in the seam would then be
+      // indistinguishable from correct tracking, which is how the first
+      // version of this test passed against a `trackJob(jobId + 1)` mutation.
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        method: 'collection_update',
+        params: {
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 999, state: JobState.Success },
+        },
+      } as unknown as TrueNasMessage);
+
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        method: 'collection_update',
+        params: {
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 77, state: JobState.Success },
+        },
+      } as unknown as TrueNasMessage);
+    }));
+
   it('generateToken calls auth.generate_token with the expected params', () =>
     new Promise<void>((resolve, reject) => {
       api.generateToken(300, true, false).subscribe({

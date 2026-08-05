@@ -72,8 +72,9 @@ export type {
 // ── Core types ───────────────────────────────────────────────────────────────
 export { VersionCompatibility } from '@/types/api-version.type';
 export type { ApiVersion, ApiVersionResponse } from '@/types/api-version.type';
-export { JobState } from '@/types/job.type';
-export type { Job } from '@/types/job.type';
+export { isJobFinished, JobState } from '@/types/job.type';
+export type { Job, JobProgress } from '@/types/job.type';
+export type { TrueNasDate } from '@/types/truenas-date.type';
 export { getApiErrorMessage } from '@/types/api-error.type';
 export type { ApiError } from '@/types/api-error.type';
 export type { AuthResponse } from '@/types/auth.type';

@@ -12,7 +12,7 @@
  * - createOperations() - for version-specific operation mappings
  */
 
-import { map, switchMap } from 'rxjs';
+import { map } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type { ApiDirectoryV25_10_0, v25_10_0 } from '@/generated';
 import { Container } from '@/types/container.type';
@@ -49,20 +49,13 @@ export class TrueNasApiClientV2510 extends TrueNasApiClient<ApiDirectoryV25_10_0
           .query('virt.instance.query', [['type', '=', 'CONTAINER']])
           .pipe(map(instances => instances.map(toContainer))),
 
-      containerStart: (id: string) =>
-        this.api
-          .callAndGetJobId('virt.instance.start', [id])
-          .pipe(switchMap(jobId => this.api.trackJob(jobId))),
+      containerStart: (id: string) => this.api.job('virt.instance.start', [id]),
 
       containerStop: (id, options) =>
-        this.api
-          .callAndGetJobId('virt.instance.stop', [id, options])
-          .pipe(switchMap(jobId => this.api.trackJob(jobId))),
+        this.api.job('virt.instance.stop', [id, options]),
 
       containerRestart: (id, options) =>
-        this.api
-          .callAndGetJobId('virt.instance.restart', [id, options])
-          .pipe(switchMap(jobId => this.api.trackJob(jobId))),
+        this.api.job('virt.instance.restart', [id, options]),
     };
   }
 
