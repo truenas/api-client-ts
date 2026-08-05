@@ -8,9 +8,9 @@ does not have is a compile error rather than a runtime one, and params and
 responses come from the same source.
 
 Four things changed for callers. Most of them fail at build time, so the
-compiler will find those sites for you. Three do **not** — the removals that
-now arrive (§4) and the two `client.ops` behaviours at the end — so read those
-even if your build is green.
+compiler will find those sites for you. Some do **not** — the removals that
+now arrive (§4), and the `client.ops` behaviours listed at the end — so read
+those even if your build is green.
 
 ### 1. Clients take a version's whole surface, not its call directory
 
@@ -68,6 +68,15 @@ cases where you only want the id, or already have one.
 
 `params` is now required exactly when the directory says the method takes
 arguments — `call('pool.dataset.delete')` with no arguments used to compile.
+
+**Requests are sent on subscribe, not on call.** Every verb returns a cold
+observable: nothing goes on the wire until something subscribes, and
+subscribing twice sends twice. Previously the request left as soon as you built
+the observable, which meant an observable built in one turn and subscribed in
+the next lost its reply. Two consequences, neither caught by the compiler:
+building a request you never subscribe to now does nothing, and handing one
+observable to two subscribers issues two requests — `job('app.start', …)`
+subscribed twice starts the app twice. Subscribe once, or `shareReplay` it.
 
 `Job` becomes `Job<R>`, defaulting to `unknown`, and `job(...)` fills in `R`
 from the job directory. Two fields on it changed shape:

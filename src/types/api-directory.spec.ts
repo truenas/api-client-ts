@@ -221,7 +221,7 @@ describe('job results', () => {
     // one. `extra` survives for the same reason.
     expectTypeOf<Job['progress']['percent']>().toEqualTypeOf<number | null>();
     expectTypeOf<Job['progress']['description']>().toEqualTypeOf<string>();
-    expectTypeOf<Job['time_started']>().toEqualTypeOf<TrueNasDate>();
+    expectTypeOf<Job['time_started']>().toEqualTypeOf<TrueNasDate | null>();
     expectTypeOf<Job['progress']>().toEqualTypeOf<JobProgress>();
     expectTypeOf<Job['description']>().toEqualTypeOf<string | null>();
 

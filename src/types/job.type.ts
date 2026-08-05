@@ -26,7 +26,10 @@ type GeneratedJob = QueryEntity<QueryDirectory, 'core.get_jobs'>;
  * - `time_started` / `time_finished` are modelled as ISO strings and arrive as
  *   `{$date: <epoch ms>}` — confirmed against a live appliance, and systemic
  *   rather than specific to jobs. Following the dump would make
- *   `new Date(job.time_started)` type-check and yield `Invalid Date`.
+ *   `new Date(job.time_started)` type-check and yield `Invalid Date`. Only the
+ *   encoding is corrected: both stay nullable, because that is what the dump
+ *   says and nothing observed contradicts it. Narrowing one and not the other
+ *   was an inconsistency inherited from the hand-written shape.
  * - `description`, and `progress.description`, are returned by the server and
  *   absent from the dump.
  * - `message_ids` is `unknown[]`. They are the JSON-RPC request ids that
@@ -65,7 +68,7 @@ export type Job<R = unknown> = Omit<
   /** The job's result once it succeeds; `null` while it runs, and on failure. */
   result: R | null;
   progress: JobProgress;
-  time_started: TrueNasDate;
+  time_started: TrueNasDate | null;
   time_finished: TrueNasDate | null;
   description: string | null;
   /**

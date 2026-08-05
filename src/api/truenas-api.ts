@@ -8,6 +8,7 @@ import {
   map,
   merge,
   share,
+  takeUntil,
   switchMap,
   take,
   takeWhile,
@@ -102,6 +103,13 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     share()
   );
 
+  /**
+   * One shared stream per subscribed event name — see {@link events}.
+   * Keyed by name rather than by caller, because the subscription it stands
+   * for lives on the server and is per socket, not per caller.
+   */
+  private readonly eventStreams = new Map<string, Observable<unknown>>();
+
   constructor(
     public authenticated: BehaviorSubject<boolean>,
     public connection: TrueNasConnection
@@ -146,26 +154,40 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * are in the shared base every surface extends.
    */
   private dispatch<T>(method: string, params?: unknown): Observable<T> {
-    const message = createJsonRpcMessage(method, params);
+    // Deferred, so the request goes out when the caller subscribes rather than
+    // when they build the observable, and so the reply is being listened for
+    // before it is asked for. Sending from the body meant an observable built
+    // in one turn and subscribed in the next lost its reply outright — the
+    // `withId` filter had no subscriber when it arrived — and left the caller
+    // with a promise that never settles. It also makes a failure to send
+    // (no socket yet) an error on the observable instead of a synchronous
+    // throw that `subscribe({ error })` cannot catch.
+    return defer(() => {
+      const message = createJsonRpcMessage(method, params);
 
-    this.connection.ws.next(message);
+      // createJsonRpcMessage always returns a message with an id
+      const messageId = message.id ?? '';
 
-    // createJsonRpcMessage always returns a message with an id
-    const messageId = message.id ?? '';
+      const reply = this.connection.messages().pipe(
+        withId(messageId),
+        map(msg => {
+          // JSON-RPC 2.0 response format
+          if (msg.error) {
+            // Handle both JSON-RPC 2.0 standard error (message) and TrueNAS error (reason)
+            const errorMessage = getApiErrorMessage(
+              msg.error,
+              'API call failed'
+            );
+            throw new Error(errorMessage);
+          }
+          return msg.result as T;
+        }),
+        take(1)
+      );
 
-    return this.connection.messages().pipe(
-      withId(messageId),
-      map(msg => {
-        // JSON-RPC 2.0 response format
-        if (msg.error) {
-          // Handle both JSON-RPC 2.0 standard error (message) and TrueNAS error (reason)
-          const errorMessage = getApiErrorMessage(msg.error, 'API call failed');
-          throw new Error(errorMessage);
-        }
-        return msg.result as T;
-      }),
-      take(1)
-    );
+      this.connection.ws.next(message);
+      return reply;
+    });
   }
 
   /**
@@ -333,7 +355,14 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * reachable here; see {@link EventName}.
    */
   events<E extends EventName<D>>(event: E): Observable<EventUnion<D, E>> {
-    return defer(() => {
+    // One stream per event name, shared. Without this each subscriber ran the
+    // `defer` and put its own `core.subscribe` frame on the wire, and since
+    // `core.unsubscribe` is never sent, every duplicate leaked a server-side
+    // subscription for the life of the socket.
+    const existing = this.eventStreams.get(event);
+    if (existing) return existing as Observable<EventUnion<D, E>>;
+
+    const stream = defer(() => {
       // Every authentication, not just the first. `authenticated$` cycles
       // false -> true on each reconnect, and a `take(1)` here meant the
       // subscription was re-established on the server exactly once: after a
@@ -349,19 +378,22 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
         });
 
       return this.connection.messages().pipe(
-      filter(res => res.method === 'collection_update'),
-      map(res => res.params as CollectionUpdate | undefined),
-      filter(
-        (params): params is CollectionUpdate =>
-          params?.collection === event &&
-          EVENT_KINDS.includes(params.msg as EventKind)
-      ),
+        filter(res => res.method === 'collection_update'),
+        map(res => res.params as CollectionUpdate | undefined),
+        filter(
+          (params): params is CollectionUpdate =>
+            params?.collection === event &&
+            EVENT_KINDS.includes(params.msg as EventKind)
+        ),
         // `collection` is the subscription the caller already named; what is
         // left is exactly the payload the directory declares, plus its tag.
         map(({ collection, ...change }) => change as EventUnion<D, E>),
         finalize(() => resubscribe.unsubscribe())
       );
-    });
+    }).pipe(share());
+
+    this.eventStreams.set(event, stream as Observable<unknown>);
+    return stream;
   }
 
   /**
@@ -405,23 +437,39 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       map(job => job as Job<R>)
     );
 
-    // Opening read, so an already-finished job is still reported.
-    const current$ = this.dispatch<Job<R>[]>('core.get_jobs', [
+    // Opening read, so an already-finished job is still reported. `share`d
+    // because two consumers read it — the snapshot and the not-found signal —
+    // and it must stay one request.
+    const read$ = this.dispatch<Job<R>[]>('core.get_jobs', [
       [['id', '=', jobId]],
     ]).pipe(
       map(jobs => jobs[0]),
-      filter(job => job !== undefined)
+      share()
     );
 
-    // `merge` subscribes to both immediately, which is the point: waiting for
-    // the read to come back before watching for updates leaves a window one
-    // round trip wide with no subscriber on the event stream. `jobEvents` is
+    // No such job: middleware has reaped it, or the id was never real. The
+    // stream has to end — completing empty is what this did before the read
+    // and the events were merged, and leaving it open is a silent hang.
+    const missing$ = read$.pipe(filter(job => job === undefined));
+
+    // The snapshot is a point in time and the events are live, so an event can
+    // beat the reply. Dropping the snapshot once an update has landed keeps a
+    // progress bar from jumping backwards to a state already superseded.
+    const snapshot$ = read$.pipe(
+      filter((job): job is Job<R> => job !== undefined),
+      takeUntil(updates$)
+    );
+
+    // Both are subscribed immediately, which is the point: waiting for the
+    // read to come back before watching for updates leaves a window one round
+    // trip wide with no subscriber on the event stream. `jobEvents` is
     // `share()`d without replay, so anything arriving in that window is
     // dropped — and a short job whose terminal event lands there would leave
     // this observable hanging forever, since `takeWhile` never sees the state
     // that ends it.
-    return merge(current$, updates$).pipe(
-      takeWhile(job => !isJobFinished(job), true) // Include the final state
+    return merge(snapshot$, updates$).pipe(
+      takeWhile(job => !isJobFinished(job), true), // Include the final state
+      takeUntil(missing$)
     );
   }
 

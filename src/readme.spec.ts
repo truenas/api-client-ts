@@ -1,10 +1,13 @@
 /**
- * The README's usage examples, compiled.
+ * Assertions mirroring the README's usage examples.
  *
- * Documentation that does not build is worse than none — it is confidently
- * wrong, and nothing else in the repo would catch it. These mirror the
- * snippets in `README.md`; if one stops compiling, either the example or the
- * client is wrong and both are worth looking at.
+ * These are hand-maintained copies, not extracted from `README.md` — so they
+ * catch the client drifting out from under the documented usage, which is the
+ * common direction, and they do NOT catch someone editing a README snippet
+ * into something that would not compile. Extracting the fenced blocks and
+ * typechecking them would close that gap and is the honest next step; until
+ * then this guarantees the shape of the API the README describes still exists,
+ * not that the README says it correctly.
  *
  * Type-level only. The `it` bodies exist so the file is picked up by
  * `tsconfig.spec.json`; nothing here opens a socket.

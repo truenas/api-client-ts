@@ -233,10 +233,12 @@ export interface QueryOptions<T> {
  * than unsound. It is the payload size that is not guaranteed, which is
  * usually the reason to reach for \`select\` in the first place.
  *
- * The client avoids this by keeping its supported ceiling at the newest
- * release rather than behind it, so the negotiated version matches the
- * appliance. One method ignores \`select\` natively regardless
- * (\`iscsi.initiator.query\`) and is a plain server-side bug.
+ * The mitigation is for the client's supported ceiling
+ * (\`apiVersionConfig.MAX_SUPPORTED_VERSION\`) to reach the newest release, so
+ * the negotiated version matches the appliance rather than lagging it. It
+ * currently lags on purpose, until a client exists for the newest version.
+ * One method ignores \`select\` natively regardless (\`iscsi.initiator.query\`)
+ * and is a plain server-side bug.
  */
 type SelectOf<O> = 'select' extends keyof O ? O['select'] : undefined;
 

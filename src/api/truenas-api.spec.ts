@@ -451,6 +451,96 @@ describe('TrueNasApi', () => {
       }
     }));
 
+  /**
+   * A job id with no row behind it — reaped, or never real. Merging the read
+   * with the event stream made this hang: the read completed without emitting
+   * and the events never complete, so nothing ended the stream. Completing
+   * empty is what it did before the two were merged.
+   */
+  it('completes when the opening read finds no such job', () =>
+    new Promise<void>((resolve, reject) => {
+      const seen: Job[] = [];
+      let completed = false;
+
+      api.trackJob(999).subscribe({
+        next: job => seen.push(job),
+        complete: () => {
+          completed = true;
+          try {
+            expect(seen).toEqual([]);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        id: 'mock-id-core.get_jobs',
+        result: [],
+      } as unknown as TrueNasMessage);
+
+      if (!completed) reject(new Error('stream did not complete on an absent job'));
+    }));
+
+  /**
+   * Nothing goes on the wire until something subscribes. Building a request
+   * and subscribing later used to lose the reply outright, because the filter
+   * that matches it by id had no subscriber when it arrived.
+   */
+  it('sends nothing until subscribed, and still gets the reply', () =>
+    new Promise<void>((resolve, reject) => {
+      const pending = api.call('system.info');
+      try {
+        expect(mockConnection.ws.next).not.toHaveBeenCalled();
+      } catch (err) {
+        reject(err);
+        return;
+      }
+
+      pending.subscribe({
+        next: res => {
+          try {
+            expect(res).toEqual({ hostname: 'later.local' });
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      expect(mockConnection.ws.next).toHaveBeenCalledTimes(1);
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        id: 'mock-id-system.info',
+        result: { hostname: 'later.local' },
+      } as unknown as TrueNasMessage);
+    }));
+
+  /**
+   * The server subscription is per socket, not per caller, so two subscribers
+   * to the same event must not each register one — nothing sends
+   * `core.unsubscribe`, so a duplicate would leak for the life of the socket.
+   */
+  it('registers one core.subscribe per event however many subscribers', () => {
+    authenticated$.next(true);
+    const stream = api.events('app.query');
+    stream.subscribe();
+    stream.subscribe();
+    api.events('app.query').subscribe();
+
+    const subscribes = vi
+      .mocked(mockConnection.ws.next)
+      .mock.calls.map(([m]) => m as { method: string; params: unknown })
+      .filter(m => m.method === 'core.subscribe')
+      .filter(m => JSON.stringify(m.params) === JSON.stringify(['app.query']));
+
+    expect(subscribes).toHaveLength(1);
+  });
+
   it('generateToken calls auth.generate_token with the expected params', () =>
     new Promise<void>((resolve, reject) => {
       api.generateToken(300, true, false).subscribe({
@@ -535,7 +625,14 @@ describe('TrueNasApi', () => {
    * These pin that translation; `src/query-projection.spec.ts` pins the types.
    */
   describe('query verbs', () => {
-    /** `params` of the single JSON-RPC message the verb put on the wire. */
+    /**
+     * `params` of the single JSON-RPC message the verb put on the wire.
+     *
+     * The verbs are deferred, so nothing is sent until something subscribes —
+     * hence the `.subscribe()` on each call below rather than a bare
+     * invocation. That is the point of the deferral: an observable nobody
+     * subscribed to has not asked the server for anything.
+     */
     const sentParams = (): unknown =>
       (vi.mocked(mockConnection.ws.next).mock.calls[0][0] as TrueNasMessage)
         .params;
@@ -552,10 +649,12 @@ describe('TrueNasApi', () => {
       }>;
 
     it('sends filters and options unchanged for query', () => {
-      queryApi().query('user.query', [['uid', '>', 1000]], {
-        select: ['id'],
-        limit: 10,
-      });
+      queryApi()
+        .query('user.query', [['uid', '>', 1000]], {
+          select: ['id'],
+          limit: 10,
+        })
+        .subscribe();
 
       expect(sentParams()).toEqual([
         [['uid', '>', 1000]],
@@ -564,13 +663,15 @@ describe('TrueNasApi', () => {
     });
 
     it('defaults to no filters and no options', () => {
-      queryApi().query('user.query');
+      queryApi().query('user.query').subscribe();
 
       expect(sentParams()).toEqual([[], {}]);
     });
 
     it('adds get:true for queryOne, preserving the caller options', () => {
-      queryApi().queryOne('user.query', [['id', '=', 1]], { select: ['id'] });
+      queryApi()
+        .queryOne('user.query', [['id', '=', 1]], { select: ['id'] })
+        .subscribe();
 
       expect(sentParams()).toEqual([
         [['id', '=', 1]],
@@ -579,7 +680,7 @@ describe('TrueNasApi', () => {
     });
 
     it('sends only count:true for queryCount', () => {
-      queryApi().queryCount('user.query', [['uid', '>', 1000]]);
+      queryApi().queryCount('user.query', [['uid', '>', 1000]]).subscribe();
 
       expect(sentParams()).toEqual([[['uid', '>', 1000]], { count: true }]);
     });

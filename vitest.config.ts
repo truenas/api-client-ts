@@ -18,6 +18,11 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    // The generator specs shell out to `tsx` via a blocking `spawnSync`, so
+    // vitest only evaluates the timeout once the child returns. They idle at
+    // ~1s and reach ~3s under load, which is uncomfortably close to the 5s
+    // default on a busy CI box for no benefit.
+    testTimeout: 20_000,
     include: ['src/**/*.spec.ts', 'scripts/**/*.spec.mts'],
   },
 });
