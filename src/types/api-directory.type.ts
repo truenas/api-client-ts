@@ -94,3 +94,57 @@ export type JobResult<
   D extends ApiDirectoryShape,
   M extends JobMethod<D>,
 > = D['job'][M] extends { response: infer R } ? R : never;
+
+/**
+ * The events a surface can be subscribed to by name alone.
+ *
+ * Deliberately not every key of the event directory. A handful of entries are
+ * *event sources* rather than collections — `app.stats`,
+ * `filesystem.file_tail_follow`, `virt.instance.metrics` and two others — and
+ * the directory marks them by giving them a `subscriptionParams` model. They
+ * take arguments at subscribe time, and how those arguments travel is not
+ * something the dump records: `core.subscribe` is declared as
+ * `params: [event: string]`, one string, with no documented encoding for the
+ * rest.
+ *
+ * So they are excluded rather than typed on a guess. Subscribing to one today
+ * sends its name with the arguments dropped, which is not a subscription the
+ * server can honour; a compile error naming the gap is more use than a stream
+ * that stays silent. Widen this once the encoding is confirmed against a live
+ * appliance — `yarn live-check` is the tool for that.
+ */
+export type EventName<D extends ApiDirectoryShape> = {
+  [E in keyof D['event']]: 'subscriptionParams' extends keyof D['event'][E]
+    ? never
+    : E;
+}[keyof D['event']] &
+  string;
+
+/** The kinds of change a collection event reports. */
+export type EventKind = 'added' | 'changed' | 'removed';
+
+/**
+ * One arm of an event union: the payload the directory declares for this kind,
+ * tagged with the kind itself.
+ *
+ * `never` when the event does not report that kind, which is not a rare case —
+ * plenty of collections declare only `added`, and an arm for a kind that never
+ * arrives would invite callers to handle it.
+ */
+type EventArm<
+  D extends ApiDirectoryShape,
+  E extends EventName<D>,
+  K extends EventKind,
+> = K extends keyof D['event'][E] ? { msg: K } & D['event'][E][K] : never;
+
+/**
+ * What subscribing to `E` emits: a union discriminated on `msg`.
+ *
+ * The arms differ in more than their payload — a removal carries an `id` and
+ * no `fields` in 55 of the 56 collections that declare one — so narrowing on
+ * `msg` is what makes the payload safe to reach.
+ */
+export type EventUnion<D extends ApiDirectoryShape, E extends EventName<D>> =
+  | EventArm<D, E, 'added'>
+  | EventArm<D, E, 'changed'>
+  | EventArm<D, E, 'removed'>;

@@ -102,26 +102,23 @@ describe('TrueNasApi', () => {
       messagesSubject.next(mockErrorResponse);
     }));
 
-  it('should execute events method and return the event', () =>
-    new Promise<void>((resolve, reject) => {
-      const mockEventName = 'alert.list';
-      const mockId = `mock-id-core.subscribe`;
-      // JSON-RPC 2.0 collection_update event format
-      const mockEventMessage = {
-        jsonrpc: '2.0',
-        method: 'collection_update',
-        params: {
-          collection: mockEventName,
-          msg: 'added',
-          fields: alerts,
-        },
-      } as unknown as TrueNasMessage;
+  /** A `collection_update` notification as it arrives on the socket. */
+  const collectionUpdate = (params: Record<string, unknown>) =>
+    ({
+      jsonrpc: '2.0',
+      method: 'collection_update',
+      params,
+    }) as unknown as TrueNasMessage;
 
+  it('subscribes to the collection and emits the change, not the frame', () =>
+    new Promise<void>((resolve, reject) => {
       authenticated$.next(true);
 
-      api.events(mockEventName).subscribe(event => {
+      api.events('app.query').subscribe(event => {
         try {
-          expect(event).toEqual(mockEventMessage);
+          // The transport frame and the `collection` are stripped: what is
+          // left is the payload the event directory declares, plus its tag.
+          expect(event).toEqual({ msg: 'added', id: 'app-1', fields: alerts });
           resolve();
         } catch (err) {
           reject(err);
@@ -131,15 +128,68 @@ describe('TrueNasApi', () => {
       try {
         expect(mockConnection.ws.next).toHaveBeenCalledWith({
           jsonrpc: '2.0',
-          id: mockId,
+          id: 'mock-id-core.subscribe',
           method: 'core.subscribe',
-          params: [mockEventName],
+          params: ['app.query'],
         });
       } catch (err) {
         reject(err);
       }
 
-      messagesSubject.next(mockEventMessage);
+      messagesSubject.next(
+        collectionUpdate({
+          collection: 'app.query',
+          msg: 'added',
+          id: 'app-1',
+          fields: alerts,
+        })
+      );
+    }));
+
+  /**
+   * Removed events were dropped outright. The filter required
+   * `fields !== undefined`, and a removal carries an id and no fields in 55 of
+   * the 56 collections that declare one — so the branch existed, matched the
+   * `msg`, and then discarded every event it matched.
+   */
+  it('emits removals, which carry an id and no fields', () =>
+    new Promise<void>((resolve, reject) => {
+      authenticated$.next(true);
+      const seen: unknown[] = [];
+
+      api.events('app.query').subscribe(event => {
+        seen.push(event);
+        if (seen.length < 2) return;
+        try {
+          expect(seen).toEqual([
+            { msg: 'removed', id: 'app-1' },
+            { msg: 'changed', id: 'app-2', fields: alerts },
+          ]);
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      });
+
+      messagesSubject.next(
+        collectionUpdate({ collection: 'app.query', msg: 'removed', id: 'app-1' })
+      );
+      // A different collection on the same socket must not leak through.
+      messagesSubject.next(
+        collectionUpdate({ collection: 'disk.query', msg: 'added', id: 'd1' })
+      );
+      // Neither must a msg that is not a collection change.
+      messagesSubject.next(
+        collectionUpdate({ collection: 'app.query', msg: 'unsubscribed' })
+      );
+      messagesSubject.next(
+        collectionUpdate({
+          collection: 'app.query',
+          msg: 'changed',
+          id: 'app-2',
+          fields: alerts,
+        })
+      );
     }));
 
   it('should track job progress and complete when job finishes', () =>

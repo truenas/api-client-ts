@@ -21,6 +21,9 @@ import type {
   CallMethod,
   CallParams,
   CallResponse,
+  EventKind,
+  EventName,
+  EventUnion,
   JobMethod,
   JobParams,
   JobResult,
@@ -38,14 +41,23 @@ import { withId } from '@/utils/utils';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 
 /**
- * Type for JSON-RPC 2.0 collection_update event params
+ * The `params` of a JSON-RPC 2.0 `collection_update` notification.
+ *
+ * Deliberately loose: one socket carries every subscription, so this is what
+ * is true of all of them before the `collection` says which is which. What a
+ * given collection puts in `id` and `fields` — and whether it sends `fields`
+ * at all — is the event directory's business, and {@link TrueNasApi.events}
+ * hands that back to the caller as a discriminated union.
  */
-interface CollectionUpdateParams {
+interface CollectionUpdate {
   msg: string;
   collection: string;
-  id: number;
-  fields: Job;
+  id?: unknown;
+  fields?: unknown;
 }
+
+/** The `msg` values {@link TrueNasApi.events} forwards. */
+const EVENT_KINDS: readonly EventKind[] = ['added', 'changed', 'removed'];
 
 /**
  * TrueNAS API handler using the JSON-RPC 2.0 protocol.
@@ -64,7 +76,8 @@ interface CollectionUpdateParams {
  * reaching a method the declared version does not have is a build error rather
  * than a runtime one.
  *
- * {@link events} is the exception and is still a bare `string`.
+ * {@link events} reads the event directory the same way, with one gap named
+ * in {@link EventName}.
  *
  * @typeParam D - the generated API surface this instance is typed against, as
  * a whole: `call`, `job` and `event` together. Defaults to the entries
@@ -79,9 +92,10 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     filter(
       res =>
         res.method === 'collection_update' &&
-        (res.params as CollectionUpdateParams)?.collection === 'core.get_jobs'
+        (res.params as CollectionUpdate | undefined)?.collection ===
+          'core.get_jobs'
     ),
-    map(event => (event.params as CollectionUpdateParams).fields),
+    map(event => (event.params as CollectionUpdate).fields as Job),
     filter(job => !!job?.id),
     share()
   );
@@ -290,23 +304,43 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     );
   }
 
-  events(eventName: string) {
+  /**
+   * Subscribe to a collection and emit its changes.
+   *
+   * Emits the change itself rather than the transport frame, as a union
+   * discriminated on `msg`:
+   *
+   * ```typescript
+   * api.events('app.query').subscribe(event => {
+   *   if (event.msg === 'removed') return drop(event.id);
+   *   render(event.fields);          // only reachable once narrowed
+   * });
+   * ```
+   *
+   * The narrowing is load-bearing, not decoration: a `removed` event carries
+   * an `id` and no `fields` in 55 of the 56 collections that declare one, so
+   * reaching `fields` unconditionally is wrong for almost all of them.
+   *
+   * Event *sources* — the entries taking subscribe-time arguments — are not
+   * reachable here; see {@link EventName}.
+   */
+  events<E extends EventName<D>>(event: E): Observable<EventUnion<D, E>> {
     this.authenticated.pipe(filter(Boolean), take(1)).subscribe(() => {
-      const message = createJsonRpcMessage('core.subscribe', [eventName]);
+      const message = createJsonRpcMessage('core.subscribe', [event]);
       this.connection.ws.next(message);
     });
 
     return this.connection.messages().pipe(
-      filter(res => {
-        // JSON-RPC 2.0 collection_update format
-        const params = res.params as CollectionUpdateParams | undefined;
-        return (
-          res.method === 'collection_update' &&
-          params?.collection === eventName &&
-          ['added', 'changed', 'removed'].includes(params?.msg || '') &&
-          params.fields !== undefined
-        );
-      })
+      filter(res => res.method === 'collection_update'),
+      map(res => res.params as CollectionUpdate | undefined),
+      filter(
+        (params): params is CollectionUpdate =>
+          params?.collection === event &&
+          EVENT_KINDS.includes(params.msg as EventKind)
+      ),
+      // `collection` is the subscription the caller already named; what is
+      // left is exactly the payload the directory declares, plus its tag.
+      map(({ collection, ...change }) => change as EventUnion<D, E>)
     );
   }
 

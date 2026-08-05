@@ -19,7 +19,11 @@ import type {
   ApiDirectoryV26_0_0,
   v25_10_0,
 } from '@/generated';
-import type { BaseApiDirectory } from '@/types/api-directory.type';
+import type {
+  BaseApiDirectory,
+  EventName,
+  EventUnion,
+} from '@/types/api-directory.type';
 import type { Job, JobProgress, JobState } from '@/types/job.type';
 import type { TrueNasDate } from '@/types/truenas-date.type';
 
@@ -201,5 +205,57 @@ describe('job results', () => {
     expectTypeOf<Job['id']>().toEqualTypeOf<number>();
     expectTypeOf<Job['transient']>().toEqualTypeOf<boolean>();
     expectTypeOf<Job['exception']>().toEqualTypeOf<string | null>();
+  });
+});
+
+describe('events', () => {
+  const api = { events: () => undefined } as unknown as TrueNasApi;
+
+  it('rejects an event the surface does not have', () => {
+    // @ts-expect-error no such collection.
+    api.events('unknown.collection');
+    // @ts-expect-error a real event, but not in the shared base.
+    api.events('alert.list');
+  });
+
+  /**
+   * The arms are not interchangeable, which is the reason for a union rather
+   * than one shape with optional fields: a removal carries an id and no
+   * fields. Typing `fields` as optional across all three would let a caller
+   * reach it on a removal and get `undefined` at runtime with no warning.
+   */
+  it('emits a union discriminated on msg', () => {
+    type AppEvent = EventUnion<BaseApiDirectory, 'app.query'>;
+
+    expectTypeOf(api.events('app.query')).toEqualTypeOf<Observable<AppEvent>>();
+    expectTypeOf<AppEvent>().toEqualTypeOf<
+      | ({ msg: 'added' } & v25_10_0.AppAddedEvent)
+      | ({ msg: 'changed' } & v25_10_0.AppChangedEvent)
+      | ({ msg: 'removed' } & v25_10_0.AppRemovedEvent)
+    >();
+
+    // `fields` is reachable once narrowed, and absent on a removal.
+    expectTypeOf<Extract<AppEvent, { msg: 'changed' }>['fields']>().toEqualTypeOf<
+      v25_10_0.AppEntryInput
+    >();
+    expectTypeOf<Extract<AppEvent, { msg: 'removed' }>>().not.toHaveProperty(
+      'fields'
+    );
+  });
+
+  /**
+   * Event sources take subscribe-time arguments, and `core.subscribe` is
+   * declared as a single string with no documented encoding for them. They are
+   * excluded rather than typed on a guess — see `EventName`. This is the test
+   * to delete once the encoding is confirmed.
+   */
+  it('excludes event sources, which take subscribe-time arguments', () => {
+    // @ts-expect-error `app.stats` needs subscription params we cannot send.
+    api.events('app.stats');
+    // @ts-expect-error likewise.
+    api.events('filesystem.file_tail_follow');
+
+    expectTypeOf<'app.stats'>().toExtend<keyof BaseApiDirectory['event']>();
+    expectTypeOf<'app.stats'>().not.toExtend<EventName<BaseApiDirectory>>();
   });
 });
