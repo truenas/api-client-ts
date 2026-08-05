@@ -220,20 +220,23 @@ export interface QueryOptions<T> {
  * \`QueryFilterField<E>[] | undefined\`, and claiming \`E\` there would promise
  * fields that a projection will not return.
  *
- * "At least those fields" rather than "exactly" is deliberate, and was
- * measured rather than assumed. Asking a live v26 appliance for a single field
- * from each of its 69 query methods, 44 of which had rows to project:
+ * "At least those fields" rather than "exactly" is deliberate. Middleware
+ * honours \`select\` correctly on its *current* API version, and re-adds fields
+ * when a client talks to a newer server over an older API version: the
+ * version-adaptation step fills in every non-required field's default, so a
+ * projected row comes back padded. Measured on a 27.0.0 appliance, same box
+ * and credentials — over \`/api/v26.0.0\`, 25 of 44 query methods returned
+ * unrequested fields; over \`/api/v27.0.0\`, none did.
  *
- *   18 returned exactly the requested field
- *   25 returned it plus others (\`pool.query\` adds \`is_upgraded\`;
- *      \`user.query\` adds thirteen; \`vm.query\` adds twenty-five)
- *    1 ignored \`select\` entirely (\`iscsi.initiator.query\`)
+ * The type stays sound either way — \`Pick\` is a supertype of what arrives, so
+ * a field it promises is never missing, and the padding is invisible rather
+ * than unsound. It is the payload size that is not guaranteed, which is
+ * usually the reason to reach for \`select\` in the first place.
  *
- * So a projection narrows the payload on some methods and not others, and
- * which is which is a property of the method rather than of the request. The
- * type stays sound either way — \`Pick\` is a supertype of what arrives, so no
- * field it promises is ever missing — but do not count on \`select\` to shrink a
- * response without checking that method first.
+ * The client avoids this by keeping its supported ceiling at the newest
+ * release rather than behind it, so the negotiated version matches the
+ * appliance. One method ignores \`select\` natively regardless
+ * (\`iscsi.initiator.query\`) and is a plain server-side bug.
  */
 type SelectOf<O> = 'select' extends keyof O ? O['select'] : undefined;
 
