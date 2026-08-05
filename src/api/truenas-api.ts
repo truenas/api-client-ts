@@ -155,13 +155,24 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    */
   private dispatch<T>(method: string, params?: unknown): Observable<T> {
     // Deferred, so the request goes out when the caller subscribes rather than
-    // when they build the observable, and so the reply is being listened for
-    // before it is asked for. Sending from the body meant an observable built
-    // in one turn and subscribed in the next lost its reply outright — the
-    // `withId` filter had no subscriber when it arrived — and left the caller
-    // with a promise that never settles. It also makes a failure to send
-    // (no socket yet) an error on the observable instead of a synchronous
-    // throw that `subscribe({ error })` cannot catch.
+    // when they build the observable. Sending from the body meant an
+    // observable built in one turn and subscribed in the next lost its reply
+    // outright — the `withId` filter had no subscriber when it arrived — and
+    // left the caller with a promise that never settles.
+    //
+    // The send and the subscription to `reply` happen in the same synchronous
+    // tick, so no reply can interleave between them. That is the invariant,
+    // not "the listener is attached first": `.pipe()` builds an observable, it
+    // does not subscribe one, and `defer` subscribes only after this factory
+    // returns.
+    //
+    // Sent through `connection.send()` rather than `connection.ws` so a
+    // request made before the socket opens is queued until it does, which is
+    // what the authenticator already does for every frame it sends. Reaching
+    // for `ws` directly meant a client used straight after
+    // `createTrueNasClient` failed with a bare
+    // `Cannot read properties of undefined` naming nothing about the
+    // connection.
     return defer(() => {
       const message = createJsonRpcMessage(method, params);
 
@@ -185,7 +196,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
         take(1)
       );
 
-      this.connection.ws.next(message);
+      this.connection.send(message);
       return reply;
     });
   }
@@ -295,14 +306,15 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     return defer(() => {
       const message = createJsonRpcMessage(method, params[0]);
 
-      // Listening before sending, for the same reason.
+      // Built before the send and subscribed in the same synchronous tick;
+      // see `dispatch` for why that is the invariant that matters.
       const seen = this.jobEvents.pipe(
         filter(job => job.message_ids?.includes(message.id ?? '') ?? false),
         map(job => job.id),
         take(1)
       );
 
-      this.connection.ws.next(message);
+      this.connection.send(message);
       return seen;
     });
   }
@@ -372,9 +384,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       const resubscribe = this.authenticated
         .pipe(distinctUntilChanged(), filter(Boolean))
         .subscribe(() => {
-          this.connection.ws.next(
-            createJsonRpcMessage('core.subscribe', [event])
-          );
+          this.connection.send(createJsonRpcMessage('core.subscribe', [event]));
         });
 
       return this.connection.messages().pipe(
@@ -390,7 +400,15 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
         map(({ collection, ...change }) => change as EventUnion<D, E>),
         finalize(() => resubscribe.unsubscribe())
       );
-    }).pipe(share());
+      // `resetOnRefCountZero: false` is what makes the comment above true.
+      // With the default, the share resets when the last subscriber leaves and
+      // the next one re-runs the `defer`, so a component subscribing in
+      // `ngOnInit` and unsubscribing in `ngOnDestroy` registers the collection
+      // again on every mount — the same leak, on a different axis, since
+      // nothing sends `core.unsubscribe`. `resetOnComplete: false` covers the
+      // closed-connection case: once the socket is gone the stream stays
+      // completed instead of re-registering onto a dead connection.
+    }).pipe(share({ resetOnRefCountZero: false, resetOnComplete: false }));
 
     this.eventStreams.set(event, stream as Observable<unknown>);
     return stream;
@@ -450,7 +468,14 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     // No such job: middleware has reaped it, or the id was never real. The
     // stream has to end — completing empty is what this did before the read
     // and the events were merged, and leaving it open is a silent hang.
-    const missing$ = read$.pipe(filter(job => job === undefined));
+    // Guarded by `updates$` for the same reason the snapshot is: live events
+    // are evidence the job exists, and an empty reply arriving after them is
+    // stale. Without the guard an empty read would complete the stream while
+    // updates were still flowing, turning a hang into a silent wrong answer.
+    const missing$ = read$.pipe(
+      filter(job => job === undefined),
+      takeUntil(updates$)
+    );
 
     // The snapshot is a point in time and the events are live, so an event can
     // beat the reply. Dropping the snapshot once an update has landed keeps a
@@ -482,10 +507,9 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     this.authenticated
       .pipe(distinctUntilChanged(), filter(Boolean))
       .subscribe(() => {
-        const message = createJsonRpcMessage('core.subscribe', [
-          'core.get_jobs',
-        ]);
-        this.connection.ws.next(message);
+        this.connection.send(
+          createJsonRpcMessage('core.subscribe', ['core.get_jobs'])
+        );
       });
   }
 }

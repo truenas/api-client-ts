@@ -25,13 +25,18 @@ describe('TrueNasApi', () => {
 
   beforeEach(() => {
     messagesSubject = new Subject<TrueNasMessage>();
+    const wsNext = vi.fn();
     mockConnection = {
       ws: {
-        next: vi.fn(),
+        next: wsNext,
         messages: vi.fn(),
         complete: vi.fn(),
       },
       messages: vi.fn().mockReturnValue(messagesSubject),
+      // The real `send` queues on `ws$` until a socket exists and then calls
+      // `ws.next`; here it forwards straight through, so the assertions below
+      // still read the frames off `ws.next`.
+      send: vi.fn((message: TrueNasMessage) => wsNext(message)),
     } as unknown as TrueNasConnection;
 
     authenticated$ = new BehaviorSubject<boolean>(false);
@@ -486,6 +491,51 @@ describe('TrueNasApi', () => {
     }));
 
   /**
+   * An empty read arriving *after* live updates is stale, not authoritative:
+   * the events are evidence the job exists. Completing on it would turn the
+   * hang this replaced into a silent wrong answer — a job reported as finished
+   * while still running.
+   */
+  it('ignores an empty read once updates have proved the job exists', () =>
+    new Promise<void>((resolve, reject) => {
+      const states: JobState[] = [];
+
+      api.trackJob(77).subscribe({
+        next: job => states.push(job.state),
+        complete: () => {
+          try {
+            expect(states).toEqual([JobState.Running, JobState.Success]);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      messagesSubject.next(
+        collectionUpdate({
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 77, state: JobState.Running },
+        })
+      );
+      // Stale: the job is plainly alive, whatever this says.
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        id: 'mock-id-core.get_jobs',
+        result: [],
+      } as unknown as TrueNasMessage);
+      messagesSubject.next(
+        collectionUpdate({
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 77, state: JobState.Success },
+        })
+      );
+    }));
+
+  /**
    * Nothing goes on the wire until something subscribes. Building a request
    * and subscribing later used to lose the reply outright, because the filter
    * that matches it by id had no subscriber when it arrived.
@@ -525,6 +575,17 @@ describe('TrueNasApi', () => {
    * to the same event must not each register one — nothing sends
    * `core.unsubscribe`, so a duplicate would leak for the life of the socket.
    */
+  /** `core.subscribe` frames for one collection, in send order. */
+  const subscribeFrames = (collection: string) =>
+    vi
+      .mocked(mockConnection.ws.next)
+      .mock.calls.map(([m]) => m as { method: string; params: unknown })
+      .filter(
+        m =>
+          m.method === 'core.subscribe' &&
+          JSON.stringify(m.params) === JSON.stringify([collection])
+      );
+
   it('registers one core.subscribe per event however many subscribers', () => {
     authenticated$.next(true);
     const stream = api.events('app.query');
@@ -532,14 +593,117 @@ describe('TrueNasApi', () => {
     stream.subscribe();
     api.events('app.query').subscribe();
 
-    const subscribes = vi
-      .mocked(mockConnection.ws.next)
-      .mock.calls.map(([m]) => m as { method: string; params: unknown })
-      .filter(m => m.method === 'core.subscribe')
-      .filter(m => JSON.stringify(m.params) === JSON.stringify(['app.query']));
-
-    expect(subscribes).toHaveLength(1);
+    expect(subscribeFrames('app.query')).toHaveLength(1);
   });
+
+  /**
+   * The case the concurrent test above cannot see. `share()` resets when the
+   * last subscriber leaves, so a component subscribing on mount and
+   * unsubscribing on unmount re-registered the collection every time it came
+   * back — and nothing sends `core.unsubscribe`, so each one persisted for the
+   * life of the socket.
+   */
+  it('does not re-register when a subscriber leaves and another arrives', () => {
+    authenticated$.next(true);
+    const stream = api.events('app.query');
+
+    stream.subscribe().unsubscribe();
+    stream.subscribe().unsubscribe();
+    stream.subscribe();
+
+    expect(subscribeFrames('app.query')).toHaveLength(1);
+  });
+
+  /**
+   * Re-registering IS right after a reconnect: the server forgot. That is a
+   * different trigger from a subscriber cycling, and the two must not be
+   * conflated.
+   */
+  it('re-registers after a reconnect', () => {
+    authenticated$.next(true);
+    api.events('app.query').subscribe();
+    expect(subscribeFrames('app.query')).toHaveLength(1);
+
+    authenticated$.next(false);
+    authenticated$.next(true);
+
+    expect(subscribeFrames('app.query')).toHaveLength(2);
+  });
+
+  /**
+   * The opening read has two consumers — the snapshot and the not-found
+   * signal — so it is `share()`d. If that sharing were lost, tracking a job
+   * would quietly ask the server twice for the same thing.
+   */
+  it('issues exactly one core.get_jobs read per tracked job', () => {
+    api.trackJob(77).subscribe();
+
+    const reads = vi
+      .mocked(mockConnection.ws.next)
+      .mock.calls.map(([m]) => m as { method: string })
+      .filter(m => m.method === 'core.get_jobs');
+
+    expect(reads).toHaveLength(1);
+  });
+
+  /**
+   * An event can beat the point-in-time read. The snapshot arm is dropped once
+   * an update lands, so a stale reply cannot walk the state backwards — but
+   * dropping it must not cost the terminal transition when the update that
+   * dropped it was only progress.
+   */
+  it('prefers a live update over a slower snapshot, and still completes', () =>
+    new Promise<void>((resolve, reject) => {
+      const seen: number[] = [];
+
+      api.trackJob(77).subscribe({
+        next: job => seen.push(job.progress.percent ?? -1),
+        complete: () => {
+          try {
+            // 60 from the event; the stale 10 from the reply never arrives.
+            expect(seen).toEqual([60, 100]);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      messagesSubject.next(
+        collectionUpdate({
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: {
+            id: 77,
+            state: JobState.Running,
+            progress: { percent: 60, description: '' },
+          },
+        })
+      );
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        id: 'mock-id-core.get_jobs',
+        result: [
+          {
+            id: 77,
+            state: JobState.Running,
+            progress: { percent: 10, description: '' },
+          },
+        ],
+      } as unknown as TrueNasMessage);
+      messagesSubject.next(
+        collectionUpdate({
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: {
+            id: 77,
+            state: JobState.Success,
+            progress: { percent: 100, description: '' },
+          },
+        })
+      );
+    }));
 
   it('generateToken calls auth.generate_token with the expected params', () =>
     new Promise<void>((resolve, reject) => {

@@ -79,7 +79,7 @@ observable to two subscribers issues two requests — `job('app.start', …)`
 subscribed twice starts the app twice. Subscribe once, or `shareReplay` it.
 
 `Job` becomes `Job<R>`, defaulting to `unknown`, and `job(...)` fills in `R`
-from the job directory. Two fields on it changed shape:
+from the job directory. Three fields on it changed shape:
 
 - `result` is `R | null`. A job that has not finished has no result — measured
   on a live appliance, a `RUNNING` emission carries `null` — and a failed job
@@ -89,6 +89,11 @@ from the job directory. Two fields on it changed shape:
   `number | null`, both because `Job` now tracks the generated `core.get_jobs`
   entity instead of a hand-written shape. `job.arguments[0].toUpperCase()` and
   bare arithmetic on `percent` stop compiling; narrow or default them.
+- `time_started` is `TrueNasDate | null`, matching `time_finished`. Only the
+  `{$date}` encoding was ever a correction to the dump; the nullability is what
+  the dump says, and narrowing one timestamp but not the other was an
+  inconsistency carried over from the hand-written shape.
+  `new Date(job.time_started.$date)` stops compiling.
 
 ### 4. `events` emits the change, not the frame
 
