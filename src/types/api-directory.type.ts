@@ -98,14 +98,15 @@ export type JobResult<
 /**
  * The events a surface can be subscribed to by name alone.
  *
- * Deliberately not every key of the event directory. A handful of entries are
- * *event sources* rather than collections — `app.stats`,
- * `filesystem.file_tail_follow`, `virt.instance.metrics` and two others — and
- * the directory marks them by giving them a `subscriptionParams` model. They
- * take arguments at subscribe time, and how those arguments travel is not
- * something the dump records: `core.subscribe` is declared as
- * `params: [event: string]`, one string, with no documented encoding for the
- * rest.
+ * Deliberately not every key of the event directory. A few entries are *event
+ * sources* rather than collections — five in the shared base
+ * (`app.container_log_follow`, `app.stats`, `container.metrics`,
+ * `filesystem.file_tail_follow`, `reporting.realtime`), plus
+ * `virt.instance.metrics` on v25.10 — and the directory marks them by giving
+ * them a `subscriptionParams` model. They take arguments at subscribe time,
+ * and how those arguments travel is not something the dump records:
+ * `core.subscribe` is declared as `params: [event: string]`, one string, with
+ * no documented encoding for the rest.
  *
  * So they are excluded rather than typed on a guess. Subscribing to one today
  * sends its name with the arguments dropped, which is not a subscription the
