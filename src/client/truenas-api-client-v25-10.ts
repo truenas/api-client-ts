@@ -14,14 +14,10 @@
 
 import { map, switchMap } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
-import type { ApiDirectoryV25_10_0 } from '@/generated';
-import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+import type { ApiDirectoryV25_10_0, v25_10_0 } from '@/generated';
 import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
-import {
-  VirtualInstanceQuery,
-  VirtualInstanceType,
-} from '@/types/virtual-instance-query.type';
+import { toAppState } from '@/utils/app-state.utils';
 
 /**
  * API client for TrueNAS API v25.10.x
@@ -45,45 +41,52 @@ export class TrueNasApiClientV2510 extends TrueNasApiClient<ApiDirectoryV25_10_0
    */
   protected createOperations(): OperationMappings {
     return {
+      // A polymorphic `.query`, so it goes through the verb rather than
+      // `call`: the directory types the raw method's response as the five-way
+      // union the server may return, and the verb is what fixes it to a list.
       containerQuery: () =>
         this.api
-          .call(TrueNasEndpoint.VirtualInstanceQuery, [
-            [['type', '=', VirtualInstanceType.Container]],
-          ])
-          .pipe(map(instances => instances.map(this.toContainer))),
+          .query('virt.instance.query', [['type', '=', 'CONTAINER']])
+          .pipe(map(instances => instances.map(toContainer))),
 
       containerStart: (id: string) =>
         this.api
-          .callAndGetJobId(TrueNasEndpoint.VirtualInstanceStart, [id])
+          .callAndGetJobId('virt.instance.start', [id])
           .pipe(switchMap(jobId => this.api.trackJob(jobId))),
 
       containerStop: (id, options) =>
         this.api
-          .callAndGetJobId(TrueNasEndpoint.VirtualInstanceStop, [id, options])
+          .callAndGetJobId('virt.instance.stop', [id, options])
           .pipe(switchMap(jobId => this.api.trackJob(jobId))),
 
       containerRestart: (id, options) =>
         this.api
-          .callAndGetJobId(TrueNasEndpoint.VirtualInstanceRestart, [
-            id,
-            options,
-          ])
+          .callAndGetJobId('virt.instance.restart', [id, options])
           .pipe(switchMap(jobId => this.api.trackJob(jobId))),
     };
   }
 
-  /**
-   * Transform VirtualInstanceQuery to unified Container type
-   */
-  private toContainer(instance: VirtualInstanceQuery): Container {
-    return {
-      id: instance.id,
-      name: instance.name,
-      status: instance.status,
-      autostart: instance.autostart,
-      cpu: instance.cpu,
-      memory: instance.memory,
-      image: instance.image,
-    };
-  }
+}
+
+/**
+ * Transform a v25.10 `virt.instance` entry into the unified Container.
+ *
+ * The nullable fields were previously typed as always present and passed
+ * through unchanged, so a null reached callers through a field declared
+ * `string`. They are normalised to `undefined` here, which is what
+ * `Container` says optional means.
+ */
+function toContainer(instance: v25_10_0.VirtInstanceEntry): Container {
+  return {
+    id: instance.id,
+    name: instance.name,
+    status: toAppState(instance.status),
+    autostart: instance.autostart,
+    cpu: instance.cpu ?? undefined,
+    memory: instance.memory ?? undefined,
+    image:
+      instance.image.description === null
+        ? undefined
+        : { description: instance.image.description },
+  };
 }

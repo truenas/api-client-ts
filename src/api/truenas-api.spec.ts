@@ -1,8 +1,6 @@
 import { BehaviorSubject, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
-import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
-import { ApiCallDirectory } from '@/types/api-call-directory.type';
 import { Job, JobState } from '@/types/job.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import alerts from 'test-data/alerts.json';
@@ -43,7 +41,6 @@ describe('TrueNasApi', () => {
   it('should execute call method with JSON-RPC 2.0 format and return the result', () =>
     new Promise<void>((resolve, reject) => {
       const mockMethod = 'system.info';
-      const mockParams = undefined;
       const mockId = `mock-id-system.info`;
       const mockResponse = {
         jsonrpc: '2.0',
@@ -52,7 +49,7 @@ describe('TrueNasApi', () => {
       } as unknown as TrueNasMessage;
 
       api
-        .call(mockMethod as keyof ApiCallDirectory, mockParams)
+        .call(mockMethod)
         .subscribe(response => {
           try {
             expect(response).toEqual(mockResponse.result);
@@ -90,7 +87,7 @@ describe('TrueNasApi', () => {
         },
       } as unknown as TrueNasMessage;
 
-      api.call(mockMethod as keyof ApiCallDirectory).subscribe({
+      api.call(mockMethod).subscribe({
         next: () => reject(new Error('Should have thrown an error')),
         error: (error: Error) => {
           try {
@@ -222,11 +219,11 @@ describe('TrueNasApi', () => {
 
   it('callAndGetJobId returns the id of the job whose message_ids includes the request id', () =>
     new Promise<void>((resolve, reject) => {
-      const method = 'virt.instance.start';
+      const method = 'app.start';
       const requestId = `mock-id-${method}`; // from the createJsonRpcMessage mock
 
       api
-        .callAndGetJobId(method as keyof ApiCallDirectory)
+        .callAndGetJobId(method, ['my-app'])
         .subscribe({
           next: jobId => {
             try {
@@ -289,7 +286,7 @@ describe('TrueNasApi', () => {
       try {
         expect(mockConnection.ws.next).toHaveBeenCalledWith(
           expect.objectContaining({
-            method: TrueNasEndpoint.GenerateToken,
+            method: 'auth.generate_token',
             params: [300, {}, true, false],
           })
         );
@@ -299,7 +296,7 @@ describe('TrueNasApi', () => {
 
       messagesSubject.next({
         jsonrpc: '2.0',
-        id: `mock-id-${TrueNasEndpoint.GenerateToken}`,
+        id: `mock-id-auth.generate_token`,
         result: 'tok-abc',
       } as unknown as TrueNasMessage);
     }));

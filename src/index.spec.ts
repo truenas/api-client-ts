@@ -18,10 +18,9 @@ describe('public barrel', () => {
     expect(typeof api.AuthError).toBe('function');
   });
 
-  it('exposes the logger helpers and enums', () => {
+  it('exposes the logger helpers and error codes', () => {
     expect(typeof api.noopLogger.info).toBe('function');
     expect(typeof api.consoleLogger.info).toBe('function');
-    expect(api.TrueNasEndpoint.SystemInfo).toBe('system.info');
     expect(api.AuthErrorCode.PasswordAuthFailed).toBe('PASSWORD_AUTH_FAILED');
   });
 });

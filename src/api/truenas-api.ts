@@ -10,19 +10,19 @@ import {
   take,
   takeWhile,
 } from 'rxjs';
-import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 import type {
   QueryFilters,
   QueryProjection,
 } from '@/generated/shared/query-types';
-import {
-  ApiCallMethod,
-  ApiCallParams,
-  ApiCallResponse,
-} from '@/types/api-call-directory.type';
 import type {
   ApiDirectoryShape,
+  ArgsOf,
   BaseApiDirectory,
+  CallMethod,
+  CallParams,
+  CallResponse,
+  JobMethod,
+  JobParams,
 } from '@/types/api-directory.type';
 import type {
   QueryEntity,
@@ -55,20 +55,18 @@ interface CollectionUpdateParams {
  * - Event subscriptions
  * - Job tracking
  *
- * Note that two directories are in play, and they are not the same one.
- * {@link call} is keyed off the hand-maintained `ApiCallDirectory`, while the
- * query verbs resolve against `D['call']`, the generated directory this
- * instance was parameterised with. So on one instance, `call('pool.query')` and
- * `query('pool.query')` take their types from different sources. That is
- * deliberate — the verbs need the generator's `entity` marker, which the
- * hand-maintained directory does not carry — and it is how the generated types
- * are being adopted incrementally rather than in one breaking change.
+ * Every method name it accepts comes from `D`, the generated surface it was
+ * parameterised with, and each verb reads the facet that describes it:
+ * {@link call} the call directory, {@link callAndGetJobId} the job directory,
+ * the query verbs the `entity`-marked subset of the call directory. A name
+ * that is not in the relevant facet does not compile, so reaching a method the
+ * declared version does not have is a build error rather than a runtime one.
+ *
+ * {@link events} is the exception and is still a bare `string`.
  *
  * @typeParam D - the generated API surface this instance is typed against, as
- * a whole: `call`, `job` and `event` together. Only the query verbs read it so
- * far; {@link call}, {@link callAndGetJobId} and {@link events} still resolve
- * against the hand-maintained directory and a bare `string` respectively.
- * Defaults to the entries identical in every generated version.
+ * a whole: `call`, `job` and `event` together. Defaults to the entries
+ * identical in every generated version.
  */
 export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   /**
@@ -93,11 +91,28 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     this.initializeJobEventsSubscription();
   }
 
-  call<M extends ApiCallMethod>(
+  /**
+   * Send a request to a method of the surface this instance is typed against,
+   * and emit its result.
+   *
+   * ```typescript
+   * api.call('system.info')                      // SystemInfo
+   * api.call('pool.dataset.delete', ['tank/ds', { recursive: true }])
+   * ```
+   *
+   * `params` is required exactly when the method takes them — the directory
+   * says which — so a method that needs an id cannot be called without one.
+   *
+   * The polymorphic `.query` methods are reachable here too, but their
+   * `response` is the five-way union the server may return, which is
+   * {@link query} / {@link queryOne} / {@link queryCount}'s job to resolve.
+   * Reach for a verb instead.
+   */
+  call<M extends CallMethod<D>>(
     method: M,
-    params?: ApiCallParams<M>
-  ): Observable<ApiCallResponse<M>> {
-    return this.dispatch<ApiCallResponse<M>>(method, params);
+    ...params: ArgsOf<CallParams<D, M>>
+  ): Observable<CallResponse<D, M>> {
+    return this.dispatch<CallResponse<D, M>>(method, params[0]);
   }
 
   /**
@@ -209,21 +224,25 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   }
 
   /**
-   * Makes an API call and returns the job ID from the websocket event.
-   * Used for v26 where API calls return null but job events contain the job ID.
+   * Start a job and emit its id.
    *
-   * The job ID is extracted from the first job event where message_ids contains
-   * the original request ID.
+   * Keyed off the surface's *job* directory rather than its call directory —
+   * a disjoint key space, so `callAndGetJobId('app.query')` is rejected and
+   * `call('app.start')` is too. Which one a method belongs to is a fact about
+   * the method, and the generated directories are where that fact lives.
    *
-   * @param method The API method to call
-   * @param params The parameters for the API call
+   * The id comes from the first job event whose `message_ids` carries this
+   * request's id, not from the response: what a job method returns on the wire
+   * differs by version (v25.10 answers with the id, v26 with `null`), while
+   * the event correlation holds for both.
+   *
    * @returns Observable that emits the job ID when received from websocket events
    */
-  callAndGetJobId<M extends ApiCallMethod>(
+  callAndGetJobId<M extends JobMethod<D>>(
     method: M,
-    params?: ApiCallParams<M>
+    ...params: ArgsOf<JobParams<D, M>>
   ): Observable<number> {
-    const message = createJsonRpcMessage(method, params);
+    const message = createJsonRpcMessage(method, params[0]);
 
     this.connection.ws.next(message);
 
@@ -260,13 +279,20 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
 
   /**
    * Convenience wrapper for auth.generate_token API call.
+   *
+   * Goes through {@link dispatch} rather than {@link call}: inside the class
+   * body `D` is still a type parameter, so TypeScript cannot know that
+   * `auth.generate_token` is one of its methods. It is — the method is in the
+   * shared base, so every surface has it — but proving that to the checker
+   * would mean constraining `D` on the class, which would push the constraint
+   * onto every caller. The signature below is the guarantee instead.
    */
   generateToken(
     ttl = 600,
     matchOrigin = false,
     singleUse = true
   ): Observable<string> {
-    return this.call(TrueNasEndpoint.GenerateToken, [
+    return this.dispatch<string>('auth.generate_token', [
       ttl,
       {},
       matchOrigin,
@@ -283,11 +309,15 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       JobState.Finished,
     ];
 
-    // First, get the current job state
-    const currentJobState$ = this.call('core.get_jobs' as ApiCallMethod, [
+    // First, get the current job state. Dispatched directly for the same
+    // reason as generateToken, and typed as the hand-written `Job` rather than
+    // the generated `CoreGetJobsItem`: the latter types `state` as a bare
+    // string, omits `description`, and models the timestamps as strings when
+    // the wire sends `{$date: <ms>}`. Phase 3 reconciles the two.
+    const currentJobState$ = this.dispatch<Job[]>('core.get_jobs', [
       [['id', '=', jobId]],
     ]).pipe(
-      map(jobs => (jobs as Job[])[0]),
+      map(jobs => jobs[0]),
       filter(job => job !== undefined)
     );
 

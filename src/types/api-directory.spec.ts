@@ -10,6 +10,7 @@
  * The assertions are compile-time; the `it` blocks exist so the file is picked
  * up by `tsconfig.spec.json` and the runtime suite.
  */
+import type { Observable } from 'rxjs';
 import { describe, expectTypeOf, it } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
@@ -71,5 +72,76 @@ describe('the surface a client is typed against', () => {
     expectTypeOf<keyof ApiDirectoryV26_0_0>().toEqualTypeOf<
       'call' | 'job' | 'event'
     >();
+  });
+});
+
+describe('call and callAndGetJobId', () => {
+  const api = {
+    call: () => undefined,
+    callAndGetJobId: () => undefined,
+  } as unknown as TrueNasApi;
+
+  const v26 = {
+    call: () => undefined,
+  } as unknown as TrueNasApi<ApiDirectoryV26_0_0>;
+
+  /**
+   * The property that replaces the endpoint constants this package used to
+   * export. A misspelled or non-existent method was previously a runtime
+   * error — the constant list was hand-maintained and covered 65 of 641
+   * methods, so anything outside it went as a bare string.
+   */
+  it('rejects a method the surface does not have', () => {
+    // @ts-expect-error no such method anywhere.
+    api.call('unknown.endpoint');
+    // @ts-expect-error a real method, but not in the shared base.
+    api.call('container.start', [5]);
+
+    // The same name against a surface that does have it.
+    v26.call('container.start', [5]);
+  });
+
+  it('takes params and response from the directory entry', () => {
+    expectTypeOf(api.call('alert.list_policies')).toEqualTypeOf<
+      Observable<string[]>
+    >();
+    expectTypeOf(api.call('alert.dismiss', ['uuid-1'])).toEqualTypeOf<
+      Observable<null>
+    >();
+
+    // @ts-expect-error `uuid` is a string, not a number.
+    api.call('alert.dismiss', [7]);
+  });
+
+  /**
+   * The reason `call` takes a rest parameter rather than an optional one. A
+   * single `params?` let a method that needs an argument be called without
+   * one, because whether the directory said params were required was never
+   * consulted.
+   */
+  it('requires params exactly when the method takes them', () => {
+    api.call('alert.list_policies');
+    api.call('system.info');
+
+    // @ts-expect-error `alert.dismiss` needs a uuid.
+    api.call('alert.dismiss');
+  });
+
+  /**
+   * Two disjoint key spaces, not one with a flag. Which directory a method
+   * lives in is a fact about the method — `app.start` runs as a job and
+   * `app.query` does not — so neither verb accepts the other's names.
+   */
+  it('keeps the call and job key spaces apart', () => {
+    expectTypeOf(api.callAndGetJobId('app.start', ['my-app'])).toEqualTypeOf<
+      Observable<number>
+    >();
+
+    // @ts-expect-error `app.start` is a job, not a call.
+    api.call('app.start', ['my-app']);
+    // @ts-expect-error `system.info` is a call, not a job.
+    api.callAndGetJobId('system.info');
+    // @ts-expect-error a job's params are checked the same way.
+    api.callAndGetJobId('app.start', [7]);
   });
 });

@@ -1,13 +1,9 @@
 import { firstValueFrom, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+import type { v25_10_0 } from '@/generated';
 import { AppState } from '@/types/app-query.type';
 import { ApiVersion } from '@/types/api-version.type';
 import { Job, JobState } from '@/types/job.type';
-import {
-  VirtualInstanceQuery,
-  VirtualInstanceType,
-} from '@/types/virtual-instance-query.type';
 import { TrueNasApiClientV2510 } from './truenas-api-client-v25-10';
 
 const version: ApiVersion = {
@@ -33,25 +29,34 @@ describe('TrueNasApiClientV2510', () => {
     expect(client.version).toBe(version);
   });
 
-  it('containerQuery queries virt.instance.query (containers only) and maps to Container', async () => {
-    const instance: VirtualInstanceQuery = {
+  /**
+   * Only the fields the mapping reads; `VirtInstanceEntry` declares twenty,
+   * and spelling out the rest would say nothing about the transform.
+   */
+  const instance = (
+    over: Partial<v25_10_0.VirtInstanceEntry> = {}
+  ): v25_10_0.VirtInstanceEntry =>
+    ({
       id: 'inst-1',
       name: 'ct1',
-      type: VirtualInstanceType.Container,
-      status: AppState.Running,
+      type: 'CONTAINER',
+      status: 'RUNNING',
       autostart: true,
       cpu: '2',
       memory: 1024,
       image: { description: 'debian' },
-    };
-    const callSpy = vi
-      .spyOn(client.api, 'call')
-      .mockReturnValue(of([instance]) as never);
+      ...over,
+    }) as v25_10_0.VirtInstanceEntry;
+
+  it('containerQuery queries virt.instance.query (containers only) and maps to Container', async () => {
+    const querySpy = vi
+      .spyOn(client.api, 'query')
+      .mockReturnValue(of([instance()]) as never);
 
     const result = await firstValueFrom(client.ops.containerQuery());
 
-    expect(callSpy).toHaveBeenCalledWith(TrueNasEndpoint.VirtualInstanceQuery, [
-      [['type', '=', VirtualInstanceType.Container]],
+    expect(querySpy).toHaveBeenCalledWith('virt.instance.query', [
+      ['type', '=', 'CONTAINER'],
     ]);
     expect(result).toEqual([
       {
@@ -66,6 +71,31 @@ describe('TrueNasApiClientV2510', () => {
     ]);
   });
 
+  /**
+   * `virt.instance` reports ten states where `Container.status` promises four,
+   * and the nullable fields were previously passed through a type that said
+   * they were always present. Both are normalised now, so both are pinned.
+   */
+  it('narrows an unmapped state and drops nulls rather than passing them on', async () => {
+    vi.spyOn(client.api, 'query').mockReturnValue(
+      of([
+        instance({
+          status: 'FROZEN',
+          cpu: null,
+          memory: null,
+          image: { description: null } as v25_10_0.VirtInstanceImage,
+        }),
+      ]) as never
+    );
+
+    const [container] = await firstValueFrom(client.ops.containerQuery());
+
+    expect(container.status).toBe(AppState.Stopped);
+    expect(container.cpu).toBeUndefined();
+    expect(container.memory).toBeUndefined();
+    expect(container.image).toBeUndefined();
+  });
+
   it('containerStart calls virt.instance.start and tracks the job', async () => {
     const job = { id: 42, state: JobState.Success } as Job;
     const callJobSpy = vi
@@ -78,7 +108,7 @@ describe('TrueNasApiClientV2510', () => {
     const result = await firstValueFrom(client.ops.containerStart('inst-1'));
 
     expect(callJobSpy).toHaveBeenCalledWith(
-      TrueNasEndpoint.VirtualInstanceStart,
+      'virt.instance.start',
       ['inst-1']
     );
     expect(trackSpy).toHaveBeenCalledWith(42);
@@ -97,7 +127,7 @@ describe('TrueNasApiClientV2510', () => {
       client.ops.containerStop('inst-1', options)
     );
 
-    expect(callJobSpy).toHaveBeenCalledWith(TrueNasEndpoint.VirtualInstanceStop, [
+    expect(callJobSpy).toHaveBeenCalledWith('virt.instance.stop', [
       'inst-1',
       options,
     ]);
@@ -117,7 +147,7 @@ describe('TrueNasApiClientV2510', () => {
     );
 
     expect(callJobSpy).toHaveBeenCalledWith(
-      TrueNasEndpoint.VirtualInstanceRestart,
+      'virt.instance.restart',
       ['inst-1', options]
     );
     expect(result).toBe(job);

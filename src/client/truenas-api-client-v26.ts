@@ -14,11 +14,10 @@
 
 import { concat, from, map, switchMap, toArray } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
-import type { ApiDirectoryV26_0_0 } from '@/generated';
-import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
-import { AppState } from '@/types/app-query.type';
-import { Container, ContainerQueryV26 } from '@/types/container.type';
+import type { ApiDirectoryV26_0_0, v26_0_0 } from '@/generated';
+import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
+import { toAppState } from '@/utils/app-state.utils';
 
 /**
  * API client for TrueNAS API v26
@@ -34,22 +33,6 @@ import { OperationMappings } from '@/types/operation-mappings.interface';
  */
 export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
   /**
-   * Map v26 status state string to AppState enum
-   */
-  private static mapStatus(state: string): AppState {
-    switch (state.toUpperCase()) {
-      case 'RUNNING':
-        return AppState.Running;
-      case 'STOPPED':
-        return AppState.Stopped;
-      case 'STOPPING':
-        return AppState.Stopping;
-      default:
-        return AppState.Stopped;
-    }
-  }
-
-  /**
    * Create v26-specific operation mappings
    *
    * Operations return Observable<Job | null>:
@@ -58,21 +41,24 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
    */
   protected createOperations(): OperationMappings {
     return {
+      // A polymorphic `.query`, so it goes through the verb rather than
+      // `call`: the directory types the raw method's response as the five-way
+      // union the server may return, and the verb is what fixes it to a list.
       containerQuery: () =>
-        this.api
-          .call(TrueNasEndpoint.ContainerQuery, [[]])
-          .pipe(map(containers => containers.map(this.toContainer))),
+        this.api.query('container.query').pipe(
+          map(containers => containers.map(toContainer))
+        ),
 
       // container.start is synchronous in v26.0.0 - emit null
       containerStart: (id: string) =>
         this.api
-          .call(TrueNasEndpoint.ContainerStart, [parseInt(id, 10)])
+          .call('container.start', [parseInt(id, 10)])
           .pipe(map(() => null)),
 
       // container.stop emits job updates
       containerStop: (id, options) =>
         this.api
-          .callAndGetJobId(TrueNasEndpoint.ContainerStop, [
+          .callAndGetJobId('container.stop', [
             parseInt(id, 10),
             {
               force: options.force,
@@ -86,7 +72,7 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
       containerRestart: (id, options) => {
         const numericId = parseInt(id, 10);
         return this.api
-          .callAndGetJobId(TrueNasEndpoint.ContainerStop, [
+          .callAndGetJobId('container.stop', [
             numericId,
             {
               force: options.force,
@@ -103,7 +89,7 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
               concat(
                 from(jobUpdates),
                 this.api
-                  .call(TrueNasEndpoint.ContainerStart, [numericId])
+                  .call('container.start', [numericId])
                   .pipe(map(() => null))
               )
             )
@@ -112,18 +98,33 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
     };
   }
 
-  /**
-   * Transform v26 ContainerQueryV26 to unified Container type
-   */
-  private toContainer(container: ContainerQueryV26): Container {
-    return {
-      id: container.id.toString(),
-      name: container.name,
-      status: TrueNasApiClientV26.mapStatus(container.status.state),
-      autostart: container.autostart,
-      description: container.description,
-      // cpu and memory are not available in v26 container.query
-      // image is not available in v26 container.query
-    };
-  }
+}
+
+/**
+ * Transform a v26 `container` entry into the unified Container.
+ *
+ * `cpu`, `memory` and `image` are not part of `container.query` in v26 and are
+ * left unset.
+ *
+ * `description` is read through a widening because the generated
+ * `ContainerEntry` does not declare it while the server does return it — the
+ * same omission `core.get_jobs` shows, where the dump models what middleware
+ * declares rather than what it sends. Dropping the field to match the dump
+ * would take data away from callers who already receive it, so the divergence
+ * is made explicit here instead. Remove the widening once the dump declares
+ * the field.
+ */
+function toContainer(container: v26_0_0.ContainerEntry): Container {
+  const { description } = container as v26_0_0.ContainerEntry & {
+    description?: string;
+  };
+
+  return {
+    id: container.id.toString(),
+    name: container.name,
+    status: toAppState(container.status.state),
+    // Optional in the generated entry, required by `Container`.
+    autostart: container.autostart ?? false,
+    description,
+  };
 }

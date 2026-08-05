@@ -38,3 +38,59 @@ export interface BaseApiDirectory {
   job: ApiJobDirectoryBase;
   event: ApiEventDirectoryBase;
 }
+
+/**
+ * The argument list a directory entry's `params` implies.
+ *
+ * Params are required when the method takes any, and omissible when it does
+ * not — which is not the same as "the tuple is empty". Much of the directory
+ * declares tuples like `[filters?: …, options?: …]`, where passing nothing is
+ * legal; `[] extends P` covers both, where a check for an empty tuple would
+ * force those callers to write an explicit `[]`.
+ *
+ * A single optional `params?` would be simpler, and is what this replaced. It
+ * let `call('pool.dataset.delete')` through with no arguments at all — that
+ * method needs a dataset id — because the directory's word on what is required
+ * was never consulted.
+ */
+export type ArgsOf<P> = [] extends P ? [params?: P] : [params: P];
+
+/** Every request/response method a surface carries. */
+export type CallMethod<D extends ApiDirectoryShape> = keyof D['call'] & string;
+
+/** The parameter tuple a call method takes. */
+export type CallParams<
+  D extends ApiDirectoryShape,
+  M extends CallMethod<D>,
+> = D['call'][M] extends { params: infer P } ? P : never;
+
+/** What a call method resolves to. */
+export type CallResponse<
+  D extends ApiDirectoryShape,
+  M extends CallMethod<D>,
+> = D['call'][M] extends { response: infer R } ? R : never;
+
+/**
+ * Every method a surface runs as a job.
+ *
+ * A separate key space from {@link CallMethod}, not a subset of it: the two
+ * directories are disjoint, and which one a method lives in is a property of
+ * the method rather than of how you call it. `app.start` is a job; `app.query`
+ * is a call; neither appears in the other's directory.
+ */
+export type JobMethod<D extends ApiDirectoryShape> = keyof D['job'] & string;
+
+/** The parameter tuple a job method takes. */
+export type JobParams<
+  D extends ApiDirectoryShape,
+  M extends JobMethod<D>,
+> = D['job'][M] extends { params: infer P } ? P : never;
+
+/**
+ * What a job method's *result* is, once the job finishes — not what the
+ * request returns, which is a job id.
+ */
+export type JobResult<
+  D extends ApiDirectoryShape,
+  M extends JobMethod<D>,
+> = D['job'][M] extends { response: infer R } ? R : never;

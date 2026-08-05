@@ -43,18 +43,23 @@ export { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 export { consoleLogger, noopLogger } from '@/logger';
 export type { Logger } from '@/logger';
 
-// ── Method names + version-agnostic operations ───────────────────────────────
-export { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+// ── Version-agnostic operations ──────────────────────────────────────────────
 export type { OperationMappings } from '@/types/operation-mappings.interface';
-export type {
-  ApiCallDirectory,
-  ApiCallMethod,
-  ApiCallParams,
-  ApiCallResponse,
-} from '@/types/api-call-directory.type';
+
+// ── Reading a version's surface ──────────────────────────────────────────────
+// The method names a client accepts come from the generated directories, so
+// there is no separate list of endpoint constants to import: pass the method
+// name as a string literal and the surface decides whether it exists.
 export type {
   ApiDirectoryShape,
+  ArgsOf,
   BaseApiDirectory,
+  CallMethod,
+  CallParams,
+  CallResponse,
+  JobMethod,
+  JobParams,
+  JobResult,
 } from '@/types/api-directory.type';
 export type {
   QueryDirectory,
