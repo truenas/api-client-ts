@@ -196,8 +196,14 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
         take(1)
       );
 
-      this.connection.send(message);
-      return reply;
+      // `send` queues on `ws$` and holds a subscription until a socket
+      // appears. Tying it to the caller's lifetime means a request made while
+      // disconnected is dropped when they give up on it, rather than sitting
+      // queued and leaking a subscription per abandoned call. Once the frame
+      // has gone out the inner subscription has already completed and this is
+      // a no-op.
+      const sending = this.connection.send(message);
+      return reply.pipe(finalize(() => sending.unsubscribe()));
     });
   }
 
@@ -314,8 +320,8 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
         take(1)
       );
 
-      this.connection.send(message);
-      return seen;
+      const sending = this.connection.send(message);
+      return seen.pipe(finalize(() => sending.unsubscribe()));
     });
   }
 

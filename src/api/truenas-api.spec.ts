@@ -1,4 +1,4 @@
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, filter, take } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import { Job, JobState } from '@/types/job.type';
@@ -569,6 +569,39 @@ describe('TrueNasApi', () => {
         result: { hostname: 'later.local' },
       } as unknown as TrueNasMessage);
     }));
+
+  /**
+   * A request made while disconnected sits queued on `ws$`. If the caller
+   * gives up before a socket appears, the queued send must go with them —
+   * otherwise every abandoned call leaves a subscription behind, and the frame
+   * still goes out whenever the connection eventually opens.
+   */
+  it('drops a queued send when the caller unsubscribes', () => {
+    const ws$ = new BehaviorSubject<{ next: (m: unknown) => void } | null>(
+      null
+    );
+    const sent: unknown[] = [];
+    const queueing = {
+      messages: () => messagesSubject,
+      send: (message: TrueNasMessage) =>
+        ws$
+          .pipe(
+            filter(ws => ws !== null),
+            take(1)
+          )
+          .subscribe(ws => ws?.next(message)),
+    } as unknown as TrueNasConnection;
+
+    const offline = new TrueNasApi(authenticated$, queueing);
+    const sub = offline.call('system.info').subscribe();
+
+    expect(sent).toHaveLength(0);
+    sub.unsubscribe();
+
+    // The socket arrives after the caller gave up: nothing should be sent.
+    ws$.next({ next: (m: unknown) => sent.push(m) });
+    expect(sent).toHaveLength(0);
+  });
 
   /**
    * The server subscription is per socket, not per caller, so two subscribers
