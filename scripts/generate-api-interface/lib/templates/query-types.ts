@@ -78,12 +78,27 @@ export interface QueryOptions<T> {
  * The three cases are kept distinct on purpose:
  *
  *   select absent    -> `E`, every field present
- *   select literal   -> exactly those fields
+ *   select literal   -> at least those fields
  *   select unknown   -> `Partial<E>`, because fields MAY be missing
  *
  * The last one matters. Options built into a variable widen `select` to
  * `QueryFilterField<E>[] | undefined`, and claiming `E` there would promise
  * fields that a projection will not return.
+ *
+ * "At least those fields" rather than "exactly" is deliberate, and was
+ * measured rather than assumed. Asking a live v26 appliance for a single field
+ * from each of its 69 query methods, 44 of which had rows to project:
+ *
+ *   18 returned exactly the requested field
+ *   25 returned it plus others (`pool.query` adds `is_upgraded`;
+ *      `user.query` adds thirteen; `vm.query` adds twenty-five)
+ *    1 ignored `select` entirely (`iscsi.initiator.query`)
+ *
+ * So a projection narrows the payload on some methods and not others, and
+ * which is which is a property of the method rather than of the request. The
+ * type stays sound either way — `Pick` is a supertype of what arrives, so no
+ * field it promises is ever missing — but do not count on `select` to shrink a
+ * response without checking that method first.
  */
 type SelectOf<O> = 'select' extends keyof O ? O['select'] : undefined;
 
