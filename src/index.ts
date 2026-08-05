@@ -53,6 +53,10 @@ export type {
   ApiCallResponse,
 } from '@/types/api-call-directory.type';
 export type {
+  ApiDirectoryShape,
+  BaseApiDirectory,
+} from '@/types/api-directory.type';
+export type {
   QueryDirectory,
   QueryEntity,
   QueryListOptions,

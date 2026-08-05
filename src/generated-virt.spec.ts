@@ -15,15 +15,15 @@ import type { Observable } from 'rxjs';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import type {
-  ApiCallDirectoryV25_10_0,
   ApiCallDirectoryV26_0_0,
+  ApiDirectoryV25_10_0,
   ApiEventDirectoryV26_0_0,
   ApiJobDirectoryV26_0_0,
   v25_10_0,
 } from '@/generated';
 import type { QueryDirectory, QueryMethod } from '@/types/query.type';
 
-type Dir = ApiCallDirectoryV25_10_0;
+type Dir = ApiDirectoryV25_10_0;
 type InstanceEntry = v25_10_0.VirtInstanceEntry;
 
 const api = { query: () => undefined } as unknown as TrueNasApi<Dir>;
@@ -38,8 +38,8 @@ describe('virt.* on the v25.10 directory', () => {
     >();
 
     // Marked as queries, so the verbs apply and filters are checked.
-    expectTypeOf<'virt.instance.query'>().toExtend<QueryMethod<Dir>>();
-    expectTypeOf<'virt.volume.query'>().toExtend<QueryMethod<Dir>>();
+    expectTypeOf<'virt.instance.query'>().toExtend<QueryMethod<Dir['call']>>();
+    expectTypeOf<'virt.volume.query'>().toExtend<QueryMethod<Dir['call']>>();
   });
 
   it('carries the entity fields rather than an opaque record', () => {

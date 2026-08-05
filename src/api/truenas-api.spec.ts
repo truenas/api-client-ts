@@ -363,7 +363,13 @@ describe('TrueNasApi', () => {
 
     const queryApi = () =>
       api as unknown as TrueNasApi<{
-        'user.query': { entity: { id: number; username: string; uid: number } };
+        call: {
+          'user.query': {
+            entity: { id: number; username: string; uid: number };
+          };
+        };
+        job: Record<never, never>;
+        event: Record<never, never>;
       }>;
 
     it('sends filters and options unchanged for query', () => {

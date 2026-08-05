@@ -14,7 +14,7 @@
 
 import { map, switchMap } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
-import type { ApiCallDirectoryV25_10_0 } from '@/generated';
+import type { ApiDirectoryV25_10_0 } from '@/generated';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
@@ -35,7 +35,7 @@ import {
  * - containerStop → virt.instance.stop (emits Job updates)
  * - containerRestart → virt.instance.restart (emits Job updates)
  */
-export class TrueNasApiClientV2510 extends TrueNasApiClient<ApiCallDirectoryV25_10_0> {
+export class TrueNasApiClientV2510 extends TrueNasApiClient<ApiDirectoryV25_10_0> {
   /**
    * Create v25.10-specific operation mappings
    *

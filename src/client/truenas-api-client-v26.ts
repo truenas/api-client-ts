@@ -14,7 +14,7 @@
 
 import { concat, from, map, switchMap, toArray } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
-import type { ApiCallDirectoryV26_0_0 } from '@/generated';
+import type { ApiDirectoryV26_0_0 } from '@/generated';
 import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
 import { AppState } from '@/types/app-query.type';
 import { Container, ContainerQueryV26 } from '@/types/container.type';
@@ -32,7 +32,7 @@ import { OperationMappings } from '@/types/operation-mappings.interface';
  * - containerStop → container.stop (emits Job updates)
  * - containerRestart → container.stop + container.start (emits Job, then null)
  */
-export class TrueNasApiClientV26 extends TrueNasApiClient<ApiCallDirectoryV26_0_0> {
+export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
   /**
    * Map v26 status state string to AppState enum
    */

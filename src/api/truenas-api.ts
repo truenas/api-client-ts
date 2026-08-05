@@ -21,7 +21,10 @@ import {
   ApiCallResponse,
 } from '@/types/api-call-directory.type';
 import type {
-  QueryDirectory,
+  ApiDirectoryShape,
+  BaseApiDirectory,
+} from '@/types/api-directory.type';
+import type {
   QueryEntity,
   QueryListOptions,
   QueryMethod,
@@ -54,17 +57,20 @@ interface CollectionUpdateParams {
  *
  * Note that two directories are in play, and they are not the same one.
  * {@link call} is keyed off the hand-maintained `ApiCallDirectory`, while the
- * query verbs resolve against `Dir`, the generated directory this instance was
- * parameterised with. So on one instance, `call('pool.query')` and
+ * query verbs resolve against `D['call']`, the generated directory this
+ * instance was parameterised with. So on one instance, `call('pool.query')` and
  * `query('pool.query')` take their types from different sources. That is
  * deliberate — the verbs need the generator's `entity` marker, which the
  * hand-maintained directory does not carry — and it is how the generated types
  * are being adopted incrementally rather than in one breaking change.
  *
- * @typeParam Dir - the generated call directory the query verbs are typed
- * against. Defaults to the entries identical in every generated version.
+ * @typeParam D - the generated API surface this instance is typed against, as
+ * a whole: `call`, `job` and `event` together. Only the query verbs read it so
+ * far; {@link call}, {@link callAndGetJobId} and {@link events} still resolve
+ * against the hand-maintained directory and a bare `string` respectively.
+ * Defaults to the entries identical in every generated version.
  */
-export class TrueNasApi<Dir = QueryDirectory> {
+export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   /**
    * Stream of job events from websocket.
    * JSON-RPC 2.0 events have structure: { method: 'collection_update', params: { collection, fields, ... } }
@@ -156,16 +162,16 @@ export class TrueNasApi<Dir = QueryDirectory> {
    * response, which is {@link queryCount} and {@link queryOne}'s job.
    */
   query<
-    M extends QueryMethod<Dir> & string,
-    const O extends QueryListOptions<QueryEntity<Dir, M>> = Record<
+    M extends QueryMethod<D['call']> & string,
+    const O extends QueryListOptions<QueryEntity<D['call'], M>> = Record<
       never,
       never
     >,
   >(
     method: M,
-    filters?: QueryFilters<QueryEntity<Dir, M>>,
+    filters?: QueryFilters<QueryEntity<D['call'], M>>,
     options?: O
-  ): Observable<QueryProjection<QueryEntity<Dir, M>, O>[]> {
+  ): Observable<QueryProjection<QueryEntity<D['call'], M>, O>[]> {
     return this.dispatch(method, [filters ?? [], options ?? {}]);
   }
 
@@ -176,16 +182,16 @@ export class TrueNasApi<Dir = QueryDirectory> {
    * `limit` and `offset` as well as the shape switches.
    */
   queryOne<
-    M extends QueryMethod<Dir> & string,
-    const O extends QuerySingleOptions<QueryEntity<Dir, M>> = Record<
+    M extends QueryMethod<D['call']> & string,
+    const O extends QuerySingleOptions<QueryEntity<D['call'], M>> = Record<
       never,
       never
     >,
   >(
     method: M,
-    filters?: QueryFilters<QueryEntity<Dir, M>>,
+    filters?: QueryFilters<QueryEntity<D['call'], M>>,
     options?: O
-  ): Observable<QueryProjection<QueryEntity<Dir, M>, O>> {
+  ): Observable<QueryProjection<QueryEntity<D['call'], M>, O>> {
     return this.dispatch(method, [filters ?? [], { ...options, get: true }]);
   }
 
@@ -195,9 +201,9 @@ export class TrueNasApi<Dir = QueryDirectory> {
    * Takes no options: `select` and `order_by` cannot affect a count, and
    * `limit` / `offset` would silently cap it.
    */
-  queryCount<M extends QueryMethod<Dir> & string>(
+  queryCount<M extends QueryMethod<D['call']> & string>(
     method: M,
-    filters?: QueryFilters<QueryEntity<Dir, M>>
+    filters?: QueryFilters<QueryEntity<D['call'], M>>
   ): Observable<number> {
     return this.dispatch(method, [filters ?? [], { count: true }]);
   }

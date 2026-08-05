@@ -16,13 +16,13 @@ import { describe, expectTypeOf, it } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import type { DefaultApiDirectory } from '@/factory';
 import type {
-  ApiCallDirectoryV25_10_0,
-  ApiCallDirectoryV26_0_0,
+  ApiDirectoryV25_10_0,
+  ApiDirectoryV26_0_0,
   v25_10_0,
 } from '@/generated';
 import type { QueryListOptions, QueryMethod } from '@/types/query.type';
 
-type Dir = ApiCallDirectoryV25_10_0;
+type Dir = ApiDirectoryV25_10_0;
 type PoolEntry = v25_10_0.PoolEntry;
 
 /**
@@ -126,27 +126,27 @@ describe('query verbs against the generated directory', () => {
 
   it('applies only to polymorphic query methods', () => {
     // Marked: accepts query options AND returns list | single | count.
-    expectTypeOf<'pool.query'>().toExtend<QueryMethod<Dir>>();
-    expectTypeOf<'user.query'>().toExtend<QueryMethod<Dir>>();
+    expectTypeOf<'pool.query'>().toExtend<QueryMethod<Dir['call']>>();
+    expectTypeOf<'user.query'>().toExtend<QueryMethod<Dir['call']>>();
 
     // Returns one entry unconditionally — nothing to disambiguate, so it stays
     // on `call` even though it accepts QueryOptions.
-    expectTypeOf<'pool.get_instance'>().not.toExtend<QueryMethod<Dir>>();
+    expectTypeOf<'pool.get_instance'>().not.toExtend<QueryMethod<Dir['call']>>();
 
     // Returns an array but accepts no options at all — 55 methods like this.
     // Marking them would have offered filters to methods that take none.
-    expectTypeOf<'alert.list'>().not.toExtend<QueryMethod<Dir>>();
-    expectTypeOf<'alert.list_policies'>().not.toExtend<QueryMethod<Dir>>();
-    expectTypeOf<'app.categories'>().not.toExtend<QueryMethod<Dir>>();
+    expectTypeOf<'alert.list'>().not.toExtend<QueryMethod<Dir['call']>>();
+    expectTypeOf<'alert.list_policies'>().not.toExtend<QueryMethod<Dir['call']>>();
+    expectTypeOf<'app.categories'>().not.toExtend<QueryMethod<Dir['call']>>();
 
     // Conversely, a name not ending in `.query` can still be a real query:
     // both of these take filters and options and return the polymorphic union.
     // `trackJob` already calls core.get_jobs with a filters array.
-    expectTypeOf<'core.get_jobs'>().toExtend<QueryMethod<Dir>>();
-    expectTypeOf<'auth.sessions'>().toExtend<QueryMethod<Dir>>();
+    expectTypeOf<'core.get_jobs'>().toExtend<QueryMethod<Dir['call']>>();
+    expectTypeOf<'auth.sessions'>().toExtend<QueryMethod<Dir['call']>>();
 
     // Not a query by any reading.
-    expectTypeOf<'core.ping'>().not.toExtend<QueryMethod<Dir>>();
+    expectTypeOf<'core.ping'>().not.toExtend<QueryMethod<Dir['call']>>();
   });
 
   it('rejects methods that are not queries', () => {
@@ -206,7 +206,7 @@ describe('the directory the factory hands back', () => {
   it('lets a caller name a newer surface, and holds them to it', () => {
     const v26 = {
       query: () => undefined,
-    } as unknown as TrueNasApi<ApiCallDirectoryV26_0_0>;
+    } as unknown as TrueNasApi<ApiDirectoryV26_0_0>;
 
     // v26 added containers; the default (v25.10) has never heard of them.
     v26.query('container.query');
