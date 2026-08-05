@@ -33,6 +33,17 @@ export interface PipelineOptions {
   includePrefixes?: string[];
   /** Progress logger; silent by default (the CLI passes console.log). */
   log?: (message: string) => void;
+  /**
+   * Version -> namespace prefixes that version drops, for removals no dump can
+   * express. See `hand-removed.json`; the CLI loads it and passes it through.
+   */
+  handRemoved?: Record<string, string[]>;
+  /**
+   * Markdown appended to the generated MANIFEST.md, for entries no dump
+   * describes. Without it the manifest's completeness claim is false, and
+   * hand-adding the rows puts them in a regeneration target.
+   */
+  manifestAppendix?: string;
 }
 
 /**
@@ -54,7 +65,8 @@ function pruneUnreachable(model: VersionModel): void {
   );
 }
 
-const versionDir = (version: string): string => version.replaceAll('.', '_');
+/** `v25.10.0` -> `v25_10_0`, the directory a version's files live in. */
+export const versionDir = (version: string): string => version.replaceAll('.', '_');
 
 /**
  * @returns generated files as `relative path -> content`
@@ -62,7 +74,10 @@ const versionDir = (version: string): string => version.replaceAll('.', '_');
  */
 export async function generateFromDump(
   dump: ApiDumpFile | ApiDumpVersion,
-  { apiVersions, includePrefixes = [], log = () => {} }: PipelineOptions = {},
+  {
+    apiVersions, includePrefixes = [], log = () => {},
+    handRemoved = {}, manifestAppendix = '',
+  }: PipelineOptions = {},
 ): Promise<Map<string, string>> {
   const available: ApiDumpVersion[] = (dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion];
   if (available[0] && !available[0].methods[0]?.schemas?.accepts) {
@@ -241,8 +256,9 @@ export async function generateFromDump(
       types: names.filter((n) => declared[home][n]._kind !== 'enum').sort(),
     }));
 
+    const removedPrefixes = handRemoved[model.version] ?? [];
     const link = (kind: string): DirectoryChainLink | undefined => (multi && i > 0
-      ? { prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`, removed: [] }
+      ? { prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`, removed: [], removedPrefixes }
       : undefined);
     const linkFor = (kind: string, removed: string[]): DirectoryChainLink | undefined => {
       const l = link(kind);
@@ -303,7 +319,7 @@ export async function generateFromDump(
       }
     });
     manifestRows.push(...typeRows.values());
-    files.set('MANIFEST.md', emitManifest(manifestRows, models.map((m) => m.version)));
+    files.set('MANIFEST.md', emitManifest(manifestRows, models.map((m) => m.version), manifestAppendix));
 
     files.set('index.ts', emitRootIndex(models.map((m) => m.version)));
     log(`Chain: root ${models[0].version} declares ${Object.keys(declared[0]).length} types; ${chainStable.size} stable across the whole chain`);

@@ -1,0 +1,4 @@
+{
+  "$comment": "Hash of each frozen version's slice in the dump it was blessed from, excluding doc/description. Generation fails if a frozen version's slice moves, because its files are skipped and the rest of the tree would be generated against a model they no longer hold. Run `yarn generate:api` and paste what it prints to seed a version. Record $source when you do.",
+  "$source": "not yet seeded \u2014 no dump has been run against this tree"
+}

@@ -296,6 +296,42 @@ export interface DirectoryChainLink {
   prevPath: string;
   /** Entries present in the previous version but absent from this one. */
   removed: string[];
+  /**
+   * Namespace prefixes to omit wholesale, e.g. `virt.`.
+   *
+   * `removed` is derived by diffing consecutive dumps, so it can only see a
+   * removal both sides of which are *in* a dump. A namespace deleted from every
+   * historical version directory upstream is invisible to it — the entries it
+   * would have to diff against were never there. Those are declared by hand
+   * (`hand-removed.json`) and rendered as template literals, which also keeps
+   * the omission from drifting out of sync with what the frozen version
+   * declares.
+   */
+  removedPrefixes?: string[];
+}
+
+/**
+ * Explains a template-literal omission in the emitted comment.
+ *
+ * These come from the hand-removed manifest rather than from a dump diff, so
+ * without a note the next reader sees an omission with no visible cause. Emitted
+ * rather than hand-written, because a hand-written explanation would sit in a
+ * regeneration target and be deleted by the next run.
+ */
+function prefixNote(link: DirectoryChainLink): string {
+  const prefixes = link.removedPrefixes ?? [];
+  if (prefixes.length === 0) return '';
+  const list = prefixes.map((p) => '`' + p + '*`').join(', ');
+  const plural = prefixes.length > 1;
+  return [
+    '',
+    ' *',
+    ' * ' + list + (plural ? ' are' : ' is') + ' declared in an earlier version and removed here.',
+    ' * No dump describes ' + (plural ? 'them' : 'it') + ': the entries a diff would have to',
+    ' * compare were deleted from every version directory upstream. The omission',
+    ' * comes from `hand-removed.json`, so a regeneration reproduces it.',
+    '',
+  ].join('\n');
 }
 
 function chainedDirectory(
@@ -309,16 +345,20 @@ function chainedDirectory(
   }
   const prevAlias = `Previous${interfaceName}`;
   const prevImport = `import type { ${interfaceName} as ${prevAlias} } from '${link.prevPath}';\n`;
-  const removedUnion = link.removed.map((n) => `'${n}'`).join(' | ');
+  const removedUnion = [
+    ...link.removed.map((n) => `'${n}'`),
+    ...(link.removedPrefixes ?? []).map((p) => `\`${p}\${string}\``),
+  ].join(' | ');
+  const hasRemovals = link.removed.length > 0 || (link.removedPrefixes ?? []).length > 0;
   if (!entries) {
-    if (link.removed.length === 0) {
+    if (!hasRemovals) {
       return `${HEADER}\n${prevImport}\n/** Identical to the previous version's surface. */\nexport type ${interfaceName} = ${prevAlias};\n`;
     }
     return `${HEADER}\n${prevImport}\n/** The previous version's surface, without entries removed in this version. */\nexport type ${interfaceName} = Omit<${prevAlias}, ${removedUnion}>;\n`;
   }
   const deltaName = `${interfaceName}Delta`;
-  const omitted = link.removed.length ? `keyof ${deltaName} | ${removedUnion}` : `keyof ${deltaName}`;
-  return `${HEADER}\n${prevImport}${imports ? `\n${imports}` : '\n'}/** Entries added or changed in this version (directly, or through a referenced type). */\nexport interface ${deltaName} {\n${entries}\n}\n\n/** This version's surface: the previous version's, updated by the delta. */\nexport type ${interfaceName} = Omit<${prevAlias}, ${omitted}> & ${deltaName};\n`;
+  const omitted = hasRemovals ? `keyof ${deltaName} | ${removedUnion}` : `keyof ${deltaName}`;
+  return `${HEADER}\n${prevImport}${imports ? `\n${imports}` : '\n'}/** Entries added or changed in this version (directly, or through a referenced type). */\nexport interface ${deltaName} {\n${entries}\n}\n\n/** This version's surface: the previous version's, updated by the delta.${prefixNote(link)} */\nexport type ${interfaceName} = Omit<${prevAlias}, ${omitted}> & ${deltaName};\n`;
 }
 
 export function emitCallDirectory(ownMethods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', link?: DirectoryChainLink): string {
@@ -413,11 +453,18 @@ export interface ManifestRow {
 }
 
 /**
+ * Drop maintainer-facing HTML comments from an appended fragment. The source
+ * file explains itself to whoever edits it; that note has no reader in the
+ * generated artifact.
+ */
+const stripHtmlComments = (markdown: string): string => markdown.replace(/<!--[\s\S]*?-->/g, '');
+
+/**
  * A greppable per-method history: the chain declares an entry only where it
  * changes, so `grep <method> src/generated/` alone cannot distinguish
  * "unchanged since vX" from "absent after vX" — this manifest can.
  */
-export function emitManifest(rows: ManifestRow[], versions: string[]): string {
+export function emitManifest(rows: ManifestRow[], versions: string[], appendix = ''): string {
   const order = new Map(versions.map((v, i) => [v, i]));
   const bare = (token: string) => token.replace(/\s*\(.*\)$/, '');
   /**
@@ -481,7 +528,7 @@ ${table(surface)}
 
 | Name | Kind | History |
 |------|------|---------|
-${table(types)}
+${table(types)}${appendix ? `\n\n${stripHtmlComments(appendix).trim()}` : ''}
 `;
 }
 

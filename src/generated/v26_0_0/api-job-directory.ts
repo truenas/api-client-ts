@@ -174,5 +174,11 @@ export interface ApiJobDirectoryDelta {
   };
 }
 
-/** This version's surface: the previous version's, updated by the delta. */
-export type ApiJobDirectory = Omit<PreviousApiJobDirectory, keyof ApiJobDirectoryDelta> & ApiJobDirectoryDelta;
+/** This version's surface: the previous version's, updated by the delta.
+ *
+ * `virt.*` is declared in an earlier version and removed here.
+ * No dump describes it: the entries a diff would have to
+ * compare were deleted from every version directory upstream. The omission
+ * comes from `hand-removed.json`, so a regeneration reproduces it.
+ */
+export type ApiJobDirectory = Omit<PreviousApiJobDirectory, keyof ApiJobDirectoryDelta | `virt.${string}`> & ApiJobDirectoryDelta;

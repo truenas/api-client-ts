@@ -12,6 +12,9 @@
  * Usage (fetch a fresh dump via the middleware container — no local setup):
  *   yarn generate:api --fetch docker --min-version v25.10.0
  *
+ * Files carrying the FROZEN marker are left untouched (released versions are a
+ * record, not an output); everything else in the chain is still generated.
+ *
  * `--min-version` generates that version and everything newer, which is how
  * the committed tree is produced: the supported floor is stated once and new
  * middleware releases are picked up by regenerating. `--api-version` selects
@@ -37,11 +40,12 @@
  * its shape first appeared and re-exported by later versions.
  */
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 
-import { generateFromDump } from './lib/pipeline.mts';
+import { generateFromDump, versionDir } from './lib/pipeline.mts';
 import { selectVersions } from './lib/select-versions.mts';
 import type { ApiDumpFile, ApiDumpVersion } from './lib/types.mts';
 
@@ -54,6 +58,9 @@ const { values: args } = parseArgs({
     'min-version': { type: 'string' },
     'api-version': { type: 'string' },
     include: { type: 'string', default: '' },
+    'hand-removed': { type: 'string', default: path.resolve(import.meta.dirname, 'hand-removed.json') },
+    'manifest-appendix': { type: 'string', default: path.resolve(import.meta.dirname, 'manifest-appendix.md') },
+    'frozen-hashes': { type: 'string', default: path.resolve(import.meta.dirname, 'frozen-hashes.json') },
     out: { type: 'string', default: path.resolve(import.meta.dirname, '../../src/generated') },
   },
 });
@@ -123,6 +130,7 @@ if (args.fetch && args.fetch !== 'docker') {
 }
 
 const dump = JSON.parse(raw) as ApiDumpFile | ApiDumpVersion;
+const availableVersions = ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => v.version);
 const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Boolean);
 
 // `--min-version` is how the committed tree is produced: the supported floor,
@@ -131,7 +139,7 @@ const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Bool
 let apiVersions: string[] | undefined;
 try {
   apiVersions = selectVersions({
-    available: ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => v.version),
+    available: availableVersions,
     minVersion: args['min-version'],
     apiVersions: args['api-version']?.split(',').map((s) => s.trim()).filter(Boolean),
   });
@@ -141,17 +149,234 @@ try {
 }
 if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} versions from ${args['min-version']} upward.`);
 
+/**
+ * Version -> namespace prefixes, from the hand-removed manifest.
+ *
+ * Prefixes are interpolated into an emitted template literal, so a stray
+ * backtick or `${` would emit broken TypeScript rather than fail here. Rejected
+ * loudly instead. `$comment` keys are skipped, which is how the file documents
+ * itself.
+ */
+function parseHandRemoved(raw: unknown, selected: string[], available: string[]): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const [version, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (version.startsWith('$')) continue;
+    if (!available.includes(version)) {
+      // Names no version this dump has: stale, and its symptom is the namespace
+      // silently reappearing. Fatal.
+      console.error(
+        `hand-removed: '${version}' is not a version in this dump ` +
+        `(${available.join(', ')}). Update the key.`
+      );
+      process.exit(1);
+    }
+    if (!selected.includes(version) && !selected.includes('all')) {
+      // In the dump but outside this run's range — a narrowed --api-version or
+      // --min-version. Not an error: the key is fine, it just does not apply.
+      continue;
+    }
+    if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
+      console.error(`hand-removed: '${version}' must map to an array of strings.`);
+      process.exit(1);
+    }
+    for (const prefix of value as string[]) {
+      // Trailing dot required: `virt` would emit `\`virt${string}\`` and swallow
+      // a future `virtual.*`. Interpolated into a template literal, so anything
+      // that is not a bare namespace is rejected rather than emitted.
+      if (!/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*\.$/.test(prefix)) {
+        console.error(`hand-removed: '${prefix}' is not a namespace prefix ending in '.'.`);
+        process.exit(1);
+      }
+    }
+    out[version] = value as string[];
+  }
+  return out;
+}
+
+/**
+ * Rows for entries no dump describes. Absent is fine — most trees have none —
+ * but an unreadable file is not, because the symptom is a manifest quietly
+ * claiming completeness it no longer has.
+ */
+async function readManifestAppendix(file: string): Promise<string> {
+  try {
+    return await readFile(file, 'utf8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return '';
+    console.error(`Cannot read ${file}: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  }
+}
+
 let files: Map<string, string>;
 try {
-  files = await generateFromDump(dump, { apiVersions, includePrefixes, log: console.log });
+  const handRemoved = JSON.parse(
+    await readFile(args['hand-removed'], 'utf8')
+  ) as Record<string, string[] | string>;
+  files = await generateFromDump(dump, {
+    apiVersions,
+    includePrefixes,
+    log: console.log,
+    handRemoved: parseHandRemoved(handRemoved, apiVersions ?? availableVersions, availableVersions),
+    manifestAppendix: await readManifestAppendix(args['manifest-appendix']),
+  });
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);
 }
 
+/**
+ * Marker a released version's files carry once they are no longer an output.
+ *
+ * A released API cannot change, so its directory is a record. Some of them also
+ * hold entries no dump can reproduce — v25.10's `virt.*` namespace was deleted
+ * from every version directory in middleware, so regenerating that directory
+ * deletes it here rather than restoring it.
+ *
+ * Checked against what is already on disk rather than against a version number,
+ * because the version number would need maintaining and this does not: freeze a
+ * version by writing the marker into its files, unfreeze it by removing it.
+ *
+ * Skipped rather than fatal. The whole chain still has to be generated — later
+ * versions are deltas against the frozen one, and the root index enumerates
+ * every version — so refusing to run would leave no way to pick up a new
+ * release, and narrowing `--min-version` past the frozen version would make the
+ * next one the chain root and drop the earlier ones from the package entirely.
+ * Skipping is safe precisely because a frozen file does not change: the rest of
+ * the tree is generated against the same model it already holds.
+ */
+const FROZEN_MARKER = 'FROZEN — generated once, then hand-maintained.';
+
+const frozen: string[] = [];
+for (const relPath of files.keys()) {
+  const target = path.join(args.out, relPath);
+  const existing = await readFile(target, 'utf8').catch((error: NodeJS.ErrnoException) => {
+    // Absent is fine — that is a new file. Anything else means we cannot tell
+    // whether it is frozen, and guessing "no" is the destructive guess.
+    if (error.code === 'ENOENT') return null;
+    console.error(`Cannot read ${target} to check for the frozen marker: ${error.message}`);
+    process.exit(1);
+  });
+  if (existing?.includes(FROZEN_MARKER)) frozen.push(relPath);
+}
+
+/**
+ * A frozen file is skipped on the premise that the dump still describes its
+ * version the same way — later versions are deltas against the freshly
+ * generated model, while the emitted code references the file on disk, and
+ * nothing else compares the two. Middleware does backport into released version
+ * directories, so the premise is not guaranteed.
+ *
+ * Keyed on a hash of the dump's slice for that version, not on the emitted
+ * content: the emitted content also moves whenever the generator moves, which
+ * would report every emitter change as "the dump changed" and, worse, make the
+ * re-seed silently re-bless whatever the dump happened to say at that moment.
+ * The dump slice isolates the thing actually being assumed.
+ */
+const dumpSlices = new Map(
+  ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => [v.version, v])
+);
+const hashOf = (value: unknown) =>
+  createHash('sha256')
+    // Documentation is not part of the generated output — the manifest says so
+    // in its own header — and middleware backports docstring edits into
+    // released version directories routinely. Including them would fire this
+    // check on changes that provably cannot affect a single emitted byte, and a
+    // check that cries wolf is a check that gets re-blessed reflexively.
+    // Discriminated on type, not key alone: `description` is also a legitimate
+    // model *field* name (31 models in v25.10 declare one), and dropping those
+    // schema nodes would hide a real change. Documentation is always a string;
+    // a field named `description` is always an object.
+    .update(JSON.stringify(value, (key, v: unknown) =>
+      (key === 'doc' || key === 'description') && typeof v === 'string' ? undefined : v))
+    .digest('hex')
+    .slice(0, 16);
+
+let recorded: Record<string, string>;
+try {
+  recorded = JSON.parse(await readFile(args['frozen-hashes'], 'utf8')) as Record<string, string>;
+} catch (error) {
+  console.error(
+    `Cannot read ${args['frozen-hashes']}: ${error instanceof Error ? error.message : String(error)}\n` +
+    'It records what the dump said about each frozen version; without it a frozen ' +
+    'file cannot be checked for drift. Write {} to start from nothing.'
+  );
+  process.exit(1);
+}
+
+/**
+ * `v25_10_0/api-types.ts` -> `v25.10.0`.
+ *
+ * Constructed forwards with the pipeline's own `versionDir` rather than parsed
+ * backwards: a reimplementation here would drift the day that changes, and the
+ * symptom would be frozen files silently mapping to no version, leaving the
+ * drift check covering nothing.
+ */
+const versionOfPath = (relPath: string): string | undefined => {
+  const dir = relPath.split('/')[0];
+  return [...dumpSlices.keys()].find((v) => versionDir(v) === dir);
+};
+
+const unmapped = frozen.filter((f) => versionOfPath(f) === undefined);
+if (unmapped.length > 0) {
+  // The only way the check can go quiet now that a missing baseline is fatal:
+  // no version means no baseline to miss, so it would pass while covering
+  // nothing.
+  console.error(
+    `Cannot tell which version these frozen files belong to:\n` +
+    unmapped.map((f) => `  ${f}`).join('\n') +
+    '\nThey would be skipped without being checked against the dump.'
+  );
+  process.exit(1);
+}
+
+const frozenVersions = [...new Set(frozen.map(versionOfPath).filter((v): v is string => !!v))];
+const drifted: string[] = [];
+const missing: Record<string, string> = {};
+for (const version of frozenVersions) {
+  const digest = hashOf(dumpSlices.get(version));
+  const before = recorded[version];
+  if (before === undefined) missing[version] = digest;
+  else if (before !== digest) drifted.push(`  ${version} (${before} -> ${digest})`);
+}
+
+if (Object.keys(missing).length > 0) {
+  console.error(
+    `No baseline recorded for ${Object.keys(missing).length.toString()} frozen version(s), ` +
+    'so their files cannot be checked against the dump. Add to ' +
+    `${args['frozen-hashes']}:\n${JSON.stringify(missing, null, 2)}`
+  );
+  process.exit(1);
+}
+
+if (drifted.length > 0) {
+  console.error(
+    `The dump no longer matches ${drifted.length.toString()} frozen version(s):\n` +
+    drifted.join('\n') +
+    '\n\nTheir files are frozen and would have been left untouched, so the rest of ' +
+    'the tree would have been generated against a model they do not hold — later ' +
+    'versions may reference entries the frozen files lack, and stale shapes will ' +
+    'not be re-declared.\n' +
+    `Reconcile them by hand, then update ${args['frozen-hashes']}.`
+  );
+  process.exit(1);
+}
+
 for (const [relPath, content] of files) {
+  if (frozen.includes(relPath)) continue;
   const target = path.join(args.out, relPath);
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, content);
 }
-console.log(`Wrote ${files.size} files -> ${args.out}`);
+
+
+if (frozen.length > 0) {
+  console.error(
+    `Left ${frozen.length.toString()} frozen file(s) untouched:\n` +
+    frozen.map((f) => `  ${f}`).join('\n') +
+    '\nThose versions are released; their directories are a record rather than ' +
+    'an output, and some carry hand-maintained entries no dump can reproduce.\n' +
+    'Remove the marker from a file to let generation overwrite it.'
+  );
+}
+console.log(`Wrote ${(files.size - frozen.length).toString()} files -> ${args.out}`);
