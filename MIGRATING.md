@@ -7,8 +7,10 @@ Every method name the client accepts now comes from types generated from
 does not have is a compile error rather than a runtime one, and params and
 responses come from the same source.
 
-Four things changed for callers. All of them fail at build time, so the
-compiler will find each site for you; nothing here fails silently at runtime.
+Four things changed for callers. Most of them fail at build time, so the
+compiler will find those sites for you. Three do **not** — the removals that
+now arrive (§4) and the two `client.ops` behaviours at the end — so read those
+even if your build is green.
 
 ### 1. Clients take a version's whole surface, not its call directory
 
@@ -67,8 +69,17 @@ cases where you only want the id, or already have one.
 `params` is now required exactly when the directory says the method takes
 arguments — `call('pool.dataset.delete')` with no arguments used to compile.
 
-`Job` becomes `Job<R>`, defaulting to `unknown`. Existing annotations keep
-working; `job(...)` fills in `R` from the job directory.
+`Job` becomes `Job<R>`, defaulting to `unknown`, and `job(...)` fills in `R`
+from the job directory. Two fields on it changed shape:
+
+- `result` is `R | null`. A job that has not finished has no result — measured
+  on a live appliance, a `RUNNING` emission carries `null` — and a failed job
+  ends with `null` too. Since `job()` emits progress as well as the final
+  state, check before reaching into it.
+- `arguments` is `unknown[]` rather than `string[]`, and `progress.percent` is
+  `number | null`, both because `Job` now tracks the generated `core.get_jobs`
+  entity instead of a hand-written shape. `job.arguments[0].toUpperCase()` and
+  bare arithmetic on `percent` stop compiling; narrow or default them.
 
 ### 4. `events` emits the change, not the frame
 
@@ -115,3 +126,7 @@ matching what the server actually sends:
 - On v25.10, `cpu`, `memory` and `image` were typed as always present and
   could arrive as `null`. They are `undefined` when absent, which is what
   `Container` declares them to mean.
+- `Container.status` gains `Deploying` on v25.10: `virt.instance`'s `STARTING`
+  used to fold into `Stopped`, which read as "at rest" for a container that was
+  coming up. The remaining unmapped states (`ERROR`, `FROZEN`, `ABORTING`,
+  `THAWED`) still arrive as `Stopped`.

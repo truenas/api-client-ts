@@ -77,9 +77,15 @@ function toContainer(instance: v25_10_0.VirtInstanceEntry): Container {
     autostart: instance.autostart,
     cpu: instance.cpu ?? undefined,
     memory: instance.memory ?? undefined,
+    // The whole image object, not just its description: `Container.image`
+    // declares only `description`, but the API returns `architecture`, `os`,
+    // `release` and more, and callers were already receiving them. Narrowing
+    // to the declared field would take data away to match a type that was
+    // always an under-declaration — the same call as the v26 `description`
+    // widening, decided the same way.
     image:
       instance.image.description === null
         ? undefined
-        : { description: instance.image.description },
+        : { ...instance.image, description: instance.image.description },
   };
 }

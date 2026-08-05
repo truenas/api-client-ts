@@ -393,6 +393,64 @@ describe('TrueNasApi', () => {
       } as unknown as TrueNasMessage);
     }));
 
+  /**
+   * The race that used to hang. `trackJob` opened with a `core.get_jobs` read
+   * and only subscribed to job events once it came back; `jobEvents` is
+   * `share()`d without replay, so a terminal event arriving during that round
+   * trip was dropped and nothing ever ended the stream. Ordering here is the
+   * whole test: the terminal event is emitted BEFORE the read's reply.
+   */
+  it('completes when the job finishes before the opening read replies', () =>
+    new Promise<void>((resolve, reject) => {
+      const requestId = 'mock-id-app.start';
+      const states: JobState[] = [];
+      let completed = false;
+
+      api.job('app.start', ['my-app']).subscribe({
+        next: job => states.push(job.state),
+        complete: () => {
+          completed = true;
+          try {
+            expect(states).toContain(JobState.Success);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        error: reject,
+      });
+
+      // Correlation event: tells callAndGetJobId which job this is.
+      messagesSubject.next(
+        collectionUpdate({
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 77, message_ids: [requestId], state: JobState.Running },
+        })
+      );
+
+      // The job finishes immediately — before the core.get_jobs read replies.
+      messagesSubject.next(
+        collectionUpdate({
+          collection: 'core.get_jobs',
+          msg: 'changed',
+          fields: { id: 77, state: JobState.Success },
+        })
+      );
+
+      // The reply lands afterwards and is stale. It must not resurrect the
+      // stream, and its absence must not have been required to complete.
+      messagesSubject.next({
+        jsonrpc: '2.0',
+        id: 'mock-id-core.get_jobs',
+        result: [{ id: 77, state: JobState.Running }],
+      } as unknown as TrueNasMessage);
+
+      if (!completed) {
+        reject(new Error(`stream did not complete; states=${JSON.stringify(states)}`));
+      }
+    }));
+
   it('generateToken calls auth.generate_token with the expected params', () =>
     new Promise<void>((resolve, reject) => {
       api.generateToken(300, true, false).subscribe({

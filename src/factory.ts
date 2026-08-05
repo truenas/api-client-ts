@@ -82,8 +82,8 @@ export interface CreateClientOptions {
  * `client.ops`, which resolves them at runtime.
  *
  * @typeParam D - the generated API surface the client is typed against, as a
- *   whole (`call`, `job`, `event`). Only the query verbs read it so far; `call`
- *   still uses the hand-maintained directory.
+ *   whole (`call`, `job`, `event`). Every verb resolves method names against
+ *   it, so naming a method this surface does not have is a build error.
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
  *   Rejects if `hostnames` is empty.

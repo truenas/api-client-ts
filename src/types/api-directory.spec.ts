@@ -164,6 +164,25 @@ describe('job results', () => {
    * `callAndGetJobId` with `trackJob`: composing them by hand throws away the
    * link between the method and its result.
    */
+  /**
+   * `result` is nullable on every arm, not just typed by method. `job()` emits
+   * while the job is still running, and a running job has no result — measured
+   * on a live appliance, a `RUNNING` emission carries `result: null`. A failed
+   * job ends with `null` too, so a terminal state is not enough either.
+   */
+  it('keeps the result nullable, because progress emissions have none', () => {
+    type ImportResult = Job<v25_10_0.PoolImportFind[]>['result'];
+
+    expectTypeOf<Job<string>['result']>().toEqualTypeOf<string | null>();
+    expectTypeOf<ImportResult>().toEqualTypeOf<
+      v25_10_0.PoolImportFind[] | null
+    >();
+    // Still the method's own result once the caller has narrowed.
+    expectTypeOf<NonNullable<ImportResult>>().toEqualTypeOf<
+      v25_10_0.PoolImportFind[]
+    >();
+  });
+
   it('carries the result type from the job directory', () => {
     expectTypeOf(api.job('pool.import_find')).toEqualTypeOf<
       Observable<Job<v25_10_0.PoolImportFind[]>>
@@ -197,6 +216,11 @@ describe('job results', () => {
   it('refines the generated shape rather than replacing it', () => {
     // Overridden, because the dump is weaker than what the server sends.
     expectTypeOf<Job['state']>().toEqualTypeOf<JobState>();
+    // NOT overridden: the dump says `percent` may be null and nothing observed
+    // disproves it, so narrowing would invent a guarantee rather than correct
+    // one. `extra` survives for the same reason.
+    expectTypeOf<Job['progress']['percent']>().toEqualTypeOf<number | null>();
+    expectTypeOf<Job['progress']['description']>().toEqualTypeOf<string>();
     expectTypeOf<Job['time_started']>().toEqualTypeOf<TrueNasDate>();
     expectTypeOf<Job['progress']>().toEqualTypeOf<JobProgress>();
     expectTypeOf<Job['description']>().toEqualTypeOf<string | null>();
@@ -249,6 +273,29 @@ describe('events', () => {
    * excluded rather than typed on a guess — see `EventName`. This is the test
    * to delete once the encoding is confirmed.
    */
+  /**
+   * The runtime filter forwards any of the three kinds; the directory lists
+   * only some for 16 of v25.10's collections. Without an arm for the rest, a
+   * `removed` frame on `core.get_jobs` — which declares only `added` and
+   * `changed` — would arrive typed as carrying `fields`.
+   */
+  it('leaves an arm for kinds the directory does not declare', () => {
+    type JobEvent = EventUnion<BaseApiDirectory, 'core.get_jobs'>;
+
+    expectTypeOf<JobEvent['msg']>().toEqualTypeOf<
+      'added' | 'changed' | 'removed'
+    >();
+    expectTypeOf<
+      Extract<JobEvent, { msg: 'removed' }>
+    >().not.toHaveProperty('fields');
+
+    // Collections that declare all three gain nothing: no extra arm.
+    type AppEvent = EventUnion<BaseApiDirectory, 'app.query'>;
+    expectTypeOf<Extract<AppEvent, { msg: 'removed' }>>().toEqualTypeOf<
+      { msg: 'removed' } & v25_10_0.AppRemovedEvent
+    >();
+  });
+
   it('excludes event sources, which take subscribe-time arguments', () => {
     // @ts-expect-error `app.stats` needs subscription params we cannot send.
     api.events('app.stats');

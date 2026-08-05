@@ -14,6 +14,9 @@ import { AppState } from '@/types/app-query.type';
  * Anything unrecognised becomes `Stopped`, which is what v26 already did: it
  * is the safe reading for a state the caller has no vocabulary for, since the
  * alternative is claiming a container is running when it is frozen or erroring.
+ * That still loses information — `ERROR`, `FROZEN`, `ABORTING` and `THAWED`
+ * all arrive as `Stopped` — and widening `AppState` is the fix if a caller
+ * ever needs to tell them apart.
  */
 export function toAppState(state: string): AppState {
   switch (state.toUpperCase()) {
@@ -23,6 +26,11 @@ export function toAppState(state: string): AppState {
       return AppState.Stopped;
     case 'STOPPING':
       return AppState.Stopping;
+    // `STARTING` is v25.10 `virt.instance` only, and folding it into `Stopped`
+    // told callers a container that is coming up is at rest — enough for a UI
+    // to offer a Start button for it, or for a poll loop to give up. `Deploying`
+    // is the only in-progress state `AppState` has.
+    case 'STARTING':
     case 'DEPLOYING':
       return AppState.Deploying;
     default:

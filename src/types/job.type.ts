@@ -34,7 +34,18 @@ type GeneratedJob = QueryEntity<QueryDirectory, 'core.get_jobs'>;
  *   against them.
  * - `result` is `unknown`, which is honest for `core.get_jobs` in general:
  *   the method returns every job at once, of every kind. It stops being honest
- *   once you know which method you started, so it becomes the parameter.
+ *   once you know which method you started, so it becomes the parameter — but
+ *   it stays nullable, because a job that has not finished has no result.
+ *   Measured on a live appliance: a `RUNNING` emission carries `result: null`,
+ *   and only the terminal one carries the value. A failed job ends with `null`
+ *   too, so reaching a terminal state is not on its own enough to assume a
+ *   result — check `error`, or check `state` against `JobState.Success`.
+ *
+ * `progress` is the one place the generated shape is kept rather than replaced.
+ * It gains `description`, which the server sends and the dump omits, and keeps
+ * `percent` nullable and `extra` present: the dump says `percent` may be null
+ * and nothing observed disproves that, so narrowing it would be inventing a
+ * guarantee rather than correcting one.
  *
  * @typeParam R - the job's result once it reaches a terminal state. Supplied
  * by `TrueNasApi.job` from the job directory. Defaults to `unknown`,
@@ -51,7 +62,8 @@ export type Job<R = unknown> = Omit<
   | 'message_ids'
 > & {
   state: JobState;
-  result: R;
+  /** The job's result once it succeeds; `null` while it runs, and on failure. */
+  result: R | null;
   progress: JobProgress;
   time_started: TrueNasDate;
   time_finished: TrueNasDate | null;
@@ -63,10 +75,11 @@ export type Job<R = unknown> = Omit<
   message_ids?: string[];
 };
 
-export interface JobProgress {
-  percent: number;
-  description: string;
-}
+/**
+ * The generated progress shape plus the `description` the server sends and the
+ * dump does not declare.
+ */
+export type JobProgress = GeneratedJob['progress'] & { description: string };
 
 export enum JobState {
   Pending = 'PENDING',

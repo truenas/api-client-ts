@@ -1,10 +1,12 @@
 import {
   BehaviorSubject,
   Observable,
+  defer,
+  distinctUntilChanged,
   filter,
+  finalize,
   map,
   merge,
-  of,
   share,
   switchMap,
   take,
@@ -263,19 +265,24 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     method: M,
     ...params: ArgsOf<JobParams<D, M>>
   ): Observable<number> {
-    const message = createJsonRpcMessage(method, params[0]);
+    // Deferred so the request goes out when the caller subscribes, not when
+    // they build the observable. Sending on call opens a window in which the
+    // job's event can arrive before anything is listening for it, and the id
+    // is then never seen — the correlation is by event, so there is no reply
+    // waiting to be matched later.
+    return defer(() => {
+      const message = createJsonRpcMessage(method, params[0]);
 
-    this.connection.ws.next(message);
+      // Listening before sending, for the same reason.
+      const seen = this.jobEvents.pipe(
+        filter(job => job.message_ids?.includes(message.id ?? '') ?? false),
+        map(job => job.id),
+        take(1)
+      );
 
-    // createJsonRpcMessage always returns a message with an id
-    const requestId = message.id ?? '';
-
-    // Listen for job events that contain our request ID in message_ids
-    return this.jobEvents.pipe(
-      filter(job => job.message_ids?.includes(requestId) ?? false),
-      map(job => job.id),
-      take(1)
-    );
+      this.connection.ws.next(message);
+      return seen;
+    });
   }
 
   /**
@@ -287,13 +294,14 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    *
    * ```typescript
    * api.job('pool.dataset.unlock', ['tank/enc', { … }])
-   *    .subscribe(job => bar.set(job.progress.percent));
+   *    .subscribe(job => bar.set(job.progress.percent ?? 0));
    * ```
    *
    * The result is typed from the job directory, which is the whole reason to
    * prefer this over {@link callAndGetJobId} plus {@link trackJob}: those two
    * lose the connection between the method and its result, and the job comes
-   * back with `result: unknown`.
+   * back with `result: unknown`. It is `R | null` either way — a job that has
+   * not finished has no result, and neither does one that failed.
    */
   job<M extends JobMethod<D>>(
     method: M,
@@ -325,12 +333,22 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * reachable here; see {@link EventName}.
    */
   events<E extends EventName<D>>(event: E): Observable<EventUnion<D, E>> {
-    this.authenticated.pipe(filter(Boolean), take(1)).subscribe(() => {
-      const message = createJsonRpcMessage('core.subscribe', [event]);
-      this.connection.ws.next(message);
-    });
+    return defer(() => {
+      // Every authentication, not just the first. `authenticated$` cycles
+      // false -> true on each reconnect, and a `take(1)` here meant the
+      // subscription was re-established on the server exactly once: after a
+      // socket drop the stream stayed alive and silently never emitted again.
+      // Deferred so this happens when the caller subscribes, and torn down
+      // with them so an unsubscribed caller stops holding it open.
+      const resubscribe = this.authenticated
+        .pipe(distinctUntilChanged(), filter(Boolean))
+        .subscribe(() => {
+          this.connection.ws.next(
+            createJsonRpcMessage('core.subscribe', [event])
+          );
+        });
 
-    return this.connection.messages().pipe(
+      return this.connection.messages().pipe(
       filter(res => res.method === 'collection_update'),
       map(res => res.params as CollectionUpdate | undefined),
       filter(
@@ -338,10 +356,12 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
           params?.collection === event &&
           EVENT_KINDS.includes(params.msg as EventKind)
       ),
-      // `collection` is the subscription the caller already named; what is
-      // left is exactly the payload the directory declares, plus its tag.
-      map(({ collection, ...change }) => change as EventUnion<D, E>)
-    );
+        // `collection` is the subscription the caller already named; what is
+        // left is exactly the payload the directory declares, plus its tag.
+        map(({ collection, ...change }) => change as EventUnion<D, E>),
+        finalize(() => resubscribe.unsubscribe())
+      );
+    });
   }
 
   /**
@@ -377,42 +397,47 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * it whenever you are the one starting the job.
    */
   trackJob<R = unknown>(jobId: number): Observable<Job<R>> {
-    // First, get the current job state. Dispatched directly for the same
-    // reason as generateToken.
-    const currentJobState$ = this.dispatch<Job<R>[]>('core.get_jobs', [
+    // The event stream carries jobs of every kind, so it is `Job<unknown>`;
+    // narrowing to this job's result type is the caller's `R` claim, made once
+    // here rather than at every emission.
+    const updates$ = this.jobEvents.pipe(
+      filter(job => job.id === jobId),
+      map(job => job as Job<R>)
+    );
+
+    // Opening read, so an already-finished job is still reported.
+    const current$ = this.dispatch<Job<R>[]>('core.get_jobs', [
       [['id', '=', jobId]],
     ]).pipe(
       map(jobs => jobs[0]),
       filter(job => job !== undefined)
     );
 
-    // Then track ongoing updates. The event stream carries jobs of every kind,
-    // so it is `Job<unknown>`; narrowing to this job's result type is the
-    // caller's `R` claim, made once here rather than at every emission.
-    const jobUpdates$ = this.jobEvents.pipe(
-      filter(job => job.id === jobId),
-      takeWhile(job => !isJobFinished(job), true), // Include the final state
-      map(job => job as Job<R>)
-    );
-
-    // Start with current state, then merge with updates
-    // This ensures we don't miss already-completed jobs
-    return currentJobState$.pipe(
-      switchMap(currentJob => {
-        // If job is already complete, just return it
-        if (isJobFinished(currentJob)) {
-          return of(currentJob);
-        }
-        // Otherwise, return current state and continue tracking
-        return merge(of(currentJob), jobUpdates$);
-      })
+    // `merge` subscribes to both immediately, which is the point: waiting for
+    // the read to come back before watching for updates leaves a window one
+    // round trip wide with no subscriber on the event stream. `jobEvents` is
+    // `share()`d without replay, so anything arriving in that window is
+    // dropped — and a short job whose terminal event lands there would leave
+    // this observable hanging forever, since `takeWhile` never sees the state
+    // that ends it.
+    return merge(current$, updates$).pipe(
+      takeWhile(job => !isJobFinished(job), true) // Include the final state
     );
   }
 
+  /**
+   * Ask the server for job events, and keep asking after every reconnect —
+   * `authenticated$` returns to `false` when the socket drops, and a `take(1)`
+   * here left job tracking permanently deaf once that happened.
+   */
   private initializeJobEventsSubscription() {
-    this.authenticated.pipe(filter(Boolean), take(1)).subscribe(() => {
-      const message = createJsonRpcMessage('core.subscribe', ['core.get_jobs']);
-      this.connection.ws.next(message);
-    });
+    this.authenticated
+      .pipe(distinctUntilChanged(), filter(Boolean))
+      .subscribe(() => {
+        const message = createJsonRpcMessage('core.subscribe', [
+          'core.get_jobs',
+        ]);
+        this.connection.ws.next(message);
+      });
   }
 }

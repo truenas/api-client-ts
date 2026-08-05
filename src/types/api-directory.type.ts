@@ -138,6 +138,30 @@ type EventArm<
   K extends EventKind,
 > = K extends keyof D['event'][E] ? { msg: K } & D['event'][E][K] : never;
 
+/** The kinds the directory says this event reports. */
+type DeclaredKinds<
+  D extends ApiDirectoryShape,
+  E extends EventName<D>,
+> = Extract<keyof D['event'][E], EventKind>;
+
+/**
+ * An arm for the kinds the directory does NOT declare, carrying no payload.
+ *
+ * Collapses to `never` for the collections that declare all three, which is
+ * most of them, so it costs those callers nothing. It exists because the
+ * client forwards any of the three kinds at runtime while the directory lists
+ * only some — 16 of v25.10's collections declare fewer than three — and the
+ * dump has already been shown to under-declare what the server sends. Without
+ * this arm a `removed` frame on a collection that lists only `added` and
+ * `changed` would reach the caller typed as carrying `fields`.
+ */
+type UndeclaredArm<
+  D extends ApiDirectoryShape,
+  E extends EventName<D>,
+> = [Exclude<EventKind, DeclaredKinds<D, E>>] extends [never]
+  ? never
+  : { msg: Exclude<EventKind, DeclaredKinds<D, E>>; id?: unknown };
+
 /**
  * What subscribing to `E` emits: a union discriminated on `msg`.
  *
@@ -148,4 +172,5 @@ type EventArm<
 export type EventUnion<D extends ApiDirectoryShape, E extends EventName<D>> =
   | EventArm<D, E, 'added'>
   | EventArm<D, E, 'changed'>
-  | EventArm<D, E, 'removed'>;
+  | EventArm<D, E, 'removed'>
+  | UndeclaredArm<D, E>;
