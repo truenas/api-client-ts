@@ -44,3 +44,12 @@ jobs:
             It should be already checked out in the current directory.
 
             {{file:.claude/review-prompt.md}}
+
+      - name: Enforce review threshold
+        # always(): a review step that fails must not skip the gate, or a broken
+        # reviewer reads as a clean bill of health.
+        if: always()
+        env:
+          FINDINGS: ${{ steps.review.outputs.structured_output }}
+          OVERRIDDEN: ${{ contains(github.event.pull_request.labels.*.name, 'override-ai-review') }}
+        run: node .github/scripts/check-review-threshold.mjs
