@@ -36,8 +36,60 @@ Some common pitfalls to watch for:
 - Missing or inadequate test coverage for new behavior.
 - Writing tests that interact with methods that should be private or protected.
 
-Use an enthusiastic and positive tone, you can use some emojis.
-
 Keep review brief and focused:
 - do not repeat yourself
 - keep overall assessment concise (one sentence)
+
+## Severity
+
+Assign every finding a severity. Work down this list; the first `yes` sets it.
+Do not revise a severity upward because the finding feels serious, or because
+the list looks short.
+
+1. Can you name a concrete input, sequence, or environment under which this
+   produces a wrong result, throws, or fails to build?
+     - on a path a caller would normally take          -> BLOCKER
+     - only under specific conditions                  -> HIGH
+
+2. Does the change assert something untrue? A type that contradicts what the
+   value can be, a comment or doc describing behaviour the code does not have,
+   a guarantee nothing enforces.                       -> MEDIUM
+
+3. Does it leave a mechanism that will silently stop working the next time
+   someone does an ordinary thing to this repo — a regeneration, a dependency
+   bump, a routine refactor?                           -> MEDIUM
+
+4. Otherwise                                           -> LOW
+
+**If you cannot state the failing input for 1, or quote the untrue claim for 2
+or 3, the finding is LOW.** Severity requires the specific thing that makes it
+severe, not a description of the risk.
+
+Reporting no findings is a valid and useful result. Do not manufacture a
+finding, or raise one's severity, to demonstrate thoroughness.
+
+## Machine-readable summary
+
+End the review with a fenced `json` block and nothing after it, and write the
+same object to `.claude-review.json` in the repo root:
+
+```json
+{"findings": [
+  {"severity": "MEDIUM", "file": "src/example.ts", "line": 42,
+   "summary": "one line, no markdown"}
+]}
+```
+
+Include every finding, LOW included. `{"findings": []}` when there are none.
+
+## Generated code
+
+`src/generated/**` is emitted by `scripts/generate-api-interface`. Two things
+about it are deliberate and not findings:
+
+- Files under `src/generated/v25_10_*/` carry a `FROZEN` marker and *are*
+  hand-maintained. That version is released, its API cannot change, and it
+  holds entries no dump can reproduce. Generation skips them by design.
+- Everything else there is overwritten wholesale on regeneration, so review it
+  for whether the *generator* should have produced it — a hand edit to a
+  non-frozen generated file is worth flagging.
