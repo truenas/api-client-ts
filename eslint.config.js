@@ -18,8 +18,9 @@ export default tseslint.config(
     },
   },
   {
-    // Node-run build scripts (not part of the published sources).
-    files: ['scripts/**/*.mjs', 'scripts/**/*.mts'],
+    // Node-run scripts (not part of the published sources): the generator, and
+    // the CI helpers under .github/scripts.
+    files: ['scripts/**/*.mjs', 'scripts/**/*.mts', '.github/scripts/**/*.mjs'],
     languageOptions: {
       globals: { process: 'readonly', console: 'readonly' },
     },
