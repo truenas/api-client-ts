@@ -70,17 +70,15 @@ finding, or raise one's severity, to demonstrate thoroughness.
 
 ## Machine-readable summary
 
-End the review with a fenced `json` block and nothing after it, and write the
-same object to `.claude-review.json` in the repo root:
+Return your findings as structured output matching `.github/review-schema.json`
+— severity, file, line, and a one-line summary with no markdown. The severity
+enum is enforced by the schema, so it can only be one of the four above.
 
-```json
-{"findings": [
-  {"severity": "MEDIUM", "file": "src/example.ts", "line": 42,
-   "summary": "one line, no markdown"}
-]}
-```
+Include every finding, LOW ones too. An empty array is valid and expected on a
+clean change; it is not a sign the review failed.
 
-Include every finding, LOW included. `{"findings": []}` when there are none.
+This is separate from the review comment, which stays prose and is what a human
+reads. The structured output is what tooling reads.
 
 ## Generated code
 
