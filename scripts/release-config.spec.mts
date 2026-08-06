@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { analyzeCommits } from '@semantic-release/commit-analyzer';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -27,6 +28,28 @@ const gatePattern = async (): Promise<string> => {
   if (!match) throw new Error('could not find the pattern= line in pr-title.yml');
   return match[1];
 };
+
+/** The commit-analyzer's own options block, whatever it contains. */
+const analyzerOpts = async (): Promise<Record<string, unknown>> => {
+  const config = JSON.parse(await repoFile('.releaserc.json')) as {
+    plugins: (string | [string, Record<string, unknown>])[];
+  };
+  const plugin = config.plugins.find(
+    (p): p is [string, Record<string, unknown>] =>
+      Array.isArray(p) && p[0] === '@semantic-release/commit-analyzer',
+  );
+  if (!plugin) throw new Error('no commit-analyzer plugin in .releaserc.json');
+  return plugin[1];
+};
+
+/** What semantic-release would actually release for a commit with this subject. */
+const releaseFor = async (subject: string): Promise<string | null> =>
+  (await analyzeCommits(await analyzerOpts(), {
+    commits: [{ hash: 'deadbee', subject, message: subject, body: '' }],
+    logger: { log: () => undefined },
+    cwd: process.cwd(),
+    env: process.env,
+  })) as string | null;
 
 interface ParserOpts {
   headerPattern: string;
@@ -99,6 +122,38 @@ describe('PR title gate and semantic-release header pattern', () => {
       expect(breaking.exec('TNC-1 / v2.1 / feat(gen)!: drop it')?.[1], plugin).toBe('feat');
       expect(breaking.test('feat: not breaking'), plugin).toBe(false);
     }
+  });
+
+  /**
+   * The parsing tests above prove a trailing `!` is *recognised* as breaking.
+   * They say nothing about what that produces, and the two are independent:
+   * `releaseRules` decides the release type, and a rule matching on `type`
+   * alone will happily cap a breaking change at `patch`.
+   *
+   * That gap was not hypothetical. The config carried
+   * `{ breaking: true, release: 'minor' }`, so four breaking changes would have
+   * shipped as a minor on a package already published at 1.x. Deleting the rule
+   * does not help either — `{ type: 'feat', release: 'patch' }` matches first
+   * and the preset's own breaking default is never consulted, so removing it
+   * yields `patch`. The mapping has to be asserted, not inferred from the fact
+   * that the `!` parses.
+   */
+  it('release a breaking change as major, whatever its type', async () => {
+    expect(await releaseFor('feat!: drop v25.04 support')).toBe('major');
+    expect(await releaseFor('fix(auth)!: reject DENIED logins')).toBe('major');
+    expect(
+      await releaseFor('TNC-1 / v2.1 / feat(types)!: retype the client'),
+    ).toBe('major');
+  });
+
+  it('release non-breaking changes below major', async () => {
+    // Guards the other direction: a rule of `{ breaking: true, release: 'major' }`
+    // that accidentally matched everything would pass the test above.
+    expect(await releaseFor('feat: add reconnect backoff')).toBe('patch');
+    expect(await releaseFor('fix(auth): handle expired token')).toBe('patch');
+    expect(await releaseFor('perf: fewer allocations')).toBe('patch');
+    expect(await releaseFor('docs: update readme')).toBeNull();
+    expect(await releaseFor('chore(deps): bump eslint')).toBeNull();
   });
 
   it('accept the same commit types on both sides', async () => {
