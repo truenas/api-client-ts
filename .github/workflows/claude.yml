@@ -51,5 +51,4 @@ jobs:
         if: always()
         env:
           FINDINGS: ${{ steps.review.outputs.structured_output }}
-          OVERRIDDEN: ${{ contains(github.event.pull_request.labels.*.name, 'override-ai-review') }}
         run: node .github/scripts/check-review-threshold.mjs

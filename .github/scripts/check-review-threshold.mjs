@@ -9,12 +9,17 @@
  * Whether this actually blocks a merge is a branch-protection setting, not a
  * property of this script: it fails the job either way, and marking the check
  * required is the separate, reversible decision that turns that into a gate.
+ *
+ * There is deliberately no override label. Bypassing a failed check is
+ * something branch protection already gates on permission and records against a
+ * person; a label would be a weaker parallel mechanism that anyone with write
+ * access could apply, and — being attached to the PR rather than to the finding
+ * — would go on suppressing findings from every later push.
  */
 
 const BLOCKING = new Set(['BLOCKER', 'HIGH', 'MEDIUM']);
 
 const raw = process.env.FINDINGS?.trim();
-const overridden = process.env.OVERRIDDEN === 'true';
 
 /** Anything that is not a clean, parseable result is a failure, never a pass. */
 if (!raw) {
@@ -49,19 +54,11 @@ if (blocking.length === 0) {
   process.exit(0);
 }
 
-const summary = `${blocking.length} finding(s) at or above MEDIUM`;
-
-if (overridden) {
-  // Deliberately still visible: the override rate is the only signal that says
-  // whether MEDIUM is drawn in the right place.
-  console.log(`::warning::${summary} — overridden by the 'override-ai-review' label`);
-  process.exit(0);
-}
-
-console.log(`::error::${summary}`);
+console.log(`::error::${blocking.length} finding(s) at or above MEDIUM`);
 console.log(
-  "Fix them, or add the 'override-ai-review' label with a reason in the PR description. " +
-  'A finding that cannot name its failing input, or quote the claim it calls untrue, ' +
-  'should have been LOW — say so on the PR if that is what happened.'
+  'Fix them, or say on the PR why a finding was mis-rated — a finding that cannot ' +
+  'name its failing input, or quote the claim it calls untrue, should have been LOW.\n' +
+  'There is no override label. Overriding a red check is branch protection\'s job, ' +
+  'which already restricts who may do it and records that they did.'
 );
 process.exit(1);
