@@ -87,9 +87,6 @@ That is a claim about the server, not a guarantee — the client you get is
 whichever version discovery found. Operations that must work across versions
 belong on `client.ops`, which resolves them at runtime.
 
-Upgrading from a version before the generated types landed? See
-[MIGRATING.md](MIGRATING.md).
-
 ## Documentation
 
 The API reference is generated from the TSDoc comments in the source with
