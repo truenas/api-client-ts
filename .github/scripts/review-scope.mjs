@@ -53,19 +53,29 @@ const scoped = (before, files) =>
   ].join('\n');
 
 /**
- * Did a review actually finish on this commit?
+ * Was this commit reviewed *and* clean?
  *
- * `github.event.before` is the previous *head*, not the last *reviewed* head,
- * and those differ whenever a round did not run — the very first `opened` event
- * skipped because `check-team` hit a GitHub outage, a run cancelled by the job
- * timeout, a push made while another review was still in flight. Diffing from a
- * sha nobody reviewed silently drops everything that arrived with it.
+ * Both halves are load-bearing, and the second one is the important one.
  *
- * A `failure` conclusion counts: that is the gate rejecting findings, which
- * means the reviewer ran and spoke. Absent, `cancelled`, `skipped` and
- * `timed_out` do not.
+ * Reviewed, because `github.event.before` is the previous *head*, not the last
+ * *reviewed* head, and they diverge whenever a round did not run — an `opened`
+ * event skipped because `check-team` hit an outage, a run cancelled by the job
+ * timeout, a push made while a review was still in flight. Diffing from a sha
+ * nobody read silently drops everything that arrived with it.
+ *
+ * Clean, because the gate scores only the findings of the run it belongs to.
+ * If round 1 found a BLOCKER and round 2 is scoped to an unrelated one-line
+ * push, round 2 reports nothing, the gate sees an empty list, and the check
+ * goes green while the BLOCKER is still in the branch. Scoping would have
+ * turned a red check into a merge, which is worse than any finding it saves.
+ *
+ * So a red review is never scoped from: while anything is outstanding, every
+ * round re-reads the whole PR and has to re-find it. Scoping resumes only from
+ * a state where the entire diff was reviewed and nothing blocked — which makes
+ * the invariant inductive. Each scoped round starts from a green whole-PR
+ * review plus a chain of green deltas.
  */
-const reviewFinishedOn = async (sha) => {
+const reviewedAndGreen = async (sha) => {
   const token = process.env.GH_TOKEN;
   const repo = process.env.GITHUB_REPOSITORY;
   if (!token || !repo) return { ok: false, why: 'no token to check it with' };
@@ -79,8 +89,8 @@ const reviewFinishedOn = async (sha) => {
   const review = runs.find((r) => r.name === 'review');
   if (!review) return { ok: false, why: 'no review ran on it' };
   if (review.status !== 'completed') return { ok: false, why: `its review is ${review.status}` };
-  if (!['success', 'failure'].includes(review.conclusion)) {
-    return { ok: false, why: `its review ended as ${review.conclusion}` };
+  if (review.conclusion !== 'success') {
+    return { ok: false, why: `its review ended as ${review.conclusion}, so something is outstanding` };
   }
   return { ok: true };
 };
@@ -93,7 +103,7 @@ let body;
 let reviewed = { ok: true };
 
 if (action === 'synchronize' && before && before !== ZERO) {
-  reviewed = await reviewFinishedOn(before);
+  reviewed = await reviewedAndGreen(before);
 }
 
 if (action !== 'synchronize') {
@@ -102,8 +112,8 @@ if (action !== 'synchronize') {
   body = full('The previous head of the branch was not reported for this push.');
 } else if (!reviewed.ok) {
   body = full(
-    `The previous head \`${before.slice(0, 7)}\` was never reviewed — ${reviewed.why}. ` +
-      'Diffing from it would skip whatever arrived with it.'
+    `The previous head \`${before.slice(0, 7)}\` cannot be scoped from — ${reviewed.why}. ` +
+      "Reviewing the whole pull request instead."
   );
   console.log(`::warning::full review: ${before.slice(0, 7)} was not reviewed (${reviewed.why})`);
 } else {
