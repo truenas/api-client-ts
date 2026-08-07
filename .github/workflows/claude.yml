@@ -33,8 +33,22 @@ jobs:
         uses: anthropics/claude-code-action@v1.0.133
         with:
           anthropic_api_key: ${{ secrets.CLAUDE_API_KEY }}
-          claude_args: "--model claude-opus-5 --json-schema .github/review-schema.json"
-          track_progress: true
+          # No track_progress. It forces the action's "tag" mode, which replaces
+          # allowedTools with a hardcoded list (Glob/Grep/LS/Read, three
+          # mcp__github_ci__* tools, update_claude_comment, and four git
+          # commands) and filters anything we add down to `mcp__github_`-prefixed
+          # tools. Nothing in that list can emit structured output, so
+          # --json-schema asked for a result the model had no way to produce: it
+          # could neither finish nor fail, and ran until the job timed out.
+          # Unchanged as of v1.0.187, so a version bump does not fix it.
+          #
+          # Agent mode passes allowedTools through untouched — but it creates no
+          # tracking comment, so the review has to post itself. gh is how the
+          # action's own examples/pr-review-comprehensive.yml does it.
+          claude_args: |
+            --model claude-opus-5
+            --json-schema .github/review-schema.json
+            --allowedTools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
           use_sticky_comment: true
           prompt: |
             REPO: ${{ github.repository }}
@@ -42,6 +56,10 @@ jobs:
 
             Please review this pull request using the guidelines below.
             It should be already checked out in the current directory.
+
+            Post the prose review as a PR comment with `gh pr comment`. The
+            structured output is separate and is what the gate reads; posting
+            one is not a substitute for returning the other.
 
             {{file:.claude/review-prompt.md}}
 
