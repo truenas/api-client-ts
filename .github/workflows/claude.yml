@@ -60,8 +60,9 @@ jobs:
             inline comment. Use one top-level `gh pr comment` for the summary
             and anything not tied to a specific line.
 
-            Both are separate from the structured output, which is what the
-            gate reads. Posting comments is not a substitute for returning it.
+            Neither comment substitutes for the structured output, which is
+            what the gate reads. The same findings appear in both, at the same
+            severity.
 
             {{file:.claude/review-prompt.md}}
 
