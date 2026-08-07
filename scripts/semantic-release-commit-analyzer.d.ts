@@ -6,6 +6,19 @@
  * to run the real analyzer against the real config rather than re-implement its
  * rules, so the alternative — asserting the shape of `releaseRules` — would
  * pass against a config whose rules do not do what they appear to.
+ *
+ * **Delete this file once the package ships its own types.** An ambient
+ * `declare module` for a bare specifier is resolved before `node_modules` is
+ * consulted, so it is a hard shadow rather than a fallback: if a later major
+ * changes `analyzeCommits`' signature, this keeps compiling against the 13.x
+ * shape and the real types are never seen. The spec would still fail at
+ * runtime, so it is not silent — but it would fail for a reason that looks
+ * nothing like "the declaration is stale".
+ *
+ * The return type omits `premajor`/`preminor`/`prepatch`/`prerelease`, which
+ * are in the package's real `RELEASE_TYPES`. They are unreachable while
+ * `.releaserc.json` has no prerelease branches; adding a `next` branch is what
+ * would make this wrong.
  */
 declare module '@semantic-release/commit-analyzer' {
   interface Commit {

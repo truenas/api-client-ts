@@ -3,6 +3,19 @@ import { analyzeCommits } from '@semantic-release/commit-analyzer';
 import { describe, expect, it } from 'vitest';
 
 /**
+ * `@semantic-release/commit-analyzer` is a direct devDependency so this file
+ * can import it, and its range in package.json must be bumped in lockstep with
+ * `semantic-release`.
+ *
+ * They resolve to one copy only while the ranges overlap. Bump
+ * `semantic-release` to a major requiring `^14` and the lock splits: the root
+ * keeps 13.x for the direct dependency and `semantic-release` gets 14.x
+ * nested. This spec would then pass against an analyzer that is not the one
+ * that runs at release time — which is the failure this file exists to
+ * prevent, reintroduced quietly.
+ */
+
+/**
  * A squash merge turns the PR title into the commit subject, so two separate
  * regexes see it: the gate in .github/workflows/pr-title.yml decides whether the
  * PR may merge, and parserOpts.headerPattern in .releaserc.json decides what
@@ -42,14 +55,30 @@ const analyzerOpts = async (): Promise<Record<string, unknown>> => {
   return plugin[1];
 };
 
-/** What semantic-release would actually release for a commit with this subject. */
-const releaseFor = async (subject: string): Promise<string | null> =>
-  (await analyzeCommits(await analyzerOpts(), {
-    commits: [{ hash: 'deadbee', subject, message: subject, body: '' }],
+/**
+ * What semantic-release would actually release for a commit with this subject.
+ *
+ * No return annotation and no cast: the declaration file already types this as
+ * `'major' | 'minor' | 'patch' | null`, and widening it to `string` would let
+ * `toBe('mayor')` typecheck.
+ *
+ * `body` is joined into `message` because the analyzer parses `message`, not
+ * `subject` — a `BREAKING CHANGE:` footer is invisible otherwise.
+ */
+const releaseFor = async (subject: string, body = '') =>
+  analyzeCommits(await analyzerOpts(), {
+    commits: [
+      {
+        hash: 'deadbee',
+        subject,
+        message: body ? `${subject}\n\n${body}` : subject,
+        body,
+      },
+    ],
     logger: { log: () => undefined },
     cwd: process.cwd(),
     env: process.env,
-  })) as string | null;
+  });
 
 interface ParserOpts {
   headerPattern: string;
@@ -131,18 +160,32 @@ describe('PR title gate and semantic-release header pattern', () => {
    * alone will happily cap a breaking change at `patch`.
    *
    * That gap was not hypothetical. The config carried
-   * `{ breaking: true, release: 'minor' }`, so four breaking changes would have
-   * shipped as a minor on a package already published at 1.x. Deleting the rule
-   * does not help either — `{ type: 'feat', release: 'patch' }` matches first
-   * and the preset's own breaking default is never consulted, so removing it
-   * yields `patch`. The mapping has to be asserted, not inferred from the fact
-   * that the `!` parses.
+   * `{ breaking: true, release: 'minor' }`, so a breaking change would have
+   * shipped as a minor on a package already published at 1.x.
+   *
+   * Deleting the rule does not help either. `analyzeCommit` returns the highest
+   * matching rule, not the first, and the preset's defaults are consulted only
+   * when *no* custom rule matched at all — so `{ type: 'feat' }` matching is
+   * itself what suppresses the fallback, leaving `feat!:` at `patch`. A
+   * `chore!:`, matching no custom rule, still reaches the preset's
+   * `{ breaking: true, release: 'major' }` and comes out right by accident.
+   * The mapping has to be asserted for the types we override, not inferred
+   * from the fact that the `!` parses.
    */
   it('release a breaking change as major, whatever its type', async () => {
     expect(await releaseFor('feat!: drop v25.04 support')).toBe('major');
     expect(await releaseFor('fix(auth)!: reject DENIED logins')).toBe('major');
     expect(
       await releaseFor('TNC-1 / v2.1 / feat(types)!: retype the client'),
+    ).toBe('major');
+
+    // A type with no custom rule: reaches the preset defaults instead, so it
+    // is the case the deleted-rule regression does *not* reproduce.
+    expect(await releaseFor('chore!: require node 22')).toBe('major');
+
+    // The footer path, which does not touch `breakingHeaderPattern` at all.
+    expect(
+      await releaseFor('feat: add backoff', 'BREAKING CHANGE: call() drops its type param'),
     ).toBe('major');
   });
 

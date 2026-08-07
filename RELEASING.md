@@ -15,7 +15,7 @@ release, and npm publish are all derived from the commit history on `main`.
   | Commit type | Release |
   |---|---|
   | `feat`, `fix`, `perf`, `refactor` | patch |
-  | any `!` / `BREAKING CHANGE` | minor (while `0.x`) |
+  | any `!` / `BREAKING CHANGE` | major |
   | `docs`, `test`, `build`, `ci`, `chore`, `style` | none |
 
   If no releasable commits landed, it does nothing.
