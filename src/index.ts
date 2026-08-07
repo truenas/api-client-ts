@@ -82,4 +82,8 @@ export { getApiErrorMessage } from '@/types/api-error.type';
 export type { ApiError } from '@/types/api-error.type';
 export type { AuthResponse } from '@/types/auth.type';
 export type { Container } from '@/types/container.type';
+// Value export, not type-only: `Container.status` is an `AppState`, and
+// without the enum itself a consumer has nothing to compare it against —
+// they would have to re-declare the string literals and hope they match.
+export { AppState } from '@/types/app-query.type';
 export type { ApiKeyCreate } from '@/types/api-key-create.type';

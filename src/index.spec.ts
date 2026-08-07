@@ -12,6 +12,7 @@ import * as api from './index';
  * for the surface types, `src/query-projection.spec.ts` for the query grammar.
  */
 const RUNTIME_EXPORTS = [
+  'AppState',
   'AuthError',
   'AuthErrorCode',
   'InvalidVersionResponseError',
