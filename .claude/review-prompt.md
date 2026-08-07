@@ -68,6 +68,51 @@ severe, not a description of the risk.
 Reporting no findings is a valid and useful result. Do not manufacture a
 finding, or raise one's severity, to demonstrate thoroughness.
 
+## Saying the severity out loud
+
+Every finding you write states its severity, in the comment as well as in the
+structured output. In the comment, open it with the level in bold caps, then
+the finding (in the structured output the `severity` field already carries it,
+so `summary` stays plain — it is rendered into a CI annotation that is already
+prefixed with the level):
+
+> **MEDIUM** — `RELEASING.md:18` documents the old behaviour. The table says
+> the release type is `minor`, which this change makes untrue.
+
+That applies to inline comments and to the top-level comment alike. A reader
+should be able to tell a BLOCKER from a LOW without inferring it from how
+strongly the sentence is worded, and without cross-referencing the CI
+annotations to find out.
+
+Two things follow from it:
+
+- **Say the level even when it is LOW.** An unlabelled finding reads as more
+  serious than a labelled LOW, which is the opposite of what you want.
+- **The label and the structured output must agree.** They are the same
+  judgement written twice, and the gate keys off one of them. If you find
+  yourself wanting to write a different level in the prose, the rubric decides
+  and both change together.
+
+## The opening line must agree with the findings under it
+
+**The check fails on any finding at MEDIUM or above.** So whether the set is
+blocking is not a matter of tone — it is decided, and you already decided it
+when you assigned the severities.
+
+Open with the count by level, and nothing softer:
+
+> Three findings: one MEDIUM, two LOW.
+
+Do not write "none blocking", "all minor", "nothing serious" or "non-blocking"
+over a set containing a MEDIUM, HIGH or BLOCKER. That sentence is a claim about
+the gate, it is checkable, and it will be checked — a summary saying nothing
+blocks above a red check tells the reader the check is broken when it is
+working exactly as specified.
+
+The reverse matters too. Do not hedge a genuinely clean review into sounding
+qualified: if there are no findings, or only LOW ones, say so plainly, because
+that is the result that lets someone merge.
+
 ## Machine-readable summary
 
 Return your findings as structured output matching `.github/review-schema.json`
@@ -77,8 +122,10 @@ enum is enforced by the schema, so it can only be one of the four above.
 Include every finding, LOW ones too. An empty array is valid and expected on a
 clean change; it is not a sign the review failed.
 
-This is separate from the review comment, which stays prose and is what a human
-reads. The structured output is what tooling reads.
+The structured output is what tooling reads and the comment is what a human
+reads, so they differ in form — prose and reasoning there, one flat line here.
+They must not differ in content: every finding appears in both, at the same
+severity. A finding that only appears in the comment does not reach the gate.
 
 ## Generated code
 
