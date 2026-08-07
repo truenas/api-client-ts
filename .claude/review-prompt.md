@@ -71,7 +71,10 @@ finding, or raise one's severity, to demonstrate thoroughness.
 ## Saying the severity out loud
 
 Every finding you write states its severity, in the comment as well as in the
-structured output. Open it with the level in bold caps, then the finding:
+structured output. In the comment, open it with the level in bold caps, then
+the finding (in the structured output the `severity` field already carries it,
+so `summary` stays plain — it is rendered into a CI annotation that is already
+prefixed with the level):
 
 > **MEDIUM** — `RELEASING.md:18` documents the old behaviour. The table says
 > the release type is `minor`, which this change makes untrue.
