@@ -9,8 +9,10 @@ export default tseslint.config(
     rules: {
       // `const { collection, ...change } = params` is how a key is dropped
       // from an object whose remaining shape matters; the named sibling is the
-      // mechanism, not an oversight. This is the base rule's own default,
-      // which typescript-eslint's recommended config drops.
+      // mechanism, not an oversight. `ignoreRestSiblings` is `false` by
+      // default in both the core rule and the typescript-eslint extension, so
+      // this turns it on rather than restoring it — without this block the
+      // rest-sibling above is reported as an unused variable.
       '@typescript-eslint/no-unused-vars': [
         'error',
         { ignoreRestSiblings: true },

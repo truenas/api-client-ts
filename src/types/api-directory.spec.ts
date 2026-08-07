@@ -268,12 +268,6 @@ describe('events', () => {
   });
 
   /**
-   * Event sources take subscribe-time arguments, and `core.subscribe` is
-   * declared as a single string with no documented encoding for them. They are
-   * excluded rather than typed on a guess — see `EventName`. This is the test
-   * to delete once the encoding is confirmed.
-   */
-  /**
    * The runtime filter forwards any of the three kinds; the directory lists
    * only some for 16 of v25.10's collections. Without an arm for the rest, a
    * `removed` frame on `core.get_jobs` — which declares only `added` and
@@ -296,6 +290,12 @@ describe('events', () => {
     >();
   });
 
+  /**
+   * Event sources take subscribe-time arguments, and `core.subscribe` is
+   * declared as a single string with no documented encoding for them. They are
+   * excluded rather than typed on a guess — see `EventName`. This is the test
+   * to delete once the encoding is confirmed.
+   */
   it('excludes event sources, which take subscribe-time arguments', () => {
     // @ts-expect-error `app.stats` needs subscription params we cannot send.
     api.events('app.stats');

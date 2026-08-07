@@ -42,10 +42,14 @@ describe('toAppState', () => {
   });
 
   it('fold every state AppState has no word for into Stopped', () => {
-    // v25.10 `virt.instance` reports all of these. Claiming a frozen or
-    // erroring container is running is the failure worth avoiding; losing the
-    // distinction between them is the accepted cost, documented on the mapping.
-    for (const state of ['ERROR', 'FROZEN', 'ABORTING', 'THAWED', 'UNKNOWN', '']) {
+    // The first six are exactly the `VirtInstanceEntry.status` members with no
+    // `AppState` counterpart; `''` is not one v25.10 reports, and is here for
+    // the empty-string edge rather than as a claim about the wire. Claiming a
+    // frozen or erroring container is running is the failure worth avoiding;
+    // losing the distinction between them is the accepted cost, documented on
+    // the mapping.
+    const unmapped = ['UNKNOWN', 'ERROR', 'FROZEN', 'FREEZING', 'THAWED', 'ABORTING'];
+    for (const state of [...unmapped, '']) {
       expect(toAppState(state), state).toBe(AppState.Stopped);
     }
   });

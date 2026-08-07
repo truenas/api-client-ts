@@ -66,7 +66,11 @@ describe('README: queries', () => {
     >();
   });
 
-  it('projects to exactly the selected fields', () => {
+  // "Types as", not "returns": a literal select is an exact `Pick` at the type
+  // level, while the payload carries *at least* those fields — see the note on
+  // `QueryProjection`. The name said "exactly" for both, which the measured
+  // padding behaviour makes untrue of the second.
+  it('types a literal select as a Pick of those fields', () => {
     expectTypeOf(
       api.query('user.query', [], { select: ['id', 'username'] })
     ).toEqualTypeOf<

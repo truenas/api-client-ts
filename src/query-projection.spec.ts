@@ -49,10 +49,14 @@ describe('query verbs against the generated directory', () => {
     >();
   });
 
-  it('projects to exactly the selected fields', () => {
+  it('types a literal select as a Pick of those fields', () => {
     // The dump models a projection as an opaque `Record<string, unknown>` —
     // every `*QueryResultItem` is literally that — so this is more precise
     // than the schema states.
+    //
+    // "Types as" rather than "projects to": the `Pick` is exact as a type,
+    // while the payload carries at least those fields, since middleware pads a
+    // projected row when adapting to an older API version.
     expectTypeOf(
       api.query('pool.query', [], { select: ['id', 'name'] })
     ).toEqualTypeOf<Observable<Pick<PoolEntry, 'id' | 'name'>[]>>();
