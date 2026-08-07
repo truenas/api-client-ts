@@ -48,6 +48,7 @@ jobs:
       # Falls back to the whole diff whenever the previous head is unusable.
       - name: Determine review scope
         env:
+          GH_TOKEN: ${{ github.token }}
           EVENT_ACTION: ${{ github.event.action }}
           EVENT_BEFORE: ${{ github.event.before }}
           OUT_FILE: .github/review-scope.md

@@ -52,16 +52,60 @@ const scoped = (before, files) =>
     'any scoping rule for. Say which exception you are using.',
   ].join('\n');
 
+/**
+ * Did a review actually finish on this commit?
+ *
+ * `github.event.before` is the previous *head*, not the last *reviewed* head,
+ * and those differ whenever a round did not run — the very first `opened` event
+ * skipped because `check-team` hit a GitHub outage, a run cancelled by the job
+ * timeout, a push made while another review was still in flight. Diffing from a
+ * sha nobody reviewed silently drops everything that arrived with it.
+ *
+ * A `failure` conclusion counts: that is the gate rejecting findings, which
+ * means the reviewer ran and spoke. Absent, `cancelled`, `skipped` and
+ * `timed_out` do not.
+ */
+const reviewFinishedOn = async (sha) => {
+  const token = process.env.GH_TOKEN;
+  const repo = process.env.GITHUB_REPOSITORY;
+  if (!token || !repo) return { ok: false, why: 'no token to check it with' };
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/commits/${sha}/check-runs`, {
+    headers: { authorization: `bearer ${token}`, accept: 'application/vnd.github+json' },
+  });
+  if (!res.ok) return { ok: false, why: `check-runs lookup returned HTTP ${res.status}` };
+
+  const runs = (await res.json()).check_runs ?? [];
+  const review = runs.find((r) => r.name === 'review');
+  if (!review) return { ok: false, why: 'no review ran on it' };
+  if (review.status !== 'completed') return { ok: false, why: `its review is ${review.status}` };
+  if (!['success', 'failure'].includes(review.conclusion)) {
+    return { ok: false, why: `its review ended as ${review.conclusion}` };
+  }
+  return { ok: true };
+};
+
 const out = process.env.OUT_FILE;
 const action = process.env.EVENT_ACTION;
 const before = process.env.EVENT_BEFORE;
 
 let body;
+let reviewed = { ok: true };
+
+if (action === 'synchronize' && before && before !== ZERO) {
+  reviewed = await reviewFinishedOn(before);
+}
 
 if (action !== 'synchronize') {
   body = full(`This is the first review of this pull request (\`${action}\`).`);
 } else if (!before || before === ZERO) {
   body = full('The previous head of the branch was not reported for this push.');
+} else if (!reviewed.ok) {
+  body = full(
+    `The previous head \`${before.slice(0, 7)}\` was never reviewed — ${reviewed.why}. ` +
+      'Diffing from it would skip whatever arrived with it.'
+  );
+  console.log(`::warning::full review: ${before.slice(0, 7)} was not reviewed (${reviewed.why})`);
 } else {
   try {
     // A shallow checkout will not have it; ask for just that one commit.
