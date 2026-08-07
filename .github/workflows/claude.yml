@@ -28,6 +28,13 @@ jobs:
         with:
           fetch-depth: 10
 
+      # --json-schema takes the schema itself, not a path to it. Keeping the
+      # schema in its own file and compacting it here means there is still one
+      # source of truth, and it stays lintable and reviewable as JSON.
+      - name: Compact the review schema
+        id: schema
+        run: echo "json=$(jq -c . .github/review-schema.json)" >> "$GITHUB_OUTPUT"
+
       - name: Automatic PR Review
         id: review
         uses: anthropics/claude-code-action@v1.0.187
@@ -39,7 +46,7 @@ jobs:
           # nothing itself, hence gh and the inline-comment tool below.
           claude_args: |
             --model claude-opus-5
-            --json-schema .github/review-schema.json
+            --json-schema '${{ steps.schema.outputs.json }}'
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
           # No use_sticky_comment either — it only applies to tag mode.
           prompt: |
