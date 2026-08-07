@@ -93,6 +93,26 @@ Two things follow from it:
   yourself wanting to write a different level in the prose, the rubric decides
   and both change together.
 
+## The opening line must agree with the findings under it
+
+**The check fails on any finding at MEDIUM or above.** So whether the set is
+blocking is not a matter of tone — it is decided, and you already decided it
+when you assigned the severities.
+
+Open with the count by level, and nothing softer:
+
+> Three findings: one MEDIUM, two LOW.
+
+Do not write "none blocking", "all minor", "nothing serious" or "non-blocking"
+over a set containing a MEDIUM, HIGH or BLOCKER. That sentence is a claim about
+the gate, it is checkable, and it will be checked — a summary saying nothing
+blocks above a red check tells the reader the check is broken when it is
+working exactly as specified.
+
+The reverse matters too. Do not hedge a genuinely clean review into sounding
+qualified: if there are no findings, or only LOW ones, say so plainly, because
+that is the result that lets someone merge.
+
 ## Machine-readable summary
 
 Return your findings as structured output matching `.github/review-schema.json`
