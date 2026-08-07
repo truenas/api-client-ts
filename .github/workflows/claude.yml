@@ -45,10 +45,15 @@ jobs:
           # Agent mode passes allowedTools through untouched — but it creates no
           # tracking comment, so the review has to post itself. gh is how the
           # action's own examples/pr-review-comprehensive.yml does it.
+          #
+          # The inline-comment MCP server is installed only when a
+          # mcp__github_inline_comment__ tool appears in allowedTools, so asking
+          # for it here is what turns it on. Tag mode could not have used it:
+          # its hardcoded list does not include it either.
           claude_args: |
             --model claude-opus-5
             --json-schema .github/review-schema.json
-            --allowedTools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
           # No use_sticky_comment either. Its only consumer is
           # createInitialComment(), which is called from src/modes/tag/index.ts
           # and nowhere else — so outside tag mode it does nothing. Leaving it
@@ -60,9 +65,12 @@ jobs:
             Please review this pull request using the guidelines below.
             It should be already checked out in the current directory.
 
-            Post the prose review as a PR comment with `gh pr comment`. The
-            structured output is separate and is what the gate reads; posting
-            one is not a substitute for returning the other.
+            Put each finding that has a file and line on that line, as an
+            inline comment. Use one top-level `gh pr comment` for the summary
+            and anything not tied to a specific line.
+
+            Both are separate from the structured output, which is what the
+            gate reads. Posting comments is not a substitute for returning it.
 
             {{file:.claude/review-prompt.md}}
 
