@@ -1,0 +1,44 @@
+import { describe, expect, it } from 'vitest';
+
+import { AppState } from '@/types/app-query.type';
+import { toAppState } from '@/utils/app-state.utils';
+
+/**
+ * The mapping is shared so the two versions cannot disagree about it, which
+ * makes it the one place a behaviour change is invisible: both clients keep
+ * compiling and their own specs keep passing.
+ *
+ * `STARTING` is the arm that matters. It is v25.10 `virt.instance` only, it is
+ * the one state whose destination changed in the extraction, and deleting the
+ * case left the suite green — `default` catches it and returns `Stopped`,
+ * which is the pre-extraction answer.
+ */
+describe('toAppState', () => {
+  it('map an in-progress state to Deploying, not Stopped', () => {
+    // Deleting either case from the switch turns these red rather than
+    // silently falling through to `default`.
+    expect(toAppState('STARTING')).toBe(AppState.Deploying);
+    expect(toAppState('DEPLOYING')).toBe(AppState.Deploying);
+  });
+
+  it('map the states both vocabularies share', () => {
+    expect(toAppState('RUNNING')).toBe(AppState.Running);
+    expect(toAppState('STOPPED')).toBe(AppState.Stopped);
+    expect(toAppState('STOPPING')).toBe(AppState.Stopping);
+  });
+
+  it('accept the case the wire actually uses', () => {
+    // `toUpperCase()` is load-bearing: v26 `container.status` is lower case.
+    expect(toAppState('running')).toBe(AppState.Running);
+    expect(toAppState('Starting')).toBe(AppState.Deploying);
+  });
+
+  it('fold every state AppState has no word for into Stopped', () => {
+    // v25.10 `virt.instance` reports all of these. Claiming a frozen or
+    // erroring container is running is the failure worth avoiding; losing the
+    // distinction between them is the accepted cost, documented on the mapping.
+    for (const state of ['ERROR', 'FROZEN', 'ABORTING', 'THAWED', 'UNKNOWN', '']) {
+      expect(toAppState(state), state).toBe(AppState.Stopped);
+    }
+  });
+});

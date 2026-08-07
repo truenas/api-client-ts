@@ -385,8 +385,11 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       // false -> true on each reconnect, and a `take(1)` here meant the
       // subscription was re-established on the server exactly once: after a
       // socket drop the stream stayed alive and silently never emitted again.
-      // Deferred so this happens when the caller subscribes, and torn down
-      // with them so an unsubscribed caller stops holding it open.
+      // Deferred so this happens when the first caller subscribes, and torn
+      // down by the `finalize` below when the stream itself ends — the
+      // connection completing or erroring. Not when a caller unsubscribes:
+      // `resetOnRefCountZero: false` keeps the share alive through that on
+      // purpose, for the reason given where it is set.
       const resubscribe = this.authenticated
         .pipe(distinctUntilChanged(), filter(Boolean))
         .subscribe(() => {
