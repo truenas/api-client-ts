@@ -187,6 +187,11 @@ describe('PR title gate and semantic-release header pattern', () => {
   it('release non-breaking changes below major', async () => {
     // Guards the other direction: a rule of `{ breaking: true, release: 'major' }`
     // that accidentally matched everything would pass the test above.
+    //
+    // `feat` → `patch` is deliberate, not an oversight left over from the bug
+    // this file fixes. It means the 1.x line emits patches and majors and never
+    // a minor, which is the intended shape: a new method is not a reason to move
+    // the middle number, and anything that breaks a consumer moves the first.
     expect(await releaseFor('feat: add reconnect backoff')).toBe('patch');
     expect(await releaseFor('fix(auth): handle expired token')).toBe('patch');
     expect(await releaseFor('perf: fewer allocations')).toBe('patch');
@@ -244,14 +249,26 @@ describe('the analyzer under test is the one that ships', () => {
       await readFile(join(dirname(analyzerPath()), 'package.json'), 'utf8'),
     ) as { types?: string; typings?: string; exports?: unknown };
 
+    // A `types` condition anywhere in `exports` counts. That is the shape
+    // `moduleResolution: "Bundler"` actually resolves, and checking only the
+    // top-level `types`/`typings` would stay green through the most likely way
+    // this package starts shipping declarations.
+    const typesCondition = (node: unknown): boolean =>
+      typeof node === 'object' &&
+      node !== null &&
+      Object.entries(node).some(
+        ([key, value]) => key === 'types' || typesCondition(value),
+      );
+
     // scripts/semantic-release-commit-analyzer.d.ts is an ambient `declare
     // module`, which shadows anything the package ships rather than deferring
     // to it. This fails the day that shim becomes wrong instead of leaving it
     // to surface as a signature mismatch later.
-    expect(
-      pkg.types ?? pkg.typings,
+    const message =
       'commit-analyzer now ships types — delete ' +
-        'scripts/semantic-release-commit-analyzer.d.ts rather than reconciling it',
-    ).toBeUndefined();
+      'scripts/semantic-release-commit-analyzer.d.ts rather than reconciling it';
+
+    expect(pkg.types ?? pkg.typings, message).toBeUndefined();
+    expect(typesCondition(pkg.exports), message).toBe(false);
   });
 });
