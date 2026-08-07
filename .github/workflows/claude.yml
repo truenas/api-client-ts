@@ -44,6 +44,15 @@ jobs:
           OUT_FILE: .github/prior-review-threads.md
         run: node .github/scripts/collect-review-threads.mjs
 
+      # Bounds a re-run by the size of the push rather than the size of the PR.
+      # Falls back to the whole diff whenever the previous head is unusable.
+      - name: Determine review scope
+        env:
+          EVENT_ACTION: ${{ github.event.action }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          OUT_FILE: .github/review-scope.md
+        run: node .github/scripts/review-scope.mjs
+
       - name: Automatic PR Review
         id: review
         uses: anthropics/claude-code-action@v1.0.187
@@ -64,6 +73,8 @@ jobs:
 
             Please review this pull request using the guidelines below.
             It should be already checked out in the current directory.
+
+            {{file:.github/review-scope.md}}
 
             Put each finding that has a file and line on that line, as an
             inline comment. Use one top-level comment for the summary and
