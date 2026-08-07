@@ -57,8 +57,20 @@ jobs:
             It should be already checked out in the current directory.
 
             Put each finding that has a file and line on that line, as an
-            inline comment. Use one top-level `gh pr comment` for the summary
-            and anything not tied to a specific line.
+            inline comment. Use one top-level comment for the summary and
+            anything not tied to a specific line, posted with:
+
+              gh pr comment <number> --edit-last --create-if-none --body-file -
+
+            `--edit-last` replaces your own previous summary instead of adding
+            another, and `--create-if-none` covers the first run. Without them
+            every re-run leaves its predecessor behind, and a reader arriving
+            at five summaries cannot tell which one describes the code in
+            front of them.
+
+            Before adding an inline comment, check whether an unresolved thread
+            already makes the same point — `gh pr view <number> --comments`.
+            Reply in that thread rather than opening a second one.
 
             Neither comment substitutes for the structured output, which is
             what the gate reads. The same findings appear in both, at the same
