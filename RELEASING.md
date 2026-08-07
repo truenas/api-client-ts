@@ -38,9 +38,9 @@ from tags at release time (do **not** hand-edit it).
 - **Registry:** public npm (scope `@truenas`, `publishConfig.access: "public"`).
 - **Auth:** the release job needs `NPM_TOKEN` (an npm automation token with publish
   rights to `@truenas`) as a repo secret; `GITHUB_TOKEN` is provided automatically.
-- **First release:** semantic-release defaults the very first release to `1.0.0`. To
-  start in the `0.x` range instead, push an initial `v0.0.x` git tag before the first
-  releasable commit lands.
+- **First release:** semantic-release defaults the very first release to `1.0.0`,
+  which is what happened here — the package is published at 1.x, so the `0.x`
+  range is no longer reachable and breaking changes release as `major`.
 
 ## Local validation
 

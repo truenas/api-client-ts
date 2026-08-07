@@ -1,19 +1,14 @@
 import { readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
 import { analyzeCommits } from '@semantic-release/commit-analyzer';
 import { describe, expect, it } from 'vitest';
 
-/**
- * `@semantic-release/commit-analyzer` is a direct devDependency so this file
- * can import it, and its range in package.json must be bumped in lockstep with
- * `semantic-release`.
- *
- * They resolve to one copy only while the ranges overlap. Bump
- * `semantic-release` to a major requiring `^14` and the lock splits: the root
- * keeps 13.x for the direct dependency and `semantic-release` gets 14.x
- * nested. This spec would then pass against an analyzer that is not the one
- * that runs at release time — which is the failure this file exists to
- * prevent, reintroduced quietly.
- */
+const resolver = createRequire(import.meta.url);
+
+/** Where `import '@semantic-release/commit-analyzer'` lands from this file. */
+const analyzerPath = (): string =>
+  resolver.resolve('@semantic-release/commit-analyzer');
 
 /**
  * A squash merge turns the PR title into the commit subject, so two separate
@@ -216,5 +211,47 @@ describe('PR title gate and semantic-release header pattern', () => {
       expect(types(opts.headerPattern), plugin).toEqual(expected);
       expect(types(opts.breakingHeaderPattern), plugin).toEqual(expected);
     }
+  });
+});
+
+/**
+ * The tests above are only worth anything if the analyzer they exercise is the
+ * one that runs at release time. `@semantic-release/commit-analyzer` is a
+ * direct devDependency so this file can import it, which means there are two
+ * ranges that have to keep agreeing — ours and `semantic-release`'s own.
+ *
+ * A comment saying "bump these in lockstep" is not a guard, so these assert it.
+ */
+describe('the analyzer under test is the one that ships', () => {
+  it('resolves to the same copy semantic-release resolves', () => {
+    const viaSemanticRelease = createRequire(
+      resolver.resolve('semantic-release'),
+    ).resolve('@semantic-release/commit-analyzer');
+
+    // Bump semantic-release to a major wanting `^14` while package.json still
+    // says `^13` and the lock splits: 13.x stays hoisted for our direct
+    // dependency, 14.x nests under semantic-release, and every test above
+    // silently starts exercising the copy that does *not* release.
+    expect(
+      analyzerPath(),
+      'commit-analyzer resolves to two different copies — bump the direct ' +
+        'devDependency range in package.json to match semantic-release',
+    ).toBe(viaSemanticRelease);
+  });
+
+  it('still ships no types, so the local declaration is still needed', async () => {
+    const pkg = JSON.parse(
+      await readFile(join(dirname(analyzerPath()), 'package.json'), 'utf8'),
+    ) as { types?: string; typings?: string; exports?: unknown };
+
+    // scripts/semantic-release-commit-analyzer.d.ts is an ambient `declare
+    // module`, which shadows anything the package ships rather than deferring
+    // to it. This fails the day that shim becomes wrong instead of leaving it
+    // to surface as a signature mismatch later.
+    expect(
+      pkg.types ?? pkg.typings,
+      'commit-analyzer now ships types — delete ' +
+        'scripts/semantic-release-commit-analyzer.d.ts rather than reconciling it',
+    ).toBeUndefined();
   });
 });
