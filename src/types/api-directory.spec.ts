@@ -160,11 +160,6 @@ describe('job results', () => {
   } as unknown as TrueNasApi;
 
   /**
-   * The reason `job` exists rather than leaving callers to compose
-   * `callAndGetJobId` with `trackJob`: composing them by hand throws away the
-   * link between the method and its result.
-   */
-  /**
    * `result` is nullable on every arm, not just typed by method. `job()` emits
    * while the job is still running, and a running job has no result — measured
    * on a live appliance, a `RUNNING` emission carries `result: null`. A failed
@@ -183,6 +178,11 @@ describe('job results', () => {
     >();
   });
 
+  /**
+   * The reason `job` exists rather than leaving callers to compose
+   * `callAndGetJobId` with `trackJob`: composing them by hand throws away the
+   * link between the method and its result.
+   */
   it('carries the result type from the job directory', () => {
     expectTypeOf(api.job('pool.import_find')).toEqualTypeOf<
       Observable<Job<v25_10_0.PoolImportFind[]>>

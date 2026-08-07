@@ -23,6 +23,17 @@ const client = await createTrueNasClient({
 });
 ```
 
+`createTrueNasClient` does not take credentials, so log in before calling
+anything — middleware refuses an unauthenticated call, and `authenticated$`
+only turns true once one of these resolves:
+
+```typescript
+await firstValueFrom(
+  client.authenticator.loginWithApiKey({ username, key })
+);
+// or client.authenticator.loginWithUserPass(username, password)
+```
+
 Everything below hangs off `client.api`, and every method name it accepts comes
 from types generated from `middlewared --dump-api`. A name the declared version
 does not have is a compile error, and params and responses come from the same
