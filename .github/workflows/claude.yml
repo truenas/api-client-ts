@@ -30,34 +30,18 @@ jobs:
 
       - name: Automatic PR Review
         id: review
-        uses: anthropics/claude-code-action@v1.0.133
+        uses: anthropics/claude-code-action@v1.0.187
         with:
           anthropic_api_key: ${{ secrets.CLAUDE_API_KEY }}
-          # No track_progress. It forces the action's "tag" mode, which replaces
-          # allowedTools with a hardcoded list (Glob/Grep/LS/Read, three
-          # mcp__github_ci__* tools, update_claude_comment, and four git
-          # commands) and filters anything we add down to `mcp__github_`-prefixed
-          # tools. Nothing in that list can emit structured output, so
-          # --json-schema asked for a result the model had no way to produce: it
-          # could neither finish nor fail, and ran until the job timed out.
-          # Unchanged as of v1.0.187, so a version bump does not fix it.
-          #
-          # Agent mode passes allowedTools through untouched — but it creates no
-          # tracking comment, so the review has to post itself. gh is how the
-          # action's own examples/pr-review-comprehensive.yml does it.
-          #
-          # The inline-comment MCP server is installed only when a
-          # mcp__github_inline_comment__ tool appears in allowedTools, so asking
-          # for it here is what turns it on. Tag mode could not have used it:
-          # its hardcoded list does not include it either.
+          # No track_progress: it forces tag mode, which overrides allowedTools
+          # with a fixed list that cannot emit structured output, so
+          # --json-schema hangs. Agent mode passes tools through but posts
+          # nothing itself, hence gh and the inline-comment tool below.
           claude_args: |
             --model claude-opus-5
             --json-schema .github/review-schema.json
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
-          # No use_sticky_comment either. Its only consumer is
-          # createInitialComment(), which is called from src/modes/tag/index.ts
-          # and nowhere else — so outside tag mode it does nothing. Leaving it
-          # set would describe behaviour this workflow does not have.
+          # No use_sticky_comment either — it only applies to tag mode.
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
