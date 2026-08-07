@@ -27,8 +27,16 @@ describe('toAppState', () => {
     expect(toAppState('STOPPING')).toBe(AppState.Stopping);
   });
 
-  it('accept the case the wire actually uses', () => {
-    // `toUpperCase()` is load-bearing: v26 `container.status` is lower case.
+  it('accept any case', () => {
+    // Defensive, not measured. Both statuses this maps declare upper case:
+    // v25.10 `VirtInstanceEntry.status` and v26 `ContainerStatusState`
+    // (`'RUNNING' | 'STOPPED'`). The lower-case state enums in the generated
+    // tree — `AppContainerDetailsState`, `State` — belong to app container
+    // details and never reach this function.
+    //
+    // So `toUpperCase()` guards against a widening nobody has made yet. It
+    // costs nothing and keeps a lower-case value from silently becoming
+    // `Stopped`, which is the failure that would be hardest to spot.
     expect(toAppState('running')).toBe(AppState.Running);
     expect(toAppState('Starting')).toBe(AppState.Deploying);
   });
