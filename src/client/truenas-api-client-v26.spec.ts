@@ -1,9 +1,8 @@
 import { firstValueFrom, of, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+import type { v26_0_0 } from '@/generated';
 import { AppState } from '@/types/app-query.type';
 import { ApiVersion } from '@/types/api-version.type';
-import { ContainerQueryV26 } from '@/types/container.type';
 import { Job, JobState } from '@/types/job.type';
 import { TrueNasApiClientV26 } from './truenas-api-client-v26';
 
@@ -36,14 +35,14 @@ describe('TrueNasApiClientV26', () => {
       description: 'my container',
       autostart: true,
       status: { state: 'RUNNING' },
-    } as unknown as ContainerQueryV26;
-    const callSpy = vi
-      .spyOn(client.api, 'call')
+    } as unknown as v26_0_0.ContainerEntry;
+    const querySpy = vi
+      .spyOn(client.api, 'query')
       .mockReturnValue(of([container]) as never);
 
     const result = await firstValueFrom(client.ops.containerQuery());
 
-    expect(callSpy).toHaveBeenCalledWith(TrueNasEndpoint.ContainerQuery, [[]]);
+    expect(querySpy).toHaveBeenCalledWith('container.query');
     expect(result).toEqual([
       {
         id: '5',
@@ -62,7 +61,7 @@ describe('TrueNasApiClientV26', () => {
 
     const result = await firstValueFrom(client.ops.containerStart('5'));
 
-    expect(callSpy).toHaveBeenCalledWith(TrueNasEndpoint.ContainerStart, [5]);
+    expect(callSpy).toHaveBeenCalledWith('container.start', [5]);
     expect(result).toBeNull();
   });
 
@@ -77,7 +76,7 @@ describe('TrueNasApiClientV26', () => {
       client.ops.containerStop('5', { force: true })
     );
 
-    expect(callJobSpy).toHaveBeenCalledWith(TrueNasEndpoint.ContainerStop, [
+    expect(callJobSpy).toHaveBeenCalledWith('container.stop', [
       5,
       { force: true, force_after_timeout: true },
     ]);
@@ -99,11 +98,11 @@ describe('TrueNasApiClientV26', () => {
     );
 
     // stop first (with the job update), then start (null)
-    expect(callJobSpy).toHaveBeenCalledWith(TrueNasEndpoint.ContainerStop, [
+    expect(callJobSpy).toHaveBeenCalledWith('container.stop', [
       5,
       { force: false, force_after_timeout: false },
     ]);
-    expect(callSpy).toHaveBeenCalledWith(TrueNasEndpoint.ContainerStart, [5]);
+    expect(callSpy).toHaveBeenCalledWith('container.start', [5]);
     expect(emissions).toEqual([job, null]);
   });
 });

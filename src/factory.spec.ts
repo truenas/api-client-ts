@@ -6,7 +6,7 @@ import { VersionTooOldError } from '@/errors/version-discovery.errors';
 import { apiVersionConfig } from '@/config/api-version.config';
 import {
   SUPPORTED_API_VERSIONS,
-  type ApiCallDirectoryV26_0_0,
+  type ApiDirectoryV26_0_0,
 } from '@/generated';
 import { VersionCompatibility } from '@/types/api-version.type';
 import {
@@ -81,7 +81,7 @@ describe('createTrueNasClient', () => {
   it('builds the discovered version, not the declared one', async () => {
     fetchMock.mockResolvedValue(fakeResponse(['v25.10.1']));
 
-    const client = await createTrueNasClient<ApiCallDirectoryV26_0_0>({
+    const client = await createTrueNasClient<ApiDirectoryV26_0_0>({
       uuid: 'uuid-1234',
       hostnames: ['box'],
       enabled: false,
