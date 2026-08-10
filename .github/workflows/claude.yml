@@ -35,6 +35,26 @@ jobs:
         id: schema
         run: echo "json=$(jq -c . .github/review-schema.json)" >> "$GITHUB_OUTPUT"
 
+      # Resolution state is GraphQL-only, so this runs with the job's token and
+      # hands the reviewer a file. It gains no new tool permissions.
+      - name: Collect prior review threads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          OUT_FILE: .github/prior-review-threads.md
+        run: node .github/scripts/collect-review-threads.mjs
+
+      # The sticky comment still shows the previous round's findings until this
+      # one finishes. Say so on it, rather than letting it read as current.
+      - name: Mark the previous review stale
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          OUT_FILE: .github/review-marker.md
+        run: node .github/scripts/mark-review-stale.mjs
+
       - name: Automatic PR Review
         id: review
         uses: anthropics/claude-code-action@v1.0.187
@@ -68,9 +88,22 @@ jobs:
             at five summaries cannot tell which one describes the code in
             front of them.
 
-            Before adding an inline comment, check whether an unresolved thread
-            already makes the same point — `gh pr view <number> --comments`.
-            Reply in that thread rather than opening a second one.
+            The threads already on this PR are listed below, with whether each
+            was resolved. A resolved thread is a decision someone made, not an
+            oversight — do not reopen it, and do not restate it in the prose
+            unless this push changed the code it points at. An unresolved one
+            you would repeat is a thread to reply in rather than a second
+            thread to open.
+
+            Neither case removes a finding from the structured output. While a
+            finding is still true it stays in that list at its own severity,
+            resolved or not: the gate scores that list and nothing else, so
+            suppressing one there is how an outstanding finding turns the check
+            green. Deduplicate threads and prose, never findings.
+
+            {{file:.github/prior-review-threads.md}}
+
+            {{file:.github/review-marker.md}}
 
             Neither comment substitutes for the structured output, which is
             what the gate reads. The same findings appear in both, at the same
