@@ -33,6 +33,7 @@ const QUERY = `
             isOutdated
             path
             line
+            originalLine
             opening: comments(first: 1) {
               nodes {
                 body
@@ -59,9 +60,13 @@ const summarise = (body) => {
 };
 
 const describe = (t) => {
-  // `isOutdated` is the API's own answer. A null `line` means a file-level
-  // thread, which is a different thing and was being labelled as outdated.
-  const at = t.line ? `${t.path}:${t.line}` : `${t.path} (whole file)`;
+  // `line` is null for an outdated thread *and* for a file-level one, so it
+  // cannot tell them apart on its own — the previous version called every
+  // outdated thread "whole file". `originalLine` survives the line going away,
+  // so a line and no line is the real distinction; `isOutdated` is separate
+  // from both and is the API's own answer.
+  const anchor = t.line ?? t.originalLine;
+  const at = anchor ? `${t.path}:${anchor}` : `${t.path} (whole file)`;
   const where = t.isOutdated ? `${at} — outdated` : at;
 
   const opening = t.opening?.nodes?.[0];

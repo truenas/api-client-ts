@@ -124,11 +124,16 @@ jobs:
 
             The threads already on this PR are listed below, with whether each
             was resolved. A resolved thread is a decision someone made, not an
-            oversight — do not raise it again unless this push changed the code
-            it points at. An unresolved one you would repeat is a thread to
-            reply in rather than a second thread to open, but it still belongs
-            in the structured output at its own severity: the gate scores that
-            list and nothing else.
+            oversight — do not reopen it, and do not restate it in the prose
+            unless this push changed the code it points at. An unresolved one
+            you would repeat is a thread to reply in rather than a second
+            thread to open.
+
+            Neither case removes a finding from the structured output. While a
+            finding is still true it stays in that list at its own severity,
+            resolved or not: the gate scores that list and nothing else, so
+            suppressing one there is how an outstanding finding turns the check
+            green. Deduplicate threads and prose, never findings.
 
             {{file:.github/prior-review-threads.md}}
 

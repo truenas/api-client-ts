@@ -49,10 +49,16 @@ try {
 
   if (!summary) {
     console.log('No previous review summary to mark; nothing to do.');
-  } else if (summary.body.startsWith(BANNER)) {
-    console.log('Already marked stale.');
   } else {
-    const reviewed = MARKER.exec(summary.body)[1];
+    // Strip any banner a previous run left before deciding, rather than
+    // treating its presence as "already handled". A cancelled review leaves one
+    // behind, and the next push would then keep a banner naming a commit two
+    // pushes old — a staleness notice that is itself stale.
+    const stripped = summary.body.startsWith(BANNER)
+      ? summary.body.replace(/^> \[!WARNING\][\s\S]*?\n\n\n/, '')
+      : summary.body;
+
+    const reviewed = MARKER.exec(stripped)[1];
 
     if (head.startsWith(reviewed) || reviewed.startsWith(head.slice(0, 7))) {
       console.log(`Summary already describes ${head.slice(0, 7)}; not marking.`);
@@ -68,7 +74,7 @@ try {
 
       await api(`/issues/comments/${summary.id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ body: banner + summary.body }),
+        body: JSON.stringify({ body: banner + stripped }),
       });
       console.log(`Marked the summary for ${reviewed.slice(0, 7)} as superseded by ${head.slice(0, 7)}.`);
     }
