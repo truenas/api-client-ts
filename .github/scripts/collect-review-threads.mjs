@@ -25,12 +25,19 @@ const QUERY = `
     repository(owner: $owner, name: $repo) {
       pullRequest(number: $number) {
         reviewThreads(first: 100) {
+          pageInfo { hasNextPage }
           nodes {
             isResolved
             isOutdated
             path
             line
-            comments(first: 1) {
+            opening: comments(first: 1) {
+              nodes {
+                body
+                author { login }
+              }
+            }
+            latest: comments(last: 1) {
               nodes {
                 body
                 author { login }
@@ -50,13 +57,26 @@ const summarise = (body) => {
 };
 
 const describe = (t) => {
-  const where = t.line ? `${t.path}:${t.line}` : `${t.path} (outdated)`;
-  const first = t.comments?.nodes?.[0];
-  const who = first?.author?.login ?? 'unknown';
-  return `- \`${where}\` — @${who} — ${summarise(first?.body)}`;
+  // `isOutdated` is the API's own answer. A null `line` means a file-level
+  // thread, which is a different thing and was being labelled as outdated.
+  const at = t.line ? `${t.path}:${t.line}` : `${t.path} (whole file)`;
+  const where = t.isOutdated ? `${at} — outdated` : at;
+
+  const opening = t.opening?.nodes?.[0];
+  const latest = t.latest?.nodes?.[0];
+  const lines = [
+    `- \`${where}\` — @${opening?.author?.login ?? 'unknown'} — ${summarise(opening?.body)}`,
+  ];
+
+  // The last comment is where a human says why they disagreed, which is the
+  // half that makes a resolved thread worth reading rather than just counting.
+  if (latest && latest.body !== opening?.body) {
+    lines.push(`  - reply from @${latest.author?.login ?? 'unknown'}: ${summarise(latest.body)}`);
+  }
+  return lines.join('\n');
 };
 
-const render = (threads) => {
+const render = (threads, truncated) => {
   const resolved = threads.filter((t) => t.isResolved);
   const open = threads.filter((t) => !t.isResolved);
 
@@ -71,6 +91,16 @@ const render = (threads) => {
     `${threads.length} thread(s): ${open.length} unresolved, ${resolved.length} resolved.`,
     ''
   );
+
+  // Silently showing the first 100 of 140 would read as a complete history and
+  // let the rest be duplicated, so say it rather than imply completeness.
+  if (truncated) {
+    lines.push(
+      '**This list is truncated at 100 threads.** Treat anything not named here',
+      'as unknown rather than absent, and prefer replying to opening a thread.',
+      ''
+    );
+  }
 
   if (resolved.length) {
     lines.push(
@@ -91,8 +121,12 @@ const render = (threads) => {
       '### Unresolved — reply in the thread, do not open a second one',
       '',
       'These are still open. If a finding you are about to make is one of them,',
-      'add to that thread instead of creating a new one, and leave it out of the',
-      'summary unless something about it changed.',
+      'add to that thread instead of creating a new one.',
+      '',
+      '**It still belongs in the structured output, at its own severity.** The',
+      'gate scores that list and nothing else, so omitting a live MEDIUM because',
+      'it already has a thread is how an outstanding finding turns the check',
+      'green. Deduplicate threads, never findings.',
       '',
       ...open.map(describe)
     );
@@ -144,10 +178,11 @@ try {
     throw new Error(payload.errors.map((e) => e.message).join('; '));
   }
 
-  const threads = payload.data?.repository?.pullRequest?.reviewThreads?.nodes;
+  const reviewThreads = payload.data?.repository?.pullRequest?.reviewThreads;
+  const threads = reviewThreads?.nodes;
   if (!Array.isArray(threads)) throw new Error('no reviewThreads in the response');
 
-  body = render(threads);
+  body = render(threads, Boolean(reviewThreads.pageInfo?.hasNextPage));
   console.log(`Collected ${threads.length} review thread(s) for #${number}.`);
 } catch (error) {
   body = fail(error.message);

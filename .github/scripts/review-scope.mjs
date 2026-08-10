@@ -10,10 +10,14 @@
  * three rounds. Scoping the re-read to the push is what makes the rounds
  * shrink as the changes shrink.
  *
- * `github.event.before` is the previous head of the branch on a `synchronize`,
- * which is exactly "what this push added". It is unusable after a force-push or
- * rebase — the sha stops being an ancestor, or stops existing — and the honest
- * answer there is a full re-read, not a diff against something that is gone.
+ * The diff is `github.event.before..github.event.after` — the branch tips this
+ * push moved between. Not `HEAD`: on a `pull_request` event that is
+ * refs/pull/N/merge, so diffing to it would report every base-branch commit
+ * since the branch point as part of the push.
+ *
+ * `before` is unusable after a force-push or rebase — it stops existing, or
+ * stops being an ancestor, and both are checked. The honest answer there is a
+ * full re-read, not a diff against two diverged states.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -33,11 +37,11 @@ const full = (why) =>
     'Review the full diff against the base branch.',
   ].join('\n');
 
-const scoped = (before, files) =>
+const scoped = (before, after, files) =>
   [
     '## What to review',
     '',
-    `**Only what changed since the last review**, which is \`${before.slice(0, 7)}..HEAD\`:`,
+    `**Only what changed since the last review**, which is \`${before.slice(0, 7)}..${after.slice(0, 7)}\`:`,
     '',
     ...files.map((f) => `- \`${f}\``),
     '',
@@ -98,6 +102,7 @@ const reviewedAndGreen = async (sha) => {
 const out = process.env.OUT_FILE;
 const action = process.env.EVENT_ACTION;
 const before = process.env.EVENT_BEFORE;
+const after = process.env.EVENT_AFTER;
 
 let body;
 let reviewed = { ok: true };
@@ -118,19 +123,36 @@ if (action !== 'synchronize') {
   console.log(`::warning::full review: ${before.slice(0, 7)} was not reviewed (${reviewed.why})`);
 } else {
   try {
-    // A shallow checkout will not have it; ask for just that one commit.
-    try {
-      git('cat-file', '-e', `${before}^{commit}`);
-    } catch {
-      git('fetch', '--depth=1', 'origin', before);
-      git('cat-file', '-e', `${before}^{commit}`);
+    // NOT HEAD. actions/checkout resolves a pull_request event to
+    // refs/pull/N/merge, so HEAD is the PR merged into the base — diffing to it
+    // reports every base-branch commit since the branch point as part of this
+    // push. `github.event.after` is the branch tip the push actually created.
+    if (!after) throw new Error('github.event.after was not reported');
+
+    // A shallow checkout has neither; ask for just those commits.
+    for (const sha of [before, after]) {
+      try {
+        git('cat-file', '-e', `${sha}^{commit}`);
+      } catch {
+        git('fetch', '--depth=1', 'origin', sha);
+        git('cat-file', '-e', `${sha}^{commit}`);
+      }
     }
 
-    const files = git('diff', '--name-only', `${before}..HEAD`).split('\n').filter(Boolean);
+    // Existence is not ancestry. A rebase can leave `before` fetchable while it
+    // is no longer on the branch, and `before..after` between diverged commits
+    // is a diff of two unrelated states rather than of this push.
+    try {
+      git('merge-base', '--is-ancestor', before, after);
+    } catch {
+      throw new Error(`${before.slice(0, 7)} is not an ancestor of ${after.slice(0, 7)}`);
+    }
+
+    const files = git('diff', '--name-only', `${before}..${after}`).split('\n').filter(Boolean);
 
     body = files.length
-      ? scoped(before, files)
-      : full(`No files differ between \`${before.slice(0, 7)}\` and HEAD.`);
+      ? scoped(before, after, files)
+      : full(`No files differ between \`${before.slice(0, 7)}\` and \`${after.slice(0, 7)}\`.`);
   } catch (error) {
     // Force-push, rebase, or a commit that is simply gone. Falling back to the
     // whole PR is the safe direction: it costs a longer review, where guessing
