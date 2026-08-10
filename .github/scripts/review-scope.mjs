@@ -129,12 +129,15 @@ if (action !== 'synchronize') {
     // push. `github.event.after` is the branch tip the push actually created.
     if (!after) throw new Error('github.event.after was not reported');
 
-    // A shallow checkout has neither; ask for just those commits.
+    // A shallow checkout has neither. `--depth=1` would fetch the commit but
+    // none of its history, and `merge-base --is-ancestor` needs the history —
+    // so the fetch would satisfy the existence check and then fail ancestry in
+    // exactly the case it was there to rescue. Deepen instead.
     for (const sha of [before, after]) {
       try {
         git('cat-file', '-e', `${sha}^{commit}`);
       } catch {
-        git('fetch', '--depth=1', 'origin', sha);
+        git('fetch', '--deepen=50', 'origin', sha);
         git('cat-file', '-e', `${sha}^{commit}`);
       }
     }
