@@ -59,6 +59,17 @@ jobs:
           OUT_FILE: .github/review-scope.md
         run: node .github/scripts/review-scope.mjs
 
+      # The sticky comment still shows the previous round's findings until this
+      # one finishes. Say so on it, rather than letting it read as current.
+      - name: Mark the previous review stale
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          OUT_FILE: .github/review-marker.md
+        run: node .github/scripts/mark-review-stale.mjs
+
       - name: Automatic PR Review
         id: review
         uses: anthropics/claude-code-action@v1.0.187
@@ -120,6 +131,8 @@ jobs:
             list and nothing else.
 
             {{file:.github/prior-review-threads.md}}
+
+            {{file:.github/review-marker.md}}
 
             Neither comment substitutes for the structured output, which is
             what the gate reads. The same findings appear in both, at the same
