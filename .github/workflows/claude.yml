@@ -22,10 +22,6 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
-      # review-scope.mjs asks whether the previous head's review passed. Without
-      # this the Checks API read works only while the repo is public, and would
-      # degrade to a full review the day it stops being.
-      checks: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,17 +43,6 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           OUT_FILE: .github/prior-review-threads.md
         run: node .github/scripts/collect-review-threads.mjs
-
-      # Bounds a re-run by the size of the push rather than the size of the PR.
-      # Falls back to the whole diff whenever the previous head is unusable.
-      - name: Determine review scope
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT_ACTION: ${{ github.event.action }}
-          EVENT_BEFORE: ${{ github.event.before }}
-          EVENT_AFTER: ${{ github.event.after }}
-          OUT_FILE: .github/review-scope.md
-        run: node .github/scripts/review-scope.mjs
 
       # The sticky comment still shows the previous round's findings until this
       # one finishes. Say so on it, rather than letting it read as current.
@@ -107,8 +92,6 @@ jobs:
 
             Please review this pull request using the guidelines below.
             It should be already checked out in the current directory.
-
-            {{file:.github/review-scope.md}}
 
             Put each finding that has a file and line on that line, as an
             inline comment. Use one top-level comment for the summary and
