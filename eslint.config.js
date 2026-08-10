@@ -12,7 +12,12 @@ export default tseslint.config(
     languageOptions: {
       // `fetch` is global from Node 18; the CI helpers call the GitHub API with
       // it rather than pulling in a client.
-      globals: { process: 'readonly', console: 'readonly', fetch: 'readonly' },
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+      },
     },
   },
 );

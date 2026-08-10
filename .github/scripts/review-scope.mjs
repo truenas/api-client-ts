@@ -54,6 +54,11 @@ const scoped = (before, after, files) =>
     'change above *makes* it wrong — a caller these edits broke, a doc these',
     'edits falsified — or if it is a BLOCKER or HIGH, which is worth breaking',
     'any scoping rule for. Say which exception you are using.',
+    '',
+    'This bounds where you go looking. It does not remove anything from the',
+    'structured output: a finding already open on this PR stays in that list at',
+    'its own severity while it is true, in scope or not, because the gate scores',
+    'that list and nothing else.',
   ].join('\n');
 
 /**
@@ -100,6 +105,12 @@ const reviewedAndGreen = async (sha) => {
 };
 
 const out = process.env.OUT_FILE;
+// Checked before anything else, as in the sibling script: with no path to write
+// to there is nowhere to report a failure, so failing quietly is not an option.
+if (!out) {
+  console.log('::error::OUT_FILE is not set, so the review scope cannot be written');
+  process.exit(1);
+}
 const action = process.env.EVENT_ACTION;
 const before = process.env.EVENT_BEFORE;
 const after = process.env.EVENT_AFTER;

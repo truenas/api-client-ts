@@ -163,9 +163,13 @@ const token = process.env.GH_TOKEN;
 const out = process.env.OUT_FILE;
 
 /**
- * Never fail the job, and never write a file that reads as "nothing was ever
- * raised" when the truth is "the lookup broke". A blank history is a licence to
- * repeat every previous finding, so an error has to say it is an error.
+ * Never fail the job *for a lookup problem*, and never write a file that reads
+ * as "nothing was ever raised" when the truth is "the lookup broke". A blank
+ * history is a licence to repeat every previous finding, so an error has to say
+ * it is an error.
+ *
+ * The two exceptions are deliberate and both are "there is nowhere to report
+ * this": an unset OUT_FILE, and a write that itself fails.
  */
 const fail = (why) =>
   [
