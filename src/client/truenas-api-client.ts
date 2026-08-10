@@ -17,16 +17,22 @@ import { TrueNasConnection } from '@/connection/truenas-connection';
 import { Logger, noopLogger } from '@/logger';
 import { ApiVersion } from '@/types/api-version.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
-import type { QueryDirectory } from '@/types/query.type';
+import type {
+  ApiDirectoryShape,
+  BaseApiDirectory,
+} from '@/types/api-directory.type';
 import { getWebSocketPath } from '@/utils/api-version.utils';
 
 /**
- * @typeParam Dir - the generated call directory the query verbs are typed
- * against. Defaults to {@link QueryDirectory}, the entries identical in every
- * generated version; a version-specific subclass substitutes its own family's
- * directory to reach the methods the shared base cannot include.
+ * @typeParam D - the generated API surface this client is typed against —
+ * `call`, `job` and `event` together. Defaults to {@link BaseApiDirectory},
+ * the entries identical in every generated version; a version-specific
+ * subclass substitutes its own family's surface to reach the methods the
+ * shared base cannot include.
  */
-export abstract class TrueNasApiClient<Dir = QueryDirectory> {
+export abstract class TrueNasApiClient<
+  D extends ApiDirectoryShape = BaseApiDirectory,
+> {
   /** API version information for this client */
   readonly version: ApiVersion;
 
@@ -37,7 +43,7 @@ export abstract class TrueNasApiClient<Dir = QueryDirectory> {
   readonly authenticator: TrueNasAuthenticator;
 
   /** API call handler */
-  readonly api: TrueNasApi<Dir>;
+  readonly api: TrueNasApi<D>;
 
   /**
    * Version-agnostic operation mappings
@@ -147,8 +153,8 @@ export abstract class TrueNasApiClient<Dir = QueryDirectory> {
    * Factory method to create the API handler.
    * Override in subclasses to provide version-specific API implementations.
    */
-  protected createApi(): TrueNasApi<Dir> {
-    return new TrueNasApi<Dir>(this.authenticator.authenticated$, this.connection);
+  protected createApi(): TrueNasApi<D> {
+    return new TrueNasApi<D>(this.authenticator.authenticated$, this.connection);
   }
 
   /**

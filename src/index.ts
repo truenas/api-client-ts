@@ -43,15 +43,27 @@ export { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 export { consoleLogger, noopLogger } from '@/logger';
 export type { Logger } from '@/logger';
 
-// ── Method names + version-agnostic operations ───────────────────────────────
-export { TrueNasEndpoint } from '@/enums/truenas-endpoint.enum';
+// ── Version-agnostic operations ──────────────────────────────────────────────
 export type { OperationMappings } from '@/types/operation-mappings.interface';
+
+// ── Reading a version's surface ──────────────────────────────────────────────
+// The method names a client accepts come from the generated directories, so
+// there is no separate list of endpoint constants to import: pass the method
+// name as a string literal and the surface decides whether it exists.
 export type {
-  ApiCallDirectory,
-  ApiCallMethod,
-  ApiCallParams,
-  ApiCallResponse,
-} from '@/types/api-call-directory.type';
+  ApiDirectoryShape,
+  ArgsOf,
+  BaseApiDirectory,
+  CallMethod,
+  CallParams,
+  CallResponse,
+  EventKind,
+  EventName,
+  EventUnion,
+  JobMethod,
+  JobParams,
+  JobResult,
+} from '@/types/api-directory.type';
 export type {
   QueryDirectory,
   QueryEntity,
@@ -63,10 +75,15 @@ export type {
 // ── Core types ───────────────────────────────────────────────────────────────
 export { VersionCompatibility } from '@/types/api-version.type';
 export type { ApiVersion, ApiVersionResponse } from '@/types/api-version.type';
-export { JobState } from '@/types/job.type';
-export type { Job } from '@/types/job.type';
+export { isJobFinished, JobState } from '@/types/job.type';
+export type { Job, JobProgress } from '@/types/job.type';
+export type { TrueNasDate } from '@/types/truenas-date.type';
 export { getApiErrorMessage } from '@/types/api-error.type';
 export type { ApiError } from '@/types/api-error.type';
 export type { AuthResponse } from '@/types/auth.type';
 export type { Container } from '@/types/container.type';
+// Value export, not type-only: `Container.status` is an `AppState`, and
+// without the enum itself a consumer has nothing to compare it against —
+// they would have to re-declare the string literals and hope they match.
+export { AppState } from '@/types/app-query.type';
 export type { ApiKeyCreate } from '@/types/api-key-create.type';

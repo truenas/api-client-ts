@@ -78,12 +78,32 @@ export interface QueryOptions<T> {
  * The three cases are kept distinct on purpose:
  *
  *   select absent    -> `E`, every field present
- *   select literal   -> exactly those fields
+ *   select literal   -> at least those fields
  *   select unknown   -> `Partial<E>`, because fields MAY be missing
  *
  * The last one matters. Options built into a variable widen `select` to
  * `QueryFilterField<E>[] | undefined`, and claiming `E` there would promise
  * fields that a projection will not return.
+ *
+ * "At least those fields" rather than "exactly" is deliberate. Middleware
+ * honours `select` correctly on its *current* API version, and re-adds fields
+ * when a client talks to a newer server over an older API version: the
+ * version-adaptation step fills in every non-required field's default, so a
+ * projected row comes back padded. Measured on a 27.0.0 appliance, same box
+ * and credentials — over `/api/v26.0.0`, 25 of 44 query methods returned
+ * unrequested fields; over `/api/v27.0.0`, none did.
+ *
+ * The type stays sound either way — `Pick` is a supertype of what arrives, so
+ * a field it promises is never missing, and the padding is invisible rather
+ * than unsound. It is the payload size that is not guaranteed, which is
+ * usually the reason to reach for `select` in the first place.
+ *
+ * The mitigation is for the client's supported ceiling
+ * (`apiVersionConfig.MAX_SUPPORTED_VERSION`) to reach the newest release, so
+ * the negotiated version matches the appliance rather than lagging it. It
+ * currently lags on purpose, until a client exists for the newest version.
+ * One method ignores `select` natively regardless (`iscsi.initiator.query`)
+ * and is a plain server-side bug.
  */
 type SelectOf<O> = 'select' extends keyof O ? O['select'] : undefined;
 

@@ -447,6 +447,105 @@ describe('TrueNasConnection', () => {
   });
 
   describe('send()', () => {
+    /**
+     * The queueing path carries every request the API client makes — it routes
+     * through `send()` precisely so a call made before the handshake finishes
+     * is not lost — and only the already-connected case was covered.
+     */
+    const frame = (id: string): TrueNasMessage => ({
+      method: 'test.method',
+      id,
+      params: [],
+    });
+
+    /**
+     * Ids of the frames we queued, in send order. Filtered by method because
+     * the connection sends its own handshake frame on open, which is not what
+     * these are about.
+     */
+    const queuedIds = (nextSpy: { mock: { calls: unknown[][] } }) =>
+      nextSpy.mock.calls
+        .map(([m]) => m as TrueNasMessage)
+        .filter(m => m.method === 'test.method')
+        .map(m => m.id);
+
+    it('queues while disconnected and flushes in order once open', () => {
+      const connection = createConnection();
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+      const nextSpy = vi.spyOn(socket, 'next');
+
+      connection.send(frame('msg-1'));
+      connection.send(frame('msg-2'));
+      connection.send(frame('msg-3'));
+
+      // Nothing on the wire: the socket has not opened yet.
+      expect(queuedIds(nextSpy)).toEqual([]);
+
+      socket.simulateOpen();
+      socket.next(handshakeResponse);
+
+      expect(queuedIds(nextSpy)).toEqual(['msg-1', 'msg-2', 'msg-3']);
+      connection.close();
+    });
+
+    it('drops a queued message when its send is unsubscribed', () => {
+      const connection = createConnection();
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+      const nextSpy = vi.spyOn(socket, 'next');
+
+      connection.send(frame('kept-1'));
+      const abandoned = connection.send(frame('abandoned'));
+      connection.send(frame('kept-2'));
+
+      abandoned.unsubscribe();
+
+      socket.simulateOpen();
+      socket.next(handshakeResponse);
+
+      expect(queuedIds(nextSpy)).toEqual(['kept-1', 'kept-2']);
+      connection.close();
+    });
+
+    it('never flushes a message queued before close', () => {
+      const connection = createConnection();
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+      const nextSpy = vi.spyOn(socket, 'next');
+
+      connection.send(frame('msg-1'));
+      connection.close();
+      socket.simulateOpen();
+
+      expect(queuedIds(nextSpy)).toEqual([]);
+    });
+
+    /**
+     * `send` delivers to the *next* socket, once. Without the `take(1)` that
+     * makes that true, the queued frame would be re-delivered to every socket
+     * the connection opens afterwards, so a request would silently repeat on
+     * every reconnect — for a job method, that is the job running again.
+     */
+    it('delivers a queued message once, not again on the next socket', () => {
+      const connection = createConnection();
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+      const firstSpy = vi.spyOn(socket, 'next');
+
+      connection.send(frame('msg-1'));
+      socket.simulateOpen();
+      socket.next(handshakeResponse);
+      expect(queuedIds(firstSpy)).toEqual(['msg-1']);
+
+      // The socket dies and the connection replaces it.
+      socket.simulateClose(1006, '');
+      vi.advanceTimersByTime(0);
+      const newSocket = mockSocketInstances[mockSocketInstances.length - 1];
+      const secondSpy = vi.spyOn(newSocket, 'next');
+      newSocket.simulateOpen();
+      newSocket.next(handshakeResponse);
+
+      expect(queuedIds(secondSpy)).toEqual([]);
+      connection.close();
+    });
+
     it('delivers message to active socket', () => {
       const { connection, socket } = establishConnection();
       const nextSpy = vi.spyOn(socket, 'next');

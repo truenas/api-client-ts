@@ -73,11 +73,12 @@ export type QuerySingleOptions<E> = Omit<
   Forbid<'count' | 'get' | 'limit' | 'offset'>;
 
 /**
- * The directory a `TrueNasApi` types its verbs against.
+ * The call directory the query verbs resolve against on a client that has not
+ * committed to a version: `ApiCallDirectoryBase`, the entries whose signature
+ * is identical in every generated version.
  *
- * Defaults to `ApiCallDirectoryBase` — the entries whose signature is
- * identical in every generated version — so a client that has not committed to
- * a version is still sound. Version-specific clients substitute their own
- * family's directory to reach the methods the base cannot include.
+ * This is the `call` facet of `BaseApiDirectory`; a client parameterised with
+ * a version's `ApiDirectory` reaches that version's call directory instead,
+ * including the methods the shared base cannot contain.
  */
 export type QueryDirectory = ApiCallDirectoryBase;
