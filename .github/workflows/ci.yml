@@ -65,6 +65,21 @@ jobs:
       # No node-version: this takes the shared pin (24.13.1) rather than
       # floating on 24. The verify matrix above is where Node versions are
       # deliberately varied; the job that publishes should not drift.
+      #
+      # `@master`, knowingly, and this is the job where that costs the most:
+      # whatever is on that branch runs here with `contents: write`,
+      # `id-token: write` and NPM_TOKEN in reach, before `yarn build` and the
+      # publish. Anyone who can push to iXsystems/ux-github-workflows can
+      # therefore reach a released npm artifact — the same trust boundary the
+      # review workflow already runs under, in a job where the blast radius is
+      # a package rather than a red check.
+      #
+      # Pinning this one occurrence to a SHA was considered and rejected: there
+      # is no dependabot.yml in this repo, so the pin would never be bumped, and
+      # the publishing job would drift onto a stale `prepare` while verify and
+      # docs track master — silently, and in the direction that matters least.
+      # Adopt github-actions dependabot updates and pinning becomes the better
+      # trade; until then this is the honest one.
       - uses: iXsystems/ux-github-workflows/.github/actions/prepare@master
         with:
           yarn-cache: 'true'

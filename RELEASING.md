@@ -26,9 +26,19 @@ release, and npm publish are all derived from the commit history on `main`.
 
 ## What contributors do
 
-Just merge PRs with a **Conventional Commit title** — the `Validate PR Title`
-workflow enforces this, and a squash merge uses the PR title as the commit subject.
-Examples: `feat: add reconnect backoff`, `fix(auth): handle expired token`.
+Merge PRs with a title that satisfies **both** title checks, since a squash merge
+uses that title as the commit subject:
+
+- `Validate PR Title` — a **Conventional Commit** title, so semantic-release can
+  parse a type out of it and decide the release.
+- `Check Ticket` — a **TNC ticket key**. This is newer and stricter than what the
+  repo practised before; a title that would have merged last week can fail it.
+
+One title, read by two gates. The ticket goes in the `"<ticket> / <version> / "`
+prefix documented above, which the parser strips:
+
+    TNC-2194 / v2.1 / feat: add reconnect backoff
+    TNC-2188 / v2.1 / fix(auth): handle expired token
 
 `package.json` keeps `"version": "0.0.0"`; semantic-release computes the real version
 from tags at release time (do **not** hand-edit it).
