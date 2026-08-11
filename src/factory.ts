@@ -30,7 +30,11 @@ export type DefaultApiDirectory = ApiDirectoryV25_10_0;
 export interface CreateClientOptions {
   /** System UUID. */
   uuid: string;
-  /** Hostnames to connect to — primary first, then fallbacks. */
+  /**
+   * Hostnames to connect to. Order carries no precedence for version discovery
+   * (every hostname is asked at once); it only breaks ties when deciding which
+   * failure to report if none of them answer.
+   */
   hostnames: string[];
   /**
    * Initial connection gate. The client only opens a socket while this is `true`;
@@ -50,7 +54,8 @@ export interface CreateClientOptions {
 /**
  * Creates a version-specific TrueNAS API client.
  *
- * 1. Discovers the API version from the primary hostname (`GET /api/versions`).
+ * 1. Discovers the API version (`GET /api/versions`), asking every hostname in
+ *    parallel. The first usable answer wins.
  * 2. Selects the matching client implementation (`v25.10.x` -> `TrueNasApiClientV2510`,
  *    `v26.x.y` -> `TrueNasApiClientV26`).
  * 3. Instantiates and returns it.
@@ -86,6 +91,8 @@ export interface CreateClientOptions {
  *   it, so naming a method this surface does not have is a build error.
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
+ *   Rejects only if discovery failed on *every* hostname, with the most
+ *   informative of the per-hostname failures (see `selectRepresentativeFailure`).
  *   Rejects if `hostnames` is empty.
  */
 export async function createTrueNasClient<
@@ -100,22 +107,29 @@ export async function createTrueNasClient<
     );
   }
 
-  const primaryHostname = hostnames[0];
   const versionDiscovery = new VersionDiscovery(logger);
 
   logger.info('Creating versioned API client', {
     uuid: uuid.slice(0, 8),
-    hostname: primaryHostname,
+    hostnames: hostnames.join(', '),
     systemName,
   });
 
   let version: ApiVersion;
   try {
-    version = await firstValueFrom(
-      versionDiscovery.discoverVersion(primaryHostname)
+    const winner = await discoverVersionFromAnyHostname(
+      uuid,
+      hostnames,
+      versionDiscovery,
+      logger
     );
+    version = winner.version;
     logger.info('API version discovered, instantiating client', {
       uuid: uuid.slice(0, 8),
+      // Which hostname answered is log context only. The client is built with
+      // the full hostname list regardless — the websocket connection races all
+      // of them anyway.
+      hostname: winner.hostname,
       version: version.version,
       websocketPath: version.websocketPath,
     });
@@ -130,11 +144,15 @@ export async function createTrueNasClient<
     // have CORS enabled for the /api/versions endpoint, so discovery is
     // blocked there. This fallback MUST remain until v25.10.0 is no longer in
     // the supported range (i.e. once MIN_SUPPORTED_VERSION > v25.10.0).
+    //
+    // This still works unchanged with multi-hostname discovery: a network
+    // failure from *any* hostname is picked as the representative error, so we
+    // reach this branch whenever at least one box looked CORS-blocked.
     if (!(error instanceof VersionDiscoveryNetworkError)) {
       // For other errors (version too old/too new, invalid response, etc.), re-throw.
-      logger.error('Version discovery failed', {
+      logger.error('Version discovery failed on every hostname', {
         uuid: uuid.slice(0, 8),
-        hostname: primaryHostname,
+        hostnames: hostnames.join(', '),
         error: errorMessage,
         errorType:
           error instanceof Error ? error.constructor.name : typeof error,
@@ -148,7 +166,7 @@ export async function createTrueNasClient<
     if (!fallbackVersion) {
       logger.error('Invalid fallback version configuration', {
         uuid: uuid.slice(0, 8),
-        hostname: primaryHostname,
+        hostnames: hostnames.join(', '),
         fallbackVersion: fallbackVersionString,
       });
       throw error;
@@ -159,7 +177,7 @@ export async function createTrueNasClient<
         'network issue), falling back to assumed version',
       {
         uuid: uuid.slice(0, 8),
-        hostname: primaryHostname,
+        hostnames: hostnames.join(', '),
         fallbackVersion: fallbackVersionString,
         originalError: errorMessage,
         warning:
@@ -172,6 +190,80 @@ export async function createTrueNasClient<
   }
 
   return instantiateClientForVersion<D>(version, opts, logger);
+}
+
+/** A hostname that answered version discovery, and what it said. */
+interface DiscoverySuccess {
+  hostname: string;
+  version: ApiVersion;
+}
+
+/**
+ * Asks every hostname for the API version in parallel and takes the first
+ * usable answer.
+ *
+ * Every hostname on a system points at the same box, so whichever one answers
+ * first can be assumed to have given the same information as all the others.
+ * The only reason the failures are kept at all is the all-failed case, where we
+ * have to pick which error the caller sees and — crucially — whether the CORS
+ * fallback in `createTrueNasClient` gets a chance to fire.
+ *
+ * `Promise.any` is what makes this a fix rather than a reshuffle: it settles on
+ * the first *fulfilment*, so a hostname that fails fast (a refused connection
+ * resolves far quicker than a healthy round trip) cannot beat a good hostname
+ * to the answer, and a hostname that hangs until the 5s discovery timeout does
+ * not hold up a good one. A `Promise.all`-style collect-everything would
+ * reintroduce exactly the wait this removes.
+ *
+ * Losing attempts are not cancelled: `discoverVersion` is a `fetch` behind a
+ * `defer`, so there is nothing to abort from here. They run out their own 5s
+ * timeout unobserved, and their rejections are handled by `Promise.any`.
+ *
+ * @param uuid System UUID (for logging).
+ * @param hostnames Non-empty array of hostnames to try.
+ * @throws the representative failure if no hostname answered.
+ */
+async function discoverVersionFromAnyHostname(
+  uuid: string,
+  hostnames: string[],
+  versionDiscovery: VersionDiscovery,
+  logger: Logger
+): Promise<DiscoverySuccess> {
+  const attempts = hostnames.map(hostname =>
+    firstValueFrom(versionDiscovery.discoverVersion(hostname)).then(
+      (version): DiscoverySuccess => ({ hostname, version })
+    )
+  );
+
+  try {
+    return await Promise.any(attempts);
+  } catch (error) {
+    // `hostnames` is validated non-empty upstream, so this is always an
+    // AggregateError holding one rejection per hostname, in hostname order.
+    // The guard is for the impossible case rather than the expected one.
+    const failures = error instanceof AggregateError ? error.errors : [error];
+
+    logger.warn('Version discovery failed on all hostnames', {
+      uuid: uuid.slice(0, 8),
+      failedHostnames: hostnames.join(', '),
+    });
+
+    throw selectRepresentativeFailure(failures);
+  }
+}
+
+/**
+ * Pick which failure to surface when no hostname answered.
+ *
+ * an HTTP error 0 takes priority over every other error, since it would indicate
+ * a CORS error and we can fall back to the legacy API. otherwise, just return the
+ * first error.
+ */
+function selectRepresentativeFailure(failures: unknown[]): unknown {
+  return (
+    failures.find(error => error instanceof VersionDiscoveryNetworkError) ??
+    failures[0]
+  );
 }
 
 /** Constructor shape shared by every version-specific client. */
