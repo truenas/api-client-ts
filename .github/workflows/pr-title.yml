@@ -1,40 +1,28 @@
 name: Validate PR Title
 
+# The pattern now lives in iXsystems/ux-github-workflows, shared with
+# truenas-ui-components — the other repo releasing off a squashed PR title.
+#
+# **`.releaserc.json` still has to match it.** A squash merge uses this title as
+# the commit subject, and semantic-release parses it with
+# `parserOpts.headerPattern`. If the two disagree, a PR merges green and
+# publishes nothing. The shared pattern is:
+#
+#   ^(?:[^:]+ / )?(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(?:\(([^)]+)\))?!?: (.+)$
+#
+# which is what this repo's .releaserc.json already carries, in both
+# `headerPattern` and (with `!:`) `breakingHeaderPattern`. Changing one without
+# the other is the failure mode; there is nothing that can catch it for you.
+#
+# Reports as "pr-title / Validate Conventional Commit Title" now, not
+# "Validate Conventional Commit Title" — branch protection matches literally.
+
 on:
   pull_request_target:
     types: [opened, edited, synchronize]
 
-permissions:
-  pull-requests: read
-
 jobs:
-  validate:
-    name: Validate Conventional Commit Title
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check PR title
-        env:
-          # Passed via env (not interpolated into the script) to avoid shell injection.
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          # A squash merge uses the PR title as the commit subject, which
-          # semantic-release analyzes — so it must be a Conventional Commit
-          # (optionally prefixed with "<ticket> / <version> / "). Keep this pattern
-          # in sync with parserOpts.headerPattern in .releaserc.json: a title this
-          # gate accepts must parse to the same type over there, or the PR merges
-          # and silently publishes nothing.
-          #
-          # The optional prefix is [^:]+ rather than .+ so it cannot swallow the
-          # real type: in "fix: adjust a / b: c" a dot-plus prefix matches
-          # "fix: adjust a / " and leaves "b" as the type. Only cosmetic difference
-          # from .releaserc.json is the capturing groups — bash uses POSIX ERE,
-          # which has no (?:...).
-          pattern='^([^:]+ / )?(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]+\))?!?: .+$'
-          if [[ "$PR_TITLE" =~ $pattern ]]; then
-            echo "PR title OK: $PR_TITLE"
-          else
-            echo "::error::PR title must follow Conventional Commits, optionally prefixed with '<ticket> / <version> / '."
-            echo "::error::Examples: 'feat: add reconnect backoff' or 'fix(auth): handle expired token'."
-            echo "::error::Got: $PR_TITLE"
-            exit 1
-          fi
+  pr-title:
+    permissions:
+      pull-requests: read
+    uses: iXsystems/ux-github-workflows/.github/workflows/pr-title.yml@master
