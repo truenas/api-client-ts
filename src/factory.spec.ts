@@ -215,17 +215,15 @@ describe('createTrueNasClient', () => {
       expect(client.version.version).toBe('v25.10.0');
     });
 
-    it('prefers a network failure over any other failure', async () => {
-      // Deliberate: a network error is the only failure that can still yield a
-      // working client, so it outranks even an actionable "too old" answer.
+    it('perfers a versioning error over all other errors', async () => {
       mockPerHostname({
         'truenas1.local': () => Promise.resolve(fakeResponse(['v24.10.0'])),
         'truenas2.local': () => Promise.reject(new TypeError('Failed to fetch')),
       });
 
-      const client = await create(hostnames);
-
-      expect(client.version.version).toBe('v25.10.0');
+      await expect(create(hostnames)).rejects.toBeInstanceOf(
+        VersionTooOldError
+      );
     });
 
     it('reports the sole failure unchanged for a single hostname', async () => {
@@ -244,7 +242,7 @@ describe('createTrueNasClient', () => {
     it('surfaces the first failure when none is a network error', async () => {
       mockPerHostname({
         'truenas1.local': () => Promise.reject(abortError()),
-        'truenas2.local': () => Promise.resolve(fakeResponse(['v24.10.0'])),
+        'truenas2.local': () => Promise.reject(new Error('An unexpected error')),
       });
 
       await expect(create(hostnames)).rejects.toBeInstanceOf(
