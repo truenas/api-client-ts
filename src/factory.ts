@@ -145,9 +145,10 @@ export async function createTrueNasClient<
     // blocked there. This fallback MUST remain until v25.10.0 is no longer in
     // the supported range (i.e. once MIN_SUPPORTED_VERSION > v25.10.0).
     //
-    // This still works unchanged with multi-hostname discovery: a network
-    // failure from *any* hostname is picked as the representative error, so we
-    // reach this branch whenever at least one box looked CORS-blocked.
+    // NOTE: This fallback is reached if *all* version discovery attempts for each hostname
+    // fail to give a proper list of versions they support. In that case, `error` will
+    // be a `VersionDiscoveryNetworkError` or an explicitly unhandled error. In the unhandled case,
+    // we run the statement immediately below. In the network error case, we commence the fallback.
     if (!(error instanceof VersionDiscoveryNetworkError)) {
       // For other errors (version too old/too new, invalid response, etc.), re-throw.
       logger.error('Version discovery failed on every hostname', {
