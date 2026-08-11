@@ -1,120 +1,41 @@
 name: Claude Review
+
+# The review itself now lives in iXsystems/ux-github-workflows, as
+# claude-review-gated.yml. It is the same one this repo built — schema, rubric,
+# threshold gate, thread history, stale banner — moved so webui,
+# truenas-ui-components and truenas-connect/ui can call it too, and so a change
+# to the rubric or the gate happens once rather than four times.
+#
+# What moved out of this repo with it:
+#   .github/review-schema.json        -> review/schema.json there
+#   .github/scripts/*.mjs             -> review/*.mjs there
+#   the severity rubric               -> review/rubric.md there
+#   .github/workflows/check-team.yml  -> check-member.yml there, called by it
+#
+# `.claude/review-prompt.md` stays here, and is what this file's `prompt-file`
+# input points at by default. It says what to look for in *this* codebase; the
+# shared rubric is appended after it and says how to grade and report what turns
+# up. Do not put severity levels back in it — the gate scores the shared ones.
+#
+# The check names on this PR change with this: `check-team / Check Team
+# Membership` and `review` become `review / check-member / Check Member Access`
+# and `review / Automatic PR review`. Branch protection matches those strings,
+# so any required-check setting naming the old ones needs updating, or it will
+# wait forever on a check that no longer reports.
+
 on:
   pull_request:
     types: [opened, synchronize]
     branches:
       - main
-jobs:
-  check-team:
-    permissions:
-      contents: read
-    uses: ./.github/workflows/check-team.yml
 
+jobs:
   review:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [check-team]
-    if: |
-      needs.check-team.outputs.is_member == 'true' &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-claude')
+    uses: iXsystems/ux-github-workflows/.github/workflows/claude-review-gated.yml@master
     permissions:
       contents: read
       issues: write
       pull-requests: write
       id-token: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 10
-
-      # --json-schema takes the schema itself, not a path to it. Keeping the
-      # schema in its own file and compacting it here means there is still one
-      # source of truth, and it stays lintable and reviewable as JSON.
-      - name: Compact the review schema
-        id: schema
-        run: echo "json=$(jq -c . .github/review-schema.json)" >> "$GITHUB_OUTPUT"
-
-      # Resolution state is GraphQL-only, so this runs with the job's token and
-      # hands the reviewer a file. It gains no new tool permissions.
-      - name: Collect prior review threads
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          OUT_FILE: .github/prior-review-threads.md
-        run: node .github/scripts/collect-review-threads.mjs
-
-      # The sticky comment still shows the previous round's findings until this
-      # one finishes. Say so on it, rather than letting it read as current.
-      - name: Mark the previous review stale
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          OUT_FILE: .github/review-marker.md
-        run: node .github/scripts/mark-review-stale.mjs
-
-      - name: Automatic PR Review
-        id: review
-        uses: anthropics/claude-code-action@v1.0.187
-        with:
-          anthropic_api_key: ${{ secrets.CLAUDE_API_KEY }}
-          # No track_progress: it forces tag mode, which overrides allowedTools
-          # with a fixed list that cannot emit structured output, so
-          # --json-schema hangs. Agent mode passes tools through but posts
-          # nothing itself, hence gh and the inline-comment tool below.
-          claude_args: |
-            --model claude-opus-5
-            --json-schema '${{ steps.schema.outputs.json }}'
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
-          # No use_sticky_comment either — it only applies to tag mode.
-          prompt: |
-            REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
-
-            Please review this pull request using the guidelines below.
-            It should be already checked out in the current directory.
-
-            Put each finding that has a file and line on that line, as an
-            inline comment. Use one top-level comment for the summary and
-            anything not tied to a specific line, posted with:
-
-              gh pr comment <number> --edit-last --create-if-none --body-file -
-
-            `--edit-last` replaces your own previous summary instead of adding
-            another, and `--create-if-none` covers the first run. Without them
-            every re-run leaves its predecessor behind, and a reader arriving
-            at five summaries cannot tell which one describes the code in
-            front of them.
-
-            The threads already on this PR are listed below, with whether each
-            was resolved. A resolved thread is a decision someone made, not an
-            oversight — do not reopen it, and do not restate it in the prose
-            unless this push changed the code it points at. An unresolved one
-            you would repeat is a thread to reply in rather than a second
-            thread to open.
-
-            Neither case removes a finding from the structured output. While a
-            finding is still true it stays in that list at its own severity,
-            resolved or not: the gate scores that list and nothing else, so
-            suppressing one there is how an outstanding finding turns the check
-            green. Deduplicate threads and prose, never findings.
-
-            {{file:.github/prior-review-threads.md}}
-
-            {{file:.github/review-marker.md}}
-
-            Neither comment substitutes for the structured output, which is
-            what the gate reads. The same findings appear in both, at the same
-            severity.
-
-            {{file:.claude/review-prompt.md}}
-
-      - name: Enforce review threshold
-        # always(): a review step that fails must not skip the gate, or a broken
-        # reviewer reads as a clean bill of health.
-        if: always()
-        env:
-          FINDINGS: ${{ steps.review.outputs.structured_output }}
-        run: node .github/scripts/check-review-threshold.mjs
+    secrets:
+      anthropic-api-key: ${{ secrets.CLAUDE_API_KEY }}

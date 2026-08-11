@@ -28,12 +28,16 @@ jobs:
         node: [22, 24]
     steps:
       - uses: actions/checkout@v4
-      - run: corepack enable
-      - uses: actions/setup-node@v4
+      # setup-node + corepack + yarn cache + `yarn install --immutable`, in the
+      # one order that works. The local version had setup-node's own
+      # `cache: yarn`, which shells out to yarn before Corepack has run — it
+      # either fails or caches Yarn 1's directory for a Yarn 4 repo. The shared
+      # action resolves the folder with `yarn config get cacheFolder` after
+      # Corepack instead.
+      - uses: iXsystems/ux-github-workflows/.github/actions/prepare@master
         with:
-          node-version: ${{ matrix.node }}
-          cache: yarn
-      - run: yarn install --immutable
+          node-version: ${{ matrix.node }} # the matrix is the point here; floating majors stay floating
+          yarn-cache: 'true'
       - run: yarn typecheck
       - run: yarn lint
       - run: yarn test
@@ -58,12 +62,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: corepack enable
-      - uses: actions/setup-node@v4
+      # No node-version: this takes the shared pin (24.13.1) rather than
+      # floating on 24. The verify matrix above is where Node versions are
+      # deliberately varied; the job that publishes should not drift.
+      - uses: iXsystems/ux-github-workflows/.github/actions/prepare@master
         with:
-          node-version: 24
-          cache: yarn
-      - run: yarn install --immutable
+          yarn-cache: 'true'
       - run: yarn build
       - run: npx semantic-release
         env:

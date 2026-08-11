@@ -19,12 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: corepack enable
-      - uses: actions/setup-node@v4
+      - uses: iXsystems/ux-github-workflows/.github/actions/prepare@master
         with:
-          node-version: 24
-          cache: yarn
-      - run: yarn install --immutable
+          yarn-cache: 'true'
       - run: yarn docs
       - uses: actions/upload-pages-artifact@v3
         with:
