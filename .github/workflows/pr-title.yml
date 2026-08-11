@@ -12,7 +12,12 @@ name: Validate PR Title
 #
 # which is what this repo's .releaserc.json already carries, in both
 # `headerPattern` and (with `!:`) `breakingHeaderPattern`. Changing one without
-# the other is the failure mode; there is nothing that can catch it for you.
+# the other is the failure mode.
+#
+# scripts/release-config.spec.mts reads that pattern line out of this comment
+# and asserts .releaserc.json agrees with it, so keeping the two local halves in
+# step is caught. What is not caught is the shared repo changing its pattern
+# without this comment following — that one is on you.
 #
 # Reports as "pr-title / Validate Conventional Commit Title" now, not
 # "Validate Conventional Commit Title" — branch protection matches literally.
