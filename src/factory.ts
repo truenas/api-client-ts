@@ -145,10 +145,14 @@ export async function createTrueNasClient<
     // blocked there. This fallback MUST remain until v25.10.0 is no longer in
     // the supported range (i.e. once MIN_SUPPORTED_VERSION > v25.10.0).
     //
-    // NOTE: This fallback is reached if *all* version discovery attempts for each hostname
-    // fail to give a proper list of versions they support. In that case, `error` will
-    // be a `VersionDiscoveryNetworkError` or an explicitly unhandled error. In the unhandled case,
-    // we run the statement immediately below. In the network error case, we commence the fallback.
+    //
+    // NOTE: This is reached only when version discovery failed on *every*
+    // hostname. `error` is the one failure `selectRepresentativeFailure` chose
+    // as most informative, so it is a version-compatibility error if any
+    // hostname gave one, otherwise a `VersionDiscoveryNetworkError` if any
+    // hostname gave one, otherwise the first hostname's failure. Only the
+    // network-error case commences the fallback; everything else re-throws
+    // via the statement immediately below.
     if (!(error instanceof VersionDiscoveryNetworkError)) {
       // For other errors (version too old/too new, invalid response, etc.), re-throw.
       logger.error('Version discovery failed on every hostname', {
