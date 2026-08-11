@@ -17,11 +17,14 @@ name: Claude Review
 # shared rubric is appended after it and says how to grade and report what turns
 # up. Do not put severity levels back in it — the gate scores the shared ones.
 #
-# The check names on this PR change with this: `check-team / Check Team
-# Membership` and `review` become `review / check-member / Check Member Access`
-# and `review / Automatic PR review`. Branch protection matches those strings,
-# so any required-check setting naming the old ones needs updating, or it will
-# wait forever on a check that no longer reports.
+# Reports as `review / <job names in ux-github-workflows>` — two checks, since
+# the shared workflow runs the write-access gate as a job of its own, replacing
+# `check-team / Check Team Membership` and `review`. Branch protection matches
+# those whole strings, so the shared workflow's job names are API: renaming one
+# there silently stops the check reporting here. A required check that never
+# reports does not fail, it stays pending — the PR is unmergeable with nothing
+# red on it to explain why, which is also what happens to any required-check
+# setting still naming the old ones.
 
 on:
   pull_request:
