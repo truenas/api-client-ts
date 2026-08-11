@@ -84,7 +84,9 @@ export class VersionDiscovery {
       catchError((error: unknown) => {
         // Remove from cache on error to allow retry on next call.
         this.versionCache.delete(hostname);
-        this.logger.error('Version discovery failed', { hostname, error });
+        // since we're trying multiple hostnames, we expect a hostname
+        // to fail every once in a while. so, we `warn` here instead of `error`.
+        this.logger.warn('Version discovery failed', { hostname, error });
         return throwError(() => this.classify(error, hostname));
       }),
       shareReplay(1)

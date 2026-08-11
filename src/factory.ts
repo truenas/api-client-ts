@@ -4,7 +4,7 @@ import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { apiVersionConfig } from '@/config/api-version.config';
 import type { ApiDirectoryV25_10_0 } from '@/generated';
-import { VersionDiscoveryNetworkError } from '@/errors/version-discovery.errors';
+import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import type { ApiDirectoryShape } from '@/types/api-directory.type';
 import { ApiVersion } from '@/types/api-version.type';
@@ -253,16 +253,26 @@ async function discoverVersionFromAnyHostname(
 }
 
 /**
- * Pick which failure to surface when no hostname answered.
+ * Pick which failure to surface when no gave a usable version.
  *
- * an HTTP error 0 takes priority over every other error, since it would indicate
- * a CORS error and we can fall back to the legacy API. otherwise, just return the
- * first error.
+ * If there are any version compatibility errors, we choose those, since
+ * they give more information than a network error.
  */
 function selectRepresentativeFailure(failures: unknown[]): unknown {
+  const isVersionError = (error: unknown) =>
+    error instanceof VersionTooOldError
+    || error instanceof VersionTooNewError
+    || error instanceof NoCompatibleVersionsError;
+
+  const isNetworkError = (error: unknown) =>
+    error instanceof VersionDiscoveryNetworkError;
+
   return (
-    failures.find(error => error instanceof VersionDiscoveryNetworkError) ??
-    failures[0]
+    failures.find(isVersionError)
+    ?? failures.find(isNetworkError)
+    // this function is only ever called when there is definitely
+    // at least one error, so accessing the 0th element is fine here.
+    ?? failures[0]
   );
 }
 
