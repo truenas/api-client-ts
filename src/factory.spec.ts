@@ -215,7 +215,7 @@ describe('createTrueNasClient', () => {
       expect(client.version.version).toBe('v25.10.0');
     });
 
-    it('perfers a versioning error over all other errors', async () => {
+    it('prefers a versioning error over all other errors', async () => {
       mockPerHostname({
         'truenas1.local': () => Promise.resolve(fakeResponse(['v24.10.0'])),
         'truenas2.local': () => Promise.reject(new TypeError('Failed to fetch')),

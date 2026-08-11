@@ -253,7 +253,7 @@ async function discoverVersionFromAnyHostname(
 }
 
 /**
- * Pick which failure to surface when no gave a usable version.
+ * Pick which failure to surface when no hostname gave a usable version.
  *
  * If there are any version compatibility errors, we choose those, since
  * they give more information than a network error.
