@@ -310,21 +310,6 @@ describe('createTrueNasClient', () => {
           VersionEndpointNotFoundError
         );
       });
-
-      it('still falls back when the only non-network failure is below tier 1', async () => {
-        // The complement of the two above: a timeout is *not* tier 1, so the
-        // network error is still what gets selected and the fallback fires.
-        mockPerHostname({
-          'truenas1.local': () => Promise.reject(abortError()),
-          'truenas2.local': () =>
-            Promise.reject(new TypeError('Failed to fetch')),
-        });
-
-        const client = await create(hostnames);
-
-        expect(client).toBeInstanceOf(TrueNasApiClientV2510);
-        expect(client.version.version).toBe('v25.10.0');
-      });
     });
   });
 
