@@ -4,7 +4,7 @@ import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { apiVersionConfig } from '@/config/api-version.config';
 import type { ApiDirectoryV25_10_0 } from '@/generated';
-import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
+import { InvalidVersionResponseError, NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import type { ApiDirectoryShape } from '@/types/api-directory.type';
 import { ApiVersion } from '@/types/api-version.type';
@@ -91,7 +91,7 @@ export interface CreateClientOptions {
  *   it, so naming a method this surface does not have is a build error.
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
- *   Rejects only if discovery failed on *every* hostname, with the most
+ *   Rejects if discovery failed on *every* hostname, with the most
  *   informative of the per-hostname failures (see `selectRepresentativeFailure`).
  *   Rejects if `hostnames` is empty.
  */
@@ -118,7 +118,6 @@ export async function createTrueNasClient<
   let version: ApiVersion;
   try {
     const winner = await discoverVersionFromAnyHostname(
-      uuid,
       hostnames,
       versionDiscovery,
     );
@@ -223,12 +222,10 @@ interface DiscoverySuccess {
  * `defer`, so there is nothing to abort from here. They run out their own 5s
  * timeout unobserved, and their rejections are handled by `Promise.any`.
  *
- * @param uuid System UUID (for logging).
  * @param hostnames Non-empty array of hostnames to try.
  * @throws the representative failure if no hostname answered.
  */
 async function discoverVersionFromAnyHostname(
-  uuid: string,
   hostnames: string[],
   versionDiscovery: VersionDiscovery,
 ): Promise<DiscoverySuccess> {
@@ -257,9 +254,14 @@ async function discoverVersionFromAnyHostname(
  */
 function selectRepresentativeFailure(failures: unknown[]): unknown {
   const isVersionError = (error: unknown) =>
+    // cases: valid response, but the given versions won't work for us
     error instanceof VersionTooOldError
     || error instanceof VersionTooNewError
-    || error instanceof NoCompatibleVersionsError;
+    || error instanceof NoCompatibleVersionsError
+    // case: `/api/versions` gave us a 404
+    || error instanceof VersionEndpointNotFoundError
+    // case: the API responded, but it was malformed
+    || error instanceof InvalidVersionResponseError;
 
   const isNetworkError = (error: unknown) =>
     error instanceof VersionDiscoveryNetworkError;
