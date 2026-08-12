@@ -4,6 +4,7 @@ import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import {
   VersionDiscoveryTimeoutError,
+  VersionEndpointNotFoundError,
   VersionTooOldError,
 } from '@/errors/version-discovery.errors';
 import { apiVersionConfig } from '@/config/api-version.config';
@@ -251,6 +252,79 @@ describe('createTrueNasClient', () => {
       await expect(create(hostnames)).rejects.toBeInstanceOf(
         VersionDiscoveryTimeoutError
       );
+    });
+
+    /**
+     * These pin a coupling that is otherwise invisible from the call site.
+     *
+     * The CORS fallback in `createTrueNasClient` asks "is the *one selected*
+     * failure a network error?", not "did *any* hostname report a network
+     * error?". So membership of `selectRepresentativeFailure`'s top tier
+     * doubles as the fallback's off switch: any failure list holding both a
+     * tier-1 error and a `VersionDiscoveryNetworkError` skips the fallback and
+     * rejects instead of connecting to the CORS-blocked v25.10.0 box.
+     *
+     * That is the intended trade-off — a version verdict or a 404 says more
+     * than an unreachable host — but the fallback is load-bearing until
+     * MIN_SUPPORTED_VERSION > v25.10.0, and nothing else here fails when the
+     * tier moves. Adding an error type to `isVersionError` narrows the
+     * fallback; these tests are what make that narrowing loud.
+     */
+    describe('tier-1 errors suppress the CORS fallback (deliberate)', () => {
+      /**
+       * The error, or a short description of the client if the fallback fired.
+       *
+       * Never the client itself: when one of these assertions fails, vitest
+       * diffs the actual value, and a live `TrueNasApiClient` is cyclic enough
+       * to take the whole worker out with it — an OOM crash instead of a
+       * readable "expected X, got a v25.10 client".
+       */
+      async function outcomeOf(hosts: string[]): Promise<unknown> {
+        return create(hosts).then(
+          client =>
+            `fallback fired: ${client.constructor.name} @ ${client.version.version}`,
+          (error: unknown) => error
+        );
+      }
+
+      it('rejects rather than falling back when a version error accompanies a network error', async () => {
+        mockPerHostname({
+          // A real v24.10 box; the CORS-blocked v25.10.0 box is unreachable.
+          'truenas1.local': () => Promise.resolve(fakeResponse(['v24.10.0'])),
+          'truenas2.local': () =>
+            Promise.reject(new TypeError('Failed to fetch')),
+        });
+
+        expect(await outcomeOf(hostnames)).toBeInstanceOf(VersionTooOldError);
+      });
+
+      it('rejects rather than falling back when a 404 accompanies a network error', async () => {
+        mockPerHostname({
+          // A gateway/proxy or stale hostname that answers 404 on /api/versions.
+          'truenas1.local': () => Promise.resolve(fakeResponse(null, 404)),
+          'truenas2.local': () =>
+            Promise.reject(new TypeError('Failed to fetch')),
+        });
+
+        expect(await outcomeOf(hostnames)).toBeInstanceOf(
+          VersionEndpointNotFoundError
+        );
+      });
+
+      it('still falls back when the only non-network failure is below tier 1', async () => {
+        // The complement of the two above: a timeout is *not* tier 1, so the
+        // network error is still what gets selected and the fallback fires.
+        mockPerHostname({
+          'truenas1.local': () => Promise.reject(abortError()),
+          'truenas2.local': () =>
+            Promise.reject(new TypeError('Failed to fetch')),
+        });
+
+        const client = await create(hostnames);
+
+        expect(client).toBeInstanceOf(TrueNasApiClientV2510);
+        expect(client.version.version).toBe('v25.10.0');
+      });
     });
   });
 

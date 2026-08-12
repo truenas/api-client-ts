@@ -91,7 +91,7 @@ export interface CreateClientOptions {
  *   it, so naming a method this surface does not have is a build error.
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
- *   Rejects if version discovery on all hostnames did not yield a usable API version.
+ *   Rejects if version discovery on all hostnames *fails* and is not recoverable.
  *   Note that if a `VersionDiscoveryNetworkError` is thrown during version discovery,
  *   this function attempts to use a fallback API version (see `FALLBACK_VERSION`)
  *   because network errors are actually expected on 25.10.0 systems due to a CORS bug.
@@ -247,11 +247,11 @@ async function discoverVersionFromAnyHostname(
 /**
  * Pick which failure to surface when no hostname gave a usable version.
  *
- * If there are any version compatibility errors, we choose those, since
- * they give more information than a network error. `VersionEndpointNotFoundError`
- * is also yielded before anything else, since that gives a lot of information about the
- * system we're attempting to connect to. Network errors are prioritized secondly,
- * `InvalidVersionResponseError` thirdly, and everything else lastly.
+ * Three tiers, in order: an error that says something authoritative about the
+ * system (`VersionTooOldError`, `VersionTooNewError`, `NoCompatibleVersionsError`,
+ * `VersionEndpointNotFoundError`) - whichever of those comes first in hostname
+ * order; then any `VersionDiscoveryNetworkError`; then the first failure as-is.
+ * `InvalidVersionResponseError` gets no tier of its own - see the note below.
  */
 function selectRepresentativeFailure(failures: unknown[]): unknown {
   const isVersionError = (error: unknown) =>
