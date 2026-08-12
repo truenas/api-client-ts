@@ -243,12 +243,6 @@ async function discoverVersionFromAnyHostname(
     // AggregateError holding one rejection per hostname, in hostname order.
     // The guard is for the impossible case rather than the expected one.
     const failures = error instanceof AggregateError ? error.errors : [error];
-
-    logger.warn('Version discovery failed on all hostnames', {
-      uuid: uuid.slice(0, 8),
-      failedHostnames: hostnames.join(', '),
-    });
-
     throw selectRepresentativeFailure(failures);
   }
 }

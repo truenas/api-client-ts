@@ -172,7 +172,7 @@ export class VersionDiscovery {
       .filter((v): v is ApiVersion => v !== null);
 
     if (parsedVersions.length === 0) {
-      this.logger.error('No valid versions in response', {
+      this.logger.warn('No valid versions in response', {
         hostname,
         versionStrings,
       });
