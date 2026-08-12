@@ -4,7 +4,7 @@ import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { apiVersionConfig } from '@/config/api-version.config';
 import type { ApiDirectoryV25_10_0 } from '@/generated';
-import { VersionDiscoveryNetworkError } from '@/errors/version-discovery.errors';
+import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import type { ApiDirectoryShape } from '@/types/api-directory.type';
 import { ApiVersion } from '@/types/api-version.type';
@@ -30,7 +30,11 @@ export type DefaultApiDirectory = ApiDirectoryV25_10_0;
 export interface CreateClientOptions {
   /** System UUID. */
   uuid: string;
-  /** Hostnames to connect to — primary first, then fallbacks. */
+  /**
+   * Hostnames to connect to. Order carries no precedence for version discovery
+   * (every hostname is asked at once); it only breaks ties when deciding which
+   * failure to report if none of them answer.
+   */
   hostnames: string[];
   /**
    * Initial connection gate. The client only opens a socket while this is `true`;
@@ -50,7 +54,8 @@ export interface CreateClientOptions {
 /**
  * Creates a version-specific TrueNAS API client.
  *
- * 1. Discovers the API version from the primary hostname (`GET /api/versions`).
+ * 1. Discovers the API version (`GET /api/versions`), asking every hostname in
+ *    parallel. The first usable answer wins.
  * 2. Selects the matching client implementation (`v25.10.x` -> `TrueNasApiClientV2510`,
  *    `v26.x.y` -> `TrueNasApiClientV26`).
  * 3. Instantiates and returns it.
@@ -86,7 +91,12 @@ export interface CreateClientOptions {
  *   it, so naming a method this surface does not have is a build error.
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
- *   Rejects if `hostnames` is empty.
+ *   Rejects if version discovery on all hostnames *fails* and is not recoverable.
+ *   Note that when the selected failure is a `VersionDiscoveryNetworkError`,
+ *   this function attempts to use a fallback API version (see `FALLBACK_VERSION`)
+ *   because network errors are actually expected on 25.10.0 systems due to a CORS
+ *   bug. A network error alongside a version-compatibility error or a 404 does
+ *   *not* reach the fallback — see `selectRepresentativeFailure`.
  */
 export async function createTrueNasClient<
   D extends ApiDirectoryShape = DefaultApiDirectory,
@@ -100,22 +110,27 @@ export async function createTrueNasClient<
     );
   }
 
-  const primaryHostname = hostnames[0];
   const versionDiscovery = new VersionDiscovery(logger);
 
   logger.info('Creating versioned API client', {
     uuid: uuid.slice(0, 8),
-    hostname: primaryHostname,
+    hostnames: hostnames.join(', '),
     systemName,
   });
 
   let version: ApiVersion;
   try {
-    version = await firstValueFrom(
-      versionDiscovery.discoverVersion(primaryHostname)
+    const winner = await discoverVersionFromAnyHostname(
+      hostnames,
+      versionDiscovery,
     );
+    version = winner.version;
     logger.info('API version discovered, instantiating client', {
       uuid: uuid.slice(0, 8),
+      // Which hostname answered is log context only. The client is built with
+      // the full hostname list regardless — the websocket connection races all
+      // of them anyway.
+      hostname: winner.hostname,
       version: version.version,
       websocketPath: version.websocketPath,
     });
@@ -130,11 +145,17 @@ export async function createTrueNasClient<
     // have CORS enabled for the /api/versions endpoint, so discovery is
     // blocked there. This fallback MUST remain until v25.10.0 is no longer in
     // the supported range (i.e. once MIN_SUPPORTED_VERSION > v25.10.0).
+    //
+    // NOTE: This is reached only when version discovery on all hostnames
+    // failed to give us a usable API version. See `selectRepresentativeFailure`
+    // for how errors are selected.
+    // Basically: version compatibility and `VersionEndpointNotFoundError`
+    // errors are prioritized over network errors.
     if (!(error instanceof VersionDiscoveryNetworkError)) {
       // For other errors (version too old/too new, invalid response, etc.), re-throw.
-      logger.error('Version discovery failed', {
+      logger.error('Version discovery failed on every hostname', {
         uuid: uuid.slice(0, 8),
-        hostname: primaryHostname,
+        hostnames: hostnames.join(', '),
         error: errorMessage,
         errorType:
           error instanceof Error ? error.constructor.name : typeof error,
@@ -148,7 +169,7 @@ export async function createTrueNasClient<
     if (!fallbackVersion) {
       logger.error('Invalid fallback version configuration', {
         uuid: uuid.slice(0, 8),
-        hostname: primaryHostname,
+        hostnames: hostnames.join(', '),
         fallbackVersion: fallbackVersionString,
       });
       throw error;
@@ -159,7 +180,7 @@ export async function createTrueNasClient<
         'network issue), falling back to assumed version',
       {
         uuid: uuid.slice(0, 8),
-        hostname: primaryHostname,
+        hostnames: hostnames.join(', '),
         fallbackVersion: fallbackVersionString,
         originalError: errorMessage,
         warning:
@@ -172,6 +193,91 @@ export async function createTrueNasClient<
   }
 
   return instantiateClientForVersion<D>(version, opts, logger);
+}
+
+/** A hostname that answered version discovery, and what it said. */
+interface DiscoverySuccess {
+  hostname: string;
+  version: ApiVersion;
+}
+
+/**
+ * Asks every hostname for the API version in parallel and takes the first
+ * usable answer.
+ *
+ * Every hostname on a system points at the same box, so whichever one answers
+ * first can be assumed to have given the same information as all the others.
+ * The only reason the failures are kept at all is the all-failed case, where we
+ * have to pick which error the caller sees and — crucially — whether the CORS
+ * fallback in `createTrueNasClient` gets a chance to fire.
+ *
+ * `Promise.any` is what makes this a fix rather than a reshuffle: it settles on
+ * the first *fulfilment*, so a hostname that fails fast (a refused connection
+ * resolves far quicker than a healthy round trip) cannot beat a good hostname
+ * to the answer, and a hostname that hangs until the 5s discovery timeout does
+ * not hold up a good one. A `Promise.all`-style collect-everything would
+ * reintroduce exactly the wait this removes.
+ *
+ * Losing attempts are not cancelled: `discoverVersion` is a `fetch` behind a
+ * `defer`, so there is nothing to abort from here. They run out their own 5s
+ * timeout unobserved, and their rejections are handled by `Promise.any`.
+ *
+ * @param hostnames Non-empty array of hostnames to try.
+ * @throws the representative failure if no hostname answered.
+ */
+async function discoverVersionFromAnyHostname(
+  hostnames: string[],
+  versionDiscovery: VersionDiscovery,
+): Promise<DiscoverySuccess> {
+  const attempts = hostnames.map(hostname =>
+    firstValueFrom(versionDiscovery.discoverVersion(hostname)).then(
+      (version): DiscoverySuccess => ({ hostname, version })
+    )
+  );
+
+  try {
+    return await Promise.any(attempts);
+  } catch (error) {
+    // `hostnames` is validated non-empty upstream, so this is always an
+    // AggregateError holding one rejection per hostname, in hostname order.
+    // The guard is for the impossible case rather than the expected one.
+    const failures = error instanceof AggregateError ? error.errors : [error];
+    throw selectRepresentativeFailure(failures);
+  }
+}
+
+/**
+ * Pick which failure to surface when no hostname gave a usable version.
+ *
+ * Three tiers, in order: an error that says something authoritative about the
+ * system (`VersionTooOldError`, `VersionTooNewError`, `NoCompatibleVersionsError`,
+ * `VersionEndpointNotFoundError`) - whichever of those comes first in hostname
+ * order; then any `VersionDiscoveryNetworkError`; then the first failure as-is.
+ * `InvalidVersionResponseError` gets no tier of its own - see the note below.
+ */
+function selectRepresentativeFailure(failures: unknown[]): unknown {
+  const isVersionError = (error: unknown) =>
+    // cases: valid response, but the given versions won't work for us
+    error instanceof VersionTooOldError
+    || error instanceof VersionTooNewError
+    || error instanceof NoCompatibleVersionsError
+    // case: `/api/versions` gave us a 404
+    || error instanceof VersionEndpointNotFoundError
+
+  const isNetworkError = (error: unknown) =>
+    error instanceof VersionDiscoveryNetworkError;
+
+  // NOTE: despite its name, an `InvalidVersionResponseError`
+  // is thrown by `discoverVersion` as a sort of catch-all error.
+  // so, we can't really rely on it meaning much - as a result, we explicitly
+  // don't account for it here in this function.
+  return (
+    failures.find(isVersionError)
+    ?? failures.find(isNetworkError)
+    // this function is only ever called when there is definitely
+    // at least one error, so accessing the 0th element is fine here.
+    ?? failures[0]
+  );
 }
 
 /** Constructor shape shared by every version-specific client. */
