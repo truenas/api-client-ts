@@ -232,7 +232,6 @@ async function discoverVersionFromAnyHostname(
   uuid: string,
   hostnames: string[],
   versionDiscovery: VersionDiscovery,
-  logger: Logger
 ): Promise<DiscoverySuccess> {
   const attempts = hostnames.map(hostname =>
     firstValueFrom(versionDiscovery.discoverVersion(hostname)).then(
