@@ -92,9 +92,11 @@ export interface CreateClientOptions {
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
  *   Rejects if version discovery on all hostnames *fails* and is not recoverable.
- *   Note that if a `VersionDiscoveryNetworkError` is thrown during version discovery,
+ *   Note that when the selected failure is a `VersionDiscoveryNetworkError`,
  *   this function attempts to use a fallback API version (see `FALLBACK_VERSION`)
- *   because network errors are actually expected on 25.10.0 systems due to a CORS bug.
+ *   because network errors are actually expected on 25.10.0 systems due to a CORS
+ *   bug. A network error alongside a version-compatibility error or a 404 does
+ *   *not* reach the fallback — see `selectRepresentativeFailure`.
  */
 export async function createTrueNasClient<
   D extends ApiDirectoryShape = DefaultApiDirectory,
