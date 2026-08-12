@@ -241,8 +241,11 @@ describe('createTrueNasClient', () => {
 
     it('surfaces the first failure when none is a network error', async () => {
       mockPerHostname({
+        // case: both hostnames abort.
+        // note that a `TypeError` ends up turning into a network error
+        // via `classify`, so we can't use it for testing a no-network-errors case.
         'truenas1.local': () => Promise.reject(abortError()),
-        'truenas2.local': () => Promise.reject(new Error('An unexpected error')),
+        'truenas2.local': () => Promise.reject(new Error('Unexpected error')),
       });
 
       await expect(create(hostnames)).rejects.toBeInstanceOf(

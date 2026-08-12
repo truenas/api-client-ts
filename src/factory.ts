@@ -4,7 +4,7 @@ import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { apiVersionConfig } from '@/config/api-version.config';
 import type { ApiDirectoryV25_10_0 } from '@/generated';
-import { InvalidVersionResponseError, NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
+import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import type { ApiDirectoryShape } from '@/types/api-directory.type';
 import { ApiVersion } from '@/types/api-version.type';
@@ -91,9 +91,10 @@ export interface CreateClientOptions {
  *   it, so naming a method this surface does not have is a build error.
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
- *   Rejects if discovery failed on *every* hostname, with the most
- *   informative of the per-hostname failures (see `selectRepresentativeFailure`).
- *   Rejects if `hostnames` is empty.
+ *   Rejects if version discovery on all hostnames did not yield a usable API version.
+ *   Note that if a `VersionDiscoveryNetworkError` is thrown during version discovery,
+ *   this function attempts to use a fallback API version (see `FALLBACK_VERSION`)
+ *   because network errors are actually expected on 25.10.0 systems due to a CORS bug.
  */
 export async function createTrueNasClient<
   D extends ApiDirectoryShape = DefaultApiDirectory,
@@ -143,14 +144,11 @@ export async function createTrueNasClient<
     // blocked there. This fallback MUST remain until v25.10.0 is no longer in
     // the supported range (i.e. once MIN_SUPPORTED_VERSION > v25.10.0).
     //
-    //
-    // NOTE: This is reached only when version discovery failed on *every*
-    // hostname. `error` is the one failure `selectRepresentativeFailure` chose
-    // as most informative, so it is a version-compatibility error if any
-    // hostname gave one, otherwise a `VersionDiscoveryNetworkError` if any
-    // hostname gave one, otherwise the first hostname's failure. Only the
-    // network-error case commences the fallback; everything else re-throws
-    // via the statement immediately below.
+    // NOTE: This is reached only when version discovery on all hostnames
+    // failed to give us a usable API version. See `selectRepresentativeFailure`
+    // for how errors are selected.
+    // Basically: version compatibility and `VersionEndpointNotFoundError`
+    // errors are prioritized over network errors.
     if (!(error instanceof VersionDiscoveryNetworkError)) {
       // For other errors (version too old/too new, invalid response, etc.), re-throw.
       logger.error('Version discovery failed on every hostname', {
@@ -250,7 +248,10 @@ async function discoverVersionFromAnyHostname(
  * Pick which failure to surface when no hostname gave a usable version.
  *
  * If there are any version compatibility errors, we choose those, since
- * they give more information than a network error.
+ * they give more information than a network error. `VersionEndpointNotFoundError`
+ * is also yielded before anything else, since that gives a lot of information about the
+ * system we're attempting to connect to. Network errors are prioritized secondly,
+ * `InvalidVersionResponseError` thirdly, and everything else lastly.
  */
 function selectRepresentativeFailure(failures: unknown[]): unknown {
   const isVersionError = (error: unknown) =>
@@ -260,12 +261,14 @@ function selectRepresentativeFailure(failures: unknown[]): unknown {
     || error instanceof NoCompatibleVersionsError
     // case: `/api/versions` gave us a 404
     || error instanceof VersionEndpointNotFoundError
-    // case: the API responded, but it was malformed
-    || error instanceof InvalidVersionResponseError;
 
   const isNetworkError = (error: unknown) =>
     error instanceof VersionDiscoveryNetworkError;
 
+  // NOTE: despite its name, an `InvalidVersionResponseError`
+  // is thrown by `discoverVersion` as a sort of catch-all error.
+  // so, we can't really rely on it meaning much - as a result, we explicitly
+  // don't account for it here in this function.
   return (
     failures.find(isVersionError)
     ?? failures.find(isNetworkError)
