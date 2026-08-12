@@ -310,6 +310,19 @@ describe('createTrueNasClient', () => {
           VersionEndpointNotFoundError
         );
       });
+
+      it('still falls back when an invalid-response error accompanies a network error', async () => {
+        mockPerHostname({
+          // A proxy/gateway answering non-404, non-2xx -> InvalidVersionResponseError,
+          // which `selectRepresentativeFailure` deliberately leaves out of tier 1.
+          'truenas1.local': () => Promise.resolve(fakeResponse(null, 502)),
+          'truenas2.local': () => Promise.reject(new TypeError('Failed to fetch')),
+        });
+
+        expect(await outcomeOf(hostnames)).toBe(
+          'fallback fired: TrueNasApiClientV2510 @ v25.10.0'
+        );
+      });
     });
   });
 
