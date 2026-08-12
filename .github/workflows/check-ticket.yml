@@ -1,0 +1,30 @@
+name: Check Ticket
+
+# Requires every PR title to reference a TNC ticket. This is new policy, not a
+# formalisation of existing practice: 9 of the previous 30 merged PRs here had
+# a ticket. Expect it to fail on PRs that would have merged last week.
+#
+# The trigger lives here, so this caveat does too: PRs opened with the default
+# GITHUB_TOKEN never fire pull_request, so this would never run and never report —
+# unmergeable with no way to unblock it, if it is a required check. Automation
+# opening PRs here must use a PAT/app token.
+#
+# Reports as "check-ticket / <job name in ux-github-workflows>". Branch protection
+# matches that whole string, so the shared workflow's job name is API — renaming it
+# there silently stops this check reporting here.
+#
+# Separate from pr-title.yml on purpose. That one guards semantic-release, which
+# breaks in a different way and for different reasons; a title can satisfy one
+# and not the other.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  check-ticket:
+    permissions:
+      contents: read
+    uses: iXsystems/ux-github-workflows/.github/workflows/check-ticket.yml@master
+    with:
+      ticket-prefixes: TNC

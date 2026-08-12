@@ -12,28 +12,43 @@ const analyzerPath = (): string =>
 
 /**
  * A squash merge turns the PR title into the commit subject, so two separate
- * regexes see it: the gate in .github/workflows/pr-title.yml decides whether the
- * PR may merge, and parserOpts.headerPattern in .releaserc.json decides what
- * gets released. When they disagree the failure is silent — the PR merges and
- * semantic-release publishes nothing — so this asserts they stay in lockstep.
+ * regexes see it: the gate decides whether the PR may merge, and
+ * parserOpts.headerPattern in .releaserc.json decides what gets released. When
+ * they disagree the failure is silent — the PR merges and semantic-release
+ * publishes nothing — so this asserts they stay in lockstep.
+ *
+ * The gate itself now lives in iXsystems/ux-github-workflows, so the closest
+ * this repo can get is the copy of the pattern documented in the header of
+ * .github/workflows/pr-title.yml. That covers the half of the contract that is
+ * local — .releaserc.json drifting from what the workflow says the gate is —
+ * and not the half that isn't: the shared repo changing its pattern without
+ * anyone updating that comment. Nothing here can catch that.
  */
 
 const repoFile = async (path: string): Promise<string> =>
   readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 /**
- * The gate pattern, read from the workflow so the test can't drift from it.
+ * The gate pattern, read from the workflow header so the test can't drift from
+ * the copy a human editing that file sees.
  *
- * The gate itself runs under bash's POSIX ERE; this exercises it with JS
- * `RegExp`. The two engines agree on whether a pattern of this shape matches
- * (no backreferences, no lazy quantifiers), which is all that is asserted here
- * — but they can differ on capture positions, so extract from the parser
- * patterns rather than this one.
+ * Matched as "the commented line that is a whole anchored regex" — the only
+ * `^…$` line in a file whose remaining comment prose carries neither. The gate
+ * runs under bash's POSIX ERE over in the shared repo, but what is documented
+ * here is the JS form, so its capture positions are the parser patterns' —
+ * still, extract types from the parser patterns, which are the ones that
+ * actually run.
  */
 const gatePattern = async (): Promise<string> => {
   const yaml = await repoFile('.github/workflows/pr-title.yml');
-  const match = /^\s*pattern='(.+)'$/m.exec(yaml);
-  if (!match) throw new Error('could not find the pattern= line in pr-title.yml');
+  const match = /^#\s+(\^\S.*\$)$/m.exec(yaml);
+  if (!match) {
+    throw new Error(
+      'no pattern documented in the .github/workflows/pr-title.yml header — ' +
+        'the gate lives in iXsystems/ux-github-workflows, and that comment is ' +
+        'the only local record of what .releaserc.json has to match',
+    );
+  }
   return match[1];
 };
 

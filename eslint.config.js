@@ -20,17 +20,13 @@ export default tseslint.config(
     },
   },
   {
-    // Node-run scripts (not part of the published sources): the generator, and
-    // the CI helpers under .github/scripts.
-    files: ['scripts/**/*.mjs', 'scripts/**/*.mts', '.github/scripts/**/*.mjs'],
+    // Node-run scripts, not part of the published sources: the generator and
+    // the release-config checks under scripts/.
+    files: ['scripts/**/*.mjs', 'scripts/**/*.mts'],
     languageOptions: {
-      // `fetch` is global from Node 18; the CI helpers call the GitHub API with
-      // it rather than pulling in a client.
       globals: {
         process: 'readonly',
         console: 'readonly',
-        fetch: 'readonly',
-        AbortSignal: 'readonly',
       },
     },
   },
