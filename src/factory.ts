@@ -121,7 +121,6 @@ export async function createTrueNasClient<
       uuid,
       hostnames,
       versionDiscovery,
-      logger
     );
     version = winner.version;
     logger.info('API version discovered, instantiating client', {
