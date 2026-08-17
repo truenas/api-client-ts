@@ -1,8 +1,9 @@
 /**
  * The state `Container.status` is narrowed to.
  *
- * Both versions report richer vocabularies than this — v25.10
- * `virt.instance` has ten states, v26 `container` has three — and
+ * The two versions report different vocabularies — v25.10 `virt.instance` has
+ * ten states, more than this enum names, while v26 `container` has three
+ * (`RUNNING`, `STOPPED`, `SUSPENDED`) that this enum now covers exactly — and
  * `@/utils/app-state.utils` is the single place that maps them, so the two
  * clients cannot disagree.
  *

@@ -156,12 +156,14 @@ try {
 if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} versions from ${args['min-version']} upward.`);
 
 /**
- * Version -> namespace prefixes, from the hand-removed manifest.
+ * Version -> hand-declared removals, from the hand-removed manifest.
  *
- * Prefixes are interpolated into an emitted template literal, so a stray
- * backtick or `${` would emit broken TypeScript rather than fail here. Rejected
- * loudly instead. `$comment` keys are skipped, which is how the file documents
- * itself.
+ * Two forms, validated below and separated by the pipeline: namespace prefixes
+ * ending in `.`, and exact `call|job|event:name` entries. Both are interpolated
+ * into emitted TypeScript — prefixes as a template literal, exact entries as a
+ * quoted literal — so a stray backtick, quote or `${` would emit broken
+ * TypeScript rather than fail here. Rejected loudly instead. `$comment` keys
+ * are skipped, which is how the file documents itself.
  */
 function parseHandRemoved(raw: unknown, selected: string[], available: string[]): Record<string, string[]> {
   const out: Record<string, string[]> = {};
