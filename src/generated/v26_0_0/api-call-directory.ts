@@ -40,6 +40,7 @@ import type {
   DiskEntry,
   DropboxCredentialsModel,
   FTPCredentialsModel,
+  FailoverEntry,
   FailoverRebootInfo,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
@@ -90,6 +91,8 @@ import type {
   UserQueryResultItem,
   VMCreateArgs,
   VMDeleteOptions,
+  VMDeviceQueryResultItem,
+  VMDeviceUpdate,
   VMQueryResultItem,
   VMUpdate,
   VMWareCreate,
@@ -150,6 +153,7 @@ import type {
   DiskUnlockSedArgs,
   DiskUpdate,
   DockerEntry,
+  FailoverUpdate,
   Feature,
   GraphIdentifier,
   ISCSIGlobalEntry,
@@ -201,6 +205,8 @@ import type {
   UserEntry,
   UserRenew2FaSecretResult,
   UserUpdate,
+  VMDeviceCreateArgs,
+  VMDeviceEntry,
   VMDeviceNicAttachChoicesResult,
   VMEntry,
   VMStatus,
@@ -437,11 +443,6 @@ export interface ApiCallDirectoryDelta {
     response: CloudSyncEntry;
   };
 
-  'container.delete': {
-    params: [id: number];
-    response: null;
-  };
-
   'container.device.create': {
     params: [container_device_create: ContainerDeviceCreateArgs];
     response: ContainerDeviceEntry;
@@ -552,6 +553,11 @@ export interface ApiCallDirectoryDelta {
   'failover.reboot.info': {
     params: [];
     response: FailoverRebootInfo;
+  };
+
+  'failover.update': {
+    params: [data: FailoverUpdate];
+    response: FailoverEntry;
   };
 
   'filesystem.acltemplate.by_path': {
@@ -976,9 +982,30 @@ export interface ApiCallDirectoryDelta {
     response: null;
   };
 
+  'vm.device.create': {
+    params: [vm_device_create: VMDeviceCreateArgs];
+    response: VMDeviceEntry;
+  };
+
+  'vm.device.get_instance': {
+    params: [id: number, options?: QueryOptions<VMDeviceEntry>];
+    response: VMDeviceEntry;
+  };
+
   'vm.device.nic_attach_choices': {
     params: [];
     response: VMDeviceNicAttachChoicesResult;
+  };
+
+  'vm.device.query': {
+    params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptions<VMDeviceEntry>];
+    response: VMDeviceEntry[] | VMDeviceEntry | VMDeviceQueryResultItem[] | VMDeviceQueryResultItem | number;
+    entity: VMDeviceEntry;
+  };
+
+  'vm.device.update': {
+    params: [id: number, vm_device_update: VMDeviceUpdate];
+    response: VMDeviceEntry;
   };
 
   'vm.device.usb_controller_choices': {

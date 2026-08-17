@@ -61,7 +61,6 @@ export type ApiJobDirectoryBase = Pick<
   | 'pool.remove'
   | 'pool.replace'
   | 'pool.snapshottask.run'
-  | 'replication.run'
   | 'replication.run_onetime'
   | 'rsynctask.run'
   | 'service.control'

@@ -13,6 +13,7 @@ import type {
 import type {
   ACLTemplateEntry,
   AppAvailableItem,
+  AppQueryResultItem,
   AppsIxVolumeEntry,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
@@ -57,10 +58,7 @@ import type {
 import type {
   AuditQueryResultItem,
   AuditQueryResultItemQueryResultItem,
-  ContainerDeviceQueryResultItem,
-  ContainerDeviceUpdate,
-  ContainerQueryResultItem,
-  ContainerUpdate,
+  ContainerDeviceEntry,
   GraphIdentifier,
   LXCConfigEntry,
   S3CredentialsModel,
@@ -76,6 +74,7 @@ import type {
   ACMEDNSAuthenticatorCreate,
   Alert,
   AppAvailableItemQueryResultItem,
+  AppEntry,
   AppImageDockerhubRateLimitInfo,
   AppLatestItem,
   AppLatestItemQueryResultItem,
@@ -88,9 +87,7 @@ import type {
   BootEnvironmentKeep,
   CloudSyncListDirectory,
   ContainerDeviceCreate,
-  ContainerDeviceEntry,
   ContainerDeviceNicAttachChoices,
-  ContainerEntry,
   CredentialsVerifyData,
   DockerBackupMap,
   DockerEntry,
@@ -154,6 +151,11 @@ export interface ApiCallDirectoryDelta {
     entity: AppAvailableItem;
   };
 
+  'app.get_instance': {
+    params: [id: string, options?: QueryOptions<AppEntry>];
+    response: AppEntry;
+  };
+
   'app.image.dockerhub_rate_limit': {
     params: [];
     response: AppImageDockerhubRateLimitInfo;
@@ -168,6 +170,12 @@ export interface ApiCallDirectoryDelta {
     params: [filters?: QueryFilters<AppLatestItem>, options?: QueryOptions<AppLatestItem>];
     response: AppLatestItem[] | AppLatestItem | AppLatestItemQueryResultItem[] | AppLatestItemQueryResultItem | number;
     entity: AppLatestItem;
+  };
+
+  'app.query': {
+    params: [filters?: QueryFilters<AppEntry>, options?: QueryOptions<AppEntry>];
+    response: AppEntry[] | AppEntry | AppQueryResultItem[] | AppQueryResultItem | number;
+    entity: AppEntry;
   };
 
   'app.upgrade_summary': {
@@ -215,11 +223,6 @@ export interface ApiCallDirectoryDelta {
     response: ContainerDeviceEntry;
   };
 
-  'container.device.get_instance': {
-    params: [id: number, options?: QueryOptions<ContainerDeviceEntry>];
-    response: ContainerDeviceEntry;
-  };
-
   'container.device.gpu_choices': {
     params: [];
     response: Record<string, string>;
@@ -230,36 +233,9 @@ export interface ApiCallDirectoryDelta {
     response: ContainerDeviceNicAttachChoices;
   };
 
-  'container.device.query': {
-    params: [filters?: QueryFilters<ContainerDeviceEntry>, options?: QueryOptions<ContainerDeviceEntry>];
-    response: ContainerDeviceEntry[] | ContainerDeviceEntry | ContainerDeviceQueryResultItem[] | ContainerDeviceQueryResultItem | number;
-    entity: ContainerDeviceEntry;
-  };
-
-  'container.device.update': {
-    params: [id: number, container_device_update: ContainerDeviceUpdate];
-    response: ContainerDeviceEntry;
-  };
-
-  'container.get_instance': {
-    params: [id: number, options?: QueryOptions<ContainerEntry>];
-    response: ContainerEntry;
-  };
-
   'container.pool_choices': {
     params: [];
     response: Record<string, string>;
-  };
-
-  'container.query': {
-    params: [filters?: QueryFilters<ContainerEntry>, options?: QueryOptions<ContainerEntry>];
-    response: ContainerEntry[] | ContainerEntry | ContainerQueryResultItem[] | ContainerQueryResultItem | number;
-    entity: ContainerEntry;
-  };
-
-  'container.update': {
-    params: [id: number, container_update: ContainerUpdate];
-    response: ContainerEntry;
   };
 
   'disk.get_instance': {

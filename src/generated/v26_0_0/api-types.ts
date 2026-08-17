@@ -8,7 +8,6 @@ import type {
   AddressPool,
   Advpowermgmt,
   Aggregations,
-  Algorithm,
   AppImageParsedRepoTags,
   AppNetworks,
   AppVolumes,
@@ -104,8 +103,15 @@ import type {
   UpgradeOptions,
   UsedPorts,
   UserTwofactorConfigEntry,
-  VMDeviceEntry,
+  VMCDROMDevice,
   VMDeviceEntryInput,
+  VMDiskDevice,
+  VMDiskDeviceInput,
+  VMDisplayDevice,
+  VMPCIDevice,
+  VMRAWDevice,
+  VMRAWDeviceInput,
+  VMUSBDevice,
   VMWareEntryStateStateInput,
   VMWareMatchDatastoresWithDatasetsResultFilesystemType,
   Volblocksize,
@@ -157,12 +163,14 @@ export type ContainerNICDeviceTypeInput = (typeof ContainerNICDeviceTypeInput)[k
 export const ContainerStatusState = {
   Running: 'RUNNING',
   Stopped: 'STOPPED',
+  Suspended: 'SUSPENDED',
 } as const;
 export type ContainerStatusState = (typeof ContainerStatusState)[keyof typeof ContainerStatusState];
 
 export const ContainerStatusStateInput = {
   Running: 'RUNNING',
   Stopped: 'STOPPED',
+  Suspended: 'SUSPENDED',
 } as const;
 export type ContainerStatusStateInput = (typeof ContainerStatusStateInput)[keyof typeof ContainerStatusStateInput];
 
@@ -269,6 +277,8 @@ export type ContainerDeviceQueryResultItem = Record<string, unknown>;
 export type ContainerQueryResultItem = Record<string, unknown>;
 
 export type ISCSIGlobalSessionsItemQueryResultItem = Record<string, unknown>;
+
+export type ReplicationRunOptions = Record<string, never>;
 
 export type SharingWebshareQueryResultItem = Record<string, unknown>;
 
@@ -895,8 +905,7 @@ export interface ContainerEntryInput {
 }
 export interface ContainerDeviceEntryInput {
   id: number;
-  attributes:
-    ContainerFilesystemDevice | ContainerGPUDevice | ContainerDeviceContainerNICDeviceInput | ContainerUSBDevice;
+  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
   container: number;
 }
 export interface ContainerFilesystemDevice {
@@ -909,7 +918,7 @@ export interface ContainerGPUDevice {
   gpu_type: "AMD" | "INTEL" | "NVIDIA";
   pci_address: string;
 }
-export interface ContainerDeviceContainerNICDeviceInput {
+export interface ContainerNICDeviceInput {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
   type?: ContainerNICDeviceTypeInput;
@@ -963,6 +972,10 @@ export interface ContainerCreateImage {
   name: string;
   version: string;
 }
+export interface ContainerDeleteOptions {
+  force?: boolean;
+  recursive?: boolean;
+}
 export interface ContainerDetails {
   id: string;
   service_name: string;
@@ -980,13 +993,6 @@ export interface ContainerDeviceChangedEvent {
 export interface ContainerDeviceCreateArgs {
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
   container: number;
-}
-export interface ContainerNICDeviceInput {
-  dtype: "NIC";
-  trust_guest_rx_filters?: boolean;
-  type?: ContainerNICDeviceTypeInput;
-  nic_attach?: string | null;
-  mac?: string | null;
 }
 export interface ContainerDeviceDeleteOptions {
   force?: boolean;
@@ -1135,6 +1141,11 @@ export interface DockerUpdateArgs {
   cidr_v6?: string;
   registry_mirrors?: RegistryMirror[];
   migrate_applications?: boolean;
+}
+export interface FailoverUpdate {
+  disabled?: boolean;
+  master?: boolean;
+  timeout?: number;
 }
 export interface FilesystemSetaclArgs {
   path: string;
@@ -1368,7 +1379,6 @@ export interface PoolCreate {
 export interface PoolCreateEncryptionOptions {
   generate_key?: boolean;
   pbkdf2iters?: number;
-  algorithm?: Algorithm;
   passphrase?: string | null;
   key?: string | null;
 }
@@ -2358,6 +2368,38 @@ export interface VMStatus {
 export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
+}
+export interface VMDeviceCreateArgs {
+  attributes:
+    | VMCDROMDevice
+    | VMDisplayDevice
+    | VmVMNICDeviceInput
+    | VMPCIDevice
+    | VMRAWDeviceInput
+    | VMDiskDeviceInput
+    | VMUSBDevice;
+  vm: number;
+  order?: number | null;
+}
+export interface VmVMNICDeviceInput {
+  dtype: "NIC";
+  trust_guest_rx_filters?: boolean;
+  type?: "E1000" | "VIRTIO";
+  nic_attach?: string | null;
+  mac?: string | null;
+}
+export interface VMDeviceEntry {
+  id: number;
+  attributes: VMCDROMDevice | VMDisplayDevice | VMNICDevice | VMPCIDevice | VMRAWDevice | VMDiskDevice | VMUSBDevice;
+  vm: number;
+  order: number;
+}
+export interface VMNICDevice {
+  dtype: "NIC";
+  trust_guest_rx_filters?: boolean;
+  type?: "E1000" | "VIRTIO";
+  nic_attach?: string | null;
+  mac?: string | null;
 }
 export interface VMDeviceNicAttachChoicesResult {
   BRIDGE: string[];

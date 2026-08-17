@@ -59,10 +59,10 @@ causes a change.
 | app.container_console_choices | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | app.container_ids | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | app.container_log_follow | event | introduced v25.10.0 |
-| app.convert_to_custom | job | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| app.convert_to_custom | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | app.create | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
 | app.delete | job | introduced v25.10.0 |
-| app.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| app.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | app.gpu_choices | call | introduced v25.10.0 |
 | app.image.delete | call | introduced v25.10.0 |
 | app.image.dockerhub_rate_limit | call | introduced v25.10.0; changed v27.0.0 |
@@ -76,21 +76,21 @@ causes a change.
 | app.latest | call | introduced v27.0.0 |
 | app.outdated_docker_images | call | introduced v25.10.0 |
 | app.pull_images | job | introduced v25.10.0 |
-| app.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| app.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | app.query | event | introduced v25.10.0 |
-| app.redeploy | job | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| app.redeploy | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | app.registry.create | call | introduced v25.10.0 |
 | app.registry.delete | call | introduced v25.10.0 |
 | app.registry.get_instance | call | introduced v25.10.0 |
 | app.registry.query | call | introduced v25.10.0 |
 | app.registry.update | call | introduced v25.10.0 |
-| app.rollback | job | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| app.rollback | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | app.rollback_versions | call | introduced v25.10.0 |
 | app.similar | call | introduced v25.10.0 |
 | app.start | job | introduced v25.10.0 |
 | app.stats | event | introduced v25.10.0 |
 | app.stop | job | introduced v25.10.0 |
-| app.update | job | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| app.update | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | app.upgrade | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
 | app.upgrade_bulk | job | introduced v26.0.0; changed v27.0.0 (via referenced types) |
 | app.upgrade_summary | call | introduced v25.10.0; changed v27.0.0 |
@@ -189,26 +189,26 @@ causes a change.
 | config.save | job | introduced v25.10.0 |
 | config.upload | job | introduced v25.10.0 |
 | container.create | job | introduced v26.0.0; changed v27.0.0 |
-| container.delete | call | introduced v26.0.0 |
+| container.delete | job | introduced v26.0.0 |
 | container.device.create | call | introduced v26.0.0; changed v27.0.0 |
 | container.device.delete | call | introduced v26.0.0 |
-| container.device.get_instance | call | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| container.device.get_instance | call | introduced v26.0.0 |
 | container.device.gpu_choices | call | introduced v26.0.0; changed v27.0.0 |
 | container.device.nic_attach_choices | call | introduced v26.0.0; changed v27.0.0 |
-| container.device.query | call | introduced v26.0.0; changed v27.0.0 (via referenced types) |
-| container.device.query | event | introduced v26.0.0; changed v27.0.0 (via referenced types) |
-| container.device.update | call | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| container.device.query | call | introduced v26.0.0 |
+| container.device.query | event | introduced v26.0.0 |
+| container.device.update | call | introduced v26.0.0 |
 | container.device.usb_choices | call | introduced v26.0.0 |
-| container.get_instance | call | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| container.get_instance | call | introduced v26.0.0 |
 | container.image.query_registry | call | introduced v26.0.0 |
 | container.metrics | event | introduced v25.10.0 |
 | container.migrate | job | introduced v26.0.0 |
 | container.pool_choices | call | introduced v26.0.0; changed v27.0.0 |
-| container.query | call | introduced v26.0.0; changed v27.0.0 (via referenced types) |
-| container.query | event | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| container.query | call | introduced v26.0.0 |
+| container.query | event | introduced v26.0.0 |
 | container.start | call | introduced v26.0.0 |
 | container.stop | job | introduced v26.0.0 |
-| container.update | call | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| container.update | call | introduced v26.0.0 |
 | core.arp | call | introduced v25.10.0 |
 | core.bulk | job | introduced v25.10.0 |
 | core.download | call | introduced v25.10.0 |
@@ -286,7 +286,7 @@ causes a change.
 | failover.status | event | introduced v25.10.0 |
 | failover.sync_from_peer | call | introduced v25.10.0 |
 | failover.sync_to_peer | call | introduced v25.10.0 |
-| failover.update | call | introduced v25.10.0 |
+| failover.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | failover.upgrade | job | introduced v25.10.0 |
 | fc.capable | call | introduced v25.10.0 |
 | fc.fc_host.create | call | introduced v25.10.0 |
@@ -529,7 +529,6 @@ causes a change.
 | pool.dataset.create | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | pool.dataset.delete | call | introduced v25.10.0 |
 | pool.dataset.details | call | introduced v25.10.0 |
-| pool.dataset.encryption_algorithm_choices | call | introduced v25.10.0 |
 | pool.dataset.encryption_summary | job | introduced v25.10.0 |
 | pool.dataset.export_key | job | introduced v25.10.0 |
 | pool.dataset.export_keys | job | introduced v25.10.0 |
@@ -628,7 +627,7 @@ causes a change.
 | replication.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | replication.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | replication.restore | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
-| replication.run | job | introduced v25.10.0 |
+| replication.run | job | introduced v25.10.0; changed v26.0.0 |
 | replication.run_onetime | job | introduced v25.10.0 |
 | replication.target_unmatched_snapshots | call | introduced v25.10.0; changed v26.0.0 |
 | replication.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
@@ -833,18 +832,18 @@ causes a change.
 | vm.delete | call | introduced v25.10.0; changed v26.0.0 |
 | vm.device.bind_choices | call | introduced v25.10.0; changed v27.0.0 |
 | vm.device.convert | job | introduced v25.10.0; changed v27.0.0 |
-| vm.device.create | call | introduced v25.10.0; changed v27.0.0 |
+| vm.device.create | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
 | vm.device.delete | call | introduced v25.10.0 |
 | vm.device.disk_choices | call | introduced v25.10.0; changed v27.0.0 |
-| vm.device.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| vm.device.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | vm.device.iommu_enabled | call | introduced v25.10.0 |
 | vm.device.iotype_choices | call | introduced v25.10.0; changed v27.0.0 |
 | vm.device.nic_attach_choices | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
 | vm.device.passthrough_device | call | introduced v25.10.0 |
 | vm.device.passthrough_device_choices | call | introduced v25.10.0 |
-| vm.device.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| vm.device.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | vm.device.query | event | introduced v25.10.0; changed v27.0.0 (via referenced types) |
-| vm.device.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| vm.device.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | vm.device.usb_controller_choices | call | introduced v25.10.0; changed v26.0.0 |
 | vm.device.usb_passthrough_choices | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | vm.device.usb_passthrough_device | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
@@ -969,7 +968,7 @@ causes a change.
 | AlertServiceEntry | type | introduced v25.10.0 |
 | AlertServiceQueryResultItem | type | introduced v25.10.0 |
 | AlertServiceRemovedEvent | type | introduced v25.10.0 |
-| Algorithm | type | introduced v25.10.0 |
+| Algorithm | type | introduced v25.10.0; removed v26.0.0 |
 | ApiKeyAddedEvent | type | introduced v25.10.0; changed v26.0.0 |
 | ApiKeyChangedEvent | type | introduced v25.10.0; changed v26.0.0 |
 | ApiKeyCreate | type | introduced v25.10.0 |
@@ -987,7 +986,7 @@ causes a change.
 | AppAddedEvent | type | introduced v25.10.0 |
 | AppAvailableItem | type | introduced v25.10.0 |
 | AppAvailableItemQueryResultItem | type | introduced v27.0.0 |
-| AppBulkUpgradeJobResult | type | introduced v26.0.0 |
+| AppBulkUpgradeJobResult | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
 | AppCertificate | type | introduced v25.10.0 |
 | AppChangedEvent | type | introduced v25.10.0 |
 | AppContainerDetails | type | introduced v25.10.0; changed v26.0.0 |
@@ -1002,7 +1001,7 @@ causes a change.
 | AppCreate | type | introduced v27.0.0 |
 | AppCreateArgs | type | introduced v25.10.0; removed v27.0.0 |
 | AppDelete | type | introduced v25.10.0 |
-| AppEntry | type | introduced v25.10.0; changed v26.0.0 |
+| AppEntry | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | AppEntryInput | type | introduced v25.10.0 |
 | AppGPUResponse | type | introduced v25.10.0 |
 | AppImageAuthConfig | type | introduced v25.10.0 |
@@ -1169,33 +1168,33 @@ causes a change.
 | Compression | type | introduced v25.10.0 |
 | ConfigReset | type | introduced v25.10.0 |
 | ConfigSave | type | introduced v25.10.0 |
-| ContainerAddedEvent | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
-| ContainerChangedEvent | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| ContainerAddedEvent | type | introduced v26.0.0 |
+| ContainerChangedEvent | type | introduced v26.0.0 |
 | ContainerCreate | type | introduced v27.0.0 |
 | ContainerCreateArgs | type | introduced v26.0.0; removed v27.0.0 |
 | ContainerCreateImage | type | introduced v26.0.0 |
+| ContainerDeleteOptions | type | introduced v26.0.0 |
 | ContainerDetails | type | introduced v25.10.0; changed v26.0.0 |
-| ContainerDeviceAddedEvent | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
-| ContainerDeviceChangedEvent | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
-| ContainerDeviceContainerNICDeviceInput | type | introduced v26.0.0; removed v27.0.0 |
+| ContainerDeviceAddedEvent | type | introduced v26.0.0 |
+| ContainerDeviceChangedEvent | type | introduced v26.0.0 |
 | ContainerDeviceCreate | type | introduced v27.0.0 |
 | ContainerDeviceCreateArgs | type | introduced v26.0.0; removed v27.0.0 |
 | ContainerDeviceDeleteOptions | type | introduced v26.0.0 |
-| ContainerDeviceEntry | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
-| ContainerDeviceEntryInput | type | introduced v26.0.0; changed v27.0.0 |
+| ContainerDeviceEntry | type | introduced v26.0.0 |
+| ContainerDeviceEntryInput | type | introduced v26.0.0 |
 | ContainerDeviceNicAttachChoices | type | introduced v27.0.0 |
 | ContainerDeviceNicAttachChoicesResult | type | introduced v26.0.0; removed v27.0.0 |
 | ContainerDeviceQueryResultItem | type | introduced v26.0.0 |
 | ContainerDeviceRemovedEvent | type | introduced v26.0.0 |
 | ContainerDeviceUpdate | type | introduced v26.0.0 |
-| ContainerEntry | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
-| ContainerEntryInput | type | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| ContainerEntry | type | introduced v26.0.0 |
+| ContainerEntryInput | type | introduced v26.0.0 |
 | ContainerFilesystemDevice | type | introduced v26.0.0 |
 | ContainerGPUDevice | type | introduced v26.0.0 |
 | ContainerImageQueryRegistryResultImage | type | introduced v26.0.0 |
 | ContainerImageQueryRegistryResultImageVersion | type | introduced v26.0.0 |
-| ContainerNICDevice | type | introduced v26.0.0; changed v27.0.0 |
-| ContainerNICDeviceInput | type | introduced v26.0.0; changed v27.0.0 |
+| ContainerNICDevice | type | introduced v26.0.0 |
+| ContainerNICDeviceInput | type | introduced v26.0.0 |
 | ContainerNICDeviceType | type | introduced v26.0.0 |
 | ContainerNICDeviceTypeInput | type | introduced v26.0.0 |
 | ContainerQueryResultItem | type | introduced v26.0.0 |
@@ -1331,7 +1330,7 @@ causes a change.
 | FailoverStatusChangedEvent | type | introduced v25.10.0 |
 | FailoverStatusChangedEventFields | type | introduced v25.10.0 |
 | FailoverSyncToPeer | type | introduced v25.10.0 |
-| FailoverUpdate | type | introduced v25.10.0 |
+| FailoverUpdate | type | introduced v25.10.0; changed v26.0.0 |
 | FailoverUpgrade | type | introduced v25.10.0 |
 | FCHostAddedEvent | type | introduced v25.10.0 |
 | FCHostChangedEvent | type | introduced v25.10.0 |
@@ -1721,7 +1720,6 @@ causes a change.
 | PoolDatasetDatasetQuota | type | introduced v25.10.0 |
 | PoolDatasetDeleteOptions | type | introduced v25.10.0 |
 | PoolDatasetDeleteResult | type | introduced v25.10.0 |
-| PoolDatasetEncryptionAlgorithmChoicesResult | type | introduced v25.10.0 |
 | PoolDatasetEncryptionSummary | type | introduced v25.10.0 |
 | PoolDatasetEncryptionSummaryOptions | type | introduced v25.10.0 |
 | PoolDatasetEncryptionSummaryOptionsDataset | type | introduced v25.10.0 |
@@ -1840,6 +1838,7 @@ causes a change.
 | ReplicationRemovedEvent | type | introduced v25.10.0 |
 | ReplicationRestoreOptions | type | introduced v25.10.0 |
 | ReplicationRunOnetimeArgs | type | introduced v25.10.0 |
+| ReplicationRunOptions | type | introduced v26.0.0 |
 | ReplicationTimeCronModel | type | introduced v25.10.0 |
 | ReplicationUpdate | type | introduced v25.10.0 |
 | ReportingEntry | type | introduced v25.10.0 |
@@ -2136,10 +2135,10 @@ causes a change.
 | VMDeviceConvert | type | introduced v27.0.0 |
 | VMDeviceConvertArgs | type | introduced v25.10.0; removed v27.0.0 |
 | VMDeviceCreate | type | introduced v27.0.0 |
-| VMDeviceCreateArgs | type | introduced v25.10.0; removed v27.0.0 |
+| VMDeviceCreateArgs | type | introduced v25.10.0; changed v26.0.0 (via referenced types); removed v27.0.0 |
 | VMDeviceDeleteOptions | type | introduced v25.10.0 |
 | VMDeviceDiskChoices | type | introduced v25.10.0; removed v27.0.0 |
-| VMDeviceEntry | type | introduced v25.10.0; changed v27.0.0 |
+| VMDeviceEntry | type | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
 | VMDeviceEntryInput | type | introduced v25.10.0; changed v27.0.0 |
 | VMDeviceIOMMUGroup | type | introduced v25.10.0 |
 | VMDeviceIOMMUGroupAddress | type | introduced v25.10.0 |
@@ -2178,7 +2177,7 @@ causes a change.
 | VMGuestNetworkInterfaceIPAddress | type | introduced v27.0.0 |
 | VMISCSIDiskDevice | type | introduced v25.10.0 |
 | VMISCSIDiskTarget | type | introduced v25.10.0 |
-| VMNICDevice | type | introduced v25.10.0; changed v27.0.0 |
+| VMNICDevice | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | VMNICPciAddress | type | introduced v25.10.0 |
 | VMPCIDevice | type | introduced v25.10.0 |
 | VMPortWizard | type | introduced v27.0.0 |
@@ -2195,7 +2194,7 @@ causes a change.
 | VMUSBDevice | type | introduced v25.10.0 |
 | VMVirtualizationDetails | type | introduced v27.0.0 |
 | VMVirtualizationDetailsResult | type | introduced v25.10.0; removed v27.0.0 |
-| VmVMNICDeviceInput | type | introduced v25.10.0; removed v27.0.0 |
+| VmVMNICDeviceInput | type | introduced v25.10.0; changed v26.0.0; removed v27.0.0 |
 | VMWareAddedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | VMWareChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | VMWareCreate | type | introduced v25.10.0 |
