@@ -165,6 +165,19 @@ if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} v
  * TypeScript rather than fail here. Rejected loudly instead. `$comment` keys
  * are skipped, which is how the file documents itself.
  */
+/**
+ * The version the pipeline will treat as the chain root for this run.
+ *
+ * Ordered the same way `generateFromDump` orders its models — ascending,
+ * numeric-aware — because the whole point is to name the version that ends up
+ * at `models[0]`. `'all'` is the sentinel for an unnarrowed run, where the root
+ * is simply the oldest version the dump carries.
+ */
+function chainRootOf(selected: string[], available: string[]): string {
+  return [...(selected.includes('all') ? available : selected)]
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))[0];
+}
+
 function parseHandRemoved(raw: unknown, selected: string[], available: string[]): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const [version, value] of Object.entries(raw as Record<string, unknown>)) {
@@ -182,6 +195,27 @@ function parseHandRemoved(raw: unknown, selected: string[], available: string[])
       // In the dump but outside this run's range — a narrowed --api-version or
       // --min-version. Not an error: the key is fine, it just does not apply.
       continue;
+    }
+    if (version === chainRootOf(selected, available)) {
+      // A removal is an `Omit` applied to what the previous version's directory
+      // declared, so the chain root has nothing to subtract from: the pipeline
+      // emits no link for `i === 0` and the entry becomes a silent no-op — no
+      // omission, no warning, exit 0. Reachable from an ordinary flag, since
+      // any `--min-version` above the oldest version promotes some version to
+      // the root; `--min-version v26.0.0` would do it to both entries this file
+      // currently carries.
+      //
+      // Harmless in that particular case, because a root declares straight from
+      // the dump and the dump no longer mentions either name. Fatal anyway: it
+      // is the silent-no-op that `src/generated-hand-removed.spec.ts` exists to
+      // catch, and a hand-removal that quietly does nothing is the one failure
+      // this file cannot afford.
+      console.error(
+        `hand-removed: '${version}' is the root of this run's chain, which has no ` +
+        `previous version to omit from — the entry would do nothing. Generate from ` +
+        `an earlier version, or move the removal to the version that inherits it.`
+      );
+      process.exit(1);
     }
     if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
       console.error(`hand-removed: '${version}' must map to an array of strings.`);

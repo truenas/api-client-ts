@@ -211,6 +211,30 @@ describe('hand-declared removals', () => {
   });
 
   /**
+   * A removal is an `Omit` over what the previous version declared, so the root
+   * of the chain has nothing to subtract from and the pipeline emits no link
+   * for it. Keyed there, the entry used to be a silent no-op: nothing omitted,
+   * nothing said, exit 0.
+   *
+   * Reachable without doing anything odd — any `--min-version` above the oldest
+   * version promotes some version to the root, and `hand-removed.json` keys its
+   * two live entries to `v26.0.0`, which `--min-version v26.0.0` would make the
+   * root. Silent success is the one outcome a hand-declared removal must not
+   * have, since nothing downstream can tell it apart from having worked.
+   */
+  it('rejects a removal keyed to the root of the chain, which cannot omit anything', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-rootkey-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // v1.0.0 is the fixture's oldest version, so it is the chain root here.
+    writeFileSync(manifest, JSON.stringify({ 'v1.0.0': ['call:test.get'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("is the root of this run's chain");
+  });
+
+  /**
    * A single method deleted from every version directory upstream — the
    * `pool.dataset.encryption_algorithm_choices` case — cannot be stated as a
    * prefix, so the manifest also takes one exact entry with its kind.
