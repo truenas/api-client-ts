@@ -14,11 +14,17 @@ import type { ApiDumpFile, ApiDumpVersion } from './types.mts';
  * and a check that cries wolf is a check that gets re-blessed reflexively.
  *
  * `doc` and `description` are discriminated on type, not key alone:
- * `description` is also a legitimate model *field* name (31 models in v25.10
- * declare one), and dropping those schema nodes would hide a real change.
- * Documentation is always a string; a field named `description` is always an
- * object. `examples` needs no such guard — it is not a field name, and the
- * preprocessor strips it unconditionally.
+ * `description` is also a legitimate model *field* name, and dropping those
+ * schema nodes would hide a real change. Documentation is always a string; a
+ * field named `description` is always an object. `examples` needs no such
+ * guard — it is not a field name on any model, and the preprocessor strips it
+ * unconditionally.
+ *
+ * This used to claim `stripDocs` already made the same distinction. It did not:
+ * it dropped `description` by key at every node, so the field was gone from the
+ * emitted output before this digest ever saw it and the guard here protected
+ * nothing. `stripDocs` now discriminates the same way, which is what makes the
+ * two halves agree.
  */
 export function dumpDigest(value: unknown): string {
   return createHash('sha256')

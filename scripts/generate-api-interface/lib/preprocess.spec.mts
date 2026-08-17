@@ -38,6 +38,37 @@ describe('preprocess', () => {
     expect(methods[0].returns).toEqual({ type: 'null' });
   });
 
+  /**
+   * `description` is both a docstring key and a real field name — middleware
+   * declares the field on ~30 models, `CronJobEntry` and `VMEntry` among them.
+   * Stripping by key alone deleted the field with the prose, so the emitted
+   * `CronJobEntry` had no `description` and a create call that set one did not
+   * compile, for a field the appliance accepts and returns.
+   *
+   * The two are told apart by type: prose is a string, a field is its own
+   * schema object. Both appear here, on the same model, so a fix that removes
+   * the wrong one fails rather than passing on the easy half.
+   */
+  it('keeps a model field named description while stripping the prose beside it', () => {
+    const { definitions } = preprocess(version([
+      method('cronjob.get', args({}, []), returnsDoc({ $ref: '#/$defs/CronJob' }, {
+        CronJob: {
+          title: 'CronJob', type: 'object', additionalProperties: false,
+          description: 'A cron job.', // prose about the model
+          properties: {
+            command: { type: 'string', description: 'Shell command to run.' }, // prose about a field
+            description: { type: 'string', description: 'What this job does.' }, // the field itself
+          },
+        },
+      })),
+    ]));
+    expect(Object.keys(definitions['CronJob'].properties ?? {})).toEqual(['command', 'description']);
+    // The field survives as a schema; the prose on it and on the model does not.
+    expect(definitions['CronJob'].properties?.['description']).toEqual({ type: 'string' });
+    expect(definitions['CronJob']).not.toHaveProperty('description.description');
+    expect(definitions['CronJob'].properties?.['command']).toEqual({ type: 'string' });
+  });
+
   it('splits a model rendered differently per mode into Name and NameInput', () => {
     const inputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' } } };
     const outputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' }, b: { type: 'integer' } } };

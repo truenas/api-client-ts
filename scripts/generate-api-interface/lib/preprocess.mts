@@ -465,13 +465,27 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * api.truenas.com is the documentation home, and prose edits are not API
  * drift. Semantic annotations (roles, removed_in, usage cross-references)
  * are kept — they are not docstrings.
+ *
+ * `description` is discriminated on type, because it is also a legitimate model
+ * *field* name: middleware declares one on ~30 models, `CronJobEntry` and
+ * `VMEntry` among them. A docstring is always a string; a field named
+ * `description` appears under `properties` as its own schema, so it is always
+ * an object. Dropping by key alone deleted the second along with the first, and
+ * the emitted `CronJobEntry` had no `description` at all — so
+ * `call('cronjob.create', [{ ..., description: 'nightly' }])` did not compile,
+ * for a field the appliance accepts and returns.
+ *
+ * `examples` stays unconditional: it is not a field name on any model in
+ * `api/v2*` (checked against master), and unlike `description` it has no
+ * second meaning to preserve.
  */
 function stripDocs(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(stripDocs);
   if (node === null || typeof node !== 'object') return node;
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(node)) {
-    if (key === 'description' || key === 'examples') continue;
+    if (key === 'examples') continue;
+    if (key === 'description' && typeof value === 'string') continue;
     out[key] = stripDocs(value);
   }
   return out;
