@@ -256,9 +256,22 @@ export async function generateFromDump(
       types: names.filter((n) => declared[home][n]._kind !== 'enum').sort(),
     }));
 
-    const removedPrefixes = handRemoved[model.version] ?? [];
+    const handDeclared = handRemoved[model.version] ?? [];
+    // Two forms, both validated by the CLI; see `hand-removed.json`. A prefix
+    // applies to every kind, an exact entry carries its own kind because the
+    // dump that would say whether it was a call, a job or an event is the very
+    // thing that no longer describes it.
+    const removedPrefixes = handDeclared.filter((entry) => entry.endsWith('.'));
+    const handRemovedFor = (kind: string): string[] => handDeclared
+      .filter((entry) => entry.startsWith(`${kind}:`))
+      .map((entry) => entry.slice(kind.length + 1));
     const link = (kind: string): DirectoryChainLink | undefined => (multi && i > 0
-      ? { prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`, removed: [], removedPrefixes }
+      ? {
+        prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`,
+        removed: [],
+        removedPrefixes,
+        handRemovedNames: handRemovedFor(kind),
+      }
       : undefined);
     const linkFor = (kind: string, removed: string[]): DirectoryChainLink | undefined => {
       const l = link(kind);

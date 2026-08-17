@@ -93,3 +93,24 @@ which rows a regeneration maintains and which it does not.
 | VirtVolumeImportZvolItem | type | introduced v25.10.0; removed v26.0.0 |
 | VirtVolumeQueryResultItem | type | introduced v25.10.0; removed v26.0.0 |
 | VirtVolumeUpdate | type | introduced v25.10.0; removed v26.0.0 |
+
+## pool.dataset.encryption_algorithm_choices (hand-maintained)
+
+The generator cannot see this method either, for the same reason as `virt.*`:
+`22ce5eac51` ("NAS-142001 / 27.0.0-BETA.1 / Stop discarding options passed to
+pool.dataset.create") deleted `encryption_algorithm_choices` from
+`plugins/pool_/dataset_info.py` and removed its models from `api/v26_0_0/` and
+`api/v27_0_0/` in the same commit, so no `--dump-api` dump describes it at any
+version — the 2026-07-27 dump had it in v25.10.0 through v27.0.0 and the
+2026-08-14 dump has it nowhere.
+
+Released 25.10 really serves it (`TS-25.10.5` carries it in
+`plugins/pool_/dataset_info.py`), so it stays declared in `v25_10_0/`. It is
+absent from `stable/26` — the method is gone from the plugin, not merely from
+the versioned models, so a v25.10-pinned client talking to a 26 appliance will
+not find it either — hence removed at v26.0.0 via `hand-removed.json`.
+
+| Name | Kind | History |
+|------|------|---------|
+| pool.dataset.encryption_algorithm_choices | call | introduced v25.10.0; removed v26.0.0 |
+| PoolDatasetEncryptionAlgorithmChoicesResult | type | introduced v25.10.0; removed v26.0.0 |

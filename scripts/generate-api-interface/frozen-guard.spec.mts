@@ -165,6 +165,40 @@ describe('hand-declared removals', () => {
     const result = generate(out, manifest);
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain("is not a namespace prefix ending in '.'");
+    expect(result.stderr).toContain('is neither a namespace prefix');
+  });
+
+  /**
+   * A single method deleted from every version directory upstream — the
+   * `pool.dataset.encryption_algorithm_choices` case — cannot be stated as a
+   * prefix, so the manifest also takes one exact entry with its kind.
+   */
+  it('omit one exact entry from the kind it names', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-exact-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // `test.get` is carried by both fixture versions, so v2.0.0 inherits it —
+    // which is the surface a hand-declared removal has to reach.
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['call:test.get'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(0);
+    const calls = readFileSync(path.join(out, 'v2_0_0/api-call-directory.ts'), 'utf8');
+    expect(calls).toMatch(/export type ApiCallDirectory = Omit<[^>]*'test\.get'/);
+    // Named `call:`, so it must not be omitted from the other two directories,
+    // where the literal would be a no-op Omit and a false claim in the comment.
+    expect(readFileSync(path.join(out, 'v2_0_0/api-job-directory.ts'), 'utf8')).not.toContain("'test.get'");
+    expect(readFileSync(path.join(out, 'v2_0_0/api-event-directory.ts'), 'utf8')).not.toContain("'test.get'");
+  });
+
+  it('rejects an exact entry whose kind is not a directory kind', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-badkind-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['method:test.alpha'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('is neither a namespace prefix');
   });
 });

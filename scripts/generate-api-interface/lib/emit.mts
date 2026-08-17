@@ -308,6 +308,16 @@ export interface DirectoryChainLink {
    * declares.
    */
   removedPrefixes?: string[];
+  /**
+   * Exact entries to omit, e.g. `pool.dataset.encryption_algorithm_choices`.
+   *
+   * Same blind spot as `removedPrefixes`, one entry rather than a namespace: a
+   * single method deleted from every version directory upstream leaves the diff
+   * nothing to compare on either side. Rendered as quoted literals, so they and
+   * `removed` are indistinguishable in the emitted type — the difference is only
+   * where they came from, which is what `prefixNote` explains.
+   */
+  handRemovedNames?: string[];
 }
 
 /**
@@ -320,9 +330,13 @@ export interface DirectoryChainLink {
  */
 function prefixNote(link: DirectoryChainLink): string {
   const prefixes = link.removedPrefixes ?? [];
-  if (prefixes.length === 0) return '';
-  const list = prefixes.map((p) => '`' + p + '*`').join(', ');
-  const plural = prefixes.length > 1;
+  const names = link.handRemovedNames ?? [];
+  if (prefixes.length === 0 && names.length === 0) return '';
+  const list = [
+    ...prefixes.map((p) => '`' + p + '*`'),
+    ...names.map((n) => '`' + n + '`'),
+  ].join(', ');
+  const plural = prefixes.length + names.length > 1;
   return [
     '',
     ' *',
@@ -347,9 +361,12 @@ function chainedDirectory(
   const prevImport = `import type { ${interfaceName} as ${prevAlias} } from '${link.prevPath}';\n`;
   const removedUnion = [
     ...link.removed.map((n) => `'${n}'`),
+    ...(link.handRemovedNames ?? []).map((n) => `'${n}'`),
     ...(link.removedPrefixes ?? []).map((p) => `\`${p}\${string}\``),
   ].join(' | ');
-  const hasRemovals = link.removed.length > 0 || (link.removedPrefixes ?? []).length > 0;
+  const hasRemovals = link.removed.length > 0
+    || (link.handRemovedNames ?? []).length > 0
+    || (link.removedPrefixes ?? []).length > 0;
   if (!entries) {
     if (!hasRemovals) {
       return `${HEADER}\n${prevImport}\n/** Identical to the previous version's surface. */\nexport type ${interfaceName} = ${prevAlias};\n`;

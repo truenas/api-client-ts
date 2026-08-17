@@ -179,12 +179,25 @@ function parseHandRemoved(raw: unknown, selected: string[], available: string[])
       console.error(`hand-removed: '${version}' must map to an array of strings.`);
       process.exit(1);
     }
-    for (const prefix of value as string[]) {
-      // Trailing dot required: `virt` would emit `\`virt${string}\`` and swallow
-      // a future `virtual.*`. Interpolated into a template literal, so anything
-      // that is not a bare namespace is rejected rather than emitted.
-      if (!/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*\.$/.test(prefix)) {
-        console.error(`hand-removed: '${prefix}' is not a namespace prefix ending in '.'.`);
+    for (const entry of value as string[]) {
+      // Two forms, both interpolated into emitted TypeScript, so anything that
+      // is neither is rejected here rather than emitted as broken code.
+      //
+      // `virt.` — a namespace prefix, rendered as a template literal. The
+      // trailing dot is required: `virt` would emit `\`virt${string}\`` and
+      // swallow a future `virtual.*`.
+      //
+      // `call:pool.dataset.encryption_algorithm_choices` — one exact entry,
+      // rendered as a quoted literal. A single method deleted upstream cannot
+      // be stated as a prefix, and its kind has to be given rather than
+      // inferred: the dump that would say whether it was a call, a job or an
+      // event is the very thing that no longer describes it.
+      const isExact = /^(call|job|event):[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*$/.test(entry);
+      if (!isExact && !/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*\.$/.test(entry)) {
+        console.error(
+          `hand-removed: '${entry}' is neither a namespace prefix ending in '.' ` +
+          `nor an exact entry of the form 'call|job|event:name'.`
+        );
         process.exit(1);
       }
     }
