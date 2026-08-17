@@ -1,10 +1,10 @@
 {
-  "$comment": "Hash of each frozen version's slice in the dump it was blessed from, excluding doc/description, taken off the parsed dump before generation runs (see lib/dump-digest.mts). Generation fails if a frozen version's slice moves, because its files are skipped and the rest of the tree would be generated against a model they no longer hold. Run `yarn generate:api` and paste what it prints to seed a version. Record $source when you do.",
-  "$source": "ghcr.io/truenas/middleware:master, middlewared 20260814185039~truenas+1 (fetched 2026-08-17). NOTE: this dump already disagrees with the frozen v25.10 files on disk — its event schemas carry master's newer AppEntry (ERROR state, error_reason, nullable version) in every historical version, while the method schemas of those same versions carry the older shape the frozen files hold. Seeding here records the dump as it is now; it does not reconcile that.",
-  "v25.10.0": "5afb538b69415a74",
-  "v25.10.1": "bd04e56f127e4efa",
-  "v25.10.2": "ecc1c1ef226519d1",
-  "v25.10.3": "2ee6a242161d1d34",
-  "v25.10.4": "89b03a563b3d1731",
-  "v25.10.5": "ce6370817ac0db7c"
+  "$comment": "Hash of each frozen version's slice in the dump it was blessed from, excluding doc/description/examples (none of which reach the generated output), taken off the parsed dump before generation runs (see lib/dump-digest.mts). Generation fails if a frozen version's slice moves, because its files are skipped and the rest of the tree would be generated against a model they no longer hold. Run `yarn generate:api` and paste what it prints to seed a version. Record $source when you do.",
+  "$source": "ghcr.io/truenas/middleware:master, middlewared 20260814185039~truenas+1 (fetched 2026-08-17). NOTE: this dump already disagrees with the frozen v25.10 files on disk \u2014 its event schemas carry master's newer AppEntry (ERROR state, error_reason, nullable version) in every historical version, while the method schemas of those same versions carry the older shape the frozen files hold. Seeding here records the dump as it is now; it does not reconcile that.",
+  "v25.10.0": "af48de86fe599697",
+  "v25.10.1": "e6ebd902fdcfb8e7",
+  "v25.10.2": "7470ff2f8d104cde",
+  "v25.10.3": "50a5fa97191f0fad",
+  "v25.10.4": "c6bb5d129d3e2df2",
+  "v25.10.5": "7f20f9c5436f5933"
 }

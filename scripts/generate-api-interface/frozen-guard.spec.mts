@@ -174,8 +174,11 @@ describe('hand-declared removals', () => {
     ) as ApiDumpFile;
     const slice = dump.versions?.find((v) => v.version === 'v1.0.0');
 
-    // Guard the lookup: `dumpDigest(undefined)` is a stable value, so a fixture
-    // that stopped carrying v1.0.0 would otherwise make this pass vacuously.
+    // Guard the lookup so the failure names its cause. `dumpDigest(undefined)`
+    // throws a TypeError from `createHash().update()` rather than returning a
+    // digest, so without this the test still fails if the fixture stops
+    // carrying v1.0.0 — but as a stack trace inside the digest helper, which
+    // reads as a bug in the thing under test.
     expect(slice).toBeDefined();
     expect(printed['v1.0.0']).toBe(dumpDigest(slice));
   });
