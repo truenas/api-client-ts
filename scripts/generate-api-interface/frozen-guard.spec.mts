@@ -18,6 +18,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { dumpDigest } from './lib/dump-digest.mts';
+import type { ApiDumpFile } from './lib/types.mts';
+
 const FROZEN_HEADER = `/**
  * FROZEN — generated once, then hand-maintained. Do not regenerate.
  */
@@ -139,6 +142,42 @@ describe('hand-declared removals', () => {
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('The dump no longer matches');
     expect(result.stderr).toContain('v1.0.0');
+  });
+
+  /**
+   * The baseline is meant to isolate what the dump says, so that changing the
+   * emitter does not read as "the dump changed". `generateFromDump` mutates the
+   * dump in place — `hoistInlineEnums` accumulates hoisted enums into each
+   * document's `$defs` — so a digest taken after generation is a hash of the
+   * dump plus whatever the emitter did to it, and every emitter change would
+   * fire the drift check on a dump nobody touched.
+   *
+   * Pinned against the fixture read fresh from disk: that is the value the
+   * baseline claims to be, and it is not what generation leaves behind.
+   */
+  it('record what the dump says, not what generation did to it', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-digest-'));
+    mkdirSync(path.join(out, 'v1_0_0'), { recursive: true });
+    writeFileSync(path.join(out, 'v1_0_0/api-types.ts'), FROZEN_HEADER);
+    const hashes = mkdtempSync(path.join(tmpdir(), 'gen-hashes-')) + '/frozen-hashes.json';
+    writeFileSync(hashes, '{}');
+
+    const result = generate(out, undefined, hashes);
+
+    expect(result.status).toBe(1);
+    const printed = JSON.parse(
+      result.stderr.slice(result.stderr.indexOf('{'), result.stderr.lastIndexOf('}') + 1)
+    ) as Record<string, string>;
+
+    const dump = JSON.parse(
+      readFileSync(path.join(HERE, 'fixtures/mini-dump.json'), 'utf8')
+    ) as ApiDumpFile;
+    const slice = dump.versions?.find((v) => v.version === 'v1.0.0');
+
+    // Guard the lookup: `dumpDigest(undefined)` is a stable value, so a fixture
+    // that stopped carrying v1.0.0 would otherwise make this pass vacuously.
+    expect(slice).toBeDefined();
+    expect(printed['v1.0.0']).toBe(dumpDigest(slice));
   });
 
   it('refuses to run when a frozen version has no baseline', () => {

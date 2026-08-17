@@ -1,10 +1,10 @@
 {
-  "$comment": "Hash of each frozen version's slice in the dump it was blessed from, excluding doc/description. Generation fails if a frozen version's slice moves, because its files are skipped and the rest of the tree would be generated against a model they no longer hold. Run `yarn generate:api` and paste what it prints to seed a version. Record $source when you do.",
-  "$source": "ghcr.io/truenas/middleware:master, middlewared 20260814185039~truenas+1 (fetched 2026-08-17). NOTE: this dump already disagrees with the frozen v25.10 files on disk — middleware backported model changes into the released v25.10 version directories (AppEntry.error_reason, AppEntry.state gained ERROR, version/human_version nullable) and dropped pool.dataset.encryption_algorithm_choices. Seeding here records the dump as it is now; it does not reconcile that drift.",
-  "v25.10.0": "4b97514e0101b5ec",
-  "v25.10.1": "b7890656a7b5e1ab",
-  "v25.10.2": "d75f2dd178008db4",
-  "v25.10.3": "435138692db0d065",
-  "v25.10.4": "26d23343c361dcb4",
-  "v25.10.5": "cae5c5c997cf50c9"
+  "$comment": "Hash of each frozen version's slice in the dump it was blessed from, excluding doc/description, taken off the parsed dump before generation runs (see lib/dump-digest.mts). Generation fails if a frozen version's slice moves, because its files are skipped and the rest of the tree would be generated against a model they no longer hold. Run `yarn generate:api` and paste what it prints to seed a version. Record $source when you do.",
+  "$source": "ghcr.io/truenas/middleware:master, middlewared 20260814185039~truenas+1 (fetched 2026-08-17). NOTE: this dump already disagrees with the frozen v25.10 files on disk — its event schemas carry master's newer AppEntry (ERROR state, error_reason, nullable version) in every historical version, while the method schemas of those same versions carry the older shape the frozen files hold. Seeding here records the dump as it is now; it does not reconcile that.",
+  "v25.10.0": "5afb538b69415a74",
+  "v25.10.1": "bd04e56f127e4efa",
+  "v25.10.2": "ecc1c1ef226519d1",
+  "v25.10.3": "2ee6a242161d1d34",
+  "v25.10.4": "89b03a563b3d1731",
+  "v25.10.5": "ce6370817ac0db7c"
 }

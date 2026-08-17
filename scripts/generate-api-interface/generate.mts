@@ -40,11 +40,11 @@
  * its shape first appeared and re-exported by later versions.
  */
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 
+import { dumpDigests } from './lib/dump-digest.mts';
 import { generateFromDump, versionDir } from './lib/pipeline.mts';
 import { selectVersions } from './lib/select-versions.mts';
 import type { ApiDumpFile, ApiDumpVersion } from './lib/types.mts';
@@ -130,6 +130,12 @@ if (args.fetch && args.fetch !== 'docker') {
 }
 
 const dump = JSON.parse(raw) as ApiDumpFile | ApiDumpVersion;
+/**
+ * Frozen-file baselines, taken here rather than next to the check that uses
+ * them: `generateFromDump` mutates the dump in place, so this has to happen
+ * before it runs. See `dumpDigests`.
+ */
+const digests = dumpDigests(dump);
 const availableVersions = ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => v.version);
 const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Boolean);
 
@@ -284,26 +290,10 @@ for (const relPath of files.keys()) {
  * content: the emitted content also moves whenever the generator moves, which
  * would report every emitter change as "the dump changed" and, worse, make the
  * re-seed silently re-bless whatever the dump happened to say at that moment.
- * The dump slice isolates the thing actually being assumed.
+ * The dump slice isolates the thing actually being assumed — which is why the
+ * digests are taken off the parsed dump before generation touches it, in
+ * `dumpDigests`, rather than here.
  */
-const dumpSlices = new Map(
-  ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => [v.version, v])
-);
-const hashOf = (value: unknown) =>
-  createHash('sha256')
-    // Documentation is not part of the generated output — the manifest says so
-    // in its own header — and middleware backports docstring edits into
-    // released version directories routinely. Including them would fire this
-    // check on changes that provably cannot affect a single emitted byte, and a
-    // check that cries wolf is a check that gets re-blessed reflexively.
-    // Discriminated on type, not key alone: `description` is also a legitimate
-    // model *field* name (31 models in v25.10 declare one), and dropping those
-    // schema nodes would hide a real change. Documentation is always a string;
-    // a field named `description` is always an object.
-    .update(JSON.stringify(value, (key, v: unknown) =>
-      (key === 'doc' || key === 'description') && typeof v === 'string' ? undefined : v))
-    .digest('hex')
-    .slice(0, 16);
 
 let recorded: Record<string, string>;
 try {
@@ -327,7 +317,7 @@ try {
  */
 const versionOfPath = (relPath: string): string | undefined => {
   const dir = relPath.split('/')[0];
-  return [...dumpSlices.keys()].find((v) => versionDir(v) === dir);
+  return [...digests.keys()].find((v) => versionDir(v) === dir);
 };
 
 const unmapped = frozen.filter((f) => versionOfPath(f) === undefined);
@@ -347,7 +337,15 @@ const frozenVersions = [...new Set(frozen.map(versionOfPath).filter((v): v is st
 const drifted: string[] = [];
 const missing: Record<string, string> = {};
 for (const version of frozenVersions) {
-  const digest = hashOf(dumpSlices.get(version));
+  const digest = digests.get(version);
+  if (digest === undefined) {
+    // Unreachable: `frozenVersions` comes from `versionOfPath`, which only
+    // returns versions this map has. Loud rather than defaulted, because a
+    // stand-in value would compare unequal to every recorded baseline and
+    // report drift on a dump that has not moved.
+    console.error(`No digest was computed for frozen version '${version}'.`);
+    process.exit(1);
+  }
   const before = recorded[version];
   if (before === undefined) missing[version] = digest;
   else if (before !== digest) drifted.push(`  ${version} (${before} -> ${digest})`);
