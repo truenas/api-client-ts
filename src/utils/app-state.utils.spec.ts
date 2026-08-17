@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { ContainerStatusState } from '@/generated/v26_0_0/api-types';
 import { AppState } from '@/types/app-query.type';
 import { toAppState } from '@/utils/app-state.utils';
 
@@ -8,10 +9,12 @@ import { toAppState } from '@/utils/app-state.utils';
  * makes it the one place a behaviour change is invisible: both clients keep
  * compiling and their own specs keep passing.
  *
- * `STARTING` is the arm that matters. It is v25.10 `virt.instance` only, it is
- * the one state whose destination changed in the extraction, and deleting the
- * case left the suite green — `default` catches it and returns `Stopped`,
- * which is the pre-extraction answer.
+ * `STARTING` is the arm that matters. It is v25.10 `virt.instance` only, and it
+ * is the one state whose destination changed in the extraction. Deleting the
+ * case used to leave the suite green, because `default` caught it and returned
+ * the pre-extraction answer. It no longer does: `default` answers `Unknown`
+ * now, and "map every state either version declares without falling through"
+ * below turns the deletion red.
  */
 describe('toAppState', () => {
   it('map an in-progress state to Deploying, not Stopped', () => {
@@ -83,15 +86,30 @@ describe('toAppState', () => {
    * Every state either version declares has to land somewhere deliberate. The
    * check is that none of them reaches `default`, which is the arm that cannot
    * distinguish "middleware said UNKNOWN" from "this mapping was not updated".
+   *
+   * The v26 half is read off the generated const rather than retyped, so the
+   * regeneration that adds the next `SUSPENDED` turns this red instead of
+   * leaving a stale list passing. A hand-written list is exactly what this test
+   * exists to stop being relied on.
+   *
+   * The v25.10 half has to stay literal: `VirtInstanceEntry.status` is an
+   * inline union with no runtime value to read. It is also in the frozen tree,
+   * so unlike the v26 half it cannot move underneath this list.
    */
   it('map every state either version declares without falling through', () => {
-    // `VirtInstanceEntry.status` (v25.10) and `ContainerStatusState` (v26).
     const declared = [
+      // `VirtInstanceEntry.status`, v25_10_0/api-types.ts.
       'RUNNING', 'STOPPED', 'UNKNOWN', 'ERROR', 'FROZEN',
       'STARTING', 'STOPPING', 'FREEZING', 'THAWED', 'ABORTING',
-      'SUSPENDED',
+      ...Object.values(ContainerStatusState),
     ];
     const unhandled = declared.filter((state) => state !== 'UNKNOWN' && toAppState(state) === AppState.Unknown);
     expect(unhandled).toEqual([]);
+  });
+
+  it('read the v26 vocabulary from the generated const, not a copy of it', () => {
+    // Guards the line above: if the import ever resolves to something empty,
+    // the filter has nothing to check and the test passes vacuously.
+    expect(Object.values(ContainerStatusState)).toContain('SUSPENDED');
   });
 });
