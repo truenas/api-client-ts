@@ -34,8 +34,15 @@ export interface PipelineOptions {
   /** Progress logger; silent by default (the CLI passes console.log). */
   log?: (message: string) => void;
   /**
-   * Version -> namespace prefixes that version drops, for removals no dump can
-   * express. See `hand-removed.json`; the CLI loads it and passes it through.
+   * Version -> hand-declared removals that version drops, for removals no dump
+   * can express. See `hand-removed.json`; the CLI loads, validates and passes
+   * it through.
+   *
+   * Two entry forms, split apart below: a namespace prefix ending in `.`, which
+   * applies to every directory kind, and one exact `call|job|event:name`, which
+   * applies only to the kind it names. Passing anything else here is a silent
+   * no-op — the CLI rejects it, but a caller reaching this interface directly
+   * does not go through that.
    */
   handRemoved?: Record<string, string[]>;
   /**
