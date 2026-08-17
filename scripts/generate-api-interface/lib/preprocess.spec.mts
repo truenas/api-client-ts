@@ -63,10 +63,13 @@ describe('preprocess', () => {
       })),
     ]));
     expect(Object.keys(definitions['CronJob'].properties ?? {})).toEqual(['command', 'description']);
-    // The field survives as a schema; the prose on it and on the model does not.
+    // The field survives as a schema; the prose on it does not.
     expect(definitions['CronJob'].properties?.['description']).toEqual({ type: 'string' });
-    expect(definitions['CronJob']).not.toHaveProperty('description.description');
     expect(definitions['CronJob'].properties?.['command']).toEqual({ type: 'string' });
+    // ...and neither does the prose on the model itself. Asserted directly:
+    // `toHaveProperty('description.description')` reads the string as a path
+    // and passes whether or not the prose survived, so it checked nothing.
+    expect(definitions['CronJob'].description).toBeUndefined();
   });
 
   it('splits a model rendered differently per mode into Name and NameInput', () => {
