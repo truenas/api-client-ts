@@ -72,11 +72,15 @@ describe('TrueNasApiClientV2510', () => {
   });
 
   /**
-   * `virt.instance` reports ten states where `Container.status` promises four,
+   * `virt.instance` reports ten states where `Container.status` promises seven,
    * and the nullable fields were previously passed through a type that said
    * they were always present. Both are normalised now, so both are pinned.
+   *
+   * `FROZEN` is the state under test because it is v25.10-only: v26 says
+   * `SUSPENDED` for the same condition, and both have to arrive as the same
+   * `AppState` or the two clients disagree about a paused container.
    */
-  it('narrows an unmapped state and drops nulls rather than passing them on', async () => {
+  it('narrows a version-specific state and drops nulls rather than passing them on', async () => {
     vi.spyOn(client.api, 'query').mockReturnValue(
       of([
         instance({
@@ -90,7 +94,7 @@ describe('TrueNasApiClientV2510', () => {
 
     const [container] = await firstValueFrom(client.ops.containerQuery());
 
-    expect(container.status).toBe(AppState.Stopped);
+    expect(container.status).toBe(AppState.Suspended);
     expect(container.cpu).toBeUndefined();
     expect(container.memory).toBeUndefined();
     expect(container.image).toBeUndefined();
