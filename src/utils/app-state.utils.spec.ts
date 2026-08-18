@@ -1,8 +1,36 @@
 import { describe, expect, it } from 'vitest';
 
-import { ContainerStatusState } from '@/generated/v26_0_0/api-types';
+import * as generated from '@/generated';
 import { AppState } from '@/types/app-query.type';
 import { toAppState } from '@/utils/app-state.utils';
+
+/** `v25_10_0`, `v26_0_0`, … — the per-version namespaces the barrel re-exports. */
+const VERSION_NAMESPACE = /^v\d+_\d+_\d+$/;
+
+/**
+ * Every generated version that declares `ContainerStatusState`, by name.
+ *
+ * Scanned rather than named, so a version added later is picked up without
+ * this file being touched — which is the whole point, since the const moves to
+ * whichever version widens it.
+ */
+function versionsDeclaringContainerStates(): string[] {
+  return Object.entries(generated)
+    .filter(([name, ns]) => VERSION_NAMESPACE.test(name)
+      && typeof (ns as { ContainerStatusState?: unknown }).ContainerStatusState === 'object')
+    .map(([name]) => name);
+}
+
+/** The union of the container state vocabulary across every generated version. */
+function containerStates(): string[] {
+  const all = Object.entries(generated)
+    .filter(([name]) => VERSION_NAMESPACE.test(name))
+    .flatMap(([, ns]) => {
+      const states = (ns as { ContainerStatusState?: Record<string, string> }).ContainerStatusState;
+      return states ? Object.values(states) : [];
+    });
+  return [...new Set(all)];
+}
 
 /**
  * The mapping is shared so the two versions cannot disagree about it, which
@@ -87,29 +115,40 @@ describe('toAppState', () => {
    * check is that none of them reaches `default`, which is the arm that cannot
    * distinguish "middleware said UNKNOWN" from "this mapping was not updated".
    *
-   * The v26 half is read off the generated const rather than retyped, so the
-   * regeneration that adds the next `SUSPENDED` turns this red instead of
+   * The container half is read off the generated consts rather than retyped, so
+   * the regeneration that adds the next `SUSPENDED` turns this red instead of
    * leaving a stale list passing. A hand-written list is exactly what this test
    * exists to stop being relied on.
    *
+   * Read from *every* generated version, not from v26. A type is declared in
+   * the version where its shape changed — which is why this PR re-declares
+   * `AppEntry` at v27 while v26 keeps the older one — so the next widening of
+   * `ContainerStatusState` will declare a new const in the version that widens
+   * it and leave `v26_0_0`'s at three members. Importing v26's alone would keep
+   * returning `RUNNING | STOPPED | SUSPENDED` forever, and the new state would
+   * fold to `Unknown` unnoticed: the exact failure this test exists to catch,
+   * reintroduced one version later.
+   *
    * The v25.10 half has to stay literal: `VirtInstanceEntry.status` is an
    * inline union with no runtime value to read. It is also in the frozen tree,
-   * so unlike the v26 half it cannot move underneath this list.
+   * so unlike the container half it cannot move underneath this list.
    */
   it('map every state either version declares without falling through', () => {
     const declared = [
       // `VirtInstanceEntry.status`, v25_10_0/api-types.ts.
       'RUNNING', 'STOPPED', 'UNKNOWN', 'ERROR', 'FROZEN',
       'STARTING', 'STOPPING', 'FREEZING', 'THAWED', 'ABORTING',
-      ...Object.values(ContainerStatusState),
+      ...containerStates(),
     ];
     const unhandled = declared.filter((state) => state !== 'UNKNOWN' && toAppState(state) === AppState.Unknown);
     expect(unhandled).toEqual([]);
   });
 
-  it('read the v26 vocabulary from the generated const, not a copy of it', () => {
-    // Guards the line above: if the import ever resolves to something empty,
-    // the filter has nothing to check and the test passes vacuously.
-    expect(Object.values(ContainerStatusState)).toContain('SUSPENDED');
+  it('read the container vocabulary from the generated consts, not a copy of it', () => {
+    // Guards the line above twice over: if the namespace scan ever found no
+    // version declaring the const, the filter would have nothing to check and
+    // the test would pass vacuously.
+    expect(versionsDeclaringContainerStates().length).toBeGreaterThan(0);
+    expect(containerStates()).toContain('SUSPENDED');
   });
 });
