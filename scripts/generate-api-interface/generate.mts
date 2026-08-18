@@ -206,52 +206,16 @@ function parseHandRemoved(raw: unknown, selected: string[], available: string[])
       );
       process.exit(1);
     }
-    // Shape before applicability: judged in the other order, a bare string got
-    // reported as "is the oldest version in this dump" — true, but not what is
-    // wrong with it — and a `continue` below returned before this ran at all,
-    // so `--api-version v26.0.0` stayed green on a manifest `yarn generate:api`
-    // exits 1 on. Each error names its own cause, and a narrowed run rejects
-    // what a full run would.
+    // Everything that can be wrong with the manifest is judged here, before
+    // either applicability skip below — so a narrowed run rejects exactly what
+    // a full run rejects, which is the property the preview path is worth
+    // having. Judged in the other order, `--min-version v26.0.0` exited 0 on a
+    // manifest that `yarn generate:api` exits 1 on: the array shape had been
+    // moved up but the per-entry form and the oldest-version check had not, and
+    // both sat behind a `continue`.
     if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
       console.error(`hand-removed: '${version}' must map to an array of strings.`);
       process.exit(1);
-    }
-    if (!selected.includes(version) && !selected.includes('all')) {
-      // In the dump but outside this run's range — a narrowed --api-version or
-      // --min-version. Not an error: the key is fine, it just does not apply.
-      continue;
-    }
-    // A removal is an `Omit` applied to what the previous version's directory
-    // declared, so a chain root has nothing to subtract from: the pipeline emits
-    // no link for `i === 0` and the entry is a silent no-op.
-    //
-    // Which is wrong depends on why the version is the root, and the two cases
-    // do not deserve the same answer.
-    if (version === oldestOf(available)) {
-      // Keyed to the dump's oldest version: no invocation can ever apply it,
-      // because that version is the root of every possible run. The manifest is
-      // wrong however you call the generator, so this is the fatal one.
-      console.error(
-        `hand-removed: '${version}' is the oldest version in this dump, so it is the ` +
-        `root of every run and has no previous version to omit from — the entry can ` +
-        `never apply. Move the removal to the version that inherits it.`
-      );
-      process.exit(1);
-    }
-    if (version === chainRootOf(selected, available)) {
-      // Root only because this run was narrowed. The manifest is correct and
-      // `yarn generate:api` applies it; this invocation simply cannot. Making
-      // that fatal took away the preview path `select-versions.mts` documents
-      // ("previewing one version, narrowing a repro") — `--api-version v26.0.0`
-      // would have exited 1 on a manifest that is fine, with editing a tracked
-      // file as the only way through. Warned and skipped, like the
-      // not-selected case above.
-      console.error(
-        `::warning::hand-removed: '${version}' is the root of this narrowed run, so its ` +
-        `entries cannot be applied here and are skipped. The manifest is fine — a full ` +
-        `run from an earlier version applies them.`
-      );
-      continue;
     }
     for (const entry of value as string[]) {
       // Two forms, both interpolated into emitted TypeScript, so anything that
@@ -274,6 +238,47 @@ function parseHandRemoved(raw: unknown, selected: string[], available: string[])
         );
         process.exit(1);
       }
+    }
+    // A removal is an `Omit` applied to what the previous version's directory
+    // declared, so a chain root has nothing to subtract from: the pipeline emits
+    // no link for `i === 0` and the entry is a silent no-op.
+    //
+    // Whether that is a defect depends on why the version is the root, which is
+    // why the two cases are answered separately and not together: this one is
+    // about the manifest and belongs above the applicability skips, the one
+    // further down is about this invocation and belongs below them.
+    if (version === oldestOf(available)) {
+      // Keyed to the dump's oldest version: no invocation can ever apply it,
+      // because that version is the root of every possible run. The manifest is
+      // wrong however you call the generator, so this is the fatal one.
+      console.error(
+        `hand-removed: '${version}' is the oldest version in this dump, so it is the ` +
+        `root of every run and has no previous version to omit from — the entry can ` +
+        `never apply. Move the removal to the version that inherits it.`
+      );
+      process.exit(1);
+    }
+    if (!selected.includes(version) && !selected.includes('all')) {
+      // In the dump but outside this run's range — a narrowed --api-version or
+      // --min-version. Not an error: the key is fine, it just does not apply.
+      continue;
+    }
+    if (version === chainRootOf(selected, available)) {
+      // Root only because this run was narrowed. The manifest is correct and
+      // `yarn generate:api` applies it; this invocation simply cannot. Making
+      // that fatal took away the preview path `select-versions.mts` documents
+      // ("previewing one version, narrowing a repro") — `--api-version v26.0.0`
+      // would have exited 1 on a manifest that is fine, with editing a tracked
+      // file as the only way through. Warned and skipped, like the
+      // not-selected case immediately above — both are facts about this run
+      // rather than about the manifest, which is why they sit here and the
+      // correctness checks sit above them.
+      console.error(
+        `::warning::hand-removed: '${version}' is the root of this narrowed run, so its ` +
+        `entries cannot be applied here and are skipped. The manifest is fine — a full ` +
+        `run from an earlier version applies them.`
+      );
+      continue;
     }
     out[version] = value as string[];
   }

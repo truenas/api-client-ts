@@ -274,11 +274,17 @@ describe('hand-declared removals', () => {
   });
 
   /**
-   * Shape is judged before applicability, so a narrowed run rejects exactly
-   * what a full run rejects. Judged the other way round, the skip above
-   * returned first and `--api-version v26.0.0` stayed green on a manifest that
-   * `yarn generate:api` exits 1 on — a preview that disagrees with the real run
-   * is worse than no preview.
+   * Every correctness check — array shape, entry form, and the version no run
+   * could apply — is judged before applicability, so a narrowed run rejects
+   * exactly what a full run rejects. This sentence was true of the shape check
+   * alone before the other two moved up with it, which is the sort of claim
+   * that reads as covering more than it does; the three tests below are one per
+   * check so it cannot drift back.
+   *
+   * Judged the other way round, the skip returned first and
+   * `--api-version v26.0.0` stayed green on a manifest that `yarn generate:api`
+   * exits 1 on — a preview that disagrees with the real run is worse than no
+   * preview.
    */
   it('rejects a malformed value even on the narrowed run that cannot apply it', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-narrowbad-'));
@@ -292,6 +298,36 @@ describe('hand-declared removals', () => {
     expect(result.stderr).toContain('must map to an array of strings');
     // Named by its own cause, not by the version check that runs after it.
     expect(result.stderr).not.toContain('is the root of this narrowed run');
+  });
+
+  it('rejects a malformed entry form even on the narrowed run that cannot apply it', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-narrowform-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // Well-shaped array, badly-formed entry: `test` without the trailing dot.
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['test'] }));
+
+    const result = generateNarrowed(out, manifest, 'v2.0.0');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('is neither a namespace prefix');
+    expect(result.stderr).not.toContain('is the root of this narrowed run');
+  });
+
+  /**
+   * "Can never apply" has to mean that under every invocation, or the sentence
+   * is not true. Behind the not-selected skip it exited 0 whenever the run
+   * simply did not include that version — which is most narrowed runs.
+   */
+  it('rejects a removal keyed to the dump oldest version even when the run excludes it', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-narrowoldest-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // v1.0.0 is the fixture's oldest; this run generates only v2.0.0.
+    writeFileSync(manifest, JSON.stringify({ 'v1.0.0': ['test.'] }));
+
+    const result = generateNarrowed(out, manifest, 'v2.0.0');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('is the oldest version in this dump');
   });
 
   it('still applies that same manifest on a full run', () => {
