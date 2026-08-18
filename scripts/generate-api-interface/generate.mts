@@ -156,6 +156,26 @@ try {
 if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} versions from ${args['min-version']} upward.`);
 
 /**
+ * Lowest version in a list, ordered the way `generateFromDump` orders its
+ * models — ascending, numeric-aware — so this names whatever lands at
+ * `models[0]`.
+ */
+const oldestOf = (versions: string[]): string =>
+  [...versions].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))[0];
+
+/**
+ * The version the pipeline will treat as the chain root for this run.
+ *
+ * `'all'` is the sentinel for an unnarrowed run, where the root is simply the
+ * oldest version the dump carries — which makes `chainRootOf` and `oldestOf`
+ * agree, and is why the two checks below have to be written separately rather
+ * than one being a special case of the other.
+ */
+function chainRootOf(selected: string[], available: string[]): string {
+  return oldestOf(selected.includes('all') ? available : selected);
+}
+
+/**
  * Version -> hand-declared removals, from the hand-removed manifest.
  *
  * Two forms, validated below and separated by the pipeline: namespace prefixes
@@ -164,20 +184,10 @@ if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} v
  * quoted literal — so a stray backtick, quote or `${` would emit broken
  * TypeScript rather than fail here. Rejected loudly instead. `$comment` keys
  * are skipped, which is how the file documents itself.
- */
-/**
- * The version the pipeline will treat as the chain root for this run.
  *
- * Ordered the same way `generateFromDump` orders its models — ascending,
- * numeric-aware — because the whole point is to name the version that ends up
- * at `models[0]`. `'all'` is the sentinel for an unnarrowed run, where the root
- * is simply the oldest version the dump carries.
+ * A key can also name a version this run cannot apply the removal to. That is
+ * fatal only when no run ever could; a narrowed run says so and skips.
  */
-function chainRootOf(selected: string[], available: string[]): string {
-  return [...(selected.includes('all') ? available : selected)]
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))[0];
-}
-
 function parseHandRemoved(raw: unknown, selected: string[], available: string[]): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const [version, value] of Object.entries(raw as Record<string, unknown>)) {
@@ -196,26 +206,37 @@ function parseHandRemoved(raw: unknown, selected: string[], available: string[])
       // --min-version. Not an error: the key is fine, it just does not apply.
       continue;
     }
-    if (version === chainRootOf(selected, available)) {
-      // A removal is an `Omit` applied to what the previous version's directory
-      // declared, so the chain root has nothing to subtract from: the pipeline
-      // emits no link for `i === 0` and the entry becomes a silent no-op — no
-      // omission, no warning, exit 0. Reachable from an ordinary flag, since
-      // any `--min-version` above the oldest version promotes some version to
-      // the root; `--min-version v26.0.0` would do it to both entries this file
-      // currently carries.
-      //
-      // Harmless in that particular case, because a root declares straight from
-      // the dump and the dump no longer mentions either name. Fatal anyway: it
-      // is the silent-no-op that `src/generated-hand-removed.spec.ts` exists to
-      // catch, and a hand-removal that quietly does nothing is the one failure
-      // this file cannot afford.
+    // A removal is an `Omit` applied to what the previous version's directory
+    // declared, so a chain root has nothing to subtract from: the pipeline emits
+    // no link for `i === 0` and the entry is a silent no-op.
+    //
+    // Which is wrong depends on why the version is the root, and the two cases
+    // do not deserve the same answer.
+    if (version === oldestOf(available)) {
+      // Keyed to the dump's oldest version: no invocation can ever apply it,
+      // because that version is the root of every possible run. The manifest is
+      // wrong however you call the generator, so this is the fatal one.
       console.error(
-        `hand-removed: '${version}' is the root of this run's chain, which has no ` +
-        `previous version to omit from — the entry would do nothing. Generate from ` +
-        `an earlier version, or move the removal to the version that inherits it.`
+        `hand-removed: '${version}' is the oldest version in this dump, so it is the ` +
+        `root of every run and has no previous version to omit from — the entry can ` +
+        `never apply. Move the removal to the version that inherits it.`
       );
       process.exit(1);
+    }
+    if (version === chainRootOf(selected, available)) {
+      // Root only because this run was narrowed. The manifest is correct and
+      // `yarn generate:api` applies it; this invocation simply cannot. Making
+      // that fatal took away the preview path `select-versions.mts` documents
+      // ("previewing one version, narrowing a repro") — `--api-version v26.0.0`
+      // would have exited 1 on a manifest that is fine, with editing a tracked
+      // file as the only way through. Warned and skipped, like the
+      // not-selected case above.
+      console.error(
+        `::warning::hand-removed: '${version}' is the root of this narrowed run, so its ` +
+        `entries cannot be applied here and are skipped. The manifest is fine — a full ` +
+        `run from an earlier version applies them.`
+      );
+      continue;
     }
     if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
       console.error(`hand-removed: '${version}' must map to an array of strings.`);

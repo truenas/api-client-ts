@@ -50,6 +50,23 @@ function seedBaseline(target: string): string {
   return file;
 }
 
+/** Like `generate`, but narrowed to one version — the preview path. */
+function generateNarrowed(target: string, handRemoved: string, version: string) {
+  return spawnSync(
+    'node',
+    [
+      path.join(REPO, 'node_modules/tsx/dist/cli.mjs'),
+      path.join(HERE, 'generate.mts'),
+      '--schema', path.join(HERE, 'fixtures/mini-dump.json'),
+      '--api-version', version,
+      '--out', target,
+      '--manifest-appendix', path.join(HERE, 'fixtures/empty-appendix.md'),
+      '--hand-removed', handRemoved,
+    ],
+    { cwd: REPO, encoding: 'utf8' }
+  );
+}
+
 function generate(target: string, handRemoved?: string, frozenHashes?: string) {
   return spawnSync(
     'node',
@@ -222,16 +239,51 @@ describe('hand-declared removals', () => {
    * root. Silent success is the one outcome a hand-declared removal must not
    * have, since nothing downstream can tell it apart from having worked.
    */
-  it('rejects a removal keyed to the root of the chain, which cannot omit anything', () => {
+  it('rejects a removal keyed to the dump oldest version, which no run can apply', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-rootkey-'));
     const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
-    // v1.0.0 is the fixture's oldest version, so it is the chain root here.
+    // v1.0.0 is the fixture's oldest version, so it is the root of every
+    // possible run — the entry is wrong however the generator is invoked.
     writeFileSync(manifest, JSON.stringify({ 'v1.0.0': ['call:test.get'] }));
 
     const result = generate(out, manifest);
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain("is the root of this run's chain");
+    expect(result.stderr).toContain('is the oldest version in this dump');
+  });
+
+  /**
+   * Root only because the run was narrowed is a different situation: the
+   * manifest is right and a full run applies it. Making that fatal took away
+   * `--api-version v26.0.0` for a manifest that is correct, leaving editing a
+   * tracked file as the only way to preview one version.
+   */
+  it('skips, without failing, a removal that only this narrowed run cannot apply', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-narrowed-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // Keyed to v2.0.0, which a full run applies — but this run starts there.
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['call:test.get'] }));
+
+    const result = generateNarrowed(out, manifest, 'v2.0.0');
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain('is the root of this narrowed run');
+    // Said out loud rather than dropped: the whole point is that a no-op
+    // removal is never silent.
+    expect(result.stderr).toContain('::warning::');
+  });
+
+  it('still applies that same manifest on a full run', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-fullrun-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['call:test.get'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).not.toContain('is the root of this narrowed run');
+    expect(readFileSync(path.join(out, 'v2_0_0/api-call-directory.ts'), 'utf8'))
+      .toContain("'test.get'");
   });
 
   /**
