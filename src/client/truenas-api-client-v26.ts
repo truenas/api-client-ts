@@ -103,12 +103,22 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
  * left unset.
  *
  * `description` is read through a widening because the generated
- * `ContainerEntry` does not declare it while the server does return it — the
- * same omission `core.get_jobs` shows, where the dump models what middleware
- * declares rather than what it sends. Dropping the field to match the dump
- * would take data away from callers who already receive it, so the divergence
- * is made explicit here instead. Remove the widening once the dump declares
- * the field.
+ * `ContainerEntry` does not declare it while the server does return it.
+ *
+ * The cause given here used to be "the dump models what middleware declares
+ * rather than what it sends", grouping this with `core.get_jobs`. That was
+ * wrong. Middleware declares the field plainly —
+ * `api/v26_0_0/container.py:61` on stable/26 is
+ * `description: str = Field(default="", description="Container description.")`
+ * — and it was this repo's own `stripDocs` deleting every model field named
+ * `description` along with the docstrings. The generator no longer does;
+ * the committed tree still lacks the field because it has not been regenerated.
+ *
+ * Dropping the field to match the tree would take data away from callers who
+ * already receive it, so the divergence stays explicit here. Remove the
+ * widening once a regeneration lands the field —
+ * `src/generated-known-gaps.spec.ts` fails when it does, so this does not have
+ * to be remembered.
  */
 function toContainer(container: v26_0_0.ContainerEntry): Container {
   const { description } = container as v26_0_0.ContainerEntry & {
