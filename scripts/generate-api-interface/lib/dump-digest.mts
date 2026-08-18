@@ -16,9 +16,10 @@ import type { ApiDumpFile, ApiDumpVersion } from './types.mts';
  * `doc` and `description` are discriminated on type, not key alone:
  * `description` is also a legitimate model *field* name, and dropping those
  * schema nodes would hide a real change. Documentation is always a string; a
- * field named `description` is always an object. `examples` needs no such
- * guard — it is not a field name on any model, and the preprocessor strips it
- * unconditionally.
+ * field named `description` is always an object. `examples` gets the same guard
+ * on its own shape — always an array as documentation, always an object as a
+ * field schema — because "no model declares one" is the guarantee `description`
+ * had until a model did.
  *
  * This used to claim `stripDocs` already made the same distinction. It did not:
  * it dropped `description` by key at every node, so the field was gone from the
@@ -29,7 +30,7 @@ import type { ApiDumpFile, ApiDumpVersion } from './types.mts';
 export function dumpDigest(value: unknown): string {
   return createHash('sha256')
     .update(JSON.stringify(value, (key, v: unknown) =>
-      (key === 'examples')
+      (key === 'examples' && Array.isArray(v))
       || ((key === 'doc' || key === 'description') && typeof v === 'string')
         ? undefined
         : v))

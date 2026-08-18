@@ -475,9 +475,14 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * `call('cronjob.create', [{ ..., description: 'nightly' }])` did not compile,
  * for a field the appliance accepts and returns.
  *
- * `examples` stays unconditional: it is not a field name on any model in
- * `api/v2*` (checked against master), and unlike `description` it has no
- * second meaning to preserve.
+ * `examples` is discriminated the same way, and for the same reason one step
+ * earlier. No model in `api/v2*` declares a field by that name today — but that
+ * was equally true of `description` until one did, and the failure is silent
+ * either way: the field vanishes from the emitted interface,
+ * `additionalProperties: false` stops callers passing it, and the dump-to-dump
+ * digest cannot see it because it excludes the key too. JSON Schema `examples`
+ * is always an array and a field schema is always an object, so the check costs
+ * nothing and does not rest on an upstream fact nobody re-reads.
  *
  * **This fix reaches fewer models than it looks like it should**, and the
  * reason is worth knowing before relying on it. A model is declared once, in
@@ -506,7 +511,7 @@ function stripDocs(node: unknown): unknown {
   if (node === null || typeof node !== 'object') return node;
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(node)) {
-    if (key === 'examples') continue;
+    if (key === 'examples' && Array.isArray(value)) continue;
     if (key === 'description' && typeof value === 'string') continue;
     out[key] = stripDocs(value);
   }

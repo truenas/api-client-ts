@@ -72,6 +72,31 @@ describe('preprocess', () => {
     expect(definitions['CronJob'].description).toBeUndefined();
   });
 
+  /**
+   * `examples` had no model declaring a field by that name when this was
+   * written, which is exactly the guarantee `description` had until one did.
+   * Discriminated on shape instead: documentation is an array, a field schema
+   * is an object.
+   */
+  it('keeps a model field named examples while stripping the examples list beside it', () => {
+    const { definitions } = preprocess(version([
+      method('x.get', args({}, []), returnsDoc({ $ref: '#/$defs/Sample' }, {
+        Sample: {
+          title: 'Sample', type: 'object', additionalProperties: false,
+          examples: [{ examples: 'x' }], // documentation on the model
+          properties: {
+            examples: { type: 'string', examples: ['one', 'two'] }, // the field
+          },
+        },
+      })),
+    ]));
+    expect(Object.keys(definitions['Sample'].properties ?? {})).toEqual(['examples']);
+    // The field survives; the documentation array on it does not...
+    expect(definitions['Sample'].properties?.['examples']).toEqual({ type: 'string' });
+    // ...and neither does the one on the model.
+    expect(definitions['Sample'].examples).toBeUndefined();
+  });
+
   it('splits a model rendered differently per mode into Name and NameInput', () => {
     const inputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' } } };
     const outputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' }, b: { type: 'integer' } } };
