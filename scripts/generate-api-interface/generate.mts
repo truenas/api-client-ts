@@ -46,7 +46,7 @@ import path from 'node:path';
 
 import { dumpDigests } from './lib/dump-digest.mts';
 import { generateFromDump, versionDir } from './lib/pipeline.mts';
-import { selectVersions } from './lib/select-versions.mts';
+import { compareVersionStrings, selectVersions } from './lib/select-versions.mts';
 import type { ApiDumpFile, ApiDumpVersion } from './lib/types.mts';
 
 const { values: args } = parseArgs({
@@ -159,9 +159,14 @@ if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} v
  * Lowest version in a list, ordered the way `generateFromDump` orders its
  * models — ascending, numeric-aware — so this names whatever lands at
  * `models[0]`.
+ *
+ * Borrowed rather than rewritten: `compareVersionStrings` already carries the
+ * reason numeric collation is required (`v25.04.0 < v25.10.0`), and a third
+ * copy of that rule would make agreement with the pipeline a claim in a comment
+ * instead of a shared function.
  */
 const oldestOf = (versions: string[]): string =>
-  [...versions].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))[0];
+  [...versions].sort(compareVersionStrings)[0];
 
 /**
  * The version the pipeline will treat as the chain root for this run.
@@ -201,6 +206,16 @@ function parseHandRemoved(raw: unknown, selected: string[], available: string[])
       );
       process.exit(1);
     }
+    // Shape before applicability: judged in the other order, a bare string got
+    // reported as "is the oldest version in this dump" — true, but not what is
+    // wrong with it — and a `continue` below returned before this ran at all,
+    // so `--api-version v26.0.0` stayed green on a manifest `yarn generate:api`
+    // exits 1 on. Each error names its own cause, and a narrowed run rejects
+    // what a full run would.
+    if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
+      console.error(`hand-removed: '${version}' must map to an array of strings.`);
+      process.exit(1);
+    }
     if (!selected.includes(version) && !selected.includes('all')) {
       // In the dump but outside this run's range — a narrowed --api-version or
       // --min-version. Not an error: the key is fine, it just does not apply.
@@ -237,10 +252,6 @@ function parseHandRemoved(raw: unknown, selected: string[], available: string[])
         `run from an earlier version applies them.`
       );
       continue;
-    }
-    if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
-      console.error(`hand-removed: '${version}' must map to an array of strings.`);
-      process.exit(1);
     }
     for (const entry of value as string[]) {
       // Two forms, both interpolated into emitted TypeScript, so anything that

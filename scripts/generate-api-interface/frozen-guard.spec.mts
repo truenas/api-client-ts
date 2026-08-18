@@ -273,6 +273,27 @@ describe('hand-declared removals', () => {
     expect(result.stderr).toContain('::warning::');
   });
 
+  /**
+   * Shape is judged before applicability, so a narrowed run rejects exactly
+   * what a full run rejects. Judged the other way round, the skip above
+   * returned first and `--api-version v26.0.0` stayed green on a manifest that
+   * `yarn generate:api` exits 1 on — a preview that disagrees with the real run
+   * is worse than no preview.
+   */
+  it('rejects a malformed value even on the narrowed run that cannot apply it', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-narrowbad-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // A bare string where an array belongs, keyed to this run's root.
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': 'test.' }));
+
+    const result = generateNarrowed(out, manifest, 'v2.0.0');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('must map to an array of strings');
+    // Named by its own cause, not by the version check that runs after it.
+    expect(result.stderr).not.toContain('is the root of this narrowed run');
+  });
+
   it('still applies that same manifest on a full run', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-fullrun-'));
     const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
