@@ -79,13 +79,26 @@ describe('toAppState', () => {
    * memory as one that was not running.
    */
   it('map a paused container to Suspended, not Stopped', () => {
-    // v26's word, then v25.10's two for the same condition.
+    // v26's word, then v25.10's for the same completed condition.
     expect(toAppState('SUSPENDED')).toBe(AppState.Suspended);
     expect(toAppState('FROZEN')).toBe(AppState.Suspended);
-    expect(toAppState('FREEZING')).toBe(AppState.Suspended);
-    // Deleting any case above turns these red rather than falling through to
+    // Deleting either case above turns these red rather than falling through to
     // `default`, which now answers `Unknown`.
     expect(toAppState('SUSPENDED')).not.toBe(AppState.Unknown);
+  });
+
+  /**
+   * The distinction `Suspended` alone could not draw. A caller polling for "the
+   * memory is quiesced" reads `Suspended`, and answering it while the freeze is
+   * still running is true one poll too early — the same false claim the
+   * `Stopped` default made, one state along.
+   */
+  it('map a freeze in progress to Suspending, not to the state it is heading for', () => {
+    expect(toAppState('FREEZING')).toBe(AppState.Suspending);
+    expect(toAppState('FREEZING')).not.toBe(AppState.Suspended);
+    // ...and it is still not the fallback, which is the other way to get this
+    // wrong quietly.
+    expect(toAppState('FREEZING')).not.toBe(AppState.Unknown);
   });
 
   it('report a failed instance as Error rather than at rest', () => {

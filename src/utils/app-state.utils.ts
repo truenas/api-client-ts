@@ -44,14 +44,20 @@ export function toAppState(state: string): AppState {
     case 'DEPLOYING':
       return AppState.Deploying;
     // v25.10's freezer states are the same idea as v26's `SUSPENDED`: the
-    // processes are paused, not exited. `FREEZING` reports the destination
-    // rather than a state of its own, which is the same compromise `STARTING`
-    // makes — there is no in-progress word for it, and `Suspended` is the only
-    // answer that does not claim the container is running or stopped.
+    // processes are paused, not exited. `FROZEN` is that pause completed, so it
+    // and `SUSPENDED` are the same answer.
     case 'SUSPENDED':
     case 'FROZEN':
-    case 'FREEZING':
       return AppState.Suspended;
+    // `FREEZING` is on the way there and not there yet. It used to answer
+    // `Suspended`, defended by analogy with `STARTING` — but `STARTING` maps to
+    // `Deploying`, which is itself an in-progress word, so the analogy ran the
+    // wrong way. Answering `Suspended` tells a caller polling for "the memory
+    // is quiesced" that it is, one poll before it is true: the same false
+    // claim this mapping was rewritten to stop making, one state along.
+    // `ABORTING` had `Stopping` to land on; the freeze path needed its own.
+    case 'FREEZING':
+      return AppState.Suspending;
     // `THAWED` is the freezer lifted: the processes are scheduled again, so
     // this is `RUNNING` reported through the transition rather than a state a
     // caller should act on differently.
