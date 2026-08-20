@@ -489,22 +489,26 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * the version where its shape first appeared, and `generate.mts` skips writing
  * any file carrying the frozen marker. So a corrected declaration is emitted
  * for a frozen version and then discarded, while every later version keeps
- * importing the copy on disk. Of the 32 models `api/v26_0_0` declares a
- * `description` field on, 27 are emitted here and only five are homed at
- * v26/v27 where a regeneration can rewrite them: `ContainerEntry`, `SMBEntry`,
- * `USBPassthroughDevice`, `VMEntry` and `ZPoolFeature`.
+ * importing the copy on disk.
  *
- * The other 22 — `CronJobCreate`, `PoolScrubEntry`, `StaticRouteEntry`,
- * `UPSEntry`, `InterfaceCreate` and the rest — are homed in v25_10_0, so no
- * regeneration will restore their field. They need the same treatment as the
- * other things no dump can reproduce: hand-maintenance in the frozen
- * directory, verified against the v25.10 models rather than against master.
+ * Measured against the tree as regenerated from the pinned dump: of the 32
+ * models `api/v26_0_0` declares a `description` field on, 27 are emitted here
+ * and six now carry it — the ones homed at v26/v27, `ContainerEntry` and
+ * `SMBEntry` among them. The other 21 — `CronJobCreate`, `PoolScrubEntry`,
+ * `StaticRouteEntry`, `UPSEntry`, `InterfaceCreate` and the rest — are homed in
+ * v25_10_0, so no regeneration will restore their field. (The tree gains more
+ * `description` fields than six, because Input/Create/Update variants of those
+ * models are re-declared at v26 too; six is the count for this specific list.)
+ *
+ * The 21 need the same treatment as the other things no dump can reproduce:
+ * hand-maintenance in the frozen directory, verified against the v25.10 models
+ * rather than against master.
  *
  * Nothing catches that today, and nothing here pretends to. The drift check in
  * `generate.mts` compares dump to dump, so it stays quiet when only the
  * generator has moved, and `ci.yml` does not regenerate or diff the tree at
  * all. Until the frozen directories are reconciled by hand, this fix reaches
- * the five models above and no others.
+ * the models homed at v26/v27 and no others.
  */
 function stripDocs(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(stripDocs);

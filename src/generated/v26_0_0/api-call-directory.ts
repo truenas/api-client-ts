@@ -52,6 +52,10 @@ import type {
   IscsiExtentCreate,
   IscsiExtentUpdate,
   MegaCredentialsModel,
+  NVMetHostQueryResultItem,
+  NVMetHostSubsysCreate,
+  NVMetHostSubsysQueryResultItem,
+  NVMetHostSubsysUpdate,
   NVMetNamespaceCreate,
   NVMetNamespaceQueryResultItem,
   NVMetNamespaceUpdate,
@@ -164,6 +168,10 @@ import type {
   InterfaceUpdate,
   LXCConfigEntry,
   LXCConfigUpdateArgs,
+  NVMetHostCreate,
+  NVMetHostEntry,
+  NVMetHostSubsysEntry,
+  NVMetHostUpdate,
   NVMetNamespaceEntry,
   PeriodicSnapshotTaskEntry,
   PoolDatasetCreateFilesystem,
@@ -625,6 +633,48 @@ export interface ApiCallDirectoryDelta {
   'lxc.update': {
     params: [lxc_config_update?: LXCConfigUpdateArgs];
     response: LXCConfigEntry;
+  };
+
+  'nvmet.host.create': {
+    params: [nvmet_host_create: NVMetHostCreate];
+    response: NVMetHostEntry;
+  };
+
+  'nvmet.host.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetHostEntry>];
+    response: NVMetHostEntry;
+  };
+
+  'nvmet.host.query': {
+    params: [filters?: QueryFilters<NVMetHostEntry>, options?: QueryOptions<NVMetHostEntry>];
+    response: NVMetHostEntry[] | NVMetHostEntry | NVMetHostQueryResultItem[] | NVMetHostQueryResultItem | number;
+    entity: NVMetHostEntry;
+  };
+
+  'nvmet.host.update': {
+    params: [id: number, nvmet_host_update: NVMetHostUpdate];
+    response: NVMetHostEntry;
+  };
+
+  'nvmet.host_subsys.create': {
+    params: [nvmet_host_subsys_create: NVMetHostSubsysCreate];
+    response: NVMetHostSubsysEntry;
+  };
+
+  'nvmet.host_subsys.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetHostSubsysEntry>];
+    response: NVMetHostSubsysEntry;
+  };
+
+  'nvmet.host_subsys.query': {
+    params: [filters?: QueryFilters<NVMetHostSubsysEntry>, options?: QueryOptions<NVMetHostSubsysEntry>];
+    response: NVMetHostSubsysEntry[] | NVMetHostSubsysEntry | NVMetHostSubsysQueryResultItem[] | NVMetHostSubsysQueryResultItem | number;
+    entity: NVMetHostSubsysEntry;
+  };
+
+  'nvmet.host_subsys.update': {
+    params: [id: number, nvmet_host_subsys_update: NVMetHostSubsysUpdate];
+    response: NVMetHostSubsysEntry;
   };
 
   'nvmet.namespace.create': {

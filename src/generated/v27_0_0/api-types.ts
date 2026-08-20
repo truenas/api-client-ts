@@ -177,6 +177,7 @@ export interface AppImagePull {
 export interface AppLatestItem {
   app_readme: string | null;
   categories: string[];
+  description: string;
   healthy: boolean;
   healthy_error?: string | null;
   home: string;
@@ -292,6 +293,7 @@ export interface CloudSyncListDirectory {
 export interface ContainerCreate {
   uuid?: string | null;
   name: string;
+  description?: string;
   cpuset?: string | null;
   autostart?: boolean;
   time?: Time;
@@ -357,9 +359,11 @@ export interface DockerStateChangedEvent {
   fields: DockerStatusInfoInput;
 }
 export interface DockerStatusInfoInput {
+  description: string;
   status: DockerStatusInfoStatusInput;
 }
 export interface DockerStatusInfo {
+  description: string;
   status: DockerStatusInfoStatus;
 }
 export interface DockerUpdate {
@@ -617,6 +621,7 @@ export interface VMEntryInput {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -680,6 +685,7 @@ export interface VMCreate {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -769,6 +775,7 @@ export interface VMEntry {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;

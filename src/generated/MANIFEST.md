@@ -479,21 +479,21 @@ causes a change.
 | nvmet.global.config | call | introduced v25.10.0 |
 | nvmet.global.sessions | call | introduced v27.0.0 |
 | nvmet.global.update | call | introduced v25.10.0 |
-| nvmet.host_subsys.create | call | introduced v25.10.0 |
+| nvmet.host_subsys.create | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | nvmet.host_subsys.delete | call | introduced v25.10.0 |
-| nvmet.host_subsys.get_instance | call | introduced v25.10.0 |
-| nvmet.host_subsys.query | call | introduced v25.10.0 |
-| nvmet.host_subsys.query | event | introduced v25.10.0 |
-| nvmet.host_subsys.update | call | introduced v25.10.0 |
-| nvmet.host.create | call | introduced v25.10.0 |
+| nvmet.host_subsys.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| nvmet.host_subsys.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| nvmet.host_subsys.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| nvmet.host_subsys.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| nvmet.host.create | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | nvmet.host.delete | call | introduced v25.10.0 |
 | nvmet.host.dhchap_dhgroup_choices | call | introduced v25.10.0 |
 | nvmet.host.dhchap_hash_choices | call | introduced v25.10.0 |
 | nvmet.host.generate_key | call | introduced v25.10.0 |
-| nvmet.host.get_instance | call | introduced v25.10.0 |
-| nvmet.host.query | call | introduced v25.10.0 |
-| nvmet.host.query | event | introduced v25.10.0 |
-| nvmet.host.update | call | introduced v25.10.0 |
+| nvmet.host.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| nvmet.host.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| nvmet.host.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| nvmet.host.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | nvmet.namespace.create | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | nvmet.namespace.delete | call | introduced v25.10.0 |
 | nvmet.namespace.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
@@ -1622,22 +1622,23 @@ causes a change.
 | NVMetGlobalSessionsItem | type | introduced v27.0.0 |
 | NVMetGlobalSessionsItemQueryResultItem | type | introduced v27.0.0 |
 | NVMetGlobalUpdateArgs | type | introduced v25.10.0 |
-| NVMetHostAddedEvent | type | introduced v25.10.0 |
-| NVMetHostChangedEvent | type | introduced v25.10.0 |
-| NVMetHostCreate | type | introduced v25.10.0 |
+| NVMetHostAddedEvent | type | introduced v25.10.0; changed v26.0.0 |
+| NVMetHostChangedEvent | type | introduced v25.10.0; changed v26.0.0 |
+| NVMetHostCreate | type | introduced v25.10.0; changed v26.0.0 |
 | NVMetHostDeleteOptions | type | introduced v25.10.0 |
-| NVMetHostEntry | type | introduced v25.10.0 |
+| NVMetHostEntry | type | introduced v25.10.0; changed v26.0.0 |
+| NVMetHostEntryInput | type | introduced v25.10.0; removed v26.0.0 |
 | NVMetHostQueryResultItem | type | introduced v25.10.0 |
 | NVMetHostRemovedEvent | type | introduced v25.10.0 |
-| NVMetHostSubsysAddedEvent | type | introduced v25.10.0 |
-| NVMetHostSubsysChangedEvent | type | introduced v25.10.0 |
+| NVMetHostSubsysAddedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| NVMetHostSubsysChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | NVMetHostSubsysCreate | type | introduced v25.10.0 |
-| NVMetHostSubsysEntry | type | introduced v25.10.0 |
-| NVMetHostSubsysEntryInput | type | introduced v25.10.0 |
+| NVMetHostSubsysEntry | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| NVMetHostSubsysEntryInput | type | introduced v25.10.0; changed v26.0.0 |
 | NVMetHostSubsysQueryResultItem | type | introduced v25.10.0 |
 | NVMetHostSubsysRemovedEvent | type | introduced v25.10.0 |
 | NVMetHostSubsysUpdate | type | introduced v25.10.0 |
-| NVMetHostUpdate | type | introduced v25.10.0 |
+| NVMetHostUpdate | type | introduced v25.10.0; changed v26.0.0 |
 | NVMetNamespaceAddedEvent | type | introduced v25.10.0 |
 | NVMetNamespaceChangedEvent | type | introduced v25.10.0 |
 | NVMetNamespaceCreate | type | introduced v25.10.0 |

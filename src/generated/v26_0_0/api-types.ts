@@ -55,6 +55,7 @@ import type {
   NFS4ACEInput,
   NFS4ACL_Flags,
   NVMetSubsysEntry,
+  NVMetSubsysEntryInput,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
   POSIXACE,
@@ -610,6 +611,7 @@ export interface PoolScan {
 export interface CatalogAppDetails {
   app_readme: string | null;
   categories: string[];
+  description: string;
   healthy: boolean;
   healthy_error?: string | null;
   home: string;
@@ -645,6 +647,7 @@ export interface CloudBackupAddedEvent {
 }
 export interface CloudBackupEntryInput {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -712,6 +715,7 @@ export interface CloudBackupChangedEvent {
 }
 export interface CloudBackupEntry {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -812,6 +816,7 @@ export interface CloudSyncAddedEvent {
 }
 export interface CloudSyncEntryInput {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -846,6 +851,7 @@ export interface CloudSyncChangedEvent {
 }
 export interface CloudSyncEntry {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -882,6 +888,7 @@ export interface ContainerEntryInput {
   id: number;
   uuid: string;
   name: string;
+  description?: string;
   devices?: ContainerDeviceEntryInput[];
   cpuset?: string | null;
   autostart?: boolean;
@@ -949,6 +956,7 @@ export interface ContainerChangedEvent {
 export interface ContainerCreateArgs {
   uuid?: string | null;
   name: string;
+  description?: string;
   cpuset?: string | null;
   autostart?: boolean;
   time?: Time;
@@ -1028,6 +1036,7 @@ export interface ContainerEntry {
   id: number;
   uuid: string;
   name: string;
+  description?: string;
   devices?: ContainerDeviceEntry[];
   cpuset?: string | null;
   autostart?: boolean;
@@ -1071,6 +1080,7 @@ export interface ContainerStopOptions {
 export interface ContainerUpdate {
   uuid?: string | null;
   name?: string;
+  description?: string;
   cpuset?: string | null;
   autostart?: boolean;
   time?: Time;
@@ -1110,6 +1120,7 @@ export interface DiskUnlockSedArgs {
 export interface DiskUpdate {
   number?: number;
   lunid?: string | null;
+  description?: string;
   hddstandby?: Hddstandby;
   advpowermgmt?: Advpowermgmt;
   bus?: string;
@@ -1178,6 +1189,7 @@ export interface GraphIdentifier {
 }
 export interface InterfaceUpdate {
   name?: string;
+  description?: string;
   ipv4_dhcp?: boolean;
   ipv6_auto?: boolean;
   aliases?: InterfaceCreateAlias[];
@@ -1273,6 +1285,57 @@ export interface LXCConfigUpdateArgs {
   bridge?: string | null;
   v4_network?: string;
   v6_network?: string;
+}
+export interface NVMetHostAddedEvent {
+  id: number;
+  fields: NVMetHostEntry;
+}
+export interface NVMetHostEntry {
+  id: number;
+  hostnqn: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetHostChangedEvent {
+  id: number;
+  fields: NVMetHostEntry;
+}
+export interface NVMetHostCreate {
+  hostnqn: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetHostSubsysAddedEvent {
+  id: number;
+  fields: NVMetHostSubsysEntryInput;
+}
+export interface NVMetHostSubsysEntryInput {
+  id: number;
+  host: NVMetHostEntry;
+  subsys: NVMetSubsysEntryInput;
+}
+export interface NVMetHostSubsysChangedEvent {
+  id: number;
+  fields: NVMetHostSubsysEntryInput;
+}
+export interface NVMetHostSubsysEntry {
+  id: number;
+  host: NVMetHostEntry;
+  subsys: NVMetSubsysEntry;
+}
+export interface NVMetHostUpdate {
+  hostnqn?: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
 }
 export interface NVMetNamespaceEntry {
   id: number;
@@ -1969,6 +2032,7 @@ export interface SMBEntry {
   netbiosname: string;
   netbiosalias: string[];
   workgroup: string;
+  description: string;
   minimum_protocol: "SMB1" | "SMB2" | "SMB3";
   unixcharset: Unixcharset;
   localmaster: boolean;
@@ -2003,6 +2067,7 @@ export interface SMBUpdateArgs {
   netbiosname?: string;
   netbiosalias?: string[];
   workgroup?: string;
+  description?: string;
   minimum_protocol?: "SMB1" | "SMB2" | "SMB3";
   unixcharset?: Unixcharset;
   localmaster?: boolean;
@@ -2144,6 +2209,7 @@ export interface UPSUpdate {
   remoteport?: number;
   shutdowntimer?: number;
   hostsync?: number;
+  description?: string;
   driver?: string;
   extrausers?: string;
   identifier?: string;
@@ -2161,6 +2227,7 @@ export interface USBPassthroughDevice {
   capability: USBCapability;
   available: boolean;
   error: string | null;
+  description: string;
 }
 export interface UserAddedEvent {
   id: number;
@@ -2332,6 +2399,7 @@ export interface VMEntryInput {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -2410,6 +2478,7 @@ export interface VMEntry {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -2774,6 +2843,7 @@ export interface ZPoolExpand {
 export interface ZPoolFeature {
   name: string;
   guid: string;
+  description: string;
   state: string;
 }
 export interface ZPoolEntryInput {
