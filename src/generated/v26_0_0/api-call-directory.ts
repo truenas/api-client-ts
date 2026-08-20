@@ -1254,3 +1254,8 @@ export interface ApiCallDirectoryDelta {
  * comes from `hand-removed.json`, so a regeneration reproduces it.
  */
 export type ApiCallDirectory = Omit<PreviousApiCallDirectory, keyof ApiCallDirectoryDelta | 'pool.dataset.encryption_algorithm_choices' | `virt.${string}`> & ApiCallDirectoryDelta;
+
+/** A hand-declared removal must name an entry the previous version really had. */
+type AssertOnPrevious<T extends true> = T;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _HandRemovedApiCallDirectory0 = AssertOnPrevious<'pool.dataset.encryption_algorithm_choices' extends keyof PreviousApiCallDirectory ? true : false>;
