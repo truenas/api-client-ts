@@ -7,28 +7,49 @@ import { toAppState } from '@/utils/app-state.utils';
 /** `v25_10_0`, `v26_0_0`, … — the per-version namespaces the barrel re-exports. */
 const VERSION_NAMESPACE = /^v\d+_\d+_\d+$/;
 
+/** `ContainerStatusState` and `ContainerStatusStateInput`, and any later render. */
+const CONTAINER_STATE_CONST = /^ContainerStatusState/;
+
 /**
- * Every generated version that declares `ContainerStatusState`, by name.
+ * Every generated version that declares a container-state const, by name.
  *
  * Scanned rather than named, so a version added later is picked up without
  * this file being touched — which is the whole point, since the const moves to
- * whichever version widens it.
+ * whichever version widens it. Matched by the same prefix `containerStates`
+ * uses, so the guard cannot end up checking a narrower thing than the function
+ * it guards.
  */
 function versionsDeclaringContainerStates(): string[] {
   return Object.entries(generated)
     .filter(([name, ns]) => VERSION_NAMESPACE.test(name)
-      && typeof (ns as { ContainerStatusState?: unknown }).ContainerStatusState === 'object')
+      && Object.keys(ns as Record<string, unknown>).some((e) => CONTAINER_STATE_CONST.test(e)))
     .map(([name]) => name);
 }
 
-/** The union of the container state vocabulary across every generated version. */
+/**
+ * The union of the container state vocabulary across every generated version,
+ * across *both* renders.
+ *
+ * Reading `ContainerStatusState` alone missed half the surface. pydantic renders
+ * a model differently for validation and serialization, and the generator
+ * splits the two whenever they differ — so the vocabulary can widen in one and
+ * not the other. The `Input` render is not the obscure half either: it is what
+ * event payloads carry (`container.query` -> `ContainerAddedEvent.fields` ->
+ * `ContainerEntryInput` -> `ContainerStatusInput`), and `toAppState` is fed from
+ * events as well as calls. A state that appeared only there would fold to
+ * `Unknown` with this test still green.
+ *
+ * Matched on prefix rather than the two names, so a third render — or a rename
+ * of the suffix — is picked up rather than silently halving the check again.
+ */
 function containerStates(): string[] {
   const all = Object.entries(generated)
     .filter(([name]) => VERSION_NAMESPACE.test(name))
-    .flatMap(([, ns]) => {
-      const states = (ns as { ContainerStatusState?: Record<string, string> }).ContainerStatusState;
-      return states ? Object.values(states) : [];
-    });
+    .flatMap(([, ns]) => Object.entries(ns as Record<string, unknown>)
+      .filter(([exported]) => CONTAINER_STATE_CONST.test(exported))
+      .flatMap(([, states]) => (states && typeof states === 'object')
+        ? Object.values(states as Record<string, string>)
+        : []));
   return [...new Set(all)];
 }
 
