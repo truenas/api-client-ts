@@ -105,4 +105,42 @@ describe('TrueNasApiClientV26', () => {
     expect(callSpy).toHaveBeenCalledWith('container.start', [5]);
     expect(emissions).toEqual([job, null]);
   });
+
+  it('containerDelete runs container.delete as a job with the options given', async () => {
+    const job = { id: 13, state: JobState.Success } as Job;
+    const callJobSpy = vi
+      .spyOn(client.api, 'callAndGetJobId')
+      .mockReturnValue(of(13) as never);
+    vi.spyOn(client.api, 'trackJob').mockReturnValue(of(job) as never);
+
+    const result = await firstValueFrom(
+      client.ops.containerDelete('5', { force: true, recursive: true })
+    );
+
+    // `job`, not `call`: middleware made deletion long-running at v26.0.0 and
+    // the directory moved it accordingly.
+    expect(callJobSpy).toHaveBeenCalledWith('container.delete', [
+      5,
+      { force: true, recursive: true },
+    ]);
+    expect(result).toBe(job);
+  });
+
+  it('containerDelete omits options entirely when none are given', async () => {
+    // Load-bearing, not cosmetic. A trailing `undefined` in the params array is
+    // `null` after `JSON.stringify`, and middleware declares
+    // `options: ContainerDeleteOptions` with a model default and no `| None` —
+    // so `[id, null]` is a validation error, not "use the defaults". The
+    // argument has to be absent.
+    const callJobSpy = vi
+      .spyOn(client.api, 'callAndGetJobId')
+      .mockReturnValue(of(14) as never);
+    vi.spyOn(client.api, 'trackJob').mockReturnValue(
+      of({ id: 14, state: JobState.Success } as Job) as never
+    );
+
+    await firstValueFrom(client.ops.containerDelete('7'));
+
+    expect(callJobSpy).toHaveBeenCalledWith('container.delete', [7]);
+  });
 });

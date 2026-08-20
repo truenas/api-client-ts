@@ -30,6 +30,7 @@ import { toAppState } from '@/utils/app-state.utils';
  * - containerStart → virt.instance.start (emits Job updates)
  * - containerStop → virt.instance.stop (emits Job updates)
  * - containerRestart → virt.instance.restart (emits Job updates)
+ * - containerDelete → virt.instance.delete (already a job; takes no options)
  */
 export class TrueNasApiClientV2510 extends TrueNasApiClient<ApiDirectoryV25_10_0> {
   /**
@@ -56,6 +57,34 @@ export class TrueNasApiClientV2510 extends TrueNasApiClient<ApiDirectoryV25_10_0
 
       containerRestart: (id, options) =>
         this.api.job('virt.instance.restart', [id, options]),
+
+      // Already a job here — `virt.instance.delete` has been one since
+      // v25.10.0 — so this needs no synthesis, only the id. It takes nothing
+      // else: there is no `force` and no `recursive` on this version.
+      //
+      // Unsupported options are reported rather than dropped. `recursive`
+      // destroys child datasets, snapshots and clones irrecoverably, so a
+      // caller who asked for it and silently did not get it has been told
+      // something false about what just happened to their data. Reporting is
+      // all this layer can do — refusing outright would make `ops.containerDelete`
+      // unusable on v25.10 for the ordinary case, which is the case that works.
+      containerDelete: (id, options) => {
+        const unsupported = (['force', 'recursive'] as const).filter(
+          (key) => options?.[key]
+        );
+        if (unsupported.length > 0) {
+          // Future tense on purpose: this runs when the operation is built, and
+          // the observable is cold, so nothing has been deleted yet and may
+          // never be. What is already true at this point is that the options
+          // cannot be honoured, which is the part worth saying.
+          this.logger.warn(
+            'containerDelete: v25.10 has no counterpart for these options and ' +
+              'will delete without them',
+            { ignored: unsupported, id, method: 'virt.instance.delete' }
+          );
+        }
+        return this.api.job('virt.instance.delete', [id]);
+      },
     };
   }
 

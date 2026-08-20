@@ -30,6 +30,7 @@ import { toAppState } from '@/utils/app-state.utils';
  * - containerStart → container.start (synchronous, emits null)
  * - containerStop → container.stop (emits Job updates)
  * - containerRestart → container.stop + container.start (emits Job, then null)
+ * - containerDelete → container.delete (a job since v26.0.0; force/recursive)
  */
 export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
   /**
@@ -91,6 +92,27 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
             )
           );
       },
+
+      // A job since v26.0.0 — middleware made deletion long-running (it stops
+      // the container when asked, tears down the libvirt domain and destroys
+      // the dataset), and the generated directory moved it out of `call`
+      // accordingly. `api.job` is what tracks it; `api.call` would not compile.
+      //
+      // Options pass straight through when given: the unified
+      // `ContainerDeleteOptions` is `force`/`recursive`, exactly what the
+      // generated params take.
+      //
+      // When they are not given the argument is *omitted* rather than passed as
+      // `undefined`. `JSON.stringify` renders a trailing `undefined` array
+      // element as `null`, and middleware declares `options: ContainerDeleteOptions`
+      // with a model default and no `| None` — so `[id, null]` is a validation
+      // error rather than "use the defaults", which is the one thing a caller
+      // passing nothing is asking for.
+      containerDelete: (id, options) =>
+        this.api.job(
+          'container.delete',
+          options ? [parseInt(id, 10), options] : [parseInt(id, 10)]
+        ),
     };
   }
 

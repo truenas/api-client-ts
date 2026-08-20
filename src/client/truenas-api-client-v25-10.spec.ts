@@ -156,4 +156,59 @@ describe('TrueNasApiClientV2510', () => {
     );
     expect(result).toBe(job);
   });
+
+  it('containerDelete runs virt.instance.delete, which is already a job here', async () => {
+    const job = { id: 21, state: JobState.Success } as Job;
+    const callJobSpy = vi
+      .spyOn(client.api, 'callAndGetJobId')
+      .mockReturnValue(of(21) as never);
+    vi.spyOn(client.api, 'trackJob').mockReturnValue(of(job) as never);
+
+    const result = await firstValueFrom(client.ops.containerDelete('c1'));
+
+    // String id and no options: v25.10 takes neither `force` nor `recursive`.
+    expect(callJobSpy).toHaveBeenCalledWith('virt.instance.delete', ['c1']);
+    expect(result).toBe(job);
+  });
+
+  /**
+   * The options have no counterpart on this version, and `recursive` destroys
+   * child datasets, snapshots and clones irrecoverably. A caller who asked for
+   * it and silently did not get it has been told something false about what
+   * happened to their data, so the client says so.
+   */
+  it('reports options it cannot honour rather than dropping them', async () => {
+    const warn = vi.fn();
+    const loud = new TrueNasApiClientV2510('uuid', ['h.local'], version, false, undefined, {
+      trace: vi.fn(), debug: vi.fn(), info: vi.fn(), warn, error: vi.fn(),
+    });
+    vi.spyOn(loud.api, 'callAndGetJobId').mockReturnValue(of(22) as never);
+    vi.spyOn(loud.api, 'trackJob').mockReturnValue(
+      of({ id: 22, state: JobState.Success } as Job) as never
+    );
+
+    await firstValueFrom(loud.ops.containerDelete('c1', { recursive: true }));
+
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn.mock.calls[0][1]).toMatchObject({ ignored: ['recursive'] });
+    await loud.close();
+  });
+
+  it('stays quiet when the options given are ones it can honour by doing nothing', async () => {
+    // `{ force: false }` asks for the default. Nothing is lost, so nothing is
+    // warned about — a warning on every call would be noise that gets muted.
+    const warn = vi.fn();
+    const quiet = new TrueNasApiClientV2510('uuid', ['h.local'], version, false, undefined, {
+      trace: vi.fn(), debug: vi.fn(), info: vi.fn(), warn, error: vi.fn(),
+    });
+    vi.spyOn(quiet.api, 'callAndGetJobId').mockReturnValue(of(23) as never);
+    vi.spyOn(quiet.api, 'trackJob').mockReturnValue(
+      of({ id: 23, state: JobState.Success } as Job) as never
+    );
+
+    await firstValueFrom(quiet.ops.containerDelete('c1', { force: false }));
+
+    expect(warn).not.toHaveBeenCalled();
+    await quiet.close();
+  });
 });
