@@ -201,7 +201,7 @@ describe('API Version Utils', () => {
     });
 
     it('should return TooNew for version above max', () => {
-      const version = assertVersion(parseApiVersion('v27.0.0'));
+      const version = assertVersion(parseApiVersion('v28.0.0'));
       expect(checkVersionCompatibility(version)).toBe(
         VersionCompatibility.TooNew
       );
@@ -227,7 +227,7 @@ describe('API Version Utils', () => {
     });
 
     it('should return false for version too new', () => {
-      const version = assertVersion(parseApiVersion('v27.0.0'));
+      const version = assertVersion(parseApiVersion('v28.0.0'));
       expect(isVersionSupported(version)).toBe(false);
     });
   });
@@ -238,7 +238,7 @@ describe('API Version Utils', () => {
         assertVersion(parseApiVersion('v24.04.0')), // Too old
         assertVersion(parseApiVersion('v25.10.0')), // Compatible
         assertVersion(parseApiVersion('v26.0.0')), // Compatible
-        assertVersion(parseApiVersion('v27.0.0')), // Too new
+        assertVersion(parseApiVersion('v28.0.0')), // Too new
       ];
 
       const result = filterCompatibleVersions(versions);
@@ -251,7 +251,7 @@ describe('API Version Utils', () => {
     it('should return empty array when no compatible versions', () => {
       const versions = [
         assertVersion(parseApiVersion('v24.04.0')), // Too old
-        assertVersion(parseApiVersion('v27.0.0')), // Too new
+        assertVersion(parseApiVersion('v28.0.0')), // Too new
       ];
 
       const result = filterCompatibleVersions(versions);
@@ -289,7 +289,7 @@ describe('API Version Utils', () => {
     });
 
     it('should return null when no compatible versions', () => {
-      const versions = ['v24.04.0', 'v27.0.0'];
+      const versions = ['v24.04.0', 'v28.0.0'];
 
       const result = selectLatestCompatibleVersion(versions);
 
@@ -327,7 +327,7 @@ describe('API Version Utils', () => {
     });
 
     it('should filter out versions outside supported range', () => {
-      const versions = ['v24.04.0', 'v25.10.0', 'v26.0.0', 'v27.0.0'];
+      const versions = ['v24.04.0', 'v25.10.0', 'v26.0.0', 'v28.0.0'];
 
       const result = selectLatestCompatibleVersion(versions);
 
@@ -392,9 +392,10 @@ describe('API Version Utils', () => {
       expect(parseApiVersion(apiVersionConfig.MIN_SUPPORTED_VERSION)).not.toBeNull();
     });
 
-    // MAX deliberately lags the newest generated version until a v27 client
-    // exists (see the config). It must still name a version we generated, or
-    // the range would admit something with no types behind it.
+    // MAX is a literal rather than the newest generated version, because
+    // generating types for a year does not write a client for it (see the
+    // config). It must still name a version we generated, or the range would
+    // admit something with no types behind it.
     it('keeps the maximum within the generated list', () => {
       expect([...SUPPORTED_API_VERSIONS]).toContain(
         apiVersionConfig.MAX_SUPPORTED_VERSION
