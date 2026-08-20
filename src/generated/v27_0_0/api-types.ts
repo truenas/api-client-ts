@@ -44,14 +44,12 @@ import type {
 import type {
   ACLTemplateByPathQueryOptions,
   AclTemplateFormatOptions,
+  AppActiveWorkloads,
   AuditExportQueryOptions,
   ContainerCreateImage,
   ContainerFilesystemDevice,
   ContainerGPUDevice,
-  ContainerNICDeviceType,
-  ContainerNICDeviceTypeInput,
-  ContainerStatus,
-  ContainerStatusInput,
+  ContainerNICDeviceInput,
   ContainerUSBDevice,
   DefaultIdmapConfiguration,
   FilesystemSetZfsAttributesOptions,
@@ -117,6 +115,40 @@ export interface AlertListChangedEvent {
   id: number;
   fields: Alert;
 }
+export interface AppBulkUpgradeJobResult {
+  app_name: string;
+  error: string | null;
+  result: AppEntry | null;
+}
+export interface AppEntry {
+  name: string;
+  id: string;
+  state: "CRASHED" | "DEPLOYING" | "ERROR" | "RUNNING" | "STOPPED" | "STOPPING";
+  error_reason?: ("METADATA_MISSING" | "METADATA_UNREADABLE" | "METADATA_INCOMPLETE") | null;
+  upgrade_available: boolean;
+  latest_version: string | null;
+  latest_app_version: string | null;
+  image_updates_available: boolean;
+  custom_app: boolean;
+  migrated: boolean;
+  human_version: string | null;
+  version: string | null;
+  metadata: {
+    [k: string]: unknown;
+  };
+  active_workloads: AppActiveWorkloads;
+  notes: string | null;
+  action_required: boolean;
+  portals: {
+    [k: string]: unknown;
+  };
+  version_details?: {
+    [k: string]: unknown;
+  } | null;
+  config?: {
+    [k: string]: unknown;
+  } | null;
+}
 export interface AppCreate {
   custom_app?: boolean;
   values?: {
@@ -145,6 +177,7 @@ export interface AppImagePull {
 export interface AppLatestItem {
   app_readme: string | null;
   categories: string[];
+  description: string;
   healthy: boolean;
   healthy_error?: string | null;
   home: string;
@@ -257,54 +290,10 @@ export interface CloudSyncListDirectory {
   attributes: CloudTaskAttributesInput;
   args?: string;
 }
-export interface ContainerAddedEvent {
-  id: number;
-  fields: ContainerEntryInput;
-}
-export interface ContainerEntryInput {
-  id: number;
-  uuid: string;
-  name: string;
-  devices?: ContainerDeviceEntryInput[];
-  cpuset?: string | null;
-  autostart?: boolean;
-  time?: Time;
-  shutdown_timeout?: number;
-  dataset: string;
-  init?: string;
-  initdir?: string | null;
-  initenv?: {
-    [k: string]: string;
-  };
-  inituser?: string | null;
-  initgroup?: string | null;
-  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  capabilities_state?: {
-    [k: string]: boolean;
-  };
-  default_network?: string | null;
-  status: ContainerStatusInput;
-}
-export interface ContainerDeviceEntryInput {
-  id: number;
-  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
-  container: number;
-}
-export interface ContainerNICDeviceInput {
-  dtype: "NIC";
-  trust_guest_rx_filters?: boolean;
-  type?: ContainerNICDeviceTypeInput;
-  nic_attach?: string | null;
-  mac?: string | null;
-}
-export interface ContainerChangedEvent {
-  id: number;
-  fields: ContainerEntryInput;
-}
 export interface ContainerCreate {
   uuid?: string | null;
   name: string;
+  description?: string;
   cpuset?: string | null;
   autostart?: boolean;
   time?: Time;
@@ -324,58 +313,13 @@ export interface ContainerCreate {
   pool?: string | null;
   image: ContainerCreateImage;
 }
-export interface ContainerDeviceAddedEvent {
-  id: number;
-  fields: ContainerDeviceEntryInput;
-}
-export interface ContainerDeviceChangedEvent {
-  id: number;
-  fields: ContainerDeviceEntryInput;
-}
 export interface ContainerDeviceCreate {
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
   container: number;
 }
-export interface ContainerDeviceEntry {
-  id: number;
-  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDevice | ContainerUSBDevice;
-  container: number;
-}
-export interface ContainerNICDevice {
-  dtype: "NIC";
-  trust_guest_rx_filters?: boolean;
-  type?: ContainerNICDeviceType;
-  nic_attach?: string | null;
-  mac?: string | null;
-}
 export interface ContainerDeviceNicAttachChoices {
   BRIDGE: string[];
   MACVLAN: string[];
-}
-export interface ContainerEntry {
-  id: number;
-  uuid: string;
-  name: string;
-  devices?: ContainerDeviceEntry[];
-  cpuset?: string | null;
-  autostart?: boolean;
-  time?: Time;
-  shutdown_timeout?: number;
-  dataset: string;
-  init?: string;
-  initdir?: string | null;
-  initenv?: {
-    [k: string]: string;
-  };
-  inituser?: string | null;
-  initgroup?: string | null;
-  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
-  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
-  capabilities_state?: {
-    [k: string]: boolean;
-  };
-  default_network?: string | null;
-  status: ContainerStatus;
 }
 export interface CredentialsVerifyData {
   valid: boolean;
@@ -415,9 +359,11 @@ export interface DockerStateChangedEvent {
   fields: DockerStatusInfoInput;
 }
 export interface DockerStatusInfoInput {
+  description: string;
   status: DockerStatusInfoStatusInput;
 }
 export interface DockerStatusInfo {
+  description: string;
   status: DockerStatusInfoStatus;
 }
 export interface DockerUpdate {
@@ -675,6 +621,7 @@ export interface VMEntryInput {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -738,6 +685,7 @@ export interface VMCreate {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -827,6 +775,7 @@ export interface VMEntry {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;

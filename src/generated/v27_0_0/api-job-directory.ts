@@ -6,6 +6,8 @@
 import type { ApiJobDirectory as PreviousApiJobDirectory } from '../v26_0_0/api-job-directory';
 
 import type {
+  AppRollbackOptions,
+  AppUpdate,
   KMIPEntry,
   SystemSecurityEntry,
   TunableCreate,
@@ -16,18 +18,18 @@ import type {
   CertificateEntry,
 } from '../v25_10_2/api-types';
 import type {
-  AppBulkUpgradeJobResult,
-  AppEntry,
+  ContainerEntry,
 } from '../v26_0_0/api-types';
 import type {
+  AppBulkUpgradeJobResult,
   AppCreate,
+  AppEntry,
   AppImagePull,
   AppUpgradeBulkEntry,
   AppUpgradeOptions,
   AuditExport,
   CertificateCreate,
   ContainerCreate,
-  ContainerEntry,
   DockerEntry,
   DockerUpdate,
   FilesystemSetZfsAttributesData,
@@ -42,6 +44,11 @@ import type {
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
 export interface ApiJobDirectoryDelta {
+  'app.convert_to_custom': {
+    params: [app_name: string];
+    response: AppEntry;
+  };
+
   'app.create': {
     params: [app_create: AppCreate];
     response: AppEntry;
@@ -50,6 +57,21 @@ export interface ApiJobDirectoryDelta {
   'app.image.pull': {
     params: [image_pull: AppImagePull];
     response: null;
+  };
+
+  'app.redeploy': {
+    params: [app_name: string];
+    response: AppEntry;
+  };
+
+  'app.rollback': {
+    params: [app_name: string, options: AppRollbackOptions];
+    response: AppEntry;
+  };
+
+  'app.update': {
+    params: [app_name: string, update?: AppUpdate];
+    response: AppEntry;
   };
 
   'app.upgrade': {

@@ -18,6 +18,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { dumpDigest } from './lib/dump-digest.mts';
+import type { ApiDumpFile } from './lib/types.mts';
+
 const FROZEN_HEADER = `/**
  * FROZEN — generated once, then hand-maintained. Do not regenerate.
  */
@@ -45,6 +48,23 @@ function seedBaseline(target: string): string {
   const json = first.stderr.slice(first.stderr.indexOf('{'), first.stderr.lastIndexOf('}') + 1);
   writeFileSync(file, json);
   return file;
+}
+
+/** Like `generate`, but narrowed to one version — the preview path. */
+function generateNarrowed(target: string, handRemoved: string, version: string) {
+  return spawnSync(
+    'node',
+    [
+      path.join(REPO, 'node_modules/tsx/dist/cli.mjs'),
+      path.join(HERE, 'generate.mts'),
+      '--schema', path.join(HERE, 'fixtures/mini-dump.json'),
+      '--api-version', version,
+      '--out', target,
+      '--manifest-appendix', path.join(HERE, 'fixtures/empty-appendix.md'),
+      '--hand-removed', handRemoved,
+    ],
+    { cwd: REPO, encoding: 'utf8' }
+  );
 }
 
 function generate(target: string, handRemoved?: string, frozenHashes?: string) {
@@ -141,6 +161,45 @@ describe('hand-declared removals', () => {
     expect(result.stderr).toContain('v1.0.0');
   });
 
+  /**
+   * The baseline is meant to isolate what the dump says, so that changing the
+   * emitter does not read as "the dump changed". `generateFromDump` mutates the
+   * dump in place — `hoistInlineEnums` accumulates hoisted enums into each
+   * document's `$defs` — so a digest taken after generation is a hash of the
+   * dump plus whatever the emitter did to it, and every emitter change would
+   * fire the drift check on a dump nobody touched.
+   *
+   * Pinned against the fixture read fresh from disk: that is the value the
+   * baseline claims to be, and it is not what generation leaves behind.
+   */
+  it('record what the dump says, not what generation did to it', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-digest-'));
+    mkdirSync(path.join(out, 'v1_0_0'), { recursive: true });
+    writeFileSync(path.join(out, 'v1_0_0/api-types.ts'), FROZEN_HEADER);
+    const hashes = mkdtempSync(path.join(tmpdir(), 'gen-hashes-')) + '/frozen-hashes.json';
+    writeFileSync(hashes, '{}');
+
+    const result = generate(out, undefined, hashes);
+
+    expect(result.status).toBe(1);
+    const printed = JSON.parse(
+      result.stderr.slice(result.stderr.indexOf('{'), result.stderr.lastIndexOf('}') + 1)
+    ) as Record<string, string>;
+
+    const dump = JSON.parse(
+      readFileSync(path.join(HERE, 'fixtures/mini-dump.json'), 'utf8')
+    ) as ApiDumpFile;
+    const slice = dump.versions?.find((v) => v.version === 'v1.0.0');
+
+    // Guard the lookup so the failure names its cause. `dumpDigest(undefined)`
+    // throws a TypeError from `createHash().update()` rather than returning a
+    // digest, so without this the test still fails if the fixture stops
+    // carrying v1.0.0 — but as a stack trace inside the digest helper, which
+    // reads as a bug in the thing under test.
+    expect(slice).toBeDefined();
+    expect(printed['v1.0.0']).toBe(dumpDigest(slice));
+  });
+
   it('refuses to run when a frozen version has no baseline', () => {
     out = mkdtempSync(path.join(tmpdir(), 'gen-nobaseline-'));
     mkdirSync(path.join(out, 'v1_0_0'), { recursive: true });
@@ -165,6 +224,156 @@ describe('hand-declared removals', () => {
     const result = generate(out, manifest);
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain("is not a namespace prefix ending in '.'");
+    expect(result.stderr).toContain('is neither a namespace prefix');
+  });
+
+  /**
+   * A removal is an `Omit` over what the previous version declared, so the root
+   * of the chain has nothing to subtract from and the pipeline emits no link
+   * for it. Keyed there, the entry used to be a silent no-op: nothing omitted,
+   * nothing said, exit 0.
+   *
+   * Reachable without doing anything odd — any `--min-version` above the oldest
+   * version promotes some version to the root, and `hand-removed.json` keys its
+   * two live entries to `v26.0.0`, which `--min-version v26.0.0` would make the
+   * root. Silent success is the one outcome a hand-declared removal must not
+   * have, since nothing downstream can tell it apart from having worked.
+   */
+  it('rejects a removal keyed to the dump oldest version, which no run can apply', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-rootkey-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // v1.0.0 is the fixture's oldest version, so it is the root of every
+    // possible run — the entry is wrong however the generator is invoked.
+    writeFileSync(manifest, JSON.stringify({ 'v1.0.0': ['call:test.get'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('is the oldest version in this dump');
+  });
+
+  /**
+   * Root only because the run was narrowed is a different situation: the
+   * manifest is right and a full run applies it. Making that fatal took away
+   * `--api-version v26.0.0` for a manifest that is correct, leaving editing a
+   * tracked file as the only way to preview one version.
+   */
+  it('skips, without failing, a removal that only this narrowed run cannot apply', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-narrowed-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // Keyed to v2.0.0, which a full run applies — but this run starts there.
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['call:test.get'] }));
+
+    const result = generateNarrowed(out, manifest, 'v2.0.0');
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain('is the root of this narrowed run');
+    // Said out loud rather than dropped: the whole point is that a no-op
+    // removal is never silent.
+    expect(result.stderr).toContain('::warning::');
+  });
+
+  /**
+   * Every correctness check — array shape, entry form, and the version no run
+   * could apply — is judged before applicability, so a narrowed run rejects
+   * exactly what a full run rejects. This sentence was true of the shape check
+   * alone before the other two moved up with it, which is the sort of claim
+   * that reads as covering more than it does; the three tests below are one per
+   * check so it cannot drift back.
+   *
+   * Judged the other way round, the skip returned first and
+   * `--api-version v26.0.0` stayed green on a manifest that `yarn generate:api`
+   * exits 1 on — a preview that disagrees with the real run is worse than no
+   * preview.
+   */
+  it('rejects a malformed value even on the narrowed run that cannot apply it', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-narrowbad-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // A bare string where an array belongs, keyed to this run's root.
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': 'test.' }));
+
+    const result = generateNarrowed(out, manifest, 'v2.0.0');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('must map to an array of strings');
+    // Named by its own cause, not by the version check that runs after it.
+    expect(result.stderr).not.toContain('is the root of this narrowed run');
+  });
+
+  it('rejects a malformed entry form even on the narrowed run that cannot apply it', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-narrowform-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // Well-shaped array, badly-formed entry: `test` without the trailing dot.
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['test'] }));
+
+    const result = generateNarrowed(out, manifest, 'v2.0.0');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('is neither a namespace prefix');
+    expect(result.stderr).not.toContain('is the root of this narrowed run');
+  });
+
+  /**
+   * "Can never apply" has to mean that under every invocation, or the sentence
+   * is not true. Behind the not-selected skip it exited 0 whenever the run
+   * simply did not include that version — which is most narrowed runs.
+   */
+  it('rejects a removal keyed to the dump oldest version even when the run excludes it', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-narrowoldest-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // v1.0.0 is the fixture's oldest; this run generates only v2.0.0.
+    writeFileSync(manifest, JSON.stringify({ 'v1.0.0': ['test.'] }));
+
+    const result = generateNarrowed(out, manifest, 'v2.0.0');
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('is the oldest version in this dump');
+  });
+
+  it('still applies that same manifest on a full run', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-fullrun-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['call:test.get'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).not.toContain('is the root of this narrowed run');
+    expect(readFileSync(path.join(out, 'v2_0_0/api-call-directory.ts'), 'utf8'))
+      .toContain("'test.get'");
+  });
+
+  /**
+   * A single method deleted from every version directory upstream — the
+   * `pool.dataset.encryption_algorithm_choices` case — cannot be stated as a
+   * prefix, so the manifest also takes one exact entry with its kind.
+   */
+  it('omit one exact entry from the kind it names', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-exact-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    // `test.get` is carried by both fixture versions, so v2.0.0 inherits it —
+    // which is the surface a hand-declared removal has to reach.
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['call:test.get'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(0);
+    const calls = readFileSync(path.join(out, 'v2_0_0/api-call-directory.ts'), 'utf8');
+    expect(calls).toMatch(/export type ApiCallDirectory = Omit<[^>]*'test\.get'/);
+    // Named `call:`, so it must not be omitted from the other two directories,
+    // where the literal would be a no-op Omit and a false claim in the comment.
+    expect(readFileSync(path.join(out, 'v2_0_0/api-job-directory.ts'), 'utf8')).not.toContain("'test.get'");
+    expect(readFileSync(path.join(out, 'v2_0_0/api-event-directory.ts'), 'utf8')).not.toContain("'test.get'");
+  });
+
+  it('rejects an exact entry whose kind is not a directory kind', () => {
+    out = mkdtempSync(path.join(tmpdir(), 'gen-badkind-'));
+    const manifest = mkdtempSync(path.join(tmpdir(), 'gen-manifest-')) + '/hand-removed.json';
+    writeFileSync(manifest, JSON.stringify({ 'v2.0.0': ['method:test.alpha'] }));
+
+    const result = generate(out, manifest);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('is neither a namespace prefix');
   });
 });

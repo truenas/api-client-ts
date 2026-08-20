@@ -1,10 +1,27 @@
 /**
  * The state `Container.status` is narrowed to.
  *
- * Both versions report richer vocabularies than this — v25.10
- * `virt.instance` has ten states, v26 `container` has two — and
+ * The two versions report different vocabularies — v25.10 `virt.instance` has
+ * ten states, more than this enum names, while v26 `container` has three
+ * (`RUNNING`, `STOPPED`, `SUSPENDED`) that this enum now covers exactly — and
  * `@/utils/app-state.utils` is the single place that maps them, so the two
  * clients cannot disagree.
+ *
+ * `Suspended`, `Error` and `Unknown` exist because the narrower set could only
+ * express them as `Stopped`, which is a claim rather than a loss of detail: a
+ * paused container still holds its memory, an erroring one needs attention,
+ * and an unknown one has not been established to be at rest. Middleware
+ * distinguishes all three — v26 `container` gained `SUSPENDED` and v25.10
+ * `virt.instance` reports `ERROR` and `UNKNOWN` — so a consumer offering a
+ * Start button on the strength of `Stopped` was being told the wrong thing.
+ *
+ * `Suspending` exists for the same reason one step further in. Every other
+ * in-progress state already had a word to land on — `STARTING` has `Deploying`,
+ * `ABORTING` has `Stopping` — while the freeze path had only the state it was
+ * heading for, so `FREEZING` answered `Suspended` and told a caller the pause
+ * had completed while it was still running. Rounding an in-progress state up to
+ * its destination is the same false claim as rounding an unknown one down to
+ * `Stopped`, just harder to notice.
  *
  * Exported from the barrel as a value: without the enum a consumer can read
  * `Container.status` but has nothing to compare it against.
@@ -14,4 +31,16 @@ export enum AppState {
   Stopped = 'STOPPED',
   Stopping = 'STOPPING',
   Deploying = 'DEPLOYING',
+  /** Paused with its state retained — not stopped, and resumable. */
+  Suspended = 'SUSPENDED',
+  /**
+   * On its way to {@link Suspended}, not there yet. Separate because a caller
+   * polling for "the memory is quiesced" must not be told so while the freeze
+   * is still running.
+   */
+  Suspending = 'SUSPENDING',
+  /** Middleware reports the instance as failed. */
+  Error = 'ERROR',
+  /** Middleware reports no usable state, or a state this mapping has no word for. */
+  Unknown = 'UNKNOWN',
 }

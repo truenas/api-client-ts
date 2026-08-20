@@ -11,16 +11,8 @@ import type {
   VMRemovedEvent,
 } from '../v25_10_0/api-types';
 import type {
-  ContainerDeviceRemovedEvent,
-  ContainerRemovedEvent,
-} from '../v26_0_0/api-types';
-import type {
   AlertListAddedEvent,
   AlertListChangedEvent,
-  ContainerAddedEvent,
-  ContainerChangedEvent,
-  ContainerDeviceAddedEvent,
-  ContainerDeviceChangedEvent,
   DockerStateChangedEvent,
   VMAddedEvent,
   VMChangedEvent,
@@ -34,18 +26,6 @@ export interface ApiEventDirectoryDelta {
     added: AlertListAddedEvent;
     changed: AlertListChangedEvent;
     removed: AlertListRemovedEvent;
-  };
-
-  'container.device.query': {
-    added: ContainerDeviceAddedEvent;
-    changed: ContainerDeviceChangedEvent;
-    removed: ContainerDeviceRemovedEvent;
-  };
-
-  'container.query': {
-    added: ContainerAddedEvent;
-    changed: ContainerChangedEvent;
-    removed: ContainerRemovedEvent;
   };
 
   'docker.state': {

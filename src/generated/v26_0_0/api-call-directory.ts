@@ -40,6 +40,7 @@ import type {
   DiskEntry,
   DropboxCredentialsModel,
   FTPCredentialsModel,
+  FailoverEntry,
   FailoverRebootInfo,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
@@ -51,6 +52,10 @@ import type {
   IscsiExtentCreate,
   IscsiExtentUpdate,
   MegaCredentialsModel,
+  NVMetHostQueryResultItem,
+  NVMetHostSubsysCreate,
+  NVMetHostSubsysQueryResultItem,
+  NVMetHostSubsysUpdate,
   NVMetNamespaceCreate,
   NVMetNamespaceQueryResultItem,
   NVMetNamespaceUpdate,
@@ -90,6 +95,8 @@ import type {
   UserQueryResultItem,
   VMCreateArgs,
   VMDeleteOptions,
+  VMDeviceQueryResultItem,
+  VMDeviceUpdate,
   VMQueryResultItem,
   VMUpdate,
   VMWareCreate,
@@ -150,6 +157,7 @@ import type {
   DiskUnlockSedArgs,
   DiskUpdate,
   DockerEntry,
+  FailoverUpdate,
   Feature,
   GraphIdentifier,
   ISCSIGlobalEntry,
@@ -160,6 +168,10 @@ import type {
   InterfaceUpdate,
   LXCConfigEntry,
   LXCConfigUpdateArgs,
+  NVMetHostCreate,
+  NVMetHostEntry,
+  NVMetHostSubsysEntry,
+  NVMetHostUpdate,
   NVMetNamespaceEntry,
   PeriodicSnapshotTaskEntry,
   PoolDatasetCreateFilesystem,
@@ -201,6 +213,8 @@ import type {
   UserEntry,
   UserRenew2FaSecretResult,
   UserUpdate,
+  VMDeviceCreateArgs,
+  VMDeviceEntry,
   VMDeviceNicAttachChoicesResult,
   VMEntry,
   VMStatus,
@@ -437,11 +451,6 @@ export interface ApiCallDirectoryDelta {
     response: CloudSyncEntry;
   };
 
-  'container.delete': {
-    params: [id: number];
-    response: null;
-  };
-
   'container.device.create': {
     params: [container_device_create: ContainerDeviceCreateArgs];
     response: ContainerDeviceEntry;
@@ -554,6 +563,11 @@ export interface ApiCallDirectoryDelta {
     response: FailoverRebootInfo;
   };
 
+  'failover.update': {
+    params: [data: FailoverUpdate];
+    response: FailoverEntry;
+  };
+
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
@@ -619,6 +633,48 @@ export interface ApiCallDirectoryDelta {
   'lxc.update': {
     params: [lxc_config_update?: LXCConfigUpdateArgs];
     response: LXCConfigEntry;
+  };
+
+  'nvmet.host.create': {
+    params: [nvmet_host_create: NVMetHostCreate];
+    response: NVMetHostEntry;
+  };
+
+  'nvmet.host.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetHostEntry>];
+    response: NVMetHostEntry;
+  };
+
+  'nvmet.host.query': {
+    params: [filters?: QueryFilters<NVMetHostEntry>, options?: QueryOptions<NVMetHostEntry>];
+    response: NVMetHostEntry[] | NVMetHostEntry | NVMetHostQueryResultItem[] | NVMetHostQueryResultItem | number;
+    entity: NVMetHostEntry;
+  };
+
+  'nvmet.host.update': {
+    params: [id: number, nvmet_host_update: NVMetHostUpdate];
+    response: NVMetHostEntry;
+  };
+
+  'nvmet.host_subsys.create': {
+    params: [nvmet_host_subsys_create: NVMetHostSubsysCreate];
+    response: NVMetHostSubsysEntry;
+  };
+
+  'nvmet.host_subsys.get_instance': {
+    params: [id: number, options?: QueryOptions<NVMetHostSubsysEntry>];
+    response: NVMetHostSubsysEntry;
+  };
+
+  'nvmet.host_subsys.query': {
+    params: [filters?: QueryFilters<NVMetHostSubsysEntry>, options?: QueryOptions<NVMetHostSubsysEntry>];
+    response: NVMetHostSubsysEntry[] | NVMetHostSubsysEntry | NVMetHostSubsysQueryResultItem[] | NVMetHostSubsysQueryResultItem | number;
+    entity: NVMetHostSubsysEntry;
+  };
+
+  'nvmet.host_subsys.update': {
+    params: [id: number, nvmet_host_subsys_update: NVMetHostSubsysUpdate];
+    response: NVMetHostSubsysEntry;
   };
 
   'nvmet.namespace.create': {
@@ -976,9 +1032,30 @@ export interface ApiCallDirectoryDelta {
     response: null;
   };
 
+  'vm.device.create': {
+    params: [vm_device_create: VMDeviceCreateArgs];
+    response: VMDeviceEntry;
+  };
+
+  'vm.device.get_instance': {
+    params: [id: number, options?: QueryOptions<VMDeviceEntry>];
+    response: VMDeviceEntry;
+  };
+
   'vm.device.nic_attach_choices': {
     params: [];
     response: VMDeviceNicAttachChoicesResult;
+  };
+
+  'vm.device.query': {
+    params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptions<VMDeviceEntry>];
+    response: VMDeviceEntry[] | VMDeviceEntry | VMDeviceQueryResultItem[] | VMDeviceQueryResultItem | number;
+    entity: VMDeviceEntry;
+  };
+
+  'vm.device.update': {
+    params: [id: number, vm_device_update: VMDeviceUpdate];
+    response: VMDeviceEntry;
   };
 
   'vm.device.usb_controller_choices': {
@@ -1171,9 +1248,14 @@ export interface ApiCallDirectoryDelta {
 
 /** This version's surface: the previous version's, updated by the delta.
  *
- * `virt.*` is declared in an earlier version and removed here.
- * No dump describes it: the entries a diff would have to
+ * `virt.*`, `pool.dataset.encryption_algorithm_choices` are declared in an earlier version and removed here.
+ * No dump describes them: the entries a diff would have to
  * compare were deleted from every version directory upstream. The omission
  * comes from `hand-removed.json`, so a regeneration reproduces it.
  */
-export type ApiCallDirectory = Omit<PreviousApiCallDirectory, keyof ApiCallDirectoryDelta | `virt.${string}`> & ApiCallDirectoryDelta;
+export type ApiCallDirectory = Omit<PreviousApiCallDirectory, keyof ApiCallDirectoryDelta | 'pool.dataset.encryption_algorithm_choices' | `virt.${string}`> & ApiCallDirectoryDelta;
+
+/** A hand-declared removal must name an entry the previous version really had. */
+type AssertOnPrevious<T extends true> = T;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _HandRemovedApiCallDirectory0 = AssertOnPrevious<'pool.dataset.encryption_algorithm_choices' extends keyof PreviousApiCallDirectory ? true : false>;

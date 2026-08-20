@@ -34,8 +34,15 @@ export interface PipelineOptions {
   /** Progress logger; silent by default (the CLI passes console.log). */
   log?: (message: string) => void;
   /**
-   * Version -> namespace prefixes that version drops, for removals no dump can
-   * express. See `hand-removed.json`; the CLI loads it and passes it through.
+   * Version -> hand-declared removals that version drops, for removals no dump
+   * can express. See `hand-removed.json`; the CLI loads, validates and passes
+   * it through.
+   *
+   * Two entry forms, split apart below: a namespace prefix ending in `.`, which
+   * applies to every directory kind, and one exact `call|job|event:name`, which
+   * applies only to the kind it names. Passing anything else here is a silent
+   * no-op — the CLI rejects it, but a caller reaching this interface directly
+   * does not go through that.
    */
   handRemoved?: Record<string, string[]>;
   /**
@@ -256,9 +263,22 @@ export async function generateFromDump(
       types: names.filter((n) => declared[home][n]._kind !== 'enum').sort(),
     }));
 
-    const removedPrefixes = handRemoved[model.version] ?? [];
+    const handDeclared = handRemoved[model.version] ?? [];
+    // Two forms, both validated by the CLI; see `hand-removed.json`. A prefix
+    // applies to every kind, an exact entry carries its own kind because the
+    // dump that would say whether it was a call, a job or an event is the very
+    // thing that no longer describes it.
+    const removedPrefixes = handDeclared.filter((entry) => entry.endsWith('.'));
+    const handRemovedFor = (kind: string): string[] => handDeclared
+      .filter((entry) => entry.startsWith(`${kind}:`))
+      .map((entry) => entry.slice(kind.length + 1));
     const link = (kind: string): DirectoryChainLink | undefined => (multi && i > 0
-      ? { prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`, removed: [], removedPrefixes }
+      ? {
+        prevPath: `../${dirOf(i - 1)}/api-${kind}-directory`,
+        removed: [],
+        removedPrefixes,
+        handRemovedNames: handRemovedFor(kind),
+      }
       : undefined);
     const linkFor = (kind: string, removed: string[]): DirectoryChainLink | undefined => {
       const l = link(kind);

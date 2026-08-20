@@ -40,13 +40,13 @@
  * its shape first appeared and re-exported by later versions.
  */
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 
+import { dumpDigests } from './lib/dump-digest.mts';
 import { generateFromDump, versionDir } from './lib/pipeline.mts';
-import { selectVersions } from './lib/select-versions.mts';
+import { compareVersionStrings, selectVersions } from './lib/select-versions.mts';
 import type { ApiDumpFile, ApiDumpVersion } from './lib/types.mts';
 
 const { values: args } = parseArgs({
@@ -130,6 +130,12 @@ if (args.fetch && args.fetch !== 'docker') {
 }
 
 const dump = JSON.parse(raw) as ApiDumpFile | ApiDumpVersion;
+/**
+ * Frozen-file baselines, taken here rather than next to the check that uses
+ * them: `generateFromDump` mutates the dump in place, so this has to happen
+ * before it runs. See `dumpDigests`.
+ */
+const digests = dumpDigests(dump);
 const availableVersions = ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => v.version);
 const includePrefixes = args.include.split(',').map((s) => s.trim()).filter(Boolean);
 
@@ -150,12 +156,42 @@ try {
 if (args['min-version']) console.error(`Generating ${apiVersions?.length ?? 0} versions from ${args['min-version']} upward.`);
 
 /**
- * Version -> namespace prefixes, from the hand-removed manifest.
+ * Lowest version in a list, ordered the way `generateFromDump` orders its
+ * models — ascending, numeric-aware — so this names whatever lands at
+ * `models[0]`.
  *
- * Prefixes are interpolated into an emitted template literal, so a stray
- * backtick or `${` would emit broken TypeScript rather than fail here. Rejected
- * loudly instead. `$comment` keys are skipped, which is how the file documents
- * itself.
+ * Borrowed rather than rewritten: `compareVersionStrings` already carries the
+ * reason numeric collation is required (`v25.04.0 < v25.10.0`), and a third
+ * copy of that rule would make agreement with the pipeline a claim in a comment
+ * instead of a shared function.
+ */
+const oldestOf = (versions: string[]): string =>
+  [...versions].sort(compareVersionStrings)[0];
+
+/**
+ * The version the pipeline will treat as the chain root for this run.
+ *
+ * `'all'` is the sentinel for an unnarrowed run, where the root is simply the
+ * oldest version the dump carries — which makes `chainRootOf` and `oldestOf`
+ * agree, and is why the two checks below have to be written separately rather
+ * than one being a special case of the other.
+ */
+function chainRootOf(selected: string[], available: string[]): string {
+  return oldestOf(selected.includes('all') ? available : selected);
+}
+
+/**
+ * Version -> hand-declared removals, from the hand-removed manifest.
+ *
+ * Two forms, validated below and separated by the pipeline: namespace prefixes
+ * ending in `.`, and exact `call|job|event:name` entries. Both are interpolated
+ * into emitted TypeScript — prefixes as a template literal, exact entries as a
+ * quoted literal — so a stray backtick, quote or `${` would emit broken
+ * TypeScript rather than fail here. Rejected loudly instead. `$comment` keys
+ * are skipped, which is how the file documents itself.
+ *
+ * A key can also name a version this run cannot apply the removal to. That is
+ * fatal only when no run ever could; a narrowed run says so and skips.
  */
 function parseHandRemoved(raw: unknown, selected: string[], available: string[]): Record<string, string[]> {
   const out: Record<string, string[]> = {};
@@ -170,23 +206,79 @@ function parseHandRemoved(raw: unknown, selected: string[], available: string[])
       );
       process.exit(1);
     }
+    // Everything that can be wrong with the manifest is judged here, before
+    // either applicability skip below — so a narrowed run rejects exactly what
+    // a full run rejects, which is the property the preview path is worth
+    // having. Judged in the other order, `--min-version v26.0.0` exited 0 on a
+    // manifest that `yarn generate:api` exits 1 on: the array shape had been
+    // moved up but the per-entry form and the oldest-version check had not, and
+    // both sat behind a `continue`.
+    if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
+      console.error(`hand-removed: '${version}' must map to an array of strings.`);
+      process.exit(1);
+    }
+    for (const entry of value as string[]) {
+      // Two forms, both interpolated into emitted TypeScript, so anything that
+      // is neither is rejected here rather than emitted as broken code.
+      //
+      // `virt.` — a namespace prefix, rendered as a template literal. The
+      // trailing dot is required: `virt` would emit `\`virt${string}\`` and
+      // swallow a future `virtual.*`.
+      //
+      // `call:pool.dataset.encryption_algorithm_choices` — one exact entry,
+      // rendered as a quoted literal. A single method deleted upstream cannot
+      // be stated as a prefix, and its kind has to be given rather than
+      // inferred: the dump that would say whether it was a call, a job or an
+      // event is the very thing that no longer describes it.
+      const isExact = /^(call|job|event):[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*$/.test(entry);
+      if (!isExact && !/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*\.$/.test(entry)) {
+        console.error(
+          `hand-removed: '${entry}' is neither a namespace prefix ending in '.' ` +
+          `nor an exact entry of the form 'call|job|event:name'.`
+        );
+        process.exit(1);
+      }
+    }
+    // A removal is an `Omit` applied to what the previous version's directory
+    // declared, so a chain root has nothing to subtract from: the pipeline emits
+    // no link for `i === 0` and the entry is a silent no-op.
+    //
+    // Whether that is a defect depends on why the version is the root, which is
+    // why the two cases are answered separately and not together: this one is
+    // about the manifest and belongs above the applicability skips, the one
+    // further down is about this invocation and belongs below them.
+    if (version === oldestOf(available)) {
+      // Keyed to the dump's oldest version: no invocation can ever apply it,
+      // because that version is the root of every possible run. The manifest is
+      // wrong however you call the generator, so this is the fatal one.
+      console.error(
+        `hand-removed: '${version}' is the oldest version in this dump, so it is the ` +
+        `root of every run and has no previous version to omit from — the entry can ` +
+        `never apply. Move the removal to the version that inherits it.`
+      );
+      process.exit(1);
+    }
     if (!selected.includes(version) && !selected.includes('all')) {
       // In the dump but outside this run's range — a narrowed --api-version or
       // --min-version. Not an error: the key is fine, it just does not apply.
       continue;
     }
-    if (!Array.isArray(value) || value.some((p) => typeof p !== 'string')) {
-      console.error(`hand-removed: '${version}' must map to an array of strings.`);
-      process.exit(1);
-    }
-    for (const prefix of value as string[]) {
-      // Trailing dot required: `virt` would emit `\`virt${string}\`` and swallow
-      // a future `virtual.*`. Interpolated into a template literal, so anything
-      // that is not a bare namespace is rejected rather than emitted.
-      if (!/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*\.$/.test(prefix)) {
-        console.error(`hand-removed: '${prefix}' is not a namespace prefix ending in '.'.`);
-        process.exit(1);
-      }
+    if (version === chainRootOf(selected, available)) {
+      // Root only because this run was narrowed. The manifest is correct and
+      // `yarn generate:api` applies it; this invocation simply cannot. Making
+      // that fatal took away the preview path `select-versions.mts` documents
+      // ("previewing one version, narrowing a repro") — `--api-version v26.0.0`
+      // would have exited 1 on a manifest that is fine, with editing a tracked
+      // file as the only way through. Warned and skipped, like the
+      // not-selected case immediately above — both are facts about this run
+      // rather than about the manifest, which is why they sit here and the
+      // correctness checks sit above them.
+      console.error(
+        `::warning::hand-removed: '${version}' is the root of this narrowed run, so its ` +
+        `entries cannot be applied here and are skipped. The manifest is fine — a full ` +
+        `run from an earlier version applies them.`
+      );
+      continue;
     }
     out[version] = value as string[];
   }
@@ -271,26 +363,10 @@ for (const relPath of files.keys()) {
  * content: the emitted content also moves whenever the generator moves, which
  * would report every emitter change as "the dump changed" and, worse, make the
  * re-seed silently re-bless whatever the dump happened to say at that moment.
- * The dump slice isolates the thing actually being assumed.
+ * The dump slice isolates the thing actually being assumed — which is why the
+ * digests are taken off the parsed dump before generation touches it, in
+ * `dumpDigests`, rather than here.
  */
-const dumpSlices = new Map(
-  ((dump as ApiDumpFile).versions ?? [dump as ApiDumpVersion]).map((v) => [v.version, v])
-);
-const hashOf = (value: unknown) =>
-  createHash('sha256')
-    // Documentation is not part of the generated output — the manifest says so
-    // in its own header — and middleware backports docstring edits into
-    // released version directories routinely. Including them would fire this
-    // check on changes that provably cannot affect a single emitted byte, and a
-    // check that cries wolf is a check that gets re-blessed reflexively.
-    // Discriminated on type, not key alone: `description` is also a legitimate
-    // model *field* name (31 models in v25.10 declare one), and dropping those
-    // schema nodes would hide a real change. Documentation is always a string;
-    // a field named `description` is always an object.
-    .update(JSON.stringify(value, (key, v: unknown) =>
-      (key === 'doc' || key === 'description') && typeof v === 'string' ? undefined : v))
-    .digest('hex')
-    .slice(0, 16);
 
 let recorded: Record<string, string>;
 try {
@@ -314,7 +390,7 @@ try {
  */
 const versionOfPath = (relPath: string): string | undefined => {
   const dir = relPath.split('/')[0];
-  return [...dumpSlices.keys()].find((v) => versionDir(v) === dir);
+  return [...digests.keys()].find((v) => versionDir(v) === dir);
 };
 
 const unmapped = frozen.filter((f) => versionOfPath(f) === undefined);
@@ -334,7 +410,15 @@ const frozenVersions = [...new Set(frozen.map(versionOfPath).filter((v): v is st
 const drifted: string[] = [];
 const missing: Record<string, string> = {};
 for (const version of frozenVersions) {
-  const digest = hashOf(dumpSlices.get(version));
+  const digest = digests.get(version);
+  if (digest === undefined) {
+    // Unreachable: `frozenVersions` comes from `versionOfPath`, which only
+    // returns versions this map has. Loud rather than defaulted, because a
+    // stand-in value would compare unequal to every recorded baseline and
+    // report drift on a dump that has not moved.
+    console.error(`No digest was computed for frozen version '${version}'.`);
+    process.exit(1);
+  }
   const before = recorded[version];
   if (before === undefined) missing[version] = digest;
   else if (before !== digest) drifted.push(`  ${version} (${before} -> ${digest})`);

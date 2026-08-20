@@ -1,6 +1,7 @@
 {
-  "$comment": "Namespaces removed from middleware in a way no dump can express. The generator computes removals by diffing consecutive dumps, which cannot see a namespace that was deleted from every version directory retroactively \u2014 see src/generated/v25_10_0/api-types.ts. Each prefix listed under a version is omitted from the surface that version inherits, as a `prefix${string}` template literal, so regeneration stays idempotent and the omission cannot drift out of sync with what v25.10 declares.",
+  "$comment": "Entries removed from middleware in a way no dump can express. The generator computes removals by diffing consecutive dumps, which cannot see something that was deleted from every version directory retroactively — see src/generated/v25_10_0/api-types.ts. Each entry listed under a version is omitted from the surface that version inherits, so regeneration stays idempotent and the omission cannot drift out of sync with what v25.10 declares. Two forms: a namespace prefix ending in '.' (omitted from every directory kind as a `prefix${string}` template literal), or one exact entry written 'call|job|event:name' (omitted from that kind as a quoted literal). The kind has to be stated because the dump that would say which it was is the thing that no longer describes it.",
   "v26.0.0": [
-    "virt."
+    "virt.",
+    "call:pool.dataset.encryption_algorithm_choices"
   ]
 }

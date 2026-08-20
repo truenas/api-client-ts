@@ -11,6 +11,8 @@ import type {
   CloudBackupRemovedEvent,
   CloudSyncRemovedEvent,
   CredentialsRemovedEvent,
+  NVMetHostRemovedEvent,
+  NVMetHostSubsysRemovedEvent,
   PeriodicSnapshotTaskRemovedEvent,
   PoolRemovedEvent,
   ReplicationRemovedEvent,
@@ -37,6 +39,10 @@ import type {
   ContainerRemovedEvent,
   CredentialsAddedEvent,
   CredentialsChangedEvent,
+  NVMetHostAddedEvent,
+  NVMetHostChangedEvent,
+  NVMetHostSubsysAddedEvent,
+  NVMetHostSubsysChangedEvent,
   PeriodicSnapshotTaskAddedEvent,
   PeriodicSnapshotTaskChangedEvent,
   PoolAddedEvent,
@@ -108,6 +114,18 @@ export interface ApiEventDirectoryDelta {
     added: ContainerAddedEvent;
     changed: ContainerChangedEvent;
     removed: ContainerRemovedEvent;
+  };
+
+  'nvmet.host.query': {
+    added: NVMetHostAddedEvent;
+    changed: NVMetHostChangedEvent;
+    removed: NVMetHostRemovedEvent;
+  };
+
+  'nvmet.host_subsys.query': {
+    added: NVMetHostSubsysAddedEvent;
+    changed: NVMetHostSubsysChangedEvent;
+    removed: NVMetHostSubsysRemovedEvent;
   };
 
   'pool.query': {

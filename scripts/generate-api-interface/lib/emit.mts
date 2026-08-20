@@ -308,6 +308,16 @@ export interface DirectoryChainLink {
    * declares.
    */
   removedPrefixes?: string[];
+  /**
+   * Exact entries to omit, e.g. `pool.dataset.encryption_algorithm_choices`.
+   *
+   * Same blind spot as `removedPrefixes`, one entry rather than a namespace: a
+   * single method deleted from every version directory upstream leaves the diff
+   * nothing to compare on either side. Rendered as quoted literals, so they and
+   * `removed` are indistinguishable in the emitted type — the difference is only
+   * where they came from, which is what `prefixNote` explains.
+   */
+  handRemovedNames?: string[];
 }
 
 /**
@@ -320,9 +330,13 @@ export interface DirectoryChainLink {
  */
 function prefixNote(link: DirectoryChainLink): string {
   const prefixes = link.removedPrefixes ?? [];
-  if (prefixes.length === 0) return '';
-  const list = prefixes.map((p) => '`' + p + '*`').join(', ');
-  const plural = prefixes.length > 1;
+  const names = link.handRemovedNames ?? [];
+  if (prefixes.length === 0 && names.length === 0) return '';
+  const list = [
+    ...prefixes.map((p) => '`' + p + '*`'),
+    ...names.map((n) => '`' + n + '`'),
+  ].join(', ');
+  const plural = prefixes.length + names.length > 1;
   return [
     '',
     ' *',
@@ -332,6 +346,34 @@ function prefixNote(link: DirectoryChainLink): string {
     ' * comes from `hand-removed.json`, so a regeneration reproduces it.',
     '',
   ].join('\n');
+}
+
+/**
+ * Type-level proof that each hand-declared removal names something the previous
+ * version actually had.
+ *
+ * `Omit<T, K>` accepts keys `T` does not have, so a typo in `hand-removed.json`
+ * removes nothing and still compiles, generates and passes — the entry stays
+ * inherited with no error anywhere. The CLI validates an entry's shape and the
+ * version it is keyed to, but it cannot validate the name: these entries exist
+ * precisely because no dump describes them any more, so there is nothing on the
+ * generator side left to check them against.
+ *
+ * The previous version's emitted surface does still have them, and TypeScript
+ * can see it. `Assert<'name' extends keyof Previous ? true : false>` fails to
+ * compile when the name is absent, which turns the silent no-op into a build
+ * error — and it works for names that only the frozen, hand-maintained
+ * directories declare, which is the case the dump can never cover.
+ */
+function handRemovedAssertions(interfaceName: string, prevAlias: string, names: string[]): string {
+  if (names.length === 0) return '';
+  // The assertion types are never referenced — failing to compile is their
+  // whole job — so they are disabled inline the way the empty job directory
+  // already is, rather than exported into the public surface to look used.
+  const checks = names
+    .map((n, i) => `// eslint-disable-next-line @typescript-eslint/no-unused-vars\ntype _HandRemoved${interfaceName}${i} = AssertOnPrevious<'${n}' extends keyof ${prevAlias} ? true : false>;`)
+    .join('\n');
+  return `\n/** A hand-declared removal must name an entry the previous version really had. */\ntype AssertOnPrevious<T extends true> = T;\n${checks}\n`;
 }
 
 function chainedDirectory(
@@ -347,18 +389,21 @@ function chainedDirectory(
   const prevImport = `import type { ${interfaceName} as ${prevAlias} } from '${link.prevPath}';\n`;
   const removedUnion = [
     ...link.removed.map((n) => `'${n}'`),
+    ...(link.handRemovedNames ?? []).map((n) => `'${n}'`),
     ...(link.removedPrefixes ?? []).map((p) => `\`${p}\${string}\``),
   ].join(' | ');
-  const hasRemovals = link.removed.length > 0 || (link.removedPrefixes ?? []).length > 0;
+  const hasRemovals = link.removed.length > 0
+    || (link.handRemovedNames ?? []).length > 0
+    || (link.removedPrefixes ?? []).length > 0;
   if (!entries) {
     if (!hasRemovals) {
       return `${HEADER}\n${prevImport}\n/** Identical to the previous version's surface. */\nexport type ${interfaceName} = ${prevAlias};\n`;
     }
-    return `${HEADER}\n${prevImport}\n/** The previous version's surface, without entries removed in this version. */\nexport type ${interfaceName} = Omit<${prevAlias}, ${removedUnion}>;\n`;
+    return `${HEADER}\n${prevImport}\n/** The previous version's surface, without entries removed in this version.${prefixNote(link)} */\nexport type ${interfaceName} = Omit<${prevAlias}, ${removedUnion}>;\n${handRemovedAssertions(interfaceName, prevAlias, link.handRemovedNames ?? [])}`;
   }
   const deltaName = `${interfaceName}Delta`;
   const omitted = hasRemovals ? `keyof ${deltaName} | ${removedUnion}` : `keyof ${deltaName}`;
-  return `${HEADER}\n${prevImport}${imports ? `\n${imports}` : '\n'}/** Entries added or changed in this version (directly, or through a referenced type). */\nexport interface ${deltaName} {\n${entries}\n}\n\n/** This version's surface: the previous version's, updated by the delta.${prefixNote(link)} */\nexport type ${interfaceName} = Omit<${prevAlias}, ${omitted}> & ${deltaName};\n`;
+  return `${HEADER}\n${prevImport}${imports ? `\n${imports}` : '\n'}/** Entries added or changed in this version (directly, or through a referenced type). */\nexport interface ${deltaName} {\n${entries}\n}\n\n/** This version's surface: the previous version's, updated by the delta.${prefixNote(link)} */\nexport type ${interfaceName} = Omit<${prevAlias}, ${omitted}> & ${deltaName};\n${handRemovedAssertions(interfaceName, prevAlias, link.handRemovedNames ?? [])}`;
 }
 
 export function emitCallDirectory(ownMethods: MethodModel[], externals?: Externals, queryPath = '../shared/query-types', link?: DirectoryChainLink): string {

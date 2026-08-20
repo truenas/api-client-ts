@@ -102,18 +102,14 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
  * `cpu`, `memory` and `image` are not part of `container.query` in v26 and are
  * left unset.
  *
- * `description` is read through a widening because the generated
- * `ContainerEntry` does not declare it while the server does return it — the
- * same omission `core.get_jobs` shows, where the dump models what middleware
- * declares rather than what it sends. Dropping the field to match the dump
- * would take data away from callers who already receive it, so the divergence
- * is made explicit here instead. Remove the widening once the dump declares
- * the field.
+ * `description` used to be read through a widening, because `stripDocs` was
+ * deleting every model field of that name along with the docstrings and the
+ * generated `ContainerEntry` did not declare one. Both halves are fixed now:
+ * the generator discriminates documentation from fields, and this tree is
+ * regenerated, so the field is declared and read directly.
  */
 function toContainer(container: v26_0_0.ContainerEntry): Container {
-  const { description } = container as v26_0_0.ContainerEntry & {
-    description?: string;
-  };
+  const { description } = container;
 
   return {
     id: container.id.toString(),

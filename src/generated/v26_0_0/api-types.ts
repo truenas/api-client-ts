@@ -8,7 +8,6 @@ import type {
   AddressPool,
   Advpowermgmt,
   Aggregations,
-  Algorithm,
   AppImageParsedRepoTags,
   AppNetworks,
   AppVolumes,
@@ -56,6 +55,7 @@ import type {
   NFS4ACEInput,
   NFS4ACL_Flags,
   NVMetSubsysEntry,
+  NVMetSubsysEntryInput,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
   POSIXACE,
@@ -104,8 +104,15 @@ import type {
   UpgradeOptions,
   UsedPorts,
   UserTwofactorConfigEntry,
-  VMDeviceEntry,
+  VMCDROMDevice,
   VMDeviceEntryInput,
+  VMDiskDevice,
+  VMDiskDeviceInput,
+  VMDisplayDevice,
+  VMPCIDevice,
+  VMRAWDevice,
+  VMRAWDeviceInput,
+  VMUSBDevice,
   VMWareEntryStateStateInput,
   VMWareMatchDatastoresWithDatasetsResultFilesystemType,
   Volblocksize,
@@ -157,12 +164,14 @@ export type ContainerNICDeviceTypeInput = (typeof ContainerNICDeviceTypeInput)[k
 export const ContainerStatusState = {
   Running: 'RUNNING',
   Stopped: 'STOPPED',
+  Suspended: 'SUSPENDED',
 } as const;
 export type ContainerStatusState = (typeof ContainerStatusState)[keyof typeof ContainerStatusState];
 
 export const ContainerStatusStateInput = {
   Running: 'RUNNING',
   Stopped: 'STOPPED',
+  Suspended: 'SUSPENDED',
 } as const;
 export type ContainerStatusStateInput = (typeof ContainerStatusStateInput)[keyof typeof ContainerStatusStateInput];
 
@@ -269,6 +278,8 @@ export type ContainerDeviceQueryResultItem = Record<string, unknown>;
 export type ContainerQueryResultItem = Record<string, unknown>;
 
 export type ISCSIGlobalSessionsItemQueryResultItem = Record<string, unknown>;
+
+export type ReplicationRunOptions = Record<string, never>;
 
 export type SharingWebshareQueryResultItem = Record<string, unknown>;
 
@@ -600,6 +611,7 @@ export interface PoolScan {
 export interface CatalogAppDetails {
   app_readme: string | null;
   categories: string[];
+  description: string;
   healthy: boolean;
   healthy_error?: string | null;
   home: string;
@@ -635,6 +647,7 @@ export interface CloudBackupAddedEvent {
 }
 export interface CloudBackupEntryInput {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -702,6 +715,7 @@ export interface CloudBackupChangedEvent {
 }
 export interface CloudBackupEntry {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -802,6 +816,7 @@ export interface CloudSyncAddedEvent {
 }
 export interface CloudSyncEntryInput {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -836,6 +851,7 @@ export interface CloudSyncChangedEvent {
 }
 export interface CloudSyncEntry {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -872,6 +888,7 @@ export interface ContainerEntryInput {
   id: number;
   uuid: string;
   name: string;
+  description?: string;
   devices?: ContainerDeviceEntryInput[];
   cpuset?: string | null;
   autostart?: boolean;
@@ -895,8 +912,7 @@ export interface ContainerEntryInput {
 }
 export interface ContainerDeviceEntryInput {
   id: number;
-  attributes:
-    ContainerFilesystemDevice | ContainerGPUDevice | ContainerDeviceContainerNICDeviceInput | ContainerUSBDevice;
+  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
   container: number;
 }
 export interface ContainerFilesystemDevice {
@@ -909,7 +925,7 @@ export interface ContainerGPUDevice {
   gpu_type: "AMD" | "INTEL" | "NVIDIA";
   pci_address: string;
 }
-export interface ContainerDeviceContainerNICDeviceInput {
+export interface ContainerNICDeviceInput {
   dtype: "NIC";
   trust_guest_rx_filters?: boolean;
   type?: ContainerNICDeviceTypeInput;
@@ -940,6 +956,7 @@ export interface ContainerChangedEvent {
 export interface ContainerCreateArgs {
   uuid?: string | null;
   name: string;
+  description?: string;
   cpuset?: string | null;
   autostart?: boolean;
   time?: Time;
@@ -963,6 +980,10 @@ export interface ContainerCreateImage {
   name: string;
   version: string;
 }
+export interface ContainerDeleteOptions {
+  force?: boolean;
+  recursive?: boolean;
+}
 export interface ContainerDetails {
   id: string;
   service_name: string;
@@ -980,13 +1001,6 @@ export interface ContainerDeviceChangedEvent {
 export interface ContainerDeviceCreateArgs {
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
   container: number;
-}
-export interface ContainerNICDeviceInput {
-  dtype: "NIC";
-  trust_guest_rx_filters?: boolean;
-  type?: ContainerNICDeviceTypeInput;
-  nic_attach?: string | null;
-  mac?: string | null;
 }
 export interface ContainerDeviceDeleteOptions {
   force?: boolean;
@@ -1022,6 +1036,7 @@ export interface ContainerEntry {
   id: number;
   uuid: string;
   name: string;
+  description?: string;
   devices?: ContainerDeviceEntry[];
   cpuset?: string | null;
   autostart?: boolean;
@@ -1065,6 +1080,7 @@ export interface ContainerStopOptions {
 export interface ContainerUpdate {
   uuid?: string | null;
   name?: string;
+  description?: string;
   cpuset?: string | null;
   autostart?: boolean;
   time?: Time;
@@ -1104,6 +1120,7 @@ export interface DiskUnlockSedArgs {
 export interface DiskUpdate {
   number?: number;
   lunid?: string | null;
+  description?: string;
   hddstandby?: Hddstandby;
   advpowermgmt?: Advpowermgmt;
   bus?: string;
@@ -1136,6 +1153,11 @@ export interface DockerUpdateArgs {
   registry_mirrors?: RegistryMirror[];
   migrate_applications?: boolean;
 }
+export interface FailoverUpdate {
+  disabled?: boolean;
+  master?: boolean;
+  timeout?: number;
+}
 export interface FilesystemSetaclArgs {
   path: string;
   dacl: NFS4ACEInput[] | POSIXACE[];
@@ -1167,6 +1189,7 @@ export interface GraphIdentifier {
 }
 export interface InterfaceUpdate {
   name?: string;
+  description?: string;
   ipv4_dhcp?: boolean;
   ipv6_auto?: boolean;
   aliases?: InterfaceCreateAlias[];
@@ -1262,6 +1285,57 @@ export interface LXCConfigUpdateArgs {
   bridge?: string | null;
   v4_network?: string;
   v6_network?: string;
+}
+export interface NVMetHostAddedEvent {
+  id: number;
+  fields: NVMetHostEntry;
+}
+export interface NVMetHostEntry {
+  id: number;
+  hostnqn: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetHostChangedEvent {
+  id: number;
+  fields: NVMetHostEntry;
+}
+export interface NVMetHostCreate {
+  hostnqn: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetHostSubsysAddedEvent {
+  id: number;
+  fields: NVMetHostSubsysEntryInput;
+}
+export interface NVMetHostSubsysEntryInput {
+  id: number;
+  host: NVMetHostEntry;
+  subsys: NVMetSubsysEntryInput;
+}
+export interface NVMetHostSubsysChangedEvent {
+  id: number;
+  fields: NVMetHostSubsysEntryInput;
+}
+export interface NVMetHostSubsysEntry {
+  id: number;
+  host: NVMetHostEntry;
+  subsys: NVMetSubsysEntry;
+}
+export interface NVMetHostUpdate {
+  hostnqn?: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
 }
 export interface NVMetNamespaceEntry {
   id: number;
@@ -1368,7 +1442,6 @@ export interface PoolCreate {
 export interface PoolCreateEncryptionOptions {
   generate_key?: boolean;
   pbkdf2iters?: number;
-  algorithm?: Algorithm;
   passphrase?: string | null;
   key?: string | null;
 }
@@ -1959,6 +2032,7 @@ export interface SMBEntry {
   netbiosname: string;
   netbiosalias: string[];
   workgroup: string;
+  description: string;
   minimum_protocol: "SMB1" | "SMB2" | "SMB3";
   unixcharset: Unixcharset;
   localmaster: boolean;
@@ -1993,6 +2067,7 @@ export interface SMBUpdateArgs {
   netbiosname?: string;
   netbiosalias?: string[];
   workgroup?: string;
+  description?: string;
   minimum_protocol?: "SMB1" | "SMB2" | "SMB3";
   unixcharset?: Unixcharset;
   localmaster?: boolean;
@@ -2134,6 +2209,7 @@ export interface UPSUpdate {
   remoteport?: number;
   shutdowntimer?: number;
   hostsync?: number;
+  description?: string;
   driver?: string;
   extrausers?: string;
   identifier?: string;
@@ -2151,6 +2227,7 @@ export interface USBPassthroughDevice {
   capability: USBCapability;
   available: boolean;
   error: string | null;
+  description: string;
 }
 export interface UserAddedEvent {
   id: number;
@@ -2322,6 +2399,7 @@ export interface VMEntryInput {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -2359,6 +2437,38 @@ export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
 }
+export interface VMDeviceCreateArgs {
+  attributes:
+    | VMCDROMDevice
+    | VMDisplayDevice
+    | VmVMNICDeviceInput
+    | VMPCIDevice
+    | VMRAWDeviceInput
+    | VMDiskDeviceInput
+    | VMUSBDevice;
+  vm: number;
+  order?: number | null;
+}
+export interface VmVMNICDeviceInput {
+  dtype: "NIC";
+  trust_guest_rx_filters?: boolean;
+  type?: "E1000" | "VIRTIO";
+  nic_attach?: string | null;
+  mac?: string | null;
+}
+export interface VMDeviceEntry {
+  id: number;
+  attributes: VMCDROMDevice | VMDisplayDevice | VMNICDevice | VMPCIDevice | VMRAWDevice | VMDiskDevice | VMUSBDevice;
+  vm: number;
+  order: number;
+}
+export interface VMNICDevice {
+  dtype: "NIC";
+  trust_guest_rx_filters?: boolean;
+  type?: "E1000" | "VIRTIO";
+  nic_attach?: string | null;
+  mac?: string | null;
+}
 export interface VMDeviceNicAttachChoicesResult {
   BRIDGE: string[];
   MACVLAN: string[];
@@ -2368,6 +2478,7 @@ export interface VMEntry {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -2732,6 +2843,7 @@ export interface ZPoolExpand {
 export interface ZPoolFeature {
   name: string;
   guid: string;
+  description: string;
   state: string;
 }
 export interface ZPoolEntryInput {

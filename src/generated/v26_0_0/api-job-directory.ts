@@ -25,6 +25,7 @@ import type {
   AppUpgradeBulkEntry,
   AuditExport,
   ContainerCreateArgs,
+  ContainerDeleteOptions,
   ContainerEntry,
   ContainerStopOptions,
   DockerEntry,
@@ -37,6 +38,7 @@ import type {
   PoolImportPoolArgs,
   PoolScrubAction,
   PoolUpdate,
+  ReplicationRunOptions,
   SupportNewTicket,
   ZpoolScrubRun,
 } from './api-types';
@@ -86,6 +88,11 @@ export interface ApiJobDirectoryDelta {
   'container.create': {
     params: [container_create: ContainerCreateArgs];
     response: ContainerEntry;
+  };
+
+  'container.delete': {
+    params: [id: number, options?: ContainerDeleteOptions];
+    response: null;
   };
 
   'container.migrate': {
@@ -156,6 +163,11 @@ export interface ApiJobDirectoryDelta {
   'pool.update': {
     params: [id: number, data: PoolUpdate];
     response: PoolEntry;
+  };
+
+  'replication.run': {
+    params: [id: number, options?: ReplicationRunOptions];
+    response: null;
   };
 
   'support.new_ticket': {

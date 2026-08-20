@@ -38,6 +38,65 @@ describe('preprocess', () => {
     expect(methods[0].returns).toEqual({ type: 'null' });
   });
 
+  /**
+   * `description` is both a docstring key and a real field name — middleware
+   * declares the field on ~30 models, `CronJobEntry` and `VMEntry` among them.
+   * Stripping by key alone deleted the field with the prose, so the emitted
+   * `CronJobEntry` had no `description` and a create call that set one did not
+   * compile, for a field the appliance accepts and returns.
+   *
+   * The two are told apart by type: prose is a string, a field is its own
+   * schema object. Both appear here, on the same model, so a fix that removes
+   * the wrong one fails rather than passing on the easy half.
+   */
+  it('keeps a model field named description while stripping the prose beside it', () => {
+    const { definitions } = preprocess(version([
+      method('cronjob.get', args({}, []), returnsDoc({ $ref: '#/$defs/CronJob' }, {
+        CronJob: {
+          title: 'CronJob', type: 'object', additionalProperties: false,
+          description: 'A cron job.', // prose about the model
+          properties: {
+            command: { type: 'string', description: 'Shell command to run.' }, // prose about a field
+            description: { type: 'string', description: 'What this job does.' }, // the field itself
+          },
+        },
+      })),
+    ]));
+    expect(Object.keys(definitions['CronJob'].properties ?? {})).toEqual(['command', 'description']);
+    // The field survives as a schema; the prose on it does not.
+    expect(definitions['CronJob'].properties?.['description']).toEqual({ type: 'string' });
+    expect(definitions['CronJob'].properties?.['command']).toEqual({ type: 'string' });
+    // ...and neither does the prose on the model itself. Asserted directly:
+    // `toHaveProperty('description.description')` reads the string as a path
+    // and passes whether or not the prose survived, so it checked nothing.
+    expect(definitions['CronJob'].description).toBeUndefined();
+  });
+
+  /**
+   * `examples` had no model declaring a field by that name when this was
+   * written, which is exactly the guarantee `description` had until one did.
+   * Discriminated on shape instead: documentation is an array, a field schema
+   * is an object.
+   */
+  it('keeps a model field named examples while stripping the examples list beside it', () => {
+    const { definitions } = preprocess(version([
+      method('x.get', args({}, []), returnsDoc({ $ref: '#/$defs/Sample' }, {
+        Sample: {
+          title: 'Sample', type: 'object', additionalProperties: false,
+          examples: [{ examples: 'x' }], // documentation on the model
+          properties: {
+            examples: { type: 'string', examples: ['one', 'two'] }, // the field
+          },
+        },
+      })),
+    ]));
+    expect(Object.keys(definitions['Sample'].properties ?? {})).toEqual(['examples']);
+    // The field survives; the documentation array on it does not...
+    expect(definitions['Sample'].properties?.['examples']).toEqual({ type: 'string' });
+    // ...and neither does the one on the model.
+    expect(definitions['Sample'].examples).toBeUndefined();
+  });
+
   it('splits a model rendered differently per mode into Name and NameInput', () => {
     const inputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' } } };
     const outputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' }, b: { type: 'integer' } } };

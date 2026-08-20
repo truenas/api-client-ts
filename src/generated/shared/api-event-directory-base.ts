@@ -42,8 +42,6 @@ export type ApiEventDirectoryBase = Pick<
   | 'kerberos.keytab.query'
   | 'kerberos.realm.query'
   | 'keychaincredential.query'
-  | 'nvmet.host.query'
-  | 'nvmet.host_subsys.query'
   | 'nvmet.namespace.query'
   | 'nvmet.port.query'
   | 'nvmet.port_subsys.query'
