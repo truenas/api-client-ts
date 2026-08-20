@@ -470,10 +470,15 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * *field* name: middleware declares one on ~30 models, `CronJobEntry` and
  * `VMEntry` among them. A docstring is always a string; a field named
  * `description` appears under `properties` as its own schema, so it is always
- * an object. Dropping by key alone deleted the second along with the first, and
- * the emitted `CronJobEntry` had no `description` at all — so
- * `call('cronjob.create', [{ ..., description: 'nightly' }])` did not compile,
- * for a field the appliance accepts and returns.
+ * an object. Dropping by key alone deleted the second along with the first, so
+ * a field the appliance accepts and returns was missing from the emitted type
+ * and a call setting it did not compile.
+ *
+ * `cronjob.create` was the example this used to give, and it is the wrong one:
+ * `CronJobCreate` is homed in frozen v25_10_0, so it is in the 21 below that a
+ * regeneration cannot reach, and that call still does not compile. Reach for a
+ * model this actually fixed — `ContainerEntry`, whose `description` the v26
+ * client no longer has to read through a cast.
  *
  * `examples` is discriminated the same way, and for the same reason one step
  * earlier. No model in `api/v2*` declares a field by that name today — but that

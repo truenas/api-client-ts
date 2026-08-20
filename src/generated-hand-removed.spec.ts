@@ -15,11 +15,11 @@
 import { describe, expectTypeOf, it } from 'vitest';
 
 import type {
+  ApiCallDirectoryV25_10_0,
+  ApiCallDirectoryV25_10_5,
   ApiCallDirectoryV26_0_0,
   ApiCallDirectoryV27_0_0,
 } from '@/generated';
-import type { ApiCallDirectory as ApiCallDirectoryV25_10_0 } from '@/generated/v25_10_0/api-call-directory';
-import type { ApiCallDirectory as ApiCallDirectoryV25_10_5 } from '@/generated/v25_10_5/api-call-directory';
 
 type Method = 'pool.dataset.encryption_algorithm_choices';
 
