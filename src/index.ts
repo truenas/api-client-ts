@@ -21,6 +21,7 @@ export * from '@/generated';
 export { TrueNasApiClient } from '@/client/truenas-api-client';
 export { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 export { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
+export { TrueNasApiClientV27 } from '@/client/truenas-api-client-v27';
 
 // ── Version discovery (advanced) ─────────────────────────────────────────────
 export { VersionDiscovery } from '@/version-discovery';

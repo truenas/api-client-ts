@@ -2,6 +2,7 @@ import { firstValueFrom } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
+import { TrueNasApiClientV27 } from '@/client/truenas-api-client-v27';
 import { apiVersionConfig } from '@/config/api-version.config';
 import type { ApiDirectoryV25_10_0 } from '@/generated';
 import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
@@ -57,7 +58,7 @@ export interface CreateClientOptions {
  * 1. Discovers the API version (`GET /api/versions`), asking every hostname in
  *    parallel. The first usable answer wins.
  * 2. Selects the matching client implementation (`v25.10.x` -> `TrueNasApiClientV2510`,
- *    `v26.x.y` -> `TrueNasApiClientV26`).
+ *    `v26.x.y` -> `TrueNasApiClientV26`, `v27.x.y` -> `TrueNasApiClientV27`).
  * 3. Instantiates and returns it.
  *
  * Resolves exactly once with a single client instance — dispose of it with
@@ -302,6 +303,7 @@ type ClientConstructor = new (
 const CLIENT_BY_VERSION_KEY: Readonly<Record<string, ClientConstructor>> = {
   '25.10': TrueNasApiClientV2510,
   '26': TrueNasApiClientV26,
+  '27': TrueNasApiClientV27,
 };
 
 /**

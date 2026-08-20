@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
+import { TrueNasApiClientV27 } from '@/client/truenas-api-client-v27';
 import {
   VersionDiscoveryTimeoutError,
   VersionEndpointNotFoundError,
@@ -93,6 +94,18 @@ describe('createTrueNasClient', () => {
 
     expect(client).toBeInstanceOf(TrueNasApiClientV26);
     expect(client.version.version).toBe('v26.0.0');
+  });
+
+  it('selects the v27 client for a v27.x server', async () => {
+    fetchMock.mockResolvedValue(fakeResponse(['v27.0.0']));
+
+    const client = await create();
+
+    expect(client).toBeInstanceOf(TrueNasApiClientV27);
+    // Not the v26 client: the two share their container operations today, so
+    // instanceof is what separates them rather than behaviour.
+    expect(client).not.toBeInstanceOf(TrueNasApiClientV26);
+    expect(client.version.version).toBe('v27.0.0');
   });
 
   /**

@@ -113,7 +113,12 @@ describe('VersionDiscovery', () => {
   });
 
   it('throws VersionTooNewError when all versions are above the supported range', async () => {
-    fetchMock.mockResolvedValue(fakeResponse({ body: ['v26.0.1', 'v27.0.0'] }));
+    // Both above the ceiling. This used to read `['v26.0.1', 'v28.0.0']`, which
+    // passed only because the ceiling was v26.0.0 — so v26.0.1 counted as "above
+    // the supported range" and the fixture quietly documented that a v26 patch
+    // release is rejected. Raising MAX to v27.0.0 makes v26.0.1 compatible and
+    // the name true again.
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v28.0.0', 'v29.0.0'] }));
 
     const error = await settle(discovery.discoverVersion('box'));
 
@@ -121,7 +126,7 @@ describe('VersionDiscovery', () => {
   });
 
   it('throws NoCompatibleVersionsError when versions straddle the range but none fit', async () => {
-    fetchMock.mockResolvedValue(fakeResponse({ body: ['v24.10.0', 'v27.0.0'] }));
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v24.10.0', 'v28.0.0'] }));
 
     const error = await settle(discovery.discoverVersion('box'));
 

@@ -30,14 +30,23 @@ export const apiVersionConfig = {
   /**
    * Maximum supported API version. Systems above it are rejected.
    *
-   * NOT derived, deliberately. This should be the newest generated version by
-   * the same argument as MIN, but `instantiateClientForVersion` only maps
-   * `25.10` and `26` — a v27 system would pass the range check and then throw
-   * on client selection. It moves to the newest generated version once a v27
-   * client exists. Until then it lags on purpose, and the `satisfies` clause
-   * below still pins it to a version that was actually generated.
+   * NOT derived, deliberately — and for a different reason than it used to
+   * lag. It sat at v26.0.0 while types for v27 already shipped, because
+   * `CLIENT_BY_VERSION_KEY` had no `27` and a v27 system would have passed the
+   * range check only to throw on client selection. `TrueNasApiClientV27` now
+   * exists, so this moves up with it.
+   *
+   * What it must not become is `SUPPORTED_API_VERSIONS[length - 1]`, the mirror
+   * of how MIN is derived. MIN is safe to derive because the oldest generated
+   * version always has a client — it is the floor the clients were built from.
+   * The ceiling is not symmetric: generating types for v28 does not write a v28
+   * client, so deriving this would re-create the exact gap described above on
+   * the next regeneration, silently. The real invariant is "the newest version
+   * a client can be built for", which lives in `CLIENT_BY_VERSION_KEY`; a
+   * factory test asserts the two agree, which is the check that keeps this
+   * literal honest without importing the factory here.
    */
-  MAX_SUPPORTED_VERSION: 'v26.0.0',
+  MAX_SUPPORTED_VERSION: 'v27.0.0',
 
   /**
    * Fallback version to use when version discovery fails due to CORS/network errors.

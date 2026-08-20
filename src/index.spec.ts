@@ -22,6 +22,7 @@ const RUNTIME_EXPORTS = [
   'TrueNasApiClient',
   'TrueNasApiClientV2510',
   'TrueNasApiClientV26',
+  'TrueNasApiClientV27',
   'TrueNasAuthMechanism',
   'VersionCompatibility',
   'VersionDiscovery',
@@ -70,6 +71,7 @@ describe('public barrel', () => {
     expect(typeof api.TrueNasApiClient).toBe('function');
     expect(typeof api.TrueNasApiClientV2510).toBe('function');
     expect(typeof api.TrueNasApiClientV26).toBe('function');
+    expect(typeof api.TrueNasApiClientV27).toBe('function');
   });
 
   it('exposes version-discovery + typed errors', () => {
