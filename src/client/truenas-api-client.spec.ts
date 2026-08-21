@@ -22,6 +22,7 @@ class TestClient extends TrueNasApiClient {
       containerStart: vi.fn(),
       containerStop: vi.fn(),
       containerRestart: vi.fn(),
+      containerDelete: vi.fn(),
     };
   }
 }

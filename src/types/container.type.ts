@@ -32,6 +32,34 @@ export interface ContainerStopOptions {
 }
 
 /**
+ * Options for deleting a container (unified interface)
+ *
+ * Both are optional and both default to off, matching middleware. Neither has a
+ * counterpart on v25.10 — `virt.instance.delete` takes an id and nothing else —
+ * so the v25.10 client cannot honour them; it says so rather than dropping them
+ * quietly, because `recursive` in particular destroys data.
+ */
+export interface ContainerDeleteOptions {
+  /**
+   * Stop the container first if it is not already stopped. Without it, v26+
+   * refuses to delete a running or suspended container rather than tearing it
+   * down underneath itself.
+   */
+  force?: boolean;
+  /**
+   * Destroy the container's dataset together with its child datasets and
+   * snapshots, any clones of those snapshots wherever they live in the pool,
+   * and any holds on them.
+   *
+   * Releasing a hold can break a replication task that depends on it, and none
+   * of what this destroys is recoverable. Without it, v26+ refuses to delete a
+   * container whose dataset has children or snapshots — which is the refusal
+   * this option exists to override, deliberately.
+   */
+  recursive?: boolean;
+}
+
+/**
  * Options for restarting a container (unified interface)
  */
 export interface ContainerRestartOptions {

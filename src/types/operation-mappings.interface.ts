@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
 import {
   Container,
+  ContainerDeleteOptions,
   ContainerRestartOptions,
   ContainerStopOptions,
 } from '@/types/container.type';
@@ -41,8 +42,14 @@ import { Job } from '@/types/job.type';
  *
  * To add new operations:
  * 1. Add the method signature here
- * 2. Implement in TrueNasApiClientV2510.createOperations()
- * 3. Implement in TrueNasApiClientV26.createOperations()
+ * 2. Implement it in every client's `createOperations()` —
+ *    `TrueNasApiClientV2510`, `TrueNasApiClientV26`, `TrueNasApiClientV27`
+ *
+ * This list used to name only v25.10 and v26, which is how a new operation
+ * would have quietly missed v27. It is not the real safety net either: adding a
+ * member here fails to compile in every client that has not implemented it, and
+ * that is what actually enumerates them. Keep the list current, but trust the
+ * compiler.
  */
 export interface OperationMappings {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -81,6 +88,26 @@ export interface OperationMappings {
   containerRestart: (
     id: string,
     options: ContainerRestartOptions
+  ) => Observable<Job | null>;
+
+  /**
+   * Delete a container
+   * - v25.10: `virt.instance.delete`, already a job — emits Job updates
+   * - v26+: `container.delete`, made a job in v26.0.0 — emits Job updates
+   *
+   * A job on every supported version, so unlike `containerStart` this one does
+   * not change shape across them. It is exposed here because the alternative is
+   * a caller reaching for `api.call('container.delete', …)`, which is the wrong
+   * verb: the method moved out of the call directory when middleware made it a
+   * job, so that does not compile on v26+ and would not track the job if it did.
+   *
+   * `options` are honoured on v26+ only. v25.10's `virt.instance.delete` takes
+   * an id and nothing else; passing them there is logged rather than silently
+   * ignored, because `recursive` destroys data that cannot be recovered.
+   */
+  containerDelete: (
+    id: string,
+    options?: ContainerDeleteOptions
   ) => Observable<Job | null>;
 
   // ═══════════════════════════════════════════════════════════════════════════
