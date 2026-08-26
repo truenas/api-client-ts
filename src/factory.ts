@@ -9,6 +9,7 @@ import type { ApiDirectoryByVersion, ApiDirectoryV25_10_0, SupportedApiVersion }
 import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import type { ApiDirectoryShape } from '@/types/api-directory.type';
+import type { ApplianceProtocol } from '@/types/transport.type';
 import { ApiVersion, VersionCompatibility } from '@/types/api-version.type';
 import { checkVersionCompatibility, legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
 import { VersionDiscovery } from '@/version-discovery';
@@ -75,6 +76,28 @@ export interface CreateClientOptions {
    * without the caller asserting it through a type parameter.
    */
   version?: SupportedApiVersion;
+  /**
+   * The scheme to reach the appliance on, in `location.protocol` form.
+   *
+   * Selects both halves of the transport: `https:` gives `https` discovery and
+   * a `wss` socket, `http:` gives `http` and `ws`. Defaults to `https:`, which
+   * is what an appliance serves and what Connect uses.
+   *
+   * This describes the *appliance*, not the page. Passing
+   * `location.protocol` is correct when the appliance serves the page — the
+   * same-origin case this exists for — and wrong otherwise. A page on
+   * `http://localhost:5173` talking to an https appliance gets both halves
+   * wrong, but only one of them says so: `fetch` follows the redirect and
+   * discovery appears to work, while the WebSocket has no such tolerance and
+   * fails the handshake without naming the scheme.
+   *
+   * Omitting it against a plaintext appliance is the quieter failure and the
+   * likelier one, since it is the case this option exists for. Discovery tries
+   * `https`, `fetch` rejects, and that is indistinguishable from the CORS block
+   * v25.10.0 has on `/api/versions` — so the fallback fires and the caller gets
+   * a client pinned to v25.10.0, warned about only in the log.
+   */
+  protocol?: ApplianceProtocol;
 }
 
 /**
@@ -295,7 +318,7 @@ export async function createTrueNasClient<
     return instantiateClientForVersion<D>(known, opts, logger);
   }
 
-  const versionDiscovery = new VersionDiscovery(logger);
+  const versionDiscovery = new VersionDiscovery(logger, opts.protocol);
 
   let version: ApiVersion;
   try {
@@ -466,7 +489,8 @@ type ClientConstructor = new (
   version: ApiVersion,
   enabled: boolean,
   systemName?: string,
-  logger?: Logger
+  logger?: Logger,
+  protocol?: ApplianceProtocol
 ) => TrueNasApiClient;
 
 /**
@@ -549,7 +573,8 @@ function instantiateClientForVersion<D extends ApiDirectoryShape>(
     version,
     enabled,
     systemName,
-    logger
+    logger,
+    opts.protocol
   ) as unknown as TrueNasApiClient<D>;
 }
 

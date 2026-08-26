@@ -82,6 +82,49 @@ client.api.events('app.query').subscribe(event => {
 });
 ```
 
+### Reaching an appliance over http
+
+By default the client discovers over `https://` and connects over `wss://`,
+which is what an appliance serves. An appliance reached without TLS needs
+`protocol`:
+
+```typescript
+import type { ApplianceProtocol } from '@truenas/api-client';
+
+const protocol: ApplianceProtocol =
+  location.protocol === 'http:' ? 'http:' : 'https:';
+
+const client = await createTrueNasClient({
+  uuid, hostnames: [location.host], enabled: true, protocol,
+});
+```
+
+It selects both halves of the transport — `https:` gives `https` discovery and a
+`wss` socket, `http:` gives `http` and `ws` — and defaults to `https:`, so
+existing callers are unaffected.
+
+`protocol` describes the **appliance**, not the page. Reading it from
+`location.protocol` is right when the appliance serves the page, which is the
+same-origin case this exists for. A page served from somewhere else — a dev
+server on `http://localhost:5173` talking to an https appliance — must pass what
+the *appliance* uses. Getting it wrong breaks both halves but reports only one:
+discovery's `fetch` follows the redirect and looks fine, while the socket opens
+`ws://`, meets the same redirect, and fails the handshake without naming the
+scheme.
+
+Omitting it against a plaintext appliance fails the other way, and more quietly.
+Discovery tries `https://`, `fetch` rejects, and the factory cannot tell that
+apart from the CORS block that v25.10.0 has on `/api/versions` — so it takes the
+fallback and hands back a client pinned to `v25.10.0` on `/api/v25.10.0`, with
+only a `logger.warn` to say so. Against a v26 or v27 box that is a wrong-version
+client that looks configured. If the appliance is plaintext, say so.
+
+Narrow rather than cast: `location.protocol` is a `string`, and it is genuinely
+`file:` for a locally-opened page or `chrome-extension:` in an extension. Both
+halves fall back to the encrypted scheme for anything off-contract, so a bad
+value cannot downgrade the transport — but the compiler will not stop you
+asserting one into this option, and it will not be the value you meant.
+
 ### Naming a version
 
 By default the version is discovered at runtime while the types are fixed at

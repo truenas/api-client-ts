@@ -17,6 +17,7 @@ import { describe, expectTypeOf, it } from 'vitest';
 import type { TrueNasApi } from '@/api/truenas-api';
 import type { DefaultApiDirectory } from '@/factory';
 import type { ApiDirectoryV26_0_0, v25_10_0, v26_0_0 } from '@/generated';
+import type { ApplianceProtocol } from '@/index';
 import type { Job } from '@/types/job.type';
 import type { QueryListOptions } from '@/types/query.type';
 
@@ -34,6 +35,12 @@ const stub = {
   job: () => undefined,
   events: () => ({ subscribe: () => undefined }),
 };
+
+describe('README: reaching an appliance over http', () => {
+  it('exports the type the snippet imports, with the members it narrows to', () => {
+    expectTypeOf<ApplianceProtocol>().toEqualTypeOf<'http:' | 'https:'>();
+  });
+});
 
 /** What `createTrueNasClient(opts)` hands back, with no version named. */
 const api = stub as unknown as TrueNasApi<DefaultApiDirectory>;

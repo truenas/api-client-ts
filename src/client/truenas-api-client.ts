@@ -22,6 +22,7 @@ import type {
   BaseApiDirectory,
 } from '@/types/api-directory.type';
 import { getWebSocketPath } from '@/utils/api-version.utils';
+import type { ApplianceProtocol } from '@/types/transport.type';
 
 /**
  * @typeParam D - the generated API surface this client is typed against —
@@ -77,13 +78,16 @@ export abstract class TrueNasApiClient<
   /** Logger forwarded to the connection (defaults to a no-op). */
   protected readonly logger: Logger;
 
+  protected readonly protocol: ApplianceProtocol;
+
   constructor(
     uuid: string,
     hostnames: string[],
     version: ApiVersion,
     enabled: boolean,
     systemName?: string,
-    logger: Logger = noopLogger
+    logger: Logger = noopLogger,
+    protocol: ApplianceProtocol = 'https:'
   ) {
     this.uuid = uuid;
     this.hostnames = hostnames;
@@ -91,6 +95,7 @@ export abstract class TrueNasApiClient<
     this.enabled = enabled;
     this.systemName = systemName;
     this.logger = logger;
+    this.protocol = protocol;
 
     // Initialize components using factory methods
     // Subclasses can override factory methods to provide version-specific implementations
@@ -145,7 +150,8 @@ export abstract class TrueNasApiClient<
       this.systemName,
       undefined, // retryDelay (use default)
       undefined, // maxRetry (use default)
-      this.logger
+      this.logger,
+      this.protocol
     );
   }
 

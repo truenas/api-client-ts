@@ -12,6 +12,7 @@ import {
   VersionTooOldError,
 } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
+import { httpScheme, type ApplianceProtocol } from '@/types/transport.type';
 import {
   ApiVersion,
   ApiVersionResponse,
@@ -56,12 +57,19 @@ function hasErrorName(error: unknown, expected: string): boolean {
 export class VersionDiscovery {
   private versionCache = new Map<string, Observable<ApiVersion>>();
 
-  constructor(private readonly logger: Logger = noopLogger) {}
+  constructor(
+    private readonly logger: Logger = noopLogger,
+    private readonly protocol: ApplianceProtocol = 'https:',
+  ) {}
+
+  private versionsUrl(hostname: string): string {
+    return `${httpScheme(this.protocol)}//${hostname}/api/versions`;
+  }
 
   /**
    * Discovers the API version for a given hostname.
    *
-   * Makes a GET request to `https://{hostname}/api/versions` and returns the latest
+   * Makes a GET request to `{protocol}//{hostname}/api/versions` and returns the latest
    * compatible version. Results are cached per hostname; the cache entry is removed
    * on failure so the next call retries.
    *
@@ -76,8 +84,10 @@ export class VersionDiscovery {
       return cached;
     }
 
-    const url = `https://${hostname}/api/versions`;
-    this.logger.info('Starting version discovery', { hostname, url });
+    this.logger.info('Starting version discovery', {
+      hostname,
+      url: this.versionsUrl(hostname),
+    });
 
     const discovery$ = defer(() => from(this.fetchVersions(hostname))).pipe(
       map(versionStrings => this.selectVersion(hostname, versionStrings)),
@@ -122,7 +132,7 @@ export class VersionDiscovery {
    * misfile as a network error. Validating here keeps it an `InvalidVersionResponseError`.
    */
   private async fetchVersions(hostname: string): Promise<ApiVersionResponse> {
-    const url = `https://${hostname}/api/versions`;
+    const url = this.versionsUrl(hostname);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), discoveryTimeoutMs);
 

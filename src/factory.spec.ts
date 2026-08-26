@@ -203,6 +203,46 @@ describe('createTrueNasClient', () => {
     });
   });
 
+  describe('the scheme the appliance is reached on', () => {
+    it('defaults to https, so Connect behaviour is unchanged', async () => {
+      fetchMock.mockResolvedValue(fakeResponse(['v26.0.0']));
+
+      const client = await create();
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://box/api/versions',
+        expect.anything()
+      );
+      expect(client.connection.protocol).toBe('https:');
+    });
+
+    it('carries http: to discovery and on to the connection', async () => {
+      fetchMock.mockResolvedValue(fakeResponse(['v26.0.0']));
+
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false, protocol: 'http:',
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://box/api/versions',
+        expect.anything()
+      );
+      expect(client.connection.protocol).toBe('http:');
+    });
+
+    it('reaches the connection on the named-version path, where discovery never runs', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false,
+        version: 'v27.0.0', protocol: 'http:',
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(client.connection.protocol).toBe('http:');
+    });
+  });
+
   describe('a caller that names the version', () => {
     it('skips discovery entirely — no request is made', async () => {
       const client = await createTrueNasClient({

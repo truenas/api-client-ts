@@ -28,6 +28,7 @@ import { TrueNasMessage } from '@/types/truenas-message.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
 import { getHttpError, getWebSocketError, isHttpStatusError } from '@/utils/truenas-connection.utils';
 import { TrueNasSocket } from '@/connection/truenas-socket';
+import { socketScheme, type ApplianceProtocol } from '@/types/transport.type';
 
 // helper types
 interface ActiveConnection {
@@ -205,6 +206,7 @@ export class TrueNasConnection {
     readonly retryDelay: number = tenSeconds,
     readonly maxRetry: number = 3,
     readonly logger: Logger = noopLogger,
+    readonly protocol: ApplianceProtocol = 'https:',
   ) {
     // create a ping observable which only stops when the connection is *manually* closed.
     // we can safely do this since we can assume that if `closeConnection` fires, then
@@ -294,7 +296,7 @@ export class TrueNasConnection {
    * error if the connection is never established and will not complete until unsubscribed from or closed.
    */
   private createSocket(hostname: string): Observable<ActiveConnection> {
-    const url = `wss://${hostname}${this.websocketPath}`;
+    const url = `${socketScheme(this.protocol)}//${hostname}${this.websocketPath}`;
 
     // track whether a socket has actually been opened and emitted by the observable.
     // this controls the `retry` operator at the end of this pipeline.
