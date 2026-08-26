@@ -4,7 +4,8 @@ import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { TrueNasApiClientV27 } from '@/client/truenas-api-client-v27';
 import { apiVersionConfig } from '@/config/api-version.config';
-import type { ApiDirectoryV25_10_0 } from '@/generated';
+import { SUPPORTED_API_VERSIONS } from '@/generated';
+import type { ApiDirectoryByVersion, ApiDirectoryV25_10_0, SupportedApiVersion } from '@/generated';
 import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import type { ApiDirectoryShape } from '@/types/api-directory.type';
@@ -50,13 +51,23 @@ export interface CreateClientOptions {
    * through the client, to the connection.
    */
   logger?: Logger;
+  /**
+   * The appliance's API version, when the caller already knows it.
+   *
+   * Supplying it skips version discovery entirely — no `GET /api/versions`, no
+   * CORS fallback — and *derives* the client's typed surface from the string,
+   * so `version: 'v27.0.0'` yields `TrueNasApiClient<ApiDirectoryV27_0_0>`
+   * without the caller asserting it through a type parameter.
+   */
+  version?: SupportedApiVersion;
 }
 
 /**
  * Creates a version-specific TrueNAS API client.
  *
  * 1. Discovers the API version (`GET /api/versions`), asking every hostname in
- *    parallel. The first usable answer wins.
+ *    parallel. The first usable answer wins — *unless* `opts.version` says
+ *    which version this is, in which case discovery is skipped entirely.
  * 2. Selects the matching client implementation (`v25.10.x` -> `TrueNasApiClientV2510`,
  *    `v26.x.y` -> `TrueNasApiClientV26`, `v27.x.y` -> `TrueNasApiClientV27`).
  * 3. Instantiates and returns it.
@@ -87,6 +98,37 @@ export interface CreateClientOptions {
  * supported version. Operations that must work across versions belong on
  * `client.ops`, which resolves them at runtime.
  *
+ * ## Naming the version instead
+ *
+ * A caller that already knows its appliance — a UI served by the appliance
+ * itself, a test harness against a pinned image — can say so and skip discovery
+ * altogether:
+ *
+ * ```typescript
+ * const client = await createTrueNasClient({
+ *   uuid, hostnames, enabled: true, version: 'v27.0.0',
+ * });
+ * // client: TrueNasApiClient<ApiDirectoryV27_0_0>, derived from the string
+ * ```
+ *
+ * The surface is *derived* rather than asserted: `ApiDirectoryByVersion` maps
+ * the version string to its directory, so there is no `D` to get wrong and no
+ * cast. A version this package ships no types for does not compile.
+ *
+ * Two consequences worth knowing before reaching for it.
+ *
+ * It is a stronger claim than `D` alone, because it also picks the websocket
+ * path. Naming `v27.0.0` at a v26 appliance connects on `/api/v27.0.0` with v27
+ * types over a v26 server, and discovery cannot correct it — declining
+ * discovery is the whole point. `D` on its own only mistyped the surface; this
+ * mistypes the surface *and* dials the wrong number.
+ *
+ * It also bypasses the `MIN`/`MAX_SUPPORTED_VERSION` range check, which lives in
+ * discovery. That is not a hole: `SupportedApiVersion` already admits only
+ * versions this package generated types for, and every one of them has a client
+ * (asserted in `factory.spec.ts`). But the range check is no longer what stops
+ * you here — the type is.
+ *
  * @typeParam D - the generated API surface the client is typed against, as a
  *   whole (`call`, `job`, `event`). Every verb resolves method names against
  *   it, so naming a method this surface does not have is a build error.
@@ -99,6 +141,12 @@ export interface CreateClientOptions {
  *   bug. A network error alongside a version-compatibility error or a 404 does
  *   *not* reach the fallback — see `selectRepresentativeFailure`.
  */
+export async function createTrueNasClient<V extends SupportedApiVersion>(
+  opts: CreateClientOptions & { version: V },
+): Promise<TrueNasApiClient<ApiDirectoryByVersion[V]>>;
+export async function createTrueNasClient<
+  D extends ApiDirectoryShape = DefaultApiDirectory,
+>(opts: CreateClientOptions & { version?: undefined }): Promise<TrueNasApiClient<D>>;
 export async function createTrueNasClient<
   D extends ApiDirectoryShape = DefaultApiDirectory,
 >(opts: CreateClientOptions): Promise<TrueNasApiClient<D>> {
@@ -111,13 +159,51 @@ export async function createTrueNasClient<
     );
   }
 
-  const versionDiscovery = new VersionDiscovery(logger);
-
   logger.info('Creating versioned API client', {
     uuid: uuid.slice(0, 8),
     hostnames: hostnames.join(', '),
     systemName,
   });
+
+  // Caller knows the version: skip discovery outright. Nothing here can fail
+  // over the network, so none of the fallback machinery below applies.
+  if (opts.version) {
+    // Membership, not parseability. `parseApiVersion` validates *shape* — it
+    // accepts 'v99.0.0' quite happily — while what this path needs is a version
+    // the package actually ships a surface for, because that surface is what
+    // the return type was derived from. Checking the runtime twin of
+    // `SupportedApiVersion` is the same question the type asked.
+    //
+    // Unreachable from TypeScript, which rejects the string at compile time.
+    // Reachable from JavaScript, and this is a published entry point. Throwing
+    // names the real problem; falling through to discovery would be worse than
+    // an error, because declining discovery is exactly what the caller asked
+    // for and doing it anyway would connect somewhere they did not choose.
+    if (!(SUPPORTED_API_VERSIONS as readonly string[]).includes(opts.version)) {
+      throw new Error(
+        `Cannot create client for system ${uuid}: '${opts.version}' is not a ` +
+          `version this package ships types for. Supported: ` +
+          `${SUPPORTED_API_VERSIONS.join(', ')}.`
+      );
+    }
+    const known = parseApiVersion(opts.version);
+    if (!known) {
+      // Belt and braces: every member of the list above parses today, so this
+      // is a contradiction rather than a user error. Loud beats silent.
+      throw new Error(
+        `Cannot create client for system ${uuid}: supported version ` +
+          `'${opts.version}' failed to parse.`
+      );
+    }
+    logger.info('API version supplied by the caller, skipping discovery', {
+      uuid: uuid.slice(0, 8),
+      version: known.version,
+      websocketPath: known.websocketPath,
+    });
+    return instantiateClientForVersion<D>(known, opts, logger);
+  }
+
+  const versionDiscovery = new VersionDiscovery(logger);
 
   let version: ApiVersion;
   try {

@@ -108,6 +108,69 @@ describe('createTrueNasClient', () => {
     expect(client.version.version).toBe('v27.0.0');
   });
 
+  describe('a caller that names the version', () => {
+    it('skips discovery entirely — no request is made', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234',
+        hostnames: ['box'],
+        enabled: false,
+        version: 'v27.0.0',
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      // The point of the option. `fetch` is stubbed and would resolve to
+      // `undefined` if called, so this asserts intent rather than luck.
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(client.version.version).toBe('v27.0.0');
+    });
+
+    it('builds the client for that version', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v26.0.0',
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      expect(client).toBeInstanceOf(TrueNasApiClientV26);
+      expect(client).not.toBeInstanceOf(TrueNasApiClientV27);
+    });
+
+    it('derives the websocket path from the version named', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v27.0.0',
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      // Not just the types: naming the version also dials the number.
+      expect(client.connection.websocketPath).toBe('/api/v27.0.0');
+    });
+
+    /**
+     * Reachable only from JavaScript — `SupportedApiVersion` rejects it at
+     * compile time — but this is a published entry point. Falling through to
+     * discovery would be the wrong recovery: the caller explicitly declined it.
+     */
+    it('throws on a version it ships no types for, rather than discovering', async () => {
+      const call = createTrueNasClient({
+        uuid: 'uuid-1234',
+        hostnames: ['box'],
+        enabled: false,
+        version: 'v99.0.0' as never,
+      });
+
+      await expect(call).rejects.toThrow(/not a version this package ships types for/);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('leaves discovery untouched when no version is named', async () => {
+      fetchMock.mockResolvedValue(fakeResponse(['v26.0.0']));
+
+      const client = await create();
+
+      expect(fetchMock).toHaveBeenCalled();
+      expect(client).toBeInstanceOf(TrueNasApiClientV26);
+    });
+  });
+
   /**
    * `Dir` says which API surface the caller is *writing against*. It does not
    * ask for a version and cannot get one — it is erased before anything runs,
