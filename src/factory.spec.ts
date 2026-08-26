@@ -9,7 +9,7 @@ import {
   VersionTooOldError,
 } from '@/errors/version-discovery.errors';
 import { apiVersionConfig } from '@/config/api-version.config';
-import type { ApiDirectoryV27_0_0 } from '@/generated';
+import type { ApiDirectoryV27_0_0, SupportedApiVersion } from '@/generated';
 import {
   SUPPORTED_API_VERSIONS,
   type ApiDirectoryV26_0_0,
@@ -172,12 +172,28 @@ describe('createTrueNasClient', () => {
       const client = await connect('v27.0.0');
       created.push(client as unknown as TrueNasApiClient);
 
-      // Runtime honours the version...
       expect(client).toBeInstanceOf(TrueNasApiClientV27);
       expect(fetchMock).not.toHaveBeenCalled();
-      // ...while the type falls back. Safe direction — a v27-only call is a
-      // compile error rather than a runtime surprise — but not what was asked.
       expectTypeOf(client).toEqualTypeOf<TrueNasApiClient<DefaultApiDirectory>>();
+    });
+
+    it('falls back to the default surface, not to the intersection of every version', async () => {
+      // A wrapper taking a required version reaches the derived overload with
+      // `V` widened to the whole union. Indexed by that, the usable methods are
+      // the intersection of all eight directories — narrower than the default,
+      // so naming the version would have bought fewer methods than naming
+      // nothing. `DerivedDirectory` collapses that case instead.
+      const connect = (version: SupportedApiVersion) =>
+        createTrueNasClient({ uuid: 'u', hostnames: ['box'], enabled: false, version });
+
+      const client = await connect('v27.0.0');
+      created.push(client as unknown as TrueNasApiClient);
+
+      expectTypeOf(client).toEqualTypeOf<TrueNasApiClient<DefaultApiDirectory>>();
+      // Reachable on the default surface; absent from the intersection, since
+      // `virt.*` is v25.10-only. That difference is the whole finding.
+      type Callable = Parameters<typeof client.api.call>[0];
+      expectTypeOf<'virt.instance.query'>().toExtend<Callable>();
     });
 
     it('rejects a version this package ships no types for', () => {

@@ -28,6 +28,21 @@ import { VersionDiscovery } from '@/version-discovery';
  */
 export type DefaultApiDirectory = ApiDirectoryV25_10_0;
 
+/**
+ * The surface a named version derives, falling back when nothing was narrowed.
+ *
+ * `V` only pins a directory when inference narrowed it. A wrapper typed
+ * `(version: SupportedApiVersion)` widens it back to the whole union, and
+ * indexing by a union yields a union of directories whose usable methods are
+ * their *intersection* — narrower than the default surface, so naming the
+ * version would buy fewer methods than naming nothing. That case falls back to
+ * {@link DefaultApiDirectory} instead, matching every other shape that loses
+ * the literal. A partial union still derives: methods common to the versions
+ * named is the right answer for "one of these".
+ */
+type DerivedDirectory<V extends SupportedApiVersion> =
+  SupportedApiVersion extends V ? DefaultApiDirectory : ApiDirectoryByVersion[V];
+
 /** Options for {@link createTrueNasClient}. */
 export interface CreateClientOptions {
   /** System UUID. */
@@ -125,14 +140,16 @@ export interface CreateClientOptions {
  *   argument makes the derived overload inapplicable, so `D` wins.
  * - `(v?: SupportedApiVersion) => createTrueNasClient({ …, version: v })` — the
  *   property is `SupportedApiVersion | undefined`, which no `V` satisfies.
+ * - `(v: SupportedApiVersion) => …` — reaches this overload, but `V` is the
+ *   whole union; see {@link DerivedDirectory}.
  * - `const opts: CreateClientOptions = { …, version: 'v27.0.0' }` — the
  *   annotation widens the property before the call sees it.
  *
- * All three compile, run against the named version, and type as
+ * All of them compile, run against the named version, and type as
  * {@link DefaultApiDirectory}. That fails in the safe direction — understated
  * types give a compile error at the method call rather than a runtime surprise —
- * but it is silent, so a wrapper that forwards an optional version gets none of
- * the surface it named. Keep the literal at the call site, and if you are adding
+ * but it is silent, so a wrapper that forwards a version gets none of the
+ * surface it named. Keep the literal at the call site, and if you are adding
  * `version` to an existing `createTrueNasClient<ApiDirectoryV26_0_0>(opts)`
  * call, delete the type argument in the same edit.
  *
@@ -178,7 +195,7 @@ export interface CreateClientOptions {
  */
 export async function createTrueNasClient<V extends SupportedApiVersion>(
   opts: CreateClientOptions & { version: V },
-): Promise<TrueNasApiClient<ApiDirectoryByVersion[V]>>;
+): Promise<TrueNasApiClient<DerivedDirectory<V>>>;
 export async function createTrueNasClient<
   D extends ApiDirectoryShape = DefaultApiDirectory,
 >(opts: CreateClientOptions): Promise<TrueNasApiClient<D>>;

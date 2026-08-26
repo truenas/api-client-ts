@@ -121,9 +121,9 @@ with v27 types over a v26 server, and discovery cannot correct it — declining
 discovery is the point.
 
 The derivation needs the version to be literal at the call site. Passing a type
-argument as well, forwarding an optional `version` through a wrapper, or
-annotating the options object as `CreateClientOptions` all compile, all connect
-to the version you named, and all type as the default surface instead. That
+argument as well, forwarding `version` through a wrapper, or annotating the
+options object as `CreateClientOptions` all compile, all connect to the version
+you named, and all type as the default surface instead. That
 errs safely — understated types fail at the method call, not at runtime — but
 silently, so keep the literal where the call is.
 
