@@ -9,8 +9,8 @@ import type { ApiDirectoryByVersion, ApiDirectoryV25_10_0, SupportedApiVersion }
 import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import type { ApiDirectoryShape } from '@/types/api-directory.type';
-import { ApiVersion } from '@/types/api-version.type';
-import { legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
+import { ApiVersion, VersionCompatibility } from '@/types/api-version.type';
+import { checkVersionCompatibility, legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
 import { VersionDiscovery } from '@/version-discovery';
 
 /**
@@ -112,8 +112,29 @@ export interface CreateClientOptions {
  * ```
  *
  * The surface is *derived* rather than asserted: `ApiDirectoryByVersion` maps
- * the version string to its directory, so there is no `D` to get wrong and no
- * cast. A version this package ships no types for does not compile.
+ * the version string to its directory, so the caller writes no cast and names
+ * no directory type. A version this package ships no types for does not
+ * compile.
+ *
+ * **The derivation needs the version to be literal at the call site.** It comes
+ * from inference on `{ version: V }`, so it holds for a string literal written
+ * in the options object (or a `const`-typed one). It does not survive
+ * indirection:
+ *
+ * - `createTrueNasClient<D>({ …, version: 'v27.0.0' })` — an explicit type
+ *   argument makes the derived overload inapplicable, so `D` wins.
+ * - `(v?: SupportedApiVersion) => createTrueNasClient({ …, version: v })` — the
+ *   property is `SupportedApiVersion | undefined`, which no `V` satisfies.
+ * - `const opts: CreateClientOptions = { …, version: 'v27.0.0' }` — the
+ *   annotation widens the property before the call sees it.
+ *
+ * All three compile, run against the named version, and type as
+ * {@link DefaultApiDirectory}. That fails in the safe direction — understated
+ * types give a compile error at the method call rather than a runtime surprise —
+ * but it is silent, so a wrapper that forwards an optional version gets none of
+ * the surface it named. Keep the literal at the call site, and if you are adding
+ * `version` to an existing `createTrueNasClient<ApiDirectoryV26_0_0>(opts)`
+ * call, delete the type argument in the same edit.
  *
  * Two consequences worth knowing before reaching for it.
  *
@@ -123,15 +144,29 @@ export interface CreateClientOptions {
  * discovery is the whole point. `D` on its own only mistyped the surface; this
  * mistypes the surface *and* dials the wrong number.
  *
- * It also bypasses the `MIN`/`MAX_SUPPORTED_VERSION` range check, which lives in
- * discovery. That is not a hole: `SupportedApiVersion` already admits only
- * versions this package generated types for, and every one of them has a client
- * (asserted in `factory.spec.ts`). But the range check is no longer what stops
- * you here — the type is.
+ * Compatibility is still checked. Skipping discovery skips the network round
+ * trip, not the range check, which is local and free. Two refusals reach a
+ * caller, and they are not interchangeable:
  *
+ * - a string that is not a `SupportedApiVersion` at all — only reachable from
+ *   JavaScript — throws a plain `Error` naming the versions that are.
+ * - a version this package ships types for but cannot build a client for
+ *   throws {@link VersionTooNewError}, the same error discovery raises.
+ *
+ * The second is not hypothetical. `MAX_SUPPORTED_VERSION` is a hand-written
+ * literal, and while it matches the newest generated version today, a
+ * regeneration can add a year before anyone writes its client — at which point
+ * that version is nameable, promised by the overload, and has nothing to build.
+ * `VersionTooOldError` has no counterpart here: `MIN_SUPPORTED_VERSION` is
+ * derived from the same list that constrains the type, so nothing nameable is
+ * below it.
+ *
+ * @typeParam V - the version named in `opts.version`, when one is. The returned
+ *   surface is `ApiDirectoryByVersion[V]`, so it is derived rather than chosen.
  * @typeParam D - the generated API surface the client is typed against, as a
- *   whole (`call`, `job`, `event`). Every verb resolves method names against
- *   it, so naming a method this surface does not have is a build error.
+ *   whole (`call`, `job`, `event`), for the discovery path where no version is
+ *   named. Every verb resolves method names against it, so naming a method this
+ *   surface does not have is a build error.
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
  *   Rejects if version discovery on all hostnames *fails* and is not recoverable.
@@ -146,7 +181,7 @@ export async function createTrueNasClient<V extends SupportedApiVersion>(
 ): Promise<TrueNasApiClient<ApiDirectoryByVersion[V]>>;
 export async function createTrueNasClient<
   D extends ApiDirectoryShape = DefaultApiDirectory,
->(opts: CreateClientOptions & { version?: undefined }): Promise<TrueNasApiClient<D>>;
+>(opts: CreateClientOptions): Promise<TrueNasApiClient<D>>;
 export async function createTrueNasClient<
   D extends ApiDirectoryShape = DefaultApiDirectory,
 >(opts: CreateClientOptions): Promise<TrueNasApiClient<D>> {
@@ -167,7 +202,7 @@ export async function createTrueNasClient<
 
   // Caller knows the version: skip discovery outright. Nothing here can fail
   // over the network, so none of the fallback machinery below applies.
-  if (opts.version) {
+  if (opts.version !== undefined) {
     // Membership, not parseability. `parseApiVersion` validates *shape* — it
     // accepts 'v99.0.0' quite happily — while what this path needs is a version
     // the package actually ships a surface for, because that surface is what
@@ -193,6 +228,46 @@ export async function createTrueNasClient<
       throw new Error(
         `Cannot create client for system ${uuid}: supported version ` +
           `'${opts.version}' failed to parse.`
+      );
+    }
+
+    // Skipping discovery is about not making a network round trip, not about
+    // waiving the compatibility check — that one is local and free, and
+    // dropping it would leave this path answering a question discovery answers
+    // properly.
+    //
+    // It is load-bearing rather than defensive. `MAX_SUPPORTED_VERSION` is a
+    // hand-written literal that deliberately lags the newest generated version
+    // (see api-version.config.ts: generating types for a year does not write a
+    // client for it). So a regeneration can add 'v28.0.0' to
+    // `SupportedApiVersion` — making it nameable here, and promised as
+    // `ApiDirectoryV28_0_0` by the overload — while no v28 client exists. Left
+    // unchecked that lands in `instantiateClientForVersion`'s defensive branch
+    // and throws a bare `Error` naming internal version keys, where discovery
+    // would have rejected the same appliance with a typed `VersionTooNewError`.
+    // Same errors, either way in.
+    //
+    // The named version is the only one on offer, so it is what the error
+    // reports as available — the same shape discovery would produce for an
+    // appliance that offered exactly this one.
+    const compatibility = checkVersionCompatibility(known);
+    if (compatibility === VersionCompatibility.TooNew) {
+      // `hostnames[0]` and the single-element list are the caller's claim, not
+      // the appliance's answer — nothing has been contacted yet. The error's
+      // shape matches discovery's so callers can catch one type either way;
+      // its content necessarily reads differently.
+      throw new VersionTooNewError(hostnames[0], [known.version]);
+    }
+    if (compatibility !== VersionCompatibility.Compatible) {
+      // `TooOld` cannot occur: `MIN_SUPPORTED_VERSION` is derived from the same
+      // list that constrains `SupportedApiVersion`, so the oldest nameable
+      // version *is* the floor. That leaves `Invalid`, which means MIN or MAX
+      // failed to parse — a defect in this package rather than in the call, and
+      // not something to build a client through.
+      throw new Error(
+        `Cannot create client for system ${uuid}: the supported version range ` +
+          `is not usable (${apiVersionConfig.MIN_SUPPORTED_VERSION}..` +
+          `${apiVersionConfig.MAX_SUPPORTED_VERSION}).`
       );
     }
     logger.info('API version supplied by the caller, skipping discovery', {

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
 import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
@@ -9,6 +9,7 @@ import {
   VersionTooOldError,
 } from '@/errors/version-discovery.errors';
 import { apiVersionConfig } from '@/config/api-version.config';
+import type { ApiDirectoryV27_0_0 } from '@/generated';
 import {
   SUPPORTED_API_VERSIONS,
   type ApiDirectoryV26_0_0,
@@ -19,6 +20,7 @@ import {
   parseApiVersion,
 } from '@/utils/api-version.utils';
 import { canBuildClientFor, createTrueNasClient } from './factory';
+import type { CreateClientOptions, DefaultApiDirectory } from './factory';
 
 function fakeResponse(body: unknown, status = 200): Response {
   return {
@@ -108,6 +110,83 @@ describe('createTrueNasClient', () => {
     expect(client.version.version).toBe('v27.0.0');
   });
 
+  /**
+   * The derivation is the entire point of `opts.version`, and it is invisible
+   * to `vitest run` — the runtime tests below pass with both overloads deleted,
+   * which I checked rather than assumed. These are what actually pin it, and
+   * they run under `tsc -p tsconfig.spec.json`.
+   */
+  describe('the surface derived from a named version', () => {
+    it('derives the directory from the version string, not from a default', async () => {
+      const v27 = await createTrueNasClient({
+        uuid: 'u', hostnames: ['box'], enabled: false, version: 'v27.0.0',
+      });
+      created.push(v27 as unknown as TrueNasApiClient);
+      expectTypeOf(v27).toEqualTypeOf<TrueNasApiClient<ApiDirectoryV27_0_0>>();
+
+      // A different version must derive a different surface, or the assertion
+      // above would also hold for a hardcoded default.
+      const v26 = await createTrueNasClient({
+        uuid: 'u', hostnames: ['box'], enabled: false, version: 'v26.0.0',
+      });
+      created.push(v26 as unknown as TrueNasApiClient);
+      expectTypeOf(v26).toEqualTypeOf<TrueNasApiClient<ApiDirectoryV26_0_0>>();
+    });
+
+    it('still accepts the exported options type as a value', async () => {
+      // Regression guard. Narrowing overload 2 to `{ version?: undefined }`
+      // made `CreateClientOptions` — an exported part of the contract —
+      // un-passable, so every consumer naming the type broke while the suite
+      // stayed green.
+      const opts: CreateClientOptions = { uuid: 'u', hostnames: ['box'], enabled: false };
+      fetchMock.mockResolvedValue(fakeResponse(['v26.0.0']));
+      const client = await createTrueNasClient(opts);
+      created.push(client as unknown as TrueNasApiClient);
+      expectTypeOf(client).toEqualTypeOf<TrueNasApiClient<DefaultApiDirectory>>();
+    });
+
+    it('accepts the conditional-spread shape that `version?:` advertises', async () => {
+      // "I might know the version" is the case the optional property exists for.
+      const maybe = (v?: 'v27.0.0'): CreateClientOptions =>
+        ({ uuid: 'u', hostnames: ['box'], enabled: false, ...(v ? { version: v } : {}) });
+      fetchMock.mockResolvedValue(fakeResponse(['v26.0.0']));
+      const client = await createTrueNasClient(maybe());
+      created.push(client as unknown as TrueNasApiClient);
+      expect(client).toBeInstanceOf(TrueNasApiClientV26);
+    });
+
+    /**
+     * The derivation comes from inference on `{ version: V }`, so it needs the
+     * literal at the call site. Indirection widens the property and resolution
+     * falls to the discovery overload, which defaults to the oldest surface.
+     *
+     * Pinned rather than merely documented because it is silent: the call runs
+     * against the version named, and only the *types* quietly revert. Both
+     * shapes below are the natural way to write "I might know the version", so
+     * anyone who tries one should find this test rather than a puzzle.
+     */
+    it('does NOT derive the surface when the version reaches it indirectly', async () => {
+      const connect = (version?: 'v27.0.0') =>
+        createTrueNasClient({ uuid: 'u', hostnames: ['box'], enabled: false, version });
+
+      const client = await connect('v27.0.0');
+      created.push(client as unknown as TrueNasApiClient);
+
+      // Runtime honours the version...
+      expect(client).toBeInstanceOf(TrueNasApiClientV27);
+      expect(fetchMock).not.toHaveBeenCalled();
+      // ...while the type falls back. Safe direction — a v27-only call is a
+      // compile error rather than a runtime surprise — but not what was asked.
+      expectTypeOf(client).toEqualTypeOf<TrueNasApiClient<DefaultApiDirectory>>();
+    });
+
+    it('rejects a version this package ships no types for', () => {
+      // @ts-expect-error - not a member of SupportedApiVersion
+      const bad: CreateClientOptions = { uuid: 'u', hostnames: ['box'], enabled: false, version: 'v99.0.0' };
+      expect(bad).toBeTruthy();
+    });
+  });
+
   describe('a caller that names the version', () => {
     it('skips discovery entirely — no request is made', async () => {
       const client = await createTrueNasClient({
@@ -118,8 +197,10 @@ describe('createTrueNasClient', () => {
       });
       created.push(client as unknown as TrueNasApiClient);
 
-      // The point of the option. `fetch` is stubbed and would resolve to
-      // `undefined` if called, so this asserts intent rather than luck.
+      // The point of the option. If discovery ran, the stubbed `fetch` returns
+      // `undefined`, `response.ok` throws a TypeError, and the factory's CORS
+      // fallback quietly builds a v25.10.0 client — so the version assertion
+      // below is what catches a regression, and this one names the cause.
       expect(fetchMock).not.toHaveBeenCalled();
       expect(client.version.version).toBe('v27.0.0');
     });
@@ -161,14 +242,6 @@ describe('createTrueNasClient', () => {
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it('leaves discovery untouched when no version is named', async () => {
-      fetchMock.mockResolvedValue(fakeResponse(['v26.0.0']));
-
-      const client = await create();
-
-      expect(fetchMock).toHaveBeenCalled();
-      expect(client).toBeInstanceOf(TrueNasApiClientV26);
-    });
   });
 
   /**
