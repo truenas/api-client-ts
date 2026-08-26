@@ -7,6 +7,7 @@ export enum AuthErrorCode {
   PasswordAuthFailed = 'PASSWORD_AUTH_FAILED',
   OtpAuthFailed = 'OTP_AUTH_FAILED',
   ApiKeyAuthFailed = 'API_KEY_AUTH_FAILED',
+  TokenAuthFailed = 'TOKEN_AUTH_FAILED',
   FullAdminRequired = 'FULL_ADMIN_REQUIRED',
 }
 

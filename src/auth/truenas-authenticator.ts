@@ -10,6 +10,8 @@ import {
   throwError,
 } from 'rxjs';
 import { TrueNasConnection } from '@/connection/truenas-connection';
+import { ApiVersion } from '@/types/api-version.type';
+import { legacyCutoffYear } from '@/utils/api-version.utils';
 import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 import { UserRole } from '@/enums/user-role.enum';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
@@ -53,7 +55,10 @@ export class TrueNasAuthenticator {
   credentials = { username: '', password: '', key: '' };
   sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
 
-  constructor(private connection: TrueNasConnection) {
+  constructor(
+    private connection: TrueNasConnection,
+    private readonly version?: ApiVersion,
+  ) {
     this.connection.opened
       .pipe(
         filter(
@@ -84,6 +89,30 @@ export class TrueNasAuthenticator {
     });
   }
 
+  /**
+   * `login_options` asking for a reconnect token, when the server understands it.
+   *
+   * Omitted below v26. `AuthCommonOptions` is `additionalProperties: false`
+   * there and has only `user_info`, so sending the member is a validation
+   * error, not an ignored field — it would fail login outright on the oldest
+   * version this client supports.
+   */
+  /**
+   * Two things this does not do, both deliberate and both worth knowing.
+   *
+   * There is no way for a consumer to decline: every v26+ password login now
+   * mints a single-use credential carrying that session's roles, whether or not
+   * the caller wants one. And the auto-relogin in the constructor subscribes
+   * with no observer, so the token it mints is dropped — a caller reconnecting
+   * repeatedly holds an ageing token while the appliance mints fresh ones
+   * nobody reads. Tokens are single-use with a 600s TTL, so that is the
+   * reconnect case the feature is named for.
+   */
+  private reconnectTokenOption(): { login_options: { reconnect_token: true } } | undefined {
+    if (!this.version || this.version.year <= legacyCutoffYear) return undefined;
+    return { login_options: { reconnect_token: true } };
+  }
+
   loginWithUserPass(username: string, password: string) {
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
@@ -91,6 +120,7 @@ export class TrueNasAuthenticator {
         mechanism: TrueNasAuthMechanism.Password,
         username,
         password,
+        ...this.reconnectTokenOption(),
       },
     ]);
 
@@ -190,6 +220,103 @@ export class TrueNasAuthenticator {
     );
   }
 
+  /**
+   * Re-authenticate with a token from a previous login's `reconnect_token`.
+   *
+   * This is what lets a second connection to the same appliance authenticate
+   * without asking the user for a password again — middleware sessions are
+   * per-connection, so a second socket has its own to establish.
+   *
+   * The token is single-use and short-lived. On v26+ a successful login mints
+   * another on the response, so a caller keeping a session alive across
+   * reconnects stores the newest each time; below v26 nothing is minted and
+   * there is no chain to keep.
+   *
+   * Re-login is the caller's to drive. A token session is not covered by the
+   * automatic reconnect this class does for password and api-key sessions,
+   * which is deliberate — the token is single-use — but it means a dropped
+   * socket needs the stored token spending explicitly. Middleware holds tokens
+   * in memory, so a `middlewared` restart voids them, and that is a common
+   * reason the socket dropped in the first place.
+   */
+  loginWithToken(token: string) {
+    const message = createJsonRpcMessage('auth.login_ex', [
+      {
+        mechanism: TrueNasAuthMechanism.Token,
+        token,
+        ...this.reconnectTokenOption(),
+      },
+    ]);
+
+    this.authenticating$.next(true);
+    this.connection.send(message);
+
+    const messageId = message.id ?? '';
+
+    return this.connection.messages().pipe(
+      withId(messageId),
+      map(msg => {
+        if (msg.error) {
+          const errorMessage = getApiErrorMessage(
+            msg.error,
+            'Authentication failed'
+          );
+          throw new Error(errorMessage);
+        }
+        return msg.result as AuthResponse;
+      }),
+      // Password login lets non-`AUTH_ERR` answers through because it has to
+      // hand `OTP_REQUIRED` back to the caller. Token login has no such case:
+      // middleware answers `EXPIRED` for an account locked or expired between
+      // minting and spending, and `DENIED` for a permission refusal, so letting
+      // those reach `next` would report a failed login as a successful one.
+      map(res => {
+        if (res.response_type !== AuthResponseType.Success) {
+          throw new AuthError(
+            AuthErrorCode.TokenAuthFailed,
+            `TrueNAS token authentication failed (${res.response_type}). The ` +
+              'token may have expired or been used, or the account may no longer ' +
+              'be permitted to log in.'
+          );
+        }
+        return res;
+      }),
+      tap(res => {
+        if (res.response_type === AuthResponseType.Success) {
+          // Same gate as `loginWithUserPass`. Neither middleware nor
+          // `auth.generate_token` restricts who may mint or spend a token —
+          // roles come from whatever credential minted it — so without this,
+          // the path offered as a substitute for the password prompt would be
+          // the one path with no authorization check at either end.
+          if (
+            res.user_info?.privilege.roles.$set.includes(UserRole.FullAdmin)
+          ) {
+            this.sessionLifetime =
+              res.user_info?.attributes?.preferences?.lifetime ??
+              TrueNasAuthenticator.DefaultSessionLifetime;
+            this.authenticated$.next(true);
+          } else {
+            this.logout();
+            this.authenticated$.next(false);
+            throw new AuthError(
+              AuthErrorCode.FullAdminRequired,
+              'User account must have full admin privileges'
+            );
+          }
+        }
+      }),
+      finalize(() => {
+        this.authenticating$.next(false);
+      }),
+      take(1)
+    );
+  }
+
+  /**
+   * No reconnect token is requested here, though v26+ would mint one: an
+   * api-key session already reconnects without a prompt, since the key is held
+   * and replayed. The token exists for the credential that cannot be.
+   */
   loginWithApiKey(credentials: { username: string; key: string }) {
     const { username, key } = credentials;
     // Versioned API uses auth.login_ex with a single object parameter
