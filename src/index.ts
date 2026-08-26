@@ -82,6 +82,7 @@ export type { TrueNasDate } from '@/types/truenas-date.type';
 export { getApiErrorMessage } from '@/types/api-error.type';
 export type { ApiError } from '@/types/api-error.type';
 export type { AuthResponse } from '@/types/auth.type';
+export type { ApplianceProtocol } from '@/types/transport.type';
 export type { Container } from '@/types/container.type';
 // Value export, not type-only: `Container.status` is an `AppState`, and
 // without the enum itself a consumer has nothing to compare it against —

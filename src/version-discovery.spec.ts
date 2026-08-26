@@ -112,6 +112,18 @@ describe('VersionDiscovery', () => {
     expect(error).toBeInstanceOf(VersionTooOldError);
   });
 
+  it('fetches over http when the appliance is reached over http', async () => {
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v26.0.0'] }));
+    const httpDiscovery = new VersionDiscovery(undefined, 'http:');
+
+    await firstValueFrom(httpDiscovery.discoverVersion('box'));
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://box/api/versions',
+      expect.anything()
+    );
+  });
+
   it('throws VersionTooNewError when all versions are above the supported range', async () => {
     // Both above the ceiling. This used to read `['v26.0.1', 'v28.0.0']`, which
     // passed only because the ceiling was v26.0.0 — so v26.0.1 counted as "above

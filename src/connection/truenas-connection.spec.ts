@@ -2,6 +2,7 @@ import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { randomUUID } from '@/utils/utils';
+import type { ApplianceProtocol } from '@/types/transport.type';
 import { TrueNasConnection } from './truenas-connection';
 // Import the mock's exports from the `__mocks__` file directly: `tsc` can't see the
 // runtime `vi.mock` redirect, and only the mock exports `mockSocketInstances`. At
@@ -27,6 +28,7 @@ type ConnectionOptions = Partial<{
   maxRetry: number;
   closeCode: number;
   closeReason: string;
+  protocol: ApplianceProtocol;
 }>;
 
 type Established = {
@@ -47,7 +49,9 @@ function createConnection(opts: ConnectionOptions = {}): TrueNasConnection {
     websocketPath,
     'Test System',
     opts.retryDelay ?? retryDelay,
-    opts.maxRetry ?? 3
+    opts.maxRetry ?? 3,
+    undefined,
+    opts.protocol
   );
 }
 
@@ -150,6 +154,14 @@ describe('TrueNasConnection', () => {
       const socket = mockSocketInstances[0];
 
       expect(socket.config.url).toBe(`wss://truenas.test${websocketPath}`);
+      connection.close();
+    });
+
+    it('uses ws:// when the appliance is reached over http', () => {
+      const connection = createConnection({ protocol: 'http:' });
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+
+      expect(socket.config.url).toBe(`ws://truenas.test${websocketPath}`);
       connection.close();
     });
 
