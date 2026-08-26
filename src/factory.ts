@@ -140,8 +140,8 @@ export interface CreateClientOptions {
  *   argument makes the derived overload inapplicable, so `D` wins.
  * - `(v?: SupportedApiVersion) => createTrueNasClient({ …, version: v })` — the
  *   property is `SupportedApiVersion | undefined`, which no `V` satisfies.
- * - `(v: SupportedApiVersion) => …` — reaches this overload, but `V` is the
- *   whole union; see {@link DerivedDirectory}.
+ * - `(v: SupportedApiVersion) => …` — reaches this overload, but `V` widens to
+ *   the whole union, which derives nothing.
  * - `const opts: CreateClientOptions = { …, version: 'v27.0.0' }` — the
  *   annotation widens the property before the call sees it.
  *
