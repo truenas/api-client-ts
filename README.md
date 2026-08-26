@@ -84,19 +84,61 @@ client.api.events('app.query').subscribe(event => {
 
 ### Naming a version
 
-The version is discovered at runtime; the types are fixed at compile time.
-`createTrueNasClient` defaults to the oldest supported version, which
-understates a newer server rather than promising methods it lacks. Name a
-version to reach the rest:
+By default the version is discovered at runtime while the types are fixed at
+compile time, and `createTrueNasClient` assumes the oldest supported version —
+which understates a newer server rather than promising methods it lacks. There
+are two ways to reach the rest, and they differ in more than syntax.
+
+**Assert the surface** when you do not know the version but intend to write
+against a particular one:
 
 ```typescript
 const client = await createTrueNasClient<ApiDirectoryV26_0_0>(opts);
 client.api.query('container.query');                   // v26-only, reachable
 ```
 
-That is a claim about the server, not a guarantee — the client you get is
-whichever version discovery found. Operations that must work across versions
-belong on `client.ops`, which resolves them at runtime.
+Discovery still runs and still decides which client is built. The type argument
+is a claim about the server, not a guarantee — the client you get is whichever
+version discovery found, so a wrong claim fails at runtime.
+
+**State the version** when you already know it — a UI served by the appliance,
+a harness against a pinned image:
+
+```typescript
+const client = await createTrueNasClient({
+  uuid, hostnames, enabled: true, version: 'v27.0.0',
+});
+client.api.query('container.query');   // typed v27, derived from the string
+```
+
+This skips discovery entirely: no `GET /api/versions`, no CORS fallback. The
+surface is *derived* rather than asserted, so there is no type argument to get
+wrong, and a version the package ships no types for does not compile.
+
+It is the stronger claim of the two, because the version also selects the
+websocket path. Naming `v27.0.0` at a v26 appliance connects on `/api/v27.0.0`
+with v27 types over a v26 server, and discovery cannot correct it — declining
+discovery is the point.
+
+The derivation needs the version to be literal at the call site. Passing a type
+argument as well, forwarding `version` through a wrapper, or annotating the
+options object as `CreateClientOptions` all compile, all connect to the version
+you named, and all type as the default surface instead. That
+errs safely — understated types fail at the method call, not at runtime — but
+silently, so keep the literal where the call is.
+
+Compatibility is still checked, and two kinds of refusal reach a caller. A string that
+is not a supported version — reachable only from JavaScript — throws a plain
+`Error` naming the ones that are. A supported version this build has no client
+for throws `VersionTooNewError`, the same type discovery raises; that happens
+when types have been generated for a release before its client was written.
+There is no `VersionTooOldError` here, because the oldest version you can name
+is the oldest one supported.
+
+Operations that must work across versions belong on `client.ops`. On the
+discovery route that resolves against whatever the appliance turned out to be.
+On the named route it cannot: the client class is picked from the version you
+stated, so `ops` is that version's mappings whether or not the server agrees.
 
 ## Documentation
 
