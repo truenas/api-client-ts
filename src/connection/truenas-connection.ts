@@ -266,6 +266,12 @@ export class TrueNasConnection {
     this.hostname$.pipe(filter(Boolean)).subscribe(name => this.hostname.next(name));
     // we assign `ws` here for compatibility with downstream consumers, since they expect
     // a plain property. ideally, this would be reactive, but this is a compat property.
+    //
+    // `ws` and `hostname` hold their last good value: both are taken through
+    // `filter(Boolean)`, so nothing clears them when a connection ends. That used
+    // to be temporary because a reconnect replaced them; after a refusal there is
+    // no reconnect, so `ws` names a completed socket until the caller connects
+    // again. Read `opened` for whether either still means anything.
     this.ws$.pipe(filter(Boolean)).subscribe(ws => this.ws = ws);
     this.lastErrorMessage$.subscribe(msg => this.lastErrorMessage.next(msg));
 
@@ -292,6 +298,11 @@ export class TrueNasConnection {
   /**
    * enables or disables the connection gate. the app calls this when its `SystemState`
    * changes (mapping `SystemState.Active -> true`, everything else -> `false`).
+   *
+   * This is also how a caller asks for another attempt after the appliance has
+   * refused the client — nothing reconnects on its own from there. The gate is
+   * `distinctUntilChanged`, so re-asserting `true` while it is already `true`
+   * does nothing: the round trip through `false` is what asks again.
    */
   setEnabled(enabled: boolean): void {
     this.enabled$.next(enabled);

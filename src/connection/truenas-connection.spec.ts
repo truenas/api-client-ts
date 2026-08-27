@@ -233,19 +233,27 @@ describe('TrueNasConnection', () => {
     });
 
     /**
-     * Middleware decides from the source address it sees, so two hostnames for
-     * one appliance — two network paths, two addresses — can get two different
-     * answers. A refusal from one must not discard a peer that would connect.
+     * With several hostnames the first socket to open wins the race and the
+     * others are torn down, so a refusal that arrives after that open has no
+     * peer left to fall back to and the attempt ends.
+     *
+     * That is the same reachable outcome as before this change — `main` also
+     * never reaches the peer, it just loops trying — and middleware only ever
+     * refuses after accepting the socket (`ws.prepare` runs before the access
+     * check), so the peer is always already gone. Whether a second hostname
+     * *should* be tried when one path's source address is refused is a real
+     * question, but it is a different one from this issue.
      */
-    it('one refused hostname does not sink a healthy one', () => {
+    it('ends the attempt when the hostname that won the race is refused', () => {
       const connection = createConnection({ hostnames: ['host-a', 'host-b'] });
 
+      mockSocketInstances[0].simulateOpen();
+      const socketsBefore = mockSocketInstances.length;
       mockSocketInstances[0].simulateClose(1008, refusal);
-      mockSocketInstances[1].simulateOpen();
-      mockSocketInstances[1].next(handshakeResponse);
+      vi.advanceTimersByTime(retryDelay * 10);
 
-      expect(connection.opened.value).toBe(true);
-      expect(connection.hostname.value).toBe('host-b');
+      expect(mockSocketInstances.length).toBe(socketsBefore);
+      expect(connection.opened.value).toBe(false);
       connection.close();
     });
 
@@ -273,6 +281,10 @@ describe('TrueNasConnection', () => {
       const connection = createConnection();
       const socketsBefore = mockSocketInstances.length;
 
+      // Opened first, like the sibling tests: closing a socket that never opened
+      // is retried by the establishing path whatever the code, so the assertion
+      // below would hold even if 1006 were classified terminal.
+      mockSocketInstances[socketsBefore - 1].simulateOpen();
       mockSocketInstances[socketsBefore - 1].simulateClose(1006, '');
       vi.advanceTimersByTime(retryDelay);
 
