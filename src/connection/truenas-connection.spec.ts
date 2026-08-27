@@ -182,6 +182,117 @@ describe('TrueNasConnection', () => {
     });
   });
 
+  describe('policy-violation close (1008)', () => {
+    const refusal = 'You are not allowed to access this resource';
+
+    it('does not reconnect', () => {
+      const connection = createConnection();
+      const socketsBefore = mockSocketInstances.length;
+
+      // Middleware accepts the socket and only then refuses, so the client sees
+      // `open` before `close(1008)`. Driving a close on a socket that never
+      // opened exercises a path production does not take.
+      mockSocketInstances[socketsBefore - 1].simulateOpen();
+      mockSocketInstances[socketsBefore - 1].simulateClose(1008, refusal);
+      // Well past every retry the establishing path would otherwise spend.
+      vi.advanceTimersByTime(retryDelay * 10);
+
+      expect(mockSocketInstances.length).toBe(socketsBefore);
+      connection.close();
+    });
+
+    it('reports the close code and the server reason', () => {
+      const connection = createConnection();
+      const errors: { closeCode?: number; closeReason?: string }[] = [];
+      const sub = connection.connection$.subscribe(conn => {
+        if (conn.state === 'error') {
+          errors.push({ closeCode: conn.closeCode, closeReason: conn.closeReason });
+        }
+      });
+
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+      socket.simulateOpen();
+      socket.simulateClose(1008, refusal);
+
+      expect(errors).toHaveLength(1);
+      // The reason verbatim: `message` renders the code and cannot say which policy.
+      expect(errors[0]).toEqual({ closeCode: 1008, closeReason: refusal });
+      sub.unsubscribe();
+      connection.close();
+    });
+
+    it('still reports an error message for existing consumers', () => {
+      const connection = createConnection();
+
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+      socket.simulateOpen();
+      socket.simulateClose(1008, refusal);
+
+      expect(connection.lastErrorMessage.value).not.toBeNull();
+      connection.close();
+    });
+
+    /**
+     * With several hostnames the first socket to open wins the race and the
+     * others are torn down, so a refusal that arrives after that open has no
+     * peer left to fall back to and the attempt ends.
+     *
+     * That is the same reachable outcome as before this change — `main` also
+     * never reaches the peer, it just loops trying — and middleware only ever
+     * refuses after accepting the socket (`ws.prepare` runs before the access
+     * check), so the peer is always already gone. Whether a second hostname
+     * *should* be tried when one path's source address is refused is a real
+     * question, but it is a different one from this issue.
+     */
+    it('ends the attempt when the hostname that won the race is refused', () => {
+      const connection = createConnection({ hostnames: ['host-a', 'host-b'] });
+
+      mockSocketInstances[0].simulateOpen();
+      const socketsBefore = mockSocketInstances.length;
+      mockSocketInstances[0].simulateClose(1008, refusal);
+      vi.advanceTimersByTime(retryDelay * 10);
+
+      expect(mockSocketInstances.length).toBe(socketsBefore);
+      expect(connection.opened.value).toBe(false);
+      connection.close();
+    });
+
+    /**
+     * Not reconnecting describes what this client does on its own. `setEnabled`
+     * is the documented way an app asks for another attempt — after joining a
+     * VPN, say — and the appliance genuinely may answer differently, so the
+     * refusal must not disable the gate.
+     */
+    it('setEnabled can still try again after a refusal', () => {
+      const connection = createConnection();
+      const refused = mockSocketInstances[mockSocketInstances.length - 1];
+      refused.simulateOpen();
+      refused.simulateClose(1008, refusal);
+
+      const before = mockSocketInstances.length;
+      connection.setEnabled(false);
+      connection.setEnabled(true);
+
+      expect(mockSocketInstances.length).toBeGreaterThan(before);
+      connection.close();
+    });
+
+    it('leaves other close codes reconnecting', () => {
+      const connection = createConnection();
+      const socketsBefore = mockSocketInstances.length;
+
+      // Opened first, like the sibling tests: closing a socket that never opened
+      // is retried by the establishing path whatever the code, so the assertion
+      // below would hold even if 1006 were classified terminal.
+      mockSocketInstances[socketsBefore - 1].simulateOpen();
+      mockSocketInstances[socketsBefore - 1].simulateClose(1006, '');
+      vi.advanceTimersByTime(retryDelay);
+
+      expect(mockSocketInstances.length).toBeGreaterThan(socketsBefore);
+      connection.close();
+    });
+  });
+
   describe('enable gate transitions', () => {
     it('disabled -> enabled triggers a connection attempt', () => {
       const connection = createConnection({ enabled: false });

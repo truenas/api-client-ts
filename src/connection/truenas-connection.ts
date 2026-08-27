@@ -26,7 +26,7 @@ import {
 import { Logger, noopLogger } from '@/logger';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
-import { getHttpError, getWebSocketError, isHttpStatusError } from '@/utils/truenas-connection.utils';
+import { getHttpError, getWebSocketError, isHttpStatusError, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
 import { TrueNasSocket } from '@/connection/truenas-socket';
 import { socketScheme, type ApplianceProtocol } from '@/types/transport.type';
 
@@ -38,6 +38,14 @@ interface ActiveConnection {
 
 interface ConnectionError extends Error {
   hostname?: string;
+  /** The WebSocket close code, when the failure came from a close rather than a timeout. */
+  closeCode?: number;
+  /**
+   * The server's own reason text, verbatim. `message` is this client's rendering
+   * of the code and loses what the appliance actually said — for a policy close
+   * that is the difference between "policy violation" and which policy.
+   */
+  closeReason?: string;
 }
 
 type Connection =
@@ -82,6 +90,26 @@ export class TrueNasConnection {
         // if enabled, establish a connection and push it down the pipeline.
         return this.connect().pipe(
           map((conn) => makeActiveConnection(conn.ws, conn.hostname)),
+          // A refusal becomes a value here rather than an error, so it never
+          // reaches the `retry` below and nothing reconnects on its own.
+          //
+          // Handled at this depth on purpose: letting it out completes the
+          // pipeline and unsubscribes `enabledChange$`, and `setEnabled` is the
+          // documented way an app asks for another attempt once the network
+          // changes. Not retrying is a statement about what this client does on
+          // its own; it is not a reason to refuse the caller asking again.
+          catchError((err: ConnectionError) =>
+            isTerminalClose(err)
+              ? of<Connection>(
+                  makeConnectionError(
+                    err.message,
+                    err.hostname,
+                    err.closeCode,
+                    err.closeReason
+                  )
+                )
+              : throwError(() => err)
+          )
         );
       }
 
@@ -115,7 +143,14 @@ export class TrueNasConnection {
     catchError((err: ConnectionError): Observable<Connection> => {
       this.logger.error('All connections failed - retrying', { message: err?.message, hostname: err?.hostname });
       return concat(
-        of<Connection>(makeConnectionError(err.message, err.hostname)),
+        of<Connection>(
+          makeConnectionError(
+            err.message,
+            err.hostname,
+            err.closeCode,
+            err.closeReason
+          )
+        ),
         // since this error will immediately get caught by `retry` there's no reason to build a real error.
         throwError(() => null)
       );
@@ -231,6 +266,12 @@ export class TrueNasConnection {
     this.hostname$.pipe(filter(Boolean)).subscribe(name => this.hostname.next(name));
     // we assign `ws` here for compatibility with downstream consumers, since they expect
     // a plain property. ideally, this would be reactive, but this is a compat property.
+    //
+    // `ws` and `hostname` hold their last good value: both are taken through
+    // `filter(Boolean)`, so nothing clears them when a connection ends. That used
+    // to be temporary because a reconnect replaced them; after a refusal there is
+    // no reconnect, so `ws` names a completed socket until the caller connects
+    // again. Read `opened` for whether either still means anything.
     this.ws$.pipe(filter(Boolean)).subscribe(ws => this.ws = ws);
     this.lastErrorMessage$.subscribe(msg => this.lastErrorMessage.next(msg));
 
@@ -257,6 +298,11 @@ export class TrueNasConnection {
   /**
    * enables or disables the connection gate. the app calls this when its `SystemState`
    * changes (mapping `SystemState.Active -> true`, everything else -> `false`).
+   *
+   * This is also how a caller asks for another attempt after the appliance has
+   * refused the client — nothing reconnects on its own from there. The gate is
+   * `distinctUntilChanged`, so re-asserting `true` while it is already `true`
+   * does nothing: the round trip through `false` is what asks again.
    */
   setEnabled(enabled: boolean): void {
     this.enabled$.next(enabled);
@@ -330,7 +376,9 @@ export class TrueNasConnection {
             // `hasExhaustedRetries` wants to check the *total* number.
             this.connectionAttempts.next(this.connectionAttempts.value + 1);
 
-            subscriber.error(makeConnectionError(errorMessage, hostname));
+            subscriber.error(
+              makeConnectionError(errorMessage, hostname, event.code, reason)
+            );
           }
         }
       });
@@ -394,12 +442,26 @@ const makeActiveConnection = (ws: TrueNasSocket, hostname: string): Connection =
 /**
  * helper function which wraps a message and hostname into an errored `Connection`.
  */
-const makeConnectionError = (message: string, hostname?: string): Connection => ({
+const makeConnectionError = (
+  message: string,
+  hostname?: string,
+  closeCode?: number,
+  closeReason?: string
+): Connection => ({
   name: 'ConnectionError',
   message,
   hostname,
+  closeCode,
+  closeReason,
   state: 'error',
 });
+
+/**
+ * Whether this failure is the appliance refusing the client outright, rather
+ * than something a later attempt could succeed at.
+ */
+const isTerminalClose = (err: ConnectionError | null | undefined): boolean =>
+  err?.closeCode === policyViolationCloseCode;
 
 /**
  * the canonical closed connection.
