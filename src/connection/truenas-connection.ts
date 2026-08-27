@@ -26,7 +26,7 @@ import {
 import { Logger, noopLogger } from '@/logger';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
-import { getHttpError, getWebSocketError, isHttpStatusError } from '@/utils/truenas-connection.utils';
+import { getHttpError, getWebSocketError, isHttpStatusError, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
 import { TrueNasSocket } from '@/connection/truenas-socket';
 import { socketScheme, type ApplianceProtocol } from '@/types/transport.type';
 
@@ -38,6 +38,14 @@ interface ActiveConnection {
 
 interface ConnectionError extends Error {
   hostname?: string;
+  /** The WebSocket close code, when the failure came from a close rather than a timeout. */
+  closeCode?: number;
+  /**
+   * The server's own reason text, verbatim. `message` is this client's rendering
+   * of the code and loses what the appliance actually said — for a policy close
+   * that is the difference between "policy violation" and which policy.
+   */
+  closeReason?: string;
 }
 
 type Connection =
@@ -113,9 +121,35 @@ export class TrueNasConnection {
     //      the connection is dead.
     //   2. re-throw an error so the downstream `retry` will re-subscribe.
     catchError((err: ConnectionError): Observable<Connection> => {
+      const errored = makeConnectionError(
+        err.message,
+        err.hostname,
+        err.closeCode,
+        err.closeReason
+      );
+
+      // A refusal ends the pipeline instead of restarting it. The errored
+      // connection still goes downstream carrying the code and the server's
+      // reason, so a consumer can say which refusal it was; it is simply not
+      // followed by another attempt.
+      //
+      // It completes rather than errors on purpose. The compatibility
+      // subscriptions below take `connection$` with no error handler, so
+      // erroring here would surface as an uncaught error and take them down
+      // with it.
+      if (isTerminalClose(err)) {
+        this.logger.error('Connection refused by the server - not retrying', {
+          message: err?.message,
+          hostname: err?.hostname,
+          closeCode: err?.closeCode,
+          closeReason: err?.closeReason,
+        });
+        return of<Connection>(errored);
+      }
+
       this.logger.error('All connections failed - retrying', { message: err?.message, hostname: err?.hostname });
       return concat(
-        of<Connection>(makeConnectionError(err.message, err.hostname)),
+        of<Connection>(errored),
         // since this error will immediately get caught by `retry` there's no reason to build a real error.
         throwError(() => null)
       );
@@ -330,7 +364,9 @@ export class TrueNasConnection {
             // `hasExhaustedRetries` wants to check the *total* number.
             this.connectionAttempts.next(this.connectionAttempts.value + 1);
 
-            subscriber.error(makeConnectionError(errorMessage, hostname));
+            subscriber.error(
+              makeConnectionError(errorMessage, hostname, event.code, reason)
+            );
           }
         }
       });
@@ -360,7 +396,10 @@ export class TrueNasConnection {
         //     basically: a later death must propagate out rather than being retried
         //     so it can be handled by the `connection$` observable.
         delay: (error: unknown) => {
-          if (hasOpened) {
+          //   * a refusal is not retried at all: the appliance has already
+          //     answered, and spending attempts on it only delays telling the
+          //     caller why.
+          if (hasOpened || isTerminalClose(error as ConnectionError)) {
             return throwError(() => error);
           }
           return timer(this.retryDelay);
@@ -394,12 +433,26 @@ const makeActiveConnection = (ws: TrueNasSocket, hostname: string): Connection =
 /**
  * helper function which wraps a message and hostname into an errored `Connection`.
  */
-const makeConnectionError = (message: string, hostname?: string): Connection => ({
+const makeConnectionError = (
+  message: string,
+  hostname?: string,
+  closeCode?: number,
+  closeReason?: string
+): Connection => ({
   name: 'ConnectionError',
   message,
   hostname,
+  closeCode,
+  closeReason,
   state: 'error',
 });
+
+/**
+ * Whether this failure is the appliance refusing the client outright, rather
+ * than something a later attempt could succeed at.
+ */
+const isTerminalClose = (err: ConnectionError | null | undefined): boolean =>
+  err?.closeCode === policyViolationCloseCode;
 
 /**
  * the canonical closed connection.

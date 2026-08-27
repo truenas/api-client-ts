@@ -1,3 +1,12 @@
+/**
+ * `WSCloseCode.POLICY_VIOLATION`. Middleware closes with this when the client's
+ * address is not in System → General → Allowed IP Addresses, giving the reason
+ * `You are not allowed to access this resource`. It is a decision the appliance
+ * has already made about this client rather than a fault to wait out, so
+ * retrying only asks a question that has been answered.
+ */
+export const policyViolationCloseCode = 1008;
+
 export function isHttpStatusError(reason: string): boolean {
   return ['404', '502', '503'].some(code => reason.includes(code));
 }

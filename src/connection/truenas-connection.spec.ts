@@ -182,6 +182,60 @@ describe('TrueNasConnection', () => {
     });
   });
 
+  describe('policy-violation close (1008)', () => {
+    const refusal = 'You are not allowed to access this resource';
+
+    it('does not reconnect', () => {
+      const connection = createConnection();
+      const socketsBefore = mockSocketInstances.length;
+
+      mockSocketInstances[socketsBefore - 1].simulateClose(1008, refusal);
+      // Well past every retry the establishing path would otherwise spend.
+      vi.advanceTimersByTime(retryDelay * 10);
+
+      expect(mockSocketInstances.length).toBe(socketsBefore);
+      connection.close();
+    });
+
+    it('reports the close code and the server reason', () => {
+      const connection = createConnection();
+      const errors: { closeCode?: number; closeReason?: string }[] = [];
+      const sub = connection.connection$.subscribe(conn => {
+        if (conn.state === 'error') {
+          errors.push({ closeCode: conn.closeCode, closeReason: conn.closeReason });
+        }
+      });
+
+      mockSocketInstances[mockSocketInstances.length - 1].simulateClose(1008, refusal);
+
+      expect(errors).toHaveLength(1);
+      // The reason verbatim: `message` renders the code and cannot say which policy.
+      expect(errors[0]).toEqual({ closeCode: 1008, closeReason: refusal });
+      sub.unsubscribe();
+      connection.close();
+    });
+
+    it('still reports an error message for existing consumers', () => {
+      const connection = createConnection();
+
+      mockSocketInstances[mockSocketInstances.length - 1].simulateClose(1008, refusal);
+
+      expect(connection.lastErrorMessage.value).not.toBeNull();
+      connection.close();
+    });
+
+    it('leaves other close codes reconnecting', () => {
+      const connection = createConnection();
+      const socketsBefore = mockSocketInstances.length;
+
+      mockSocketInstances[socketsBefore - 1].simulateClose(1006, '');
+      vi.advanceTimersByTime(retryDelay);
+
+      expect(mockSocketInstances.length).toBeGreaterThan(socketsBefore);
+      connection.close();
+    });
+  });
+
   describe('enable gate transitions', () => {
     it('disabled -> enabled triggers a connection attempt', () => {
       const connection = createConnection({ enabled: false });
