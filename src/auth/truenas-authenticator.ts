@@ -371,6 +371,15 @@ export class TrueNasAuthenticator {
   }
 
   logout() {
+    // Cleared here, not on the response, and not conditionally on its success.
+    // The constructor's auto-relogin consults nothing but `credentials`, so
+    // leaving them set re-authenticates this session on the next `opened` —
+    // including when the caller logged out precisely because it refused the
+    // session, and including when the logout response never arrives because the
+    // socket dropped. Whether the server tore the session down is a separate
+    // question from whether this client should offer the credential again.
+    this.credentials = { username: '', password: '', key: '' };
+
     const message = createJsonRpcMessage('auth.logout');
 
     this.connection.send(message);

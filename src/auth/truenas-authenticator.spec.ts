@@ -229,6 +229,45 @@ describe('TrueNasAuthenticator', () => {
       respondWith(true);
     }));
 
+  /**
+   * The case this guards is a consumer refusing a login it does not want —
+   * webui logging out an account without `webui_access`. Auto-relogin consults
+   * only `credentials`, so retaining them would re-authenticate the refused
+   * session on the next reconnect and re-arm its events and jobs. Storing them
+   * for every successful login is what made this reachable; before that they
+   * were only ever set for a full admin.
+   */
+  it('does not re-login after logout, even on reconnect', () => {
+    authenticator.loginWithUserPass('user', 'pw').subscribe();
+    respondWith(successResponse(['SHARING_ADMIN']));
+    expect(authenticator.credentials.username).toBe('user');
+
+    authenticator.logout().subscribe();
+    expect(authenticator.credentials).toEqual({
+      username: '',
+      password: '',
+      key: '',
+    });
+
+    sendSpy.mockClear();
+    opened$.next(true);
+
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  it('clears credentials even when the logout response never arrives', () => {
+    authenticator.loginWithApiKey({ username: 'admin', key: 'k' }).subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    // Subscribe but never respond: the socket dropped mid-logout.
+    authenticator.logout().subscribe();
+
+    sendSpy.mockClear();
+    opened$.next(true);
+
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
   it('re-logs in on reconnect using cached credentials (auto-login)', () =>
     new Promise<void>((resolve, reject) => {
       // First, a successful login to cache credentials.
