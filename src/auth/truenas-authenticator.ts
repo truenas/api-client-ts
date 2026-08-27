@@ -77,20 +77,23 @@ export class TrueNasAuthenticator {
   private authEpoch = 0;
 
   /**
-   * How many caller-issued logins are on the wire.
+   * Caller-issued logins still awaiting an answer, keyed by the epoch each
+   * claimed. The value is whether its frame has been written to a socket yet.
    *
-   * The auto-relogin below defers while any is outstanding. It is this class
+   * The auto-relogin below defers while any entry exists. It is this class
    * retrying a cached credential, not a request anyone made, so it must never
-   * outrank an explicit login — and it would: `TrueNasConnection.send` queues a
-   * frame through an outage rather than dropping it, so a login the user submits
-   * while the socket is down is still pending when `opened` fires, and a relogin
-   * claiming the newer epoch would have that login answered
-   * `LoginSuperseded` while the client authenticated as the previous account.
+   * outrank an explicit login — and it would: `TrueNasConnection.send` holds a
+   * frame through an outage rather than dropping it, so a login submitted while
+   * the socket is down is still pending when `opened` fires, and a relogin
+   * claiming the newer epoch has that login answered `LoginSuperseded` while the
+   * client authenticates as the previously cached account.
    *
-   * Reset on `closed` as well as decremented on completion, so a caller that
-   * never subscribes cannot strand the count and disable reconnection for good.
+   * Keyed rather than counted, because a count cannot say *which* login a
+   * removal belongs to: a login torn down by its caller would retire a slot
+   * belonging to a different login that is still waiting, and the retry would
+   * overtake it again. Identity also makes a double-subscribed login harmless.
    */
-  private callerLoginsInFlight = 0;
+  private liveCallerLogins = new Map<number, boolean>();
 
   /** True only while the constructor's relogin is being constructed. */
   private reloginInProgress = false;
@@ -99,6 +102,16 @@ export class TrueNasAuthenticator {
     private connection: TrueNasConnection,
     private readonly version?: ApiVersion,
   ) {
+    this.connection.opened.subscribe(isOpen => {
+      // A login that was waiting for a socket has been written to this one, so
+      // from here it dies with it like any other. Without this it would keep its
+      // slot through every later drop and block reconnection permanently.
+      if (!isOpen) return;
+      for (const epoch of this.liveCallerLogins.keys()) {
+        this.liveCallerLogins.set(epoch, true);
+      }
+    });
+
     this.connection.opened
       .pipe(
         filter(
@@ -108,7 +121,7 @@ export class TrueNasAuthenticator {
               this.credentials?.username &&
               (this.credentials.password || this.credentials.key) &&
               // An explicit login already on the wire outranks this retry.
-              this.callerLoginsInFlight === 0
+              this.liveCallerLogins.size === 0
             )
         ),
         switchMap(() => {
@@ -116,17 +129,28 @@ export class TrueNasAuthenticator {
           // call itself, not on subscribe, so the flag is only ever set across
           // that call.
           this.reloginInProgress = true;
-          const relogin = this.credentials.password
-            ? this.loginWithUserPass(
-                this.credentials.username,
-                this.credentials.password
-              )
-            : this.loginWithApiKey({
-                username: this.credentials.username,
-                key: this.credentials.key,
-              });
-          this.reloginInProgress = false;
+          let relogin;
+          try {
+            relogin = this.credentials.password
+              ? this.loginWithUserPass(
+                  this.credentials.username,
+                  this.credentials.password
+                )
+              : this.loginWithApiKey({
+                  username: this.credentials.username,
+                  key: this.credentials.key,
+                });
+          } finally {
+            // Stuck true, every later caller login is misclassified as internal
+            // and never tracked, silently disabling the guard above.
+            this.reloginInProgress = false;
+          }
 
+          // Decided once, when the socket opens. A retry that stands down for
+          // an explicit login does not re-arm if that login then fails: the
+          // caller is at a prompt and is the one retrying, so the client waits
+          // for the next reconnect rather than logging in behind them.
+          //
           // This subscriber has no error handler, and an error reaching it
           // would tear down `opened` for good — no reconnect would ever log in
           // again, including after a later successful login. A relogin can fail
@@ -138,9 +162,14 @@ export class TrueNasAuthenticator {
       )
       .subscribe();
     connection.closed.subscribe(() => {
-      // Nothing on the old socket can still answer, so any count left over from
-      // a login whose observable was never subscribed dies with it.
-      this.callerLoginsInFlight = 0;
+      // A login whose frame went out on the socket that just died can never be
+      // answered, so it is retired here — otherwise one that is never
+      // unsubscribed would block reconnection for good. One still waiting for a
+      // socket keeps its slot: `send` will deliver it on the next one, and it is
+      // exactly the login the retry must not overtake.
+      for (const [epoch, flushed] of this.liveCallerLogins) {
+        if (flushed) this.liveCallerLogins.delete(epoch);
+      }
       this.sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
       this.authenticated$.next(false);
     });
@@ -182,21 +211,18 @@ export class TrueNasAuthenticator {
     );
   }
 
-  /** Claim the next epoch for a login, and count it if a caller asked for it. */
+  /** Claim the next epoch for a login, and record it if a caller asked for it. */
   private beginLogin(): { sentDuring: number; callerInitiated: boolean } {
     const callerInitiated = !this.reloginInProgress;
-    if (callerInitiated) this.callerLoginsInFlight += 1;
-    return { sentDuring: ++this.authEpoch, callerInitiated };
+    const sentDuring = ++this.authEpoch;
+    if (callerInitiated) {
+      this.liveCallerLogins.set(sentDuring, this.connection.opened.value);
+    }
+    return { sentDuring, callerInitiated };
   }
 
-  private endLogin(callerInitiated: boolean): void {
-    // Clamped, because the count is also reset wholesale on `closed`: a login
-    // in flight at that moment still settles afterwards, and an unguarded
-    // decrement would take the count below zero, where the auto-relogin's
-    // `=== 0` test never passes again.
-    if (callerInitiated) {
-      this.callerLoginsInFlight = Math.max(0, this.callerLoginsInFlight - 1);
-    }
+  private endLogin(sentDuring: number, callerInitiated: boolean): void {
+    if (callerInitiated) this.liveCallerLogins.delete(sentDuring);
     this.authenticating$.next(false);
   }
 
@@ -237,8 +263,11 @@ export class TrueNasAuthenticator {
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
           this.assertNotSuperseded(sentDuring);
-          this.credentials.username = username;
-          this.credentials.password = password;
+          // Whole record: a field-by-field update leaves the other mechanism's
+          // credential behind, and the relogin prefers `password`, so an api-key
+          // login after a password login would replay the old password under the
+          // new username on every reconnect.
+          this.credentials = { username, password, key: '' };
           this.sessionLifetime =
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
@@ -246,7 +275,7 @@ export class TrueNasAuthenticator {
         }
       }),
       finalize(() => {
-        this.endLogin(callerInitiated);
+        this.endLogin(sentDuring, callerInitiated);
       }),
       take(1)
     );
@@ -294,7 +323,7 @@ export class TrueNasAuthenticator {
         'TrueNAS authentication failed. Please verify your one-time passcode and try again.'
       ),
       finalize(() => {
-        this.endLogin(callerInitiated);
+        this.endLogin(sentDuring, callerInitiated);
       }),
       take(1)
     );
@@ -372,7 +401,7 @@ export class TrueNasAuthenticator {
         }
       }),
       finalize(() => {
-        this.endLogin(callerInitiated);
+        this.endLogin(sentDuring, callerInitiated);
       }),
       take(1)
     );
@@ -419,15 +448,14 @@ export class TrueNasAuthenticator {
       ),
       tap(res => {
         this.assertNotSuperseded(sentDuring);
-        this.credentials.username = username;
-        this.credentials.key = key;
+        this.credentials = { username, password: '', key };
         this.sessionLifetime =
           res.user_info?.attributes?.preferences?.lifetime ??
           TrueNasAuthenticator.DefaultSessionLifetime;
         this.authenticated$.next(true);
       }),
       finalize(() => {
-        this.endLogin(callerInitiated);
+        this.endLogin(sentDuring, callerInitiated);
       }),
       take(1)
     );

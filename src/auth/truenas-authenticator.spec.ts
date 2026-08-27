@@ -1,5 +1,5 @@
 import { BehaviorSubject, Subject } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import type { ApiVersion } from '@/types/api-version.type';
 import { UserRole, UserRoleName } from '@/enums/user-role.enum';
@@ -152,16 +152,19 @@ describe('TrueNasAuthenticator', () => {
     }));
 
   /**
-   * A compile-time assertion as much as a runtime one. `.includes('SHARING_ADMIN')`
-   * does not typecheck while `$set` is `UserRole[]`, since the enum declares only
-   * `FullAdmin` — which is the cast consumers were forced into when this client
-   * handed them roles as their authorization hook.
+   * A type assertion, stated as one. The guarantee is that `$set` admits roles
+   * beyond `FullAdmin` — the cast consumers were forced into when this client
+   * handed them roles as their authorization hook — and nothing about it is
+   * observable at runtime, so `npm run typecheck` is the gate. Narrowing `$set`
+   * back to `UserRole[]` fails here.
    */
   it('hands back a role list a consumer can test without a cast', () => {
-    const res = successResponse(['SHARING_ADMIN']);
-    expect(res.user_info?.privilege.roles.$set.includes('SHARING_ADMIN')).toBe(
-      true
-    );
+    type Roles = NonNullable<
+      AuthResponse['user_info']
+    >['privilege']['roles']['$set'];
+
+    expectTypeOf<Roles>().toEqualTypeOf<UserRoleName[]>();
+    expectTypeOf<'SHARING_ADMIN'>().toMatchTypeOf<Roles[number]>();
   });
 
   it('password login authenticates an account with no roles at all', () =>
@@ -517,6 +520,54 @@ describe('TrueNasAuthenticator', () => {
     expect(authenticator.authenticated$.value).toBe(true);
   });
 
+  /**
+   * A count cannot say which login a removal belongs to. With one, a login torn
+   * down by its caller — component destroyed, `takeUntil`, a consumer-side
+   * `timeout()` — retired a slot belonging to a *different* login still waiting
+   * for the socket, and the retry overtook it: the user's login answered
+   * `LoginSuperseded` while the client authenticated as the cached account.
+   */
+  it('a cancelled login does not retire a queued login for the auto-relogin', () => {
+    opened$.next(true);
+    authenticator.loginWithUserPass('u0', 'p0').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    const cancelled = authenticator
+      .loginWithUserPass('u1', 'p1')
+      .subscribe({ error: () => {} });
+
+    closed$.next();
+
+    let code: AuthErrorCode | undefined;
+    authenticator
+      .loginWithUserPass('u2', 'p2')
+      .subscribe({ error: (err: AuthError) => (code = err.code) });
+
+    cancelled.unsubscribe();
+
+    const before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    expect(sendSpy.mock.calls.length).toBe(before);
+
+    respondToCall(2, successResponse([UserRole.FullAdmin]));
+    expect(code).toBeUndefined();
+    expect(authenticator.credentials.username).toBe('u2');
+  });
+
+  it('an api-key login does not leave the previous password behind', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithApiKey({ username: 'u2', key: 'k' }).subscribe();
+    respondToCall(1, successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.credentials).toEqual({
+      username: 'u2',
+      password: '',
+      key: 'k',
+    });
+  });
+
   it('auto-relogin resumes once the caller login has settled', () => {
     authenticator.loginWithUserPass('u1', 'p1').subscribe();
     respondToCall(0, successResponse([UserRole.FullAdmin]));
@@ -530,18 +581,31 @@ describe('TrueNasAuthenticator', () => {
     expect(sendSpy).toHaveBeenCalled();
   });
 
-  it('an unsubscribed caller login cannot strand the count', () => {
+  /**
+   * A login is sent eagerly, so one whose observable is never subscribed is on
+   * the wire with nothing to retire it. It cannot block reconnection for good:
+   * it holds its slot only until the socket carrying it drops. Queued while the
+   * socket is down, it keeps the slot across that drop — it will still be
+   * delivered, and it is precisely the login the retry must not overtake — and
+   * is retired on the next one.
+   */
+  it('an unsubscribed caller login is retired with the socket that carries it', () => {
     authenticator.loginWithUserPass('u1', 'p1').subscribe();
     respondToCall(0, successResponse([UserRole.FullAdmin]));
 
-    // Sent eagerly, never subscribed, so nothing ever completes it.
-    authenticator.loginWithUserPass('u2', 'p2');
+    authenticator.loginWithUserPass('u2', 'p2'); // never subscribed
 
     closed$.next();
-
-    sendSpy.mockClear();
+    let before = sendSpy.mock.calls.length;
     opened$.next(true);
-    expect(sendSpy).toHaveBeenCalled();
+    // Still pending delivery, so the retry stands down.
+    expect(sendSpy.mock.calls.length).toBe(before);
+
+    closed$.next();
+    before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    // Carried by the socket that just died, so it is retired and the retry runs.
+    expect(sendSpy.mock.calls.length).toBeGreaterThan(before);
   });
 
   /**
