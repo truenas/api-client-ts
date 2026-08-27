@@ -64,18 +64,36 @@ export class TrueNasAuthenticator {
   sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
 
   /**
-   * Bumped by every login and by `logout()`. Each takes the new value when it
-   * sends and checks it again when its answer lands: a difference means another
-   * of them was issued while this one was in flight, so this answer is stale and
-   * must not write session state.
+   * Claimed by each login when it sends and checked when its answer lands: a
+   * difference means another login or a logout was issued in between, so this
+   * answer is stale and must not write session state. Responses on one socket
+   * are not ordered, which is why arrival is not enough to make an answer
+   * current.
    *
-   * Symmetric on purpose. Guarding only the logins leaves the mirror image — a
-   * logout answer arriving after a login sent later than it, resetting
-   * `authenticated$` on a session that is genuinely authenticated. Responses on
-   * one socket are not ordered, which is the premise this mechanism exists for,
-   * and it holds in both directions.
+   * `logout()` bumps it without claiming one. It has no answer to guard —
+   * it settles its own state at the call — and bumping is what invalidates the
+   * logins already on the wire that a logout is meant to override.
    */
   private authEpoch = 0;
+
+  /**
+   * How many caller-issued logins are on the wire.
+   *
+   * The auto-relogin below defers while any is outstanding. It is this class
+   * retrying a cached credential, not a request anyone made, so it must never
+   * outrank an explicit login — and it would: `TrueNasConnection.send` queues a
+   * frame through an outage rather than dropping it, so a login the user submits
+   * while the socket is down is still pending when `opened` fires, and a relogin
+   * claiming the newer epoch would have that login answered
+   * `LoginSuperseded` while the client authenticated as the previous account.
+   *
+   * Reset on `closed` as well as decremented on completion, so a caller that
+   * never subscribes cannot strand the count and disable reconnection for good.
+   */
+  private callerLoginsInFlight = 0;
+
+  /** True only while the constructor's relogin is being constructed. */
+  private reloginInProgress = false;
 
   constructor(
     private connection: TrueNasConnection,
@@ -88,10 +106,16 @@ export class TrueNasAuthenticator {
             !!(
               isOpen &&
               this.credentials?.username &&
-              (this.credentials.password || this.credentials.key)
+              (this.credentials.password || this.credentials.key) &&
+              // An explicit login already on the wire outranks this retry.
+              this.callerLoginsInFlight === 0
             )
         ),
         switchMap(() => {
+          // Bracketed synchronously: the login methods do their claiming in the
+          // call itself, not on subscribe, so the flag is only ever set across
+          // that call.
+          this.reloginInProgress = true;
           const relogin = this.credentials.password
             ? this.loginWithUserPass(
                 this.credentials.username,
@@ -101,6 +125,7 @@ export class TrueNasAuthenticator {
                 username: this.credentials.username,
                 key: this.credentials.key,
               });
+          this.reloginInProgress = false;
 
           // This subscriber has no error handler, and an error reaching it
           // would tear down `opened` for good — no reconnect would ever log in
@@ -113,6 +138,9 @@ export class TrueNasAuthenticator {
       )
       .subscribe();
     connection.closed.subscribe(() => {
+      // Nothing on the old socket can still answer, so any count left over from
+      // a login whose observable was never subscribed dies with it.
+      this.callerLoginsInFlight = 0;
       this.sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
       this.authenticated$.next(false);
     });
@@ -142,28 +170,38 @@ export class TrueNasAuthenticator {
     return { login_options: { reconnect_token: true } };
   }
 
-  /** Whether another login or logout was issued after this one was sent. */
-  private superseded(sentDuring: number): boolean {
-    return this.authEpoch !== sentDuring;
-  }
-
   /**
-   * Throws if this login has been superseded, so a stale answer cannot be
-   * reported to its caller as a successful login.
-   *
-   * `logout()` does not use this — it returns quietly instead. Its caller asked
-   * to end the session and that happened, whoever else intervened afterwards.
+   * Throws when another login or a logout was issued after this one was sent,
+   * so a stale answer cannot be reported to its caller as a successful login.
    */
   private assertNotSuperseded(sentDuring: number): void {
-    if (!this.superseded(sentDuring)) return;
+    if (this.authEpoch === sentDuring) return;
     throw new AuthError(
       AuthErrorCode.LoginSuperseded,
       'Login was superseded by a later logout or login and was discarded.'
     );
   }
 
+  /** Claim the next epoch for a login, and count it if a caller asked for it. */
+  private beginLogin(): { sentDuring: number; callerInitiated: boolean } {
+    const callerInitiated = !this.reloginInProgress;
+    if (callerInitiated) this.callerLoginsInFlight += 1;
+    return { sentDuring: ++this.authEpoch, callerInitiated };
+  }
+
+  private endLogin(callerInitiated: boolean): void {
+    // Clamped, because the count is also reset wholesale on `closed`: a login
+    // in flight at that moment still settles afterwards, and an unguarded
+    // decrement would take the count below zero, where the auto-relogin's
+    // `=== 0` test never passes again.
+    if (callerInitiated) {
+      this.callerLoginsInFlight = Math.max(0, this.callerLoginsInFlight - 1);
+    }
+    this.authenticating$.next(false);
+  }
+
   loginWithUserPass(username: string, password: string) {
-    const sentDuring = ++this.authEpoch;
+    const { sentDuring, callerInitiated } = this.beginLogin();
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
       {
@@ -208,14 +246,14 @@ export class TrueNasAuthenticator {
         }
       }),
       finalize(() => {
-        this.authenticating$.next(false);
+        this.endLogin(callerInitiated);
       }),
       take(1)
     );
   }
 
   loginWithOtp(code: string) {
-    const sentDuring = ++this.authEpoch;
+    const { sentDuring, callerInitiated } = this.beginLogin();
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
       {
@@ -256,7 +294,7 @@ export class TrueNasAuthenticator {
         'TrueNAS authentication failed. Please verify your one-time passcode and try again.'
       ),
       finalize(() => {
-        this.authenticating$.next(false);
+        this.endLogin(callerInitiated);
       }),
       take(1)
     );
@@ -282,7 +320,7 @@ export class TrueNasAuthenticator {
    * reason the socket dropped in the first place.
    */
   loginWithToken(token: string) {
-    const sentDuring = ++this.authEpoch;
+    const { sentDuring, callerInitiated } = this.beginLogin();
     const message = createJsonRpcMessage('auth.login_ex', [
       {
         mechanism: TrueNasAuthMechanism.Token,
@@ -334,7 +372,7 @@ export class TrueNasAuthenticator {
         }
       }),
       finalize(() => {
-        this.authenticating$.next(false);
+        this.endLogin(callerInitiated);
       }),
       take(1)
     );
@@ -346,7 +384,7 @@ export class TrueNasAuthenticator {
    * and replayed. The token exists for the credential that cannot be.
    */
   loginWithApiKey(credentials: { username: string; key: string }) {
-    const sentDuring = ++this.authEpoch;
+    const { sentDuring, callerInitiated } = this.beginLogin();
     const { username, key } = credentials;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
@@ -389,7 +427,7 @@ export class TrueNasAuthenticator {
         this.authenticated$.next(true);
       }),
       finalize(() => {
-        this.authenticating$.next(false);
+        this.endLogin(callerInitiated);
       }),
       take(1)
     );
@@ -438,8 +476,8 @@ export class TrueNasAuthenticator {
     // appliance did with its own state.
     this.credentials = { username: '', password: '', key: '' };
     this.sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
-    this.authenticated$.next(false);
     this.authEpoch += 1;
+    this.authenticated$.next(false);
 
     const message = createJsonRpcMessage('auth.logout');
 

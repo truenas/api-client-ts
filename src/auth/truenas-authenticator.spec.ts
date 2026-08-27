@@ -485,6 +485,84 @@ describe('TrueNasAuthenticator', () => {
     expect(authenticator.authenticated$.value).toBe(false);
   });
 
+  /**
+   * `TrueNasConnection.send` queues a frame through an outage rather than
+   * dropping it, so a login submitted while the socket is down is still pending
+   * when it reopens — and reopening is exactly what arms the auto-relogin. The
+   * retry must not outrank the login the user actually asked for: it would be
+   * answered `LoginSuperseded` while the client authenticated as the previous
+   * account, and if the cached credential is the stale one, the client would end
+   * up unauthenticated with the wrong credential replayed on every reconnect.
+   */
+  it('a caller login on the wire outranks the auto-relogin', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    closed$.next();
+
+    let code: AuthErrorCode | undefined;
+    authenticator
+      .loginWithUserPass('u2', 'p2')
+      .subscribe({ error: (err: AuthError) => (code = err.code) });
+
+    // Counted rather than cleared: `respondToCall` indexes into these calls.
+    const sentBefore = sendSpy.mock.calls.length;
+    opened$.next(true);
+    expect(sendSpy.mock.calls.length).toBe(sentBefore); // no competing relogin
+
+    respondToCall(1, successResponse([UserRole.FullAdmin]));
+
+    expect(code).toBeUndefined();
+    expect(authenticator.credentials.username).toBe('u2');
+    expect(authenticator.authenticated$.value).toBe(true);
+  });
+
+  it('auto-relogin resumes once the caller login has settled', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    closed$.next();
+    authenticator.loginWithUserPass('u2', 'p2').subscribe();
+    respondToCall(1, successResponse([UserRole.FullAdmin]));
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).toHaveBeenCalled();
+  });
+
+  it('an unsubscribed caller login cannot strand the count', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    // Sent eagerly, never subscribed, so nothing ever completes it.
+    authenticator.loginWithUserPass('u2', 'p2');
+
+    closed$.next();
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).toHaveBeenCalled();
+  });
+
+  /**
+   * The count is reset wholesale on `closed`, but a login in flight at that
+   * moment still settles afterwards and decrements. Without a clamp that leaves
+   * it below zero, where the auto-relogin's `=== 0` test never passes again —
+   * reconnection dead for the life of the authenticator.
+   */
+  it('a login settling after closed cannot strand a negative count', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('u2', 'p2').subscribe({ error: () => {} });
+    closed$.next();                       // count reset to 0 while it is in flight
+    respondToCall(1, authErrResponse);    // now it settles -> decrements below 0
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).toHaveBeenCalled();   // auto-relogin must still work
+  });
+
   it('auto-relogin survives a superseded relogin', () => {
     authenticator.loginWithUserPass('u', 'p').subscribe();
     respondToCall(0, successResponse([UserRole.FullAdmin]));
