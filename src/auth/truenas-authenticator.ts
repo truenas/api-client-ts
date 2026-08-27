@@ -422,15 +422,24 @@ export class TrueNasAuthenticator {
   }
 
   logout() {
-    // Cleared here, not on the response, and not conditionally on its success.
-    // The constructor's auto-relogin consults nothing but `credentials`, so
-    // leaving them set re-authenticates this session on the next `opened` —
-    // including when the caller logged out precisely because it refused the
-    // session, and including when the logout response never arrives because the
-    // socket dropped. Whether the server tore the session down is a separate
-    // question from whether this client should offer the credential again.
+    // All of it here, at the call, rather than when the answer comes back — and
+    // unconditionally, whatever the server says.
+    //
+    // `credentials`: auto-relogin consults nothing else, so leaving them set
+    // re-authenticates a session the caller just refused on the next `opened`.
+    //
+    // `authenticated$`: the answer used to set it, as `next(!success)`, which
+    // could only ever be wrong. It *raised* the flag on a failed logout — so a
+    // logout with no session behind it reported the client as authenticated —
+    // and it landed late, after any login issued in the meantime had already
+    // settled. Whether the server tore its session down is a separate question
+    // from whether this client still holds one, and this flag answers the
+    // second: the caller asked to be logged out, and now is, whatever the
+    // appliance did with its own state.
     this.credentials = { username: '', password: '', key: '' };
-    const sentDuring = ++this.authEpoch;
+    this.sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
+    this.authenticated$.next(false);
+    this.authEpoch += 1;
 
     const message = createJsonRpcMessage('auth.logout');
 
@@ -446,13 +455,6 @@ export class TrueNasAuthenticator {
           return false;
         }
         return msg.result as boolean;
-      }),
-      tap(success => {
-        // A silent return, unlike the logins: this caller asked to end the
-        // session and that happened, whoever else intervened afterwards.
-        if (this.superseded(sentDuring)) return;
-        this.sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
-        this.authenticated$.next(!success);
       }),
       take(1)
     );

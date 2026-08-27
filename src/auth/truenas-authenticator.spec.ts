@@ -460,6 +460,31 @@ describe('TrueNasAuthenticator', () => {
     expect(authenticator.authenticated$.value).toBe(false);
   });
 
+  it('a failed login after logout leaves the client unauthenticated', () => {
+    authenticator.loginWithUserPass('u', 'p').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+    expect(authenticator.authenticated$.value).toBe(true);
+
+    authenticator.logout().subscribe();                       // send 1
+    authenticator
+      .loginWithUserPass('u', 'wrong')
+      .subscribe({ error: () => {} });                        // send 2
+    respondToCall(1, true);                                   // logout answers
+    respondToCall(2, authErrResponse);                        // login fails
+
+    expect(authenticator.authenticated$.value).toBe(false);
+    expect(authenticator.credentials.username).toBe('');
+  });
+
+  it('logout never raises authenticated$ from false', () => {
+    expect(authenticator.authenticated$.value).toBe(false);
+
+    authenticator.logout().subscribe();
+    respondToCall(0, false);                                  // server says no
+
+    expect(authenticator.authenticated$.value).toBe(false);
+  });
+
   it('auto-relogin survives a superseded relogin', () => {
     authenticator.loginWithUserPass('u', 'p').subscribe();
     respondToCall(0, successResponse([UserRole.FullAdmin]));
@@ -489,16 +514,21 @@ describe('TrueNasAuthenticator', () => {
     expect(authenticator.credentials.username).toBe('u');
   });
 
-  it('logout that fails leaves authenticated$ true', () =>
+  /**
+   * This used to assert the opposite, because the answer set the flag as
+   * `next(!success)`. A logout the server refuses does not put the caller back
+   * in an authenticated session: the credentials are gone, nothing will
+   * re-offer them, and the flag gates this client's own API access. It reports
+   * whether this client holds a session, not whether the appliance does.
+   */
+  it('logout that fails still leaves the client unauthenticated', () =>
     new Promise<void>((resolve, reject) => {
-      // A failed logout is treated as "not logged out": logout maps an error
-      // response to `success = false`, then runs `authenticated$.next(!success)`.
-      authenticator.authenticated$.next(false);
+      authenticator.authenticated$.next(true);
 
       authenticator.logout().subscribe({
         next: () => {
           try {
-            expect(authenticator.authenticated$.value).toBe(true);
+            expect(authenticator.authenticated$.value).toBe(false);
             resolve();
           } catch (err) {
             reject(err);
