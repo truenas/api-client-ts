@@ -90,6 +90,26 @@ export class TrueNasConnection {
         // if enabled, establish a connection and push it down the pipeline.
         return this.connect().pipe(
           map((conn) => makeActiveConnection(conn.ws, conn.hostname)),
+          // A refusal becomes a value here rather than an error, so it never
+          // reaches the `retry` below and nothing reconnects on its own.
+          //
+          // Handled at this depth on purpose: letting it out completes the
+          // pipeline and unsubscribes `enabledChange$`, and `setEnabled` is the
+          // documented way an app asks for another attempt once the network
+          // changes. Not retrying is a statement about what this client does on
+          // its own; it is not a reason to refuse the caller asking again.
+          catchError((err: ConnectionError) =>
+            isTerminalClose(err)
+              ? of<Connection>(
+                  makeConnectionError(
+                    err.message,
+                    err.hostname,
+                    err.closeCode,
+                    err.closeReason
+                  )
+                )
+              : throwError(() => err)
+          )
         );
       }
 
@@ -121,35 +141,16 @@ export class TrueNasConnection {
     //      the connection is dead.
     //   2. re-throw an error so the downstream `retry` will re-subscribe.
     catchError((err: ConnectionError): Observable<Connection> => {
-      const errored = makeConnectionError(
-        err.message,
-        err.hostname,
-        err.closeCode,
-        err.closeReason
-      );
-
-      // A refusal ends the pipeline instead of restarting it. The errored
-      // connection still goes downstream carrying the code and the server's
-      // reason, so a consumer can say which refusal it was; it is simply not
-      // followed by another attempt.
-      //
-      // It completes rather than errors on purpose. The compatibility
-      // subscriptions below take `connection$` with no error handler, so
-      // erroring here would surface as an uncaught error and take them down
-      // with it.
-      if (isTerminalClose(err)) {
-        this.logger.error('Connection refused by the server - not retrying', {
-          message: err?.message,
-          hostname: err?.hostname,
-          closeCode: err?.closeCode,
-          closeReason: err?.closeReason,
-        });
-        return of<Connection>(errored);
-      }
-
       this.logger.error('All connections failed - retrying', { message: err?.message, hostname: err?.hostname });
       return concat(
-        of<Connection>(errored),
+        of<Connection>(
+          makeConnectionError(
+            err.message,
+            err.hostname,
+            err.closeCode,
+            err.closeReason
+          )
+        ),
         // since this error will immediately get caught by `retry` there's no reason to build a real error.
         throwError(() => null)
       );
@@ -396,10 +397,7 @@ export class TrueNasConnection {
         //     basically: a later death must propagate out rather than being retried
         //     so it can be handled by the `connection$` observable.
         delay: (error: unknown) => {
-          //   * a refusal is not retried at all: the appliance has already
-          //     answered, and spending attempts on it only delays telling the
-          //     caller why.
-          if (hasOpened || isTerminalClose(error as ConnectionError)) {
+          if (hasOpened) {
             return throwError(() => error);
           }
           return timer(this.retryDelay);

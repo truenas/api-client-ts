@@ -189,6 +189,10 @@ describe('TrueNasConnection', () => {
       const connection = createConnection();
       const socketsBefore = mockSocketInstances.length;
 
+      // Middleware accepts the socket and only then refuses, so the client sees
+      // `open` before `close(1008)`. Driving a close on a socket that never
+      // opened exercises a path production does not take.
+      mockSocketInstances[socketsBefore - 1].simulateOpen();
       mockSocketInstances[socketsBefore - 1].simulateClose(1008, refusal);
       // Well past every retry the establishing path would otherwise spend.
       vi.advanceTimersByTime(retryDelay * 10);
@@ -206,7 +210,9 @@ describe('TrueNasConnection', () => {
         }
       });
 
-      mockSocketInstances[mockSocketInstances.length - 1].simulateClose(1008, refusal);
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+      socket.simulateOpen();
+      socket.simulateClose(1008, refusal);
 
       expect(errors).toHaveLength(1);
       // The reason verbatim: `message` renders the code and cannot say which policy.
@@ -218,9 +224,48 @@ describe('TrueNasConnection', () => {
     it('still reports an error message for existing consumers', () => {
       const connection = createConnection();
 
-      mockSocketInstances[mockSocketInstances.length - 1].simulateClose(1008, refusal);
+      const socket = mockSocketInstances[mockSocketInstances.length - 1];
+      socket.simulateOpen();
+      socket.simulateClose(1008, refusal);
 
       expect(connection.lastErrorMessage.value).not.toBeNull();
+      connection.close();
+    });
+
+    /**
+     * Middleware decides from the source address it sees, so two hostnames for
+     * one appliance — two network paths, two addresses — can get two different
+     * answers. A refusal from one must not discard a peer that would connect.
+     */
+    it('one refused hostname does not sink a healthy one', () => {
+      const connection = createConnection({ hostnames: ['host-a', 'host-b'] });
+
+      mockSocketInstances[0].simulateClose(1008, refusal);
+      mockSocketInstances[1].simulateOpen();
+      mockSocketInstances[1].next(handshakeResponse);
+
+      expect(connection.opened.value).toBe(true);
+      expect(connection.hostname.value).toBe('host-b');
+      connection.close();
+    });
+
+    /**
+     * Not reconnecting describes what this client does on its own. `setEnabled`
+     * is the documented way an app asks for another attempt — after joining a
+     * VPN, say — and the appliance genuinely may answer differently, so the
+     * refusal must not disable the gate.
+     */
+    it('setEnabled can still try again after a refusal', () => {
+      const connection = createConnection();
+      const refused = mockSocketInstances[mockSocketInstances.length - 1];
+      refused.simulateOpen();
+      refused.simulateClose(1008, refusal);
+
+      const before = mockSocketInstances.length;
+      connection.setEnabled(false);
+      connection.setEnabled(true);
+
+      expect(mockSocketInstances.length).toBeGreaterThan(before);
       connection.close();
     });
 
