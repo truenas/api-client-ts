@@ -1,5 +1,7 @@
 import {
   BehaviorSubject,
+  EMPTY,
+  catchError,
   filter,
   finalize,
   map,
@@ -90,16 +92,23 @@ export class TrueNasAuthenticator {
             )
         ),
         switchMap(() => {
-          if (this.credentials.password) {
-            return this.loginWithUserPass(
-              this.credentials.username,
-              this.credentials.password
-            );
-          }
-          return this.loginWithApiKey({
-            username: this.credentials.username,
-            key: this.credentials.key,
-          });
+          const relogin = this.credentials.password
+            ? this.loginWithUserPass(
+                this.credentials.username,
+                this.credentials.password
+              )
+            : this.loginWithApiKey({
+                username: this.credentials.username,
+                key: this.credentials.key,
+              });
+
+          // This subscriber has no error handler, and an error reaching it
+          // would tear down `opened` for good — no reconnect would ever log in
+          // again, including after a later successful login. A relogin can fail
+          // for ordinary reasons: superseded by a logout mid-flight, or refused
+          // outright because the password changed server-side. Neither is a
+          // reason to stop trying on the next reconnect.
+          return relogin.pipe(catchError(() => EMPTY));
         })
       )
       .subscribe();
@@ -138,6 +147,21 @@ export class TrueNasAuthenticator {
     return this.authEpoch !== sentDuring;
   }
 
+  /**
+   * Throws if this login has been superseded, so a stale answer cannot be
+   * reported to its caller as a successful login.
+   *
+   * `logout()` does not use this — it returns quietly instead. Its caller asked
+   * to end the session and that happened, whoever else intervened afterwards.
+   */
+  private assertNotSuperseded(sentDuring: number): void {
+    if (!this.superseded(sentDuring)) return;
+    throw new AuthError(
+      AuthErrorCode.LoginSuperseded,
+      'Login was superseded by a later logout or login and was discarded.'
+    );
+  }
+
   loginWithUserPass(username: string, password: string) {
     const sentDuring = ++this.authEpoch;
     // Versioned API uses auth.login_ex with a single object parameter
@@ -174,12 +198,7 @@ export class TrueNasAuthenticator {
       ),
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
-          if (this.superseded(sentDuring)) {
-            throw new AuthError(
-              AuthErrorCode.LoginSuperseded,
-              'Login was superseded by a later logout or login and was discarded.'
-            );
-          }
+          this.assertNotSuperseded(sentDuring);
           this.credentials.username = username;
           this.credentials.password = password;
           this.sessionLifetime =
@@ -225,12 +244,7 @@ export class TrueNasAuthenticator {
       }),
       tap(res => {
         if (res?.response_type === AuthResponseType.Success) {
-          if (this.superseded(sentDuring)) {
-            throw new AuthError(
-              AuthErrorCode.LoginSuperseded,
-              'Login was superseded by a later logout or login and was discarded.'
-            );
-          }
+          this.assertNotSuperseded(sentDuring);
           this.sessionLifetime =
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
@@ -312,12 +326,7 @@ export class TrueNasAuthenticator {
       }),
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
-          if (this.superseded(sentDuring)) {
-            throw new AuthError(
-              AuthErrorCode.LoginSuperseded,
-              'Login was superseded by a later logout or login and was discarded.'
-            );
-          }
+          this.assertNotSuperseded(sentDuring);
           this.sessionLifetime =
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
@@ -371,12 +380,7 @@ export class TrueNasAuthenticator {
         'TrueNAS authentication failed. Has the TrueNAS Connect API key been removed from your TrueNAS server?'
       ),
       tap(res => {
-        if (this.superseded(sentDuring)) {
-          throw new AuthError(
-            AuthErrorCode.LoginSuperseded,
-            'Login was superseded by a later logout or login and was discarded.'
-          );
-        }
+        this.assertNotSuperseded(sentDuring);
         this.credentials.username = username;
         this.credentials.key = key;
         this.sessionLifetime =

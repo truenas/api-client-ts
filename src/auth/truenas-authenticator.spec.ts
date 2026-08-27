@@ -460,6 +460,22 @@ describe('TrueNasAuthenticator', () => {
     expect(authenticator.authenticated$.value).toBe(false);
   });
 
+  it('auto-relogin survives a superseded relogin', () => {
+    authenticator.loginWithUserPass('u', 'p').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    opened$.next(true);                       // auto-relogin, send 1
+    authenticator.logout().subscribe();       // supersedes it, send 2
+    respondToCall(1, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('u', 'p').subscribe();  // send 3
+    respondToCall(3, successResponse([UserRole.FullAdmin]));
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).toHaveBeenCalled();      // auto-relogin still alive
+  });
+
   it('a late logout answer does not undo a login sent after it', () => {
     authenticator.logout().subscribe();                       // send 0
     authenticator.loginWithUserPass('u', 'p').subscribe();    // send 1
