@@ -9,7 +9,12 @@ import { AuthResponse, AuthResponseType } from '@/types/auth.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { TrueNasAuthenticator } from './truenas-authenticator';
 
-function successResponse(roles: UserRole[], lifetime = 600): AuthResponse {
+// Roles are strings on the wire and middleware declares many; `UserRole` only
+// declares `FullAdmin`, so tests covering other roles pass them literally.
+function successResponse(
+  roles: (UserRole | string)[],
+  lifetime = 600
+): AuthResponse {
   return {
     response_type: AuthResponseType.Success,
     user_info: {
@@ -111,25 +116,45 @@ describe('TrueNasAuthenticator', () => {
       respondWith(authErrResponse);
     }));
 
-  it('non-admin login throws AuthError(FullAdminRequired)', () =>
+  it('password login authenticates a non-admin and reports its roles', () =>
     new Promise<void>((resolve, reject) => {
       authenticator.loginWithUserPass('user', 'pw').subscribe({
-        next: () => reject(new Error('should have errored')),
-        error: (err: unknown) => {
+        next: res => {
           try {
-            expect(err).toBeInstanceOf(AuthError);
-            expect((err as AuthError).code).toBe(
-              AuthErrorCode.FullAdminRequired
-            );
-            expect(authenticator.authenticated$.value).toBe(false);
+            expect(authenticator.authenticated$.value).toBe(true);
+            // The roles the consumer needs in order to apply its own policy.
+            expect(res.user_info?.privilege.roles.$set).toEqual([
+              'SHARING_ADMIN',
+            ]);
+            // Stored only inside the admin branch before, so a non-admin got no
+            // automatic reconnect. It reconnects like any other session now.
+            expect(authenticator.credentials.username).toBe('user');
             resolve();
           } catch (e) {
             reject(e);
           }
         },
+        error: reject,
       });
 
-      respondWith(successResponse([])); // Success but no FullAdmin role
+      respondWith(successResponse(['SHARING_ADMIN']));
+    }));
+
+  it('password login authenticates an account with no roles at all', () =>
+    new Promise<void>((resolve, reject) => {
+      authenticator.loginWithUserPass('user', 'pw').subscribe({
+        next: () => {
+          try {
+            expect(authenticator.authenticated$.value).toBe(true);
+            resolve();
+          } catch (e) {
+            reject(e);
+          }
+        },
+        error: reject,
+      });
+
+      respondWith(successResponse([]));
     }));
 
   it('OTP auth failure throws AuthError(OtpAuthFailed)', () =>
@@ -240,7 +265,6 @@ describe('TrueNasAuthenticator', () => {
         error: reject,
       });
 
-      // OTP success does not require the FullAdmin role.
       respondWith(successResponse([]));
     }));
 
@@ -424,19 +448,17 @@ describe('TrueNasAuthenticator', () => {
       respondWith(authErrResponse);
     }));
 
-  it('token login refuses a non-admin, as password login does', () =>
+  it('token login authenticates a non-admin, as password login does', () =>
     new Promise<void>((resolve, reject) => {
-      // Middleware puts no role gate on TOKEN_PLAIN and `auth.generate_token`
-      // needs no role, so the client is the only place this is checked.
       authenticator.loginWithToken('tok-1').subscribe({
-        next: () => reject(new Error('expected a failure')),
-        error: (err: AuthError) => {
+        next: res => {
           try {
-            expect(err.code).toBe(AuthErrorCode.FullAdminRequired);
-            expect(authenticator.authenticated$.value).toBe(false);
+            expect(authenticator.authenticated$.value).toBe(true);
+            expect(res.user_info?.privilege.roles.$set).toEqual([]);
             resolve();
           } catch (e) { reject(e as Error); }
         },
+        error: (err: AuthError) => reject(err),
       });
       respondWith(successResponse([]));
     }));

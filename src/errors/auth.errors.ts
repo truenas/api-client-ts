@@ -8,6 +8,13 @@ export enum AuthErrorCode {
   OtpAuthFailed = 'OTP_AUTH_FAILED',
   ApiKeyAuthFailed = 'API_KEY_AUTH_FAILED',
   TokenAuthFailed = 'TOKEN_AUTH_FAILED',
+
+  /**
+   * @deprecated Nothing throws this. The authenticator no longer refuses a
+   * login for want of a role — see `TrueNasAuthenticator`. Kept so consumers
+   * still narrowing on the code keep compiling; removing it would be a breaking
+   * change for a member that can no longer occur.
+   */
   FullAdminRequired = 'FULL_ADMIN_REQUIRED',
 }
 

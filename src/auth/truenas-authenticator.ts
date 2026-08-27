@@ -13,7 +13,6 @@ import { TrueNasConnection } from '@/connection/truenas-connection';
 import { ApiVersion } from '@/types/api-version.type';
 import { legacyCutoffYear } from '@/utils/api-version.utils';
 import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
-import { UserRole } from '@/enums/user-role.enum';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
 import { getApiErrorMessage } from '@/types/api-error.type';
 import { ApiKeyCreate } from '@/types/api-key-create.type';
@@ -34,6 +33,13 @@ const throwOnAuthenticationFailure = (code: AuthErrorCode, message: string) =>
  * TrueNAS authenticator using the JSON-RPC 2.0 protocol.
  *
  * It handles authentication using the JSON-RPC 2.0 message format.
+ *
+ * Authentication only: any credential middleware accepts logs in here, whatever
+ * roles it carries. No path checks privilege, and that is the design — the
+ * appliance authorizes every privileged call on its own, and which roles a given
+ * product requires is that product's policy, not this client's. Consumers who
+ * need one read `user_info.privilege.roles` off the response and enforce it
+ * themselves; embedding a rule here would impose it on every consumer at once.
  */
 export class TrueNasAuthenticator {
   static readonly DefaultSessionLifetime = 300; // in seconds (5 minutes)
@@ -148,23 +154,12 @@ export class TrueNasAuthenticator {
       ),
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
-          if (
-            res.user_info?.privilege.roles.$set.includes(UserRole.FullAdmin)
-          ) {
-            this.credentials.username = username;
-            this.credentials.password = password;
-            this.sessionLifetime =
-              res.user_info?.attributes?.preferences?.lifetime ??
-              TrueNasAuthenticator.DefaultSessionLifetime;
-            this.authenticated$.next(true);
-          } else {
-            this.logout();
-            this.authenticated$.next(false);
-            throw new AuthError(
-              AuthErrorCode.FullAdminRequired,
-              'User account must have full admin privileges'
-            );
-          }
+          this.credentials.username = username;
+          this.credentials.password = password;
+          this.sessionLifetime =
+            res.user_info?.attributes?.preferences?.lifetime ??
+            TrueNasAuthenticator.DefaultSessionLifetime;
+          this.authenticated$.next(true);
         }
       }),
       finalize(() => {
@@ -283,26 +278,10 @@ export class TrueNasAuthenticator {
       }),
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
-          // Same gate as `loginWithUserPass`. Neither middleware nor
-          // `auth.generate_token` restricts who may mint or spend a token —
-          // roles come from whatever credential minted it — so without this,
-          // the path offered as a substitute for the password prompt would be
-          // the one path with no authorization check at either end.
-          if (
-            res.user_info?.privilege.roles.$set.includes(UserRole.FullAdmin)
-          ) {
-            this.sessionLifetime =
-              res.user_info?.attributes?.preferences?.lifetime ??
-              TrueNasAuthenticator.DefaultSessionLifetime;
-            this.authenticated$.next(true);
-          } else {
-            this.logout();
-            this.authenticated$.next(false);
-            throw new AuthError(
-              AuthErrorCode.FullAdminRequired,
-              'User account must have full admin privileges'
-            );
-          }
+          this.sessionLifetime =
+            res.user_info?.attributes?.preferences?.lifetime ??
+            TrueNasAuthenticator.DefaultSessionLifetime;
+          this.authenticated$.next(true);
         }
       }),
       finalize(() => {
