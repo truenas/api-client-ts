@@ -143,4 +143,21 @@ describe('TrueNasApiClientV26', () => {
 
     expect(callJobSpy).toHaveBeenCalledWith('container.delete', [7]);
   });
+  it('gives its authenticator the version, so v26+ asks for a reconnect token', () => {
+    // The one line that turns the feature on in production. Every other version
+    // assertion is on a hand-built authenticator, so dropping the argument here
+    // would revert real clients to never asking, with the suite still green.
+    const sendSpy = vi.spyOn(client.connection, 'send');
+
+    const sub = client.authenticator
+      .loginWithUserPass('admin', 'pw')
+      .subscribe({ error: () => {} });
+
+    const sent = sendSpy.mock.calls.at(-1)?.[0] as { params: unknown[] };
+    sub.unsubscribe();
+    expect(sent.params[0]).toMatchObject({
+      login_options: { reconnect_token: true },
+    });
+  });
+
 });

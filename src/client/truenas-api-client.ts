@@ -168,7 +168,7 @@ export abstract class TrueNasApiClient<
    * Override in subclasses to provide version-specific authentication.
    */
   protected createAuthenticator(): TrueNasAuthenticator {
-    return new TrueNasAuthenticator(this.connection);
+    return new TrueNasAuthenticator(this.connection, this.version);
   }
 
   /**
