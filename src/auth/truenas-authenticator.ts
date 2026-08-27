@@ -61,6 +61,14 @@ export class TrueNasAuthenticator {
   credentials = { username: '', password: '', key: '' };
   sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
 
+  /**
+   * Bumped by `logout()`. Each login reads it when it sends and checks it again
+   * when the response lands: a difference means a logout was issued while the
+   * request was in flight, so the caller has already refused this session and
+   * the response must not revive it.
+   */
+  private logoutEpoch = 0;
+
   constructor(
     private connection: TrueNasConnection,
     private readonly version?: ApiVersion,
@@ -119,7 +127,13 @@ export class TrueNasAuthenticator {
     return { login_options: { reconnect_token: true } };
   }
 
+  /** Whether a logout was issued after this login was sent. */
+  private supersededByLogout(sentDuring: number): boolean {
+    return this.logoutEpoch !== sentDuring;
+  }
+
   loginWithUserPass(username: string, password: string) {
+    const sentDuring = this.logoutEpoch;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
       {
@@ -154,6 +168,7 @@ export class TrueNasAuthenticator {
       ),
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
+          if (this.supersededByLogout(sentDuring)) return;
           this.credentials.username = username;
           this.credentials.password = password;
           this.sessionLifetime =
@@ -170,6 +185,7 @@ export class TrueNasAuthenticator {
   }
 
   loginWithOtp(code: string) {
+    const sentDuring = this.logoutEpoch;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
       {
@@ -198,6 +214,7 @@ export class TrueNasAuthenticator {
       }),
       tap(res => {
         if (res?.response_type === AuthResponseType.Success) {
+          if (this.supersededByLogout(sentDuring)) return;
           this.sessionLifetime =
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
@@ -235,6 +252,7 @@ export class TrueNasAuthenticator {
    * reason the socket dropped in the first place.
    */
   loginWithToken(token: string) {
+    const sentDuring = this.logoutEpoch;
     const message = createJsonRpcMessage('auth.login_ex', [
       {
         mechanism: TrueNasAuthMechanism.Token,
@@ -278,6 +296,7 @@ export class TrueNasAuthenticator {
       }),
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
+          if (this.supersededByLogout(sentDuring)) return;
           this.sessionLifetime =
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
@@ -297,6 +316,7 @@ export class TrueNasAuthenticator {
    * and replayed. The token exists for the credential that cannot be.
    */
   loginWithApiKey(credentials: { username: string; key: string }) {
+    const sentDuring = this.logoutEpoch;
     const { username, key } = credentials;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
@@ -330,6 +350,7 @@ export class TrueNasAuthenticator {
         'TrueNAS authentication failed. Has the TrueNAS Connect API key been removed from your TrueNAS server?'
       ),
       tap(res => {
+        if (this.supersededByLogout(sentDuring)) return;
         this.credentials.username = username;
         this.credentials.key = key;
         this.sessionLifetime =
@@ -379,6 +400,7 @@ export class TrueNasAuthenticator {
     // socket dropped. Whether the server tore the session down is a separate
     // question from whether this client should offer the credential again.
     this.credentials = { username: '', password: '', key: '' };
+    this.logoutEpoch += 1;
 
     const message = createJsonRpcMessage('auth.logout');
 

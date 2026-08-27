@@ -61,6 +61,16 @@ describe('TrueNasAuthenticator', () => {
     authenticator = makeAuthenticator(v26);
   });
 
+  /**
+   * Echo the id of a specific earlier request. `respondWith` always answers the
+   * most recent send, which cannot express a response arriving out of order —
+   * the shape of the logout-during-login race.
+   */
+  function respondToCall(index: number, result: unknown): void {
+    const sent = sendSpy.mock.calls[index]?.[0] as TrueNasMessage;
+    messages$.next({ id: sent.id, result } as unknown as TrueNasMessage);
+  }
+
   /** Echo the id of the most recently sent message back as a response `result`. */
   function respondWith(result: unknown): void {
     const sent = sendSpy.mock.calls.at(-1)?.[0] as TrueNasMessage;
@@ -253,6 +263,67 @@ describe('TrueNasAuthenticator', () => {
     opened$.next(true);
 
     expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The gap a plain `logout()` clear leaves open. Clearing `credentials` is
+   * undone by any login still in flight, because its `tap` writes them back on
+   * arrival — so a consumer that refuses a session during a reconnect has the
+   * refusal quietly reversed by the response to a request it never made.
+   *
+   * The earlier logout tests cannot see this: they answer the login before
+   * logging out, which is the ordering where no race exists.
+   */
+  it('ignores a password login response that lands after logout', () => {
+    authenticator.loginWithUserPass('user', 'pw').subscribe();
+    authenticator.logout().subscribe();
+
+    // Only now does the login answer arrive.
+    respondToCall(0, successResponse(['SHARING_ADMIN']));
+
+    expect(authenticator.credentials.username).toBe('');
+    expect(authenticator.authenticated$.value).toBe(false);
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  it('ignores an api-key login response that lands after logout', () => {
+    authenticator.loginWithApiKey({ username: 'admin', key: 'k' }).subscribe();
+    authenticator.logout().subscribe();
+
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.credentials.username).toBe('');
+    expect(authenticator.authenticated$.value).toBe(false);
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  /**
+   * A token session is never auto-relogged in, so there are no credentials to
+   * restore — but the response would still flip `authenticated$` true and
+   * reopen the API gate on a session the caller refused.
+   */
+  it('ignores a token login response that lands after logout', () => {
+    authenticator.loginWithToken('tok-1').subscribe({ error: () => {} });
+    authenticator.logout().subscribe();
+
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.authenticated$.value).toBe(false);
+  });
+
+  it('ignores an OTP login response that lands after logout', () => {
+    authenticator.loginWithOtp('123456').subscribe({ error: () => {} });
+    authenticator.logout().subscribe();
+
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.authenticated$.value).toBe(false);
   });
 
   it('clears credentials even when the logout response never arrives', () => {
