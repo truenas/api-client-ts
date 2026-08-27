@@ -62,12 +62,18 @@ export class TrueNasAuthenticator {
   sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
 
   /**
-   * Bumped by `logout()`. Each login reads it when it sends and checks it again
-   * when the response lands: a difference means a logout was issued while the
-   * request was in flight, so the caller has already refused this session and
-   * the response must not revive it.
+   * Bumped by every login and by `logout()`. Each takes the new value when it
+   * sends and checks it again when its answer lands: a difference means another
+   * of them was issued while this one was in flight, so this answer is stale and
+   * must not write session state.
+   *
+   * Symmetric on purpose. Guarding only the logins leaves the mirror image — a
+   * logout answer arriving after a login sent later than it, resetting
+   * `authenticated$` on a session that is genuinely authenticated. Responses on
+   * one socket are not ordered, which is the premise this mechanism exists for,
+   * and it holds in both directions.
    */
-  private logoutEpoch = 0;
+  private authEpoch = 0;
 
   constructor(
     private connection: TrueNasConnection,
@@ -127,13 +133,13 @@ export class TrueNasAuthenticator {
     return { login_options: { reconnect_token: true } };
   }
 
-  /** Whether a logout was issued after this login was sent. */
-  private supersededByLogout(sentDuring: number): boolean {
-    return this.logoutEpoch !== sentDuring;
+  /** Whether another login or logout was issued after this one was sent. */
+  private superseded(sentDuring: number): boolean {
+    return this.authEpoch !== sentDuring;
   }
 
   loginWithUserPass(username: string, password: string) {
-    const sentDuring = this.logoutEpoch;
+    const sentDuring = ++this.authEpoch;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
       {
@@ -168,7 +174,12 @@ export class TrueNasAuthenticator {
       ),
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
-          if (this.supersededByLogout(sentDuring)) return;
+          if (this.superseded(sentDuring)) {
+            throw new AuthError(
+              AuthErrorCode.LoginSuperseded,
+              'Login was superseded by a later logout or login and was discarded.'
+            );
+          }
           this.credentials.username = username;
           this.credentials.password = password;
           this.sessionLifetime =
@@ -185,7 +196,7 @@ export class TrueNasAuthenticator {
   }
 
   loginWithOtp(code: string) {
-    const sentDuring = this.logoutEpoch;
+    const sentDuring = ++this.authEpoch;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
       {
@@ -214,7 +225,12 @@ export class TrueNasAuthenticator {
       }),
       tap(res => {
         if (res?.response_type === AuthResponseType.Success) {
-          if (this.supersededByLogout(sentDuring)) return;
+          if (this.superseded(sentDuring)) {
+            throw new AuthError(
+              AuthErrorCode.LoginSuperseded,
+              'Login was superseded by a later logout or login and was discarded.'
+            );
+          }
           this.sessionLifetime =
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
@@ -252,7 +268,7 @@ export class TrueNasAuthenticator {
    * reason the socket dropped in the first place.
    */
   loginWithToken(token: string) {
-    const sentDuring = this.logoutEpoch;
+    const sentDuring = ++this.authEpoch;
     const message = createJsonRpcMessage('auth.login_ex', [
       {
         mechanism: TrueNasAuthMechanism.Token,
@@ -296,7 +312,12 @@ export class TrueNasAuthenticator {
       }),
       tap(res => {
         if (res.response_type === AuthResponseType.Success) {
-          if (this.supersededByLogout(sentDuring)) return;
+          if (this.superseded(sentDuring)) {
+            throw new AuthError(
+              AuthErrorCode.LoginSuperseded,
+              'Login was superseded by a later logout or login and was discarded.'
+            );
+          }
           this.sessionLifetime =
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
@@ -316,7 +337,7 @@ export class TrueNasAuthenticator {
    * and replayed. The token exists for the credential that cannot be.
    */
   loginWithApiKey(credentials: { username: string; key: string }) {
-    const sentDuring = this.logoutEpoch;
+    const sentDuring = ++this.authEpoch;
     const { username, key } = credentials;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
@@ -350,7 +371,12 @@ export class TrueNasAuthenticator {
         'TrueNAS authentication failed. Has the TrueNAS Connect API key been removed from your TrueNAS server?'
       ),
       tap(res => {
-        if (this.supersededByLogout(sentDuring)) return;
+        if (this.superseded(sentDuring)) {
+          throw new AuthError(
+            AuthErrorCode.LoginSuperseded,
+            'Login was superseded by a later logout or login and was discarded.'
+          );
+        }
         this.credentials.username = username;
         this.credentials.key = key;
         this.sessionLifetime =
@@ -400,7 +426,7 @@ export class TrueNasAuthenticator {
     // socket dropped. Whether the server tore the session down is a separate
     // question from whether this client should offer the credential again.
     this.credentials = { username: '', password: '', key: '' };
-    this.logoutEpoch += 1;
+    const sentDuring = ++this.authEpoch;
 
     const message = createJsonRpcMessage('auth.logout');
 
@@ -418,6 +444,9 @@ export class TrueNasAuthenticator {
         return msg.result as boolean;
       }),
       tap(success => {
+        // A silent return, unlike the logins: this caller asked to end the
+        // session and that happened, whoever else intervened afterwards.
+        if (this.superseded(sentDuring)) return;
         this.sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
         this.authenticated$.next(!success);
       }),

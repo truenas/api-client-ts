@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import type { ApiVersion } from '@/types/api-version.type';
 import { UserRole, UserRoleName } from '@/enums/user-role.enum';
+import type { UserRoleName as PublicUserRoleName } from '@/index';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
 import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 import { AuthResponse, AuthResponseType } from '@/types/auth.type';
@@ -131,9 +132,11 @@ describe('TrueNasAuthenticator', () => {
           try {
             expect(authenticator.authenticated$.value).toBe(true);
             // The roles the consumer needs in order to apply its own policy.
-            expect(res.user_info?.privilege.roles.$set).toEqual([
-              'SHARING_ADMIN',
-            ]);
+            // Typed through the barrel rather than the enum module: the public
+            // re-export is the thing consumers import, so that is what to pin.
+            const roles: PublicUserRoleName[] =
+              res.user_info?.privilege.roles.$set ?? [];
+            expect(roles).toEqual(['SHARING_ADMIN']);
             // Stored only inside the admin branch before, so a non-admin got no
             // automatic reconnect. It reconnects like any other session now.
             expect(authenticator.credentials.username).toBe('user');
@@ -275,12 +278,16 @@ describe('TrueNasAuthenticator', () => {
    * logging out, which is the ordering where no race exists.
    */
   it('ignores a password login response that lands after logout', () => {
-    authenticator.loginWithUserPass('user', 'pw').subscribe();
+    let code: AuthErrorCode | undefined;
+    authenticator
+      .loginWithUserPass('user', 'pw')
+      .subscribe({ error: (err: AuthError) => (code = err.code) });
     authenticator.logout().subscribe();
 
     // Only now does the login answer arrive.
     respondToCall(0, successResponse(['SHARING_ADMIN']));
 
+    expect(code).toBe(AuthErrorCode.LoginSuperseded);
     expect(authenticator.credentials.username).toBe('');
     expect(authenticator.authenticated$.value).toBe(false);
 
@@ -290,11 +297,15 @@ describe('TrueNasAuthenticator', () => {
   });
 
   it('ignores an api-key login response that lands after logout', () => {
-    authenticator.loginWithApiKey({ username: 'admin', key: 'k' }).subscribe();
+    let code: AuthErrorCode | undefined;
+    authenticator
+      .loginWithApiKey({ username: 'admin', key: 'k' })
+      .subscribe({ error: (err: AuthError) => (code = err.code) });
     authenticator.logout().subscribe();
 
     respondToCall(0, successResponse([UserRole.FullAdmin]));
 
+    expect(code).toBe(AuthErrorCode.LoginSuperseded);
     expect(authenticator.credentials.username).toBe('');
     expect(authenticator.authenticated$.value).toBe(false);
 
@@ -434,6 +445,33 @@ describe('TrueNasAuthenticator', () => {
         reject(err);
       }
     }));
+
+  it('a superseded login does not report success to its caller', () => {
+    const seen: string[] = [];
+    authenticator.loginWithUserPass('u', 'p').subscribe({
+      next: () => seen.push('next'),
+      error: (err: AuthError) => seen.push(`error:${err.code}`),
+    });
+    authenticator.logout().subscribe();
+
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    expect(seen).toEqual([`error:${AuthErrorCode.LoginSuperseded}`]);
+    expect(authenticator.authenticated$.value).toBe(false);
+  });
+
+  it('a late logout answer does not undo a login sent after it', () => {
+    authenticator.logout().subscribe();                       // send 0
+    authenticator.loginWithUserPass('u', 'p').subscribe();    // send 1
+
+    respondToCall(1, successResponse([UserRole.FullAdmin]));  // login answers
+    expect(authenticator.authenticated$.value).toBe(true);
+
+    respondToCall(0, true);                                   // logout answers late
+
+    expect(authenticator.authenticated$.value).toBe(true);
+    expect(authenticator.credentials.username).toBe('u');
+  });
 
   it('logout that fails leaves authenticated$ true', () =>
     new Promise<void>((resolve, reject) => {
