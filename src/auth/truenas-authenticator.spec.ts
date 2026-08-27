@@ -2,17 +2,15 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import type { ApiVersion } from '@/types/api-version.type';
-import { UserRole } from '@/enums/user-role.enum';
+import { UserRole, UserRoleName } from '@/enums/user-role.enum';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
 import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 import { AuthResponse, AuthResponseType } from '@/types/auth.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { TrueNasAuthenticator } from './truenas-authenticator';
 
-// Roles are strings on the wire and middleware declares many; `UserRole` only
-// declares `FullAdmin`, so tests covering other roles pass them literally.
 function successResponse(
-  roles: (UserRole | string)[],
+  roles: UserRoleName[],
   lifetime = 600
 ): AuthResponse {
   return {
@@ -139,6 +137,19 @@ describe('TrueNasAuthenticator', () => {
 
       respondWith(successResponse(['SHARING_ADMIN']));
     }));
+
+  /**
+   * A compile-time assertion as much as a runtime one. `.includes('SHARING_ADMIN')`
+   * does not typecheck while `$set` is `UserRole[]`, since the enum declares only
+   * `FullAdmin` — which is the cast consumers were forced into when this client
+   * handed them roles as their authorization hook.
+   */
+  it('hands back a role list a consumer can test without a cast', () => {
+    const res = successResponse(['SHARING_ADMIN']);
+    expect(res.user_info?.privilege.roles.$set.includes('SHARING_ADMIN')).toBe(
+      true
+    );
+  });
 
   it('password login authenticates an account with no roles at all', () =>
     new Promise<void>((resolve, reject) => {

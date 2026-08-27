@@ -24,6 +24,7 @@ const RUNTIME_EXPORTS = [
   'TrueNasApiClientV26',
   'TrueNasApiClientV27',
   'TrueNasAuthMechanism',
+  'UserRole',
   'VersionCompatibility',
   'VersionDiscovery',
   'VersionDiscoveryError',
