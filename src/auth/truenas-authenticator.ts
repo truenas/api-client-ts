@@ -221,13 +221,26 @@ export class TrueNasAuthenticator {
     return { sentDuring, callerInitiated };
   }
 
-  private endLogin(sentDuring: number, callerInitiated: boolean): void {
-    if (callerInitiated) this.liveCallerLogins.delete(sentDuring);
+  private endLogin(
+    sentDuring: number,
+    callerInitiated: boolean,
+    answered: boolean
+  ): void {
+    // A login abandoned by its caller before its frame reached a socket keeps
+    // its slot: `send` still delivers it, so the appliance's session will change
+    // and the retry must not race it. Unsubscribing is not cancellation. It is
+    // retired the same way a never-subscribed one is — marked carried when a
+    // socket takes it, then dropped when that socket does.
+    const flushed = this.liveCallerLogins.get(sentDuring);
+    if (callerInitiated && (answered || flushed)) {
+      this.liveCallerLogins.delete(sentDuring);
+    }
     this.authenticating$.next(false);
   }
 
   loginWithUserPass(username: string, password: string) {
     const { sentDuring, callerInitiated } = this.beginLogin();
+    let answered = false;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
       {
@@ -246,6 +259,9 @@ export class TrueNasAuthenticator {
 
     return this.connection.messages().pipe(
       withId(messageId),
+      tap(() => {
+        answered = true;
+      }),
       map(msg => {
         if (msg.error) {
           const errorMessage = getApiErrorMessage(
@@ -275,7 +291,7 @@ export class TrueNasAuthenticator {
         }
       }),
       finalize(() => {
-        this.endLogin(sentDuring, callerInitiated);
+        this.endLogin(sentDuring, callerInitiated, answered);
       }),
       take(1)
     );
@@ -283,6 +299,7 @@ export class TrueNasAuthenticator {
 
   loginWithOtp(code: string) {
     const { sentDuring, callerInitiated } = this.beginLogin();
+    let answered = false;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
       {
@@ -299,6 +316,9 @@ export class TrueNasAuthenticator {
 
     return this.connection.messages().pipe(
       withId(messageId),
+      tap(() => {
+        answered = true;
+      }),
       map(msg => {
         if (msg.error) {
           const errorMessage = getApiErrorMessage(
@@ -323,7 +343,7 @@ export class TrueNasAuthenticator {
         'TrueNAS authentication failed. Please verify your one-time passcode and try again.'
       ),
       finalize(() => {
-        this.endLogin(sentDuring, callerInitiated);
+        this.endLogin(sentDuring, callerInitiated, answered);
       }),
       take(1)
     );
@@ -350,6 +370,7 @@ export class TrueNasAuthenticator {
    */
   loginWithToken(token: string) {
     const { sentDuring, callerInitiated } = this.beginLogin();
+    let answered = false;
     const message = createJsonRpcMessage('auth.login_ex', [
       {
         mechanism: TrueNasAuthMechanism.Token,
@@ -365,6 +386,9 @@ export class TrueNasAuthenticator {
 
     return this.connection.messages().pipe(
       withId(messageId),
+      tap(() => {
+        answered = true;
+      }),
       map(msg => {
         if (msg.error) {
           const errorMessage = getApiErrorMessage(
@@ -401,7 +425,7 @@ export class TrueNasAuthenticator {
         }
       }),
       finalize(() => {
-        this.endLogin(sentDuring, callerInitiated);
+        this.endLogin(sentDuring, callerInitiated, answered);
       }),
       take(1)
     );
@@ -414,6 +438,7 @@ export class TrueNasAuthenticator {
    */
   loginWithApiKey(credentials: { username: string; key: string }) {
     const { sentDuring, callerInitiated } = this.beginLogin();
+    let answered = false;
     const { username, key } = credentials;
     // Versioned API uses auth.login_ex with a single object parameter
     const message = createJsonRpcMessage('auth.login_ex', [
@@ -432,6 +457,9 @@ export class TrueNasAuthenticator {
 
     return this.connection.messages().pipe(
       withId(messageId),
+      tap(() => {
+        answered = true;
+      }),
       map(msg => {
         if (msg.error) {
           const errorMessage = getApiErrorMessage(
@@ -455,7 +483,7 @@ export class TrueNasAuthenticator {
         this.authenticated$.next(true);
       }),
       finalize(() => {
-        this.endLogin(sentDuring, callerInitiated);
+        this.endLogin(sentDuring, callerInitiated, answered);
       }),
       take(1)
     );

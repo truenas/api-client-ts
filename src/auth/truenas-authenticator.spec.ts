@@ -44,6 +44,18 @@ describe('TrueNasAuthenticator', () => {
     websocketPath: '/api/v25.10.0',
   };
 
+  /**
+   * The real connection cannot answer a request while `opened` is false — a
+   * message only arrives from a live socket — and cannot fire `closed` without
+   * `opened` dropping first, since both derive from the same `connection$`
+   * emission. The fake did both, which is what let a mis-recorded `flushed`
+   * stay invisible: every login looked queued.
+   */
+  function dropSocket(): void {
+    opened$.next(false);
+    closed$.next();
+  }
+
   beforeEach(() => {
     messages$ = new Subject<TrueNasMessage>();
     opened$ = new BehaviorSubject(false);
@@ -501,7 +513,7 @@ describe('TrueNasAuthenticator', () => {
     authenticator.loginWithUserPass('u1', 'p1').subscribe();
     respondToCall(0, successResponse([UserRole.FullAdmin]));
 
-    closed$.next();
+    dropSocket();
 
     let code: AuthErrorCode | undefined;
     authenticator
@@ -536,7 +548,7 @@ describe('TrueNasAuthenticator', () => {
       .loginWithUserPass('u1', 'p1')
       .subscribe({ error: () => {} });
 
-    closed$.next();
+    dropSocket();
 
     let code: AuthErrorCode | undefined;
     authenticator
@@ -568,11 +580,54 @@ describe('TrueNasAuthenticator', () => {
     });
   });
 
+  /**
+   * Unsubscribing is not cancellation. `send` holds the frame for the next
+   * socket regardless, so the appliance's session will still change and the
+   * retry must not race it — the same rule the `closed` sweep and the
+   * never-subscribed case already follow. `endLogin` was the one removal path
+   * that did not, so a caller walking away handed its slot back.
+   */
+  it('a queued login abandoned by its caller still defers the relogin', () => {
+    opened$.next(true);
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    dropSocket();
+
+    authenticator
+      .loginWithUserPass('u2', 'p2')
+      .subscribe({ error: () => {} })
+      .unsubscribe();
+
+    const before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    expect(sendSpy.mock.calls.length).toBe(before);
+  });
+
+  /**
+   * The mirror of the above: a login whose frame did reach a socket cannot be
+   * answered once that socket dies, so it must not keep deferring the retry.
+   * Mis-recording `flushed` costs a whole reconnect cycle of no relogin.
+   */
+  it('a login carried by a socket is retired when that socket drops', () => {
+    opened$.next(true);
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('u2', 'p2'); // on the live socket, unanswered
+
+    dropSocket();
+
+    const before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    expect(sendSpy.mock.calls.length).toBeGreaterThan(before);
+  });
+
   it('auto-relogin resumes once the caller login has settled', () => {
     authenticator.loginWithUserPass('u1', 'p1').subscribe();
     respondToCall(0, successResponse([UserRole.FullAdmin]));
 
-    closed$.next();
+    dropSocket();
     authenticator.loginWithUserPass('u2', 'p2').subscribe();
     respondToCall(1, successResponse([UserRole.FullAdmin]));
 
@@ -595,13 +650,13 @@ describe('TrueNasAuthenticator', () => {
 
     authenticator.loginWithUserPass('u2', 'p2'); // never subscribed
 
-    closed$.next();
+    dropSocket();
     let before = sendSpy.mock.calls.length;
     opened$.next(true);
     // Still pending delivery, so the retry stands down.
     expect(sendSpy.mock.calls.length).toBe(before);
 
-    closed$.next();
+    dropSocket();
     before = sendSpy.mock.calls.length;
     opened$.next(true);
     // Carried by the socket that just died, so it is retired and the retry runs.
@@ -609,17 +664,15 @@ describe('TrueNasAuthenticator', () => {
   });
 
   /**
-   * The count is reset wholesale on `closed`, but a login in flight at that
-   * moment still settles afterwards and decrements. Without a clamp that leaves
-   * it below zero, where the auto-relogin's `=== 0` test never passes again —
-   * reconnection dead for the life of the authenticator.
+   * A login that is answered after its socket has already gone is retired
+   * normally, leaving nothing behind to defer the retry.
    */
-  it('a login settling after closed cannot strand a negative count', () => {
+  it('a login answered after closed still lets the relogin fire', () => {
     authenticator.loginWithUserPass('u1', 'p1').subscribe();
     respondToCall(0, successResponse([UserRole.FullAdmin]));
 
     authenticator.loginWithUserPass('u2', 'p2').subscribe({ error: () => {} });
-    closed$.next();                       // count reset to 0 while it is in flight
+    dropSocket();                       // count reset to 0 while it is in flight
     respondToCall(1, authErrResponse);    // now it settles -> decrements below 0
 
     sendSpy.mockClear();
@@ -689,7 +742,7 @@ describe('TrueNasAuthenticator', () => {
   it('resets authentication when the connection closes', () => {
     authenticator.authenticated$.next(true);
 
-    closed$.next();
+    dropSocket();
 
     expect(authenticator.authenticated$.value).toBe(false);
   });
