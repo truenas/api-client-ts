@@ -8,6 +8,20 @@ export enum AuthErrorCode {
   OtpAuthFailed = 'OTP_AUTH_FAILED',
   ApiKeyAuthFailed = 'API_KEY_AUTH_FAILED',
   TokenAuthFailed = 'TOKEN_AUTH_FAILED',
+
+  /**
+   * A login was overtaken by a logout, or by a later login, while its response
+   * was in flight. The server may well have accepted it; this client discarded
+   * the result rather than authenticate a session the caller had moved on from.
+   */
+  LoginSuperseded = 'LOGIN_SUPERSEDED',
+
+  /**
+   * @deprecated Nothing throws this. The authenticator no longer refuses a
+   * login for want of a role — see `TrueNasAuthenticator`. Kept so consumers
+   * still narrowing on the code keep compiling; removing it would be a breaking
+   * change for a member that can no longer occur.
+   */
   FullAdminRequired = 'FULL_ADMIN_REQUIRED',
 }
 

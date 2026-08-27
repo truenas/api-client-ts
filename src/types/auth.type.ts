@@ -1,4 +1,4 @@
-import { UserRole } from '@/enums/user-role.enum';
+import { UserRoleName } from '@/enums/user-role.enum';
 
 export interface UserPreferences {
   language: string;
@@ -46,7 +46,7 @@ export interface AuthResponse {
     groups: number[];
     privilege: {
       roles: {
-        $set: UserRole[];
+        $set: UserRoleName[];
       };
     };
     two_factor_auth_configured: boolean;

@@ -1,15 +1,19 @@
 import { BehaviorSubject, Subject } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import type { ApiVersion } from '@/types/api-version.type';
-import { UserRole } from '@/enums/user-role.enum';
+import { UserRole, UserRoleName } from '@/enums/user-role.enum';
+import type { UserRoleName as PublicUserRoleName } from '@/index';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
 import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 import { AuthResponse, AuthResponseType } from '@/types/auth.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { TrueNasAuthenticator } from './truenas-authenticator';
 
-function successResponse(roles: UserRole[], lifetime = 600): AuthResponse {
+function successResponse(
+  roles: UserRoleName[],
+  lifetime = 600
+): AuthResponse {
   return {
     response_type: AuthResponseType.Success,
     user_info: {
@@ -40,6 +44,18 @@ describe('TrueNasAuthenticator', () => {
     websocketPath: '/api/v25.10.0',
   };
 
+  /**
+   * The real connection cannot answer a request while `opened` is false — a
+   * message only arrives from a live socket — and cannot fire `closed` without
+   * `opened` dropping first, since both derive from the same `connection$`
+   * emission. The fake did both, which is what let a mis-recorded `flushed`
+   * stay invisible: every login looked queued.
+   */
+  function dropSocket(): void {
+    opened$.next(false);
+    closed$.next();
+  }
+
   beforeEach(() => {
     messages$ = new Subject<TrueNasMessage>();
     opened$ = new BehaviorSubject(false);
@@ -57,6 +73,16 @@ describe('TrueNasAuthenticator', () => {
       new TrueNasAuthenticator(connection, version);
     authenticator = makeAuthenticator(v26);
   });
+
+  /**
+   * Echo the id of a specific earlier request. `respondWith` always answers the
+   * most recent send, which cannot express a response arriving out of order —
+   * the shape of the logout-during-login race.
+   */
+  function respondToCall(index: number, result: unknown): void {
+    const sent = sendSpy.mock.calls[index]?.[0] as TrueNasMessage;
+    messages$.next({ id: sent.id, result } as unknown as TrueNasMessage);
+  }
 
   /** Echo the id of the most recently sent message back as a response `result`. */
   function respondWith(result: unknown): void {
@@ -111,25 +137,63 @@ describe('TrueNasAuthenticator', () => {
       respondWith(authErrResponse);
     }));
 
-  it('non-admin login throws AuthError(FullAdminRequired)', () =>
+  it('password login authenticates a non-admin and reports its roles', () =>
     new Promise<void>((resolve, reject) => {
       authenticator.loginWithUserPass('user', 'pw').subscribe({
-        next: () => reject(new Error('should have errored')),
-        error: (err: unknown) => {
+        next: res => {
           try {
-            expect(err).toBeInstanceOf(AuthError);
-            expect((err as AuthError).code).toBe(
-              AuthErrorCode.FullAdminRequired
-            );
-            expect(authenticator.authenticated$.value).toBe(false);
+            expect(authenticator.authenticated$.value).toBe(true);
+            // The roles the consumer needs in order to apply its own policy.
+            // Typed through the barrel rather than the enum module: the public
+            // re-export is the thing consumers import, so that is what to pin.
+            const roles: PublicUserRoleName[] =
+              res.user_info?.privilege.roles.$set ?? [];
+            expect(roles).toEqual(['SHARING_ADMIN']);
+            // Stored only inside the admin branch before, so a non-admin got no
+            // automatic reconnect. It reconnects like any other session now.
+            expect(authenticator.credentials.username).toBe('user');
             resolve();
           } catch (e) {
             reject(e);
           }
         },
+        error: reject,
       });
 
-      respondWith(successResponse([])); // Success but no FullAdmin role
+      respondWith(successResponse(['SHARING_ADMIN']));
+    }));
+
+  /**
+   * A type assertion, stated as one. The guarantee is that `$set` admits roles
+   * beyond `FullAdmin` — the cast consumers were forced into when this client
+   * handed them roles as their authorization hook — and nothing about it is
+   * observable at runtime, so `npm run typecheck` is the gate. Narrowing `$set`
+   * back to `UserRole[]` fails here.
+   */
+  it('hands back a role list a consumer can test without a cast', () => {
+    type Roles = NonNullable<
+      AuthResponse['user_info']
+    >['privilege']['roles']['$set'];
+
+    expectTypeOf<Roles>().toEqualTypeOf<UserRoleName[]>();
+    expectTypeOf<'SHARING_ADMIN'>().toMatchTypeOf<Roles[number]>();
+  });
+
+  it('password login authenticates an account with no roles at all', () =>
+    new Promise<void>((resolve, reject) => {
+      authenticator.loginWithUserPass('user', 'pw').subscribe({
+        next: () => {
+          try {
+            expect(authenticator.authenticated$.value).toBe(true);
+            resolve();
+          } catch (e) {
+            reject(e);
+          }
+        },
+        error: reject,
+      });
+
+      respondWith(successResponse([]));
     }));
 
   it('OTP auth failure throws AuthError(OtpAuthFailed)', () =>
@@ -193,6 +257,114 @@ describe('TrueNasAuthenticator', () => {
       respondWith(true);
     }));
 
+  /**
+   * The case this guards is a consumer refusing a login it does not want —
+   * webui logging out an account without `webui_access`. Auto-relogin consults
+   * only `credentials`, so retaining them would re-authenticate the refused
+   * session on the next reconnect and re-arm its events and jobs. Storing them
+   * for every successful login is what made this reachable; before that they
+   * were only ever set for a full admin.
+   */
+  it('does not re-login after logout, even on reconnect', () => {
+    authenticator.loginWithUserPass('user', 'pw').subscribe();
+    respondWith(successResponse(['SHARING_ADMIN']));
+    expect(authenticator.credentials.username).toBe('user');
+
+    authenticator.logout().subscribe();
+    expect(authenticator.credentials).toEqual({
+      username: '',
+      password: '',
+      key: '',
+    });
+
+    sendSpy.mockClear();
+    opened$.next(true);
+
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The gap a plain `logout()` clear leaves open. Clearing `credentials` is
+   * undone by any login still in flight, because its `tap` writes them back on
+   * arrival — so a consumer that refuses a session during a reconnect has the
+   * refusal quietly reversed by the response to a request it never made.
+   *
+   * The earlier logout tests cannot see this: they answer the login before
+   * logging out, which is the ordering where no race exists.
+   */
+  it('ignores a password login response that lands after logout', () => {
+    let code: AuthErrorCode | undefined;
+    authenticator
+      .loginWithUserPass('user', 'pw')
+      .subscribe({ error: (err: AuthError) => (code = err.code) });
+    authenticator.logout().subscribe();
+
+    // Only now does the login answer arrive.
+    respondToCall(0, successResponse(['SHARING_ADMIN']));
+
+    expect(code).toBe(AuthErrorCode.LoginSuperseded);
+    expect(authenticator.credentials.username).toBe('');
+    expect(authenticator.authenticated$.value).toBe(false);
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  it('ignores an api-key login response that lands after logout', () => {
+    let code: AuthErrorCode | undefined;
+    authenticator
+      .loginWithApiKey({ username: 'admin', key: 'k' })
+      .subscribe({ error: (err: AuthError) => (code = err.code) });
+    authenticator.logout().subscribe();
+
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    expect(code).toBe(AuthErrorCode.LoginSuperseded);
+    expect(authenticator.credentials.username).toBe('');
+    expect(authenticator.authenticated$.value).toBe(false);
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  /**
+   * A token session is never auto-relogged in, so there are no credentials to
+   * restore — but the response would still flip `authenticated$` true and
+   * reopen the API gate on a session the caller refused.
+   */
+  it('ignores a token login response that lands after logout', () => {
+    authenticator.loginWithToken('tok-1').subscribe({ error: () => {} });
+    authenticator.logout().subscribe();
+
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.authenticated$.value).toBe(false);
+  });
+
+  it('ignores an OTP login response that lands after logout', () => {
+    authenticator.loginWithOtp('123456').subscribe({ error: () => {} });
+    authenticator.logout().subscribe();
+
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.authenticated$.value).toBe(false);
+  });
+
+  it('clears credentials even when the logout response never arrives', () => {
+    authenticator.loginWithApiKey({ username: 'admin', key: 'k' }).subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    // Subscribe but never respond: the socket dropped mid-logout.
+    authenticator.logout().subscribe();
+
+    sendSpy.mockClear();
+    opened$.next(true);
+
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
   it('re-logs in on reconnect using cached credentials (auto-login)', () =>
     new Promise<void>((resolve, reject) => {
       // First, a successful login to cache credentials.
@@ -240,7 +412,6 @@ describe('TrueNasAuthenticator', () => {
         error: reject,
       });
 
-      // OTP success does not require the FullAdmin role.
       respondWith(successResponse([]));
     }));
 
@@ -290,16 +461,269 @@ describe('TrueNasAuthenticator', () => {
       }
     }));
 
-  it('logout that fails leaves authenticated$ true', () =>
+  it('a superseded login does not report success to its caller', () => {
+    const seen: string[] = [];
+    authenticator.loginWithUserPass('u', 'p').subscribe({
+      next: () => seen.push('next'),
+      error: (err: AuthError) => seen.push(`error:${err.code}`),
+    });
+    authenticator.logout().subscribe();
+
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    expect(seen).toEqual([`error:${AuthErrorCode.LoginSuperseded}`]);
+    expect(authenticator.authenticated$.value).toBe(false);
+  });
+
+  it('a failed login after logout leaves the client unauthenticated', () => {
+    authenticator.loginWithUserPass('u', 'p').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+    expect(authenticator.authenticated$.value).toBe(true);
+
+    authenticator.logout().subscribe();                       // send 1
+    authenticator
+      .loginWithUserPass('u', 'wrong')
+      .subscribe({ error: () => {} });                        // send 2
+    respondToCall(1, true);                                   // logout answers
+    respondToCall(2, authErrResponse);                        // login fails
+
+    expect(authenticator.authenticated$.value).toBe(false);
+    expect(authenticator.credentials.username).toBe('');
+  });
+
+  it('logout never raises authenticated$ from false', () => {
+    expect(authenticator.authenticated$.value).toBe(false);
+
+    authenticator.logout().subscribe();
+    respondToCall(0, false);                                  // server says no
+
+    expect(authenticator.authenticated$.value).toBe(false);
+  });
+
+  /**
+   * `TrueNasConnection.send` queues a frame through an outage rather than
+   * dropping it, so a login submitted while the socket is down is still pending
+   * when it reopens — and reopening is exactly what arms the auto-relogin. The
+   * retry must not outrank the login the user actually asked for: it would be
+   * answered `LoginSuperseded` while the client authenticated as the previous
+   * account, and if the cached credential is the stale one, the client would end
+   * up unauthenticated with the wrong credential replayed on every reconnect.
+   */
+  it('a caller login on the wire outranks the auto-relogin', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    dropSocket();
+
+    let code: AuthErrorCode | undefined;
+    authenticator
+      .loginWithUserPass('u2', 'p2')
+      .subscribe({ error: (err: AuthError) => (code = err.code) });
+
+    // Counted rather than cleared: `respondToCall` indexes into these calls.
+    const sentBefore = sendSpy.mock.calls.length;
+    opened$.next(true);
+    expect(sendSpy.mock.calls.length).toBe(sentBefore); // no competing relogin
+
+    respondToCall(1, successResponse([UserRole.FullAdmin]));
+
+    expect(code).toBeUndefined();
+    expect(authenticator.credentials.username).toBe('u2');
+    expect(authenticator.authenticated$.value).toBe(true);
+  });
+
+  /**
+   * A count cannot say which login a removal belongs to. With one, a login torn
+   * down by its caller — component destroyed, `takeUntil`, a consumer-side
+   * `timeout()` — retired a slot belonging to a *different* login still waiting
+   * for the socket, and the retry overtook it: the user's login answered
+   * `LoginSuperseded` while the client authenticated as the cached account.
+   */
+  it('a cancelled login does not retire a queued login for the auto-relogin', () => {
+    opened$.next(true);
+    authenticator.loginWithUserPass('u0', 'p0').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    const cancelled = authenticator
+      .loginWithUserPass('u1', 'p1')
+      .subscribe({ error: () => {} });
+
+    dropSocket();
+
+    let code: AuthErrorCode | undefined;
+    authenticator
+      .loginWithUserPass('u2', 'p2')
+      .subscribe({ error: (err: AuthError) => (code = err.code) });
+
+    cancelled.unsubscribe();
+
+    const before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    expect(sendSpy.mock.calls.length).toBe(before);
+
+    respondToCall(2, successResponse([UserRole.FullAdmin]));
+    expect(code).toBeUndefined();
+    expect(authenticator.credentials.username).toBe('u2');
+  });
+
+  it('an api-key login does not leave the previous password behind', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithApiKey({ username: 'u2', key: 'k' }).subscribe();
+    respondToCall(1, successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.credentials).toEqual({
+      username: 'u2',
+      password: '',
+      key: 'k',
+    });
+  });
+
+  /**
+   * Unsubscribing is not cancellation. `send` holds the frame for the next
+   * socket regardless, so the appliance's session will still change and the
+   * retry must not race it — the same rule the `closed` sweep and the
+   * never-subscribed case already follow. `endLogin` was the one removal path
+   * that did not, so a caller walking away handed its slot back.
+   */
+  it('a queued login abandoned by its caller still defers the relogin', () => {
+    opened$.next(true);
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    dropSocket();
+
+    authenticator
+      .loginWithUserPass('u2', 'p2')
+      .subscribe({ error: () => {} })
+      .unsubscribe();
+
+    const before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    expect(sendSpy.mock.calls.length).toBe(before);
+  });
+
+  /**
+   * The mirror of the above: a login whose frame did reach a socket cannot be
+   * answered once that socket dies, so it must not keep deferring the retry.
+   * Mis-recording `flushed` costs a whole reconnect cycle of no relogin.
+   */
+  it('a login carried by a socket is retired when that socket drops', () => {
+    opened$.next(true);
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('u2', 'p2'); // on the live socket, unanswered
+
+    dropSocket();
+
+    const before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    expect(sendSpy.mock.calls.length).toBeGreaterThan(before);
+  });
+
+  it('auto-relogin resumes once the caller login has settled', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    dropSocket();
+    authenticator.loginWithUserPass('u2', 'p2').subscribe();
+    respondToCall(1, successResponse([UserRole.FullAdmin]));
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).toHaveBeenCalled();
+  });
+
+  /**
+   * A login is sent eagerly, so one whose observable is never subscribed is on
+   * the wire with nothing to retire it. It cannot block reconnection for good:
+   * it holds its slot only until the socket carrying it drops. Queued while the
+   * socket is down, it keeps the slot across that drop — it will still be
+   * delivered, and it is precisely the login the retry must not overtake — and
+   * is retired on the next one.
+   */
+  it('an unsubscribed caller login is retired with the socket that carries it', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('u2', 'p2'); // never subscribed
+
+    dropSocket();
+    let before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    // Still pending delivery, so the retry stands down.
+    expect(sendSpy.mock.calls.length).toBe(before);
+
+    dropSocket();
+    before = sendSpy.mock.calls.length;
+    opened$.next(true);
+    // Carried by the socket that just died, so it is retired and the retry runs.
+    expect(sendSpy.mock.calls.length).toBeGreaterThan(before);
+  });
+
+  /**
+   * A login that is answered after its socket has already gone is retired
+   * normally, leaving nothing behind to defer the retry.
+   */
+  it('a login answered after closed still lets the relogin fire', () => {
+    authenticator.loginWithUserPass('u1', 'p1').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('u2', 'p2').subscribe({ error: () => {} });
+    dropSocket();                       // count reset to 0 while it is in flight
+    respondToCall(1, authErrResponse);    // now it settles -> decrements below 0
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).toHaveBeenCalled();   // auto-relogin must still work
+  });
+
+  it('auto-relogin survives a superseded relogin', () => {
+    authenticator.loginWithUserPass('u', 'p').subscribe();
+    respondToCall(0, successResponse([UserRole.FullAdmin]));
+
+    opened$.next(true);                       // auto-relogin, send 1
+    authenticator.logout().subscribe();       // supersedes it, send 2
+    respondToCall(1, successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('u', 'p').subscribe();  // send 3
+    respondToCall(3, successResponse([UserRole.FullAdmin]));
+
+    sendSpy.mockClear();
+    opened$.next(true);
+    expect(sendSpy).toHaveBeenCalled();      // auto-relogin still alive
+  });
+
+  it('a late logout answer does not undo a login sent after it', () => {
+    authenticator.logout().subscribe();                       // send 0
+    authenticator.loginWithUserPass('u', 'p').subscribe();    // send 1
+
+    respondToCall(1, successResponse([UserRole.FullAdmin]));  // login answers
+    expect(authenticator.authenticated$.value).toBe(true);
+
+    respondToCall(0, true);                                   // logout answers late
+
+    expect(authenticator.authenticated$.value).toBe(true);
+    expect(authenticator.credentials.username).toBe('u');
+  });
+
+  /**
+   * This used to assert the opposite, because the answer set the flag as
+   * `next(!success)`. A logout the server refuses does not put the caller back
+   * in an authenticated session: the credentials are gone, nothing will
+   * re-offer them, and the flag gates this client's own API access. It reports
+   * whether this client holds a session, not whether the appliance does.
+   */
+  it('logout that fails still leaves the client unauthenticated', () =>
     new Promise<void>((resolve, reject) => {
-      // A failed logout is treated as "not logged out": logout maps an error
-      // response to `success = false`, then runs `authenticated$.next(!success)`.
-      authenticator.authenticated$.next(false);
+      authenticator.authenticated$.next(true);
 
       authenticator.logout().subscribe({
         next: () => {
           try {
-            expect(authenticator.authenticated$.value).toBe(true);
+            expect(authenticator.authenticated$.value).toBe(false);
             resolve();
           } catch (err) {
             reject(err);
@@ -318,7 +742,7 @@ describe('TrueNasAuthenticator', () => {
   it('resets authentication when the connection closes', () => {
     authenticator.authenticated$.next(true);
 
-    closed$.next();
+    dropSocket();
 
     expect(authenticator.authenticated$.value).toBe(false);
   });
@@ -424,19 +848,17 @@ describe('TrueNasAuthenticator', () => {
       respondWith(authErrResponse);
     }));
 
-  it('token login refuses a non-admin, as password login does', () =>
+  it('token login authenticates a non-admin, as password login does', () =>
     new Promise<void>((resolve, reject) => {
-      // Middleware puts no role gate on TOKEN_PLAIN and `auth.generate_token`
-      // needs no role, so the client is the only place this is checked.
       authenticator.loginWithToken('tok-1').subscribe({
-        next: () => reject(new Error('expected a failure')),
-        error: (err: AuthError) => {
+        next: res => {
           try {
-            expect(err.code).toBe(AuthErrorCode.FullAdminRequired);
-            expect(authenticator.authenticated$.value).toBe(false);
+            expect(authenticator.authenticated$.value).toBe(true);
+            expect(res.user_info?.privilege.roles.$set).toEqual([]);
             resolve();
           } catch (e) { reject(e as Error); }
         },
+        error: (err: AuthError) => reject(err),
       });
       respondWith(successResponse([]));
     }));
