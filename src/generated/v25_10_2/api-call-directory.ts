@@ -18,11 +18,11 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  CertificateQueryResultItem,
   IPMIChassisInfo,
 } from '../v25_10_0/api-types';
 import type {
   CertificateEntry,
+  CertificateQueryResultItem,
   IpmiChassisIdentifyRequest,
   IpmiChassisInfoRequest,
 } from './api-types';

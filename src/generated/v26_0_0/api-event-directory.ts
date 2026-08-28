@@ -11,9 +11,13 @@ import type {
   CloudBackupRemovedEvent,
   CloudSyncRemovedEvent,
   CredentialsRemovedEvent,
+  DiskQueryRemovedEvent,
+  InterfaceRemovedEvent,
   NVMetHostRemovedEvent,
   NVMetHostSubsysRemovedEvent,
+  NVMetNamespaceRemovedEvent,
   PeriodicSnapshotTaskRemovedEvent,
+  PoolDatasetRemovedEvent,
   PoolRemovedEvent,
   ReplicationRemovedEvent,
   SharingNFSRemovedEvent,
@@ -39,14 +43,22 @@ import type {
   ContainerRemovedEvent,
   CredentialsAddedEvent,
   CredentialsChangedEvent,
+  DiskQueryAddedEvent,
+  DiskQueryChangedEvent,
+  InterfaceAddedEvent,
+  InterfaceChangedEvent,
   NVMetHostAddedEvent,
   NVMetHostChangedEvent,
   NVMetHostSubsysAddedEvent,
   NVMetHostSubsysChangedEvent,
+  NVMetNamespaceAddedEvent,
+  NVMetNamespaceChangedEvent,
   PeriodicSnapshotTaskAddedEvent,
   PeriodicSnapshotTaskChangedEvent,
   PoolAddedEvent,
   PoolChangedEvent,
+  PoolDatasetAddedEvent,
+  PoolDatasetChangedEvent,
   PoolScanChangedEvent,
   ReplicationAddedEvent,
   ReplicationChangedEvent,
@@ -116,6 +128,18 @@ export interface ApiEventDirectoryDelta {
     removed: ContainerRemovedEvent;
   };
 
+  'disk.query': {
+    added: DiskQueryAddedEvent;
+    changed: DiskQueryChangedEvent;
+    removed: DiskQueryRemovedEvent;
+  };
+
+  'interface.query': {
+    added: InterfaceAddedEvent;
+    changed: InterfaceChangedEvent;
+    removed: InterfaceRemovedEvent;
+  };
+
   'nvmet.host.query': {
     added: NVMetHostAddedEvent;
     changed: NVMetHostChangedEvent;
@@ -126,6 +150,18 @@ export interface ApiEventDirectoryDelta {
     added: NVMetHostSubsysAddedEvent;
     changed: NVMetHostSubsysChangedEvent;
     removed: NVMetHostSubsysRemovedEvent;
+  };
+
+  'nvmet.namespace.query': {
+    added: NVMetNamespaceAddedEvent;
+    changed: NVMetNamespaceChangedEvent;
+    removed: NVMetNamespaceRemovedEvent;
+  };
+
+  'pool.dataset.query': {
+    added: PoolDatasetAddedEvent;
+    changed: PoolDatasetChangedEvent;
+    removed: PoolDatasetRemovedEvent;
   };
 
   'pool.query': {

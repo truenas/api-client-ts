@@ -197,6 +197,32 @@ export interface VeeamRepositoryOpt {
   hostsallow?: string[];
   hostsdeny?: string[];
 }
+export interface SharingSMBQueryResultItem {
+  id?: number;
+  purpose?: Purpose;
+  name?: string;
+  path?: string | "EXTERNAL";
+  enabled?: boolean;
+  comment?: string;
+  readonly?: boolean;
+  browsable?: boolean;
+  access_based_share_enumeration?: boolean;
+  locked?: boolean | null;
+  audit?: SmbAuditConfig;
+  options?:
+    | (
+        | LegacyOpt
+        | DefaultOpt
+        | TimeMachineOpt
+        | MultiprotocolOpt
+        | TimeLockedOpt
+        | PrivateDatasetOpt
+        | ExternalOpt
+        | VeeamRepositoryOpt
+        | FCPStorageOpt
+      )
+    | null;
+}
 export interface SmbShareCreate {
   purpose?: Purpose;
   name: string;
@@ -279,12 +305,15 @@ export interface SNMPUpdateArgs {
 export interface StaticRouteCreate {
   destination: string;
   gateway: string;
+  description?: string;
 }
 export interface StaticRouteUpdate {
   destination?: string;
   gateway?: string;
+  description?: string;
 }
 export interface StatusResult {
+  description: string;
   status: DockerStatusInfoStatus;
 }
 export interface VMDeviceVirtualSizeArgs {

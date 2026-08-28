@@ -13,11 +13,8 @@ import type {
 import type {
   ACLTemplateEntry,
   ApiKeyCreate,
-  ApiKeyQueryResultItem,
   ApiKeyUpdate,
   AppContainerIDOptions,
-  AppImageQueryResultItem,
-  AppQueryResultItem,
   AuthRespAuthErr,
   AuthRespAuthRedirect,
   AuthRespExpired,
@@ -28,16 +25,12 @@ import type {
   CatalogAppVersionDetails,
   CatalogEntry,
   CloudBackupCreate,
-  CloudBackupQueryResultItem,
   CloudBackupUpdate,
   CloudSyncCreate,
   CloudSyncCreateDirectionInput,
-  CloudSyncQueryResultItem,
   CloudSyncUpdate,
-  CredentialsQueryResultItem,
   CredentialsVerifyResult,
   DirectoryServicesStatus,
-  DiskEntry,
   DropboxCredentialsModel,
   FTPCredentialsModel,
   FailoverEntry,
@@ -47,17 +40,13 @@ import type {
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
-  ISCSITargetExtentQueryResultItem,
-  InterfaceEntry,
+  InterfaceCreate,
   IscsiExtentCreate,
   IscsiExtentUpdate,
   MegaCredentialsModel,
-  NVMetHostQueryResultItem,
   NVMetHostSubsysCreate,
-  NVMetHostSubsysQueryResultItem,
   NVMetHostSubsysUpdate,
   NVMetNamespaceCreate,
-  NVMetNamespaceQueryResultItem,
   NVMetNamespaceUpdate,
   NfsShareCreate,
   NfsShareUpdate,
@@ -65,42 +54,31 @@ import type {
   PCloudCredentialsModel,
   PeriodicSnapshotTaskQueryResultItem,
   PoolDatasetDatasetQuota,
-  PoolDatasetEntry,
   PoolDatasetProjectQuota,
+  PoolDatasetUpdate,
   PoolDatasetUserGroupQuota,
-  PoolQueryResultItem,
-  PoolSnapshotCreateUpdateEntry,
   PoolSnapshotTaskCreate,
   PoolSnapshotTaskUpdate,
   ReplicationCountEligibleManualSnapshotsTransportInput,
   ReplicationCreate,
-  ReplicationQueryResultItem,
   ReplicationRestoreOptions,
   ReplicationUpdate,
   ReportingQuery,
   RestoreOpts,
   RsyncTaskCreate,
-  RsyncTaskQueryResultItem,
   RsyncTaskUpdate,
   SFTPCredentialsModel,
-  SharingNFSQueryResultItem,
   SharingSMBGetaclArgs,
-  SharingSMBQueryResultItem,
   StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
-  SystemAdvancedEntry,
   SystemGeneralUpdateArgs,
   TruecommandUpdateArgs,
   UPSEntry,
-  UserQueryResultItem,
   VMCreateArgs,
   VMDeleteOptions,
-  VMDeviceQueryResultItem,
   VMDeviceUpdate,
-  VMQueryResultItem,
   VMUpdate,
   VMWareCreate,
-  VMWareQueryResultItem,
   VMWareUpdate,
   WebDavCredentialsModel,
   YandexCredentialsModel,
@@ -116,10 +94,13 @@ import type {
   AlertListCategoriesOptions,
   ApiKeyEntry,
   ApiKeyEntryWithKey,
+  ApiKeyQueryResultItem,
   ApiKeyScramData,
   AppContainerResponse,
   AppEntry,
   AppImageEntry,
+  AppImageQueryResultItem,
+  AppQueryResultItem,
   AuditQuery,
   AuditQueryResultItem,
   AuditQueryResultItemQueryResultItem,
@@ -138,9 +119,11 @@ import type {
   CatalogTrainsResponse,
   CatalogUpdate,
   CloudBackupEntry,
+  CloudBackupQueryResultItem,
   CloudCredentialCreate,
   CloudCredentialUpdate,
   CloudSyncEntry,
+  CloudSyncQueryResultItem,
   ContainerDeviceCreateArgs,
   ContainerDeviceDeleteOptions,
   ContainerDeviceEntry,
@@ -152,6 +135,9 @@ import type {
   ContainerQueryResultItem,
   ContainerUpdate,
   CredentialsEntry,
+  CredentialsQueryResultItem,
+  DiskEntry,
+  DiskQueryResultItem,
   DiskResetSedArgs,
   DiskSetupSedArgs,
   DiskUnlockSedArgs,
@@ -165,38 +151,55 @@ import type {
   ISCSIGlobalSessionsItemQueryResultItem,
   ISCSIGlobalUpdateArgs,
   ISCSITargetExtentEntry,
+  ISCSITargetExtentQueryResultItem,
+  InterfaceEntry,
+  InterfaceQueryResultItem,
   InterfaceUpdate,
   LXCConfigEntry,
   LXCConfigUpdateArgs,
   NVMetHostCreate,
   NVMetHostEntry,
+  NVMetHostQueryResultItem,
   NVMetHostSubsysEntry,
+  NVMetHostSubsysQueryResultItem,
   NVMetHostUpdate,
   NVMetNamespaceEntry,
+  NVMetNamespaceQueryResultItem,
   PeriodicSnapshotTaskEntry,
   PoolDatasetCreateFilesystem,
   PoolDatasetCreateVolume,
+  PoolDatasetEntry,
+  PoolDatasetQueryResultItem,
   PoolEntry,
+  PoolQueryResultItem,
+  PoolSnapshotCreateUpdateEntry,
   PoolSnapshotCreateWithName,
   PoolSnapshotCreateWithSchema,
+  PoolSnapshotEntry,
+  PoolSnapshotQueryResultItem,
   PoolSnapshotRenameOptions,
   PoolSnapshotUpdate,
   ReplicationEntry,
+  ReplicationQueryResultItem,
   ReportingGetDataResponse,
   RsyncTaskEntry,
+  RsyncTaskQueryResultItem,
   S3CredentialsModel,
   SMBEntry,
   SMBShareAcl,
   SMBStatusOptions,
   SMBUpdateArgs,
   SharingNFSEntry,
+  SharingNFSQueryResultItem,
   SharingSMBEntry,
+  SharingSMBQueryResultItem,
   SharingSMBSetaclArgs,
   SharingWebshareCreate,
   SharingWebshareEntry,
   SharingWebshareQueryResultItem,
   SharingWebshareUpdate,
   SysInfo,
+  SystemAdvancedEntry,
   SystemAdvancedUpdate,
   SystemGeneralEntry,
   TierInfo,
@@ -211,14 +214,18 @@ import type {
   UserCreate,
   UserCreateUpdateResult,
   UserEntry,
+  UserQueryResultItem,
   UserRenew2FaSecretResult,
   UserUpdate,
   VMDeviceCreateArgs,
   VMDeviceEntry,
   VMDeviceNicAttachChoicesResult,
+  VMDeviceQueryResultItem,
   VMEntry,
+  VMQueryResultItem,
   VMStatus,
   VMWareEntry,
+  VMWareQueryResultItem,
   WebshareEntry,
   WebshareUpdate,
   ZFSResourceDestroyArgsData,
@@ -528,6 +535,12 @@ export interface ApiCallDirectoryDelta {
     response: DirectoryServicesStatus;
   };
 
+  'disk.query': {
+    params: [filters?: QueryFilters<DiskEntry>, options?: QueryOptions<DiskEntry>];
+    response: DiskEntry[] | DiskEntry | DiskQueryResultItem[] | DiskQueryResultItem | number;
+    entity: DiskEntry;
+  };
+
   'disk.reset_sed': {
     params: [disk_sed_reset: DiskResetSedArgs];
     response: true;
@@ -578,9 +591,30 @@ export interface ApiCallDirectoryDelta {
     response: ('AUTO' | 'OFF' | 'RS' | 'BASER' | 'LLRS')[];
   };
 
+  'interface.create': {
+    params: [data: InterfaceCreate];
+    response: InterfaceEntry;
+  };
+
+  'interface.get_instance': {
+    params: [id: string, options?: QueryOptions<InterfaceEntry>];
+    response: InterfaceEntry;
+  };
+
+  'interface.query': {
+    params: [filters?: QueryFilters<InterfaceEntry>, options?: QueryOptions<InterfaceEntry>];
+    response: InterfaceEntry[] | InterfaceEntry | InterfaceQueryResultItem[] | InterfaceQueryResultItem | number;
+    entity: InterfaceEntry;
+  };
+
   'interface.update': {
     params: [id: string, data: InterfaceUpdate];
     response: InterfaceEntry;
+  };
+
+  'interface.websocket_interface': {
+    params: [];
+    response: InterfaceEntry | null;
   };
 
   'iscsi.extent.create': {
@@ -703,10 +737,26 @@ export interface ApiCallDirectoryDelta {
     response: PoolDatasetEntry;
   };
 
+  'pool.dataset.get_instance': {
+    params: [id: string, options?: QueryOptions<PoolDatasetEntry>];
+    response: PoolDatasetEntry;
+  };
+
   'pool.dataset.get_quota': {
     params: [dataset: string, quota_type: 'USER' | 'GROUP' | 'DATASET' | 'PROJECT', filters?: QueryFilters<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>, options?: QueryOptions<PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota>];
     response: (PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota)[] | PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota | number;
     entity: PoolDatasetUserGroupQuota | PoolDatasetDatasetQuota | PoolDatasetProjectQuota;
+  };
+
+  'pool.dataset.query': {
+    params: [filters?: QueryFilters<PoolDatasetEntry>, options?: QueryOptions<PoolDatasetEntry>];
+    response: PoolDatasetEntry[] | PoolDatasetEntry | PoolDatasetQueryResultItem[] | PoolDatasetQueryResultItem | number;
+    entity: PoolDatasetEntry;
+  };
+
+  'pool.dataset.update': {
+    params: [id: string, data: PoolDatasetUpdate];
+    response: PoolDatasetEntry;
   };
 
   'pool.get_instance': {
@@ -723,6 +773,17 @@ export interface ApiCallDirectoryDelta {
   'pool.snapshot.create': {
     params: [data: PoolSnapshotCreateWithName | PoolSnapshotCreateWithSchema];
     response: PoolSnapshotCreateUpdateEntry;
+  };
+
+  'pool.snapshot.get_instance': {
+    params: [id: string, options?: QueryOptions<PoolSnapshotEntry>];
+    response: PoolSnapshotEntry;
+  };
+
+  'pool.snapshot.query': {
+    params: [filters?: QueryFilters<PoolSnapshotEntry>, options?: QueryOptions<PoolSnapshotEntry>];
+    response: PoolSnapshotEntry[] | PoolSnapshotEntry | PoolSnapshotQueryResultItem[] | PoolSnapshotQueryResultItem | number;
+    entity: PoolSnapshotEntry;
   };
 
   'pool.snapshot.rename': {
@@ -924,6 +985,11 @@ export interface ApiCallDirectoryDelta {
   'smb.update': {
     params: [smb_update?: SMBUpdateArgs];
     response: SMBEntry;
+  };
+
+  'system.advanced.config': {
+    params: [];
+    response: SystemAdvancedEntry;
   };
 
   'system.advanced.nvidia_present': {

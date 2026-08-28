@@ -7,6 +7,8 @@ import type { ApiEventDirectory as PreviousApiEventDirectory } from '../v26_0_0/
 
 import type {
   AlertListRemovedEvent,
+  InterfaceRemovedEvent,
+  PoolDatasetRemovedEvent,
   VMDeviceRemovedEvent,
   VMRemovedEvent,
 } from '../v25_10_0/api-types';
@@ -14,6 +16,10 @@ import type {
   AlertListAddedEvent,
   AlertListChangedEvent,
   DockerStateChangedEvent,
+  InterfaceAddedEvent,
+  InterfaceChangedEvent,
+  PoolDatasetAddedEvent,
+  PoolDatasetChangedEvent,
   VMAddedEvent,
   VMChangedEvent,
   VMDeviceAddedEvent,
@@ -30,6 +36,18 @@ export interface ApiEventDirectoryDelta {
 
   'docker.state': {
     changed: DockerStateChangedEvent;
+  };
+
+  'interface.query': {
+    added: InterfaceAddedEvent;
+    changed: InterfaceChangedEvent;
+    removed: InterfaceRemovedEvent;
+  };
+
+  'pool.dataset.query': {
+    added: PoolDatasetAddedEvent;
+    changed: PoolDatasetChangedEvent;
+    removed: PoolDatasetRemovedEvent;
   };
 
   'vm.device.query': {
