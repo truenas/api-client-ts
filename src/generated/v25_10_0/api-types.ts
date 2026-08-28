@@ -2,8 +2,8 @@
  * FROZEN — generated once, then hand-maintained. Do not regenerate.
  *
  * v25.10 is released and its API cannot change, so this directory is a record
- * rather than an output. It also carries the `virt.*` namespace, which no dump
- * can reproduce: middleware deleted those models from every version directory
+ * rather than an output. It also carries the `virt.*` namespace and
+ * `pool.dataset.encryption_algorithm_choices`, which no dump can reproduce: middleware deleted those models from every version directory
  * in b9c330ee94, so regenerating would silently delete them here too.
  *
  * `yarn generate:api` still generates the whole chain — later versions are
@@ -9946,8 +9946,12 @@ export interface PoolDatasetEncryptionAlgorithmChoicesResult {
  * through v25_10_5 — hence declared once here, at the chain root, and inherited
  * by the later patch versions like any unchanged generated type.
  *
- * Do not regenerate this directory. `yarn generate:api` is pinned to v26.0.0 and
- * upward precisely so it cannot overwrite this block.
+ * Do not regenerate this directory. What keeps `yarn generate:api` off this
+ * block is the FROZEN marker in the header at the top of the file — remove it
+ * and everything below is deleted. This claimed instead that generation was
+ * pinned to v26.0.0 and upward; it never has been (`--min-version v25.10.0`),
+ * and unfreezing to regenerate did delete this block, which is why it had to be
+ * restored by hand.
  * ───────────────────────────────────────────────────────────────────────────*/
 
 export interface VirtGlobalEntry {

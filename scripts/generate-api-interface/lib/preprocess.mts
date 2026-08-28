@@ -212,7 +212,10 @@ class DefTable {
         }
       } else {
         if (p.outputs.length === 1) {
-          p.outputs[0].finalName = { input: '', output: claim(p.base) };
+          const v = p.outputs[0];
+          // Spread here too, so no assignment site depends on the order the
+          // branches happen to be written in — see the phase 2 note below.
+          v.finalName = { ...(v.finalName ?? { input: '' }), output: claim(p.base) };
         }
         if (p.inputs.length === 1) {
           const v = p.inputs[0];
