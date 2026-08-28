@@ -211,11 +211,18 @@ export interface CreateClientOptions {
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
  *   Rejects if version discovery on all hostnames *fails* and is not recoverable.
- *   Note that when the selected failure is a `VersionDiscoveryNetworkError`,
- *   this function attempts to use a fallback API version (see `FALLBACK_VERSION`)
- *   because network errors are actually expected on 25.10.0 systems due to a CORS
- *   bug. A network error alongside a version-compatibility error or a 404 does
- *   *not* reach the fallback — see `selectRepresentativeFailure`.
+ *
+ *   A `VersionDiscoveryNetworkError` is not by itself a verdict: `fetch` reports
+ *   a CORS refusal, an absent appliance, a bad name and the wrong scheme
+ *   identically. So that failure opens a reachability probe and a second
+ *   discovery attempt. A retry that succeeds is used; one that fails with a
+ *   specific error raises that instead; an appliance that answers nothing
+ *   rejects with the network error. Only one that answers the probe and still
+ *   will not serve `/api/versions` — which is what 25.10.0 looks like from a
+ *   browser — falls back to `FALLBACK_VERSION`.
+ *
+ *   A network error alongside a version-compatibility error or a 404 does
+ *   *not* reach any of that — see `selectRepresentativeFailure`.
  */
 export async function createTrueNasClient<V extends SupportedApiVersion>(
   opts: CreateClientOptions & { version: V },
@@ -392,7 +399,9 @@ export async function createTrueNasClient<
         version: retryWinner.version.version,
         firstError: errorMessage,
       });
-      return instantiateClientForVersion<D>(retryWinner.version, opts, logger);
+      // Assigned rather than returned from inside the `try`: building the client
+      // can throw, and this `catch` is written to classify discovery failures.
+      version = retryWinner.version;
     } catch (retryError) {
       if (!(retryError instanceof VersionDiscoveryNetworkError)) {
         // The retry got far enough to say something specific — too old, no such

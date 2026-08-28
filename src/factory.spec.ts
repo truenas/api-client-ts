@@ -492,6 +492,70 @@ describe('createTrueNasClient', () => {
     if (outcome instanceof TrueNasApiClient) outcome.close();
   });
 
+  it('settles the probe on the first live host, without waiting for a silent one', async () => {
+    // The reason the probe does not collect every hostname: one that accepts the
+    // socket and never replies would otherwise hold the answer for its whole
+    // timeout, on every call, while a live peer sat ready.
+    vi.useFakeTimers();
+    vi.stubGlobal('window', { document: {} });
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (init?.mode !== 'no-cors') {
+        return Promise.reject(new TypeError('Failed to fetch'));
+      }
+      if (new URL(url).hostname === 'live.local') {
+        return Promise.resolve({ type: 'opaque' });
+      }
+      return new Promise((_resolve, reject) =>
+        init.signal?.addEventListener('abort', () =>
+          reject(new DOMException('Aborted', 'AbortError'))
+        )
+      );
+    });
+
+    const pending = createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['slow.local', 'live.local'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+
+    // Far short of the probe's own budget: collecting every probe would need it.
+    await vi.advanceTimersByTimeAsync(50);
+    vi.useRealTimers();
+
+    const outcome = await pending;
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+
+    expect(outcomeLabel(outcome)).toBe('client');
+  });
+
+  it('treats a fleet as reachable when only one hostname answers', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('window', { document: {} });
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (init?.mode !== 'no-cors') {
+        return Promise.reject(new TypeError('Failed to fetch'));
+      }
+      return new URL(url).hostname === 'up.local'
+        ? Promise.resolve({ type: 'opaque' })
+        : Promise.reject(new TypeError('Failed to fetch'));
+    });
+
+    const pending = createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['down.local', 'up.local'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+
+    await vi.advanceTimersByTimeAsync(50);
+    vi.useRealTimers();
+
+    const outcome = await pending;
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+
+    // One live appliance is all discovery needed, so the fallback applies.
+    expect(outcomeLabel(outcome)).toBe('client');
+  });
+
   it('throws the retry error when the second attempt says something specific', async () => {
     // The retry got a real answer — too old — which beats the network error.
     let attempt = 0;
@@ -505,9 +569,17 @@ describe('createTrueNasClient', () => {
       },
     });
 
-    await expect(
-      createTrueNasClient({ uuid: 'u', hostnames: ['box'], enabled: false })
-    ).rejects.toBeInstanceOf(VersionTooOldError);
+    const outcome = await createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['box'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+
+    // By label, like its neighbours: were this to resolve into a client instead,
+    // `toBeInstanceOf` would serialise the whole client graph and take the
+    // worker's heap with it, losing every result in the file rather than one.
+    expect(outcomeLabel(outcome)).toBe('VersionTooOldError');
   });
 
   it('does not probe or retry when the caller named the version', async () => {

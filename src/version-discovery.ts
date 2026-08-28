@@ -121,7 +121,14 @@ export class VersionDiscovery {
     const timer = setTimeout(() => controller.abort(), probeTimeoutMs);
 
     try {
-      await fetch(url, { mode: 'no-cors', signal: controller.signal });
+      // `no-store`, because a `no-cors` GET is cacheable and a fresh
+      // `VersionDiscovery` is built per call: a cached answer would report a box
+      // that has since gone as reachable, and re-arm the fallback on it.
+      await fetch(url, {
+        mode: 'no-cors',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
       this.logger.info('Reachability probe answered', { hostname, url });
       return 'reachable';
     } catch (error: unknown) {
