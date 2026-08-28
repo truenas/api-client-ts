@@ -234,7 +234,11 @@ class DefTable {
       } else {
         if (p.outputs.length > 1) {
           for (const v of p.outputs) {
-            v.finalName = { input: '', output: qualified(v, p.base) };
+            // Spread, so an input name assigned in phase 1 survives. A name can
+            // have several output variants and exactly one input variant: phase 1
+            // names that single input, and replacing the record wholesale here
+            // dropped it, leaving every input reference to resolve to nothing.
+            v.finalName = { ...(v.finalName ?? { input: '' }), output: qualified(v, p.base) };
           }
         }
         if (p.inputs.length > 1) {
