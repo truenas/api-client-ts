@@ -98,6 +98,17 @@ import type {
   UpgradeOptions,
   VMDeviceConvertArgs,
   VMStopOptions,
+  VirtDeviceExportDiskImage,
+  VirtDeviceImportDiskImage,
+  VirtGlobalEntry,
+  VirtGlobalUpdate,
+  VirtInstanceCreate,
+  VirtInstanceEntry,
+  VirtInstanceStopOptions,
+  VirtInstanceUpdate,
+  VirtVolumeEntry,
+  VirtVolumeImportIso,
+  VirtVolumeImportZvol,
   ZFSFileAttrsData,
 } from './api-types';
 
@@ -566,6 +577,66 @@ export interface ApiJobDirectory {
   'update.run': {
     params: [attrs?: UpdateRunAttrs];
     response: true;
+  };
+
+  'virt.device.export_disk_image': {
+    params: [virt_device_export_disk_image: VirtDeviceExportDiskImage];
+    response: boolean;
+  };
+
+  'virt.device.import_disk_image': {
+    params: [virt_device_import_disk_image: VirtDeviceImportDiskImage];
+    response: boolean;
+  };
+
+  'virt.global.update': {
+    params: [virt_global_update: VirtGlobalUpdate];
+    response: VirtGlobalEntry;
+  };
+
+  'virt.instance.create': {
+    params: [virt_instance_create: VirtInstanceCreate];
+    response: VirtInstanceEntry;
+  };
+
+  'virt.instance.delete': {
+    params: [id: string];
+    response: true;
+  };
+
+  'virt.instance.restart': {
+    params: [id: string, stop_args?: VirtInstanceStopOptions];
+    response: boolean;
+  };
+
+  'virt.instance.start': {
+    params: [id: string];
+    response: boolean;
+  };
+
+  'virt.instance.stop': {
+    params: [id: string, stop_args?: VirtInstanceStopOptions];
+    response: boolean;
+  };
+
+  'virt.instance.update': {
+    params: [id: string, virt_instance_update: VirtInstanceUpdate];
+    response: VirtInstanceEntry;
+  };
+
+  'virt.volume.import_iso': {
+    params: [virt_volume_import_iso: VirtVolumeImportIso];
+    response: VirtVolumeEntry;
+  };
+
+  // The tuple label is upstream's: `VirtVolumeImportZvolArgs` is declared
+  // `@single_argument_args('virt_volume_import_iso')` in virt_volume.py, a
+  // copy-paste from `import_iso` above. Kept so this matches what a dump of
+  // 25.10 would have produced; the label is documentation only, since the wire
+  // carries positional params.
+  'virt.volume.import_zvol': {
+    params: [virt_volume_import_iso: VirtVolumeImportZvol];
+    response: VirtVolumeEntry;
   };
 
   'vm.device.convert': {

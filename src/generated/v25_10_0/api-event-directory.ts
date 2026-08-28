@@ -202,6 +202,11 @@ import type {
   VMWareAddedEvent,
   VMWareChangedEvent,
   VMWareRemovedEvent,
+  VirtInstanceAddedEvent,
+  VirtInstanceChangedEvent,
+  VirtInstanceRemovedEvent,
+  VirtInstancesMetricsEventSourceArgs,
+  VirtInstancesMetricsEventSourceEvent,
 } from './api-types';
 
 export interface ApiEventDirectory {
@@ -604,6 +609,17 @@ export interface ApiEventDirectory {
 
   'user.web_ui_login_disabled': {
     added: UserWebUiLoginDisabledAddedEvent;
+  };
+
+  'virt.instance.metrics': {
+    subscriptionParams: VirtInstancesMetricsEventSourceArgs;
+    added: VirtInstancesMetricsEventSourceEvent;
+  };
+
+  'virt.instance.query': {
+    added: VirtInstanceAddedEvent;
+    changed: VirtInstanceChangedEvent;
+    removed: VirtInstanceRemovedEvent;
   };
 
   'vm.device.query': {
