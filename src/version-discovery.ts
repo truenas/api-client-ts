@@ -27,6 +27,39 @@ import {
 
 const discoveryTimeoutMs = 5000;
 
+/**
+ * The probe's own budget, matching discovery's. A host that accepts the socket
+ * and then says nothing would otherwise hold the probe for as long as the
+ * runtime's own network timeout — minutes, in a browser — while the caller
+ * waits on a question that was meant to be quick.
+ */
+const probeTimeoutMs = 5000;
+
+/**
+ * What a reachability probe found. Three states rather than two: "we asked and
+ * got silence" and "there was no way to ask" refuse the CORS fallback for
+ * different reasons, and collapsing them into one `false` is the conflation
+ * this whole change exists to undo.
+ */
+export type Reachability = 'reachable' | 'silent' | 'cannot-ask';
+
+/**
+ * Whether this runtime enforces CORS on `fetch`, and therefore whether a
+ * discovery failure could be a refusal rather than an absence.
+ *
+ * A document is the obvious case but not the only one: a worker has no `window`
+ * and enforces CORS in full, so asking only about `window` would report
+ * "cannot ask" somewhere the question is exactly the one worth asking.
+ */
+function corsIsEnforced(): boolean {
+  const hasDocument =
+    typeof window !== 'undefined' && typeof window.document !== 'undefined';
+  const inWorker =
+    typeof (globalThis as { WorkerGlobalScope?: unknown }).WorkerGlobalScope !==
+    'undefined';
+  return hasDocument || inWorker;
+}
+
 /** True when `error` looks like `{ name }` equal to `expected` (robust to DOMException). */
 function hasErrorName(error: unknown, expected: string): boolean {
   return (
@@ -51,8 +84,10 @@ function hasErrorName(error: unknown, expected: string): boolean {
  * service. Because `fetch` resolves (rather than rejects) on non-2xx responses and
  * throws a `TypeError` on network/CORS/unreachable failures, the error contract
  * differs from the original: a network/CORS/unreachable failure surfaces as a
- * {@link VersionDiscoveryNetworkError} — the sentinel the client factory keys on for
- * its CORS fallback (replacing the old `HttpErrorResponse.status === 0` check).
+ * {@link VersionDiscoveryNetworkError} (replacing the old
+ * `HttpErrorResponse.status === 0` check). That error names a symptom with
+ * several causes, so it opens the client factory's disambiguation rather than
+ * deciding it — see {@link VersionDiscovery.probeReachable}.
  */
 export class VersionDiscovery {
   private versionCache = new Map<string, Observable<ApiVersion>>();
@@ -74,28 +109,30 @@ export class VersionDiscovery {
    * two failures `fetch` reports identically — a box that refused to share its
    * versions with this origin, and a box that is not there.
    *
-   * Returns `undefined` where the question does not apply. CORS is a browser
-   * rule; outside one, nothing is enforcing it, so a failed fetch already means
-   * unreachable and a probe would only repeat what discovery just found. A
-   * caller must not read `undefined` as either answer.
+   * `cannot-ask` where CORS is not enforced: nothing is blocking anything, so a
+   * failed fetch already means unreachable and a probe would only repeat what
+   * discovery just found. It is not a quieter way of saying "no".
    */
-  async probeReachable(hostname: string): Promise<boolean | undefined> {
-    if (typeof window === 'undefined' || typeof window.document === 'undefined') {
-      return undefined;
-    }
+  async probeReachable(hostname: string): Promise<Reachability> {
+    if (!corsIsEnforced()) return 'cannot-ask';
 
     const url = this.versionsUrl(hostname);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), probeTimeoutMs);
+
     try {
-      await fetch(url, { mode: 'no-cors' });
+      await fetch(url, { mode: 'no-cors', signal: controller.signal });
       this.logger.info('Reachability probe answered', { hostname, url });
-      return true;
+      return 'reachable';
     } catch (error: unknown) {
       this.logger.warn('Reachability probe got no answer', {
         hostname,
         url,
         error,
       });
-      return false;
+      return 'silent';
+    } finally {
+      clearTimeout(timer);
     }
   }
 

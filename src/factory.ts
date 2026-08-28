@@ -12,7 +12,7 @@ import type { ApiDirectoryShape } from '@/types/api-directory.type';
 import type { ApplianceProtocol } from '@/types/transport.type';
 import { ApiVersion, VersionCompatibility } from '@/types/api-version.type';
 import { checkVersionCompatibility, legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
-import { VersionDiscovery } from '@/version-discovery';
+import { VersionDiscovery, type Reachability } from '@/version-discovery';
 
 /**
  * The API surface {@link createTrueNasClient} assumes when the caller does not
@@ -93,9 +93,10 @@ export interface CreateClientOptions {
    *
    * Omitting it against a plaintext appliance is the quieter failure and the
    * likelier one, since it is the case this option exists for. Discovery tries
-   * `https`, `fetch` rejects, and that is indistinguishable from the CORS block
-   * v25.10.0 has on `/api/versions` — so the fallback fires and the caller gets
-   * a client pinned to v25.10.0, warned about only in the log.
+   * `https` and `fetch` rejects, which reads exactly like the CORS block
+   * v25.10.0 has on `/api/versions`. The reachability probe now runs on the same
+   * scheme and fails the same way, so the mismatch is reported as unreachable
+   * rather than quietly answered with a v25.10.0 client.
    */
   protocol?: ApplianceProtocol;
 }
@@ -376,7 +377,7 @@ export async function createTrueNasClient<
     // it a moment before asking again. Only when the probe actually got silence:
     // where the probe does not apply there is no reason to think anything is
     // coming back, and a consumer with no browser should fail fast.
-    if (reachable === false) {
+    if (reachable === 'silent') {
       await sleep(unreachableRetryDelayMs);
     }
 
@@ -403,14 +404,14 @@ export async function createTrueNasClient<
       // versions is the CORS case the fallback exists for. Anything else —
       // nothing there, or no way to ask — is reported rather than guessed at,
       // because guessing here is what produced a wrong-year client.
-      if (reachable !== true) {
+      if (reachable !== 'reachable') {
         logger.error(
           'Version discovery failed and the appliance did not answer a ' +
             'reachability probe; not assuming a version',
           {
             uuid: uuid.slice(0, 8),
             hostnames: hostnames.join(', '),
-            probe: reachable === false ? 'no answer' : 'not applicable',
+            probe: reachable === 'silent' ? 'no answer' : 'not applicable',
             error: errorMessageOrDefault(retryError, 'Unknown error'),
           }
         );
@@ -465,21 +466,33 @@ const sleep = (ms: number): Promise<void> =>
 /**
  * Whether any hostname answers, when that can be asked at all.
  *
- * `undefined` means the question does not apply here rather than that the
- * answer is no — see `VersionDiscovery.probeReachable`. One hostname answering
- * is enough: discovery races them, so one live appliance is all it needed.
+ * Settles on the first `reachable` rather than collecting every probe: one live
+ * appliance is all discovery needed, and waiting for the rest means a host that
+ * accepts the socket and then says nothing holds the answer for its whole
+ * timeout. `cannot-ask` is only the verdict when that was true everywhere —
+ * it means the question does not apply here, not that the answer is no.
  */
 async function probeAnyHostname(
   hostnames: string[],
   versionDiscovery: VersionDiscovery,
-): Promise<boolean | undefined> {
-  const results = await Promise.all(
-    hostnames.map(hostname => versionDiscovery.probeReachable(hostname))
+): Promise<Reachability> {
+  const probes = hostnames.map(hostname =>
+    versionDiscovery.probeReachable(hostname)
   );
 
-  if (results.some(result => result === true)) return true;
-  if (results.every(result => result === undefined)) return undefined;
-  return false;
+  const remaining = new Set(probes);
+  let sawSilence = false;
+
+  while (remaining.size > 0) {
+    const settled = await Promise.race(
+      [...remaining].map(probe => probe.then(result => ({ probe, result })))
+    );
+    if (settled.result === 'reachable') return 'reachable';
+    if (settled.result === 'silent') sawSilence = true;
+    remaining.delete(settled.probe);
+  }
+
+  return sawSilence ? 'silent' : 'cannot-ask';
 }
 
 /** A hostname that answered version discovery, and what it said. */

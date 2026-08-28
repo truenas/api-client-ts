@@ -59,8 +59,11 @@ export const apiVersionConfig = {
    * - DNS lookup failure
    * - Server unreachable
    *
-   * Using this fallback means systems with genuine network issues will still
-   * attempt connection (and fail during WebSocket handshake instead of immediately).
+   * Which is why it is no longer reached on all of them. A discovery failure is
+   * now put to a reachability probe and a second attempt first, and only an
+   * appliance that answers the probe and still will not serve `/api/versions`
+   * is assumed to be this version. One that answers nothing is reported as
+   * unreachable rather than pinned to a version nobody confirmed.
    */
   FALLBACK_VERSION: 'v25.10.0',
 } as const satisfies Record<

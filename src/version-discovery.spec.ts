@@ -31,6 +31,95 @@ function settle<T>(obs: { subscribe: unknown }): Promise<T | unknown> {
 }
 
 describe('VersionDiscovery', () => {
+
+  describe('probeReachable', () => {
+    /** A browser, as far as the CORS check is concerned. */
+    function inBrowser(): void {
+      vi.stubGlobal('window', { document: {} });
+    }
+
+    it('asks the discovery endpoint, on the discovery scheme', async () => {
+      inBrowser();
+      fetchMock.mockResolvedValue({ type: 'opaque' });
+
+      await new VersionDiscovery(undefined, 'http:').probeReachable('box');
+
+      // The same URL discovery uses. A probe on a different scheme would answer
+      // a different question from the one that just failed, and `protocol` is
+      // caller-supplied precisely because it can be either.
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://box/api/versions',
+        expect.objectContaining({ mode: 'no-cors' })
+      );
+    });
+
+    it('defaults to https, as discovery does', async () => {
+      inBrowser();
+      fetchMock.mockResolvedValue({ type: 'opaque' });
+
+      await new VersionDiscovery().probeReachable('box');
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://box/api/versions',
+        expect.objectContaining({ mode: 'no-cors' })
+      );
+    });
+
+    it('reports reachable when something answers', async () => {
+      inBrowser();
+      fetchMock.mockResolvedValue({ type: 'opaque' });
+
+      expect(await new VersionDiscovery().probeReachable('box')).toBe(
+        'reachable'
+      );
+    });
+
+    it('reports silence when nothing answers', async () => {
+      inBrowser();
+      fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+
+      expect(await new VersionDiscovery().probeReachable('box')).toBe('silent');
+    });
+
+    it('gives up rather than waiting on a host that never replies', async () => {
+      vi.useFakeTimers();
+      inBrowser();
+      // Accepts the request and says nothing, unless aborted.
+      fetchMock.mockImplementation(
+        (_url: string, init?: RequestInit) =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () =>
+              reject(new DOMException('Aborted', 'AbortError'))
+            );
+          })
+      );
+
+      const pending = new VersionDiscovery().probeReachable('box');
+      await vi.advanceTimersByTimeAsync(6000);
+      vi.useRealTimers();
+
+      expect(await pending).toBe('silent');
+    });
+
+    it('says it cannot ask where CORS is not enforced', async () => {
+      // No `window`, no worker scope: nothing is blocking anything here, so a
+      // failed fetch already meant unreachable and the probe adds nothing.
+      expect(await new VersionDiscovery().probeReachable('box')).toBe(
+        'cannot-ask'
+      );
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('still asks inside a worker, which enforces CORS without a window', async () => {
+      vi.stubGlobal('WorkerGlobalScope', class {});
+      fetchMock.mockResolvedValue({ type: 'opaque' });
+
+      expect(await new VersionDiscovery().probeReachable('box')).toBe(
+        'reachable'
+      );
+    });
+  });
+
   let fetchMock: ReturnType<typeof vi.fn>;
   let discovery: VersionDiscovery;
 

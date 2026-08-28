@@ -443,13 +443,20 @@ describe('createTrueNasClient', () => {
   it('throws rather than assuming a version where CORS cannot apply', async () => {
     // No `window`, so nothing is enforcing CORS and a failed fetch already means
     // unreachable. Node consumers must not be pinned to v25.10 by a dead box.
+    vi.useFakeTimers();
     fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
 
-    const outcome = await createTrueNasClient({
+    const pending = createTrueNasClient({
       uuid: 'u',
       hostnames: ['box'],
       enabled: false,
     }).catch((err: unknown) => err);
+
+    // Settles without any clock being advanced. The wait exists for a box that
+    // might be finishing a reboot; where the probe cannot ask there is nothing
+    // to wait for, and a consumer with no browser should hear the answer now.
+    const outcome = await pending;
+    vi.useRealTimers();
     if (outcome instanceof TrueNasApiClient) outcome.close();
 
     expect(outcomeLabel(outcome)).toBe('VersionDiscoveryNetworkError');
