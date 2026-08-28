@@ -463,9 +463,9 @@ export async function createTrueNasClient<
 
 /**
  * How long to wait before re-running discovery against an appliance that did
- * not answer the reachability probe. Matches TrueNAS Connect's delay: long
- * enough that a box finishing a reboot gets a second chance, short enough that
- * a genuinely absent one is reported promptly.
+ * not answer the reachability probe. 2500ms, per issue #46: long enough that a
+ * box finishing a reboot gets a second chance, short enough that a genuinely
+ * absent one is reported promptly.
  */
 const unreachableRetryDelayMs = 2500;
 

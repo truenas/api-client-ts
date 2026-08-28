@@ -49,7 +49,9 @@ describe('VersionDiscovery', () => {
       // caller-supplied precisely because it can be either.
       expect(fetchMock).toHaveBeenCalledWith(
         'http://box/api/versions',
-        expect.objectContaining({ mode: 'no-cors' })
+        // `no-store` too: a cached opaque answer would report a box that has
+        // since gone as reachable, which is the wrong-year fallback all over.
+        expect.objectContaining({ mode: 'no-cors', cache: 'no-store' })
       );
     });
 
