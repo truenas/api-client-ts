@@ -365,36 +365,121 @@ export async function createTrueNasClient<
       throw error;
     }
 
-    const fallbackVersionString = apiVersionConfig.FALLBACK_VERSION;
-    const fallbackVersion = parseApiVersion(fallbackVersionString);
+    // A network failure is the one discovery error that does not say what went
+    // wrong. `fetch` reports a CORS refusal, a dead box, a bad DNS name and the
+    // wrong scheme as the same `TypeError`, and falling back on all of them
+    // pinned healthy v26/v27 appliances to a v25.10 surface. So ask two further
+    // questions before assuming CORS.
+    const reachable = await probeAnyHostname(hostnames, versionDiscovery);
 
-    if (!fallbackVersion) {
-      logger.error('Invalid fallback version configuration', {
-        uuid: uuid.slice(0, 8),
-        hostnames: hostnames.join(', '),
-        fallbackVersion: fallbackVersionString,
-      });
-      throw error;
+    // A box that answered nothing may be mid-reboot rather than absent, so give
+    // it a moment before asking again. Only when the probe actually got silence:
+    // where the probe does not apply there is no reason to think anything is
+    // coming back, and a consumer with no browser should fail fast.
+    if (reachable === false) {
+      await sleep(unreachableRetryDelayMs);
     }
 
-    logger.warn(
-      'Version discovery failed with a network error (possible CORS or ' +
-        'network issue), falling back to assumed version',
-      {
+    try {
+      const retryWinner = await discoverVersionFromAnyHostname(
+        hostnames,
+        versionDiscovery,
+      );
+      logger.info('Version discovery succeeded on retry', {
         uuid: uuid.slice(0, 8),
-        hostnames: hostnames.join(', '),
-        fallbackVersion: fallbackVersionString,
-        originalError: errorMessage,
-        warning:
-          'A network error has multiple causes (CORS, network down, DNS ' +
-          'failure). The connection may still fail during the WebSocket handshake.',
+        hostname: retryWinner.hostname,
+        version: retryWinner.version.version,
+        firstError: errorMessage,
+      });
+      return instantiateClientForVersion<D>(retryWinner.version, opts, logger);
+    } catch (retryError) {
+      if (!(retryError instanceof VersionDiscoveryNetworkError)) {
+        // The retry got far enough to say something specific — too old, no such
+        // endpoint. That answer is better than the one we came in with.
+        throw retryError;
       }
-    );
 
-    version = fallbackVersion;
+      // Only a box that answered the probe and still refuses to share its
+      // versions is the CORS case the fallback exists for. Anything else —
+      // nothing there, or no way to ask — is reported rather than guessed at,
+      // because guessing here is what produced a wrong-year client.
+      if (reachable !== true) {
+        logger.error(
+          'Version discovery failed and the appliance did not answer a ' +
+            'reachability probe; not assuming a version',
+          {
+            uuid: uuid.slice(0, 8),
+            hostnames: hostnames.join(', '),
+            probe: reachable === false ? 'no answer' : 'not applicable',
+            error: errorMessageOrDefault(retryError, 'Unknown error'),
+          }
+        );
+        throw retryError;
+      }
+
+      const fallbackVersionString = apiVersionConfig.FALLBACK_VERSION;
+      const fallbackVersion = parseApiVersion(fallbackVersionString);
+
+      if (!fallbackVersion) {
+        logger.error('Invalid fallback version configuration', {
+          uuid: uuid.slice(0, 8),
+          hostnames: hostnames.join(', '),
+          fallbackVersion: fallbackVersionString,
+        });
+        throw retryError;
+      }
+
+      logger.warn(
+        'Appliance is reachable but version discovery is still blocked; ' +
+          'falling back to assumed version',
+        {
+          uuid: uuid.slice(0, 8),
+          hostnames: hostnames.join(', '),
+          fallbackVersion: fallbackVersionString,
+          originalError: errorMessage,
+          warning:
+            'The appliance answered a probe but not /api/versions, which is ' +
+            'what v25.10.0 looks like from a browser. If it is newer than ' +
+            'that, this client is now pinned to the wrong surface.',
+        }
+      );
+
+      version = fallbackVersion;
+    }
   }
 
   return instantiateClientForVersion<D>(version, opts, logger);
+}
+
+/**
+ * How long to wait before re-running discovery against an appliance that did
+ * not answer the reachability probe. Matches TrueNAS Connect's delay: long
+ * enough that a box finishing a reboot gets a second chance, short enough that
+ * a genuinely absent one is reported promptly.
+ */
+const unreachableRetryDelayMs = 2500;
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Whether any hostname answers, when that can be asked at all.
+ *
+ * `undefined` means the question does not apply here rather than that the
+ * answer is no — see `VersionDiscovery.probeReachable`. One hostname answering
+ * is enough: discovery races them, so one live appliance is all it needed.
+ */
+async function probeAnyHostname(
+  hostnames: string[],
+  versionDiscovery: VersionDiscovery,
+): Promise<boolean | undefined> {
+  const results = await Promise.all(
+    hostnames.map(hostname => versionDiscovery.probeReachable(hostname))
+  );
+
+  if (results.some(result => result === true)) return true;
+  if (results.every(result => result === undefined)) return undefined;
+  return false;
 }
 
 /** A hostname that answered version discovery, and what it said. */

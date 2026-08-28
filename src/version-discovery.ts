@@ -67,6 +67,39 @@ export class VersionDiscovery {
   }
 
   /**
+   * Whether the appliance answers at all, asked in a way CORS cannot block.
+   *
+   * A `no-cors` request yields a response the page may not read, but its
+   * *arrival* is the whole answer here: something served it. That separates the
+   * two failures `fetch` reports identically — a box that refused to share its
+   * versions with this origin, and a box that is not there.
+   *
+   * Returns `undefined` where the question does not apply. CORS is a browser
+   * rule; outside one, nothing is enforcing it, so a failed fetch already means
+   * unreachable and a probe would only repeat what discovery just found. A
+   * caller must not read `undefined` as either answer.
+   */
+  async probeReachable(hostname: string): Promise<boolean | undefined> {
+    if (typeof window === 'undefined' || typeof window.document === 'undefined') {
+      return undefined;
+    }
+
+    const url = this.versionsUrl(hostname);
+    try {
+      await fetch(url, { mode: 'no-cors' });
+      this.logger.info('Reachability probe answered', { hostname, url });
+      return true;
+    } catch (error: unknown) {
+      this.logger.warn('Reachability probe got no answer', {
+        hostname,
+        url,
+        error,
+      });
+      return false;
+    }
+  }
+
+  /**
    * Discovers the API version for a given hostname.
    *
    * Makes a GET request to `{protocol}//{hostname}/api/versions` and returns the latest
