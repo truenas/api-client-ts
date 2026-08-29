@@ -481,11 +481,11 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * a field the appliance accepts and returns was missing from the emitted type
  * and a call setting it did not compile.
  *
- * `cronjob.create` was the example this used to give, and it is the wrong one:
- * `CronJobCreate` is homed in frozen v25_10_0, so it is in the 21 below that a
- * regeneration cannot reach, and that call still does not compile. Reach for a
- * model this actually fixed — `ContainerEntry`, whose `description` the v26
- * client no longer has to read through a cast.
+ * `cronjob.create` was the example this used to give. It was the wrong one for
+ * a while — `CronJobCreate` is homed in v25_10_0, which was frozen, so the
+ * corrected declaration was emitted and discarded and that call did not
+ * compile. It is a fine example again: v25.10 was unfrozen and regenerated in
+ * TNC-2283, so the field is there.
  *
  * `examples` is discriminated the same way, and for the same reason one step
  * earlier. No model in `api/v2*` declares a field by that name today — but that
@@ -503,18 +503,16 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * for a frozen version and then discarded, while every later version keeps
  * importing the copy on disk.
  *
- * Measured against the tree as regenerated from the pinned dump: of the 32
- * models `api/v26_0_0` declares a `description` field on, 27 are emitted here
- * and six now carry it — the ones homed at v26/v27, `ContainerEntry` and
- * `SMBEntry` among them. The other 21 — `CronJobCreate`, `PoolScrubEntry`,
- * `StaticRouteEntry`, `UPSEntry`, `InterfaceCreate` and the rest — are homed in
- * v25_10_0, so no regeneration will restore their field. (The tree gains more
- * `description` fields than six, because Input/Create/Update variants of those
- * models are re-declared at v26 too; six is the count for this specific list.)
+ * That gap is closed for the models it was measured on. The 21 homed in
+ * v25_10_0 — `CronJobCreate`, `PoolScrubEntry`, `StaticRouteEntry`, `UPSEntry`,
+ * `InterfaceCreate` and the rest — were unreachable while that directory was
+ * frozen; TNC-2283 unfroze it, regenerated from the dump and froze it again, so
+ * their declarations were rewritten and carry the field.
  *
- * The 21 need the same treatment as the other things no dump can reproduce:
- * hand-maintenance in the frozen directory, verified against the v25.10 models
- * rather than against master.
+ * The mechanism is unchanged, which is the part to keep in mind. v25_10_0 is
+ * frozen again, so the *next* correction to this function reaches only models
+ * homed at v26 and above, and anything homed at the root needs the directory
+ * unfrozen and regenerated — or hand-maintenance — exactly as this one did.
  *
  * Nothing catches that today, and nothing here pretends to. The drift check in
  * `generate.mts` compares dump to dump, so it stays quiet when only the
