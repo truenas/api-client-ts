@@ -11,6 +11,10 @@
  *
  * Type-level only. The `it` bodies exist so the file is picked up by
  * `tsconfig.spec.json`; nothing here opens a socket.
+ *
+ * The README's `ops.smbStatus` snippets are mirrored in
+ * `client/smb-status-ops.spec.ts` rather than here, next to the runtime tests
+ * for the same operation.
  */
 import type { Observable } from 'rxjs';
 import { describe, expectTypeOf, it } from 'vitest';

@@ -27,6 +27,7 @@ import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type { ApiDirectoryV27_0_0, v27_0_0 } from '@/generated';
 import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
+import { toSmbStatusParams } from '@/utils/smb-status.utils';
 import { toAppState } from '@/utils/app-state.utils';
 
 /**
@@ -42,10 +43,26 @@ import { toAppState } from '@/utils/app-state.utils';
  * - containerRestart → container.stop + container.start (emits Job, then null)
  * - containerDelete → container.delete (a job since v26.0.0; force/recursive)
  *
- * Those four are currently identical to v26's, because v27 inherits all three
- * container entries the facade touches rather than re-declaring them. Asserted
- * rather than assumed, and re-runnable: the spec pins all three against v26's,
- * so the day they diverge is a failure there.
+ * SMB operations:
+ * - smbStatus → smb.status, public and gated on `SHARING_SMB_READ`, as v26.
+ *   v27 inherits the entry rather than re-declaring it.
+ *
+ * All five container operations are currently identical to v26's, because v27
+ * inherits the container entries the facade touches rather than re-declaring
+ * them. Five operations, four entries — `containerRestart` has none of its own,
+ * being `container.stop` then `container.start`. Asserted rather than assumed,
+ * and re-runnable: the spec pins all four entries — `container.query`,
+ * `.start`, `.stop`, `.delete` — against v26's, so the day they diverge is a
+ * failure there.
+ *
+ * `smbStatus` is not among them. Its v27 entry is inherited from v26 too, but
+ * nothing pins it the way the container entries are pinned. `tsc` is a partial
+ * stand-in and worth stating precisely: this leg reads the method out of the
+ * directory, so a v27 entry that *narrowed* the arguments or widened the
+ * response past `SmbStatusResponse` would stop compiling here. The reverse
+ * would not. A widened `info_level` or a narrowed response still compiles, and
+ * the operation would go on advertising the stale union. Add an `Identical<>`
+ * assertion beside the container ones if that matters.
  *
  * They are written out here rather than shared with v26 because that is what
  * this repo's one-client-per-series design is for: the two are the same today
@@ -53,8 +70,9 @@ import { toAppState } from '@/utils/app-state.utils';
  * the chained stop+start below is the workaround for its absence. Factoring the
  * bodies into a common base would couple two versions that exist in order to
  * evolve apart, and the coupling would have to be undone by whichever release
- * diverges first. The `@/generated` types are the guard against them drifting
- * silently: an entry that changes at v27 stops compiling here.
+ * diverges first. The `@/generated` types are what guard against them drifting
+ * silently — though only as far as the paragraph above says: a directory change
+ * this code cannot absorb stops compiling here, and one it can absorb does not.
  */
 export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
   /**
@@ -137,6 +155,17 @@ export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
           'container.delete',
           options ? [parseInt(id, 10), options] : [parseInt(id, 10)]
         ),
+
+      // `smb.status` is public here and gated on `SHARING_SMB_READ`, so it is
+      // an ordinary `call` read straight out of the generated directory — the
+      // one leg of this operation that needs no assertion about the server.
+      //
+      // Not a query verb: middleware returns the same `list | dict | int`
+      // polymorphism a `.query` does, but the generator did not mark the entry
+      // with an `entity`, so `api.query` does not accept it and the union is
+      // handed to the caller to narrow.
+      smbStatus: (request) =>
+        this.api.call('smb.status', toSmbStatusParams(request)),
     };
   }
 

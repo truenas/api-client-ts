@@ -17,6 +17,7 @@ import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type { ApiDirectoryV26_0_0, v26_0_0 } from '@/generated';
 import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
+import { toSmbStatusParams } from '@/utils/smb-status.utils';
 import { toAppState } from '@/utils/app-state.utils';
 
 /**
@@ -31,6 +32,9 @@ import { toAppState } from '@/utils/app-state.utils';
  * - containerStop → container.stop (emits Job updates)
  * - containerRestart → container.stop + container.start (emits Job, then null)
  * - containerDelete → container.delete (a job since v26.0.0; force/recursive)
+ *
+ * SMB operations:
+ * - smbStatus → smb.status, public here and gated on `SHARING_SMB_READ`
  */
 export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
   /**
@@ -113,6 +117,17 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
           'container.delete',
           options ? [parseInt(id, 10), options] : [parseInt(id, 10)]
         ),
+
+      // `smb.status` is public here and gated on `SHARING_SMB_READ`, so it is
+      // an ordinary `call` read straight out of the generated directory — the
+      // one leg of this operation that needs no assertion about the server.
+      //
+      // Not a query verb: middleware returns the same `list | dict | int`
+      // polymorphism a `.query` does, but the generator did not mark the entry
+      // with an `entity`, so `api.query` does not accept it and the union is
+      // handed to the caller to narrow.
+      smbStatus: (request) =>
+        this.api.call('smb.status', toSmbStatusParams(request)),
     };
   }
 

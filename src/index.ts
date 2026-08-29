@@ -49,6 +49,23 @@ export type { Logger } from '@/logger';
 // ── Version-agnostic operations ──────────────────────────────────────────────
 export type { OperationMappings } from '@/types/operation-mappings.interface';
 
+// The unified shapes `ops.smbStatus` speaks in. Deliberately distinct from the
+// generated `SMBStatusOptions`, which describes one version's dump; these
+// describe the contract v25.10 and v26+ both honour. Named `Smb…` rather than
+// `SMB…` so the two cannot be confused at a call site, and so neither shadows
+// the other through `export * from '@/generated'`.
+//
+// `SmbStatusParams` is deliberately not among them. It is the positional wire
+// tuple, built internally and accepted by nothing on this surface, so exporting
+// it would add a semver commitment for a type no consumer can pass anywhere.
+export type {
+  SmbStatusInfoLevel,
+  SmbStatusOptions,
+  SmbStatusRequest,
+  SmbStatusResponse,
+  SmbStatusRow,
+} from '@/types/smb-status.type';
+
 // ── Reading a version's surface ──────────────────────────────────────────────
 // The method names a client accepts come from the generated directories, so
 // there is no separate list of endpoint constants to import: pass the method
