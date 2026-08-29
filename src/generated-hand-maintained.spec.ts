@@ -22,7 +22,7 @@
  * copy of a type the version redeclares shadows the local one silently, and
  * where the two shapes happen to agree, `toEqualTypeOf` holds either way.
  */
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -32,14 +32,27 @@ const generatedDir = path.join(
   'generated'
 );
 
-const patchVersions = ['v25_10_1', 'v25_10_2', 'v25_10_3', 'v25_10_4', 'v25_10_5'];
+// Derived, not listed: the day a v25.10.6 lands, a hardcoded list checks every
+// directory except the new one — the same silence, one directory over. The
+// sibling guard derives its list for exactly this reason.
+const patchVersions = readdirSync(generatedDir)
+  .filter((d) => /^v25_10_\d+$/.test(d) && d !== 'v25_10_0')
+  .sort();
 
 /** Identifiers a version re-exports from another version's `api-types`. */
 function inheritedNames(version: string): Set<string> {
   const text = readFileSync(path.join(generatedDir, version, 'index.ts'), 'utf8');
   const names = new Set<string>();
+  // Both halves: the generator emits an `export {` block for an ancestor
+  // group's enums and an `export type {` block for its types. Matching only the
+  // second leaves every enum re-export invisible, which is the same shadowing
+  // this guard exists to catch.
+  //
+  // `[^}]` rather than `[\s\S]`, so a match cannot run past its own block
+  // terminator and swallow the next one — which silently dropped later groups
+  // and pulled literal `export {` text into the result.
   for (const block of text.matchAll(
-    /export type \{\n([\s\S]*?)\n\} from '\.\.\/(v25_10_\d)\/api-types';/g
+    /export (?:type )?\{\n([^}]*?)\n\} from '\.\.\/(v25_10_\d)\/api-types';/g
   )) {
     for (const line of block[1].split('\n')) {
       const name = line.trim().replace(/,$/, '');

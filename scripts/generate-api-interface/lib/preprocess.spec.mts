@@ -51,7 +51,11 @@ describe('preprocess', () => {
     };
     const authSource: Schema = {
       type: 'string', title: 'Source',
-      enum: ['TOKEN', 'PASSWORD'],
+      // Chosen to sort before the zfs body: variants are ordered by their
+      // stringified schema, and the first one claims the bare title. With the
+      // zfs shape claiming it, the buggy fallback lands on the right enum by
+      // luck and the assertion below cannot fire.
+      enum: ['ALPHA', 'BETA'],
     };
 
     const warnings: string[] = [];
@@ -60,12 +64,12 @@ describe('preprocess', () => {
     let result;
     try {
       result = preprocess(version([
-        // Two different shapes sharing the title, both on the way out.
-        method('pool.snapshot.query', args({}, []), returnsDoc({
-          type: 'object', properties: { source: zfsSource }, required: ['source'],
-        })),
+        // Two shapes under one title, both on the way out.
         method('auth.me', args({}, []), returnsDoc({
           type: 'object', properties: { source: authSource }, required: ['source'],
+        })),
+        method('pool.snapshot.query', args({}, []), returnsDoc({
+          type: 'object', properties: { source: zfsSource }, required: ['source'],
         })),
         // One of them also arrives as input, which is the name that was dropped.
         method('pool.snapshot.update', args({ source: zfsSource }, ['source']),
