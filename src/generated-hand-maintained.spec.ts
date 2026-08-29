@@ -23,6 +23,10 @@ import { describe, expectTypeOf, it } from 'vitest';
 import type {
   v25_10_0, v25_10_1, v25_10_2, v25_10_3, v25_10_4, v25_10_5,
 } from '@/generated';
+// Imported from the declaring module, so the assertions below compare against
+// the version's own shape rather than whatever the namespace happens to export.
+import type { SharingSMBQueryResultItem as OwnSharingSMBQueryResultItem } from '@/generated/v25_10_1/api-types';
+import type { CertificateQueryResultItem as OwnCertificateQueryResultItem } from '@/generated/v25_10_2/api-types';
 
 describe('hand-maintained v25.10 surface', () => {
   it('declares the virt.* models at the chain root', () => {
@@ -44,6 +48,22 @@ describe('hand-maintained v25.10 surface', () => {
     expectTypeOf<v25_10_4.VirtInstanceEntry>().toBeObject();
     expectTypeOf<v25_10_5.VirtInstanceEntry>().toBeObject();
     expectTypeOf<v25_10_5.PoolDatasetEncryptionAlgorithmChoicesResult>().toBeObject();
+  });
+
+  /**
+   * Presence is not enough. Restoring a block by hand can also re-export a name
+   * the version declares *itself*, and an explicit named re-export beats the
+   * `export *` beside it — so the ancestor's shape wins and the version's own
+   * declaration is shadowed. That is not a duplicate-identifier error; nothing
+   * reports it. It happened here to `SharingSMBQueryResultItem`, whose v25.10.1
+   * shape adds `FCP_SHARE`, leaving a version exporting a result type that could
+   * not hold the result it returns.
+   */
+  it('resolves a redeclared type to the version that redeclared it', () => {
+    expectTypeOf<v25_10_1.SharingSMBQueryResultItem>()
+      .toEqualTypeOf<OwnSharingSMBQueryResultItem>();
+    expectTypeOf<v25_10_2.CertificateQueryResultItem>()
+      .toEqualTypeOf<OwnCertificateQueryResultItem>();
   });
 
   it('still routes the methods that use them', () => {
