@@ -1,10 +1,10 @@
 {
   "$comment": "Hash of each frozen version's slice in the dump it was blessed from, excluding doc/description/examples (none of which reach the generated output), taken off the parsed dump before generation runs (see lib/dump-digest.mts). Generation fails if a frozen version's slice moves, because its files are skipped and the rest of the tree would be generated against a model they no longer hold. Run `yarn generate:api` and paste what it prints to seed a version. Record $source when you do.",
-  "$source": "ghcr.io/truenas/middleware:master, middlewared 20260814185039~truenas+1 (fetched 2026-08-17). NOTE: this dump already disagrees with the frozen v25.10 files on disk \u2014 its event schemas carry master's newer AppEntry (ERROR state, error_reason, nullable version) in every historical version, while the method schemas of those same versions carry the older shape the frozen files hold. Seeding here records the dump as it is now; it does not reconcile that.",
-  "v25.10.0": "af48de86fe599697",
-  "v25.10.1": "e6ebd902fdcfb8e7",
-  "v25.10.2": "7470ff2f8d104cde",
-  "v25.10.3": "50a5fa97191f0fad",
-  "v25.10.4": "c6bb5d129d3e2df2",
-  "v25.10.5": "7f20f9c5436f5933"
+  "$source": "ghcr.io/truenas/middleware:master, middlewared 20260828160014~truenas+1 (digest sha256:cacb76b6fe3baf3f37f929eef8267f1f89653ae3aa536c9466217c97b37f049c, fetched 2026-08-28). Re-seeded together with a regeneration of v25.10.0-v25.10.5 from this same dump, so the hashes and the frozen files describe one model rather than two. The previous seed recorded a dump that already disagreed with the files on disk. That disagreement is no longer between the seed and the files, but it did not close: the event payload for app.query still describes AppEntry differently from the call side. It now sits in two versions — v25_10_0, where both shapes are homed and which is frozen, and v26_0_0, which declares its own narrow AppEntry and inherits the root's widened event, and which any routine regeneration rewrites. v27_0_0 is consistent. See src/generated-known-gaps.spec.ts, which pins both and asserts v27 stays consistent. Note this dump is not a clean 25.10 snapshot: it is master describing historical versions, so the regenerated v25.10 directories carry master's backports into those slices as well as the --dump-api fix that describes objects which previously collapsed to Record. The virt.* namespace and pool.dataset.encryption_algorithm_choices are hand-restored after generation; no dump reproduces either, in any version.",
+  "v25.10.0": "d459bb5577777d6c",
+  "v25.10.1": "7e6f9fcb86be149a",
+  "v25.10.2": "38c53b645c5d389c",
+  "v25.10.3": "b2b566cfb51a74c6",
+  "v25.10.4": "6a5c12daedc5a64a",
+  "v25.10.5": "437304f1f6f433a3"
 }

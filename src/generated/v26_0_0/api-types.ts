@@ -31,7 +31,6 @@ import type {
   Compression,
   DiskEntryEnclosure,
   DropboxCredentialsModel,
-  Encryption,
   Exec,
   ExternalOpt,
   ExternalOptInput,
@@ -45,6 +44,9 @@ import type {
   HubicCredentialsModel,
   InterfaceCreateAlias,
   InterfaceCreateFailoverAlias,
+  InterfaceEntryAlias,
+  InterfaceEntryStateAlias,
+  InterfaceEntryStatePort,
   IscsiExtentCreateType,
   KeychainCredentialEntry,
   KeychainCredentialEntryInput,
@@ -55,7 +57,6 @@ import type {
   NFS4ACEInput,
   NFS4ACL_Flags,
   NVMetSubsysEntry,
-  NVMetSubsysEntryInput,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
   POSIXACE,
@@ -67,11 +68,18 @@ import type {
   PoolDatasetCreateFilesystemDeduplication,
   PoolDatasetCreateFilesystemReadonlyInput,
   PoolDatasetCreateUserProperty,
+  PoolDatasetEntryProperty,
   PoolScanStateInput,
+  PoolSnapshotEntryPropertyFieldsSource,
+  PoolSnapshotHoldTag,
+  PoolSnapshotRetentionPST,
+  PoolSnapshotRetentionProperty,
   PoolSnapshotTaskCron,
   PoolTopology,
+  PropertyValue,
   QueryOptionsModel,
   Readonly,
+  ReplicationCountEligibleManualSnapshotsTransport,
   ReplicationCountEligibleManualSnapshotsTransportInput,
   ReplicationCreateReadonlyInput,
   ReplicationLifetimeModel,
@@ -81,9 +89,11 @@ import type {
   RsyncTaskCreateMode,
   RsyncTaskSchedule,
   SFTPCredentialsModel,
+  SMBEntryEncryption,
   SMBEntryEncryptionInput,
   SMBShareAclEntryWhoId,
   Serialspeed,
+  Service,
   Shutdown,
   SmbAuditConfig,
   Snapdev,
@@ -93,9 +103,9 @@ import type {
   SwiftCredentialsModel,
   Sync,
   SyslogServer,
+  SyslogServerInput,
   Sysloglevel,
   Time,
-  Transport,
   TruecommandConfigChangedEventFieldsStatus,
   UPSEntryModeInput,
   USBAttributes,
@@ -114,7 +124,6 @@ import type {
   VMRAWDeviceInput,
   VMUSBDevice,
   VMWareEntryStateStateInput,
-  VMWareMatchDatastoresWithDatasetsResultFilesystemType,
   Volblocksize,
   WebDavCredentialsModel,
   YandexCredentialsModel,
@@ -240,13 +249,13 @@ export const PoolScrubAction = {
 } as const;
 export type PoolScrubAction = (typeof PoolScrubAction)[keyof typeof PoolScrubAction];
 
-export const Service = {
-  Middleware: 'MIDDLEWARE',
-  Smb: 'SMB',
-  Sudo: 'SUDO',
-  System: 'SYSTEM',
+export const VMWareEntryStateState = {
+  Pending: 'PENDING',
+  Success: 'SUCCESS',
+  Error: 'ERROR',
+  Blocked: 'BLOCKED',
 } as const;
-export type Service = (typeof Service)[keyof typeof Service];
+export type VMWareEntryStateState = (typeof VMWareEntryStateState)[keyof typeof VMWareEntryStateState];
 
 export const ZfsTierRewriteJobEntryStatus = {
   Complete: 'COMPLETE',
@@ -267,33 +276,15 @@ export type ZpoolScrubRunAction = (typeof ZpoolScrubRunAction)[keyof typeof Zpoo
 
 export type AppContainerResponse = Record<string, ContainerDetails>;
 
-export type AuditQueryResultItemQueryResultItem = Record<string, unknown>;
-
 export type CatalogAppsResponse = Record<string, CatalogTrainInfo>;
 
 export type CatalogTrainsResponse = string[];
 
-export type ContainerDeviceQueryResultItem = Record<string, unknown>;
-
-export type ContainerQueryResultItem = Record<string, unknown>;
-
-export type ISCSIGlobalSessionsItemQueryResultItem = Record<string, unknown>;
-
 export type ReplicationRunOptions = Record<string, never>;
-
-export type SharingWebshareQueryResultItem = Record<string, unknown>;
 
 export type USBPassthroughInfo = Record<string, USBPassthroughDevice>;
 
-export type VMWareEntryState = Record<string, unknown>;
-
-export type ZFSResourceSnapshotPropertiesEntry = Record<string, unknown>;
-
-export type ZfsTierRewriteJobFailureQueryResultItem = Record<string, unknown>;
-
 export type ZfsTierRewriteJobQueryEventSourceArgs = Record<string, never>;
-
-export type ZfsTierRewriteJobQueryResultItem = Record<string, unknown>;
 
 export interface ACLTemplateByPathArgs {
   path?: string;
@@ -407,6 +398,21 @@ export interface ApiKeyEntryWithKey {
   key: string;
   client_key: string;
 }
+export interface ApiKeyQueryResultItem {
+  id?: number;
+  name?: string;
+  username?: string | null;
+  user_identifier?: number | string;
+  iterations?: number;
+  salt?: string;
+  stored_key?: string;
+  server_key?: string;
+  created_at?: string;
+  expires_at?: string | null;
+  local?: boolean;
+  revoked?: boolean;
+  revoked_reason?: string | null;
+}
 export interface ApiKeyScramData {
   api_key_id: number;
   iterations: number;
@@ -477,6 +483,46 @@ export interface AppImageEntry {
   comment: string | null;
   parsed_repo_tags?: AppImageParsedRepoTags[] | null;
 }
+export interface AppImageQueryResultItem {
+  id?: string;
+  repo_tags?: string[];
+  repo_digests?: string[];
+  size?: number;
+  dangling?: boolean;
+  update_available?: boolean;
+  created?: string | null;
+  author?: string | null;
+  comment?: string | null;
+  parsed_repo_tags?: AppImageParsedRepoTags[] | null;
+}
+export interface AppQueryResultItem {
+  name?: string;
+  id?: string;
+  state?: "CRASHED" | "DEPLOYING" | "RUNNING" | "STOPPED" | "STOPPING";
+  upgrade_available?: boolean;
+  latest_version?: string | null;
+  latest_app_version?: string | null;
+  image_updates_available?: boolean;
+  custom_app?: boolean;
+  migrated?: boolean;
+  human_version?: string;
+  version?: string;
+  metadata?: {
+    [k: string]: unknown;
+  };
+  active_workloads?: AppActiveWorkloads;
+  notes?: string | null;
+  action_required?: boolean;
+  portals?: {
+    [k: string]: unknown;
+  };
+  version_details?: {
+    [k: string]: unknown;
+  } | null;
+  config?: {
+    [k: string]: unknown;
+  } | null;
+}
 export interface AppUpgradeBulkEntry {
   app_name: string;
   options?: UpgradeOptions;
@@ -517,6 +563,24 @@ export interface AuditQueryResultItem {
     [k: string]: unknown;
   } | null;
   success: boolean;
+  [k: string]: unknown;
+}
+export interface AuditQueryResultItemQueryResultItem {
+  audit_id?: string | number | null;
+  message_timestamp?: number;
+  timestamp?: string;
+  address?: string;
+  username?: string;
+  session?: string | number | null;
+  service?: Service;
+  service_data?: {
+    [k: string]: unknown;
+  } | null;
+  event?: string;
+  event_data?: {
+    [k: string]: unknown;
+  } | null;
+  success?: boolean;
   [k: string]: unknown;
 }
 export interface AuthApiKeyPlain {
@@ -764,6 +828,33 @@ export interface CredentialsEntry {
     | WebDavCredentialsModel
     | YandexCredentialsModel;
 }
+export interface CloudBackupQueryResultItem {
+  id?: number;
+  description?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  credentials?: CredentialsEntry;
+  attributes?: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  locked?: boolean;
+  password?: string;
+  keep_last?: number;
+  transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
+  absolute_paths?: boolean;
+  cache_path?: string | null;
+  rate_limit?: number | null;
+}
 export interface CloudCredentialCreate {
   name: string;
   provider:
@@ -873,6 +964,37 @@ export interface CloudSyncEntry {
   transfers?: number | null;
   direction: CloudSyncCreateDirection;
   transfer_mode: "SYNC" | "COPY" | "MOVE";
+  encryption?: boolean;
+  filename_encryption?: boolean;
+  encryption_password?: string;
+  encryption_salt?: string;
+  create_empty_src_dirs?: boolean;
+  follow_symlinks?: boolean;
+}
+export interface CloudSyncQueryResultItem {
+  id?: number;
+  description?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  credentials?: CredentialsEntry;
+  attributes?: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  locked?: boolean;
+  bwlimit?: CloudSyncBwlimit[];
+  transfers?: number | null;
+  direction?: CloudSyncCreateDirection;
+  transfer_mode?: "SYNC" | "COPY" | "MOVE";
   encryption?: boolean;
   filename_encryption?: boolean;
   encryption_password?: string;
@@ -1023,6 +1145,11 @@ export interface ContainerDeviceNicAttachChoicesResult {
   BRIDGE: string[];
   MACVLAN: string[];
 }
+export interface ContainerDeviceQueryResultItem {
+  id?: number;
+  attributes?: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDevice | ContainerUSBDevice;
+  container?: number;
+}
 export interface ContainerDeviceRemovedEvent {
   id: number;
 }
@@ -1070,6 +1197,32 @@ export interface ContainerImageQueryRegistryResultImage {
 export interface ContainerImageQueryRegistryResultImageVersion {
   version: string;
 }
+export interface ContainerQueryResultItem {
+  id?: number;
+  uuid?: string;
+  name?: string;
+  description?: string;
+  devices?: ContainerDeviceEntry[];
+  cpuset?: string | null;
+  autostart?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  dataset?: string;
+  init?: string;
+  initdir?: string | null;
+  initenv?: {
+    [k: string]: string;
+  };
+  inituser?: string | null;
+  initgroup?: string | null;
+  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
+  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
+  capabilities_state?: {
+    [k: string]: boolean;
+  };
+  default_network?: string | null;
+  status?: ContainerStatus;
+}
 export interface ContainerRemovedEvent {
   id: number;
 }
@@ -1104,6 +1257,90 @@ export interface CredentialsAddedEvent {
 export interface CredentialsChangedEvent {
   id: number;
   fields: CredentialsEntryInput;
+}
+export interface CredentialsQueryResultItem {
+  id?: number;
+  name?: string;
+  provider?:
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | MegaCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
+    | S3CredentialsModel
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModel
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
+}
+export interface DiskEntry {
+  identifier: string;
+  name: string;
+  subsystem: string;
+  number: number;
+  serial: string;
+  lunid: string | null;
+  size: number | null;
+  description: string;
+  transfermode: string;
+  hddstandby: Hddstandby;
+  advpowermgmt: Advpowermgmt;
+  expiretime: string | null;
+  model: string | null;
+  rotationrate: number | null;
+  type: string | null;
+  zfs_guid: string | null;
+  bus: string;
+  devname: string;
+  enclosure: DiskEntryEnclosure | null;
+  pool: string | null;
+  passwd?: string;
+  kmip_uid?: string | null;
+  sed: boolean | null;
+  sed_status?: string | null;
+}
+export interface DiskQueryAddedEvent {
+  id: string;
+  fields: DiskEntry;
+}
+export interface DiskQueryChangedEvent {
+  id: string;
+  fields: DiskEntry;
+}
+export interface DiskQueryResultItem {
+  identifier?: string;
+  name?: string;
+  subsystem?: string;
+  number?: number;
+  serial?: string;
+  lunid?: string | null;
+  size?: number | null;
+  description?: string;
+  transfermode?: string;
+  hddstandby?: Hddstandby;
+  advpowermgmt?: Advpowermgmt;
+  expiretime?: string | null;
+  model?: string | null;
+  rotationrate?: number | null;
+  type?: string | null;
+  zfs_guid?: string | null;
+  bus?: string;
+  devname?: string;
+  enclosure?: DiskEntryEnclosure | null;
+  pool?: string | null;
+  passwd?: string;
+  kmip_uid?: string | null;
+  sed?: boolean | null;
+  sed_status?: string | null;
 }
 export interface DiskResetSedArgs {
   name: string;
@@ -1187,6 +1424,114 @@ export interface GraphIdentifier {
   name: Name;
   identifier?: string | null;
 }
+export interface InterfaceAddedEvent {
+  id: string;
+  fields: InterfaceEntryInput;
+}
+export interface InterfaceEntryInput {
+  id: string;
+  name: string;
+  fake: boolean;
+  type: string;
+  state: InterfaceEntryState;
+  aliases: InterfaceEntryAlias[];
+  ipv4_dhcp: boolean;
+  ipv6_auto: boolean;
+  description: string;
+  mtu: number | null;
+  fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
+  vlan_parent_interface?: string | null;
+  vlan_tag?: number | null;
+  vlan_pcp?: number | null;
+  lag_protocol?: string;
+  lag_ports?: string[];
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  failover_critical?: boolean;
+  failover_group?: number | null;
+  failover_vhid?: number | null;
+  failover_aliases?: InterfaceEntryAlias[];
+  failover_virtual_aliases?: InterfaceEntryAlias[];
+  [k: string]: unknown;
+}
+export interface InterfaceEntryState {
+  name: string;
+  orig_name: string;
+  description: string;
+  mtu: number;
+  cloned: boolean;
+  flags: string[];
+  nd6_flags: unknown[];
+  capabilities: unknown[];
+  link_state: string;
+  media_type: string;
+  media_subtype: string;
+  active_media_type: string;
+  active_media_subtype: string;
+  supported_media: unknown[];
+  media_options: unknown[] | null;
+  link_address: string;
+  permanent_link_address: string | null;
+  hardware_link_address: string;
+  rx_queues?: number;
+  tx_queues?: number;
+  aliases: InterfaceEntryStateAlias[];
+  vrrp_config?: unknown[] | null;
+  protocol?: string | null;
+  ports?: InterfaceEntryStatePort[];
+  xmit_hash_policy?: string | null;
+  lacpdu_rate?: string | null;
+  parent?: string | null;
+  tag?: number | null;
+  pcp?: number | null;
+  fec_mode?: ("AUTO" | "OFF" | "RS" | "BASER" | "LLRS") | null;
+}
+export interface InterfaceChangedEvent {
+  id: string;
+  fields: InterfaceEntryInput;
+}
+export interface InterfaceEntry {
+  id: string;
+  name: string;
+  fake: boolean;
+  type: string;
+  state: InterfaceEntryState;
+  aliases: InterfaceEntryAlias[];
+  ipv4_dhcp: boolean;
+  ipv6_auto: boolean;
+  description: string;
+  mtu: number | null;
+  fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
+  vlan_parent_interface?: string | null;
+  vlan_tag?: number | null;
+  vlan_pcp?: number | null;
+  lag_protocol?: string;
+  lag_ports?: string[];
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  [k: string]: unknown;
+}
+export interface InterfaceQueryResultItem {
+  id?: string;
+  name?: string;
+  fake?: boolean;
+  type?: string;
+  state?: InterfaceEntryState;
+  aliases?: InterfaceEntryAlias[];
+  ipv4_dhcp?: boolean;
+  ipv6_auto?: boolean;
+  description?: string;
+  mtu?: number | null;
+  fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
+  vlan_parent_interface?: string | null;
+  vlan_tag?: number | null;
+  vlan_pcp?: number | null;
+  lag_protocol?: string;
+  lag_ports?: string[];
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  [k: string]: unknown;
+}
 export interface InterfaceUpdate {
   name?: string;
   description?: string;
@@ -1239,6 +1584,23 @@ export interface ISCSIGlobalSessionsItem {
   iser: boolean;
   offload: boolean;
 }
+export interface ISCSIGlobalSessionsItemQueryResultItem {
+  initiator?: string;
+  initiator_addr?: string;
+  initiator_alias?: string | null;
+  target?: string;
+  target_alias?: string;
+  header_digest?: string | null;
+  data_digest?: string | null;
+  max_data_segment_length?: number | null;
+  max_receive_data_segment_length?: number | null;
+  max_xmit_data_segment_length?: number | null;
+  max_burst_length?: number | null;
+  first_burst_length?: number | null;
+  immediate_data?: boolean;
+  iser?: boolean;
+  offload?: boolean;
+}
 export interface ISCSIGlobalUpdateArgs {
   basename?: string;
   isns_servers?: string[];
@@ -1272,6 +1634,30 @@ export interface ISCSITargetExtentEntry {
   vendor: string;
   product_id?: string | null;
   locked: boolean | null;
+}
+export interface ISCSITargetExtentQueryResultItem {
+  id?: number;
+  name?: string;
+  type?: IscsiExtentCreateType;
+  disk?: string | null;
+  serial?: string | null;
+  path?: string | null;
+  dataset?: string | null;
+  relative_path?: string | null;
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  pblocksize?: boolean;
+  avail_threshold?: number | null;
+  comment?: string;
+  naa?: string;
+  insecure_tpc?: boolean;
+  xen?: boolean;
+  rpm?: Rpm;
+  ro?: boolean;
+  enabled?: boolean;
+  vendor?: string;
+  product_id?: string | null;
+  locked?: boolean | null;
 }
 export interface LXCConfigEntry {
   id: number;
@@ -1311,23 +1697,32 @@ export interface NVMetHostCreate {
   dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
   dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
 }
+export interface NVMetHostQueryResultItem {
+  id?: number;
+  hostnqn?: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
 export interface NVMetHostSubsysAddedEvent {
   id: number;
-  fields: NVMetHostSubsysEntryInput;
-}
-export interface NVMetHostSubsysEntryInput {
-  id: number;
-  host: NVMetHostEntry;
-  subsys: NVMetSubsysEntryInput;
-}
-export interface NVMetHostSubsysChangedEvent {
-  id: number;
-  fields: NVMetHostSubsysEntryInput;
+  fields: NVMetHostSubsysEntry;
 }
 export interface NVMetHostSubsysEntry {
   id: number;
   host: NVMetHostEntry;
   subsys: NVMetSubsysEntry;
+}
+export interface NVMetHostSubsysChangedEvent {
+  id: number;
+  fields: NVMetHostSubsysEntry;
+}
+export interface NVMetHostSubsysQueryResultItem {
+  id?: number;
+  host?: NVMetHostEntry;
+  subsys?: NVMetSubsysEntry;
 }
 export interface NVMetHostUpdate {
   hostnqn?: string;
@@ -1336,6 +1731,10 @@ export interface NVMetHostUpdate {
   dhchap_ctrl_key?: string | null;
   dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
   dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetNamespaceAddedEvent {
+  id: number;
+  fields: NVMetNamespaceEntry;
 }
 export interface NVMetNamespaceEntry {
   id: number;
@@ -1350,6 +1749,24 @@ export interface NVMetNamespaceEntry {
   device_nguid: string;
   enabled?: boolean;
   locked: boolean | null;
+}
+export interface NVMetNamespaceChangedEvent {
+  id: number;
+  fields: NVMetNamespaceEntry;
+}
+export interface NVMetNamespaceQueryResultItem {
+  id?: number;
+  nsid?: number | null;
+  subsys?: NVMetSubsysEntry;
+  device_type?: "ZVOL" | "FILE";
+  device_path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  filesize?: number | null;
+  device_uuid?: string;
+  device_nguid?: string;
+  enabled?: boolean;
+  locked?: boolean | null;
 }
 export interface PeriodicSnapshotTaskAddedEvent {
   id: number;
@@ -1477,6 +1894,71 @@ export interface PoolCreateTopologyLogVdev {
   type: PoolCreateTopologyDedupVdevTypeInput;
   disks: string[];
 }
+export interface PoolDatasetAddedEvent {
+  id: string;
+  fields: PoolDatasetEntryInput;
+}
+export interface PoolDatasetEntryInput {
+  id?: string;
+  type?: string;
+  name?: string;
+  pool?: string;
+  encrypted?: boolean;
+  encryption_root?: string | null;
+  key_loaded?: boolean | null;
+  children?: unknown[];
+  user_properties?: {
+    [k: string]: unknown;
+  };
+  locked?: boolean;
+  comments?: PoolDatasetEntryProperty;
+  quota_warning?: PoolDatasetEntryProperty;
+  quota_critical?: PoolDatasetEntryProperty;
+  refquota_warning?: PoolDatasetEntryProperty;
+  refquota_critical?: PoolDatasetEntryProperty;
+  managedby?: PoolDatasetEntryProperty;
+  deduplication?: PoolDatasetEntryProperty;
+  aclmode?: PoolDatasetEntryProperty;
+  acltype?: PoolDatasetEntryProperty;
+  xattr?: PoolDatasetEntryProperty;
+  atime?: PoolDatasetEntryProperty;
+  casesensitivity?: PoolDatasetEntryProperty;
+  checksum?: PoolDatasetEntryProperty;
+  exec?: PoolDatasetEntryProperty;
+  sync?: PoolDatasetEntryProperty;
+  compression?: PoolDatasetEntryProperty;
+  compressratio?: PoolDatasetEntryProperty;
+  origin?: PoolDatasetEntryProperty;
+  quota?: PoolDatasetEntryProperty;
+  refquota?: PoolDatasetEntryProperty;
+  reservation?: PoolDatasetEntryProperty;
+  refreservation?: PoolDatasetEntryProperty;
+  copies?: PoolDatasetEntryProperty;
+  snapdir?: PoolDatasetEntryProperty;
+  readonly?: PoolDatasetEntryProperty;
+  recordsize?: PoolDatasetEntryProperty;
+  sparse?: PoolDatasetEntryProperty;
+  volsize?: PoolDatasetEntryProperty;
+  volblocksize?: PoolDatasetEntryProperty;
+  key_format?: PoolDatasetEntryProperty;
+  encryption_algorithm?: PoolDatasetEntryProperty;
+  used?: PoolDatasetEntryProperty;
+  usedbychildren?: PoolDatasetEntryProperty;
+  usedbydataset?: PoolDatasetEntryProperty;
+  usedbyrefreservation?: PoolDatasetEntryProperty;
+  usedbysnapshots?: PoolDatasetEntryProperty;
+  available?: PoolDatasetEntryProperty;
+  special_small_block_size?: PoolDatasetEntryProperty;
+  pbkdf2iters?: PoolDatasetEntryProperty;
+  creation?: PoolDatasetEntryProperty;
+  snapdev?: PoolDatasetEntryProperty;
+  mountpoint?: string | null;
+  [k: string]: unknown;
+}
+export interface PoolDatasetChangedEvent {
+  id: string;
+  fields: PoolDatasetEntryInput;
+}
 export interface PoolDatasetChangeKeyOptions {
   generate_key?: boolean;
   key_file?: boolean;
@@ -1551,6 +2033,132 @@ export interface PoolDatasetCreateVolume {
   volsize: number;
   volblocksize?: Volblocksize;
 }
+export interface PoolDatasetEntry {
+  id?: string;
+  type?: string;
+  name?: string;
+  pool?: string;
+  encrypted?: boolean;
+  encryption_root?: string | null;
+  key_loaded?: boolean | null;
+  children?: unknown[];
+  user_properties?: {
+    [k: string]: unknown;
+  };
+  locked?: boolean;
+  tier?: TierInfo | null;
+  comments?: PoolDatasetEntryProperty;
+  quota_warning?: PoolDatasetEntryProperty;
+  quota_critical?: PoolDatasetEntryProperty;
+  refquota_warning?: PoolDatasetEntryProperty;
+  refquota_critical?: PoolDatasetEntryProperty;
+  managedby?: PoolDatasetEntryProperty;
+  deduplication?: PoolDatasetEntryProperty;
+  aclmode?: PoolDatasetEntryProperty;
+  acltype?: PoolDatasetEntryProperty;
+  xattr?: PoolDatasetEntryProperty;
+  atime?: PoolDatasetEntryProperty;
+  casesensitivity?: PoolDatasetEntryProperty;
+  checksum?: PoolDatasetEntryProperty;
+  exec?: PoolDatasetEntryProperty;
+  sync?: PoolDatasetEntryProperty;
+  compression?: PoolDatasetEntryProperty;
+  compressratio?: PoolDatasetEntryProperty;
+  origin?: PoolDatasetEntryProperty;
+  quota?: PoolDatasetEntryProperty;
+  refquota?: PoolDatasetEntryProperty;
+  reservation?: PoolDatasetEntryProperty;
+  refreservation?: PoolDatasetEntryProperty;
+  copies?: PoolDatasetEntryProperty;
+  snapdir?: PoolDatasetEntryProperty;
+  readonly?: PoolDatasetEntryProperty;
+  recordsize?: PoolDatasetEntryProperty;
+  sparse?: PoolDatasetEntryProperty;
+  volsize?: PoolDatasetEntryProperty;
+  volblocksize?: PoolDatasetEntryProperty;
+  key_format?: PoolDatasetEntryProperty;
+  encryption_algorithm?: PoolDatasetEntryProperty;
+  used?: PoolDatasetEntryProperty;
+  usedbychildren?: PoolDatasetEntryProperty;
+  usedbydataset?: PoolDatasetEntryProperty;
+  usedbyrefreservation?: PoolDatasetEntryProperty;
+  usedbysnapshots?: PoolDatasetEntryProperty;
+  available?: PoolDatasetEntryProperty;
+  special_small_block_size?: PoolDatasetEntryProperty;
+  pbkdf2iters?: PoolDatasetEntryProperty;
+  creation?: PoolDatasetEntryProperty;
+  snapdev?: PoolDatasetEntryProperty;
+  mountpoint?: string | null;
+  [k: string]: unknown;
+}
+export interface TierInfo {
+  tier_type: "REGULAR" | "PERFORMANCE";
+  tier_job?: ZfsTierRewriteJobEntry | null;
+}
+export interface ZfsTierRewriteJobEntry {
+  tier_job_id: string;
+  dataset_name: string;
+  job_uuid: string;
+  status: ZfsTierRewriteJobEntryStatus;
+}
+export interface PoolDatasetQueryResultItem {
+  id?: string;
+  type?: string;
+  name?: string;
+  pool?: string;
+  encrypted?: boolean;
+  encryption_root?: string | null;
+  key_loaded?: boolean | null;
+  children?: unknown[];
+  user_properties?: {
+    [k: string]: unknown;
+  };
+  locked?: boolean;
+  tier?: TierInfo | null;
+  comments?: PoolDatasetEntryProperty;
+  quota_warning?: PoolDatasetEntryProperty;
+  quota_critical?: PoolDatasetEntryProperty;
+  refquota_warning?: PoolDatasetEntryProperty;
+  refquota_critical?: PoolDatasetEntryProperty;
+  managedby?: PoolDatasetEntryProperty;
+  deduplication?: PoolDatasetEntryProperty;
+  aclmode?: PoolDatasetEntryProperty;
+  acltype?: PoolDatasetEntryProperty;
+  xattr?: PoolDatasetEntryProperty;
+  atime?: PoolDatasetEntryProperty;
+  casesensitivity?: PoolDatasetEntryProperty;
+  checksum?: PoolDatasetEntryProperty;
+  exec?: PoolDatasetEntryProperty;
+  sync?: PoolDatasetEntryProperty;
+  compression?: PoolDatasetEntryProperty;
+  compressratio?: PoolDatasetEntryProperty;
+  origin?: PoolDatasetEntryProperty;
+  quota?: PoolDatasetEntryProperty;
+  refquota?: PoolDatasetEntryProperty;
+  reservation?: PoolDatasetEntryProperty;
+  refreservation?: PoolDatasetEntryProperty;
+  copies?: PoolDatasetEntryProperty;
+  snapdir?: PoolDatasetEntryProperty;
+  readonly?: PoolDatasetEntryProperty;
+  recordsize?: PoolDatasetEntryProperty;
+  sparse?: PoolDatasetEntryProperty;
+  volsize?: PoolDatasetEntryProperty;
+  volblocksize?: PoolDatasetEntryProperty;
+  key_format?: PoolDatasetEntryProperty;
+  encryption_algorithm?: PoolDatasetEntryProperty;
+  used?: PoolDatasetEntryProperty;
+  usedbychildren?: PoolDatasetEntryProperty;
+  usedbydataset?: PoolDatasetEntryProperty;
+  usedbyrefreservation?: PoolDatasetEntryProperty;
+  usedbysnapshots?: PoolDatasetEntryProperty;
+  available?: PoolDatasetEntryProperty;
+  special_small_block_size?: PoolDatasetEntryProperty;
+  pbkdf2iters?: PoolDatasetEntryProperty;
+  creation?: PoolDatasetEntryProperty;
+  snapdev?: PoolDatasetEntryProperty;
+  mountpoint?: string | null;
+  [k: string]: unknown;
+}
 export interface PoolEntry {
   id: number;
   name: string;
@@ -1587,9 +2195,59 @@ export interface PoolImportPoolArgs {
   guid: string;
   name?: string | null;
 }
+export interface PoolQueryResultItem {
+  id?: number;
+  name?: string;
+  guid?: string;
+  all_sed?: boolean | null;
+  status?: string;
+  path?: string;
+  scan?: PoolScan | null;
+  expand?: {
+    [k: string]: unknown;
+  } | null;
+  is_upgraded?: boolean;
+  healthy?: boolean;
+  warning?: boolean;
+  status_code?: string | null;
+  status_detail?: string | null;
+  size?: number | null;
+  allocated?: number | null;
+  free?: number | null;
+  freeing?: number | null;
+  dedup_table_size?: number | null;
+  dedup_table_quota?: string | null;
+  fragmentation?: string | null;
+  size_str?: string | null;
+  allocated_str?: string | null;
+  free_str?: string | null;
+  freeing_str?: string | null;
+  autotrim?: {
+    [k: string]: unknown;
+  };
+  topology?: PoolTopology | null;
+}
 export interface PoolScanChangedEvent {
   name: string;
   scan: PoolScanInput;
+}
+export interface PoolSnapshotCreateUpdateEntry {
+  id: string;
+  properties: {
+    [k: string]: PoolSnapshotEntryPropertyFields;
+  };
+  pool: string;
+  name: string;
+  type: "SNAPSHOT";
+  snapshot_name: string;
+  dataset: string;
+  createtxg: string;
+}
+export interface PoolSnapshotEntryPropertyFields {
+  value: string;
+  rawvalue: string;
+  source: PoolSnapshotEntryPropertyFieldsSource;
+  parsed: unknown;
 }
 export interface PoolSnapshotCreateWithName {
   dataset: string;
@@ -1612,6 +2270,34 @@ export interface PoolSnapshotCreateWithSchema {
     [k: string]: unknown;
   };
   naming_schema: string;
+}
+export interface PoolSnapshotEntry {
+  id: string;
+  properties: {
+    [k: string]: PoolSnapshotEntryPropertyFields;
+  };
+  pool: string;
+  name: string;
+  type: "SNAPSHOT";
+  snapshot_name: string;
+  dataset: string;
+  createtxg: string;
+  holds?: PoolSnapshotHoldTag;
+  retention?: (PoolSnapshotRetentionPST | PoolSnapshotRetentionProperty) | null;
+}
+export interface PoolSnapshotQueryResultItem {
+  id?: string;
+  properties?: {
+    [k: string]: PoolSnapshotEntryPropertyFields;
+  };
+  pool?: string;
+  name?: string;
+  type?: "SNAPSHOT";
+  snapshot_name?: string;
+  dataset?: string;
+  createtxg?: string;
+  holds?: PoolSnapshotHoldTag;
+  retention?: (PoolSnapshotRetentionPST | PoolSnapshotRetentionProperty) | null;
 }
 export interface PoolSnapshotRenameOptions {
   new_name: string;
@@ -1740,7 +2426,7 @@ export interface ReplicationEntry {
   id: number;
   name: string;
   direction: CloudSyncCreateDirection;
-  transport: Transport;
+  transport: ReplicationCountEligibleManualSnapshotsTransport;
   ssh_credentials?: KeychainCredentialEntry | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
   netcat_active_side_listen_address?: string | null;
@@ -1797,6 +2483,67 @@ export interface ReplicationEntry {
   } | null;
   has_encrypted_dataset_keys: boolean;
 }
+export interface ReplicationQueryResultItem {
+  id?: number;
+  name?: string;
+  direction?: CloudSyncCreateDirection;
+  transport?: ReplicationCountEligibleManualSnapshotsTransport;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
+  netcat_active_side_listen_address?: string | null;
+  netcat_active_side_port_min?: number | null;
+  netcat_active_side_port_max?: number | null;
+  netcat_passive_side_connect_address?: string | null;
+  sudo?: boolean;
+  /**
+   * @minItems 1
+   */
+  source_datasets?: [string, ...string[]];
+  target_dataset?: string;
+  recursive?: boolean;
+  exclude?: string[];
+  properties?: boolean;
+  properties_exclude?: string[];
+  properties_override?: {
+    [k: string]: string;
+  };
+  replicate?: boolean;
+  encryption?: boolean;
+  encryption_inherit?: boolean | null;
+  encryption_key?: string | null;
+  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
+  encryption_key_location?: string | null;
+  periodic_snapshot_tasks?: PoolSnapshotTaskDBEntry[];
+  naming_schema?: string[];
+  also_include_naming_schema?: string[];
+  name_regex?: string | null;
+  auto?: boolean;
+  schedule?: ReplicationTimeCronModel | null;
+  restrict_schedule?: ReplicationTimeCronModel | null;
+  only_matching_schedule?: boolean;
+  allow_from_scratch?: boolean;
+  readonly?: Readonly;
+  hold_pending_snapshots?: boolean;
+  retention_policy?: "SOURCE" | "CUSTOM" | "NONE";
+  lifetime_value?: number | null;
+  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
+  lifetimes?: ReplicationLifetimeModel[];
+  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
+  speed_limit?: number | null;
+  large_block?: boolean;
+  embed?: boolean;
+  compressed?: boolean;
+  retries?: number;
+  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
+  enabled?: boolean;
+  state?: {
+    [k: string]: unknown;
+  };
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  has_encrypted_dataset_keys?: boolean;
+}
 export interface ReportingGetDataResponse {
   name: string;
   identifier: string | null;
@@ -1834,6 +2581,37 @@ export interface RsyncTaskEntry {
   enabled?: boolean;
   locked: boolean;
   job: {
+    [k: string]: unknown;
+  } | null;
+}
+export interface RsyncTaskQueryResultItem {
+  id?: number;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  user?: string;
+  mode?: RsyncTaskCreateMode;
+  remotehost?: string | null;
+  remoteport?: number | null;
+  remotemodule?: string | null;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  remotepath?: string;
+  direction?: RsyncTaskCreateDirection;
+  desc?: string;
+  schedule?: RsyncTaskSchedule;
+  recursive?: boolean;
+  times?: boolean;
+  compress?: boolean;
+  archive?: boolean;
+  delete?: boolean;
+  quiet?: boolean;
+  preserveperm?: boolean;
+  preserveattr?: boolean;
+  delayupdates?: boolean;
+  extra?: string[];
+  enabled?: boolean;
+  locked?: boolean;
+  job?: {
     [k: string]: unknown;
   } | null;
 }
@@ -1895,15 +2673,25 @@ export interface SharingNFSEntry {
   expose_snapshots?: boolean;
   tier?: TierInfo | null;
 }
-export interface TierInfo {
-  tier_type: "REGULAR" | "PERFORMANCE";
-  tier_job?: ZfsTierRewriteJobEntry | null;
-}
-export interface ZfsTierRewriteJobEntry {
-  tier_job_id: string;
-  dataset_name: string;
-  job_uuid: string;
-  status: ZfsTierRewriteJobEntryStatus;
+export interface SharingNFSQueryResultItem {
+  id?: number;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  aliases?: string[];
+  comment?: string;
+  networks?: string[];
+  hosts?: string[];
+  ro?: boolean;
+  maproot_user?: string | null;
+  maproot_group?: string | null;
+  mapall_user?: string | null;
+  mapall_group?: string | null;
+  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
+  enabled?: boolean;
+  locked?: boolean | null;
+  expose_snapshots?: boolean;
+  tier?: TierInfo | null;
 }
 export interface SharingSMBAddedEvent {
   id: number;
@@ -1971,6 +2759,35 @@ export interface SharingSMBEntry {
     | null;
   tier?: TierInfo | null;
 }
+export interface SharingSMBQueryResultItem {
+  id?: number;
+  purpose?: Purpose;
+  name?: string;
+  path?: string | "EXTERNAL";
+  dataset?: string | null;
+  relative_path?: string | null;
+  enabled?: boolean;
+  comment?: string;
+  readonly?: boolean;
+  browsable?: boolean;
+  access_based_share_enumeration?: boolean;
+  locked?: boolean | null;
+  audit?: SmbAuditConfig;
+  options?:
+    | (
+        | LegacyOpt
+        | DefaultOpt
+        | TimeMachineOpt
+        | MultiprotocolOpt
+        | TimeLockedOpt
+        | PrivateDatasetOpt
+        | ExternalOpt
+        | VeeamRepositoryOpt
+        | FCPStorageOpt
+      )
+    | null;
+  tier?: TierInfo | null;
+}
 export interface SharingSMBSetaclArgs {
   share_name: string;
   share_acl?: SMBShareAclEntry[];
@@ -2018,6 +2835,17 @@ export interface SharingWebshareEntry {
   locked: boolean | null;
   tier?: TierInfo | null;
 }
+export interface SharingWebshareQueryResultItem {
+  id?: number;
+  name?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  enabled?: boolean;
+  is_home_base?: boolean;
+  locked?: boolean | null;
+  tier?: TierInfo | null;
+}
 export interface SharingWebshareRemovedEvent {
   id: number;
 }
@@ -2045,7 +2873,7 @@ export interface SMBEntry {
   dirmask: string | "DEFAULT";
   ntlmv1_auth: boolean;
   multichannel: boolean;
-  encryption: Encryption;
+  encryption: SMBEntryEncryption;
   bindip: string[];
   server_sid: string | null;
   smb_options: string;
@@ -2105,6 +2933,38 @@ export interface SysInfo {
   datetime: string;
   remote_info: RemoteInfo | null;
 }
+export interface SystemAdvancedEntry {
+  id: number;
+  advancedmode: boolean;
+  autotune: boolean;
+  kdump_enabled: boolean;
+  boot_scrub: number;
+  consolemenu: boolean;
+  consolemsg: boolean;
+  debugkernel: boolean;
+  fqdn_syslog: boolean;
+  motd: string;
+  login_banner: string;
+  powerdaemon: boolean;
+  serialconsole: boolean;
+  serialport: string;
+  anonstats_token: string;
+  serialspeed: Serialspeed;
+  overprovision: number | null;
+  traceback: boolean;
+  uploadcrash: boolean;
+  anonstats: boolean;
+  sed_user: "USER" | "MASTER";
+  sysloglevel: Sysloglevel;
+  /**
+   * @maxItems 2
+   */
+  syslogservers?: [] | [SyslogServer] | [SyslogServer, SyslogServer];
+  syslog_audit?: boolean;
+  isolated_gpu_pci_ids: string[];
+  kernel_extra_options: string;
+  nvidia: boolean;
+}
 export interface SystemAdvancedUpdate {
   advancedmode?: boolean;
   autotune?: boolean;
@@ -2129,7 +2989,7 @@ export interface SystemAdvancedUpdate {
   /**
    * @maxItems 2
    */
-  syslogservers?: [] | [SyslogServer] | [SyslogServer, SyslogServer];
+  syslogservers?: [] | [SyslogServerInput] | [SyslogServerInput, SyslogServerInput];
   syslog_audit?: boolean;
   kernel_extra_options?: string;
   nvidia?: boolean;
@@ -2332,6 +3192,41 @@ export interface UserCreateUpdateResult {
   api_keys: number[];
   password: string | null;
 }
+export interface UserQueryResultItem {
+  id?: number;
+  uid?: number;
+  username?: string;
+  unixhash?: string | null;
+  smbhash?: string | null;
+  home?: string;
+  shell?: string;
+  full_name?: string;
+  builtin?: boolean;
+  smb?: boolean;
+  webshare?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group?: {
+    [k: string]: unknown;
+  };
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  local?: boolean;
+  immutable?: boolean;
+  twofactor_auth_configured?: boolean;
+  sid?: string | null;
+  last_password_change?: string | null;
+  password_age?: number | null;
+  password_history?: unknown[] | null;
+  password_change_required?: boolean;
+  roles?: string[];
+  api_keys?: number[];
+}
 export interface UserRenew2FaSecretResult {
   id: number;
   uid: number;
@@ -2473,6 +3368,12 @@ export interface VMDeviceNicAttachChoicesResult {
   BRIDGE: string[];
   MACVLAN: string[];
 }
+export interface VMDeviceQueryResultItem {
+  id?: number;
+  attributes?: VMCDROMDevice | VMDisplayDevice | VMNICDevice | VMPCIDevice | VMRAWDevice | VMDiskDevice | VMUSBDevice;
+  vm?: number;
+  order?: number;
+}
 export interface VMEntry {
   command_line_args?: string;
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
@@ -2507,6 +3408,40 @@ export interface VMEntry {
   status: VMStatus;
   enable_secure_boot?: boolean;
 }
+export interface VMQueryResultItem {
+  command_line_args?: string;
+  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
+  cpu_model?: string | null;
+  name?: string;
+  description?: string;
+  vcpus?: number;
+  cores?: number;
+  threads?: number;
+  cpuset?: string | null;
+  nodeset?: string | null;
+  enable_cpu_topology_extension?: boolean;
+  pin_vcpus?: boolean;
+  suspend_on_snapshot?: boolean;
+  trusted_platform_module?: boolean;
+  memory?: number;
+  min_memory?: number | null;
+  hyperv_enlightenments?: boolean;
+  bootloader?: Bootloader;
+  bootloader_ovmf?: string;
+  autostart?: boolean;
+  hide_from_msr?: boolean;
+  ensure_display_device?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  arch_type?: string | null;
+  machine_type?: string | null;
+  uuid?: string | null;
+  devices?: VMDeviceEntry[];
+  display_available?: boolean;
+  id?: number;
+  status?: VMStatus;
+  enable_secure_boot?: boolean;
+}
 export interface VMWareAddedEvent {
   id: number;
   fields: VMWareEntryInput;
@@ -2538,6 +3473,20 @@ export interface VMWareEntry {
   password: string;
   state: VMWareEntryState;
 }
+export interface VMWareEntryState {
+  state?: VMWareEntryStateState;
+  error?: string;
+  datetime?: string;
+}
+export interface VMWareQueryResultItem {
+  id?: number;
+  datastore?: string;
+  filesystem?: string;
+  hostname?: string;
+  username?: string;
+  password?: string;
+  state?: VMWareEntryState;
+}
 export interface WebshareEntry {
   id: number;
   bindip: string[];
@@ -2561,7 +3510,7 @@ export interface ZFSResourceEntry {
   name: string;
   pool: string;
   properties: ZFSPropertiesEntry | null;
-  type: VMWareMatchDatastoresWithDatasetsResultFilesystemType;
+  type: "FILESYSTEM" | "VOLUME";
   user_properties: {
     [k: string]: string;
   } | null;
@@ -2617,6 +3566,48 @@ export interface ZFSResourceSnapshotEntry {
   user_properties: {
     [k: string]: string;
   } | null;
+}
+export interface ZFSResourceSnapshotPropertiesEntry {
+  type?: PropertyValue;
+  creation?: PropertyValue;
+  used?: PropertyValue;
+  referenced?: PropertyValue;
+  compressratio?: PropertyValue;
+  createtxg?: PropertyValue;
+  guid?: PropertyValue;
+  primarycache?: PropertyValue;
+  secondarycache?: PropertyValue;
+  objsetid?: PropertyValue;
+  mlslabel?: PropertyValue;
+  refcompressratio?: PropertyValue;
+  written?: PropertyValue;
+  logicalreferenced?: PropertyValue;
+  context?: PropertyValue;
+  fscontext?: PropertyValue;
+  defcontext?: PropertyValue;
+  rootcontext?: PropertyValue;
+  encryption?: PropertyValue;
+  encryptionroot?: PropertyValue;
+  keystatus?: PropertyValue;
+  redact_snaps?: PropertyValue;
+  prefetch?: PropertyValue;
+  devices?: PropertyValue;
+  exec?: PropertyValue;
+  setuid?: PropertyValue;
+  xattr?: PropertyValue;
+  version?: PropertyValue;
+  utf8only?: PropertyValue;
+  normalization?: PropertyValue;
+  casesensitivity?: PropertyValue;
+  nbmand?: PropertyValue;
+  acltype?: PropertyValue;
+  defaultuserquota?: PropertyValue;
+  defaultgroupquota?: PropertyValue;
+  defaultprojectquota?: PropertyValue;
+  defaultuserobjquota?: PropertyValue;
+  defaultgroupobjquota?: PropertyValue;
+  defaultprojectobjquota?: PropertyValue;
+  volsize?: PropertyValue;
 }
 export interface ZFSResourceSnapshotHoldQuery {
   path: string;
@@ -2680,6 +3671,11 @@ export interface ZfsTierRewriteJobFailureError {
   errno: number;
   strerror: string;
 }
+export interface ZfsTierRewriteJobFailureQueryResultItem {
+  filename?: string;
+  error?: ZfsTierRewriteJobFailureError;
+  path?: string | null;
+}
 export interface ZfsTierRewriteJobFailuresArgs {
   tier_job_id: string;
   "query-filters"?: unknown[];
@@ -2695,6 +3691,12 @@ export interface ZfsTierRewriteJobQueryEventSourceEvent {
 }
 export interface ZfsTierRewriteJobQueryEventSourceEvent2 {
   fields: ZfsTierRewriteJobQueryEventSourceEvent;
+}
+export interface ZfsTierRewriteJobQueryResultItem {
+  tier_job_id?: string;
+  dataset_name?: string;
+  job_uuid?: string;
+  status?: ZfsTierRewriteJobEntryStatus;
 }
 export interface ZfsTierRewriteJobRecoverArgs {
   tier_job_id: string;

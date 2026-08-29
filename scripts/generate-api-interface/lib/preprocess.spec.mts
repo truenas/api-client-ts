@@ -25,6 +25,71 @@ const version = (methods: ApiDumpMethod[], events: ApiDumpVersion['events'] = []
 });
 
 describe('preprocess', () => {
+  /**
+   * A titled inline enum is hoisted into `$defs` under its title, so one title
+   * can name several distinct shapes across documents. Names are then assigned
+   * in two passes: the first names a mode that has exactly one variant, the
+   * second gives origin-qualified names where a mode has several.
+   *
+   * The two collided. A title with several *output* variants and exactly one
+   * *input* variant had its input name assigned by the first pass and then
+   * discarded by the second, which replaced the whole record rather than adding
+   * to it. Input references then fell back to the bare title — which, depending
+   * on what else claimed it, either names nothing (a hard failure downstream) or
+   * silently names the *other* shape, so a request would be typed with the
+   * wrong enum.
+   *
+   * Reached once a dump carries a second output shape under an existing title,
+   * which is what `--dump-api` describing previously free-form objects produces.
+   * Asserted on the resolved shape rather than the chosen name: the point is
+   * that the input reference still reaches its own enum.
+   */
+  it('keeps the input name when a title has several output variants', () => {
+    const zfsSource: Schema = {
+      type: 'string', title: 'Source',
+      enum: ['NONE', 'DEFAULT', 'LOCAL', 'INHERITED'],
+    };
+    const authSource: Schema = {
+      type: 'string', title: 'Source',
+      // Chosen to sort before the zfs body: variants are ordered by their
+      // stringified schema, and the first one claims the bare title. With the
+      // zfs shape claiming it, the buggy fallback lands on the right enum by
+      // luck and the assertion below cannot fire.
+      enum: ['ALPHA', 'BETA'],
+    };
+
+    const warnings: string[] = [];
+    const realWarn = console.warn;
+    console.warn = (...parts: unknown[]) => void warnings.push(parts.join(' '));
+    let result;
+    try {
+      result = preprocess(version([
+        // Two shapes under one title, both on the way out.
+        method('auth.me', args({}, []), returnsDoc({
+          type: 'object', properties: { source: authSource }, required: ['source'],
+        })),
+        method('pool.snapshot.query', args({}, []), returnsDoc({
+          type: 'object', properties: { source: zfsSource }, required: ['source'],
+        })),
+        // One of them also arrives as input, which is the name that was dropped.
+        method('pool.snapshot.update', args({ source: zfsSource }, ['source']),
+          returnsDoc({ type: 'null' })),
+      ]));
+    } finally {
+      console.warn = realWarn;
+    }
+    const { definitions, methods } = result;
+
+    expect(warnings.filter((w) => w.includes('unresolved'))).toEqual([]);
+
+    const update = methods.find((m) => m.name === 'pool.snapshot.update');
+    const ref = (update?.params[0].schema as { $ref?: string }).$ref ?? '';
+    const target = definitions[ref.replace('#/definitions/', '')] as { enum?: string[] } | undefined;
+
+    // Its own enum, not the one `auth.me` returns under the same title.
+    expect(target?.enum).toEqual(['NONE', 'DEFAULT', 'LOCAL', 'INHERITED']);
+  });
+
   it('extracts params in order with optionality from the required list', () => {
     const { methods } = preprocess(version([
       method('x.do', args({

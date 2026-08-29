@@ -1,56 +1,103 @@
 /**
  * The gap this PR knowingly ships, pinned so it cannot be forgotten.
  *
- * The cause: a type is declared once, in the version where its shape first
- * appeared, and `generate.mts` skips writing any file carrying the frozen
- * marker. A type homed in a frozen directory therefore cannot be changed by any
- * dump, however many times the tree is regenerated — the corrected declaration
- * is emitted and then discarded.
+ * `app.query` is described two ways inside one version. The call side takes and
+ * returns `AppEntry`; the event payload resolves to `AppEntryInput`. Those two
+ * disagree about the same object — `AppEntryInput` carries the `ERROR` state,
+ * `error_reason` and a nullable `version`, and `AppEntry` carries none of them —
+ * so a caller reading `entry.version` is typed non-null for a field the same
+ * object delivers as `null` over the event, and `e.fields.state === 'ERROR'`
+ * compiles while `entry.state === 'ERROR'` does not, for a state the appliance
+ * reports. The event payload is the side that describes the appliance
+ * correctly; the call side is the one that is narrow.
  *
  * These assertions describe what is wrong today, so **they fail when the gap is
- * fixed**. That is the point: the fix is hand work in `v25_10_0/`, and nothing
- * else in the repo would notice it happening. `ci.yml` neither regenerates nor
- * diffs the tree, and the drift check in `generate.mts` compares dump to dump,
- * so it stays quiet when only the generator has moved.
+ * fixed**. That is the point: nothing else in the repo would notice it closing.
+ * `ci.yml` neither regenerates nor diffs the tree, and the drift check in
+ * `generate.mts` compares dump to dump, so it stays quiet when only the
+ * generator has moved.
  *
- * This file carried a second block, for model fields named `description`. That
- * gap closed: `stripDocs` was fixed and the tree regenerated against the pinned
- * dump, so `ContainerEntry` declares the field and the widening that read it
- * through a cast is gone. The block was deleted rather than kept passing, which
- * is what these are for — they are removed by being satisfied.
+ * This file was deleted once, in TNC-2283, on the reading that the gap had
+ * closed. It had not — it moved. That regeneration unfroze v25.10, so the
+ * corrected input render was written into `v25_10_0/` and the v27 assertions
+ * started failing — which is what was read as the gap closing, since this file
+ * is written to fail when it does. But the *disagreement* travelled with it,
+ * because `AppEntryInput` and `AppEntry` are both homed at the chain root now
+ * and still describe the same object differently. Deleting the file recorded a
+ * fix that had not happened.
  *
- * When one fails: delete that block, and remove the matching note from the
- * "Known gap" section of the PR/release notes. The failure message says so too.
+ * **Two versions carry it, and only one of them is frozen.** `v25_10_0` is
+ * hand-maintained, so the gap there closes only by deliberate work. `v26_0_0`
+ * declares its own narrow `AppEntry` and does not override `app.query`'s event,
+ * so it inherits the root's widened `AppEntryInput` — and that directory is
+ * rewritten by any routine `yarn generate:api`. Pinning only the frozen version
+ * would have left the reachable one unguarded.
+ *
+ * `v27_0_0` is not pinned, and that is a finding rather than an omission: its
+ * own `AppEntry` already carries `ERROR` and a nullable `version`, so its call
+ * and event sides agree. It is what the other two should look like.
+ *
+ * When one version's block fails, delete that block only. The file goes when
+ * the last one does — retiring it earlier would drop the record while a shipped
+ * version still disagrees.
  */
 import { describe, expectTypeOf, it } from 'vitest';
 
-import type { v27_0_0 } from '@/generated';
+import type { v25_10_0, v26_0_0, v27_0_0 } from '@/generated';
 
-describe('known gap: v27 app events disagree with app calls', () => {
+describe('known gap: app events disagree with app calls', () => {
   /**
-   * This dump moved the v27 call shape — `AppEntry` gained `ERROR`,
-   * `error_reason` and nullable `version`/`human_version` — while `app.query`'s
-   * event payload still resolves to `AppEntryInput`, homed in the frozen
-   * `v25_10_0/`. So one version describes the same object two ways:
-   * `e.fields.version` is typed non-null and arrives `null`, and
-   * `e.fields.state === 'ERROR'` does not compile for a state the appliance
-   * reports.
-   *
-   * Reconciling means writing the input render into the frozen directory, which
-   * needs the pinned dump to read rather than infer.
+   * Both shapes are homed in `v25_10_0/` and the directory is frozen again, so
+   * closing this means either hand-maintenance there or another unfreeze — and
+   * an unfreeze deletes the entries no dump describes — seven commits of
+   * TNC-2283, `dd715de`..`f08de91`, went on putting them back.
    */
-  it('still types the event payload version as non-nullable', () => {
-    type EventFields = v27_0_0.ApiEventDirectory['app.query']['added']['fields'];
-    expectTypeOf<EventFields['version']>().toEqualTypeOf<string>();
-    // The call side, for contrast: same object, nullable here.
-    expectTypeOf<v27_0_0.AppEntry['version']>().toEqualTypeOf<string | null>();
+  describe('v25.10.0 — frozen, closes only by hand', () => {
+    type EventFields = v25_10_0.ApiEventDirectory['app.query']['added']['fields'];
+
+    it('still types the call-side version as non-nullable', () => {
+      expectTypeOf<EventFields['version']>().toEqualTypeOf<string | null>();
+      expectTypeOf<v25_10_0.AppEntry['version']>().toEqualTypeOf<string>();
+    });
+
+    it('still omits ERROR from the call-side state', () => {
+      type EventHasError = 'ERROR' extends EventFields['state'] ? true : false;
+      expectTypeOf<EventHasError>().toEqualTypeOf<true>();
+      type CallHasError = 'ERROR' extends v25_10_0.AppEntry['state'] ? true : false;
+      expectTypeOf<CallHasError>().toEqualTypeOf<false>();
+    });
   });
 
-  it('still omits ERROR from the event payload state', () => {
+  /**
+   * The reachable one. `v26_0_0` is regenerated by any ordinary run, so this
+   * closes the day middleware widens v26's `AppEntry` — or the day v26 starts
+   * declaring its own `app.query` event rather than inheriting the root's.
+   */
+  describe('v26.0.0 — regenerated, inherits the widened event', () => {
+    type EventFields = v26_0_0.ApiEventDirectory['app.query']['added']['fields'];
+
+    it('still types the call-side version as non-nullable', () => {
+      expectTypeOf<EventFields['version']>().toEqualTypeOf<string | null>();
+      expectTypeOf<v26_0_0.AppEntry['version']>().toEqualTypeOf<string>();
+    });
+
+    it('still omits ERROR from the call-side state', () => {
+      type EventHasError = 'ERROR' extends EventFields['state'] ? true : false;
+      expectTypeOf<EventHasError>().toEqualTypeOf<true>();
+      type CallHasError = 'ERROR' extends v26_0_0.AppEntry['state'] ? true : false;
+      expectTypeOf<CallHasError>().toEqualTypeOf<false>();
+    });
+  });
+
+  /**
+   * Not a gap — asserted so that a regression *into* one is caught. If a later
+   * dump narrows v27's `AppEntry` the way v26's still is, this fails and says
+   * the disagreement has spread rather than letting it arrive unremarked.
+   */
+  it('v27.0.0 agrees with itself', () => {
     type EventFields = v27_0_0.ApiEventDirectory['app.query']['added']['fields'];
-    type EventHasError = 'ERROR' extends EventFields['state'] ? true : false;
-    expectTypeOf<EventHasError>().toEqualTypeOf<false>();
-    // The call side declares it, which is the disagreement.
+    expectTypeOf<EventFields['version']>().toEqualTypeOf<string | null>();
+    expectTypeOf<v27_0_0.AppEntry['version']>().toEqualTypeOf<string | null>();
     type CallHasError = 'ERROR' extends v27_0_0.AppEntry['state'] ? true : false;
     expectTypeOf<CallHasError>().toEqualTypeOf<true>();
   });

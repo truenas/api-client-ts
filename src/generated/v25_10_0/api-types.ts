@@ -2,9 +2,10 @@
  * FROZEN — generated once, then hand-maintained. Do not regenerate.
  *
  * v25.10 is released and its API cannot change, so this directory is a record
- * rather than an output. It also carries the `virt.*` namespace, which no dump
- * can reproduce: middleware deleted those models from every version directory
- * in b9c330ee94, so regenerating would silently delete them here too.
+ * rather than an output. It also carries two things no dump can reproduce, so
+ * regenerating deletes them silently: the `virt.*` namespace, whose models
+ * middleware removed from every version directory in b9c330ee94, and
+ * `pool.dataset.encryption_algorithm_choices`, removed in 22ce5eac51.
  *
  * `yarn generate:api` still generates the whole chain — later versions are
  * deltas against this one — but leaves files carrying this marker untouched.
@@ -80,6 +81,13 @@ export const Authenticator = {
 } as const;
 export type Authenticator = (typeof Authenticator)[keyof typeof Authenticator];
 
+export const AuthMeSource = {
+  Local: 'LOCAL',
+  Activedirectory: 'ACTIVEDIRECTORY',
+  Ldap: 'LDAP',
+} as const;
+export type AuthMeSource = (typeof AuthMeSource)[keyof typeof AuthMeSource];
+
 export const Authmethod = {
   None: 'NONE',
   Chap: 'CHAP',
@@ -137,6 +145,12 @@ export const CloudSyncCreateDirectionInput = {
   Pull: 'PULL',
 } as const;
 export type CloudSyncCreateDirectionInput = (typeof CloudSyncCreateDirectionInput)[keyof typeof CloudSyncCreateDirectionInput];
+
+export const CloudTaskAttributesEncryption = {
+  Null: null,
+  Aes256: 'AES256',
+} as const;
+export type CloudTaskAttributesEncryption = (typeof CloudTaskAttributesEncryption)[keyof typeof CloudTaskAttributesEncryption];
 
 export const CloudTaskAttributesEncryptionInput = {
   Null: null,
@@ -262,14 +276,6 @@ export const Enclosure2SetSlotStatusStatusInput = {
   Off: 'OFF',
 } as const;
 export type Enclosure2SetSlotStatusStatusInput = (typeof Enclosure2SetSlotStatusStatusInput)[keyof typeof Enclosure2SetSlotStatusStatusInput];
-
-export const Encryption = {
-  Default: 'DEFAULT',
-  Negotiate: 'NEGOTIATE',
-  Desired: 'DESIRED',
-  Required: 'REQUIRED',
-} as const;
-export type Encryption = (typeof Encryption)[keyof typeof Encryption];
 
 export const Endpoint = {
   OvhEu: 'ovh-eu',
@@ -541,6 +547,16 @@ export const PoolScanStateInput = {
 } as const;
 export type PoolScanStateInput = (typeof PoolScanStateInput)[keyof typeof PoolScanStateInput];
 
+export const PoolSnapshotEntryPropertyFieldsSource = {
+  None: 'NONE',
+  Default: 'DEFAULT',
+  Local: 'LOCAL',
+  Temporary: 'TEMPORARY',
+  Inherited: 'INHERITED',
+  Received: 'RECEIVED',
+} as const;
+export type PoolSnapshotEntryPropertyFieldsSource = (typeof PoolSnapshotEntryPropertyFieldsSource)[keyof typeof PoolSnapshotEntryPropertyFieldsSource];
+
 export const Protocol = {
   Http: 'HTTP',
   Https: 'HTTPS',
@@ -565,6 +581,13 @@ export const Readonly = {
   Ignore: 'IGNORE',
 } as const;
 export type Readonly = (typeof Readonly)[keyof typeof Readonly];
+
+export const ReplicationCountEligibleManualSnapshotsTransport = {
+  Ssh: 'SSH',
+  SshNetcat: 'SSH+NETCAT',
+  Local: 'LOCAL',
+} as const;
+export type ReplicationCountEligibleManualSnapshotsTransport = (typeof ReplicationCountEligibleManualSnapshotsTransport)[keyof typeof ReplicationCountEligibleManualSnapshotsTransport];
 
 export const ReplicationCountEligibleManualSnapshotsTransportInput = {
   Ssh: 'SSH',
@@ -650,6 +673,14 @@ export const Serialspeed = {
 } as const;
 export type Serialspeed = (typeof Serialspeed)[keyof typeof Serialspeed];
 
+export const Service = {
+  Middleware: 'MIDDLEWARE',
+  Smb: 'SMB',
+  Sudo: 'SUDO',
+  System: 'SYSTEM',
+} as const;
+export type Service = (typeof Service)[keyof typeof Service];
+
 export const ServiceControlVerb = {
   Start: 'START',
   Stop: 'STOP',
@@ -689,6 +720,14 @@ export const Shutdown = {
 } as const;
 export type Shutdown = (typeof Shutdown)[keyof typeof Shutdown];
 
+export const SMBEntryEncryption = {
+  Default: 'DEFAULT',
+  Negotiate: 'NEGOTIATE',
+  Desired: 'DESIRED',
+  Required: 'REQUIRED',
+} as const;
+export type SMBEntryEncryption = (typeof SMBEntryEncryption)[keyof typeof SMBEntryEncryption];
+
 export const SMBEntryEncryptionInput = {
   Default: 'DEFAULT',
   Negotiate: 'NEGOTIATE',
@@ -712,13 +751,6 @@ export const Snapdir = {
 } as const;
 export type Snapdir = (typeof Snapdir)[keyof typeof Snapdir];
 
-export const Source = {
-  Local: 'LOCAL',
-  Activedirectory: 'ACTIVEDIRECTORY',
-  Ldap: 'LDAP',
-} as const;
-export type Source = (typeof Source)[keyof typeof Source];
-
 export const SourceInput = {
   None: 'NONE',
   Default: 'DEFAULT',
@@ -728,6 +760,16 @@ export const SourceInput = {
   Received: 'RECEIVED',
 } as const;
 export type SourceInput = (typeof SourceInput)[keyof typeof SourceInput];
+
+export const SourceValueType = {
+  None: 'NONE',
+  Default: 'DEFAULT',
+  Temporary: 'TEMPORARY',
+  Local: 'LOCAL',
+  Inherited: 'INHERITED',
+  Received: 'RECEIVED',
+} as const;
+export type SourceValueType = (typeof SourceValueType)[keyof typeof SourceValueType];
 
 export const State = {
   Crashed: 'crashed',
@@ -781,6 +823,13 @@ export const Sysloglevel = {
 } as const;
 export type Sysloglevel = (typeof Sysloglevel)[keyof typeof Sysloglevel];
 
+export const SyslogServerTransport = {
+  Udp: 'UDP',
+  Tcp: 'TCP',
+  Tls: 'TLS',
+} as const;
+export type SyslogServerTransport = (typeof SyslogServerTransport)[keyof typeof SyslogServerTransport];
+
 export const SyslogServerTransportInput = {
   Udp: 'UDP',
   Tcp: 'TCP',
@@ -822,13 +871,6 @@ export const Time = {
   Utc: 'UTC',
 } as const;
 export type Time = (typeof Time)[keyof typeof Time];
-
-export const Transport = {
-  Ssh: 'SSH',
-  SshNetcat: 'SSH+NETCAT',
-  Local: 'LOCAL',
-} as const;
-export type Transport = (typeof Transport)[keyof typeof Transport];
 
 export const TruecommandConfigChangedEventFieldsStatus = {
   Connected: 'CONNECTED',
@@ -1034,63 +1076,15 @@ export const ZfsTierRewriteJobEntryStatusInput = {
 } as const;
 export type ZfsTierRewriteJobEntryStatusInput = (typeof ZfsTierRewriteJobEntryStatusInput)[keyof typeof ZfsTierRewriteJobEntryStatusInput];
 
-export type ACLTemplateQueryResultItem = Record<string, unknown>;
-
-export type AlertClassConfiguration = Record<string, unknown>;
-
-export type AlertServiceQueryResultItem = Record<string, unknown>;
-
-export type ApiKeyQueryResultItem = Record<string, unknown>;
-
 export type AppContainerResponse = Record<string, ContainerDetails>;
 
 export type AppGPUResponse = Record<string, GPU>;
 
-export type AppImageQueryResultItem = Record<string, unknown>;
-
-export type AppQueryResultItem = Record<string, unknown>;
-
-export type AppRegistryQueryResultItem = Record<string, unknown>;
-
-export type AppsIxVolumeQueryResultItem = Record<string, unknown>;
-
-export type AuditQueryResultItem = Record<string, unknown>;
-
-export type AuthSessionsQueryResultItem = Record<string, unknown>;
-
 export type BaseCredentialData = Record<string, never>;
-
-export type BootEnvironmentQueryResultItem = Record<string, unknown>;
 
 export type CatalogTrainInfo = Record<string, CatalogAppInfo>;
 
-export type CertificateQueryResultItem = Record<string, unknown>;
-
-export type CloudBackupQueryResultItem = Record<string, unknown>;
-
-export type CloudSyncQueryResultItem = Record<string, unknown>;
-
-export type CloudTaskAttributes = Record<string, unknown>;
-
-export type CoreGetJobsItemQueryResultItem = Record<string, unknown>;
-
-export type CoreOptions = Record<string, unknown>;
-
-export type CredentialsQueryResultItem = Record<string, unknown>;
-
-export type CronJobQueryResultItem = Record<string, unknown>;
-
-export type DiskEntry = Record<string, unknown>;
-
-export type DiskQueryResultItem = Record<string, unknown>;
-
-export type DNSAuthenticatorQueryResultItem = Record<string, unknown>;
-
-export type DNSQueryItemQueryResultItem = Record<string, unknown>;
-
 export type DockerBackupInfo = Record<string, BackupInfo>;
-
-export type DockerNetworkQueryResultItem = Record<string, unknown>;
 
 export type EmptyDict = Record<string, never>;
 
@@ -1098,129 +1092,11 @@ export type Enclosure2Entry = Record<string, unknown>;
 
 export type Enclosure2QueryResultItem = Record<string, unknown>;
 
-export type FCHostQueryResultItem = Record<string, unknown>;
-
-export type FCPortQueryResultItem = Record<string, unknown>;
-
-export type FilesystemDirQueryResultItem = Record<string, unknown>;
-
-export type GroupQueryResultItem = Record<string, unknown>;
-
-export type InitShutdownScriptQueryResultItem = Record<string, unknown>;
-
-export type InterfaceEntry = Record<string, unknown>;
-
-export type InterfaceIPInUseItem = Record<string, unknown>;
-
-export type InterfaceQueryResultItem = Record<string, unknown>;
-
-export type IPMILanEntry = Record<string, unknown>;
-
-export type IPMILanQueryResultItem = Record<string, unknown>;
-
-export type IpmiSelElistQueryResultItem = Record<string, unknown>;
-
-export type ISCSIPortalQueryResultItem = Record<string, unknown>;
-
-export type ISCSITargetAuthCredentialQueryResultItem = Record<string, unknown>;
-
-export type ISCSITargetAuthorizedInitiatorQueryResultItem = Record<string, unknown>;
-
-export type ISCSITargetExtentQueryResultItem = Record<string, unknown>;
-
-export type ISCSITargetQueryResultItem = Record<string, unknown>;
-
-export type ISCSITargetToExtentQueryResultItem = Record<string, unknown>;
-
-export type JBOFEntry = Record<string, unknown>;
-
-export type JBOFQueryResultItem = Record<string, unknown>;
-
-export type KerberosKeytabQueryResultItem = Record<string, unknown>;
-
-export type KerberosRealmQueryResultItem = Record<string, unknown>;
-
-export type KeychainCredentialQueryResultItem = Record<string, unknown>;
-
-export type NetworkConfigurationEntry = Record<string, unknown>;
-
-export type NetworkGeneralSummaryIP = Record<string, unknown>;
-
-export type NFSGetNfs3ClientsQueryResultItem = Record<string, unknown>;
-
-export type NFSGetNfs4ClientsQueryResultItem = Record<string, unknown>;
-
-export type NTPServerQueryResultItem = Record<string, unknown>;
-
-export type NVMetHostQueryResultItem = Record<string, unknown>;
-
-export type NVMetHostSubsysQueryResultItem = Record<string, unknown>;
-
-export type NVMetNamespaceQueryResultItem = Record<string, unknown>;
-
-export type NVMetPortQueryResultItem = Record<string, unknown>;
-
-export type NVMetPortSubsysQueryResultItem = Record<string, unknown>;
-
-export type NVMetSubsysEntry = Record<string, unknown>;
-
-export type NVMetSubsysQueryResultItem = Record<string, unknown>;
-
-export type PeriodicSnapshotTaskQueryResultItem = Record<string, unknown>;
-
-export type PoolDatasetDatasetQuota = Record<string, unknown>;
-
-export type PoolDatasetEntry = Record<string, unknown>;
-
-export type PoolDatasetProjectQuota = Record<string, unknown>;
-
-export type PoolDatasetQueryResultItem = Record<string, unknown>;
-
-export type PoolDatasetUserGroupQuota = Record<string, unknown>;
-
-export type PoolQueryResultItem = Record<string, unknown>;
-
-export type PoolScrubQueryResultItem = Record<string, unknown>;
-
-export type PoolSnapshotCreateUpdateEntry = Record<string, unknown>;
-
-export type PoolSnapshotEntry = Record<string, unknown>;
-
-export type PoolSnapshotQueryResultItem = Record<string, unknown>;
-
-export type PrivilegeQueryResultItem = Record<string, unknown>;
-
-export type PrivilegeRolesQueryResultItem = Record<string, unknown>;
-
-export type ReplicationQueryResultItem = Record<string, unknown>;
-
-export type ReportingExportsQueryResultItem = Record<string, unknown>;
-
-export type RouteSystemRoutesItemQueryResultItem = Record<string, unknown>;
-
-export type RsyncTaskQueryResultItem = Record<string, unknown>;
-
-export type ServiceQueryResultItem = Record<string, unknown>;
-
-export type SharingNFSQueryResultItem = Record<string, unknown>;
-
-export type SharingSMBQueryResultItem = Record<string, unknown>;
-
-export type StaticRouteQueryResultItem = Record<string, unknown>;
-
-export type SupportSimilarIssue = Record<string, unknown>;
-
-export type SystemAdvancedEntry = Record<string, unknown>;
-
 export type SystemReadyAddedEvent = Record<string, never>;
 
 export type SystemShutdownAddedEvent = Record<string, never>;
 
-export type TunableQueryResultItem = Record<string, unknown>;
-
 export type USBPassthroughInfo = Record<string, USBPassthroughDevice>;
-
-export type UserQueryResultItem = Record<string, unknown>;
 
 export type VeeamRepositoryOpt = Record<string, never>;
 
@@ -1236,17 +1112,9 @@ export type VMDeviceNicAttachChoicesResult = Record<string, unknown>;
 
 export type VMDevicePassthroughInfo = Record<string, VMDevicePassthroughDevice>;
 
-export type VMDeviceQueryResultItem = Record<string, unknown>;
-
 export type VMDeviceUsbControllerChoicesResult = Record<string, unknown>;
 
 export type VMGuestArchitectureAndMachineChoicesResult = Record<string, unknown>;
-
-export type VMQueryResultItem = Record<string, unknown>;
-
-export type VMWareQueryResultItem = Record<string, unknown>;
-
-export type ZFSPropertiesEntry = Record<string, unknown>;
 
 export interface ACLTemplateAddedEvent {
   id: number;
@@ -1357,6 +1225,14 @@ export interface NFS4ACE {
   flags: NFS4ACE_AdvancedFlags | NFS4ACE_BasicFlags;
   id?: number | null;
   who?: string | null;
+}
+export interface ACLTemplateQueryResultItem {
+  id?: number;
+  builtin?: boolean;
+  name?: string;
+  acltype?: Acltype;
+  acl?: NFS4ACE[] | POSIXACE[];
+  comment?: string;
 }
 export interface ACLTemplateRemovedEvent {
   id: number;
@@ -1522,7 +1398,7 @@ export interface AlertCategoryClass {
   level: string;
   proactive_support: boolean;
 }
-export interface AlertClassConfigurationInput {
+export interface AlertClassConfiguration {
   level?: Level;
   policy?: Policy;
   proactive_support?: boolean;
@@ -1535,7 +1411,7 @@ export interface AlertClassesEntry {
 }
 export interface AlertClassesUpdate {
   classes?: {
-    [k: string]: AlertClassConfigurationInput;
+    [k: string]: AlertClassConfiguration;
   };
 }
 export interface AlertListAddedEvent {
@@ -1657,6 +1533,24 @@ export interface AlertServiceCreate {
   level: Level;
   enabled?: boolean;
 }
+export interface AlertServiceQueryResultItem {
+  name?: string;
+  attributes?:
+    | AWSSNSServiceModel
+    | InfluxDBServiceModel
+    | MailServiceModel
+    | MattermostServiceModel
+    | OpsGenieServiceModel
+    | PagerDutyServiceModel
+    | SlackServiceModel
+    | SNMPTrapServiceModel
+    | TelegramServiceModel
+    | VictorOpsServiceModel;
+  level?: Level;
+  enabled?: boolean;
+  id?: number;
+  type__title?: string;
+}
 export interface AlertServiceRemovedEvent {
   id: number;
 }
@@ -1722,6 +1616,18 @@ export interface ApiKeyEntryWithKey {
   revoked: boolean;
   revoked_reason: string | null;
   key: string;
+}
+export interface ApiKeyQueryResultItem {
+  id?: number;
+  name?: string;
+  username?: string | null;
+  user_identifier?: number | string;
+  keyhash?: string;
+  created_at?: string;
+  expires_at?: string | null;
+  local?: boolean;
+  revoked?: boolean;
+  revoked_reason?: string | null;
 }
 export interface ApiKeyRemovedEvent {
   id: number;
@@ -1795,15 +1701,16 @@ export interface AppAddedEvent {
 export interface AppEntryInput {
   name: string;
   id: string;
-  state: "CRASHED" | "DEPLOYING" | "RUNNING" | "STOPPED" | "STOPPING";
+  state: "CRASHED" | "DEPLOYING" | "ERROR" | "RUNNING" | "STOPPED" | "STOPPING";
+  error_reason?: ("METADATA_MISSING" | "METADATA_UNREADABLE" | "METADATA_INCOMPLETE") | null;
   upgrade_available: boolean;
   latest_version: string | null;
   latest_app_version: string | null;
   image_updates_available: boolean;
   custom_app: boolean;
   migrated: boolean;
-  human_version: string;
-  version: string;
+  human_version: string | null;
+  version: string | null;
   metadata: {
     [k: string]: unknown;
   };
@@ -1823,6 +1730,7 @@ export interface AppEntryInput {
 export interface AppAvailableItem {
   app_readme: string | null;
   categories: string[];
+  description: string;
   healthy: boolean;
   healthy_error?: string | null;
   home: string;
@@ -1957,6 +1865,18 @@ export interface AppImagePullArgs {
   auth_config?: AppImageAuthConfig | null;
   image: string;
 }
+export interface AppImageQueryResultItem {
+  id?: string;
+  repo_tags?: string[];
+  repo_digests?: string[];
+  size?: number;
+  dangling?: boolean;
+  update_available?: boolean;
+  created?: string;
+  author?: string;
+  comment?: string;
+  parsed_repo_tags?: AppImageParsedRepoTags[] | null;
+}
 export interface AppInfo {
   id: string;
   name: string;
@@ -1965,8 +1885,35 @@ export interface AppInfo {
 export interface AppPullImages {
   redeploy?: boolean;
 }
+export interface AppQueryResultItem {
+  name?: string;
+  id?: string;
+  state?: "CRASHED" | "DEPLOYING" | "RUNNING" | "STOPPED" | "STOPPING";
+  upgrade_available?: boolean;
+  latest_version?: string | null;
+  image_updates_available?: boolean;
+  custom_app?: boolean;
+  migrated?: boolean;
+  human_version?: string;
+  version?: string;
+  metadata?: {
+    [k: string]: unknown;
+  };
+  active_workloads?: AppActiveWorkloads;
+  notes?: string | null;
+  portals?: {
+    [k: string]: unknown;
+  };
+  version_details?: {
+    [k: string]: unknown;
+  } | null;
+  config?: {
+    [k: string]: unknown;
+  } | null;
+}
 export interface AppRegistryCreate {
   name: string;
+  description?: string | null;
   username: string;
   password: string;
   uri?: string;
@@ -1974,12 +1921,22 @@ export interface AppRegistryCreate {
 export interface AppRegistryEntry {
   id: number;
   name: string;
+  description?: string | null;
   username: string;
   password: string;
   uri: string;
 }
+export interface AppRegistryQueryResultItem {
+  id?: number;
+  name?: string;
+  description?: string | null;
+  username?: string;
+  password?: string;
+  uri?: string;
+}
 export interface AppRegistryUpdate {
   name?: string;
+  description?: string | null;
   username?: string;
   password?: string;
   uri?: string;
@@ -1994,6 +1951,10 @@ export interface AppRollbackOptions {
 export interface AppsIxVolumeEntry {
   app_name: string;
   name: string;
+}
+export interface AppsIxVolumeQueryResultItem {
+  app_name?: string;
+  name?: string;
 }
 export interface AppStatsEventSourceArgs {
   interval?: number;
@@ -2077,6 +2038,23 @@ export interface AuditQuery {
   "query-options"?: QueryOptionsModel;
   remote_controller?: boolean;
 }
+export interface AuditQueryResultItem {
+  audit_id?: string | number | null;
+  message_timestamp?: number;
+  timestamp?: string;
+  address?: string;
+  username?: string;
+  session?: string | number | null;
+  service?: Service;
+  service_data?: {
+    [k: string]: unknown;
+  } | null;
+  event?: string;
+  event_data?: {
+    [k: string]: unknown;
+  } | null;
+  success?: boolean;
+}
 export interface AuditUpdate {
   retention?: number;
   reservation?: number;
@@ -2105,7 +2083,7 @@ export interface AuthMeResult {
   pw_gid: number;
   grouplist: number[] | null;
   sid: string | null;
-  source: Source;
+  source: AuthMeSource;
   local: boolean;
   attributes: {
     [k: string]: unknown;
@@ -2157,7 +2135,7 @@ export interface AuthUserInfo {
   pw_gid: number;
   grouplist: number[] | null;
   sid: string | null;
-  source: Source;
+  source: AuthMeSource;
   local: boolean;
   attributes: {
     [k: string]: unknown;
@@ -2196,6 +2174,16 @@ export interface TokenCredentialData {
 export interface TokenParentCredentialsData {
   credentials: "UNIX_SOCKET" | "LOGIN_PASSWORD" | "LOGIN_TWOFACTOR" | "API_KEY" | "TOKEN" | "TRUENAS_NODE";
   credentials_data: BaseCredentialData | UserCredentialData | APIKeyCredentialData | TokenCredentialData;
+}
+export interface AuthSessionsQueryResultItem {
+  id?: string;
+  current?: boolean;
+  internal?: boolean;
+  origin?: string;
+  credentials?: Credentials;
+  credentials_data?: BaseCredentialData | UserCredentialData | APIKeyCredentialData | TokenCredentialData;
+  created_at?: string;
+  secure_transport?: boolean;
 }
 export interface AuthSessionsRemovedEvent {
   fields: AuthSessionsRemovedEventFields;
@@ -2273,6 +2261,17 @@ export interface BootEnvironmentKeepArgs {
   id: string;
   value: boolean;
 }
+export interface BootEnvironmentQueryResultItem {
+  id?: string;
+  dataset?: string;
+  active?: boolean;
+  activated?: boolean;
+  created?: string;
+  used_bytes?: number;
+  used?: string;
+  keep?: boolean;
+  can_activate?: boolean;
+}
 export interface BootEnvironmentRemovedEvent {
   id: string;
 }
@@ -2324,6 +2323,7 @@ export interface BoxCredentialsModel {
 export interface CatalogAppInfo {
   app_readme: string | null;
   categories: string[];
+  description: string;
   healthy: boolean;
   healthy_error?: string | null;
   home: string;
@@ -2535,6 +2535,56 @@ export interface CertificateEntry {
   expired: boolean | null;
   parsed: boolean;
 }
+export interface CertificateQueryResultItem {
+  id?: number;
+  type?: number;
+  name?: string;
+  certificate?: string | null;
+  privatekey?: string | null;
+  CSR?: string | null;
+  acme_uri?: string | null;
+  domains_authenticators?: {
+    [k: string]: unknown;
+  } | null;
+  renew_days?: number | null;
+  acme?: {
+    [k: string]: unknown;
+  } | null;
+  add_to_trusted_store?: boolean;
+  root_path?: string;
+  certificate_path?: string | null;
+  privatekey_path?: string | null;
+  csr_path?: string | null;
+  cert_type?: string;
+  cert_type_existing?: boolean;
+  cert_type_CSR?: boolean;
+  cert_type_CA?: boolean;
+  chain_list?: string[];
+  key_length?: number | null;
+  key_type?: string | null;
+  country?: string | null;
+  state?: string | null;
+  city?: string | null;
+  organization?: string | null;
+  organizational_unit?: string | null;
+  common?: string | null;
+  san?: string[] | null;
+  email?: string | null;
+  DN?: string | null;
+  subject_name_hash?: number | null;
+  extensions?: {
+    [k: string]: unknown;
+  };
+  digest_algorithm?: string | null;
+  lifetime?: number | null;
+  from?: string | null;
+  until?: string | null;
+  serial?: number | null;
+  chain?: boolean | null;
+  fingerprint?: string | null;
+  expired?: boolean | null;
+  parsed?: boolean;
+}
 export interface CertificateRemovedEvent {
   id: number;
 }
@@ -2549,6 +2599,7 @@ export interface CloudBackupAddedEvent {
 }
 export interface CloudBackupEntryInput {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -2746,6 +2797,7 @@ export interface CloudBackupChangedEvent {
   fields: CloudBackupEntryInput;
 }
 export interface CloudBackupCreate {
+  description?: string;
   path: string;
   credentials: number;
   attributes: CloudTaskAttributesInput;
@@ -2766,6 +2818,7 @@ export interface CloudBackupCreate {
 }
 export interface CloudBackupEntry {
   id: number;
+  description?: string;
   path: string;
   credentials: CredentialsEntry;
   attributes: CloudTaskAttributes;
@@ -2828,6 +2881,51 @@ export interface StorjIxCredentialsModel {
   secret_access_key: string;
   endpoint?: string;
 }
+export interface CloudTaskAttributes {
+  bucket?: string;
+  folder?: string;
+  fast_list?: boolean;
+  bucket_policy_only?: boolean;
+  chunk_size?: number;
+  acknowledge_abuse?: boolean;
+  region?: string;
+  encryption?: CloudTaskAttributesEncryption;
+  storage_class?:
+    | ""
+    | "STANDARD"
+    | "REDUCED_REDUNDANCY"
+    | "STANDARD_IA"
+    | "ONEZONE_IA"
+    | "INTELLIGENT_TIERING"
+    | "GLACIER"
+    | "GLACIER_IR"
+    | "DEEP_ARCHIVE";
+}
+export interface CloudBackupQueryResultItem {
+  id?: number;
+  description?: string;
+  path?: string;
+  credentials?: CredentialsEntry;
+  attributes?: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  locked?: boolean;
+  password?: string;
+  keep_last?: number;
+  transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
+  absolute_paths?: boolean;
+  cache_path?: string | null;
+  rate_limit?: number | null;
+}
 export interface CloudBackupRemovedEvent {
   id: number;
 }
@@ -2866,6 +2964,7 @@ export interface CloudBackupSyncOptions {
   rate_limit?: number | null;
 }
 export interface CloudBackupUpdate {
+  description?: string;
   path?: string;
   credentials?: number;
   attributes?: CloudTaskAttributesInput;
@@ -2935,6 +3034,7 @@ export interface CloudSyncAddedEvent {
 }
 export interface CloudSyncEntryInput {
   id: number;
+  description?: string;
   path: string;
   dataset: string | null;
   relative_path: string | null;
@@ -2972,6 +3072,7 @@ export interface CloudSyncChangedEvent {
   fields: CloudSyncEntryInput;
 }
 export interface CloudSyncCreate {
+  description?: string;
   path: string;
   credentials: number;
   attributes: CloudTaskAttributesInput;
@@ -2996,6 +3097,7 @@ export interface CloudSyncCreate {
 }
 export interface CloudSyncEntry {
   id: number;
+  description?: string;
   path: string;
   credentials: CredentialsEntry;
   attributes: CloudTaskAttributes;
@@ -3040,6 +3142,7 @@ export interface CloudSyncOneDriveListDrivesDrive {
   drive_id: string;
   drive_type: "PERSONAL" | "BUSINESS" | "DOCUMENT_LIBRARY";
   name: string;
+  description: string;
 }
 export interface CloudSyncProvider {
   name: string;
@@ -3051,6 +3154,35 @@ export interface CloudSyncProvider {
 export interface CloudSyncProviderTaskSchemaItem {
   property: string;
 }
+export interface CloudSyncQueryResultItem {
+  id?: number;
+  description?: string;
+  path?: string;
+  credentials?: CredentialsEntry;
+  attributes?: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  locked?: boolean;
+  bwlimit?: CloudSyncBwlimit[];
+  transfers?: number | null;
+  direction?: CloudSyncCreateDirection;
+  transfer_mode?: "SYNC" | "COPY" | "MOVE";
+  encryption?: boolean;
+  filename_encryption?: boolean;
+  encryption_password?: string;
+  encryption_salt?: string;
+  create_empty_src_dirs?: boolean;
+  follow_symlinks?: boolean;
+}
 export interface CloudSyncRemovedEvent {
   id: number;
 }
@@ -3058,6 +3190,7 @@ export interface CloudSyncSyncOptions {
   dry_run?: boolean;
 }
 export interface CloudSyncUpdate {
+  description?: string;
   path?: string;
   credentials?: number;
   attributes?: CloudTaskAttributesInput;
@@ -3123,6 +3256,7 @@ export interface CoreGetJobsItem {
   method: string;
   arguments: unknown[];
   transient: boolean;
+  description: string | null;
   abortable: boolean;
   logs_path: string | null;
   logs_excerpt: string | null;
@@ -3139,6 +3273,7 @@ export interface CoreGetJobsItem {
 }
 export interface CoreGetJobsItemProgress {
   percent: number | null;
+  description: string | null;
   extra: unknown;
 }
 export interface CoreGetJobsItemExcInfo {
@@ -3157,7 +3292,28 @@ export interface CoreGetJobsChangedEvent {
   id: number;
   fields: CoreGetJobsItem;
 }
-export interface CoreOptionsInput {
+export interface CoreGetJobsItemQueryResultItem {
+  id?: number;
+  message_ids?: unknown[];
+  method?: string;
+  arguments?: unknown[];
+  transient?: boolean;
+  description?: string | null;
+  abortable?: boolean;
+  logs_path?: string | null;
+  logs_excerpt?: string | null;
+  progress?: CoreGetJobsItemProgress;
+  result?: unknown;
+  result_encoding_error?: unknown;
+  error?: string | null;
+  exception?: string | null;
+  exc_info?: CoreGetJobsItemExcInfo | null;
+  state?: string;
+  time_started?: string | null;
+  time_finished?: string | null;
+  credentials?: CoreGetJobsItemCredentials | null;
+}
+export interface CoreOptions {
   legacy_jobs?: boolean;
   private_methods?: boolean;
   py_exceptions?: boolean;
@@ -3178,6 +3334,30 @@ export interface CredentialsAddedEvent {
 export interface CredentialsChangedEvent {
   id: number;
   fields: CredentialsEntryInput;
+}
+export interface CredentialsQueryResultItem {
+  id?: number;
+  name?: string;
+  provider?:
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | MegaCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
+    | S3CredentialsModel
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModel
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
 }
 export interface CredentialsRemovedEvent {
   id: number;
@@ -3218,6 +3398,7 @@ export interface CronJobEntry {
   stdout?: boolean;
   schedule?: CronJobSchedule;
   command: string;
+  description?: string;
   user: string;
   id: number;
 }
@@ -3238,7 +3419,18 @@ export interface CronJobCreate {
   stdout?: boolean;
   schedule?: CronJobSchedule;
   command: string;
+  description?: string;
   user: string;
+}
+export interface CronJobQueryResultItem {
+  enabled?: boolean;
+  stderr?: boolean;
+  stdout?: boolean;
+  schedule?: CronJobSchedule;
+  command?: string;
+  description?: string;
+  user?: string;
+  id?: number;
 }
 export interface CronJobRemovedEvent {
   id: number;
@@ -3249,6 +3441,7 @@ export interface CronJobUpdate {
   stdout?: boolean;
   schedule?: CronJobSchedule;
   command?: string;
+  description?: string;
   user?: string;
 }
 export interface CronModel {
@@ -3450,6 +3643,30 @@ export interface DiskDetails {
   join_partitions?: boolean;
   type?: DiskDetailsTypeInput;
 }
+export interface DiskEntry {
+  identifier: string;
+  name: string;
+  subsystem: string;
+  number: number;
+  serial: string;
+  lunid: string | null;
+  size: number | null;
+  description: string;
+  transfermode: string;
+  hddstandby: Hddstandby;
+  advpowermgmt: Advpowermgmt;
+  expiretime: string | null;
+  model: string | null;
+  rotationrate: number | null;
+  type: string | null;
+  zfs_guid: string | null;
+  bus: string;
+  devname: string;
+  enclosure: DiskEntryEnclosure | null;
+  pool: string | null;
+  passwd?: string;
+  kmip_uid?: string | null;
+}
 export interface DiskEntryEnclosure {
   number: number;
   slot: number;
@@ -3462,6 +3679,7 @@ export interface DiskEntryInput {
   serial: string;
   lunid: string | null;
   size: number | null;
+  description: string;
   transfermode: string;
   hddstandby: Hddstandby;
   advpowermgmt: Advpowermgmt;
@@ -3490,6 +3708,30 @@ export interface DiskQueryChangedEvent {
 export interface DiskQueryRemovedEvent {
   id: string;
 }
+export interface DiskQueryResultItem {
+  identifier?: string;
+  name?: string;
+  subsystem?: string;
+  number?: number;
+  serial?: string;
+  lunid?: string | null;
+  size?: number | null;
+  description?: string;
+  transfermode?: string;
+  hddstandby?: Hddstandby;
+  advpowermgmt?: Advpowermgmt;
+  expiretime?: string | null;
+  model?: string | null;
+  rotationrate?: number | null;
+  type?: string | null;
+  zfs_guid?: string | null;
+  bus?: string;
+  devname?: string;
+  enclosure?: DiskEntryEnclosure | null;
+  pool?: string | null;
+  passwd?: string;
+  kmip_uid?: string | null;
+}
 export interface DiskTemperatureAggEntry {
   min: number | null;
   max: number | null;
@@ -3498,6 +3740,7 @@ export interface DiskTemperatureAggEntry {
 export interface DiskUpdate {
   number?: number;
   lunid?: string | null;
+  description?: string;
   hddstandby?: Hddstandby;
   advpowermgmt?: Advpowermgmt;
   bus?: string;
@@ -3543,11 +3786,19 @@ export interface DNSAuthenticatorCreateArgs {
   attributes: CloudFlareSchema | DigitalOceanSchema | OVHSchema | Route53Schema | ShellSchema;
   name: string;
 }
+export interface DNSAuthenticatorQueryResultItem {
+  id?: number;
+  attributes?: CloudFlareSchema | DigitalOceanSchema | OVHSchema | Route53Schema | ShellSchema;
+  name?: string;
+}
 export interface DNSAuthenticatorRemovedEvent {
   id: number;
 }
 export interface DNSQueryItem {
   nameserver: "" | string;
+}
+export interface DNSQueryItemQueryResultItem {
+  nameserver?: "" | string;
 }
 export interface DockerEntry {
   id: number;
@@ -3590,6 +3841,20 @@ export interface DockerNetworkChangedEvent {
   id: string | null;
   fields: DockerNetworkEntry;
 }
+export interface DockerNetworkQueryResultItem {
+  ipam?: {
+    [k: string]: unknown;
+  } | null;
+  labels?: {
+    [k: string]: unknown;
+  } | null;
+  created?: string | null;
+  driver?: string | null;
+  id?: string | null;
+  name?: string | null;
+  scope?: string | null;
+  short_id?: string | null;
+}
 export interface DockerNetworkRemovedEvent {
   id: string | null;
 }
@@ -3597,6 +3862,7 @@ export interface DockerStateChangedEvent {
   fields: DockerStatusInfo;
 }
 export interface DockerStatusInfo {
+  description: string;
   status: DockerStatusInfoStatusInput;
 }
 export interface DockerUpdateArgs {
@@ -3698,6 +3964,13 @@ export interface FCHostCreate {
   wwpn_b?: string | null;
   npiv?: number;
 }
+export interface FCHostQueryResultItem {
+  id?: number;
+  alias?: string;
+  wwpn?: string | null;
+  wwpn_b?: string | null;
+  npiv?: number;
+}
 export interface FCHostRemovedEvent {
   id: number;
 }
@@ -3731,6 +4004,15 @@ export interface FCPortChoiceEntry {
 export interface FCPortCreate {
   port: string;
   target_id: number;
+}
+export interface FCPortQueryResultItem {
+  id?: number;
+  port?: string;
+  wwpn?: string | null;
+  wwpn_b?: string | null;
+  target?: {
+    [k: string]: unknown;
+  } | null;
 }
 export interface FCPortRemovedEvent {
   id: number;
@@ -3780,6 +4062,43 @@ export interface FilesystemDirEntry {
   )[];
   xattrs: string[];
   zfs_attrs:
+    | (
+        | "READONLY"
+        | "HIDDEN"
+        | "SYSTEM"
+        | "ARCHIVE"
+        | "IMMUTABLE"
+        | "NOUNLINK"
+        | "APPENDONLY"
+        | "NODUMP"
+        | "OPAQUE"
+        | "AV_QUARANTINED"
+        | "AV_MODIFIED"
+        | "REPARSE"
+        | "OFFLINE"
+        | "SPARSE"
+      )[]
+    | null;
+}
+export interface FilesystemDirQueryResultItem {
+  name?: string;
+  path?: string;
+  realpath?: string;
+  type?: FilesystemDirEntryType;
+  size?: number;
+  allocation_size?: number;
+  mode?: number;
+  mount_id?: number;
+  acl?: boolean;
+  uid?: number;
+  gid?: number;
+  is_mountpoint?: boolean;
+  is_ctldir?: boolean;
+  attributes?: (
+    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
+  )[];
+  xattrs?: string[];
+  zfs_attrs?:
     | (
         | "READONLY"
         | "HIDDEN"
@@ -4003,6 +4322,7 @@ export interface FTPUpdateArgs {
 }
 export interface GPU {
   vendor: string | null;
+  description: string | null;
   error: string | null;
   vendor_specific_config: {
     [k: string]: unknown;
@@ -4014,6 +4334,7 @@ export interface GPU {
 }
 export interface GPUInfo {
   addr: GPUInfoAddr;
+  description: string;
   devices: GPUInfoDevice[];
   vendor: string | null;
   available_to_host: boolean;
@@ -4093,8 +4414,24 @@ export interface GroupGetGroupObjResult {
   gr_gid: number;
   gr_mem: string[];
   sid?: string | null;
-  source: Source;
+  source: AuthMeSource;
   local: boolean;
+}
+export interface GroupQueryResultItem {
+  id?: number;
+  gid?: number;
+  name?: string;
+  builtin?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  smb?: boolean;
+  userns_idmap?: "DIRECT" | number | null;
+  group?: string;
+  local?: boolean;
+  sid?: string | null;
+  roles?: string[];
+  users?: number[];
+  immutable?: boolean;
 }
 export interface GroupRemovedEvent {
   id: number;
@@ -4144,6 +4481,16 @@ export interface InitShutdownScriptEntry {
   comment?: string;
   id: number;
 }
+export interface InitShutdownScriptQueryResultItem {
+  type?: InitShutdownScriptCreateType;
+  command?: string | null;
+  script?: string | null;
+  when?: When;
+  enabled?: boolean;
+  timeout?: number;
+  comment?: string;
+  id?: number;
+}
 export interface InitShutdownScriptRemovedEvent {
   id: number;
 }
@@ -4165,10 +4512,11 @@ export interface InterfaceEntryInput {
   name: string;
   fake: boolean;
   type: string;
-  state: InterfaceEntryState;
+  state: InterfaceEntryStateInput;
   aliases: InterfaceEntryAlias[];
   ipv4_dhcp: boolean;
   ipv6_auto: boolean;
+  description: string;
   mtu: number | null;
   fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
   vlan_parent_interface?: string | null;
@@ -4185,9 +4533,10 @@ export interface InterfaceEntryInput {
   failover_virtual_aliases?: InterfaceEntryAlias[];
   [k: string]: unknown;
 }
-export interface InterfaceEntryState {
+export interface InterfaceEntryStateInput {
   name: string;
   orig_name: string;
+  description: string;
   mtu: number;
   cloned: boolean;
   flags: string[];
@@ -4249,6 +4598,7 @@ export interface InterfaceCommitOptions {
 }
 export interface InterfaceCreate {
   name?: string;
+  description?: string;
   type: InterfaceCreateTypeInput;
   ipv4_dhcp?: boolean;
   ipv6_auto?: boolean;
@@ -4288,6 +4638,63 @@ export interface InterfaceCreateFailoverAlias {
   type?: InterfaceCreateAliasTypeInput;
   address: "" | string;
 }
+export interface InterfaceEntry {
+  id: string;
+  name: string;
+  fake: boolean;
+  type: string;
+  state: InterfaceEntryState;
+  aliases: InterfaceEntryAlias[];
+  ipv4_dhcp: boolean;
+  ipv6_auto: boolean;
+  description: string;
+  mtu: number | null;
+  vlan_parent_interface?: string | null;
+  vlan_tag?: number | null;
+  vlan_pcp?: number | null;
+  lag_protocol?: string;
+  lag_ports?: string[];
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  [k: string]: unknown;
+}
+export interface InterfaceEntryState {
+  name: string;
+  orig_name: string;
+  description: string;
+  mtu: number;
+  cloned: boolean;
+  flags: string[];
+  nd6_flags: unknown[];
+  capabilities: unknown[];
+  link_state: string;
+  media_type: string;
+  media_subtype: string;
+  active_media_type: string;
+  active_media_subtype: string;
+  supported_media: unknown[];
+  media_options: unknown[] | null;
+  link_address: string;
+  permanent_link_address: string | null;
+  hardware_link_address: string;
+  rx_queues?: number;
+  tx_queues?: number;
+  aliases: InterfaceEntryStateAlias[];
+  vrrp_config?: unknown[] | null;
+  protocol?: string | null;
+  ports?: InterfaceEntryStatePort[];
+  xmit_hash_policy?: string | null;
+  lacpdu_rate?: string | null;
+  parent?: string | null;
+  tag?: number | null;
+  pcp?: number | null;
+}
+export interface InterfaceIPInUseItem {
+  type: string;
+  address: "" | string;
+  netmask: number;
+  broadcast?: string;
+}
 export interface InterfaceIPInUseOptions {
   ipv4?: boolean;
   ipv6?: boolean;
@@ -4300,6 +4707,26 @@ export interface InterfaceIPInUseOptions {
 export interface InterfaceLacpduRateChoicesResult {
   SLOW: "SLOW";
   FAST: "FAST";
+}
+export interface InterfaceQueryResultItem {
+  id?: string;
+  name?: string;
+  fake?: boolean;
+  type?: string;
+  state?: InterfaceEntryState;
+  aliases?: InterfaceEntryAlias[];
+  ipv4_dhcp?: boolean;
+  ipv6_auto?: boolean;
+  description?: string;
+  mtu?: number | null;
+  vlan_parent_interface?: string | null;
+  vlan_tag?: number | null;
+  vlan_pcp?: number | null;
+  lag_protocol?: string;
+  lag_ports?: string[];
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  [k: string]: unknown;
 }
 export interface InterfaceRemovedEvent {
   id: string;
@@ -4317,6 +4744,7 @@ export interface InterfaceServicesRestartedOnSyncItem {
 }
 export interface InterfaceUpdate {
   name?: string;
+  description?: string;
   ipv4_dhcp?: boolean;
   ipv6_auto?: boolean;
   aliases?: InterfaceCreateAlias[];
@@ -4356,6 +4784,21 @@ export interface IPMIChassisInfo {
   "cooling/fan_fault": string;
   chassis_identify_state: string;
 }
+export interface IPMILanEntry {
+  channel?: number;
+  id?: number;
+  ip_address_source?: string;
+  ip_address?: string;
+  mac_address?: string;
+  subnet_mask?: string;
+  default_gateway_ip_address?: string;
+  default_gateway_mac_address?: string;
+  backup_gateway_ip_address?: string;
+  backup_gateway_mac_address?: string;
+  vlan_id?: number | null;
+  vlan_id_enable?: boolean;
+  vlan_priority?: number;
+}
 export interface IPMILanQuery {
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
@@ -4363,6 +4806,21 @@ export interface IPMILanQuery {
 }
 export interface IPMILanQueryOptions {
   "query-remote"?: boolean;
+}
+export interface IPMILanQueryResultItem {
+  channel?: number;
+  id?: number;
+  ip_address_source?: string;
+  ip_address?: string;
+  mac_address?: string;
+  subnet_mask?: string;
+  default_gateway_ip_address?: string;
+  default_gateway_mac_address?: string;
+  backup_gateway_ip_address?: string;
+  backup_gateway_mac_address?: string;
+  vlan_id?: number | null;
+  vlan_id_enable?: boolean;
+  vlan_priority?: number;
 }
 export interface IPMILanUpdateOptionsDHCP {
   dhcp: true;
@@ -4387,6 +4845,15 @@ export interface IpmiSelElistEntry {
   type: string;
   event_direction: string;
   event: string;
+}
+export interface IpmiSelElistQueryResultItem {
+  id?: string;
+  date?: string;
+  time?: string;
+  name?: string;
+  type?: string;
+  event_direction?: string;
+  event?: string;
 }
 export interface IPMISELInfo {
   sel_version: string;
@@ -4513,6 +4980,12 @@ export interface IscsiPortalCreate {
 export interface IscsiPortalIP {
   ip: string;
 }
+export interface ISCSIPortalQueryResultItem {
+  id?: number;
+  listen?: IscsiPortalIPInfo[];
+  tag?: number;
+  comment?: string;
+}
 export interface ISCSIPortalRemovedEvent {
   id: number;
 }
@@ -4571,6 +5044,15 @@ export interface ISCSITargetAuthCredentialChangedEvent {
   id: number;
   fields: ISCSITargetAuthCredentialEntry;
 }
+export interface ISCSITargetAuthCredentialQueryResultItem {
+  id?: number;
+  tag?: number;
+  user?: string;
+  secret?: string;
+  peeruser?: string;
+  peersecret?: string;
+  discovery_auth?: "NONE" | "CHAP" | "CHAP_MUTUAL";
+}
 export interface ISCSITargetAuthCredentialRemovedEvent {
   id: number;
 }
@@ -4586,6 +5068,11 @@ export interface ISCSITargetAuthorizedInitiatorEntry {
 export interface ISCSITargetAuthorizedInitiatorChangedEvent {
   id: number;
   fields: ISCSITargetAuthorizedInitiatorEntry;
+}
+export interface ISCSITargetAuthorizedInitiatorQueryResultItem {
+  id?: number;
+  initiators?: string[];
+  comment?: string;
 }
 export interface ISCSITargetAuthorizedInitiatorRemovedEvent {
   id: number;
@@ -4666,8 +5153,40 @@ export interface ISCSITargetExtentEntry {
   product_id?: string | null;
   locked: boolean | null;
 }
+export interface ISCSITargetExtentQueryResultItem {
+  id?: number;
+  name?: string;
+  type?: IscsiExtentCreateType;
+  disk?: string | null;
+  serial?: string | null;
+  path?: string | null;
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  pblocksize?: boolean;
+  avail_threshold?: number | null;
+  comment?: string;
+  naa?: string;
+  insecure_tpc?: boolean;
+  xen?: boolean;
+  rpm?: Rpm;
+  ro?: boolean;
+  enabled?: boolean;
+  vendor?: string;
+  product_id?: string | null;
+  locked?: boolean | null;
+}
 export interface ISCSITargetExtentRemovedEvent {
   id: number;
+}
+export interface ISCSITargetQueryResultItem {
+  id?: number;
+  name?: string;
+  alias?: string | null;
+  mode?: IscsiTargetCreateMode;
+  groups?: IscsiGroup[];
+  auth_networks?: string[];
+  rel_tgt_id?: number;
+  iscsi_parameters?: IscsiTargetParameters | null;
 }
 export interface ISCSITargetRemovedEvent {
   id: number;
@@ -4691,6 +5210,12 @@ export interface IscsiTargetToExtentCreate {
   lunid?: number | null;
   extent: number;
 }
+export interface ISCSITargetToExtentQueryResultItem {
+  id?: number;
+  target?: number;
+  lunid?: number;
+  extent?: number;
+}
 export interface ISCSITargetToExtentRemovedEvent {
   id: number;
 }
@@ -4710,10 +5235,11 @@ export interface IscsiTargetUpdate {
 }
 export interface JBOFAddedEvent {
   id: number;
-  fields: JBOFEntryInput;
+  fields: JBOFEntry;
 }
-export interface JBOFEntryInput {
+export interface JBOFEntry {
   id: number;
+  description?: string;
   mgmt_ip1: "" | string;
   mgmt_ip2?: "" | string;
   mgmt_username: string;
@@ -4723,18 +5249,30 @@ export interface JBOFEntryInput {
 }
 export interface JBOFChangedEvent {
   id: number;
-  fields: JBOFEntryInput;
+  fields: JBOFEntry;
 }
 export interface JBOFCreate {
+  description?: string;
   mgmt_ip1: "" | string;
   mgmt_ip2?: "" | string;
   mgmt_username: string;
   mgmt_password: string;
 }
+export interface JBOFQueryResultItem {
+  id?: number;
+  description?: string;
+  mgmt_ip1?: "" | string;
+  mgmt_ip2?: "" | string;
+  mgmt_username?: string;
+  mgmt_password?: string;
+  index?: number;
+  uuid?: string;
+}
 export interface JBOFRemovedEvent {
   id: number;
 }
 export interface JBOFUpdate {
+  description?: string;
   mgmt_ip1?: "" | string;
   mgmt_ip2?: "" | string;
   mgmt_username?: string;
@@ -4762,6 +5300,11 @@ export interface KerberosKeytabCreate {
   name: string;
   file: string | null;
 }
+export interface KerberosKeytabQueryResultItem {
+  id?: number;
+  name?: string;
+  file?: string | null;
+}
 export interface KerberosKeytabRemovedEvent {
   id: number;
 }
@@ -4787,6 +5330,14 @@ export interface KerberosRealmChangedEvent {
 }
 export interface KerberosRealmCreate {
   realm: string;
+  primary_kdc?: string | null;
+  kdc?: string[];
+  admin_server?: string[];
+  kpasswd_server?: string[];
+}
+export interface KerberosRealmQueryResultItem {
+  id?: number;
+  realm?: string;
   primary_kdc?: string | null;
   kdc?: string[];
   admin_server?: string[];
@@ -4854,6 +5405,12 @@ export interface KeychainCredentialEntry {
 export interface KeychainCredentialGenerateSshKeyPairResult {
   private_key: string;
   public_key: string;
+}
+export interface KeychainCredentialQueryResultItem {
+  id?: number;
+  name?: string;
+  type?: KeychainCredentialEntryType;
+  attributes?: SSHKeyPair | SSHCredentials;
 }
 export interface KeychainCredentialRemoteSshHostKeyScanArgs {
   host: string;
@@ -5014,8 +5571,44 @@ export interface MultiprotocolOpt {
   aapl_name_mangling?: boolean;
 }
 export interface NetworkConfigurationActivity {
+  type: NFS4ACEType;
+  activities?: string[];
+}
+export interface NetworkConfigurationActivityInput {
   type: NFS4ACETypeInput;
   activities?: string[];
+}
+export interface NetworkConfigurationEntry {
+  id: number;
+  hostname: string;
+  domain: string;
+  ipv4gateway: "" | string;
+  ipv6gateway: "" | string;
+  nameserver1: "" | string;
+  nameserver2: "" | string;
+  nameserver3: "" | string;
+  httpproxy: string;
+  hosts: string[];
+  domains: string[];
+  service_announcement: ServiceAnnouncement;
+  activity: NetworkConfigurationActivity;
+  hostname_local: string;
+  hostname_b?: string | null;
+  hostname_virtual?: string | null;
+  state: NetWorkConfigurationState;
+}
+export interface ServiceAnnouncement {
+  netbios?: boolean;
+  mdns?: boolean;
+  wsd?: boolean;
+}
+export interface NetWorkConfigurationState {
+  ipv4gateway: "" | string;
+  ipv6gateway: "" | string;
+  nameserver1: "" | string;
+  nameserver2: "" | string;
+  nameserver3: "" | string;
+  hosts: string[];
 }
 export interface NetWorkConfigurationUpdate {
   hostname?: string;
@@ -5029,14 +5622,13 @@ export interface NetWorkConfigurationUpdate {
   hosts?: string[];
   domains?: string[];
   service_announcement?: ServiceAnnouncement;
-  activity?: NetworkConfigurationActivity;
+  activity?: NetworkConfigurationActivityInput;
   hostname_b?: string | null;
   hostname_virtual?: string | null;
 }
-export interface ServiceAnnouncement {
-  netbios?: boolean;
-  mdns?: boolean;
-  wsd?: boolean;
+export interface NetworkGeneralSummaryIP {
+  IPV4?: string[];
+  IPV6?: string[];
 }
 export interface NetworkGeneralSummaryResult {
   ips: {
@@ -5079,12 +5671,25 @@ export interface NFSGetNfs3ClientsEntry {
   ip: string;
   export: string;
 }
+export interface NFSGetNfs3ClientsQueryResultItem {
+  ip?: string;
+  export?: string;
+}
 export interface NFSGetNfs4ClientsEntry {
   id: string;
   info: {
     [k: string]: unknown;
   };
   states: {
+    [k: string]: unknown;
+  }[];
+}
+export interface NFSGetNfs4ClientsQueryResultItem {
+  id?: string;
+  info?: {
+    [k: string]: unknown;
+  };
+  states?: {
     [k: string]: unknown;
   }[];
 }
@@ -5159,6 +5764,15 @@ export interface NTPServerCreate {
   maxpoll?: number;
   force?: boolean;
 }
+export interface NTPServerQueryResultItem {
+  id?: number;
+  address?: string;
+  burst?: boolean;
+  iburst?: boolean;
+  prefer?: boolean;
+  minpoll?: number;
+  maxpoll?: number;
+}
 export interface NTPServerRemovedEvent {
   id: number;
 }
@@ -5188,11 +5802,12 @@ export interface NVMetGlobalUpdateArgs {
 }
 export interface NVMetHostAddedEvent {
   id: number;
-  fields: NVMetHostEntry;
+  fields: NVMetHostEntryInput;
 }
-export interface NVMetHostEntry {
+export interface NVMetHostEntryInput {
   id: number;
   hostnqn: string;
+  description?: string;
   dhchap_key?: string | null;
   dhchap_ctrl_key?: string | null;
   dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
@@ -5200,7 +5815,7 @@ export interface NVMetHostEntry {
 }
 export interface NVMetHostChangedEvent {
   id: number;
-  fields: NVMetHostEntry;
+  fields: NVMetHostEntryInput;
 }
 export interface NVMetHostCreate {
   hostnqn: string;
@@ -5212,6 +5827,22 @@ export interface NVMetHostCreate {
 export interface NVMetHostDeleteOptions {
   force?: boolean;
 }
+export interface NVMetHostEntry {
+  id: number;
+  hostnqn: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetHostQueryResultItem {
+  id?: number;
+  hostnqn?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
 export interface NVMetHostRemovedEvent {
   id: number;
 }
@@ -5221,10 +5852,10 @@ export interface NVMetHostSubsysAddedEvent {
 }
 export interface NVMetHostSubsysEntryInput {
   id: number;
-  host: NVMetHostEntry;
-  subsys: NVMetSubsysEntryInput;
+  host: NVMetHostEntryInput;
+  subsys: NVMetSubsysEntry;
 }
-export interface NVMetSubsysEntryInput {
+export interface NVMetSubsysEntry {
   id: number;
   name: string;
   subnqn?: string | null;
@@ -5251,6 +5882,11 @@ export interface NVMetHostSubsysEntry {
   host: NVMetHostEntry;
   subsys: NVMetSubsysEntry;
 }
+export interface NVMetHostSubsysQueryResultItem {
+  id?: number;
+  host?: NVMetHostEntry;
+  subsys?: NVMetSubsysEntry;
+}
 export interface NVMetHostSubsysRemovedEvent {
   id: number;
 }
@@ -5272,7 +5908,7 @@ export interface NVMetNamespaceAddedEvent {
 export interface NVMetNamespaceEntryInput {
   id: number;
   nsid?: number | null;
-  subsys: NVMetSubsysEntryInput;
+  subsys: NVMetSubsysEntry;
   device_type: "ZVOL" | "FILE";
   device_path: string;
   dataset: string | null;
@@ -5309,6 +5945,18 @@ export interface NVMetNamespaceEntry {
   device_nguid: string;
   enabled?: boolean;
   locked: boolean | null;
+}
+export interface NVMetNamespaceQueryResultItem {
+  id?: number;
+  nsid?: number | null;
+  subsys?: NVMetSubsysEntry;
+  device_type?: "ZVOL" | "FILE";
+  device_path?: string;
+  filesize?: number | null;
+  device_uuid?: string;
+  device_nguid?: string;
+  enabled?: boolean;
+  locked?: boolean | null;
 }
 export interface NVMetNamespaceRemovedEvent {
   id: number;
@@ -5361,30 +6009,42 @@ export interface NVMetPortCreateRDMATCP {
 export interface NVMetPortDeleteOptions {
   force?: boolean;
 }
+export interface NVMetPortQueryResultItem {
+  id?: number;
+  index?: number;
+  addr_trtype?: "TCP" | "RDMA" | "FC";
+  addr_trsvcid?: number | string | null;
+  addr_traddr?: string;
+  addr_adrfam?: "IPV4" | "IPV6" | "FC";
+  inline_data_size?: number | null;
+  max_queue_size?: number | null;
+  pi_enable?: boolean | null;
+  enabled?: boolean;
+}
 export interface NVMetPortRemovedEvent {
   id: number;
 }
 export interface NVMetPortSubsysAddedEvent {
   id: number;
-  fields: NVMetPortSubsysEntryInput;
-}
-export interface NVMetPortSubsysEntryInput {
-  id: number;
-  port: NVMetPortEntry;
-  subsys: NVMetSubsysEntryInput;
-}
-export interface NVMetPortSubsysChangedEvent {
-  id: number;
-  fields: NVMetPortSubsysEntryInput;
-}
-export interface NVMetPortSubsysCreate {
-  port_id: number;
-  subsys_id: number;
+  fields: NVMetPortSubsysEntry;
 }
 export interface NVMetPortSubsysEntry {
   id: number;
   port: NVMetPortEntry;
   subsys: NVMetSubsysEntry;
+}
+export interface NVMetPortSubsysChangedEvent {
+  id: number;
+  fields: NVMetPortSubsysEntry;
+}
+export interface NVMetPortSubsysCreate {
+  port_id: number;
+  subsys_id: number;
+}
+export interface NVMetPortSubsysQueryResultItem {
+  id?: number;
+  port?: NVMetPortEntry;
+  subsys?: NVMetSubsysEntry;
 }
 export interface NVMetPortSubsysRemovedEvent {
   id: number;
@@ -5412,11 +6072,11 @@ export interface NVMetPortUpdateRDMATCP {
 }
 export interface NVMetSubsysAddedEvent {
   id: number;
-  fields: NVMetSubsysEntryInput;
+  fields: NVMetSubsysEntry;
 }
 export interface NVMetSubsysChangedEvent {
   id: number;
-  fields: NVMetSubsysEntryInput;
+  fields: NVMetSubsysEntry;
 }
 export interface NVMetSubsysCreate {
   name: string;
@@ -5429,6 +6089,20 @@ export interface NVMetSubsysCreate {
 }
 export interface NVMetSubsysDeleteOptions {
   force?: boolean;
+}
+export interface NVMetSubsysQueryResultItem {
+  id?: number;
+  name?: string;
+  subnqn?: string | null;
+  serial?: string;
+  allow_any_host?: boolean;
+  pi_enable?: boolean | null;
+  qid_max?: number | null;
+  ieee_oui?: string | null;
+  ana?: boolean | null;
+  hosts?: number[] | null;
+  namespaces?: number[] | null;
+  ports?: number[] | null;
 }
 export interface NVMetSubsysRemovedEvent {
   id: number;
@@ -5486,6 +6160,20 @@ export interface PeriodicSnapshotTaskEntry {
   id: number;
   state: unknown;
   vmware_sync: boolean;
+}
+export interface PeriodicSnapshotTaskQueryResultItem {
+  dataset?: string;
+  recursive?: boolean;
+  lifetime_value?: number;
+  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
+  enabled?: boolean;
+  exclude?: string[];
+  naming_schema?: string;
+  allow_empty?: boolean;
+  schedule?: PoolSnapshotTaskCron;
+  id?: number;
+  state?: unknown;
+  vmware_sync?: boolean;
 }
 export interface PeriodicSnapshotTaskRemovedEvent {
   id: number;
@@ -5613,9 +6301,9 @@ export interface PoolCreateTopologyLogVdev {
 }
 export interface PoolDatasetAddedEvent {
   id: string;
-  fields: PoolDatasetEntryInput;
+  fields: PoolDatasetEntry;
 }
-export interface PoolDatasetEntryInput {
+export interface PoolDatasetEntry {
   id?: string;
   type?: string;
   name?: string;
@@ -5681,7 +6369,7 @@ export interface PoolDatasetEntryProperty {
 }
 export interface PoolDatasetChangedEvent {
   id: string;
-  fields: PoolDatasetEntryInput;
+  fields: PoolDatasetEntry;
 }
 export interface PoolDatasetChangeKeyOptions {
   generate_key?: boolean;
@@ -5771,17 +6459,17 @@ export interface PoolDatasetCreateVolume {
   volsize: number;
   volblocksize?: Volblocksize;
 }
+export interface PoolDatasetDatasetQuota {
+  used_bytes?: number;
+  quota?: number;
+  quota_type?: "DATASET";
+  id?: string;
+  name?: string;
+  refquota?: number;
+}
 export interface PoolDatasetDeleteOptions {
   recursive?: boolean;
   force?: boolean;
-}
-export interface PoolDatasetEncryptionAlgorithmChoicesResult {
-  "AES-128-CCM": "AES-128-CCM";
-  "AES-192-CCM": "AES-192-CCM";
-  "AES-256-CCM": "AES-256-CCM";
-  "AES-128-GCM": "AES-128-GCM";
-  "AES-192-GCM": "AES-192-GCM";
-  "AES-256-GCM": "AES-256-GCM";
 }
 export interface PoolDatasetEncryptionSummary {
   name: string;
@@ -5805,6 +6493,71 @@ export interface PoolDatasetEncryptionSummaryOptionsDataset {
 }
 export interface PoolDatasetLockOptions {
   force_umount?: boolean;
+}
+export interface PoolDatasetProjectQuota {
+  used_bytes?: number;
+  quota?: number;
+  quota_type?: "PROJECT";
+  id?: number;
+  obj_used?: number;
+  obj_quota?: number;
+}
+export interface PoolDatasetQueryResultItem {
+  id?: string;
+  type?: string;
+  name?: string;
+  pool?: string;
+  encrypted?: boolean;
+  encryption_root?: string | null;
+  key_loaded?: boolean | null;
+  children?: unknown[];
+  user_properties?: {
+    [k: string]: unknown;
+  };
+  locked?: boolean;
+  comments?: PoolDatasetEntryProperty;
+  quota_warning?: PoolDatasetEntryProperty;
+  quota_critical?: PoolDatasetEntryProperty;
+  refquota_warning?: PoolDatasetEntryProperty;
+  refquota_critical?: PoolDatasetEntryProperty;
+  managedby?: PoolDatasetEntryProperty;
+  deduplication?: PoolDatasetEntryProperty;
+  aclmode?: PoolDatasetEntryProperty;
+  acltype?: PoolDatasetEntryProperty;
+  xattr?: PoolDatasetEntryProperty;
+  atime?: PoolDatasetEntryProperty;
+  casesensitivity?: PoolDatasetEntryProperty;
+  checksum?: PoolDatasetEntryProperty;
+  exec?: PoolDatasetEntryProperty;
+  sync?: PoolDatasetEntryProperty;
+  compression?: PoolDatasetEntryProperty;
+  compressratio?: PoolDatasetEntryProperty;
+  origin?: PoolDatasetEntryProperty;
+  quota?: PoolDatasetEntryProperty;
+  refquota?: PoolDatasetEntryProperty;
+  reservation?: PoolDatasetEntryProperty;
+  refreservation?: PoolDatasetEntryProperty;
+  copies?: PoolDatasetEntryProperty;
+  snapdir?: PoolDatasetEntryProperty;
+  readonly?: PoolDatasetEntryProperty;
+  recordsize?: PoolDatasetEntryProperty;
+  sparse?: PoolDatasetEntryProperty;
+  volsize?: PoolDatasetEntryProperty;
+  volblocksize?: PoolDatasetEntryProperty;
+  key_format?: PoolDatasetEntryProperty;
+  encryption_algorithm?: PoolDatasetEntryProperty;
+  used?: PoolDatasetEntryProperty;
+  usedbychildren?: PoolDatasetEntryProperty;
+  usedbydataset?: PoolDatasetEntryProperty;
+  usedbyrefreservation?: PoolDatasetEntryProperty;
+  usedbysnapshots?: PoolDatasetEntryProperty;
+  available?: PoolDatasetEntryProperty;
+  special_small_block_size?: PoolDatasetEntryProperty;
+  pbkdf2iters?: PoolDatasetEntryProperty;
+  creation?: PoolDatasetEntryProperty;
+  snapdev?: PoolDatasetEntryProperty;
+  mountpoint?: string | null;
+  [k: string]: unknown;
 }
 export interface PoolDatasetRemovedEvent {
   id: string;
@@ -5875,6 +6628,15 @@ export interface PoolDatasetUpdateUserProperty {
   value?: string;
   remove?: boolean;
 }
+export interface PoolDatasetUserGroupQuota {
+  used_bytes?: number;
+  quota?: number;
+  quota_type?: "USER" | "GROUP";
+  id?: number;
+  name?: string | null;
+  obj_used?: number;
+  obj_quota?: number;
+}
 export interface PoolDdtPruneArgs {
   pool_name: string;
   percentage?: number | null;
@@ -5941,6 +6703,39 @@ export interface PoolProcess {
   service: string | null;
   cmdline: string | null;
 }
+export interface PoolQueryResultItem {
+  id?: number;
+  name?: string;
+  guid?: string;
+  status?: string;
+  path?: string;
+  scan?: {
+    [k: string]: unknown;
+  } | null;
+  expand?: {
+    [k: string]: unknown;
+  } | null;
+  is_upgraded?: boolean;
+  healthy?: boolean;
+  warning?: boolean;
+  status_code?: string | null;
+  status_detail?: string | null;
+  size?: number | null;
+  allocated?: number | null;
+  free?: number | null;
+  freeing?: number | null;
+  dedup_table_size?: number | null;
+  dedup_table_quota?: string | null;
+  fragmentation?: string | null;
+  size_str?: string | null;
+  allocated_str?: string | null;
+  free_str?: string | null;
+  freeing_str?: string | null;
+  autotrim?: {
+    [k: string]: unknown;
+  };
+  topology?: PoolTopology | null;
+}
 export interface PoolRemovedEvent {
   id: number;
 }
@@ -5975,6 +6770,7 @@ export interface PoolScrubAddedEvent {
 export interface PoolScrubEntry {
   pool: number;
   threshold?: number;
+  description?: string;
   schedule?: PoolScrubCron;
   enabled?: boolean;
   id: number;
@@ -5994,8 +6790,18 @@ export interface PoolScrubChangedEvent {
 export interface PoolScrubCreate {
   pool: number;
   threshold?: number;
+  description?: string;
   schedule?: PoolScrubCron;
   enabled?: boolean;
+}
+export interface PoolScrubQueryResultItem {
+  pool?: number;
+  threshold?: number;
+  description?: string;
+  schedule?: PoolScrubCron;
+  enabled?: boolean;
+  id?: number;
+  pool_name?: string;
 }
 export interface PoolScrubRemovedEvent {
   id: number;
@@ -6003,6 +6809,7 @@ export interface PoolScrubRemovedEvent {
 export interface PoolScrubUpdate {
   pool?: number;
   threshold?: number;
+  description?: string;
   schedule?: PoolScrubCron;
   enabled?: boolean;
 }
@@ -6013,7 +6820,7 @@ export interface PoolSnapshotAddedEvent {
 export interface PoolSnapshotEntryInput {
   id: string;
   properties: {
-    [k: string]: PoolSnapshotEntryPropertyFields;
+    [k: string]: PoolSnapshotEntryPropertyFieldsInput;
   };
   pool: string;
   name: string;
@@ -6024,7 +6831,7 @@ export interface PoolSnapshotEntryInput {
   holds?: PoolSnapshotHoldTag;
   retention?: (PoolSnapshotRetentionPST | PoolSnapshotRetentionProperty) | null;
 }
-export interface PoolSnapshotEntryPropertyFields {
+export interface PoolSnapshotEntryPropertyFieldsInput {
   value: string;
   rawvalue: string;
   source: SourceInput;
@@ -6053,6 +6860,24 @@ export interface PoolSnapshotCloneArgs {
     [k: string]: unknown;
   };
 }
+export interface PoolSnapshotCreateUpdateEntry {
+  id: string;
+  properties: {
+    [k: string]: PoolSnapshotEntryPropertyFields;
+  };
+  pool: string;
+  name: string;
+  type: "SNAPSHOT";
+  snapshot_name: string;
+  dataset: string;
+  createtxg: string;
+}
+export interface PoolSnapshotEntryPropertyFields {
+  value: string;
+  rawvalue: string;
+  source: PoolSnapshotEntryPropertyFieldsSource;
+  parsed: unknown;
+}
 export interface PoolSnapshotCreateWithName {
   dataset: string;
   recursive?: boolean;
@@ -6077,8 +6902,36 @@ export interface PoolSnapshotDeleteOptions {
   defer?: boolean;
   recursive?: boolean;
 }
+export interface PoolSnapshotEntry {
+  id: string;
+  properties: {
+    [k: string]: PoolSnapshotEntryPropertyFields;
+  };
+  pool: string;
+  name: string;
+  type: "SNAPSHOT";
+  snapshot_name: string;
+  dataset: string;
+  createtxg: string;
+  holds?: PoolSnapshotHoldTag;
+  retention?: (PoolSnapshotRetentionPST | PoolSnapshotRetentionProperty) | null;
+}
 export interface PoolSnapshotHoldOptions {
   recursive?: boolean;
+}
+export interface PoolSnapshotQueryResultItem {
+  id?: string;
+  properties?: {
+    [k: string]: PoolSnapshotEntryPropertyFields;
+  };
+  pool?: string;
+  name?: string;
+  type?: "SNAPSHOT";
+  snapshot_name?: string;
+  dataset?: string;
+  createtxg?: string;
+  holds?: PoolSnapshotHoldTag;
+  retention?: (PoolSnapshotRetentionPST | PoolSnapshotRetentionProperty) | null;
 }
 export interface PoolSnapshotReleaseOptions {
   recursive?: boolean;
@@ -6226,6 +7079,15 @@ export interface PrivilegeCreate {
   roles?: string[];
   web_shell: boolean;
 }
+export interface PrivilegeQueryResultItem {
+  id?: number;
+  builtin_name?: string | null;
+  name?: string;
+  local_groups?: (GroupEntry | UnmappedGroupEntry)[];
+  ds_groups?: (GroupEntry | UnmappedGroupEntry)[];
+  roles?: string[];
+  web_shell?: boolean;
+}
 export interface PrivilegeRemovedEvent {
   id: number;
 }
@@ -6235,12 +7097,27 @@ export interface PrivilegeRolesEntry {
   builtin: boolean;
   stig: STIGType | null;
 }
+export interface PrivilegeRolesQueryResultItem {
+  name?: string;
+  includes?: string[];
+  builtin?: boolean;
+  stig?: STIGType | null;
+}
 export interface PrivilegeUpdate {
   name?: string;
   local_groups?: number[];
   ds_groups?: (number | string)[];
   roles?: string[];
   web_shell?: boolean;
+}
+export interface PropertyValue {
+  raw: string;
+  source: SourceValue | null;
+  value: number | string | boolean | null;
+}
+export interface SourceValue {
+  type: SourceValueType;
+  value: string | null;
 }
 export interface RdmaCardConfig {
   name: string;
@@ -6426,7 +7303,7 @@ export interface ReplicationEntry {
   id: number;
   name: string;
   direction: CloudSyncCreateDirection;
-  transport: Transport;
+  transport: ReplicationCountEligibleManualSnapshotsTransport;
   ssh_credentials?: KeychainCredentialEntry | null;
   netcat_active_side?: ("LOCAL" | "REMOTE") | null;
   netcat_active_side_listen_address?: string | null;
@@ -6482,6 +7359,67 @@ export interface ReplicationEntry {
     [k: string]: unknown;
   } | null;
   has_encrypted_dataset_keys: boolean;
+}
+export interface ReplicationQueryResultItem {
+  id?: number;
+  name?: string;
+  direction?: CloudSyncCreateDirection;
+  transport?: ReplicationCountEligibleManualSnapshotsTransport;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
+  netcat_active_side_listen_address?: string | null;
+  netcat_active_side_port_min?: number | null;
+  netcat_active_side_port_max?: number | null;
+  netcat_passive_side_connect_address?: string | null;
+  sudo?: boolean;
+  /**
+   * @minItems 1
+   */
+  source_datasets?: [string, ...string[]];
+  target_dataset?: string;
+  recursive?: boolean;
+  exclude?: string[];
+  properties?: boolean;
+  properties_exclude?: string[];
+  properties_override?: {
+    [k: string]: string;
+  };
+  replicate?: boolean;
+  encryption?: boolean;
+  encryption_inherit?: boolean | null;
+  encryption_key?: string | null;
+  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
+  encryption_key_location?: string | null;
+  periodic_snapshot_tasks?: PoolSnapshotTaskDBEntry[];
+  naming_schema?: string[];
+  also_include_naming_schema?: string[];
+  name_regex?: string | null;
+  auto?: boolean;
+  schedule?: ReplicationTimeCronModel | null;
+  restrict_schedule?: ReplicationTimeCronModel | null;
+  only_matching_schedule?: boolean;
+  allow_from_scratch?: boolean;
+  readonly?: Readonly;
+  hold_pending_snapshots?: boolean;
+  retention_policy?: "SOURCE" | "CUSTOM" | "NONE";
+  lifetime_value?: number | null;
+  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
+  lifetimes?: ReplicationLifetimeModel[];
+  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
+  speed_limit?: number | null;
+  large_block?: boolean;
+  embed?: boolean;
+  compressed?: boolean;
+  retries?: number;
+  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
+  enabled?: boolean;
+  state?: {
+    [k: string]: unknown;
+  };
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  has_encrypted_dataset_keys?: boolean;
 }
 export interface ReplicationRemovedEvent {
   id: number;
@@ -6633,6 +7571,12 @@ export interface ReportingExportsCreateArgs {
   attributes: GraphiteExporter;
   name: string;
 }
+export interface ReportingExportsQueryResultItem {
+  id?: number;
+  enabled?: boolean;
+  attributes?: GraphiteExporter;
+  name?: string;
+}
 export interface ReportingExportsRemovedEvent {
   id: number;
 }
@@ -6730,6 +7674,7 @@ export interface ReportingUpdateArgs {
   tier1_update_interval?: number;
 }
 export interface RestoreOpts {
+  description?: string;
   transfer_mode: "SYNC" | "COPY";
   path: string;
 }
@@ -6742,6 +7687,16 @@ export interface RouteSystemRoutesItem {
   table_id: number;
   scope: number;
   preferred_source: string | null;
+}
+export interface RouteSystemRoutesItemQueryResultItem {
+  network?: "" | string;
+  netmask?: "" | string;
+  gateway?: "" | string | null;
+  interface?: string | null;
+  flags?: unknown[];
+  table_id?: number;
+  scope?: number;
+  preferred_source?: string | null;
 }
 export interface RsyncTaskAddedEvent {
   id: number;
@@ -6844,6 +7799,35 @@ export interface RsyncTaskEntry {
     [k: string]: unknown;
   } | null;
 }
+export interface RsyncTaskQueryResultItem {
+  id?: number;
+  path?: string;
+  user?: string;
+  mode?: RsyncTaskCreateMode;
+  remotehost?: string | null;
+  remoteport?: number | null;
+  remotemodule?: string | null;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  remotepath?: string;
+  direction?: RsyncTaskCreateDirection;
+  desc?: string;
+  schedule?: RsyncTaskSchedule;
+  recursive?: boolean;
+  times?: boolean;
+  compress?: boolean;
+  archive?: boolean;
+  delete?: boolean;
+  quiet?: boolean;
+  preserveperm?: boolean;
+  preserveattr?: boolean;
+  delayupdates?: boolean;
+  extra?: string[];
+  enabled?: boolean;
+  locked?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+}
 export interface RsyncTaskRemovedEvent {
   id: number;
 }
@@ -6879,6 +7863,7 @@ export interface SerialInfo {
   drivername: string;
   start: string;
   size: number;
+  description: string;
 }
 export interface ServiceAddedEvent {
   id: number;
@@ -6899,6 +7884,13 @@ export interface ServiceOptions {
   ha_propagate?: boolean;
   silent?: boolean;
   timeout?: number | null;
+}
+export interface ServiceQueryResultItem {
+  id?: number;
+  service?: string;
+  enable?: boolean;
+  state?: string;
+  pids?: number[];
 }
 export interface ServiceRemovedEvent {
   id: number;
@@ -6978,6 +7970,23 @@ export interface SharingNFSEntry {
   security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
   enabled?: boolean;
   locked: boolean | null;
+  expose_snapshots?: boolean;
+}
+export interface SharingNFSQueryResultItem {
+  id?: number;
+  path?: string;
+  aliases?: string[];
+  comment?: string;
+  networks?: string[];
+  hosts?: string[];
+  ro?: boolean;
+  maproot_user?: string | null;
+  maproot_group?: string | null;
+  mapall_user?: string | null;
+  mapall_group?: string | null;
+  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
+  enabled?: boolean;
+  locked?: boolean | null;
   expose_snapshots?: boolean;
 }
 export interface SharingNFSRemovedEvent {
@@ -7120,6 +8129,31 @@ export interface SharingSmbPrivateDatasetOptInput2 {
   auto_quota?: number;
   aapl_name_mangling?: boolean;
 }
+export interface SharingSMBQueryResultItem {
+  id?: number;
+  purpose?: Purpose;
+  name?: string;
+  path?: string | "EXTERNAL";
+  enabled?: boolean;
+  comment?: string;
+  readonly?: boolean;
+  browsable?: boolean;
+  access_based_share_enumeration?: boolean;
+  locked?: boolean | null;
+  audit?: SmbAuditConfig;
+  options?:
+    | (
+        | LegacyOpt
+        | DefaultOpt
+        | TimeMachineOpt
+        | MultiprotocolOpt
+        | TimeLockedOpt
+        | PrivateDatasetOpt
+        | ExternalOpt
+        | VeeamRepositoryOpt
+      )
+    | null;
+}
 export interface SharingSMBRemovedEvent {
   id: number;
 }
@@ -7162,6 +8196,7 @@ export interface SMBEntry {
   netbiosname: string;
   netbiosalias: string[];
   workgroup: string;
+  description: string;
   enable_smb1: boolean;
   unixcharset: Unixcharset;
   localmaster: boolean;
@@ -7173,7 +8208,7 @@ export interface SMBEntry {
   dirmask: string | "DEFAULT";
   ntlmv1_auth: boolean;
   multichannel: boolean;
-  encryption: Encryption;
+  encryption: SMBEntryEncryption;
   bindip: string[];
   server_sid: string | null;
   smb_options: string;
@@ -7233,6 +8268,7 @@ export interface SMBUpdateArgs {
   netbiosname?: string;
   netbiosalias?: string[];
   workgroup?: string;
+  description?: string;
   enable_smb1?: boolean;
   unixcharset?: Unixcharset;
   localmaster?: boolean;
@@ -7366,6 +8402,7 @@ export interface StaticRouteAddedEvent {
 export interface StaticRouteEntry {
   destination: string;
   gateway: string;
+  description?: string;
   id: number;
 }
 export interface StaticRouteChangedEvent {
@@ -7375,6 +8412,13 @@ export interface StaticRouteChangedEvent {
 export interface StaticRouteCreate {
   destination: string;
   gateway: string;
+  description?: string;
+}
+export interface StaticRouteQueryResultItem {
+  destination?: string;
+  gateway?: string;
+  description?: string;
+  id?: number;
 }
 export interface StaticRouteRemovedEvent {
   id: number;
@@ -7382,8 +8426,10 @@ export interface StaticRouteRemovedEvent {
 export interface StaticRouteUpdate {
   destination?: string;
   gateway?: string;
+  description?: string;
 }
 export interface StatusResult {
+  description: string;
   status: Status;
 }
 export interface SupportAttachTicketArgs {
@@ -7425,6 +8471,11 @@ export interface SupportNewTicketResult {
   url: string | null;
   has_debug: boolean;
 }
+export interface SupportSimilarIssue {
+  url?: string;
+  summary?: string;
+  [k: string]: unknown;
+}
 export interface SupportUpdate {
   id?: number;
   enabled?: boolean | null;
@@ -7451,8 +8502,44 @@ export interface SysInfo {
 }
 export interface SyslogServer {
   host: string;
+  transport?: SyslogServerTransport;
+  tls_certificate?: number | null;
+}
+export interface SyslogServerInput {
+  host: string;
   transport?: SyslogServerTransportInput;
   tls_certificate?: number | null;
+}
+export interface SystemAdvancedEntry {
+  id: number;
+  advancedmode: boolean;
+  autotune: boolean;
+  kdump_enabled: boolean;
+  boot_scrub: number;
+  consolemenu: boolean;
+  consolemsg: boolean;
+  debugkernel: boolean;
+  fqdn_syslog: boolean;
+  motd: string;
+  login_banner: string;
+  powerdaemon: boolean;
+  serialconsole: boolean;
+  serialport: string;
+  anonstats_token: string;
+  serialspeed: Serialspeed;
+  overprovision: number | null;
+  traceback: boolean;
+  uploadcrash: boolean;
+  anonstats: boolean;
+  sed_user: "USER" | "MASTER";
+  sysloglevel: Sysloglevel;
+  /**
+   * @maxItems 2
+   */
+  syslogservers?: [] | [SyslogServer] | [SyslogServer, SyslogServer];
+  syslog_audit?: boolean;
+  isolated_gpu_pci_ids: string[];
+  kernel_extra_options: string;
 }
 export interface SystemAdvancedUpdate {
   advancedmode?: boolean;
@@ -7478,7 +8565,7 @@ export interface SystemAdvancedUpdate {
   /**
    * @maxItems 2
    */
-  syslogservers?: [] | [SyslogServer] | [SyslogServer, SyslogServer];
+  syslogservers?: [] | [SyslogServerInput] | [SyslogServerInput, SyslogServerInput];
   syslog_audit?: boolean;
   kernel_extra_options?: string;
   sed_passwd?: string;
@@ -7717,6 +8804,16 @@ export interface TunableEntry {
   id: number;
   orig_value: string;
 }
+export interface TunableQueryResultItem {
+  type?: TunableCreateType;
+  var?: string;
+  value?: string;
+  comment?: string;
+  enabled?: boolean;
+  update_initramfs?: boolean;
+  id?: number;
+  orig_value?: string;
+}
 export interface TunableRemovedEvent {
   id: number;
 }
@@ -7763,6 +8860,7 @@ export interface UpdateStatusNewVersion {
 }
 export interface UpdateDownloadProgress {
   percent: number;
+  description: string;
   version: string;
 }
 export interface UpdateEntry {
@@ -7782,6 +8880,7 @@ export interface UpdateManualOptions {
 export interface UpdateProfileChoice {
   name: string;
   footnote: string;
+  description: string;
   available: boolean;
 }
 export interface UpdateRunAttrs {
@@ -7835,6 +8934,7 @@ export interface UPSEntry {
   remoteport: number;
   shutdowntimer: number;
   hostsync: number;
+  description: string;
   driver: string;
   extrausers: string;
   identifier: string;
@@ -7856,6 +8956,7 @@ export interface UPSUpdateArgs {
   remoteport?: number;
   shutdowntimer?: number;
   hostsync?: number;
+  description?: string;
   driver?: string;
   extrausers?: string;
   identifier?: string;
@@ -8036,7 +9137,7 @@ export interface UserGetUserObj {
   pw_gid: number;
   grouplist: number[] | null;
   sid: string | null;
-  source: Source;
+  source: AuthMeSource;
   local: boolean;
 }
 export interface UserGetUserObjArgs {
@@ -8044,6 +9145,40 @@ export interface UserGetUserObjArgs {
   uid?: number | null;
   get_groups?: boolean;
   sid_info?: boolean;
+}
+export interface UserQueryResultItem {
+  id?: number;
+  uid?: number;
+  username?: string;
+  unixhash?: string | null;
+  smbhash?: string | null;
+  home?: string;
+  shell?: string;
+  full_name?: string;
+  builtin?: boolean;
+  smb?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group?: {
+    [k: string]: unknown;
+  };
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  local?: boolean;
+  immutable?: boolean;
+  twofactor_auth_configured?: boolean;
+  sid?: string | null;
+  last_password_change?: string | null;
+  password_age?: number | null;
+  password_history?: unknown[] | null;
+  password_change_required?: boolean;
+  roles?: string[];
+  api_keys?: number[];
 }
 export interface UserRemovedEvent {
   id: number;
@@ -8137,6 +9272,7 @@ export interface VMEntryInput {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -8278,6 +9414,7 @@ export interface VMCreateArgs {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -8411,8 +9548,15 @@ export interface VMDevicePassthroughDevice {
   drivers: string[];
   error: string | null;
   reset_mechanism_defined: boolean;
+  description: string;
   critical: boolean;
   device_path: string | null;
+}
+export interface VMDeviceQueryResultItem {
+  id?: number;
+  attributes?: VMCDROMDevice | VMDisplayDevice | VMNICDevice | VMPCIDevice | VMRAWDevice | VMDiskDevice | VMUSBDevice;
+  vm?: number;
+  order?: number;
 }
 export interface VMDeviceRemovedEvent {
   id: number;
@@ -8429,6 +9573,7 @@ export interface VMEntry {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -8492,6 +9637,40 @@ export interface VMPortWizardResult {
   port: number;
   web: number;
 }
+export interface VMQueryResultItem {
+  command_line_args?: string;
+  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
+  cpu_model?: string | null;
+  name?: string;
+  description?: string;
+  vcpus?: number;
+  cores?: number;
+  threads?: number;
+  cpuset?: string | null;
+  nodeset?: string | null;
+  enable_cpu_topology_extension?: boolean;
+  pin_vcpus?: boolean;
+  suspend_on_snapshot?: boolean;
+  trusted_platform_module?: boolean;
+  memory?: number;
+  min_memory?: number | null;
+  hyperv_enlightenments?: boolean;
+  bootloader?: Bootloader;
+  bootloader_ovmf?: string;
+  autostart?: boolean;
+  hide_from_msr?: boolean;
+  ensure_display_device?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  arch_type?: string | null;
+  machine_type?: string | null;
+  uuid?: string | null;
+  devices?: VMDeviceEntry[];
+  display_available?: boolean;
+  id?: number;
+  status?: VMStatus;
+  enable_secure_boot?: boolean;
+}
 export interface VMRemovedEvent {
   id: number;
 }
@@ -8507,6 +9686,7 @@ export interface VMUpdate {
   cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
   cpu_model?: string | null;
   name?: string;
+  description?: string;
   vcpus?: number;
   cores?: number;
   threads?: number;
@@ -8589,11 +9769,24 @@ export interface VMWareMatchDatastoresWithDatasetsResult {
 }
 export interface VMWareMatchDatastoresWithDatasetsResultDatastore {
   name: string;
+  description: string;
   filesystems: string[];
 }
 export interface VMWareMatchDatastoresWithDatasetsResultFilesystem {
   type: VMWareMatchDatastoresWithDatasetsResultFilesystemType;
   name: string;
+  description: string;
+}
+export interface VMWareQueryResultItem {
+  id?: number;
+  datastore?: string;
+  filesystem?: string;
+  hostname?: string;
+  username?: string;
+  password?: string;
+  state?: {
+    [k: string]: unknown;
+  };
 }
 export interface VMWareRemovedEvent {
   id: number;
@@ -8605,13 +9798,105 @@ export interface VMWareUpdate {
   username?: string;
   password?: string;
 }
+export interface ZFSPropertiesEntry {
+  aclinherit?: PropertyValue;
+  aclmode?: PropertyValue;
+  acltype?: PropertyValue;
+  atime?: PropertyValue;
+  canmount?: PropertyValue;
+  casesensitivity?: PropertyValue;
+  defaultgroupobjquota?: PropertyValue;
+  defaultgroupquota?: PropertyValue;
+  defaultprojectobjquota?: PropertyValue;
+  defaultprojectquota?: PropertyValue;
+  defaultuserobjquota?: PropertyValue;
+  defaultuserquota?: PropertyValue;
+  devices?: PropertyValue;
+  direct?: PropertyValue;
+  dnodesize?: PropertyValue;
+  exec?: PropertyValue;
+  filesystem_count?: PropertyValue;
+  filesystem_limit?: PropertyValue;
+  longname?: PropertyValue;
+  mounted?: PropertyValue;
+  mountpoint?: PropertyValue;
+  nbmand?: PropertyValue;
+  normalization?: PropertyValue;
+  overlay?: PropertyValue;
+  quota?: PropertyValue;
+  recordsize?: PropertyValue;
+  refquota?: PropertyValue;
+  refreservation?: PropertyValue;
+  relatime?: PropertyValue;
+  setuid?: PropertyValue;
+  sharenfs?: PropertyValue;
+  sharesmb?: PropertyValue;
+  snapdir?: PropertyValue;
+  special_small_blocks?: PropertyValue;
+  utf8only?: PropertyValue;
+  version?: PropertyValue;
+  volmode?: PropertyValue;
+  vscan?: PropertyValue;
+  xattr?: PropertyValue;
+  zoned?: PropertyValue;
+  available?: PropertyValue;
+  checksum?: PropertyValue;
+  compression?: PropertyValue;
+  compressratio?: PropertyValue;
+  context?: PropertyValue;
+  copies?: PropertyValue;
+  createtxg?: PropertyValue;
+  creation?: PropertyValue;
+  dedup?: PropertyValue;
+  defcontext?: PropertyValue;
+  encryption?: PropertyValue;
+  encryptionroot?: PropertyValue;
+  fscontext?: PropertyValue;
+  guid?: PropertyValue;
+  keyformat?: PropertyValue;
+  keylocation?: PropertyValue;
+  keystatus?: PropertyValue;
+  logbias?: PropertyValue;
+  logicalreferenced?: PropertyValue;
+  logicalused?: PropertyValue;
+  mlslabel?: PropertyValue;
+  objsetid?: PropertyValue;
+  origin?: PropertyValue;
+  pbkdf2iters?: PropertyValue;
+  prefetch?: PropertyValue;
+  primarycache?: PropertyValue;
+  readonly?: PropertyValue;
+  receive_resume_token?: PropertyValue;
+  redact_snaps?: PropertyValue;
+  redundant_metadata?: PropertyValue;
+  refcompressratio?: PropertyValue;
+  referenced?: PropertyValue;
+  reservation?: PropertyValue;
+  rootcontext?: PropertyValue;
+  secondarycache?: PropertyValue;
+  snapdev?: PropertyValue;
+  snapshot_count?: PropertyValue;
+  snapshot_limit?: PropertyValue;
+  snapshots_changed?: PropertyValue;
+  sync?: PropertyValue;
+  type?: PropertyValue | null;
+  used?: PropertyValue;
+  usedbychildren?: PropertyValue;
+  usedbydataset?: PropertyValue;
+  usedbyrefreservation?: PropertyValue;
+  usedbysnapshots?: PropertyValue;
+  written?: PropertyValue;
+  volblocksize?: PropertyValue;
+  volsize?: PropertyValue;
+  volthreading?: PropertyValue;
+}
 export interface ZFSResourceEntry {
   createtxg: number;
   guid: number;
   name: string;
   pool: string;
   properties: ZFSPropertiesEntry;
-  type: VMWareMatchDatastoresWithDatasetsResultFilesystemType;
+  type: "FILESYSTEM" | "VOLUME";
   user_properties: {
     [k: string]: string;
   } | null;
@@ -8624,6 +9909,28 @@ export interface ZFSResourceQuery {
   get_source?: boolean;
   nest_results?: boolean;
   get_children?: boolean;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * pool.dataset.encryption_algorithm_choices — HAND-MAINTAINED, as virt.* is.
+ *
+ * No dump describes this method, in any version: it is absent from the
+ * 20260814 dump the previous tree was built from as well as from this one.
+ * It survived until now only because v25.10 was frozen and never regenerated.
+ *
+ * v26 removes it, declared in `hand-removed.json`, and the generator asserts
+ * that a hand-declared removal names something the previous version really
+ * had — so dropping it here fails the build at v26 rather than silently
+ * shrinking the surface.
+ * ───────────────────────────────────────────────────────────────────────────*/
+
+export interface PoolDatasetEncryptionAlgorithmChoicesResult {
+  "AES-128-CCM": "AES-128-CCM";
+  "AES-192-CCM": "AES-192-CCM";
+  "AES-256-CCM": "AES-256-CCM";
+  "AES-128-GCM": "AES-128-GCM";
+  "AES-192-GCM": "AES-192-GCM";
+  "AES-256-GCM": "AES-256-GCM";
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -8640,8 +9947,12 @@ export interface ZFSResourceQuery {
  * through v25_10_5 — hence declared once here, at the chain root, and inherited
  * by the later patch versions like any unchanged generated type.
  *
- * Do not regenerate this directory. `yarn generate:api` is pinned to v26.0.0 and
- * upward precisely so it cannot overwrite this block.
+ * Do not regenerate this directory. What keeps `yarn generate:api` off this
+ * block is the FROZEN marker in the header at the top of the file — remove it
+ * and everything below is deleted. This claimed instead that generation was
+ * pinned to v26.0.0 and upward; it never has been (`--min-version v25.10.0`),
+ * and unfreezing to regenerate did delete this block, which is why it had to be
+ * restored by hand.
  * ───────────────────────────────────────────────────────────────────────────*/
 
 export interface VirtGlobalEntry {

@@ -212,7 +212,10 @@ class DefTable {
         }
       } else {
         if (p.outputs.length === 1) {
-          p.outputs[0].finalName = { input: '', output: claim(p.base) };
+          const v = p.outputs[0];
+          // Spread here too, so no assignment site depends on the order the
+          // branches happen to be written in — see the phase 2 note below.
+          v.finalName = { ...(v.finalName ?? { input: '' }), output: claim(p.base) };
         }
         if (p.inputs.length === 1) {
           const v = p.inputs[0];
@@ -234,7 +237,11 @@ class DefTable {
       } else {
         if (p.outputs.length > 1) {
           for (const v of p.outputs) {
-            v.finalName = { input: '', output: qualified(v, p.base) };
+            // Spread, so an input name assigned in phase 1 survives. A name can
+            // have several output variants and exactly one input variant: phase 1
+            // names that single input, and replacing the record wholesale here
+            // dropped it, leaving every input reference to resolve to nothing.
+            v.finalName = { ...(v.finalName ?? { input: '' }), output: qualified(v, p.base) };
           }
         }
         if (p.inputs.length > 1) {
@@ -467,18 +474,18 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * are kept — they are not docstrings.
  *
  * `description` is discriminated on type, because it is also a legitimate model
- * *field* name: middleware declares one on ~30 models, `CronJobEntry` and
+ * *field* name: middleware declares one on ~30 models, `CronJobCreate` and
  * `VMEntry` among them. A docstring is always a string; a field named
  * `description` appears under `properties` as its own schema, so it is always
  * an object. Dropping by key alone deleted the second along with the first, so
  * a field the appliance accepts and returns was missing from the emitted type
  * and a call setting it did not compile.
  *
- * `cronjob.create` was the example this used to give, and it is the wrong one:
- * `CronJobCreate` is homed in frozen v25_10_0, so it is in the 21 below that a
- * regeneration cannot reach, and that call still does not compile. Reach for a
- * model this actually fixed — `ContainerEntry`, whose `description` the v26
- * client no longer has to read through a cast.
+ * `cronjob.create` was the example this used to give. It was the wrong one for
+ * a while — `CronJobCreate` is homed in v25_10_0, which was frozen, so the
+ * corrected declaration was emitted and discarded and that call did not
+ * compile. It is a fine example again: v25.10 was unfrozen and regenerated in
+ * TNC-2283, so the field is there.
  *
  * `examples` is discriminated the same way, and for the same reason one step
  * earlier. No model in `api/v2*` declares a field by that name today — but that
@@ -496,24 +503,41 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * for a frozen version and then discarded, while every later version keeps
  * importing the copy on disk.
  *
- * Measured against the tree as regenerated from the pinned dump: of the 32
- * models `api/v26_0_0` declares a `description` field on, 27 are emitted here
- * and six now carry it — the ones homed at v26/v27, `ContainerEntry` and
- * `SMBEntry` among them. The other 21 — `CronJobCreate`, `PoolScrubEntry`,
- * `StaticRouteEntry`, `UPSEntry`, `InterfaceCreate` and the rest — are homed in
- * v25_10_0, so no regeneration will restore their field. (The tree gains more
- * `description` fields than six, because Input/Create/Update variants of those
- * models are re-declared at v26 too; six is the count for this specific list.)
+ * That gap is closed for the models it was measured on. The ones homed in
+ * v25_10_0 — `CronJobCreate`, `PoolScrubEntry`, `StaticRouteEntry`, `UPSEntry`,
+ * `InterfaceCreate` and the rest — were unreachable while that directory was
+ * frozen; TNC-2283 unfroze it, regenerated from the dump and froze it again, so
+ * their declarations were rewritten and carry the field. Counted against the
+ * tree rather than against a model list: `v25_10_0/api-types.ts` goes from 3
+ * declarations carrying a `description` field to 71. No count of *models in
+ * this directory* is given — the "~30" above counts the classes that declare
+ * the field in one middleware version directory, 31 in `api/v25_10_0`, which is
+ * a different population, and collapsing these generated
+ * `Create`/`Update`/`Entry`/`Input` variants back onto a model is a judgement
+ * call that two reasonable rulesets answer differently. Do not reconcile the
+ * two figures: they measure different things, they land near enough to look
+ * like they should agree, and treating them as one is how a wrong figure got
+ * into this block in the first place.
  *
- * The 21 need the same treatment as the other things no dump can reproduce:
- * hand-maintenance in the frozen directory, verified against the v25.10 models
- * rather than against master.
+ * The mechanism is unchanged, which is the part to keep in mind. v25_10_0 is
+ * frozen again, so the *next* correction to this function reaches only models
+ * homed at v26 and above, and anything homed at the root needs the directory
+ * unfrozen and regenerated — or hand-maintenance — exactly as this one did,
+ * verified against the v25.10 models rather than against master. Two hazards,
+ * and the second is the one that bites: the dump is master describing
+ * historical versions, so regenerating a released directory brings master's
+ * backports into that slice along with the fix — and it *deletes* the entries
+ * no dump describes at all. Unfreezing v25_10_0 for TNC-2283 dropped the whole
+ * `virt.*` namespace and `pool.dataset.encryption_algorithm_choices`, which had
+ * to be restored by hand afterwards, along with the re-export blocks that carry
+ * them through v25_10_1..5. Budget for that before unfreezing anything.
  *
  * Nothing catches that today, and nothing here pretends to. The drift check in
  * `generate.mts` compares dump to dump, so it stays quiet when only the
  * generator has moved, and `ci.yml` does not regenerate or diff the tree at
- * all. Until the frozen directories are reconciled by hand, this fix reaches
- * the models homed at v26/v27 and no others.
+ * all. The v25.10 directories were reconciled in TNC-2283 and re-frozen, so a
+ * further correction here reaches only the models homed at v26/v27 until they
+ * are reconciled again.
  */
 function stripDocs(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(stripDocs);

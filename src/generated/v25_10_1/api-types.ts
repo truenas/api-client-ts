@@ -2,9 +2,10 @@
  * FROZEN — generated once, then hand-maintained. Do not regenerate.
  *
  * v25.10 is released and its API cannot change, so this directory is a record
- * rather than an output. The series also carries the `virt.*` namespace, which
- * no dump can reproduce: middleware deleted those models from every version
- * directory in b9c330ee94, so regenerating would silently delete them here too.
+ * rather than an output. It also carries two things no dump can reproduce, so
+ * regenerating deletes them silently: the `virt.*` namespace, whose models
+ * middleware removed from every version directory in b9c330ee94, and
+ * `pool.dataset.encryption_algorithm_choices`, removed in 22ce5eac51.
  *
  * `yarn generate:api` still generates the whole chain — later versions are
  * deltas against this one — but leaves files carrying this marker untouched.
@@ -197,6 +198,32 @@ export interface VeeamRepositoryOpt {
   hostsallow?: string[];
   hostsdeny?: string[];
 }
+export interface SharingSMBQueryResultItem {
+  id?: number;
+  purpose?: Purpose;
+  name?: string;
+  path?: string | "EXTERNAL";
+  enabled?: boolean;
+  comment?: string;
+  readonly?: boolean;
+  browsable?: boolean;
+  access_based_share_enumeration?: boolean;
+  locked?: boolean | null;
+  audit?: SmbAuditConfig;
+  options?:
+    | (
+        | LegacyOpt
+        | DefaultOpt
+        | TimeMachineOpt
+        | MultiprotocolOpt
+        | TimeLockedOpt
+        | PrivateDatasetOpt
+        | ExternalOpt
+        | VeeamRepositoryOpt
+        | FCPStorageOpt
+      )
+    | null;
+}
 export interface SmbShareCreate {
   purpose?: Purpose;
   name: string;
@@ -279,12 +306,15 @@ export interface SNMPUpdateArgs {
 export interface StaticRouteCreate {
   destination: string;
   gateway: string;
+  description?: string;
 }
 export interface StaticRouteUpdate {
   destination?: string;
   gateway?: string;
+  description?: string;
 }
 export interface StatusResult {
+  description: string;
   status: DockerStatusInfoStatus;
 }
 export interface VMDeviceVirtualSizeArgs {

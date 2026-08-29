@@ -13,24 +13,23 @@ import type {
 import type {
   ACLTemplateEntry,
   AppAvailableItem,
-  AppQueryResultItem,
   AppsIxVolumeEntry,
+  AuditUpdate,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
   BootEnvironmentEntry,
   BoxCredentialsModel,
   DNSAuthenticatorEntry,
-  DiskEntry,
   DropboxCredentialsModel,
   Enclosure2SetSlotStatusArgs,
   FTPCredentialsModel,
   FTPEntry,
-  FilesystemDirQueryResultItem,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
   GooglePhotosCredentialsModel,
   HTTPCredentialsModel,
   HubicCredentialsModel,
+  InterfaceCreate,
   KeychainCredentialCreateSSHCredentialsEntry,
   KeychainCredentialCreateSSHKeyPairEntry,
   KeychainCredentialEntry,
@@ -39,6 +38,7 @@ import type {
   MegaCredentialsModel,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
+  PoolDatasetUpdate,
   QueryOptionsModel,
   ReportingEntry,
   ReportingExportsEntry,
@@ -47,20 +47,19 @@ import type {
   SSHKeyPair,
   StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
-  TunableQueryResultItem,
-  VMDeviceQueryResultItem,
   VMDeviceUpdate,
-  VMQueryResultItem,
   VMUpdate,
   WebDavCredentialsModel,
   YandexCredentialsModel,
 } from '../v25_10_0/api-types';
 import type {
-  AuditQueryResultItem,
-  AuditQueryResultItemQueryResultItem,
   ContainerDeviceEntry,
+  DiskEntry,
   GraphIdentifier,
+  InterfaceUpdate,
   LXCConfigEntry,
+  PoolDatasetCreateFilesystem,
+  PoolDatasetCreateVolume,
   S3CredentialsModel,
   TrueNASConnectEntry,
   TruecommandEntry,
@@ -78,9 +77,13 @@ import type {
   AppImageDockerhubRateLimitInfo,
   AppLatestItem,
   AppLatestItemQueryResultItem,
+  AppQueryResultItem,
   AppUpgradeSummary,
   AppUpgradeSummaryOptions,
+  AuditEntry,
   AuditQuery,
+  AuditQueryResultItem,
+  AuditQueryResultItemQueryResultItem,
   BootEnvironmentActivate,
   BootEnvironmentClone,
   BootEnvironmentDestroy,
@@ -94,12 +97,17 @@ import type {
   DockerStatusInfo,
   FTPUpdate,
   FilesystemDirEntry,
+  FilesystemDirQueryResultItem,
   FilesystemMkdirData,
+  InterfaceEntry,
+  InterfaceQueryResultItem,
   LXCConfigUpdate,
   MailEntry,
   MailUpdate,
   NVMetGlobalSessionsItem,
   NVMetGlobalSessionsItemQueryResultItem,
+  PoolDatasetEntry,
+  PoolDatasetQueryResultItem,
   ReportingExportsCreate,
   ReportingGetDataResponse,
   ReportingGraphsItem,
@@ -112,12 +120,14 @@ import type {
   TrueNASConnectUpdate,
   TruecommandUpdate,
   TunableEntry,
+  TunableQueryResultItem,
   VMBootloaderOptions,
   VMCreate,
   VMDeviceCreate,
   VMDeviceEntry,
   VMDeviceIotypeChoices,
   VMDeviceNicAttachChoices,
+  VMDeviceQueryResultItem,
   VMDeviceVirtualSize,
   VMDisplayDeviceInfo,
   VMDisplayWebURIOptions,
@@ -128,6 +138,7 @@ import type {
   VMGetVmemoryInUse,
   VMGuestNetworkInterface,
   VMPortWizard,
+  VMQueryResultItem,
   VMVirtualizationDetails,
   ZfsTierRewriteJobFailuresArgs,
   ZfsTierRewriteJobQueryArgs,
@@ -183,9 +194,19 @@ export interface ApiCallDirectoryDelta {
     response: AppUpgradeSummary;
   };
 
+  'audit.config': {
+    params: [];
+    response: AuditEntry;
+  };
+
   'audit.query': {
     params: [data?: AuditQuery];
     response: AuditQueryResultItem[] | AuditQueryResultItem | AuditQueryResultItemQueryResultItem[] | AuditQueryResultItemQueryResultItem | number;
+  };
+
+  'audit.update': {
+    params: [data: AuditUpdate];
+    response: AuditEntry;
   };
 
   'boot.environment.activate': {
@@ -288,6 +309,32 @@ export interface ApiCallDirectoryDelta {
     response: FTPEntry;
   };
 
+  'interface.create': {
+    params: [data: InterfaceCreate];
+    response: InterfaceEntry;
+  };
+
+  'interface.get_instance': {
+    params: [id: string, options?: QueryOptions<InterfaceEntry>];
+    response: InterfaceEntry;
+  };
+
+  'interface.query': {
+    params: [filters?: QueryFilters<InterfaceEntry>, options?: QueryOptions<InterfaceEntry>];
+    response: InterfaceEntry[] | InterfaceEntry | InterfaceQueryResultItem[] | InterfaceQueryResultItem | number;
+    entity: InterfaceEntry;
+  };
+
+  'interface.update': {
+    params: [id: string, data: InterfaceUpdate];
+    response: InterfaceEntry;
+  };
+
+  'interface.websocket_interface': {
+    params: [];
+    response: InterfaceEntry | null;
+  };
+
   'keychaincredential.create': {
     params: [keychain_credential_create: KeychainCredentialCreateSSHKeyPairEntry | KeychainCredentialCreateSSHCredentialsEntry];
     response: KeychainCredentialEntry;
@@ -322,6 +369,27 @@ export interface ApiCallDirectoryDelta {
     params: [filters?: QueryFilters<NVMetGlobalSessionsItem>, options?: QueryOptions<NVMetGlobalSessionsItem>];
     response: NVMetGlobalSessionsItem[] | NVMetGlobalSessionsItem | NVMetGlobalSessionsItemQueryResultItem[] | NVMetGlobalSessionsItemQueryResultItem | number;
     entity: NVMetGlobalSessionsItem;
+  };
+
+  'pool.dataset.create': {
+    params: [data: PoolDatasetCreateFilesystem | PoolDatasetCreateVolume];
+    response: PoolDatasetEntry;
+  };
+
+  'pool.dataset.get_instance': {
+    params: [id: string, options?: QueryOptions<PoolDatasetEntry>];
+    response: PoolDatasetEntry;
+  };
+
+  'pool.dataset.query': {
+    params: [filters?: QueryFilters<PoolDatasetEntry>, options?: QueryOptions<PoolDatasetEntry>];
+    response: PoolDatasetEntry[] | PoolDatasetEntry | PoolDatasetQueryResultItem[] | PoolDatasetQueryResultItem | number;
+    entity: PoolDatasetEntry;
+  };
+
+  'pool.dataset.update': {
+    params: [id: string, data: PoolDatasetUpdate];
+    response: PoolDatasetEntry;
   };
 
   'reporting.exporters.create': {

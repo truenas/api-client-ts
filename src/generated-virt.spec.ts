@@ -1,8 +1,15 @@
 /**
- * The `virt.*` namespace exists only as hand-maintained entries in
- * `src/generated/v25_10_0/`, because no dump can produce it: middleware removed
- * those models from every version directory in `b9c330ee94`, master included,
- * so a regeneration would delete them rather than restore them.
+ * The `virt.*` namespace exists only as hand-maintained entries, because no dump
+ * can produce it: middleware removed those models from every version directory
+ * in `b9c330ee94`, master included, so a regeneration would delete them rather
+ * than restore them.
+ *
+ * It is hand-maintained in two places, not one. `src/generated/v25_10_0/`
+ * declares the models and the directory entries; each of `v25_10_1` through
+ * `v25_10_5` re-exports the models by name. This file guards the root and v26;
+ * `generated-hand-maintained.spec.ts` guards those five re-export blocks, which
+ * went missing wholesale once — 40 names from each of five directories, with
+ * every gate green, because the directories still declared the methods.
  *
  * These tests are the guard on that. They are type-level — the `it` bodies exist
  * so the file is picked up by `tsconfig.spec.json` — plus one runtime check that
