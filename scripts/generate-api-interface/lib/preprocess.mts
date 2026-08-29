@@ -503,19 +503,30 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * for a frozen version and then discarded, while every later version keeps
  * importing the copy on disk.
  *
- * That gap is closed for the models it was measured on. The 21 homed in
+ * That gap is closed for the models it was measured on. The ones homed in
  * v25_10_0 — `CronJobCreate`, `PoolScrubEntry`, `StaticRouteEntry`, `UPSEntry`,
  * `InterfaceCreate` and the rest — were unreachable while that directory was
  * frozen; TNC-2283 unfroze it, regenerated from the dump and froze it again, so
- * their declarations were rewritten and carry the field.
+ * their declarations were rewritten and carry the field. Counted against the
+ * tree rather than against a model list: `v25_10_0/api-types.ts` goes from 3
+ * declarations carrying a `description` field to 71. No count of *models* is
+ * given here — collapsing the generated `Create`/`Update`/`Entry`/`Input`
+ * variants back onto a model is a judgement call, and two reasonable ones
+ * disagree, which is how a wrong figure got into this block in the first
+ * place.
  *
  * The mechanism is unchanged, which is the part to keep in mind. v25_10_0 is
  * frozen again, so the *next* correction to this function reaches only models
  * homed at v26 and above, and anything homed at the root needs the directory
  * unfrozen and regenerated — or hand-maintenance — exactly as this one did,
- * verified against the v25.10 models rather than against master: the dump is
- * master describing historical versions, so regenerating a released directory
- * from it brings master's backports into that slice along with the fix.
+ * verified against the v25.10 models rather than against master. Two hazards,
+ * and the second is the one that bites: the dump is master describing
+ * historical versions, so regenerating a released directory brings master's
+ * backports into that slice along with the fix — and it *deletes* the entries
+ * no dump describes at all. Unfreezing v25_10_0 for TNC-2283 dropped the whole
+ * `virt.*` namespace and `pool.dataset.encryption_algorithm_choices`, which had
+ * to be restored by hand afterwards, along with the re-export blocks that carry
+ * them through v25_10_1..5. Budget for that before unfreezing anything.
  *
  * Nothing catches that today, and nothing here pretends to. The drift check in
  * `generate.mts` compares dump to dump, so it stays quiet when only the
