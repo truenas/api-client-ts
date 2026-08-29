@@ -512,13 +512,17 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * The mechanism is unchanged, which is the part to keep in mind. v25_10_0 is
  * frozen again, so the *next* correction to this function reaches only models
  * homed at v26 and above, and anything homed at the root needs the directory
- * unfrozen and regenerated — or hand-maintenance — exactly as this one did.
+ * unfrozen and regenerated — or hand-maintenance — exactly as this one did,
+ * verified against the v25.10 models rather than against master: the dump is
+ * master describing historical versions, so regenerating a released directory
+ * from it brings master's backports into that slice along with the fix.
  *
  * Nothing catches that today, and nothing here pretends to. The drift check in
  * `generate.mts` compares dump to dump, so it stays quiet when only the
  * generator has moved, and `ci.yml` does not regenerate or diff the tree at
- * all. Until the frozen directories are reconciled by hand, this fix reaches
- * the models homed at v26/v27 and no others.
+ * all. The v25.10 directories were reconciled in TNC-2283 and re-frozen, so a
+ * further correction here reaches only the models homed at v26/v27 until they
+ * are reconciled again.
  */
 function stripDocs(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(stripDocs);
