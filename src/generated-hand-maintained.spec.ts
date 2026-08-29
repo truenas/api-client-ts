@@ -52,7 +52,7 @@ function inheritedNames(version: string): Set<string> {
   // terminator and swallow the next one — which silently dropped later groups
   // and pulled literal `export {` text into the result.
   for (const block of text.matchAll(
-    /export (?:type )?\{\n([^}]*?)\n\} from '\.\.\/(v25_10_\d)\/api-types';/g
+    /export (?:type )?\{\n([^}]*?)\n\} from '\.\.\/(v25_10_\d+)\/api-types';/g
   )) {
     for (const line of block[1].split('\n')) {
       const name = line.trim().replace(/,$/, '');
@@ -78,10 +78,23 @@ const handMaintained = [...ownNames('v25_10_0')]
   .sort();
 
 describe('hand-maintained v25.10 surface', () => {
+  /**
+   * `it.each([])` registers no tests and reports success, so an empty list would
+   * retire every check below without a word — and the list is derived now, so it
+   * can empty on a rename or a change to the version-directory scheme. The
+   * sibling guard pins its own derived list for the same reason.
+   */
+  it('finds the patch directories to check', () => {
+    expect(patchVersions).toContain('v25_10_1');
+    expect(patchVersions.length).toBeGreaterThan(0);
+  });
+
   it('declares them at the chain root', () => {
-    // 39 virt models plus the pool result type. Derived, so adding one to the
-    // root does not quietly leave the patch versions behind.
-    expect(handMaintained.length).toBe(40);
+    // 39 virt models plus the pool result type. A floor rather than an equality:
+    // what this needs to catch is the set shrinking, which would make the two
+    // checks below trivially satisfiable. Adding a 40th virt model to the root
+    // and to the re-export blocks is a correct change and should not fail here.
+    expect(handMaintained.length).toBeGreaterThanOrEqual(40);
   });
 
   it.each(patchVersions)('re-exports every one of them from %s', (version) => {
@@ -97,7 +110,8 @@ describe('hand-maintained v25.10 surface', () => {
    * duplicate-identifier error.
    */
   it.each(patchVersions)('does not re-export anything %s redeclares', (version) => {
-    const shadowed = [...inheritedNames(version)].filter((n) => ownNames(version).has(n));
+    const own = ownNames(version);
+    const shadowed = [...inheritedNames(version)].filter((n) => own.has(n));
     expect(shadowed.sort()).toEqual([]);
   });
 });
