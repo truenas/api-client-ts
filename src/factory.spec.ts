@@ -30,6 +30,15 @@ function fakeResponse(body: unknown, status = 200): Response {
   } as unknown as Response;
 }
 
+/** Names what a call produced, without stringifying a whole client. */
+function outcomeLabel(outcome: unknown): string {
+  if (outcome instanceof TrueNasApiClient) return 'client';
+  return outcome instanceof Error ? outcome.constructor.name : String(outcome);
+}
+
+/** Mirrors the factory's own delay; see `unreachableRetryDelayMs`. */
+const unreachableRetryDelayForTests = 2500;
+
 describe('createTrueNasClient', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
   const created: TrueNasApiClient[] = [];
@@ -53,8 +62,26 @@ describe('createTrueNasClient', () => {
    * this file now means "every hostname behaves this way", which is still a
    * valid (and useful) scenario.
    */
-  function mockPerHostname(routes: Record<string, () => Promise<Response>>) {
-    fetchMock.mockImplementation((url: string) => {
+  function mockPerHostname(
+    routes: Record<string, () => Promise<Response>>,
+    /**
+     * Supply this to put the test in a browser and say whether the appliance
+     * answers the reachability probe. Without it there is no `window`, the probe
+     * reports that it cannot ask, and a network failure is reported rather than
+     * assumed to be CORS.
+     */
+    probe?: { answers: boolean },
+  ) {
+    if (probe) vi.stubGlobal('window', { document: {} });
+
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      // Told apart the way the real requests are: only the probe sends this.
+      if (init?.mode === 'no-cors') {
+        return probe?.answers
+          ? Promise.resolve({ type: 'opaque' })
+          : Promise.reject(new TypeError('Failed to fetch'));
+      }
+
       const { hostname } = new URL(url);
       const route = routes[hostname];
       return (
@@ -326,15 +353,247 @@ describe('createTrueNasClient', () => {
     expect(client.version.version).toBe('v25.10.1');
   });
 
-  it('falls back to the assumed version on a network/CORS error', async () => {
-    // A fetch TypeError -> VersionDiscoveryNetworkError -> factory CORS fallback.
-    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+  /**
+   * Puts the test in a browser as far as the probe is concerned, and says what
+   * each of the two requests answers. CORS is a browser rule, so the fallback
+   * only applies there; under `node` the probe reports that it cannot ask and a
+   * discovery failure is reported rather than guessed at.
+   *
+   * The probe and discovery share one global `fetch` and are told apart the way
+   * the real ones are: only the probe sends `mode: 'no-cors'`.
+   */
+  function inBrowser(opts: {
+    probeAnswers: boolean;
+    discovery: () => Promise<unknown>;
+  }): void {
+    vi.stubGlobal('window', { document: {} });
+    fetchMock.mockImplementation((_url: string, init?: RequestInit) =>
+      init?.mode === 'no-cors'
+        ? opts.probeAnswers
+          ? Promise.resolve({ type: 'opaque' })
+          : Promise.reject(new TypeError('Failed to fetch'))
+        : opts.discovery()
+    );
+  }
+
+  it('falls back to the assumed version when the box answers but discovery does not', async () => {
+    // What v25.10.0 looks like from a browser: the appliance is there, but it
+    // will not share /api/versions with this origin.
+    inBrowser({
+      probeAnswers: true,
+      discovery: () => Promise.reject(new TypeError('Failed to fetch')),
+    });
 
     const client = await create();
 
-    // FALLBACK_VERSION is v25.10.0 -> the v25.10 client.
     expect(client).toBeInstanceOf(TrueNasApiClientV2510);
     expect(client.version.version).toBe('v25.10.0');
+  });
+
+  it('uses the discovered version when a retry succeeds', async () => {
+    // A blip, not a policy: the second ask gets through, so nothing is assumed.
+    let attempt = 0;
+    inBrowser({
+      probeAnswers: true,
+      discovery: () => {
+        attempt += 1;
+        return attempt === 1
+          ? Promise.reject(new TypeError('Failed to fetch'))
+          : Promise.resolve(fakeResponse(['v27.0.0']));
+      },
+    });
+
+    const client = await create();
+
+    expect(client.version.version).toBe('v27.0.0');
+  });
+
+  it('throws rather than assuming a version when the box does not answer', async () => {
+    // Nothing there. The old behaviour handed back a v25.10 client for this.
+    vi.useFakeTimers();
+    inBrowser({
+      probeAnswers: false,
+      discovery: () => Promise.reject(new TypeError('Failed to fetch')),
+    });
+
+    const pending = createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['box'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+
+    // Bounded, not `runAllTimersAsync`: a client's connection schedules recurring
+    // timers, so running every timer spins forever the moment this resolves into
+    // one — which is exactly what happens if the guard under test is removed.
+    await vi.advanceTimersByTimeAsync(unreachableRetryDelayForTests + 500);
+    vi.useRealTimers();
+
+    const outcome = await pending;
+
+    // Closed before asserting: a leaked client keeps the worker alive, and a
+    // control that hangs proves as little as one that passes.
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+
+    // Compared as a label rather than with `toBeInstanceOf`: when this resolves
+    // into a client instead, that matcher serialises the whole client graph to
+    // build its failure message and runs the worker out of heap first.
+    expect(outcomeLabel(outcome)).toBe('VersionDiscoveryNetworkError');
+  });
+
+  it('throws rather than assuming a version where CORS cannot apply', async () => {
+    // No `window`, so nothing is enforcing CORS and a failed fetch already means
+    // unreachable. Node consumers must not be pinned to v25.10 by a dead box.
+    vi.useFakeTimers();
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+
+    const pending = createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['box'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+
+    // Settles without any clock being advanced. The wait exists for a box that
+    // might be finishing a reboot; where the probe cannot ask there is nothing
+    // to wait for, and a consumer with no browser should hear the answer now.
+    const outcome = await pending;
+    vi.useRealTimers();
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+
+    expect(outcomeLabel(outcome)).toBe('VersionDiscoveryNetworkError');
+  });
+
+  it('waits before re-asking an appliance that did not answer', async () => {
+    vi.useFakeTimers();
+    let discoveryCalls = 0;
+    inBrowser({
+      probeAnswers: false,
+      discovery: () => {
+        discoveryCalls += 1;
+        return Promise.reject(new TypeError('Failed to fetch'));
+      },
+    });
+
+    const pending = createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['box'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+
+    await vi.advanceTimersByTimeAsync(unreachableRetryDelayForTests - 500);
+    // Still the first ask: a box that answered nothing may be mid-reboot, and
+    // asking again immediately would only be too soon.
+    expect(discoveryCalls).toBe(1);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(discoveryCalls).toBe(2);
+
+    vi.useRealTimers();
+    const outcome = await pending;
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+  });
+
+  it('settles the probe on the first live host, without waiting for a silent one', async () => {
+    // The reason the probe does not collect every hostname: one that accepts the
+    // socket and never replies would otherwise hold the answer for its whole
+    // timeout, on every call, while a live peer sat ready.
+    vi.useFakeTimers();
+    vi.stubGlobal('window', { document: {} });
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (init?.mode !== 'no-cors') {
+        return Promise.reject(new TypeError('Failed to fetch'));
+      }
+      if (new URL(url).hostname === 'live.local') {
+        return Promise.resolve({ type: 'opaque' });
+      }
+      return new Promise((_resolve, reject) =>
+        init.signal?.addEventListener('abort', () =>
+          reject(new DOMException('Aborted', 'AbortError'))
+        )
+      );
+    });
+
+    const pending = createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['slow.local', 'live.local'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+
+    // Far short of the probe's own budget: collecting every probe would need it.
+    await vi.advanceTimersByTimeAsync(50);
+    vi.useRealTimers();
+
+    const outcome = await pending;
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+
+    expect(outcomeLabel(outcome)).toBe('client');
+  });
+
+  it('treats a fleet as reachable when only one hostname answers', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('window', { document: {} });
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (init?.mode !== 'no-cors') {
+        return Promise.reject(new TypeError('Failed to fetch'));
+      }
+      return new URL(url).hostname === 'up.local'
+        ? Promise.resolve({ type: 'opaque' })
+        : Promise.reject(new TypeError('Failed to fetch'));
+    });
+
+    const pending = createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['down.local', 'up.local'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+
+    await vi.advanceTimersByTimeAsync(50);
+    vi.useRealTimers();
+
+    const outcome = await pending;
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+
+    // One live appliance is all discovery needed, so the fallback applies.
+    expect(outcomeLabel(outcome)).toBe('client');
+  });
+
+  it('throws the retry error when the second attempt says something specific', async () => {
+    // The retry got a real answer — too old — which beats the network error.
+    let attempt = 0;
+    inBrowser({
+      probeAnswers: true,
+      discovery: () => {
+        attempt += 1;
+        return attempt === 1
+          ? Promise.reject(new TypeError('Failed to fetch'))
+          : Promise.resolve(fakeResponse(['v24.10.0']));
+      },
+    });
+
+    const outcome = await createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['box'],
+      enabled: false,
+    }).catch((err: unknown) => err);
+    if (outcome instanceof TrueNasApiClient) outcome.close();
+
+    // By label, like its neighbours: were this to resolve into a client instead,
+    // `toBeInstanceOf` would serialise the whole client graph and take the
+    // worker's heap with it, losing every result in the file rather than one.
+    expect(outcomeLabel(outcome)).toBe('VersionTooOldError');
+  });
+
+  it('does not probe or retry when the caller named the version', async () => {
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+
+    const client = await createTrueNasClient({
+      uuid: 'u',
+      hostnames: ['box'],
+      enabled: false,
+      version: 'v27.0.0',
+    });
+
+    expect(client.version.version).toBe('v27.0.0');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('propagates non-network discovery errors (e.g. version too old)', async () => {
@@ -410,10 +669,13 @@ describe('createTrueNasClient', () => {
     it('falls back to v25.10.0 when a non-primary hostname hits a network error', async () => {
       // The core regression this fix must not break: the CORS fallback has to
       // fire no matter which hostname is the CORS-blocked v25.10.0 box.
-      mockPerHostname({
-        'truenas1.local': () => Promise.reject(abortError()),
-        'truenas2.local': () => Promise.reject(new TypeError('Failed to fetch')),
-      });
+      mockPerHostname(
+        {
+          'truenas1.local': () => Promise.reject(abortError()),
+          'truenas2.local': () => Promise.reject(new TypeError('Failed to fetch')),
+        },
+        { answers: true }
+      );
 
       const client = await create(hostnames);
 
@@ -517,12 +779,15 @@ describe('createTrueNasClient', () => {
       });
 
       it('still falls back when an invalid-response error accompanies a network error', async () => {
-        mockPerHostname({
-          // A proxy/gateway answering non-404, non-2xx -> InvalidVersionResponseError,
-          // which `selectRepresentativeFailure` deliberately leaves out of tier 1.
-          'truenas1.local': () => Promise.resolve(fakeResponse(null, 502)),
-          'truenas2.local': () => Promise.reject(new TypeError('Failed to fetch')),
-        });
+        mockPerHostname(
+          {
+            // A proxy/gateway answering non-404, non-2xx -> InvalidVersionResponseError,
+            // which `selectRepresentativeFailure` deliberately leaves out of tier 1.
+            'truenas1.local': () => Promise.resolve(fakeResponse(null, 502)),
+            'truenas2.local': () => Promise.reject(new TypeError('Failed to fetch')),
+          },
+          { answers: true }
+        );
 
         expect(await outcomeOf(hostnames)).toBe(
           'fallback fired: TrueNasApiClientV2510 @ v25.10.0'

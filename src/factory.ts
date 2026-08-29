@@ -12,7 +12,7 @@ import type { ApiDirectoryShape } from '@/types/api-directory.type';
 import type { ApplianceProtocol } from '@/types/transport.type';
 import { ApiVersion, VersionCompatibility } from '@/types/api-version.type';
 import { checkVersionCompatibility, legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
-import { VersionDiscovery } from '@/version-discovery';
+import { VersionDiscovery, type Reachability } from '@/version-discovery';
 
 /**
  * The API surface {@link createTrueNasClient} assumes when the caller does not
@@ -93,9 +93,10 @@ export interface CreateClientOptions {
    *
    * Omitting it against a plaintext appliance is the quieter failure and the
    * likelier one, since it is the case this option exists for. Discovery tries
-   * `https`, `fetch` rejects, and that is indistinguishable from the CORS block
-   * v25.10.0 has on `/api/versions` — so the fallback fires and the caller gets
-   * a client pinned to v25.10.0, warned about only in the log.
+   * `https` and `fetch` rejects, which reads exactly like the CORS block
+   * v25.10.0 has on `/api/versions`. The reachability probe now runs on the same
+   * scheme and fails the same way, so the mismatch is reported as unreachable
+   * rather than quietly answered with a v25.10.0 client.
    */
   protocol?: ApplianceProtocol;
 }
@@ -210,11 +211,18 @@ export interface CreateClientOptions {
  * @returns a Promise that resolves with the created client, or rejects with a
  *   {@link VersionDiscoveryError} subclass (or a client-selection error).
  *   Rejects if version discovery on all hostnames *fails* and is not recoverable.
- *   Note that when the selected failure is a `VersionDiscoveryNetworkError`,
- *   this function attempts to use a fallback API version (see `FALLBACK_VERSION`)
- *   because network errors are actually expected on 25.10.0 systems due to a CORS
- *   bug. A network error alongside a version-compatibility error or a 404 does
- *   *not* reach the fallback — see `selectRepresentativeFailure`.
+ *
+ *   A `VersionDiscoveryNetworkError` is not by itself a verdict: `fetch` reports
+ *   a CORS refusal, an absent appliance, a bad name and the wrong scheme
+ *   identically. So that failure opens a reachability probe and a second
+ *   discovery attempt. A retry that succeeds is used; one that fails with a
+ *   specific error raises that instead; an appliance that answers nothing
+ *   rejects with the network error. Only one that answers the probe and still
+ *   will not serve `/api/versions` — which is what 25.10.0 looks like from a
+ *   browser — falls back to `FALLBACK_VERSION`.
+ *
+ *   A network error alongside a version-compatibility error or a 404 does
+ *   *not* reach any of that — see `selectRepresentativeFailure`.
  */
 export async function createTrueNasClient<V extends SupportedApiVersion>(
   opts: CreateClientOptions & { version: V },
@@ -365,36 +373,135 @@ export async function createTrueNasClient<
       throw error;
     }
 
-    const fallbackVersionString = apiVersionConfig.FALLBACK_VERSION;
-    const fallbackVersion = parseApiVersion(fallbackVersionString);
+    // A network failure is the one discovery error that does not say what went
+    // wrong. `fetch` reports a CORS refusal, a dead box, a bad DNS name and the
+    // wrong scheme as the same `TypeError`, and falling back on all of them
+    // pinned healthy v26/v27 appliances to a v25.10 surface. So ask two further
+    // questions before assuming CORS.
+    const reachable = await probeAnyHostname(hostnames, versionDiscovery);
 
-    if (!fallbackVersion) {
-      logger.error('Invalid fallback version configuration', {
-        uuid: uuid.slice(0, 8),
-        hostnames: hostnames.join(', '),
-        fallbackVersion: fallbackVersionString,
-      });
-      throw error;
+    // A box that answered nothing may be mid-reboot rather than absent, so give
+    // it a moment before asking again. Only when the probe actually got silence:
+    // where the probe does not apply there is no reason to think anything is
+    // coming back, and a consumer with no browser should fail fast.
+    if (reachable === 'silent') {
+      await sleep(unreachableRetryDelayMs);
     }
 
-    logger.warn(
-      'Version discovery failed with a network error (possible CORS or ' +
-        'network issue), falling back to assumed version',
-      {
+    try {
+      const retryWinner = await discoverVersionFromAnyHostname(
+        hostnames,
+        versionDiscovery,
+      );
+      logger.info('Version discovery succeeded on retry', {
         uuid: uuid.slice(0, 8),
-        hostnames: hostnames.join(', '),
-        fallbackVersion: fallbackVersionString,
-        originalError: errorMessage,
-        warning:
-          'A network error has multiple causes (CORS, network down, DNS ' +
-          'failure). The connection may still fail during the WebSocket handshake.',
+        hostname: retryWinner.hostname,
+        version: retryWinner.version.version,
+        firstError: errorMessage,
+      });
+      // Assigned rather than returned from inside the `try`: building the client
+      // can throw, and this `catch` is written to classify discovery failures.
+      version = retryWinner.version;
+    } catch (retryError) {
+      if (!(retryError instanceof VersionDiscoveryNetworkError)) {
+        // The retry got far enough to say something specific — too old, no such
+        // endpoint. That answer is better than the one we came in with.
+        throw retryError;
       }
-    );
 
-    version = fallbackVersion;
+      // Only a box that answered the probe and still refuses to share its
+      // versions is the CORS case the fallback exists for. Anything else —
+      // nothing there, or no way to ask — is reported rather than guessed at,
+      // because guessing here is what produced a wrong-year client.
+      if (reachable !== 'reachable') {
+        logger.error(
+          'Version discovery failed and the appliance did not answer a ' +
+            'reachability probe; not assuming a version',
+          {
+            uuid: uuid.slice(0, 8),
+            hostnames: hostnames.join(', '),
+            probe: reachable === 'silent' ? 'no answer' : 'not applicable',
+            error: errorMessageOrDefault(retryError, 'Unknown error'),
+          }
+        );
+        throw retryError;
+      }
+
+      const fallbackVersionString = apiVersionConfig.FALLBACK_VERSION;
+      const fallbackVersion = parseApiVersion(fallbackVersionString);
+
+      if (!fallbackVersion) {
+        logger.error('Invalid fallback version configuration', {
+          uuid: uuid.slice(0, 8),
+          hostnames: hostnames.join(', '),
+          fallbackVersion: fallbackVersionString,
+        });
+        throw retryError;
+      }
+
+      logger.warn(
+        'Appliance is reachable but version discovery is still blocked; ' +
+          'falling back to assumed version',
+        {
+          uuid: uuid.slice(0, 8),
+          hostnames: hostnames.join(', '),
+          fallbackVersion: fallbackVersionString,
+          originalError: errorMessage,
+          warning:
+            'The appliance answered a probe but not /api/versions, which is ' +
+            'what v25.10.0 looks like from a browser. If it is newer than ' +
+            'that, this client is now pinned to the wrong surface.',
+        }
+      );
+
+      version = fallbackVersion;
+    }
   }
 
   return instantiateClientForVersion<D>(version, opts, logger);
+}
+
+/**
+ * How long to wait before re-running discovery against an appliance that did
+ * not answer the reachability probe. 2500ms, per issue #46: long enough that a
+ * box finishing a reboot gets a second chance, short enough that a genuinely
+ * absent one is reported promptly.
+ */
+const unreachableRetryDelayMs = 2500;
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Whether any hostname answers, when that can be asked at all.
+ *
+ * Settles on the first `reachable` rather than collecting every probe: one live
+ * appliance is all discovery needed, and waiting for the rest means a host that
+ * accepts the socket and then says nothing holds the answer for its whole
+ * timeout. `cannot-ask` is only the verdict when that was true everywhere —
+ * it means the question does not apply here, not that the answer is no.
+ */
+async function probeAnyHostname(
+  hostnames: string[],
+  versionDiscovery: VersionDiscovery,
+): Promise<Reachability> {
+  const probes = hostnames.map(hostname =>
+    versionDiscovery.probeReachable(hostname)
+  );
+
+  const remaining = new Set(probes);
+  let sawSilence = false;
+
+  while (remaining.size > 0) {
+    const settled = await Promise.race(
+      [...remaining].map(probe => probe.then(result => ({ probe, result })))
+    );
+    if (settled.result === 'reachable') return 'reachable';
+    if (settled.result === 'silent') sawSilence = true;
+    remaining.delete(settled.probe);
+  }
+
+  return sawSilence ? 'silent' : 'cannot-ask';
 }
 
 /** A hostname that answered version discovery, and what it said. */
