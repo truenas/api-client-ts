@@ -474,7 +474,7 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * are kept — they are not docstrings.
  *
  * `description` is discriminated on type, because it is also a legitimate model
- * *field* name: middleware declares one on ~30 models, `CronJobEntry` and
+ * *field* name: middleware declares one on ~30 models, `CronJobCreate` and
  * `VMEntry` among them. A docstring is always a string; a field named
  * `description` appears under `properties` as its own schema, so it is always
  * an object. Dropping by key alone deleted the second along with the first, so
@@ -510,8 +510,9 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * their declarations were rewritten and carry the field. Counted against the
  * tree rather than against a model list: `v25_10_0/api-types.ts` goes from 3
  * declarations carrying a `description` field to 71. No count of *models in
- * this directory* is given — the "~30" above counts middleware's own declaring
- * classes, which is a different population, and collapsing these generated
+ * this directory* is given — the "~30" above counts the classes that declare
+ * the field in one middleware version directory, 31 in `api/v25_10_0`, which is
+ * a different population, and collapsing these generated
  * `Create`/`Update`/`Entry`/`Input` variants back onto a model is a judgement
  * call that two reasonable rulesets answer differently. Do not reconcile the
  * two figures: they measure different things, they land near enough to look
