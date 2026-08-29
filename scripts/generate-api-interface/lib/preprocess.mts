@@ -509,11 +509,14 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
  * frozen; TNC-2283 unfroze it, regenerated from the dump and froze it again, so
  * their declarations were rewritten and carry the field. Counted against the
  * tree rather than against a model list: `v25_10_0/api-types.ts` goes from 3
- * declarations carrying a `description` field to 71. No count of *models* is
- * given here — collapsing the generated `Create`/`Update`/`Entry`/`Input`
- * variants back onto a model is a judgement call, and two reasonable ones
- * disagree, which is how a wrong figure got into this block in the first
- * place.
+ * declarations carrying a `description` field to 71. No count of *models in
+ * this directory* is given — the "~30" above counts middleware's own declaring
+ * classes, which is a different population, and collapsing these generated
+ * `Create`/`Update`/`Entry`/`Input` variants back onto a model is a judgement
+ * call that two reasonable rulesets answer differently. Do not reconcile the
+ * two figures: they measure different things, they land near enough to look
+ * like they should agree, and treating them as one is how a wrong figure got
+ * into this block in the first place.
  *
  * The mechanism is unchanged, which is the part to keep in mind. v25_10_0 is
  * frozen again, so the *next* correction to this function reaches only models
