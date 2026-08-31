@@ -12,12 +12,50 @@
  * - createOperations() - for version-specific operation mappings
  */
 
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type { ApiDirectoryV25_10_0, v25_10_0 } from '@/generated';
 import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
+import type {
+  SmbStatusParams,
+  SmbStatusResponse,
+} from '@/types/smb-status.type';
 import { toAppState } from '@/utils/app-state.utils';
+import { toSmbStatusParams } from '@/utils/smb-status.utils';
+
+/**
+ * The one method this client invokes that its generated directory does not
+ * describe.
+ *
+ * `smb.status` exists on v25.10 under this exact name, taking these exact four
+ * positional arguments and returning this exact union — middleware declares it
+ * in `plugins/smb_/status.py` and has since the series shipped. What it does
+ * not do is *advertise* it: the method is decorated `private=True`, and
+ * `middlewared --dump-api` omits private methods, so nothing in
+ * `@/generated/v25_10_0` mentions it and `api.call('smb.status', …)` does not
+ * typecheck against `ApiDirectoryV25_10_0`.
+ *
+ * So the existence of the method is asserted here rather than derived, and the
+ * assertion is checked against middleware source instead of the dump. That is
+ * the whole reason this type exists, and the reason it is written as narrowly
+ * as it is: it admits one method name, one argument tuple and one return type,
+ * so it cannot be reused to reach anything else, and a future version that
+ * changes any of the three is a change to this declaration rather than a silent
+ * mismatch. It is deliberately not a general "call an undeclared method"
+ * escape — one was considered and rejected, because `client.api` is public and
+ * such a method would become a supported way for consumers to route around the
+ * directory entirely.
+ *
+ * The corresponding v26+ leg needs none of this: the method is public there and
+ * comes out of the directory like any other.
+ */
+type PrivateSmbStatusCall = {
+  call(
+    method: 'smb.status',
+    params: SmbStatusParams
+  ): Observable<SmbStatusResponse>;
+};
 
 /**
  * API client for TrueNAS API v25.10.x
@@ -31,6 +69,12 @@ import { toAppState } from '@/utils/app-state.utils';
  * - containerStop → virt.instance.stop (emits Job updates)
  * - containerRestart → virt.instance.restart (emits Job updates)
  * - containerDelete → virt.instance.delete (already a job; takes no options)
+ *
+ * SMB operations:
+ * - smbStatus → smb.status, which is declared `private=True` on this version
+ *   and so is absent from the generated directory. See `PrivateSmbStatusCall`
+ *   for how it is reached and why that is a cast, and `OperationMappings` for
+ *   the authorization difference being private carries with it here.
  */
 export class TrueNasApiClientV2510 extends TrueNasApiClient<ApiDirectoryV25_10_0> {
   /**
@@ -84,6 +128,44 @@ export class TrueNasApiClientV2510 extends TrueNasApiClient<ApiDirectoryV25_10_0
           );
         }
         return this.api.job('virt.instance.delete', [id]);
+      },
+
+      // The private leg. See `PrivateSmbStatusCall` for why this is a cast and
+      // not a directory lookup.
+      //
+      // v25.10 answers rather than refusing, for a caller with the authority.
+      // Being private does not stop the method running: `ws_handler/rpc.py`
+      // logs a warning for a private call over websocket and dispatches it
+      // anyway — the `# FIXME: Eventually, prohibit this` above that branch is
+      // still unresolved on master.
+      //
+      // It does decide who may run it. `smb.status` carries no `roles=` here,
+      // and middleware role-registers a method only `if roles:`, so it is in no
+      // role's allowlist and only the non-STIG full-admin wildcard reaches it.
+      // That is documented on `OperationMappings.smbStatus`; this leg does not
+      // pre-empt it. A caller without the authority gets middleware's `EACCES`,
+      // which is the honest answer and the server's to give.
+      //
+      // The server-side warning is per dispatch, and a client count is exactly
+      // the sort of thing a caller polls. Reported at debug rather than warn,
+      // because nothing here is degraded or unhonoured — the request is served
+      // in full — and left to the caller to weigh.
+      //
+      // Future tense, and for the same reason as `containerDelete` above: this
+      // runs when the operation is built, and `api.call` is cold, so no request
+      // has gone out yet and may never. One built observable subscribed twice
+      // dispatches twice; this line is what will happen, not a record that it
+      // did.
+      smbStatus: (request) => {
+        this.logger.debug(
+          'smbStatus: smb.status is private on v25.10; each dispatch will ' +
+            'log a warning server-side and needs a non-STIG full-admin session',
+          { method: 'smb.status', infoLevel: request?.infoLevel ?? 'ALL' }
+        );
+        return (this.api as unknown as PrivateSmbStatusCall).call(
+          'smb.status',
+          toSmbStatusParams(request)
+        );
       },
     };
   }

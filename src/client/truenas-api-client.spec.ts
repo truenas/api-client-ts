@@ -23,6 +23,7 @@ class TestClient extends TrueNasApiClient {
       containerStop: vi.fn(),
       containerRestart: vi.fn(),
       containerDelete: vi.fn(),
+      smbStatus: vi.fn(),
     };
   }
 }

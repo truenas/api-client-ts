@@ -183,6 +183,65 @@ discovery route that resolves against whatever the appliance turned out to be.
 On the named route it cannot: the client class is picked from the version you
 stated, so `ops` is that version's mappings whether or not the server agrees.
 
+`ops` is deliberately flat — `OperationMappings`, not parameterized by the
+directory — so every operation is callable whether or not you pinned a version.
+That is what lets an operation paper over a difference the type system would
+otherwise force the caller to handle.
+
+```ts
+// The same call on every supported version.
+const sessions = await firstValueFrom(
+  client.ops.smbStatus({ infoLevel: 'SESSIONS' })
+);
+
+// A client count is this composed, not a second operation.
+const count = await firstValueFrom(
+  client.ops.smbStatus({
+    infoLevel: 'SESSIONS',
+    options: { count: true },
+    statusOptions: { fast: true },
+  })
+);
+```
+
+`smbStatus` is worth singling out, because it is the first operation whose
+v25.10 leg is invisible to `middlewared --dump-api`. `smb.status` is public on
+v26+ and generated like any other method; on v25.10 it is the same method taking
+the same four positional arguments and returning the same `list | dict | int`,
+but middleware declares it `private=True`, so the dump omits it and no generated
+v25.10 type mentions it. The v25.10 client therefore *asserts* the method exists
+rather than reading it from the directory — a single narrow declaration admitting
+one method name, one argument tuple and one return type, checked against
+middleware source instead of against the dump.
+
+Three consequences worth knowing before you reach for it.
+
+**It needs a full-admin session on v25.10.** Being private there decides
+authorization, not just documentation. `smb.status` declares no roles on
+v25.10, and middleware role-registers a method only `if roles:` — so it is in no
+role's allowlist, and only a **non-STIG full-admin** session, whose allowlist is
+the wildcard `{ method: '*', resource: '*' }`, reaches it. A session holding
+exactly `SHARING_SMB_READ` is refused with `EACCES` on v25.10 and succeeds on
+v26+, where the method carries that role. Under STIG, full admin is expanded to
+the union of its roles' allowlists rather than the wildcard, so it is refused on
+v25.10 as well. The client does not pre-empt any of this: you get middleware's
+own error, on the version where it applies.
+
+**It logs server-side on every dispatch**, which matters if you poll it. v25.10
+is in maintenance and that cost is accepted there, but it is not a pattern to
+extend.
+
+**The result is the union middleware sends** — which arm arrives is decided by
+the options, not the info level — so callers narrow it themselves.
+
+These types are deliberately not the generated ones. `SmbStatusOptions` is not
+v26's `SMBStatusOptions`, and `SmbStatusResponse` is not that method's generated
+response: the generated types describe one version's dump, while these describe
+the contract both versions honour. They are named `Smb…` rather than `SMB…` so
+the two cannot be confused at a call site — and `SmbStatusOptions` is the one
+pair where the names sit closest, since it is the fourth positional argument on
+both versions.
+
 ## Documentation
 
 The API reference is generated from the TSDoc comments in the source with
