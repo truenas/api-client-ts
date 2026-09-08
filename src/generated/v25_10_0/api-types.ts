@@ -7,6 +7,11 @@
  * middleware removed from every version directory in b9c330ee94, and
  * `pool.dataset.encryption_algorithm_choices`, removed in 22ce5eac51.
  *
+ * And one thing the dump gets wrong: the `pool.dataset.query` event payload.
+ * Every slice's events carry the running tree's models rather than that
+ * version's, so a dump taken from master describes this one with v26's shape.
+ * It is held at the call side's shape here — see `src/generated-hand-maintained.spec.ts`.
+ *
  * `yarn generate:api` still generates the whole chain — later versions are
  * deltas against this one — but leaves files carrying this marker untouched.
  */
@@ -6301,8 +6306,18 @@ export interface PoolCreateTopologyLogVdev {
 }
 export interface PoolDatasetAddedEvent {
   id: string;
-  fields: PoolDatasetEntryInput;
+  fields: PoolDatasetEntry;
 }
+/**
+ * The dump's event-side render of `PoolDatasetEntry`, referenced by nothing.
+ *
+ * 25.10 does not send this shape: its `tier` and its nested `user_properties`
+ * come from master's models, which every slice's events carry. The event
+ * payloads point at `PoolDatasetEntry`, which is what this version declares.
+ * Kept rather than deleted because `MANIFEST.md` is regenerated on every run
+ * and records this name as introduced here, so removing it would put the tree
+ * and the manifest into a disagreement that a regeneration restates.
+ */
 export interface PoolDatasetEntryInput {
   id?: string;
   type?: string;
@@ -6381,7 +6396,7 @@ export interface ZfsTierRewriteJobEntry {
 }
 export interface PoolDatasetChangedEvent {
   id: string;
-  fields: PoolDatasetEntryInput;
+  fields: PoolDatasetEntry;
 }
 export interface PoolDatasetChangeKeyOptions {
   generate_key?: boolean;
