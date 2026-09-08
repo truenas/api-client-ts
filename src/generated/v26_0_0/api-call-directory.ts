@@ -77,7 +77,6 @@ import type {
   VMCreateArgs,
   VMDeleteOptions,
   VMDeviceUpdate,
-  VMUpdate,
   VMWareCreate,
   VMWareUpdate,
   WebDavCredentialsModel,
@@ -184,13 +183,23 @@ import type {
   ReportingGetDataResponse,
   RsyncTaskEntry,
   RsyncTaskQueryResultItem,
+  S3AccesskeyCreate,
+  S3AccesskeyEntry,
+  S3AccesskeyQueryResultItem,
+  S3AccesskeyUpdate,
   S3CredentialsModel,
+  S3Entry,
+  S3Update,
   SMBEntry,
   SMBShareAcl,
   SMBStatusOptions,
   SMBUpdateArgs,
   SharingNFSEntry,
   SharingNFSQueryResultItem,
+  SharingS3Create,
+  SharingS3Entry,
+  SharingS3QueryResultItem,
+  SharingS3Update,
   SharingSMBEntry,
   SharingSMBQueryResultItem,
   SharingSMBSetaclArgs,
@@ -224,6 +233,7 @@ import type {
   VMEntry,
   VMQueryResultItem,
   VMStatus,
+  VMUpdate,
   VMWareEntry,
   VMWareQueryResultItem,
   WebshareEntry,
@@ -894,6 +904,47 @@ export interface ApiCallDirectoryDelta {
     response: RsyncTaskEntry;
   };
 
+  's3.accesskey.create': {
+    params: [data: S3AccesskeyCreate];
+    response: S3AccesskeyEntry;
+  };
+
+  's3.accesskey.delete': {
+    params: [id: number];
+    response: true;
+  };
+
+  's3.accesskey.get_instance': {
+    params: [id: number, options?: QueryOptions<S3AccesskeyEntry>];
+    response: S3AccesskeyEntry;
+  };
+
+  's3.accesskey.query': {
+    params: [filters?: QueryFilters<S3AccesskeyEntry>, options?: QueryOptions<S3AccesskeyEntry>];
+    response: S3AccesskeyEntry[] | S3AccesskeyEntry | S3AccesskeyQueryResultItem[] | S3AccesskeyQueryResultItem | number;
+    entity: S3AccesskeyEntry;
+  };
+
+  's3.accesskey.update': {
+    params: [id: number, data: S3AccesskeyUpdate];
+    response: S3AccesskeyEntry;
+  };
+
+  's3.bindip_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  's3.config': {
+    params: [];
+    response: S3Entry;
+  };
+
+  's3.update': {
+    params: [data: S3Update];
+    response: S3Entry;
+  };
+
   'sharing.nfs.create': {
     params: [data: NfsShareCreate];
     response: SharingNFSEntry;
@@ -913,6 +964,37 @@ export interface ApiCallDirectoryDelta {
   'sharing.nfs.update': {
     params: [id: number, data: NfsShareUpdate];
     response: SharingNFSEntry;
+  };
+
+  'sharing.s3.audit_choices': {
+    params: [];
+    response: Record<string, string>;
+  };
+
+  'sharing.s3.create': {
+    params: [data: SharingS3Create];
+    response: SharingS3Entry;
+  };
+
+  'sharing.s3.delete': {
+    params: [id: number];
+    response: true;
+  };
+
+  'sharing.s3.get_instance': {
+    params: [id: number, options?: QueryOptions<SharingS3Entry>];
+    response: SharingS3Entry;
+  };
+
+  'sharing.s3.query': {
+    params: [filters?: QueryFilters<SharingS3Entry>, options?: QueryOptions<SharingS3Entry>];
+    response: SharingS3Entry[] | SharingS3Entry | SharingS3QueryResultItem[] | SharingS3QueryResultItem | number;
+    entity: SharingS3Entry;
+  };
+
+  'sharing.s3.update': {
+    params: [id: number, data: SharingS3Update];
+    response: SharingS3Entry;
   };
 
   'sharing.smb.create': {

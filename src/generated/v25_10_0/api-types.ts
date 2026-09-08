@@ -7,6 +7,11 @@
  * middleware removed from every version directory in b9c330ee94, and
  * `pool.dataset.encryption_algorithm_choices`, removed in 22ce5eac51.
  *
+ * And one thing the dump gets wrong: the `pool.dataset.query` event payload.
+ * Every slice's events carry the running tree's models rather than that
+ * version's, so a dump taken from master describes this one with v26's shape.
+ * It is held at the call side's shape here — see `src/generated-hand-maintained.spec.ts`.
+ *
  * `yarn generate:api` still generates the whole chain — later versions are
  * deltas against this one — but leaves files carrying this marker untouched.
  */
@@ -6303,61 +6308,30 @@ export interface PoolDatasetAddedEvent {
   id: string;
   fields: PoolDatasetEntry;
 }
-export interface PoolDatasetEntry {
-  id?: string;
-  type?: string;
-  name?: string;
-  pool?: string;
-  encrypted?: boolean;
-  encryption_root?: string | null;
-  key_loaded?: boolean | null;
-  children?: unknown[];
-  user_properties?: {
-    [k: string]: unknown;
-  };
-  locked?: boolean;
+/**
+ * The dump's event-side render of `PoolDatasetEntry`, held as an alias.
+ *
+ * The dump declares this name with v26's shape — `tier`, and the six dataset
+ * properties nested under `user_properties` — which no v25.10 module has. The
+ * name cannot simply go: `MANIFEST.md` is regenerated on every run and records
+ * it as introduced here. So it stays, pointing at what this version really
+ * sends.
+ *
+ * That matters because `<X>EntryInput` is how this file names payload types
+ * that *are* wired up — `SharingNFSEntryInput` is
+ * `SharingNFSChangedEvent['fields']` — so a consumer reaching for the
+ * `pool.dataset.query` payload type lands here, and here is now the same type
+ * the payload above actually uses.
+ */
+export type PoolDatasetEntryInput = PoolDatasetEntry;
+
+export interface PoolDatasetEntryUserProperties {
   comments?: PoolDatasetEntryProperty;
   quota_warning?: PoolDatasetEntryProperty;
   quota_critical?: PoolDatasetEntryProperty;
   refquota_warning?: PoolDatasetEntryProperty;
   refquota_critical?: PoolDatasetEntryProperty;
   managedby?: PoolDatasetEntryProperty;
-  deduplication?: PoolDatasetEntryProperty;
-  aclmode?: PoolDatasetEntryProperty;
-  acltype?: PoolDatasetEntryProperty;
-  xattr?: PoolDatasetEntryProperty;
-  atime?: PoolDatasetEntryProperty;
-  casesensitivity?: PoolDatasetEntryProperty;
-  checksum?: PoolDatasetEntryProperty;
-  exec?: PoolDatasetEntryProperty;
-  sync?: PoolDatasetEntryProperty;
-  compression?: PoolDatasetEntryProperty;
-  compressratio?: PoolDatasetEntryProperty;
-  origin?: PoolDatasetEntryProperty;
-  quota?: PoolDatasetEntryProperty;
-  refquota?: PoolDatasetEntryProperty;
-  reservation?: PoolDatasetEntryProperty;
-  refreservation?: PoolDatasetEntryProperty;
-  copies?: PoolDatasetEntryProperty;
-  snapdir?: PoolDatasetEntryProperty;
-  readonly?: PoolDatasetEntryProperty;
-  recordsize?: PoolDatasetEntryProperty;
-  sparse?: PoolDatasetEntryProperty;
-  volsize?: PoolDatasetEntryProperty;
-  volblocksize?: PoolDatasetEntryProperty;
-  key_format?: PoolDatasetEntryProperty;
-  encryption_algorithm?: PoolDatasetEntryProperty;
-  used?: PoolDatasetEntryProperty;
-  usedbychildren?: PoolDatasetEntryProperty;
-  usedbydataset?: PoolDatasetEntryProperty;
-  usedbyrefreservation?: PoolDatasetEntryProperty;
-  usedbysnapshots?: PoolDatasetEntryProperty;
-  available?: PoolDatasetEntryProperty;
-  special_small_block_size?: PoolDatasetEntryProperty;
-  pbkdf2iters?: PoolDatasetEntryProperty;
-  creation?: PoolDatasetEntryProperty;
-  snapdev?: PoolDatasetEntryProperty;
-  mountpoint?: string | null;
   [k: string]: unknown;
 }
 export interface PoolDatasetEntryProperty {
@@ -6366,6 +6340,16 @@ export interface PoolDatasetEntryProperty {
   value?: string | null;
   source?: string | null;
   source_info?: unknown;
+}
+export interface TierInfo {
+  tier_type: "REGULAR" | "PERFORMANCE";
+  tier_job?: ZfsTierRewriteJobEntry | null;
+}
+export interface ZfsTierRewriteJobEntry {
+  tier_job_id: string;
+  dataset_name: string;
+  job_uuid: string;
+  status: ZfsTierRewriteJobEntryStatusInput;
 }
 export interface PoolDatasetChangedEvent {
   id: string;
@@ -6490,6 +6474,63 @@ export interface PoolDatasetEncryptionSummaryOptionsDataset {
   name: string;
   key?: string;
   passphrase?: string;
+}
+export interface PoolDatasetEntry {
+  id?: string;
+  type?: string;
+  name?: string;
+  pool?: string;
+  encrypted?: boolean;
+  encryption_root?: string | null;
+  key_loaded?: boolean | null;
+  children?: unknown[];
+  user_properties?: {
+    [k: string]: unknown;
+  };
+  locked?: boolean;
+  comments?: PoolDatasetEntryProperty;
+  quota_warning?: PoolDatasetEntryProperty;
+  quota_critical?: PoolDatasetEntryProperty;
+  refquota_warning?: PoolDatasetEntryProperty;
+  refquota_critical?: PoolDatasetEntryProperty;
+  managedby?: PoolDatasetEntryProperty;
+  deduplication?: PoolDatasetEntryProperty;
+  aclmode?: PoolDatasetEntryProperty;
+  acltype?: PoolDatasetEntryProperty;
+  xattr?: PoolDatasetEntryProperty;
+  atime?: PoolDatasetEntryProperty;
+  casesensitivity?: PoolDatasetEntryProperty;
+  checksum?: PoolDatasetEntryProperty;
+  exec?: PoolDatasetEntryProperty;
+  sync?: PoolDatasetEntryProperty;
+  compression?: PoolDatasetEntryProperty;
+  compressratio?: PoolDatasetEntryProperty;
+  origin?: PoolDatasetEntryProperty;
+  quota?: PoolDatasetEntryProperty;
+  refquota?: PoolDatasetEntryProperty;
+  reservation?: PoolDatasetEntryProperty;
+  refreservation?: PoolDatasetEntryProperty;
+  copies?: PoolDatasetEntryProperty;
+  snapdir?: PoolDatasetEntryProperty;
+  readonly?: PoolDatasetEntryProperty;
+  recordsize?: PoolDatasetEntryProperty;
+  sparse?: PoolDatasetEntryProperty;
+  volsize?: PoolDatasetEntryProperty;
+  volblocksize?: PoolDatasetEntryProperty;
+  key_format?: PoolDatasetEntryProperty;
+  encryption_algorithm?: PoolDatasetEntryProperty;
+  used?: PoolDatasetEntryProperty;
+  usedbychildren?: PoolDatasetEntryProperty;
+  usedbydataset?: PoolDatasetEntryProperty;
+  usedbyrefreservation?: PoolDatasetEntryProperty;
+  usedbysnapshots?: PoolDatasetEntryProperty;
+  available?: PoolDatasetEntryProperty;
+  special_small_block_size?: PoolDatasetEntryProperty;
+  pbkdf2iters?: PoolDatasetEntryProperty;
+  creation?: PoolDatasetEntryProperty;
+  snapdev?: PoolDatasetEntryProperty;
+  mountpoint?: string | null;
+  [k: string]: unknown;
 }
 export interface PoolDatasetLockOptions {
   force_umount?: boolean;
@@ -7940,16 +7981,6 @@ export interface SharingNFSEntryInput {
   locked: boolean | null;
   expose_snapshots?: boolean;
   tier?: TierInfo | null;
-}
-export interface TierInfo {
-  tier_type: "REGULAR" | "PERFORMANCE";
-  tier_job?: ZfsTierRewriteJobEntry | null;
-}
-export interface ZfsTierRewriteJobEntry {
-  tier_job_id: string;
-  dataset_name: string;
-  job_uuid: string;
-  status: ZfsTierRewriteJobEntryStatusInput;
 }
 export interface SharingNFSChangedEvent {
   id: number;

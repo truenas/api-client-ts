@@ -38,7 +38,6 @@ import type {
   MegaCredentialsModel,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
-  PoolDatasetUpdate,
   QueryOptionsModel,
   ReportingEntry,
   ReportingExportsEntry,
@@ -48,7 +47,6 @@ import type {
   StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
   VMDeviceUpdate,
-  VMUpdate,
   WebDavCredentialsModel,
   YandexCredentialsModel,
 } from '../v25_10_0/api-types';
@@ -58,11 +56,11 @@ import type {
   GraphIdentifier,
   InterfaceUpdate,
   LXCConfigEntry,
-  PoolDatasetCreateFilesystem,
-  PoolDatasetCreateVolume,
   S3CredentialsModel,
   TrueNASConnectEntry,
   TruecommandEntry,
+  VMUpdate,
+  ZFSResourceEntry,
   ZfsTierRewriteJobEntry,
   ZfsTierRewriteJobFailureEntry,
   ZfsTierRewriteJobFailureQueryResultItem,
@@ -106,8 +104,6 @@ import type {
   MailUpdate,
   NVMetGlobalSessionsItem,
   NVMetGlobalSessionsItemQueryResultItem,
-  PoolDatasetEntry,
-  PoolDatasetQueryResultItem,
   ReportingExportsCreate,
   ReportingGetDataResponse,
   ReportingGraphsItem,
@@ -140,6 +136,7 @@ import type {
   VMPortWizard,
   VMQueryResultItem,
   VMVirtualizationDetails,
+  ZFSResourceCreateArgsData,
   ZfsTierRewriteJobFailuresArgs,
   ZfsTierRewriteJobQueryArgs,
 } from './api-types';
@@ -371,27 +368,6 @@ export interface ApiCallDirectoryDelta {
     entity: NVMetGlobalSessionsItem;
   };
 
-  'pool.dataset.create': {
-    params: [data: PoolDatasetCreateFilesystem | PoolDatasetCreateVolume];
-    response: PoolDatasetEntry;
-  };
-
-  'pool.dataset.get_instance': {
-    params: [id: string, options?: QueryOptions<PoolDatasetEntry>];
-    response: PoolDatasetEntry;
-  };
-
-  'pool.dataset.query': {
-    params: [filters?: QueryFilters<PoolDatasetEntry>, options?: QueryOptions<PoolDatasetEntry>];
-    response: PoolDatasetEntry[] | PoolDatasetEntry | PoolDatasetQueryResultItem[] | PoolDatasetQueryResultItem | number;
-    entity: PoolDatasetEntry;
-  };
-
-  'pool.dataset.update': {
-    params: [id: string, data: PoolDatasetUpdate];
-    response: PoolDatasetEntry;
-  };
-
   'reporting.exporters.create': {
     params: [reporting_exporter_create: ReportingExportsCreate];
     response: ReportingExportsEntry;
@@ -600,6 +576,11 @@ export interface ApiCallDirectoryDelta {
   'vm.virtualization_details': {
     params: [];
     response: VMVirtualizationDetails;
+  };
+
+  'zfs.resource.create': {
+    params: [data: ZFSResourceCreateArgsData];
+    response: ZFSResourceEntry;
   };
 
   'zfs.tier.rewrite_job_failures': {

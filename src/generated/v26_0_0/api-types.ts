@@ -69,6 +69,7 @@ import type {
   PoolDatasetCreateFilesystemReadonlyInput,
   PoolDatasetCreateUserProperty,
   PoolDatasetEntryProperty,
+  PoolDatasetEntryUserProperties,
   PoolScanStateInput,
   PoolSnapshotEntryPropertyFieldsSource,
   PoolSnapshotHoldTag,
@@ -148,6 +149,14 @@ import type {
   VeeamRepositoryOpt,
   VeeamRepositoryOptInput,
 } from '../v25_10_1/api-types';
+
+export const Access = {
+  Readonly: 'READONLY',
+  Writeonly: 'WRITEONLY',
+  Readwrite: 'READWRITE',
+  Deny: 'DENY',
+} as const;
+export type Access = (typeof Access)[keyof typeof Access];
 
 export const AppContainerDetailsState = {
   Crashed: 'crashed',
@@ -248,6 +257,31 @@ export const PoolScrubAction = {
   Pause: 'PAUSE',
 } as const;
 export type PoolScrubAction = (typeof PoolScrubAction)[keyof typeof PoolScrubAction];
+
+export const S3AccesskeyEntryStatus = {
+  Enabled: 'ENABLED',
+  Disabled: 'DISABLED',
+  Expired: 'EXPIRED',
+  UserMissing: 'USER_MISSING',
+  SecretLost: 'SECRET_LOST',
+} as const;
+export type S3AccesskeyEntryStatus = (typeof S3AccesskeyEntryStatus)[keyof typeof S3AccesskeyEntryStatus];
+
+export const S3AccesskeyEntryStatusInput = {
+  Enabled: 'ENABLED',
+  Disabled: 'DISABLED',
+  Expired: 'EXPIRED',
+  UserMissing: 'USER_MISSING',
+  SecretLost: 'SECRET_LOST',
+} as const;
+export type S3AccesskeyEntryStatusInput = (typeof S3AccesskeyEntryStatusInput)[keyof typeof S3AccesskeyEntryStatusInput];
+
+export const Versioning = {
+  Off: 'OFF',
+  Enabled: 'ENABLED',
+  Suspended: 'SUSPENDED',
+} as const;
+export type Versioning = (typeof Versioning)[keyof typeof Versioning];
 
 export const VMWareEntryStateState = {
   Pending: 'PENDING',
@@ -470,6 +504,11 @@ export interface AppEntry {
   config?: {
     [k: string]: unknown;
   } | null;
+}
+export interface AppDelete {
+  remove_images?: boolean;
+  remove_ix_volumes?: boolean;
+  force_remove_custom_app?: boolean;
 }
 export interface AppImageEntry {
   id: string;
@@ -1231,7 +1270,6 @@ export interface ContainerStopOptions {
   force_after_timeout?: boolean;
 }
 export interface ContainerUpdate {
-  uuid?: string | null;
   name?: string;
   description?: string;
   cpuset?: string | null;
@@ -1907,16 +1945,9 @@ export interface PoolDatasetEntryInput {
   encryption_root?: string | null;
   key_loaded?: boolean | null;
   children?: unknown[];
-  user_properties?: {
-    [k: string]: unknown;
-  };
+  user_properties?: PoolDatasetEntryUserProperties;
   locked?: boolean;
-  comments?: PoolDatasetEntryProperty;
-  quota_warning?: PoolDatasetEntryProperty;
-  quota_critical?: PoolDatasetEntryProperty;
-  refquota_warning?: PoolDatasetEntryProperty;
-  refquota_critical?: PoolDatasetEntryProperty;
-  managedby?: PoolDatasetEntryProperty;
+  tier?: TierInfoInput | null;
   deduplication?: PoolDatasetEntryProperty;
   aclmode?: PoolDatasetEntryProperty;
   acltype?: PoolDatasetEntryProperty;
@@ -1954,6 +1985,16 @@ export interface PoolDatasetEntryInput {
   snapdev?: PoolDatasetEntryProperty;
   mountpoint?: string | null;
   [k: string]: unknown;
+}
+export interface TierInfoInput {
+  tier_type: "REGULAR" | "PERFORMANCE";
+  tier_job?: ZfsTierRewriteJobEntryInput | null;
+}
+export interface ZfsTierRewriteJobEntryInput {
+  tier_job_id: string;
+  dataset_name: string;
+  job_uuid: string;
+  status: ZfsTierRewriteJobEntryStatusInput;
 }
 export interface PoolDatasetChangedEvent {
   id: string;
@@ -2042,17 +2083,9 @@ export interface PoolDatasetEntry {
   encryption_root?: string | null;
   key_loaded?: boolean | null;
   children?: unknown[];
-  user_properties?: {
-    [k: string]: unknown;
-  };
+  user_properties?: PoolDatasetEntryUserProperties;
   locked?: boolean;
   tier?: TierInfo | null;
-  comments?: PoolDatasetEntryProperty;
-  quota_warning?: PoolDatasetEntryProperty;
-  quota_critical?: PoolDatasetEntryProperty;
-  refquota_warning?: PoolDatasetEntryProperty;
-  refquota_critical?: PoolDatasetEntryProperty;
-  managedby?: PoolDatasetEntryProperty;
   deduplication?: PoolDatasetEntryProperty;
   aclmode?: PoolDatasetEntryProperty;
   acltype?: PoolDatasetEntryProperty;
@@ -2110,17 +2143,9 @@ export interface PoolDatasetQueryResultItem {
   encryption_root?: string | null;
   key_loaded?: boolean | null;
   children?: unknown[];
-  user_properties?: {
-    [k: string]: unknown;
-  };
+  user_properties?: PoolDatasetEntryUserProperties;
   locked?: boolean;
   tier?: TierInfo | null;
-  comments?: PoolDatasetEntryProperty;
-  quota_warning?: PoolDatasetEntryProperty;
-  quota_critical?: PoolDatasetEntryProperty;
-  refquota_warning?: PoolDatasetEntryProperty;
-  refquota_critical?: PoolDatasetEntryProperty;
-  managedby?: PoolDatasetEntryProperty;
   deduplication?: PoolDatasetEntryProperty;
   aclmode?: PoolDatasetEntryProperty;
   acltype?: PoolDatasetEntryProperty;
@@ -2615,6 +2640,141 @@ export interface RsyncTaskQueryResultItem {
     [k: string]: unknown;
   } | null;
 }
+export interface S3AccesskeyAddedEvent {
+  id: number;
+  fields: S3AccesskeyEntryInput;
+}
+export interface S3AccesskeyEntryInput {
+  id: number;
+  name: string;
+  username: string | null;
+  user_identifier: number | string;
+  local: boolean;
+  access_key: string;
+  secret: string | null;
+  enabled: boolean;
+  expires_at?: string | null;
+  created_at: string;
+  status: S3AccesskeyEntryStatusInput;
+}
+export interface S3AccesskeyChangedEvent {
+  id: number;
+  fields: S3AccesskeyEntryInput;
+}
+export interface S3AccesskeyCreate {
+  name: string;
+  username: string;
+  access_key?: string | null;
+  secret?: string | null;
+  enabled?: boolean;
+  expires_at?: string | null;
+}
+export interface S3AccesskeyEntry {
+  id: number;
+  name: string;
+  username: string | null;
+  user_identifier: number | string;
+  local: boolean;
+  access_key: string;
+  secret: string | null;
+  enabled: boolean;
+  expires_at?: string | null;
+  created_at: string;
+  status: S3AccesskeyEntryStatus;
+}
+export interface S3AccesskeyQueryResultItem {
+  id?: number;
+  name?: string;
+  username?: string | null;
+  user_identifier?: number | string;
+  local?: boolean;
+  access_key?: string;
+  secret?: string | null;
+  enabled?: boolean;
+  expires_at?: string | null;
+  created_at?: string;
+  status?: S3AccesskeyEntryStatus;
+}
+export interface S3AccesskeyRemovedEvent {
+  id: number;
+}
+export interface S3AccesskeyUpdate {
+  name?: string;
+  enabled?: boolean;
+  expires_at?: string | null;
+  rotate?: boolean;
+}
+export interface S3Entry {
+  id: number;
+  listeners?: S3Listener[];
+  servers?: number;
+  certificate?: number | null;
+  region?: string;
+  log_level?: "ERROR" | "WARNING" | "NOTICE" | "INFO" | "DEBUG";
+  default_audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+      )[]
+    | "ALL";
+  default_audit_overflow?: "DROP" | "BACKPRESSURE";
+  global_grants?: S3GrantEntry[];
+}
+export interface S3Listener {
+  address: string;
+  port?: number;
+  tls?: boolean;
+}
+export interface S3GrantEntry {
+  principal_type: "USER" | "GROUP" | "EVERYONE";
+  xid?: number | null;
+  access: Access;
+  name: string;
+}
+export interface S3Grant {
+  principal_type: "USER" | "GROUP" | "EVERYONE";
+  xid?: number | null;
+  access: Access;
+}
+export interface S3Update {
+  listeners?: S3Listener[];
+  servers?: number;
+  certificate?: number | null;
+  region?: string;
+  log_level?: "ERROR" | "WARNING" | "NOTICE" | "INFO" | "DEBUG";
+  default_audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+      )[]
+    | "ALL";
+  default_audit_overflow?: "DROP" | "BACKPRESSURE";
+  global_grants?: S3Grant[];
+}
 export interface SharingNFSAddedEvent {
   id: number;
   fields: SharingNFSEntryInput;
@@ -2638,16 +2798,6 @@ export interface SharingNFSEntryInput {
   locked: boolean | null;
   expose_snapshots?: boolean;
   tier?: TierInfoInput | null;
-}
-export interface TierInfoInput {
-  tier_type: "REGULAR" | "PERFORMANCE";
-  tier_job?: ZfsTierRewriteJobEntryInput | null;
-}
-export interface ZfsTierRewriteJobEntryInput {
-  tier_job_id: string;
-  dataset_name: string;
-  job_uuid: string;
-  status: ZfsTierRewriteJobEntryStatusInput;
 }
 export interface SharingNFSChangedEvent {
   id: number;
@@ -2692,6 +2842,162 @@ export interface SharingNFSQueryResultItem {
   locked?: boolean | null;
   expose_snapshots?: boolean;
   tier?: TierInfo | null;
+}
+export interface SharingS3AddedEvent {
+  id: number;
+  fields: SharingS3Entry;
+}
+export interface SharingS3Entry {
+  id: number;
+  name: string;
+  dataset: string;
+  enabled?: boolean;
+  owner: string;
+  owner_uid: number;
+  grants?: S3GrantEntry[];
+  permissions_model?: "S3" | "MULTIPROTOCOL" | "S3_BUCKET_OWNER_ENFORCED";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+  locked?: boolean | null;
+}
+export interface SharingS3ChangedEvent {
+  id: number;
+  fields: SharingS3Entry;
+}
+export interface SharingS3Create {
+  name: string;
+  dataset: string;
+  enabled?: boolean;
+  owner: string;
+  grants?: S3Grant[];
+  permissions_model?: "S3" | "MULTIPROTOCOL" | "S3_BUCKET_OWNER_ENFORCED";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+}
+export interface SharingS3QueryResultItem {
+  id?: number;
+  name?: string;
+  dataset?: string;
+  enabled?: boolean;
+  owner?: string;
+  owner_uid?: number;
+  grants?: S3GrantEntry[];
+  permissions_model?: "S3" | "MULTIPROTOCOL" | "S3_BUCKET_OWNER_ENFORCED";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+  locked?: boolean | null;
+}
+export interface SharingS3RemovedEvent {
+  id: number;
+}
+export interface SharingS3Update {
+  name?: string;
+  enabled?: boolean;
+  owner?: string;
+  grants?: S3Grant[];
+  permissions_model?: "S3" | "MULTIPROTOCOL" | "S3_BUCKET_OWNER_ENFORCED";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
 }
 export interface SharingSMBAddedEvent {
   id: number;
@@ -3441,6 +3747,33 @@ export interface VMQueryResultItem {
   id?: number;
   status?: VMStatus;
   enable_secure_boot?: boolean;
+}
+export interface VMUpdate {
+  command_line_args?: string;
+  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
+  cpu_model?: string | null;
+  name?: string;
+  description?: string;
+  vcpus?: number;
+  cores?: number;
+  threads?: number;
+  cpuset?: string | null;
+  nodeset?: string | null;
+  enable_cpu_topology_extension?: boolean;
+  pin_vcpus?: boolean;
+  suspend_on_snapshot?: boolean;
+  trusted_platform_module?: boolean;
+  memory?: number;
+  min_memory?: number | null;
+  hyperv_enlightenments?: boolean;
+  bootloader?: Bootloader;
+  autostart?: boolean;
+  hide_from_msr?: boolean;
+  ensure_display_device?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  arch_type?: string | null;
+  machine_type?: string | null;
 }
 export interface VMWareAddedEvent {
   id: number;

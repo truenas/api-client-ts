@@ -62,8 +62,14 @@ import type {
   PoolScanChangedEvent,
   ReplicationAddedEvent,
   ReplicationChangedEvent,
+  S3AccesskeyAddedEvent,
+  S3AccesskeyChangedEvent,
+  S3AccesskeyRemovedEvent,
   SharingNFSAddedEvent,
   SharingNFSChangedEvent,
+  SharingS3AddedEvent,
+  SharingS3ChangedEvent,
+  SharingS3RemovedEvent,
   SharingSMBAddedEvent,
   SharingSMBChangedEvent,
   SharingWebshareAddedEvent,
@@ -186,10 +192,22 @@ export interface ApiEventDirectoryDelta {
     removed: ReplicationRemovedEvent;
   };
 
+  's3.accesskey.query': {
+    added: S3AccesskeyAddedEvent;
+    changed: S3AccesskeyChangedEvent;
+    removed: S3AccesskeyRemovedEvent;
+  };
+
   'sharing.nfs.query': {
     added: SharingNFSAddedEvent;
     changed: SharingNFSChangedEvent;
     removed: SharingNFSRemovedEvent;
+  };
+
+  'sharing.s3.query': {
+    added: SharingS3AddedEvent;
+    changed: SharingS3ChangedEvent;
+    removed: SharingS3RemovedEvent;
   };
 
   'sharing.smb.query': {

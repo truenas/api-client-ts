@@ -21,7 +21,6 @@ import type {
   MailEntryOAuth,
   Maintainer,
   OVHSchema,
-  PoolDatasetEntryProperty,
   Protocol,
   QueryOptionsModel,
   Route53Schema,
@@ -69,6 +68,12 @@ export const Service = {
   System: 'SYSTEM',
 } as const;
 export type Service = (typeof Service)[keyof typeof Service];
+
+export const VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput = {
+  Filesystem: 'FILESYSTEM',
+  Volume: 'VOLUME',
+} as const;
+export type VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput = (typeof VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput)[keyof typeof VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput];
 
 export type DockerBackupMap = Record<string, DockerBackupEntry>;
 
@@ -763,128 +768,6 @@ export interface NVMetGlobalSessionsItemQueryResultItem {
   port_id?: number;
   ctrl?: number;
 }
-export interface PoolDatasetAddedEvent {
-  id: string;
-  fields: PoolDatasetEntry;
-}
-export interface PoolDatasetEntry {
-  id?: string;
-  type?: string;
-  name?: string;
-  pool?: string;
-  encrypted?: boolean;
-  encryption_root?: string | null;
-  key_loaded?: boolean | null;
-  children?: unknown[];
-  user_properties?: {
-    [k: string]: unknown;
-  };
-  locked?: boolean;
-  comments?: PoolDatasetEntryProperty;
-  quota_warning?: PoolDatasetEntryProperty;
-  quota_critical?: PoolDatasetEntryProperty;
-  refquota_warning?: PoolDatasetEntryProperty;
-  refquota_critical?: PoolDatasetEntryProperty;
-  managedby?: PoolDatasetEntryProperty;
-  deduplication?: PoolDatasetEntryProperty;
-  aclmode?: PoolDatasetEntryProperty;
-  acltype?: PoolDatasetEntryProperty;
-  xattr?: PoolDatasetEntryProperty;
-  atime?: PoolDatasetEntryProperty;
-  casesensitivity?: PoolDatasetEntryProperty;
-  checksum?: PoolDatasetEntryProperty;
-  exec?: PoolDatasetEntryProperty;
-  sync?: PoolDatasetEntryProperty;
-  compression?: PoolDatasetEntryProperty;
-  compressratio?: PoolDatasetEntryProperty;
-  origin?: PoolDatasetEntryProperty;
-  quota?: PoolDatasetEntryProperty;
-  refquota?: PoolDatasetEntryProperty;
-  reservation?: PoolDatasetEntryProperty;
-  refreservation?: PoolDatasetEntryProperty;
-  copies?: PoolDatasetEntryProperty;
-  snapdir?: PoolDatasetEntryProperty;
-  readonly?: PoolDatasetEntryProperty;
-  recordsize?: PoolDatasetEntryProperty;
-  sparse?: PoolDatasetEntryProperty;
-  volsize?: PoolDatasetEntryProperty;
-  volblocksize?: PoolDatasetEntryProperty;
-  key_format?: PoolDatasetEntryProperty;
-  encryption_algorithm?: PoolDatasetEntryProperty;
-  used?: PoolDatasetEntryProperty;
-  usedbychildren?: PoolDatasetEntryProperty;
-  usedbydataset?: PoolDatasetEntryProperty;
-  usedbyrefreservation?: PoolDatasetEntryProperty;
-  usedbysnapshots?: PoolDatasetEntryProperty;
-  available?: PoolDatasetEntryProperty;
-  special_small_block_size?: PoolDatasetEntryProperty;
-  pbkdf2iters?: PoolDatasetEntryProperty;
-  creation?: PoolDatasetEntryProperty;
-  snapdev?: PoolDatasetEntryProperty;
-  mountpoint?: string | null;
-  [k: string]: unknown;
-}
-export interface PoolDatasetChangedEvent {
-  id: string;
-  fields: PoolDatasetEntry;
-}
-export interface PoolDatasetQueryResultItem {
-  id?: string;
-  type?: string;
-  name?: string;
-  pool?: string;
-  encrypted?: boolean;
-  encryption_root?: string | null;
-  key_loaded?: boolean | null;
-  children?: unknown[];
-  user_properties?: {
-    [k: string]: unknown;
-  };
-  locked?: boolean;
-  comments?: PoolDatasetEntryProperty;
-  quota_warning?: PoolDatasetEntryProperty;
-  quota_critical?: PoolDatasetEntryProperty;
-  refquota_warning?: PoolDatasetEntryProperty;
-  refquota_critical?: PoolDatasetEntryProperty;
-  managedby?: PoolDatasetEntryProperty;
-  deduplication?: PoolDatasetEntryProperty;
-  aclmode?: PoolDatasetEntryProperty;
-  acltype?: PoolDatasetEntryProperty;
-  xattr?: PoolDatasetEntryProperty;
-  atime?: PoolDatasetEntryProperty;
-  casesensitivity?: PoolDatasetEntryProperty;
-  checksum?: PoolDatasetEntryProperty;
-  exec?: PoolDatasetEntryProperty;
-  sync?: PoolDatasetEntryProperty;
-  compression?: PoolDatasetEntryProperty;
-  compressratio?: PoolDatasetEntryProperty;
-  origin?: PoolDatasetEntryProperty;
-  quota?: PoolDatasetEntryProperty;
-  refquota?: PoolDatasetEntryProperty;
-  reservation?: PoolDatasetEntryProperty;
-  refreservation?: PoolDatasetEntryProperty;
-  copies?: PoolDatasetEntryProperty;
-  snapdir?: PoolDatasetEntryProperty;
-  readonly?: PoolDatasetEntryProperty;
-  recordsize?: PoolDatasetEntryProperty;
-  sparse?: PoolDatasetEntryProperty;
-  volsize?: PoolDatasetEntryProperty;
-  volblocksize?: PoolDatasetEntryProperty;
-  key_format?: PoolDatasetEntryProperty;
-  encryption_algorithm?: PoolDatasetEntryProperty;
-  used?: PoolDatasetEntryProperty;
-  usedbychildren?: PoolDatasetEntryProperty;
-  usedbydataset?: PoolDatasetEntryProperty;
-  usedbyrefreservation?: PoolDatasetEntryProperty;
-  usedbysnapshots?: PoolDatasetEntryProperty;
-  available?: PoolDatasetEntryProperty;
-  special_small_block_size?: PoolDatasetEntryProperty;
-  pbkdf2iters?: PoolDatasetEntryProperty;
-  creation?: PoolDatasetEntryProperty;
-  snapdev?: PoolDatasetEntryProperty;
-  mountpoint?: string | null;
-  [k: string]: unknown;
-}
 export interface ReportingExportsCreate {
   enabled: boolean;
   attributes: GraphiteExporter;
@@ -1275,6 +1158,47 @@ export interface VMQueryResultItem {
 export interface VMVirtualizationDetails {
   supported: boolean;
   error: string | null;
+}
+export interface ZFSResourceCreateArgsData {
+  path: string;
+  type?: VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput;
+  properties?: ZFSResourceCreateProperties;
+  user_properties?: {
+    [k: string]: string;
+  };
+  create_ancestors?: boolean;
+  encryption?: ZFSResourceCreateEncryption | null;
+}
+export interface ZFSResourceCreateProperties {
+  aclinherit?: string | null;
+  aclmode?: string | null;
+  acltype?: string | null;
+  atime?: string | null;
+  casesensitivity?: string | null;
+  checksum?: string | null;
+  compression?: string | null;
+  copies?: string | number | null;
+  dedup?: string | null;
+  exec?: string | null;
+  quota?: string | number | null;
+  readonly?: string | null;
+  recordsize?: string | number | null;
+  refquota?: string | number | null;
+  refreservation?: string | number | null;
+  reservation?: string | number | null;
+  snapdev?: string | null;
+  snapdir?: string | null;
+  special_small_blocks?: string | number | null;
+  sync?: string | null;
+  volblocksize?: string | number | null;
+  volsize?: string | number | null;
+  xattr?: string | null;
+}
+export interface ZFSResourceCreateEncryption {
+  generate_key?: boolean;
+  key?: string | null;
+  passphrase?: string | null;
+  pbkdf2iters?: number;
 }
 export interface ZfsTierRewriteJobFailuresArgs {
   tier_job_id: string;

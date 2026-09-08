@@ -1,11 +1,15 @@
 /**
- * The v25.10 re-export blocks that no dump describes, checked in full.
+ * What v25.10 holds by hand, checked in full.
  *
  * `virt.*` and `pool.dataset.encryption_algorithm_choices` exist only because
  * someone put them there by hand: middleware removed the `virt` models from
  * every version directory in b9c330ee94 and the pool method in 22ce5eac51, so
  * no dump taken since describes either. The API itself is unchanged — 25.10 is
  * released.
+ *
+ * A third thing is held by hand here, and it is the opposite case: not something
+ * the dump omits, but something it gets wrong. See "the pool.dataset event
+ * payload" at the foot of this file.
  *
  * The chain root declares them; the five patch directories re-export them. That
  * re-export block is what a regeneration deletes and a re-freeze then preserves
@@ -14,8 +18,8 @@
  * suite stayed green, because the directories still declared the *methods* and
  * imported their payload types straight from the root.
  *
- * Read as text rather than asserted as types, for two reasons this file learned
- * the hard way. A restore is done by hand and comes back *partial*, so naming
+ * The re-export checks read the files as text rather than asserting types, for
+ * two reasons this file learned the hard way. A restore is done by hand and comes back *partial*, so naming
  * one representative per version passes while thirty-nine names are missing —
  * the sibling guard already says it: "Every key, not a chosen few." And a shape
  * assertion cannot express declaration *identity*: re-exporting an ancestor's
@@ -25,7 +29,9 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+
+import type { v25_10_0, v25_10_5 } from '@/generated';
 
 const generatedDir = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -72,6 +78,12 @@ function ownNames(version: string): Set<string> {
   );
 }
 
+/** The keys a version's directory file declares, in source order. */
+function directoryKeys(version: string, file: string): string[] {
+  const text = readFileSync(path.join(generatedDir, version, file), 'utf8');
+  return [...text.matchAll(/^ {2}'([^']+)':/gm)].map((m) => m[1]);
+}
+
 /** The hand-maintained names, taken from the root rather than listed here. */
 const handMaintained = [...ownNames('v25_10_0')]
   .filter((n) => n.startsWith('Virt') || n === 'PoolDatasetEncryptionAlgorithmChoicesResult')
@@ -113,5 +125,88 @@ describe('hand-maintained v25.10 surface', () => {
     const own = ownNames(version);
     const shadowed = [...inheritedNames(version)].filter((n) => own.has(n));
     expect(shadowed.sort()).toEqual([]);
+  });
+
+  /**
+   * The models are covered above. The directory entries that reference them are
+   * covered thinly and unevenly: five are held by the compiler rather than by
+   * any test, because `truenas-api-client-v25-10.ts` calls
+   * `virt.instance.query`, `start`, `stop`, `restart` and `delete` through the
+   * typed directory, and ten of the thirty-five distinct keys are named in some
+   * other spec. `virt.global.update` was in neither set — dropping it, entry
+   * and import together, left every gate green.
+   *
+   * Floors rather than equalities, for the reason the model count gives: adding
+   * an entry is a correct change and losing one is not.
+   */
+  it.each([
+    ['api-call-directory.ts', 22],
+    ['api-job-directory.ts', 11],
+    ['api-event-directory.ts', 2],
+  ] as const)('keeps every virt.* entry in v25_10_0/%s', (file, count) => {
+    const virt = directoryKeys('v25_10_0', file).filter((k) => k.startsWith('virt.'));
+    expect(virt.length).toBeGreaterThanOrEqual(count);
+  });
+
+  /**
+   * The one hand-restored entry that is not in the `virt.` namespace, so the
+   * derived check above cannot see it. `generated-hand-removed.spec.ts` asserts
+   * v26 omits it; nothing else asserted v25.10 still has it.
+   */
+  it('keeps pool.dataset.encryption_algorithm_choices at the root', () => {
+    expect(directoryKeys('v25_10_0', 'api-call-directory.ts')).toContain(
+      'pool.dataset.encryption_algorithm_choices'
+    );
+  });
+});
+
+describe('the pool.dataset event payload', () => {
+  /**
+   * The dump describes this one wrongly, and a regeneration writes it back.
+   *
+   * `main.py` filters *methods* per version and then adds every event with no
+   * version test at all, so each slice's events carry the running tree's
+   * models. In the 2026-09-07 dump the v25.10 `pool.dataset.query` event nests
+   * `comments`, `quota_warning`, `quota_critical`, `refquota_warning`,
+   * `refquota_critical` and `managedby` under `user_properties` and adds
+   * `tier` — none of which `api/v25_10_0/pool_dataset.py` declares in that same
+   * image, and none of which the dump's own call side carries. Taking the event
+   * side stopped `fields.comments?.rawvalue` compiling for a shape 25.10 really
+   * does send.
+   *
+   * So the two sides are held equal here. This is not the `app.query` gap in
+   * `generated-known-gaps.spec.ts`, which pins a disagreement we ship; this
+   * pins one we decline to ship, and it fails if a future regeneration
+   * reintroduces it.
+   */
+  it('describes the same object as the call side', () => {
+    expectTypeOf<
+      v25_10_0.ApiEventDirectory['pool.dataset.query']['added']['fields']
+    >().toEqualTypeOf<v25_10_0.PoolDatasetEntry>();
+    expectTypeOf<
+      v25_10_0.ApiEventDirectory['pool.dataset.query']['changed']['fields']
+    >().toEqualTypeOf<v25_10_0.PoolDatasetEntry>();
+  });
+
+  /**
+   * The equality above would still hold if `PoolDatasetEntry` itself acquired
+   * the nested shape, since both sides would move together. This names the
+   * property whose access broke.
+   */
+  it('keeps the dataset properties at the top level', () => {
+    expectTypeOf<v25_10_0.PoolDatasetEntry['comments']>().toEqualTypeOf<
+      v25_10_0.PoolDatasetEntryProperty | undefined
+    >();
+  });
+
+  /**
+   * The patch directories inherit the root's event directory rather than
+   * redeclaring it, so this is the assertion that notices the day one of them
+   * starts redeclaring it.
+   */
+  it('holds at the end of the 25.10 chain too', () => {
+    expectTypeOf<
+      v25_10_5.ApiEventDirectory['pool.dataset.query']['added']['fields']
+    >().toEqualTypeOf<v25_10_5.PoolDatasetEntry>();
   });
 });
