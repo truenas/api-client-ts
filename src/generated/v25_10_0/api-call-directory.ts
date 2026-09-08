@@ -320,7 +320,6 @@ import type {
   PoolDatasetDatasetQuota,
   PoolDatasetDeleteOptions,
   PoolDatasetDeleteResult,
-  PoolDatasetEncryptionAlgorithmChoicesResult,
   PoolDatasetEntry,
   PoolDatasetProjectQuota,
   PoolDatasetQueryResultItem,
@@ -402,6 +401,7 @@ import type {
   SSHUpdate,
   SerialInfo,
   ServiceEntry,
+  ServiceOptions,
   ServiceQueryResultItem,
   ServiceUpdate,
   SetupSSHConnectionManual,
@@ -505,18 +505,6 @@ import type {
   VMWareMatchDatastoresWithDatasetsResult,
   VMWareQueryResultItem,
   VMWareUpdate,
-  VirtDeviceGpuChoice,
-  VirtDeviceType,
-  VirtDeviceUsbChoice,
-  VirtGlobalEntry,
-  VirtGlobalNetwork,
-  VirtInstanceEntry,
-  VirtInstanceImageChoice,
-  VirtInstanceQueryResultItem,
-  VirtVolumeCreate,
-  VirtVolumeEntry,
-  VirtVolumeQueryResultItem,
-  VirtVolumeUpdate,
   WebDavCredentialsModel,
   YandexCredentialsModel,
   ZFSFileAttrsData,
@@ -2409,11 +2397,6 @@ export interface ApiCallDirectory {
     response: (Record<string, unknown>)[];
   };
 
-  'pool.dataset.encryption_algorithm_choices': {
-    params: [];
-    response: PoolDatasetEncryptionAlgorithmChoicesResult;
-  };
-
   'pool.dataset.get_instance': {
     params: [id: string, options?: QueryOptions<PoolDatasetEntry>];
     response: PoolDatasetEntry;
@@ -2887,6 +2870,21 @@ export interface ApiCallDirectory {
     entity: ServiceEntry;
   };
 
+  'service.reload': {
+    params: [service: string, options?: ServiceOptions];
+    response: boolean;
+  };
+
+  'service.restart': {
+    params: [service: string, options?: ServiceOptions];
+    response: boolean;
+  };
+
+  'service.start': {
+    params: [service: string, options?: ServiceOptions];
+    response: boolean;
+  };
+
   'service.started': {
     params: [service: string];
     response: boolean;
@@ -2894,6 +2892,11 @@ export interface ApiCallDirectory {
 
   'service.started_or_enabled': {
     params: [service: string];
+    response: boolean;
+  };
+
+  'service.stop': {
+    params: [service: string, options?: ServiceOptions];
     response: boolean;
   };
 
@@ -3501,118 +3504,6 @@ export interface ApiCallDirectory {
   'user.update': {
     params: [id: number, user_update: UserUpdate];
     response: UserCreateUpdateResult;
-  };
-
-  'virt.device.disk_choices': {
-    params: [];
-    response: Record<string, string>;
-  };
-
-  'virt.device.gpu_choices': {
-    params: [gpu_type: 'PHYSICAL' | 'MDEV' | 'MIG' | 'SRIOV'];
-    response: Record<string, VirtDeviceGpuChoice>;
-  };
-
-  'virt.device.nic_choices': {
-    params: [nic_type: 'BRIDGED' | 'MACVLAN'];
-    response: Record<string, string>;
-  };
-
-  'virt.device.pci_choices': {
-    params: [];
-    response: Record<string, unknown>;
-  };
-
-  'virt.device.usb_choices': {
-    params: [];
-    response: Record<string, VirtDeviceUsbChoice>;
-  };
-
-  'virt.global.bridge_choices': {
-    params: [];
-    response: Record<string, unknown>;
-  };
-
-  'virt.global.config': {
-    params: [];
-    response: VirtGlobalEntry;
-  };
-
-  'virt.global.get_network': {
-    params: [name: string];
-    response: VirtGlobalNetwork;
-  };
-
-  'virt.global.pool_choices': {
-    params: [];
-    response: Record<string, unknown>;
-  };
-
-  'virt.instance.device_add': {
-    params: [id: string, device: VirtDeviceType];
-    response: true;
-  };
-
-  'virt.instance.device_delete': {
-    params: [id: string, name: string];
-    response: true;
-  };
-
-  'virt.instance.device_list': {
-    params: [id: string];
-    response: VirtDeviceType[];
-  };
-
-  'virt.instance.device_update': {
-    params: [id: string, device: VirtDeviceType];
-    response: true;
-  };
-
-  'virt.instance.get_instance': {
-    params: [id: string, options?: QueryOptions<VirtInstanceEntry>];
-    response: VirtInstanceEntry;
-  };
-
-  'virt.instance.image_choices': {
-    params: [virt_instances_image_choices?: { remote?: 'LINUX_CONTAINERS' }];
-    response: Record<string, VirtInstanceImageChoice>;
-  };
-
-  'virt.instance.query': {
-    params: [filters?: QueryFilters<VirtInstanceEntry>, options?: QueryOptions<VirtInstanceEntry>];
-    response: VirtInstanceEntry[] | VirtInstanceEntry | VirtInstanceQueryResultItem[] | VirtInstanceQueryResultItem | number;
-    entity: VirtInstanceEntry;
-  };
-
-  'virt.instance.set_bootable_disk': {
-    params: [id: string, disk: string];
-    response: boolean;
-  };
-
-  'virt.volume.create': {
-    params: [virt_volume_create: VirtVolumeCreate];
-    response: VirtVolumeEntry;
-  };
-
-  'virt.volume.delete': {
-    params: [id: string];
-    response: true;
-  };
-
-  'virt.volume.get_instance': {
-    params: [id: string, options?: QueryOptions<VirtVolumeEntry>];
-    response: VirtVolumeEntry;
-  };
-
-  'virt.volume.query': {
-    params: [filters?: QueryFilters<VirtVolumeEntry>, options?: QueryOptions<VirtVolumeEntry>];
-    response: VirtVolumeEntry[] | VirtVolumeEntry | VirtVolumeQueryResultItem[] | VirtVolumeQueryResultItem | number;
-    entity: VirtVolumeEntry;
-  };
-
-  'virt.volume.update': {
-    params: [id: string, virt_volume_update: VirtVolumeUpdate];
-    response: VirtVolumeEntry;
   };
 
   'vm.bootloader_options': {

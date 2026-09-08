@@ -21,6 +21,7 @@ import type {
 } from '../v25_10_0/api-types';
 import type {
   AppBulkUpgradeJobResult,
+  AppDelete,
   AppEntry,
   AppUpgradeBulkEntry,
   AuditExport,
@@ -53,6 +54,11 @@ export interface ApiJobDirectoryDelta {
   'app.create': {
     params: [app_create: AppCreateArgs];
     response: AppEntry;
+  };
+
+  'app.delete': {
+    params: [app_name: string, options?: AppDelete];
+    response: true;
   };
 
   'app.redeploy': {

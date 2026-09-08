@@ -8,7 +8,6 @@ import type { ApiJobDirectory as SourceApiJobDirectory } from '../v25_10_0/api-j
 /** The entries whose signature (and referenced types) are identical in every generated version. */
 export type ApiJobDirectoryBase = Pick<
   SourceApiJobDirectory,
-  | 'app.delete'
   | 'app.pull_images'
   | 'app.start'
   | 'app.stop'

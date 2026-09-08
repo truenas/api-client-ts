@@ -61,7 +61,7 @@ causes a change.
 | app.container_log_follow | event | introduced v25.10.0 |
 | app.convert_to_custom | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | app.create | job | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
-| app.delete | job | introduced v25.10.0 |
+| app.delete | job | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | app.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | app.gpu_choices | call | introduced v25.10.0 |
 | app.image.delete | call | introduced v25.10.0 |
@@ -526,28 +526,28 @@ causes a change.
 | pool.dataset.change_key | job | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | pool.dataset.checksum_choices | call | introduced v25.10.0 |
 | pool.dataset.compression_choices | call | introduced v25.10.0 |
-| pool.dataset.create | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
+| pool.dataset.create | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | pool.dataset.delete | call | introduced v25.10.0 |
 | pool.dataset.details | call | introduced v25.10.0 |
 | pool.dataset.encryption_summary | job | introduced v25.10.0 |
 | pool.dataset.export_key | job | introduced v25.10.0 |
 | pool.dataset.export_keys | job | introduced v25.10.0 |
 | pool.dataset.export_keys_for_replication | job | introduced v25.10.0 |
-| pool.dataset.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
+| pool.dataset.get_instance | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | pool.dataset.get_quota | call | introduced v25.10.0; changed v26.0.0 |
 | pool.dataset.inherit_parent_encryption_properties | call | introduced v25.10.0 |
 | pool.dataset.lock | job | introduced v25.10.0 |
 | pool.dataset.processes | call | introduced v25.10.0 |
 | pool.dataset.promote | call | introduced v25.10.0 |
-| pool.dataset.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
-| pool.dataset.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
+| pool.dataset.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| pool.dataset.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | pool.dataset.recommended_zvol_blocksize | call | introduced v25.10.0 |
 | pool.dataset.recordsize_choices | call | introduced v25.10.0 |
 | pool.dataset.rename | call | introduced v25.10.0 |
 | pool.dataset.set_quota | call | introduced v25.10.0 |
 | pool.dataset.snapshot_count | call | introduced v25.10.0 |
 | pool.dataset.unlock | job | introduced v25.10.0 |
-| pool.dataset.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
+| pool.dataset.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | pool.ddt_prefetch | job | introduced v25.10.0 |
 | pool.ddt_prune | job | introduced v25.10.0 |
 | pool.detach | call | introduced v25.10.0 |
@@ -656,12 +656,25 @@ causes a change.
 | rsynctask.query | event | introduced v25.10.0 |
 | rsynctask.run | job | introduced v25.10.0 |
 | rsynctask.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| s3.accesskey.create | call | introduced v26.0.0 |
+| s3.accesskey.delete | call | introduced v26.0.0 |
+| s3.accesskey.get_instance | call | introduced v26.0.0 |
+| s3.accesskey.query | call | introduced v26.0.0 |
+| s3.accesskey.query | event | introduced v26.0.0 |
+| s3.accesskey.update | call | introduced v26.0.0 |
+| s3.bindip_choices | call | introduced v26.0.0 |
+| s3.config | call | introduced v26.0.0 |
+| s3.update | call | introduced v26.0.0 |
 | service.control | job | introduced v25.10.0 |
 | service.get_instance | call | introduced v25.10.0 |
 | service.query | call | introduced v25.10.0 |
 | service.query | event | introduced v25.10.0 |
+| service.reload | call | introduced v25.10.0 |
+| service.restart | call | introduced v25.10.0 |
+| service.start | call | introduced v25.10.0 |
 | service.started | call | introduced v25.10.0 |
 | service.started_or_enabled | call | introduced v25.10.0 |
+| service.stop | call | introduced v25.10.0 |
 | service.update | call | introduced v25.10.0 |
 | sharing.nfs.create | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | sharing.nfs.delete | call | introduced v25.10.0 |
@@ -669,6 +682,13 @@ causes a change.
 | sharing.nfs.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | sharing.nfs.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | sharing.nfs.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| sharing.s3.audit_choices | call | introduced v26.0.0 |
+| sharing.s3.create | call | introduced v26.0.0 |
+| sharing.s3.delete | call | introduced v26.0.0 |
+| sharing.s3.get_instance | call | introduced v26.0.0 |
+| sharing.s3.query | call | introduced v26.0.0 |
+| sharing.s3.query | event | introduced v26.0.0 |
+| sharing.s3.update | call | introduced v26.0.0 |
 | sharing.smb.create | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
 | sharing.smb.delete | call | introduced v25.10.0 |
 | sharing.smb.get_instance | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
@@ -894,6 +914,7 @@ causes a change.
 | webui.crypto.get_certificate_domain_names | call | introduced v25.10.0 |
 | webui.enclosure.dashboard | call | introduced v25.10.0 |
 | webui.main.dashboard.sys_info | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| zfs.resource.create | call | introduced v27.0.0 |
 | zfs.resource.destroy | call | introduced v26.0.0 |
 | zfs.resource.query | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | zfs.resource.snapshot.clone | call | introduced v26.0.0 |
@@ -925,6 +946,7 @@ causes a change.
 
 | Name | Kind | History |
 |------|------|---------|
+| Access | type | introduced v26.0.0 |
 | Aclmode | type | introduced v25.10.0 |
 | ACLTemplateAddedEvent | type | introduced v25.10.0 |
 | ACLTemplateByPathArgs | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
@@ -999,7 +1021,7 @@ causes a change.
 | AppContainerResponse | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | AppCreate | type | introduced v27.0.0 |
 | AppCreateArgs | type | introduced v25.10.0; removed v27.0.0 |
-| AppDelete | type | introduced v25.10.0 |
+| AppDelete | type | introduced v25.10.0; changed v26.0.0 |
 | AppEntry | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | AppEntryInput | type | introduced v25.10.0 |
 | AppGPUResponse | type | introduced v25.10.0 |
@@ -1706,8 +1728,8 @@ causes a change.
 | PoolCreateTopologySpecialVdev | type | introduced v25.10.0; removed v26.0.0 |
 | PoolCreateTopologyVdevDRAID | type | introduced v26.0.0 |
 | PoolCreateTopologyVdevNonDRAID | type | introduced v26.0.0 |
-| PoolDatasetAddedEvent | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
-| PoolDatasetChangedEvent | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
+| PoolDatasetAddedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| PoolDatasetChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | PoolDatasetChangeKeyOptions | type | introduced v25.10.0; changed v26.0.0 |
 | PoolDatasetChecksumChoicesResult | type | introduced v25.10.0 |
 | PoolDatasetCreateFilesystem | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
@@ -1723,12 +1745,13 @@ causes a change.
 | PoolDatasetEncryptionSummary | type | introduced v25.10.0 |
 | PoolDatasetEncryptionSummaryOptions | type | introduced v25.10.0 |
 | PoolDatasetEncryptionSummaryOptionsDataset | type | introduced v25.10.0 |
-| PoolDatasetEntry | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
-| PoolDatasetEntryInput | type | introduced v26.0.0; removed v27.0.0 |
+| PoolDatasetEntry | type | introduced v25.10.0; changed v26.0.0 |
+| PoolDatasetEntryInput | type | introduced v25.10.0; changed v26.0.0 |
 | PoolDatasetEntryProperty | type | introduced v25.10.0 |
+| PoolDatasetEntryUserProperties | type | introduced v25.10.0 |
 | PoolDatasetLockOptions | type | introduced v25.10.0 |
 | PoolDatasetProjectQuota | type | introduced v25.10.0 |
-| PoolDatasetQueryResultItem | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
+| PoolDatasetQueryResultItem | type | introduced v25.10.0; changed v26.0.0 |
 | PoolDatasetRemovedEvent | type | introduced v25.10.0 |
 | PoolDatasetRenameOptions | type | introduced v25.10.0 |
 | PoolDatasetSetQuota | type | introduced v25.10.0 |
@@ -1896,7 +1919,22 @@ causes a change.
 | RsyncTaskRemovedEvent | type | introduced v25.10.0 |
 | RsyncTaskSchedule | type | introduced v25.10.0 |
 | RsyncTaskUpdate | type | introduced v25.10.0 |
+| S3AccesskeyAddedEvent | type | introduced v26.0.0 |
+| S3AccesskeyChangedEvent | type | introduced v26.0.0 |
+| S3AccesskeyCreate | type | introduced v26.0.0 |
+| S3AccesskeyEntry | type | introduced v26.0.0 |
+| S3AccesskeyEntryInput | type | introduced v26.0.0 |
+| S3AccesskeyEntryStatus | type | introduced v26.0.0 |
+| S3AccesskeyEntryStatusInput | type | introduced v26.0.0 |
+| S3AccesskeyQueryResultItem | type | introduced v26.0.0 |
+| S3AccesskeyRemovedEvent | type | introduced v26.0.0 |
+| S3AccesskeyUpdate | type | introduced v26.0.0 |
 | S3CredentialsModel | type | introduced v25.10.0; changed v26.0.0 |
+| S3Entry | type | introduced v26.0.0 |
+| S3Grant | type | introduced v26.0.0 |
+| S3GrantEntry | type | introduced v26.0.0 |
+| S3Listener | type | introduced v26.0.0 |
+| S3Update | type | introduced v26.0.0 |
 | Schema | type | introduced v25.10.0 |
 | Security | type | introduced v25.10.0 |
 | SerialInfo | type | introduced v25.10.0 |
@@ -1921,6 +1959,13 @@ causes a change.
 | SharingNFSEntryInput | type | introduced v25.10.0; changed v26.0.0 |
 | SharingNFSQueryResultItem | type | introduced v25.10.0; changed v26.0.0 |
 | SharingNFSRemovedEvent | type | introduced v25.10.0 |
+| SharingS3AddedEvent | type | introduced v26.0.0 |
+| SharingS3ChangedEvent | type | introduced v26.0.0 |
+| SharingS3Create | type | introduced v26.0.0 |
+| SharingS3Entry | type | introduced v26.0.0 |
+| SharingS3QueryResultItem | type | introduced v26.0.0 |
+| SharingS3RemovedEvent | type | introduced v26.0.0 |
+| SharingS3Update | type | introduced v26.0.0 |
 | SharingSMBAddedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
 | SharingSMBChangedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
 | SharingSmbDefaultOptInput | type | introduced v25.10.0; removed v25.10.1 |
@@ -2124,6 +2169,7 @@ causes a change.
 | VeeamRepositoryOpt | type | introduced v25.10.0; changed v25.10.1 |
 | VeeamRepositoryOptInput | type | introduced v25.10.1 |
 | Vendor | type | introduced v25.10.0 |
+| Versioning | type | introduced v26.0.0 |
 | VictorOpsServiceModel | type | introduced v25.10.0 |
 | VMAddedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 (via referenced types) |
 | VMBootloaderOptions | type | introduced v27.0.0 |
@@ -2197,7 +2243,7 @@ causes a change.
 | VMStatus | type | introduced v25.10.0; changed v26.0.0 |
 | VMStatusInput | type | introduced v25.10.0; removed v26.0.0 |
 | VMStopOptions | type | introduced v25.10.0 |
-| VMUpdate | type | introduced v25.10.0 |
+| VMUpdate | type | introduced v25.10.0; changed v26.0.0 |
 | VMUSBDevice | type | introduced v25.10.0 |
 | VMVirtualizationDetails | type | introduced v27.0.0 |
 | VMVirtualizationDetailsResult | type | introduced v25.10.0; removed v27.0.0 |
@@ -2217,6 +2263,7 @@ causes a change.
 | VMWareMatchDatastoresWithDatasetsResultDatastore | type | introduced v25.10.0 |
 | VMWareMatchDatastoresWithDatasetsResultFilesystem | type | introduced v25.10.0 |
 | VMWareMatchDatastoresWithDatasetsResultFilesystemType | type | introduced v25.10.0 |
+| VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput | type | introduced v27.0.0 |
 | VMWareQueryResultItem | type | introduced v25.10.0; changed v26.0.0 |
 | VMWareRemovedEvent | type | introduced v25.10.0 |
 | VMWareUpdate | type | introduced v25.10.0 |
@@ -2228,6 +2275,9 @@ causes a change.
 | YandexCredentialsModel | type | introduced v25.10.0 |
 | ZFSFileAttrsData | type | introduced v25.10.0 |
 | ZFSPropertiesEntry | type | introduced v25.10.0 |
+| ZFSResourceCreateArgsData | type | introduced v27.0.0 |
+| ZFSResourceCreateEncryption | type | introduced v27.0.0 |
+| ZFSResourceCreateProperties | type | introduced v27.0.0 |
 | ZFSResourceDestroyArgsData | type | introduced v26.0.0 |
 | ZFSResourceEntry | type | introduced v25.10.0; changed v26.0.0 |
 | ZFSResourceQuery | type | introduced v25.10.0; changed v26.0.0 |
