@@ -6309,65 +6309,22 @@ export interface PoolDatasetAddedEvent {
   fields: PoolDatasetEntry;
 }
 /**
- * The dump's event-side render of `PoolDatasetEntry`, referenced by nothing.
+ * The dump's event-side render of `PoolDatasetEntry`, held as an alias.
  *
- * 25.10 does not send this shape: its `tier` and its nested `user_properties`
- * come from master's models, which every slice's events carry. The event
- * payloads point at `PoolDatasetEntry`, which is what this version declares.
- * Kept rather than deleted because `MANIFEST.md` is regenerated on every run
- * and records this name as introduced here, so removing it would put the tree
- * and the manifest into a disagreement that a regeneration restates.
+ * The dump declares this name with v26's shape — `tier`, and the six dataset
+ * properties nested under `user_properties` — which no v25.10 module has. The
+ * name cannot simply go: `MANIFEST.md` is regenerated on every run and records
+ * it as introduced here. So it stays, pointing at what this version really
+ * sends.
+ *
+ * That matters because `<X>EntryInput` is how this file names payload types
+ * that *are* wired up — `SharingNFSEntryInput` is
+ * `SharingNFSChangedEvent['fields']` — so a consumer reaching for the
+ * `pool.dataset.query` payload type lands here, and here is now the same type
+ * the payload above actually uses.
  */
-export interface PoolDatasetEntryInput {
-  id?: string;
-  type?: string;
-  name?: string;
-  pool?: string;
-  encrypted?: boolean;
-  encryption_root?: string | null;
-  key_loaded?: boolean | null;
-  children?: unknown[];
-  user_properties?: PoolDatasetEntryUserProperties;
-  locked?: boolean;
-  tier?: TierInfo | null;
-  deduplication?: PoolDatasetEntryProperty;
-  aclmode?: PoolDatasetEntryProperty;
-  acltype?: PoolDatasetEntryProperty;
-  xattr?: PoolDatasetEntryProperty;
-  atime?: PoolDatasetEntryProperty;
-  casesensitivity?: PoolDatasetEntryProperty;
-  checksum?: PoolDatasetEntryProperty;
-  exec?: PoolDatasetEntryProperty;
-  sync?: PoolDatasetEntryProperty;
-  compression?: PoolDatasetEntryProperty;
-  compressratio?: PoolDatasetEntryProperty;
-  origin?: PoolDatasetEntryProperty;
-  quota?: PoolDatasetEntryProperty;
-  refquota?: PoolDatasetEntryProperty;
-  reservation?: PoolDatasetEntryProperty;
-  refreservation?: PoolDatasetEntryProperty;
-  copies?: PoolDatasetEntryProperty;
-  snapdir?: PoolDatasetEntryProperty;
-  readonly?: PoolDatasetEntryProperty;
-  recordsize?: PoolDatasetEntryProperty;
-  sparse?: PoolDatasetEntryProperty;
-  volsize?: PoolDatasetEntryProperty;
-  volblocksize?: PoolDatasetEntryProperty;
-  key_format?: PoolDatasetEntryProperty;
-  encryption_algorithm?: PoolDatasetEntryProperty;
-  used?: PoolDatasetEntryProperty;
-  usedbychildren?: PoolDatasetEntryProperty;
-  usedbydataset?: PoolDatasetEntryProperty;
-  usedbyrefreservation?: PoolDatasetEntryProperty;
-  usedbysnapshots?: PoolDatasetEntryProperty;
-  available?: PoolDatasetEntryProperty;
-  special_small_block_size?: PoolDatasetEntryProperty;
-  pbkdf2iters?: PoolDatasetEntryProperty;
-  creation?: PoolDatasetEntryProperty;
-  snapdev?: PoolDatasetEntryProperty;
-  mountpoint?: string | null;
-  [k: string]: unknown;
-}
+export type PoolDatasetEntryInput = PoolDatasetEntry;
+
 export interface PoolDatasetEntryUserProperties {
   comments?: PoolDatasetEntryProperty;
   quota_warning?: PoolDatasetEntryProperty;
