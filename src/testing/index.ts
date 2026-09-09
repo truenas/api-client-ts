@@ -14,4 +14,6 @@ export type { FakeConnectionOptions } from './fake-connection';
 export { FakeAuthenticator } from './fake-authenticator';
 export type { RecordedLogin } from './fake-authenticator';
 export { createFakeClient } from './create-fake-client';
+export type { MockAnswers, JobUpdate } from './mock-answers';
+export { fakeJob } from './fake-job';
 export type { FakeClientOptions, FakeTrueNasClient } from './create-fake-client';

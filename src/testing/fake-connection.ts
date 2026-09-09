@@ -143,9 +143,18 @@ export class FakeConnection extends TrueNasConnection {
    * The narrow ancestor of `mockCall`: enough to let a collaborator that talks
    * to the appliance — the authenticator, for one — run its real code against
    * a scripted answer rather than be replaced by a fake of itself.
+   *
+   * One answer per method, last registration wins. The one it replaced is
+   * returned so a caller that needs to share the method can chain to it rather
+   * than take it over silently.
    */
-  autoReply(method: string, answer: (frame: TrueNasMessage) => void): void {
+  autoReply(
+    method: string,
+    answer: (frame: TrueNasMessage) => void
+  ): ((frame: TrueNasMessage) => void) | undefined {
+    const replaced = this.autoReplies.get(method);
     this.autoReplies.set(method, answer);
+    return replaced;
   }
 
   private write(message: TrueNasMessage): void {
