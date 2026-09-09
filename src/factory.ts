@@ -41,7 +41,7 @@ export type DefaultApiDirectory = ApiDirectoryV25_10_0;
  * the literal. A partial union still derives: methods common to the versions
  * named is the right answer for "one of these".
  */
-type DerivedDirectory<V extends SupportedApiVersion> =
+export type DerivedDirectory<V extends SupportedApiVersion> =
   SupportedApiVersion extends V ? DefaultApiDirectory : ApiDirectoryByVersion[V];
 
 /** Options for {@link createTrueNasClient}. */
@@ -628,7 +628,19 @@ export function clientVersionKey(version: ApiVersion): string {
 
 /** Whether a client implementation exists for `version`. */
 export function canBuildClientFor(version: ApiVersion): boolean {
-  return clientVersionKey(version) in CLIENT_BY_VERSION_KEY;
+  return clientClassFor(version) !== undefined;
+}
+
+/**
+ * The client class this version resolves to, or `undefined` if none does.
+ *
+ * Exported for `src/testing`, which builds a fake on top of the same class the
+ * real factory would have picked. A second copy of the map there would be a
+ * second thing to update when a version lands, and its symptom would be a fake
+ * silently one version behind the client it stands in for.
+ */
+export function clientClassFor(version: ApiVersion): ClientConstructor | undefined {
+  return CLIENT_BY_VERSION_KEY[clientVersionKey(version)];
 }
 
 /**
