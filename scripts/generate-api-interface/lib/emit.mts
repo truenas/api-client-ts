@@ -105,6 +105,13 @@ export function tsExpr(schema: Schema | boolean | undefined | null): string {
  * hoists every titled subschema into a standalone named alias (Id1, Title2, …).
  * Titles are only meaningful as def names, so strip them everywhere below the
  * def root.
+ *
+ * Only where they *are* titles. A `properties` map is an object whose keys are
+ * property names, so a model with a field called `title` had that field deleted
+ * along with the metadata — silently, since nothing downstream knows a property
+ * is missing. The two are told apart by value: a title is a string, a property
+ * is its schema object. `preprocess.mts` discriminates `description` and
+ * `examples` the same way, and for the same reason.
  */
 function stripNestedTitles(node: unknown, isRoot = true): unknown {
   if (Array.isArray(node)) return node.map((n) => stripNestedTitles(n, false));
@@ -112,10 +119,12 @@ function stripNestedTitles(node: unknown, isRoot = true): unknown {
   const source = node as Schema;
   const out: Schema = {};
   for (const [key, value] of Object.entries(source)) {
-    if (key === 'title' && !isRoot) continue;
+    if (key === 'title' && !isRoot && typeof value === 'string') continue;
     // A $ref with siblings makes json-schema-to-typescript clone the target
-    // into a suffixed duplicate (Alert1); keep such refs bare instead.
-    if (source.$ref && key !== '$ref') continue;
+    // into a suffixed duplicate (Alert1); keep such refs bare instead. Guarded
+    // on the value's type for the same reason as the line above: a model with a
+    // property named `$ref` would otherwise lose every other property.
+    if (typeof source.$ref === 'string' && key !== '$ref') continue;
     out[key] = stripNestedTitles(value, false);
   }
   // Closed empty objects render as the banned `{}` type; match tsExpr().

@@ -13,8 +13,14 @@
  *
  * Comparison is purely structural — fields and field types. The generated
  * output carries no documentation metadata (the preprocessor strips it at
- * intake), so there is nothing non-structural to compare; `title` is ignored
- * (stripped before emission; definition identity is the name).
+ * intake), so there is nothing non-structural to compare; a `title` is ignored
+ * (it is metadata, and definition identity is the name).
+ *
+ * A *property* named `title` is not that, and is compared like any other field.
+ * Dropping it by key name here would hide changes to a property the emitter now
+ * ships: two versions differing only in `AlertCategory.title` would compare
+ * equal, the later one would inherit the earlier declaration, and the emitted
+ * type would describe the wrong shape with every gate green.
  *
  * A shape that changes and later reverts is re-materialized at the revert
  * point (comparison is strictly against the predecessor) — rare, and keeps
@@ -22,7 +28,28 @@
  */
 import type { DefSchema, VersionModel } from './types.mts';
 
-const NON_EMITTED_KEYS = new Set(['title', '_usedBy']);  // _usedBy: legacy key, defensively ignored
+/**
+ * Keys that never reach the emitted output, so a change to one is not a change
+ * to the shape.
+ *
+ * `title` counts only where it really is a title. A `properties` map is an
+ * object whose keys are property names and whose values are those properties'
+ * schemas, so a field called `title` is compared like any other field —
+ * `emit.mts` and `preprocess.mts` discriminate the same way, for `title` and
+ * for `description`/`examples` respectively.
+ *
+ * `_usedBy` is generator-internal and typed `string[]`, so it goes
+ * unconditionally: running it through the value test would keep it in the
+ * comparison for good, an array being an object. That is safe only while no
+ * model declares a field of that name, which none does in any slice of this
+ * dump — the same contingent fact, stated rather than assumed. The leading
+ * underscore is not the guarantee: `_name_` and `_required_` are real fields,
+ * on two of the models this discrimination exists for.
+ */
+function isNonEmitted(key: string, value: unknown): boolean {
+  if (key === '_usedBy') return true;
+  return key === 'title' && typeof value === 'string';
+}
 
 function canonical(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(canonical);
@@ -30,7 +57,7 @@ function canonical(node: unknown): unknown {
     const record = node as Record<string, unknown>;
     const out: Record<string, unknown> = {};
     for (const key of Object.keys(record).sort()) {
-      if (NON_EMITTED_KEYS.has(key)) continue;
+      if (isNonEmitted(key, record[key])) continue;
       out[key] = canonical(record[key]);
     }
     return out;
