@@ -1,6 +1,6 @@
-import { BehaviorSubject, Subject, filter, take } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TrueNasConnection } from '@/connection/truenas-connection';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { FakeConnection } from '@/testing/fake-connection';
 import { Job, JobState } from '@/types/job.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import alerts from 'test-data/alerts.json';
@@ -19,28 +19,31 @@ vi.mock('@/utils/jsonrpc.utils', () => ({
 
 describe('TrueNasApi', () => {
   let api: TrueNasApi;
-  let mockConnection: TrueNasConnection;
+  let connection: FakeConnection;
   let authenticated$: BehaviorSubject<boolean>;
-  let messagesSubject: Subject<TrueNasMessage>;
 
   beforeEach(() => {
-    messagesSubject = new Subject<TrueNasMessage>();
-    const wsNext = vi.fn();
-    mockConnection = {
-      ws: {
-        next: wsNext,
-        messages: vi.fn(),
-        complete: vi.fn(),
-      },
-      messages: vi.fn().mockReturnValue(messagesSubject),
-      // The real `send` queues on `ws$` until a socket exists and then calls
-      // `ws.next`; here it forwards straight through, so the assertions below
-      // still read the frames off `ws.next`.
-      send: vi.fn((message: TrueNasMessage) => wsNext(message)),
-    } as unknown as TrueNasConnection;
+    // A real `TrueNasConnection` subclass rather than an object cast into
+    // shape. The cast this replaced came with a comment conceding that its
+    // `send` "forwards straight through" where the real one queues on `ws$` —
+    // a documented divergence, which is the shape of the drift this exists to
+    // remove.
+    //
+    // Assertions read `connection.sent`, the frames that actually reached the
+    // wire, rather than a spy on `send`. The old double asserted on `ws.next`,
+    // which could only fire if `send` forwarded; a spy on `send` says the
+    // method was called and nothing about what came out, so it stays green
+    // even if the frame is dropped on the floor.
+    connection = new FakeConnection();
 
     authenticated$ = new BehaviorSubject<boolean>(false);
-    api = new TrueNasApi(authenticated$, mockConnection);
+    api = new TrueNasApi(authenticated$, connection);
+  });
+
+  // Every connection inherits the base's 20-second ping interval, which lives
+  // until `close()`. A file's worth of them is a file's worth of live timers.
+  afterEach(() => {
+    connection.close();
   });
 
   it('should execute call method with JSON-RPC 2.0 format and return the result', () =>
@@ -64,9 +67,9 @@ describe('TrueNasApi', () => {
           }
         });
 
-      // `ws.next` is called synchronously inside `call()` — assert before emitting.
+      // The frame is written synchronously inside `call()` — assert before emitting.
       try {
-        expect(mockConnection.ws.next).toHaveBeenCalledWith({
+        expect(connection.sent).toContainEqual({
           jsonrpc: '2.0',
           id: mockId,
           method: mockMethod,
@@ -76,7 +79,7 @@ describe('TrueNasApi', () => {
         reject(err);
       }
 
-      messagesSubject.next(mockResponse);
+      connection.receive(mockResponse);
     }));
 
   it('should throw error when JSON-RPC 2.0 response contains error', () =>
@@ -104,7 +107,7 @@ describe('TrueNasApi', () => {
         },
       });
 
-      messagesSubject.next(mockErrorResponse);
+      connection.receive(mockErrorResponse);
     }));
 
   /** A `collection_update` notification as it arrives on the socket. */
@@ -131,7 +134,7 @@ describe('TrueNasApi', () => {
       });
 
       try {
-        expect(mockConnection.ws.next).toHaveBeenCalledWith({
+        expect(connection.sent).toContainEqual({
           jsonrpc: '2.0',
           id: 'mock-id-core.subscribe',
           method: 'core.subscribe',
@@ -141,7 +144,7 @@ describe('TrueNasApi', () => {
         reject(err);
       }
 
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({
           collection: 'app.query',
           msg: 'added',
@@ -176,18 +179,18 @@ describe('TrueNasApi', () => {
         }
       });
 
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({ collection: 'app.query', msg: 'removed', id: 'app-1' })
       );
       // A different collection on the same socket must not leak through.
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({ collection: 'disk.query', msg: 'added', id: 'd1' })
       );
       // Neither must a msg that is not a collection change.
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({ collection: 'app.query', msg: 'unsubscribed' })
       );
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({
           collection: 'app.query',
           msg: 'changed',
@@ -216,9 +219,9 @@ describe('TrueNasApi', () => {
 
       // Create a subject for call responses
       const jobMessagesSubject = new Subject<TrueNasMessage>();
-      vi.spyOn(mockConnection, 'messages').mockReturnValue(jobMessagesSubject);
+      vi.spyOn(connection, 'messages').mockReturnValue(jobMessagesSubject);
 
-      const newApi = new TrueNasApi(authenticated$, mockConnection);
+      const newApi = new TrueNasApi(authenticated$, connection);
 
       const results: Job[] = [];
       newApi.trackJob(jobId).subscribe({
@@ -294,7 +297,7 @@ describe('TrueNasApi', () => {
 
       // request was sent with the mocked id
       try {
-        expect(mockConnection.ws.next).toHaveBeenCalledWith(
+        expect(connection.sent).toContainEqual(
           expect.objectContaining({ id: requestId, method })
         );
       } catch (err) {
@@ -302,7 +305,7 @@ describe('TrueNasApi', () => {
       }
 
       // A job event whose message_ids do NOT include our request id — must be ignored.
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         method: 'collection_update',
         params: {
@@ -313,7 +316,7 @@ describe('TrueNasApi', () => {
       } as unknown as TrueNasMessage);
 
       // The matching job event — its message_ids include our request id.
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         method: 'collection_update',
         params: {
@@ -356,7 +359,7 @@ describe('TrueNasApi', () => {
       });
 
       // The job event that identifies which job the request started.
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         method: 'collection_update',
         params: {
@@ -367,7 +370,7 @@ describe('TrueNasApi', () => {
       } as unknown as TrueNasMessage);
 
       // trackJob's opening core.get_jobs read.
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         id: 'mock-id-core.get_jobs',
         result: [{ id: 77, state: JobState.Running }],
@@ -377,7 +380,7 @@ describe('TrueNasApi', () => {
       // not an id adjacent to 77: an off-by-one in the seam would then be
       // indistinguishable from correct tracking, which is how the first
       // version of this test passed against a `trackJob(jobId + 1)` mutation.
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         method: 'collection_update',
         params: {
@@ -387,7 +390,7 @@ describe('TrueNasApi', () => {
         },
       } as unknown as TrueNasMessage);
 
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         method: 'collection_update',
         params: {
@@ -426,7 +429,7 @@ describe('TrueNasApi', () => {
       });
 
       // Correlation event: tells callAndGetJobId which job this is.
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({
           collection: 'core.get_jobs',
           msg: 'changed',
@@ -435,7 +438,7 @@ describe('TrueNasApi', () => {
       );
 
       // The job finishes immediately — before the core.get_jobs read replies.
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({
           collection: 'core.get_jobs',
           msg: 'changed',
@@ -445,7 +448,7 @@ describe('TrueNasApi', () => {
 
       // The reply lands afterwards and is stale. It must not resurrect the
       // stream, and its absence must not have been required to complete.
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         id: 'mock-id-core.get_jobs',
         result: [{ id: 77, state: JobState.Running }],
@@ -481,7 +484,7 @@ describe('TrueNasApi', () => {
         error: reject,
       });
 
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         id: 'mock-id-core.get_jobs',
         result: [],
@@ -513,7 +516,7 @@ describe('TrueNasApi', () => {
         error: reject,
       });
 
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({
           collection: 'core.get_jobs',
           msg: 'changed',
@@ -521,12 +524,12 @@ describe('TrueNasApi', () => {
         })
       );
       // Stale: the job is plainly alive, whatever this says.
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         id: 'mock-id-core.get_jobs',
         result: [],
       } as unknown as TrueNasMessage);
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({
           collection: 'core.get_jobs',
           msg: 'changed',
@@ -544,7 +547,7 @@ describe('TrueNasApi', () => {
     new Promise<void>((resolve, reject) => {
       const pending = api.call('system.info');
       try {
-        expect(mockConnection.ws.next).not.toHaveBeenCalled();
+        expect(connection.sent).toEqual([]);
       } catch (err) {
         reject(err);
         return;
@@ -562,8 +565,8 @@ describe('TrueNasApi', () => {
         error: reject,
       });
 
-      expect(mockConnection.ws.next).toHaveBeenCalledTimes(1);
-      messagesSubject.next({
+      expect(connection.sent).toHaveLength(1);
+      connection.receive({
         jsonrpc: '2.0',
         id: 'mock-id-system.info',
         result: { hostname: 'later.local' },
@@ -577,30 +580,17 @@ describe('TrueNasApi', () => {
    * still goes out whenever the connection eventually opens.
    */
   it('drops a queued send when the caller unsubscribes', () => {
-    const ws$ = new BehaviorSubject<{ next: (m: unknown) => void } | null>(
-      null
-    );
-    const sent: unknown[] = [];
-    const queueing = {
-      messages: () => messagesSubject,
-      send: (message: TrueNasMessage) =>
-        ws$
-          .pipe(
-            filter(ws => ws !== null),
-            take(1)
-          )
-          .subscribe(ws => ws?.next(message)),
-    } as unknown as TrueNasConnection;
+    const offline = new FakeConnection({ opened: false });
+    const api = new TrueNasApi(authenticated$, offline);
 
-    const offline = new TrueNasApi(authenticated$, queueing);
-    const sub = offline.call('system.info').subscribe();
-
-    expect(sent).toHaveLength(0);
+    const sub = api.call('system.info').subscribe();
+    expect(offline.sent).toHaveLength(0);
     sub.unsubscribe();
 
     // The socket arrives after the caller gave up: nothing should be sent.
-    ws$.next({ next: (m: unknown) => sent.push(m) });
-    expect(sent).toHaveLength(0);
+    offline.simulateOpen();
+    expect(offline.sent).toHaveLength(0);
+    offline.close();
   });
 
   /**
@@ -610,9 +600,8 @@ describe('TrueNasApi', () => {
    */
   /** `core.subscribe` frames for one collection, in send order. */
   const subscribeFrames = (collection: string) =>
-    vi
-      .mocked(mockConnection.ws.next)
-      .mock.calls.map(([m]) => m as { method: string; params: unknown })
+    connection.sent
+      .map(m => m as { method?: string; params?: unknown })
       .filter(
         m =>
           m.method === 'core.subscribe' &&
@@ -671,10 +660,7 @@ describe('TrueNasApi', () => {
   it('issues exactly one core.get_jobs read per tracked job', () => {
     api.trackJob(77).subscribe();
 
-    const reads = vi
-      .mocked(mockConnection.ws.next)
-      .mock.calls.map(([m]) => m as { method: string })
-      .filter(m => m.method === 'core.get_jobs');
+    const reads = connection.sent.filter(m => m.method === 'core.get_jobs');
 
     expect(reads).toHaveLength(1);
   });
@@ -703,7 +689,7 @@ describe('TrueNasApi', () => {
         error: reject,
       });
 
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({
           collection: 'core.get_jobs',
           msg: 'changed',
@@ -714,7 +700,7 @@ describe('TrueNasApi', () => {
           },
         })
       );
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         id: 'mock-id-core.get_jobs',
         result: [
@@ -725,7 +711,7 @@ describe('TrueNasApi', () => {
           },
         ],
       } as unknown as TrueNasMessage);
-      messagesSubject.next(
+      connection.receive(
         collectionUpdate({
           collection: 'core.get_jobs',
           msg: 'changed',
@@ -753,7 +739,7 @@ describe('TrueNasApi', () => {
       });
 
       try {
-        expect(mockConnection.ws.next).toHaveBeenCalledWith(
+        expect(connection.sent).toContainEqual(
           expect.objectContaining({
             method: 'auth.generate_token',
             params: [300, {}, true, false],
@@ -763,7 +749,7 @@ describe('TrueNasApi', () => {
         reject(err);
       }
 
-      messagesSubject.next({
+      connection.receive({
         jsonrpc: '2.0',
         id: `mock-id-auth.generate_token`,
         result: 'tok-abc',
@@ -785,11 +771,11 @@ describe('TrueNasApi', () => {
 
       // Create a subject for call responses
       const completedJobMessagesSubject = new Subject<TrueNasMessage>();
-      vi.spyOn(mockConnection, 'messages').mockReturnValue(
+      vi.spyOn(connection, 'messages').mockReturnValue(
         completedJobMessagesSubject
       );
 
-      const newApi = new TrueNasApi(authenticated$, mockConnection);
+      const newApi = new TrueNasApi(authenticated$, connection);
 
       const results: Job[] = [];
       newApi.trackJob(jobId).subscribe({
@@ -831,7 +817,7 @@ describe('TrueNasApi', () => {
      * subscribed to has not asked the server for anything.
      */
     const sentParams = (): unknown =>
-      (vi.mocked(mockConnection.ws.next).mock.calls[0][0] as TrueNasMessage)
+      (connection.sent[0] as TrueNasMessage)
         .params;
 
     const queryApi = () =>
@@ -895,7 +881,7 @@ describe('TrueNasApi', () => {
             }
           });
 
-        messagesSubject.next({
+        connection.receive({
           jsonrpc: '2.0',
           id: 'mock-id-user.query',
           result: 42,
