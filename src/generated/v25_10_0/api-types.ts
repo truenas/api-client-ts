@@ -1250,6 +1250,7 @@ export interface AclTemplateUpdate {
 }
 export interface ACMEDNSAuthenticatorAttributeSchema {
   _name_: string;
+  title: string;
   _required_: boolean;
   [k: string]: unknown;
 }
@@ -1396,10 +1397,12 @@ export interface Alert {
 }
 export interface AlertCategory {
   id: string;
+  title: string;
   classes: AlertCategoryClass[];
 }
 export interface AlertCategoryClass {
   id: string;
+  title: string;
   level: string;
   proactive_support: boolean;
 }
@@ -1746,6 +1749,7 @@ export interface AppAvailableItem {
   last_update: string | null;
   name: string;
   recommended: boolean;
+  title: string;
   maintainers: Maintainer[];
   tags: string[];
   screenshots: string[];
@@ -2339,6 +2343,7 @@ export interface CatalogAppInfo {
   last_update: string | null;
   name: string;
   recommended: boolean;
+  title: string;
   maintainers: Maintainer[];
   tags: string[];
   screenshots: string[];
@@ -3151,6 +3156,7 @@ export interface CloudSyncOneDriveListDrivesDrive {
 }
 export interface CloudSyncProvider {
   name: string;
+  title: string;
   credentials_oauth: string | null;
   buckets: boolean;
   bucket_title: string | null;
@@ -7134,12 +7140,14 @@ export interface PrivilegeRemovedEvent {
 }
 export interface PrivilegeRolesEntry {
   name: string;
+  title: string;
   includes: string[];
   builtin: boolean;
   stig: STIGType | null;
 }
 export interface PrivilegeRolesQueryResultItem {
   name?: string;
+  title?: string;
   includes?: string[];
   builtin?: boolean;
   stig?: STIGType | null;
@@ -7581,6 +7589,7 @@ export interface ReportingEntry {
 }
 export interface ReportingExporterAttributeSchema {
   _name_: string;
+  title: string;
   _required_: boolean;
   [k: string]: unknown;
 }
@@ -8472,6 +8481,7 @@ export interface SupportEntry {
   id: number;
   enabled: boolean | null;
   name: string;
+  title: string;
   email: string;
   phone: string;
   secondary_name: string;
@@ -8480,6 +8490,7 @@ export interface SupportEntry {
   secondary_phone: string;
 }
 export interface SupportNewTicketCommunity {
+  title: string;
   body: string;
   attach_debug?: boolean;
   token: string;
@@ -8487,6 +8498,7 @@ export interface SupportNewTicketCommunity {
   cc?: string[];
 }
 export interface SupportNewTicketEnterprise {
+  title: string;
   body: string;
   category: string;
   attach_debug?: boolean;
@@ -8511,6 +8523,7 @@ export interface SupportUpdate {
   id?: number;
   enabled?: boolean | null;
   name?: string;
+  title?: string;
   email?: string;
   phone?: string;
   secondary_name?: string;
@@ -9019,6 +9032,7 @@ export interface USBPassthroughDevice {
   error: string | null;
 }
 export interface UsedKeychainCredential {
+  title: string;
   unbind_method: "delete" | "disable";
 }
 export interface UserAddedEvent {

@@ -82,3 +82,34 @@ describe('emitTypes enum emission', () => {
     expect(out).toContain('export type EmptyDict = Record<string, never>;');
   });
 });
+
+describe('emitTypes title handling', () => {
+  /**
+   * A model may have a field literally called `title`, and fourteen in the
+   * v25.10.0 slice of the 2026-09-07 dump do — `CloudSyncProvider`,
+   * `UsedKeychainCredential`, `AlertCategory` and `SupportEntry` among them,
+   * twelve of the fourteen required. Stripping titles by key name deleted the
+   * field along with the metadata, and nothing downstream could notice: a
+   * missing property is not an error anywhere, it is just a property nobody can
+   * reach.
+   *
+   * `title: string;` is the assertion for both halves. Delete the property and
+   * it is absent; stop stripping the metadata and json-schema-to-typescript
+   * hoists the field into an alias, making it `title: Title;`.
+   */
+  it('keeps a property named title while still stripping field metadata', async () => {
+    const out = await emitTypes({
+      Provider: {
+        _kind: 'object', title: 'Provider', type: 'object', additionalProperties: false,
+        required: ['title', 'name'],
+        properties: {
+          title: { title: 'Title', type: 'string', description: 'Human-readable title.' },
+          name: { title: 'Name', type: 'string' },
+        },
+      },
+    });
+
+    expect(out).toContain('title: string;');
+    expect(out).toContain('name: string;');
+  });
+});

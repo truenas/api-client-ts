@@ -137,6 +137,7 @@ export interface AppAvailableItemQueryResultItem {
   last_update?: string | null;
   name?: string;
   recommended?: boolean;
+  title?: string;
   maintainers?: Maintainer[];
   tags?: string[];
   screenshots?: string[];
@@ -221,6 +222,7 @@ export interface AppLatestItem {
   last_update: string | null;
   name: string;
   recommended: boolean;
+  title: string;
   maintainers: Maintainer[];
   tags: string[];
   screenshots: string[];
@@ -246,6 +248,7 @@ export interface AppLatestItemQueryResultItem {
   last_update?: string | null;
   name?: string;
   recommended?: boolean;
+  title?: string;
   maintainers?: Maintainer[];
   tags?: string[];
   screenshots?: string[];
@@ -784,21 +787,25 @@ export interface ReportingGetDataResponse {
 }
 export interface ReportingGraphsItem {
   name: string;
+  title: string;
   vertical_label: string;
   identifiers: string[] | null;
 }
 export interface ReportingGraphsItemQueryResultItem {
   name?: string;
+  title?: string;
   vertical_label?: string;
   identifiers?: string[] | null;
 }
 export interface ReportingNetdataGraphsItem {
   name: string;
+  title: string;
   vertical_label: string;
   identifiers: string[] | null;
 }
 export interface ReportingNetdataGraphsItemQueryResultItem {
   name?: string;
+  title?: string;
   vertical_label?: string;
   identifiers?: string[] | null;
 }

@@ -355,10 +355,12 @@ export interface Alert {
 }
 export interface AlertCategory {
   id: string;
+  title: string;
   classes: AlertCategoryClass[];
 }
 export interface AlertCategoryClass {
   id: string;
+  title: string;
   level: string;
   product_types: ("COMMUNITY_EDITION" | "ENTERPRISE")[];
   proactive_support: boolean;
@@ -725,6 +727,7 @@ export interface CatalogAppDetails {
   last_update: string | null;
   name: string;
   recommended: boolean;
+  title: string;
   maintainers: Maintainer[];
   tags: string[];
   screenshots: string[];

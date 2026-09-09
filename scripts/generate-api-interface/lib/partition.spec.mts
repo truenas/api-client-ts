@@ -62,6 +62,39 @@ describe('chainAssign', () => {
     expect(homes[1].get('A')).toBe(0);
   });
 
+  /**
+   * `_usedBy` is generator-internal and never emitted, so a change to it is not
+   * a change to the shape. It is typed `string[]`, which is why it cannot ride
+   * the same value test as `title`: an array is an object, and the test would
+   * keep it.
+   */
+  it('ignores _usedBy, which is an array rather than a scalar', () => {
+    const { homes } = chainAssign([
+      model('v1', { A: str({ _usedBy: ['x'] }) }),
+      model('v2', { A: str({ _usedBy: ['x', 'y'] }) }),
+    ]);
+    expect(homes[1].get('A')).toBe(0);
+  });
+
+  /**
+   * The other `title`, and the reason the one above has to be discriminated by
+   * value rather than by key. A model may have a *field* called `title`, and
+   * fourteen in the v25.10.0 slice of the 2026-09-07 dump do. Ignoring it here
+   * would compare two different shapes equal: the later version would inherit
+   * the earlier declaration and emit the wrong type for a property the emitter
+   * ships, with every gate green.
+   */
+  it('re-declares when a property named title changes', () => {
+    const withTitle = (type: string): DefSchema => ({
+      type: 'object', properties: { title: { type, title: 'Title' } },
+    });
+    const { homes } = chainAssign([
+      model('v1', { A: withTitle('string') }),
+      model('v2', { A: withTitle('integer') }),
+    ]);
+    expect(homes[1].get('A')).toBe(1);
+  });
+
 
   it('re-materializes a reverted shape instead of skip-level inheriting', () => {
     const { homes, declared } = chainAssign([
