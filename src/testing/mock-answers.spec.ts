@@ -235,6 +235,75 @@ describe('mock answers', () => {
     expect(again.map(job => job.state)).toEqual([JobState.Success]);
   });
 
+  /**
+   * Starting the method twice is two jobs on an appliance: a new id and a
+   * whole new walk. Answering the second start with the first job's id hands
+   * `trackJob` a cursor already at the end of the walk, so the retry reports
+   * its terminal state and nothing else — silently, which is why this is
+   * pinned on the walk rather than on the final state. Both runs end on
+   * `SUCCESS`; only one of them reports `RUNNING` on the way.
+   */
+  it('gives a second start its own id and its own walk', async () => {
+    const c = client();
+    const id = c.mock.job('app.delete', [
+      { state: JobState.Running, progress: { percent: 50 } },
+      { state: JobState.Success },
+    ]);
+
+    const first = await lastValueFrom(c.api.job('app.delete', ['plex']).pipe(toArray()));
+    const second = await lastValueFrom(c.api.job('app.delete', ['plex']).pipe(toArray()));
+
+    expect(first.map(job => job.state)).toEqual([JobState.Running, JobState.Success]);
+    expect(second.map(job => job.state)).toEqual([JobState.Running, JobState.Success]);
+
+    // The first start runs under the registered id, because that is the one
+    // `mock.job` returned and the one a spec reaches the started job by. The
+    // second cannot: an appliance does not hand the same id to two jobs.
+    expect(first.at(-1)?.id).toBe(id);
+    expect(second.at(-1)?.id).not.toBe(id);
+  });
+
+  /**
+   * A read consumes the walk without starting anything, so "has a start run
+   * yet" is not enough on its own to decide whether the registered id is still
+   * free. A start after a bare `trackJob` gets a fresh one.
+   */
+  it('gives a start after a bare trackJob its own walk', async () => {
+    const c = client();
+    const id = c.mock.job('app.delete', [
+      { state: JobState.Running, progress: { percent: 10 } },
+      { state: JobState.Success },
+    ]);
+
+    const read = await lastValueFrom(c.api.trackJob(id).pipe(toArray()));
+    const started = await lastValueFrom(c.api.job('app.delete', ['plex']).pipe(toArray()));
+
+    expect(read.map(job => job.state)).toEqual([JobState.Running, JobState.Success]);
+    expect(started.map(job => job.state)).toEqual([JobState.Running, JobState.Success]);
+  });
+
+  /**
+   * Two starts in one tick, before either job's first read has been answered:
+   * nothing has advanced the cursor yet, so the id is handed out on the start
+   * itself rather than on what the walk has done since.
+   */
+  it('gives two starts in the same tick different ids', async () => {
+    const c = client();
+    c.mock.job('app.delete', [
+      { state: JobState.Running, progress: { percent: 10 } },
+      { state: JobState.Success },
+    ]);
+
+    const [one, two] = await Promise.all([
+      lastValueFrom(c.api.job('app.delete', ['one']).pipe(toArray())),
+      lastValueFrom(c.api.job('app.delete', ['two']).pipe(toArray())),
+    ]);
+
+    expect(one.map(job => job.state)).toEqual([JobState.Running, JobState.Success]);
+    expect(two.map(job => job.state)).toEqual([JobState.Running, JobState.Success]);
+    expect(one.at(-1)?.id).not.toBe(two.at(-1)?.id);
+  });
+
   /** The dispatcher answers a scripted job's read in the shape it asked for. */
   it('honours get and count on a read for a scripted job', async () => {
     const c = client();

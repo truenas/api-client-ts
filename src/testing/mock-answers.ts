@@ -152,6 +152,15 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
   /** Jobs whose remaining updates are already on their way out. */
   const walking = new Set<number>();
 
+  /** Ids a start has already run, so a later start does not reuse one. */
+  const started = new Set<number>();
+
+  /** The next id nothing else holds. */
+  const allocateId = (): number => {
+    while (sequences.has(nextJobId)) nextJobId++;
+    return nextJobId++;
+  };
+
   /** Methods a job is already scripted for. */
   const scriptedMethods = new Set<string>();
 
@@ -384,11 +393,7 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
       }
       scriptedMethods.add(String(method));
 
-      let id = chosen;
-      if (id === undefined) {
-        while (sequences.has(nextJobId)) nextJobId++;
-        id = nextJobId++;
-      }
+      const id = chosen ?? allocateId();
 
       // Replayed, not simulated. Each update is exactly what the spec gave,
       // completed by `fakeJob`'s defaults for the fields it did not name — no
@@ -410,6 +415,26 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
       installSnapshotAnswer();
 
       connection.autoReply(String(method), frame => {
+        // A start gets a walk nobody has begun. Starting the method twice is
+        // two jobs on an appliance — a new id, a new walk — and answering the
+        // second with the first job's id hands `trackJob` a cursor already at
+        // the end, so the retry reports its terminal state and nothing else.
+        // Silently, which is the worst of the three things this could do: the
+        // spec sees a job that completed, just not the walk it scripted.
+        //
+        // The registered id is the one the first start runs under, because
+        // that is the id `mock.job` returned and the id a spec reaches the
+        // started job by. It is reusable only while nothing has touched its
+        // walk — not started (`started`), not already reported past its first
+        // update (`position`), not mid-replay (`walking`). A read through
+        // `trackJob` alone consumes the walk without starting anything, so
+        // `started` is not enough on its own.
+        const fresh = started.has(id) || position.has(id) || walking.has(id);
+        const runId = fresh ? allocateId() : id;
+        started.add(runId);
+        if (fresh) sequences.set(runId, sequence.map(job => ({ ...job, id: runId })));
+        const run = sequences.get(runId) ?? sequence;
+
         // Registered before the id goes out, because delivering the id runs the
         // whole of `job()` synchronously: `callAndGetJobId` emits, `trackJob`
         // subscribes, and its opening `core.get_jobs` read is on the wire
@@ -421,7 +446,7 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
         // nobody listening — which is what the differential test caught,
         // scripted jobs reporting only their terminal state where a
         // hand-driven one reported the whole walk.
-        connection.receive(jobEvent(sequence[0], frame.id));
+        connection.receive(jobEvent(run[0], frame.id));
       });
 
       return id;
