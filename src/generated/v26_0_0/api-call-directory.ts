@@ -12,6 +12,7 @@ import type {
 
 import type {
   ACLTemplateEntry,
+  AlertCategory,
   ApiKeyCreate,
   ApiKeyUpdate,
   AppContainerIDOptions,
@@ -89,7 +90,6 @@ import type {
 import type {
   ACLTemplateByPathArgs,
   Alert,
-  AlertCategory,
   AlertListCategoriesOptions,
   ApiKeyEntry,
   ApiKeyEntryWithKey,
@@ -142,8 +142,9 @@ import type {
   DiskUnlockSedArgs,
   DiskUpdate,
   DockerEntry,
+  EntitlementEntry,
+  EntitlementsInfo,
   FailoverUpdate,
-  Feature,
   GraphIdentifier,
   ISCSIGlobalEntry,
   ISCSIGlobalSessionsItem,
@@ -156,6 +157,7 @@ import type {
   InterfaceUpdate,
   LXCConfigEntry,
   LXCConfigUpdateArgs,
+  LicenseInfoEntry,
   NVMetHostCreate,
   NVMetHostEntry,
   NVMetHostQueryResultItem,
@@ -1085,7 +1087,7 @@ export interface ApiCallDirectoryDelta {
   };
 
   'system.feature_enabled': {
-    params: [feature: Feature];
+    params: [feature: string];
     response: boolean;
   };
 
@@ -1124,6 +1126,16 @@ export interface ApiCallDirectoryDelta {
     response: TruecommandEntry;
   };
 
+  'truenas.entitlements.check': {
+    params: [feature: string];
+    response: EntitlementEntry;
+  };
+
+  'truenas.entitlements.info': {
+    params: [];
+    response: EntitlementsInfo;
+  };
+
   'truenas.license.fingerprint': {
     params: [];
     response: string;
@@ -1131,7 +1143,7 @@ export interface ApiCallDirectoryDelta {
 
   'truenas.license.info': {
     params: [];
-    response: Record<string, unknown> | null;
+    response: LicenseInfoEntry | null;
   };
 
   'truenas.license.upload': {

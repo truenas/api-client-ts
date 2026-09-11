@@ -193,17 +193,6 @@ export const ContainerStatusStateInput = {
 } as const;
 export type ContainerStatusStateInput = (typeof ContainerStatusStateInput)[keyof typeof ContainerStatusStateInput];
 
-export const Feature = {
-  Apps: 'APPS',
-  Dedup: 'DEDUP',
-  Fibrechannel: 'FIBRECHANNEL',
-  Sed: 'SED',
-  Support: 'SUPPORT',
-  Vms: 'VMS',
-  Zfstier: 'ZFSTIER',
-} as const;
-export type Feature = (typeof Feature)[keyof typeof Feature];
-
 export const Interval = {
   '30': 30,
   '60': 60,
@@ -257,6 +246,17 @@ export const PoolScrubAction = {
   Pause: 'PAUSE',
 } as const;
 export type PoolScrubAction = (typeof PoolScrubAction)[keyof typeof PoolScrubAction];
+
+export const Reason = {
+  Entitled: 'ENTITLED',
+  NoLicense: 'NO_LICENSE',
+  KeyMissing: 'KEY_MISSING',
+  WrongHardware: 'WRONG_HARDWARE',
+  TierInsufficient: 'TIER_INSUFFICIENT',
+  WrongLicenseType: 'WRONG_LICENSE_TYPE',
+  NotGated: 'NOT_GATED',
+} as const;
+export type Reason = (typeof Reason)[keyof typeof Reason];
 
 export const S3AccesskeyEntryStatus = {
   Enabled: 'ENABLED',
@@ -352,18 +352,6 @@ export interface Alert {
   level: string;
   formatted: string | null;
   one_shot: boolean;
-}
-export interface AlertCategory {
-  id: string;
-  title: string;
-  classes: AlertCategoryClass[];
-}
-export interface AlertCategoryClass {
-  id: string;
-  title: string;
-  level: string;
-  product_types: ("COMMUNITY_EDITION" | "ENTERPRISE")[];
-  proactive_support: boolean;
 }
 export interface AlertInput {
   uuid: string;
@@ -1431,6 +1419,16 @@ export interface DockerUpdateArgs {
   registry_mirrors?: RegistryMirror[];
   migrate_applications?: boolean;
 }
+export interface EntitlementEntry {
+  entitled: boolean;
+  reason: Reason;
+  message: string;
+}
+export interface EntitlementsInfo {
+  features: {
+    [k: string]: EntitlementEntry;
+  };
+}
 export interface FailoverUpdate {
   disabled?: boolean;
   master?: boolean;
@@ -1699,6 +1697,24 @@ export interface ISCSITargetExtentQueryResultItem {
   vendor?: string;
   product_id?: string | null;
   locked?: boolean | null;
+}
+export interface LicenseFeatureEntry {
+  name: string;
+  start_date: string | null;
+  expires_at: string | null;
+  source: string;
+  type: string | null;
+}
+export interface LicenseInfoEntry {
+  id: string;
+  type: string;
+  model: string | null;
+  features: LicenseFeatureEntry[];
+  serials: string[];
+  enclosures: {
+    [k: string]: number;
+  };
+  contract_type: string | null;
 }
 export interface LXCConfigEntry {
   id: number;
@@ -2658,6 +2674,8 @@ export interface S3AccesskeyEntryInput {
   enabled: boolean;
   expires_at?: string | null;
   created_at: string;
+  last_used_at?: string | null;
+  manage_buckets?: boolean;
   status: S3AccesskeyEntryStatusInput;
 }
 export interface S3AccesskeyChangedEvent {
@@ -2671,6 +2689,7 @@ export interface S3AccesskeyCreate {
   secret?: string | null;
   enabled?: boolean;
   expires_at?: string | null;
+  manage_buckets?: boolean;
 }
 export interface S3AccesskeyEntry {
   id: number;
@@ -2683,6 +2702,8 @@ export interface S3AccesskeyEntry {
   enabled: boolean;
   expires_at?: string | null;
   created_at: string;
+  last_used_at?: string | null;
+  manage_buckets?: boolean;
   status: S3AccesskeyEntryStatus;
 }
 export interface S3AccesskeyQueryResultItem {
@@ -2696,6 +2717,8 @@ export interface S3AccesskeyQueryResultItem {
   enabled?: boolean;
   expires_at?: string | null;
   created_at?: string;
+  last_used_at?: string | null;
+  manage_buckets?: boolean;
   status?: S3AccesskeyEntryStatus;
 }
 export interface S3AccesskeyRemovedEvent {
@@ -2705,6 +2728,7 @@ export interface S3AccesskeyUpdate {
   name?: string;
   enabled?: boolean;
   expires_at?: string | null;
+  manage_buckets?: boolean;
   rotate?: boolean;
 }
 export interface S3Entry {
@@ -2734,6 +2758,7 @@ export interface S3Entry {
     | "ALL";
   default_audit_overflow?: "DROP" | "BACKPRESSURE";
   global_grants?: S3GrantEntry[];
+  managed_root_dataset?: string;
 }
 export interface S3Listener {
   address: string;
@@ -2777,6 +2802,7 @@ export interface S3Update {
     | "ALL";
   default_audit_overflow?: "DROP" | "BACKPRESSURE";
   global_grants?: S3Grant[];
+  managed_root_dataset?: string;
 }
 export interface SharingNFSAddedEvent {
   id: number;
@@ -2858,7 +2884,8 @@ export interface SharingS3Entry {
   owner: string;
   owner_uid: number;
   grants?: S3GrantEntry[];
-  permissions_model?: "S3" | "MULTIPROTOCOL" | "S3_BUCKET_OWNER_ENFORCED";
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
   versioning?: Versioning;
   snapshot_versions?: string[];
   snapshot_versions_max?: number;
@@ -2894,11 +2921,12 @@ export interface SharingS3ChangedEvent {
 }
 export interface SharingS3Create {
   name: string;
-  dataset: string;
+  dataset?: string | null;
   enabled?: boolean;
   owner: string;
   grants?: S3Grant[];
-  permissions_model?: "S3" | "MULTIPROTOCOL" | "S3_BUCKET_OWNER_ENFORCED";
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
   versioning?: Versioning;
   snapshot_versions?: string[];
   snapshot_versions_max?: number;
@@ -2935,7 +2963,8 @@ export interface SharingS3QueryResultItem {
   owner?: string;
   owner_uid?: number;
   grants?: S3GrantEntry[];
-  permissions_model?: "S3" | "MULTIPROTOCOL" | "S3_BUCKET_OWNER_ENFORCED";
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
   versioning?: Versioning;
   snapshot_versions?: string[];
   snapshot_versions_max?: number;
@@ -2973,7 +3002,8 @@ export interface SharingS3Update {
   enabled?: boolean;
   owner?: string;
   grants?: S3Grant[];
-  permissions_model?: "S3" | "MULTIPROTOCOL" | "S3_BUCKET_OWNER_ENFORCED";
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
   versioning?: Versioning;
   snapshot_versions?: string[];
   snapshot_versions_max?: number;

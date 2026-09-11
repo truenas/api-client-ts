@@ -148,6 +148,8 @@ export type {
   ActiveDirectoryConfigInput,
   AddressPool,
   Aggregations,
+  AlertCategory,
+  AlertCategoryClass,
   AlertClassConfiguration,
   AlertClassesEntry,
   AlertClassesUpdate,
