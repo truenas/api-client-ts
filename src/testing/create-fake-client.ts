@@ -108,8 +108,16 @@ function withFakeCollaborators<T extends FakeableClientConstructor>(
  *
  * client.mock.call('system.info', { hostname: 'truenas.local' });
  * client.api.call('system.info').subscribe(info => …);
+ * ```
  *
- * // or drive the frames directly, which is what `mock` does underneath
+ * Or drive the frames directly, which is what `mock` does underneath. On a
+ * client with nothing scripted for the method — a `mock.call` still registered
+ * would answer first, and the reply below would then arrive after the caller
+ * had already seen its answer:
+ *
+ * ```typescript
+ * const client = createFakeClient({ version: 'v27.0.0' });
+ *
  * client.api.call('system.info').subscribe(info => …);
  * client.connection.reply('system.info', { hostname: 'truenas.local' });
  * ```

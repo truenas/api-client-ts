@@ -19,7 +19,7 @@ describe('mock answers', () => {
     for (const made of built.splice(0, built.length)) made.connection.close();
   });
 
-  it('answers a call, and can read the params it was given', async () => {
+  it('answers a call', async () => {
     const c = client();
     c.mock.call('core.ping', 'pong');
 
@@ -156,19 +156,17 @@ describe('mock answers', () => {
 
   /**
    * Written against the id auto-allocation is about to hand out, rather than
-   * against a fixed number: the counter is module-global, so asserting
-   * `not.toBe(7)` passes whether or not the skip exists, depending only on how
-   * many jobs earlier tests registered.
+   * against a fixed number, and on one client: the counter is per client, so a
+   * claim made on a second one is a claim the first allocator never had to
+   * step over and the assertion would pass with no skip at all.
    */
   it('steps auto-allocation over an id a spec has claimed', () => {
     const c = client();
-    const next = c.mock.job('app.start', { state: JobState.Success });
-    const claimed = next + 1;
+    const claimed = c.mock.job('app.start', { state: JobState.Success }) + 1;
 
-    const other = client();
-    other.mock.job('app.delete', { id: claimed, state: JobState.Success });
+    c.mock.job('app.delete', { id: claimed, state: JobState.Success });
 
-    expect(other.mock.job('app.start', { state: JobState.Success })).not.toBe(
+    expect(c.mock.job('app.upgrade', { state: JobState.Success })).not.toBe(
       claimed
     );
   });
@@ -315,6 +313,34 @@ describe('mock answers', () => {
     await expect(
       firstValueFrom(c.api.queryCount('core.get_jobs', [['id', '=', id]]))
     ).resolves.toBe(1);
+  });
+
+  /**
+   * A `get` or a `count` is a one-shot RPC: nobody is subscribed to the job's
+   * events behind it. Releasing the walk to one sends every remaining update
+   * to an empty room and leaves the cursor at the end, so the `trackJob` that
+   * follows reports the terminal state alone — the same silent truncation a
+   * second start used to cause, reached through a read.
+   *
+   * Both shapes are pinned because they take different branches of
+   * `answerRead`, and the walk is released after both.
+   */
+  it.each([
+    ['count', (c: FakeTrueNasClient<ApiDirectoryV27_0_0>, id: number) =>
+      firstValueFrom(c.api.queryCount('core.get_jobs', [['id', '=', id]]))],
+    ['get', (c: FakeTrueNasClient<ApiDirectoryV27_0_0>, id: number) =>
+      firstValueFrom(c.api.queryOne('core.get_jobs', [['id', '=', id]]))],
+  ])('leaves the walk for a tracker when a %s read comes first', async (_shape, read) => {
+    const c = client();
+    const id = c.mock.job('app.delete', [
+      { state: JobState.Running, progress: { percent: 10 } },
+      { state: JobState.Success },
+    ]);
+
+    await read(c, id);
+    const walk = await lastValueFrom(c.api.trackJob(id).pipe(toArray()));
+
+    expect(walk.map(job => job.state)).toEqual([JobState.Running, JobState.Success]);
   });
 
   /**
@@ -488,15 +514,17 @@ describe('mock answers', () => {
    * predicts what the next auto-allocated job will be called.
    */
   it('does not burn an id on a registration it refuses', () => {
-    const before = client().mock.job('app.start', { state: JobState.Success });
+    // One client, because the counter is per client: allocations measured on
+    // two of them are two counters and their difference means nothing.
+    const c = client();
+    const before = c.mock.job('app.start', { state: JobState.Success });
 
     // The refusal has to sit *between* the two measured allocations: before
     // both, a burned id shifts them equally and the gap says nothing.
-    const refused = client();
-    refused.mock.job('app.delete', { state: JobState.Success });
-    expect(() => refused.mock.job('app.delete', { state: JobState.Failed })).toThrow();
+    c.mock.job('app.delete', { state: JobState.Success });
+    expect(() => c.mock.job('app.delete', { state: JobState.Failed })).toThrow();
 
-    const after = client().mock.job('app.start', { state: JobState.Success });
+    const after = c.mock.job('app.upgrade', { state: JobState.Success });
 
     // Two successful registrations between them — the `app.delete` pair's
     // first — so two ids, not three.

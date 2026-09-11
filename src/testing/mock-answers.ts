@@ -133,12 +133,20 @@ interface QueryOptionsFrame {
   count?: boolean;
 }
 
-/** Ids for jobs a spec did not number itself. */
-let nextJobId = 1;
-
 export function createMockAnswers<D extends ApiDirectoryShape>(
   connection: FakeConnection
 ): MockAnswers<D> {
+  /**
+   * Ids for jobs a spec did not number itself.
+   *
+   * Per client, like every other registry here. Module-global, the id
+   * `mock.job` returns depended on how many jobs every *other* client in the
+   * process had registered first — so it moved as files were added, and a spec
+   * asserting on the distance between two allocations was reading a counter
+   * anything could advance.
+   */
+  let nextJobId = 1;
+
   const answer = (frame: TrueNasMessage, result: unknown): void => {
     connection.receive({ jsonrpc: '2.0', id: frame.id, result } as TrueNasMessage);
   };
@@ -164,9 +172,27 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
   /** Methods a job is already scripted for. */
   const scriptedMethods = new Set<string>();
 
+  /** The options a `core.get_jobs` read carried, if any. */
+  const readOptions = (read: TrueNasMessage): QueryOptionsFrame | undefined => {
+    const [, options] = (read.params ?? []) as [unknown, QueryOptionsFrame?];
+    return options;
+  };
+
+  /**
+   * Whether this read is the one a tracker opens with.
+   *
+   * `trackJob` sends `[[['id', '=', jobId]]]` and nothing else, then listens on
+   * `jobEvents`. A read carrying `get` or `count` is a one-shot query — nobody
+   * is subscribed behind it — so the walk must not be released to it.
+   */
+  const isTracking = (read: TrueNasMessage): boolean => {
+    const options = readOptions(read);
+    return !options?.get && !options?.count;
+  };
+
   /** Answer a `core.get_jobs` read in the shape its options asked for. */
   const answerRead = (read: TrueNasMessage, job: Job | undefined): void => {
-    const [, options] = (read.params ?? []) as [unknown, QueryOptionsFrame?];
+    const options = readOptions(read);
     if (options?.count) return answer(read, job ? 1 : 0);
     if (options?.get) {
       // `do_get` raises `MatchNotFound` on an empty result rather than
@@ -255,7 +281,14 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
       // to the end here, a reader arriving before the microtask ran would be
       // told the job had finished while the tracker that started it had not
       // yet seen it run.
-      if (at >= sequence.length - 1 || walking.has(id)) return;
+      //
+      // Only a tracker's read releases it. A `get` or a `count` is a one-shot
+      // RPC with nobody on `jobEvents` behind it, so replaying into one sends
+      // the walk to an empty room and leaves the cursor at the end — and the
+      // `trackJob` that follows then reports the terminal state alone. That is
+      // the same silent truncation a second start used to cause, reached
+      // through a read instead.
+      if (!isTracking(read) || at >= sequence.length - 1 || walking.has(id)) return;
       walking.add(id);
       queueMicrotask(() => {
         for (let next = at + 1; next < sequence.length; next++) {
