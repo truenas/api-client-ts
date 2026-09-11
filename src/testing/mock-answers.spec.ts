@@ -316,20 +316,26 @@ describe('mock answers', () => {
   });
 
   /**
-   * A `get` or a `count` is a one-shot RPC: nobody is subscribed to the job's
-   * events behind it. Releasing the walk to one sends every remaining update
+   * Every query verb is a one-shot RPC: nobody is subscribed to the job's
+   * events behind one. Releasing the walk to it sends every remaining update
    * to an empty room and leaves the cursor at the end, so the `trackJob` that
    * follows reports the terminal state alone — the same silent truncation a
    * second start used to cause, reached through a read.
    *
-   * Both shapes are pinned because they take different branches of
-   * `answerRead`, and the walk is released after both.
+   * All three verbs, because each sends a different options object and the
+   * first version of the gate asked the wrong question about it: `queryCount`
+   * sends `{ count: true }`, `queryOne` `{ get: true }`, and `query` a bare
+   * `{}` — which sets no shape switch and so passed a gate written as "no
+   * switch set". What marks a tracker is that `trackJob` sends no options
+   * element at all.
    */
   it.each([
     ['count', (c: FakeTrueNasClient<ApiDirectoryV27_0_0>, id: number) =>
       firstValueFrom(c.api.queryCount('core.get_jobs', [['id', '=', id]]))],
     ['get', (c: FakeTrueNasClient<ApiDirectoryV27_0_0>, id: number) =>
       firstValueFrom(c.api.queryOne('core.get_jobs', [['id', '=', id]]))],
+    ['plain query', (c: FakeTrueNasClient<ApiDirectoryV27_0_0>, id: number) =>
+      firstValueFrom(c.api.query('core.get_jobs', [['id', '=', id]]))],
   ])('leaves the walk for a tracker when a %s read comes first', async (_shape, read) => {
     const c = client();
     const id = c.mock.job('app.delete', [

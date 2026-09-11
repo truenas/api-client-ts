@@ -181,14 +181,21 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
   /**
    * Whether this read is the one a tracker opens with.
    *
-   * `trackJob` sends `[[['id', '=', jobId]]]` and nothing else, then listens on
-   * `jobEvents`. A read carrying `get` or `count` is a one-shot query — nobody
-   * is subscribed behind it — so the walk must not be released to it.
+   * `trackJob` sends `[[['id', '=', jobId]]]` — the filters and no second
+   * argument at all — and then listens on `jobEvents`. Every query verb sends
+   * one: `query` passes `options ?? {}`, `queryOne` adds `get`, `queryCount`
+   * adds `count`. So the absence of the options element is what marks the
+   * tracker, and asking instead whether the options set a shape switch says
+   * yes to `api.query('core.get_jobs', [['id', '=', id]])`, whose `{}` sets
+   * neither — a one-shot read with nobody on `jobEvents` behind it, which the
+   * walk would then be released to.
+   *
+   * Positive test, not an exclusion: a read this module does not recognise as
+   * a tracker's gets answered from the cursor and leaves the walk alone, which
+   * is the harmless direction.
    */
-  const isTracking = (read: TrueNasMessage): boolean => {
-    const options = readOptions(read);
-    return !options?.get && !options?.count;
-  };
+  const isTracking = (read: TrueNasMessage): boolean =>
+    ((read.params ?? []) as unknown[]).length === 1;
 
   /** Answer a `core.get_jobs` read in the shape its options asked for. */
   const answerRead = (read: TrueNasMessage, job: Job | undefined): void => {
