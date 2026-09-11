@@ -32,6 +32,8 @@ export { UnmockedCallError } from './unmocked-call-error';
 export { withSpies } from './with-spies';
 export type { SpyFactory, SpyableClient } from './with-spies';
 export { fakeJob } from './fake-job';
+export { fakeApiError } from './fake-api-error';
+export type { FakeApiErrorOverrides, TrueNasErrorData } from './fake-api-error';
 export { fakeApiVersion } from './fake-api-version';
 export { fakeAuthResponse } from './fake-auth-response';
 export type { FakeAuthResponseOverrides } from './fake-auth-response';
