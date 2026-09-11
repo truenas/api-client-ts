@@ -743,7 +743,7 @@ causes a change.
 | system.advanced.update_gpu_pci_ids | call | introduced v25.10.0 |
 | system.boot_id | call | introduced v25.10.0 |
 | system.debug | job | introduced v25.10.0 |
-| system.feature_enabled | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| system.feature_enabled | call | introduced v25.10.0; changed v26.0.0 |
 | system.general.checkin | call | introduced v25.10.0 |
 | system.general.checkin_waiting | call | introduced v25.10.0 |
 | system.general.config | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
@@ -797,6 +797,8 @@ causes a change.
 | truecommand.config | event | introduced v25.10.0 |
 | truecommand.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
 | truenas.accept_eula | call | introduced v25.10.0 |
+| truenas.entitlements.check | call | introduced v26.0.0 |
+| truenas.entitlements.info | call | introduced v26.0.0 |
 | truenas.get_chassis_hardware | call | introduced v25.10.0 |
 | truenas.get_eula | call | introduced v25.10.0 |
 | truenas.is_eula_accepted | call | introduced v25.10.0 |
@@ -973,8 +975,8 @@ causes a change.
 | Advpowermgmt | type | introduced v25.10.0 |
 | Aggregations | type | introduced v25.10.0; changed v27.0.0 |
 | Alert | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
-| AlertCategory | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
-| AlertCategoryClass | type | introduced v25.10.0; changed v26.0.0 |
+| AlertCategory | type | introduced v25.10.0 |
+| AlertCategoryClass | type | introduced v25.10.0 |
 | AlertClassConfiguration | type | introduced v25.10.0 |
 | AlertClassesEntry | type | introduced v25.10.0 |
 | AlertClassesUpdate | type | introduced v25.10.0 |
@@ -1336,6 +1338,8 @@ causes a change.
 | Enclosure2SetSlotStatusArgs | type | introduced v25.10.0 |
 | Enclosure2SetSlotStatusStatusInput | type | introduced v25.10.0 |
 | Endpoint | type | introduced v25.10.0 |
+| EntitlementEntry | type | introduced v26.0.0 |
+| EntitlementsInfo | type | introduced v26.0.0 |
 | Exec | type | introduced v25.10.0 |
 | ExtendedKeyUsageModel | type | introduced v25.10.0 |
 | ExtendedKeyUsageModelInput | type | introduced v25.10.0 |
@@ -1370,7 +1374,7 @@ causes a change.
 | FCPortUpdate | type | introduced v25.10.0 |
 | FCPStorageOpt | type | introduced v25.10.0; changed v25.10.1 |
 | FCPStorageOptInput | type | introduced v25.10.1 |
-| Feature | type | introduced v25.10.0; changed v26.0.0 |
+| Feature | type | introduced v25.10.0; removed v26.0.0 |
 | FileFollowTailEventSourceArgs | type | introduced v25.10.0 |
 | FilesystemChownArgs | type | introduced v25.10.0 |
 | FilesystemChownOptions | type | introduced v25.10.0 |
@@ -1595,6 +1599,8 @@ causes a change.
 | LegacyOpt | type | introduced v25.10.0 |
 | LegacyOptInput | type | introduced v25.10.0 |
 | Level | type | introduced v25.10.0 |
+| LicenseFeatureEntry | type | introduced v26.0.0 |
+| LicenseInfoEntry | type | introduced v26.0.0 |
 | LXCConfigEntry | type | introduced v26.0.0 |
 | LXCConfigUpdate | type | introduced v27.0.0 |
 | LXCConfigUpdateArgs | type | introduced v26.0.0; removed v27.0.0 |
@@ -1844,6 +1850,7 @@ causes a change.
 | RdmaCardConfig | type | introduced v25.10.0 |
 | RdmaLinkConfig | type | introduced v25.10.0 |
 | Readonly | type | introduced v25.10.0 |
+| Reason | type | introduced v26.0.0 |
 | RebootInfo | type | introduced v25.10.0 |
 | RebootRequiredReason | type | introduced v25.10.0 |
 | RegistryMirror | type | introduced v26.0.0; removed v27.0.0 |
