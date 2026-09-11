@@ -15,7 +15,14 @@ export interface TrueNasMessage {
   error?: {
     error: number;
     errname: string;
-    extra: (string | number)[];
+    /**
+     * `null` when the appliance has nothing to add.
+     *
+     * `rpc.py`'s generic arm sets `extra = None` for any exception it cannot
+     * adapt — `MatchNotFound` from an empty `get`, for one — and only an
+     * adapted error carries a list.
+     */
+    extra: (string | number)[] | null;
     reason: string;
   };
 }

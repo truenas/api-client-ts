@@ -7,6 +7,7 @@ import type { OperationMappings } from '@/types/operation-mappings.interface';
 import { parseApiVersion } from '@/utils/api-version.utils';
 import { FakeAuthenticator } from './fake-authenticator';
 import { FakeConnection } from './fake-connection';
+import { createMockAnswers, type MockAnswers } from './mock-answers';
 
 /**
  * The concrete client classes, as a constructor this module can extend.
@@ -27,6 +28,8 @@ type FakeableClientConstructor = new (
 export type FakeTrueNasClient<D extends ApiDirectoryShape> = TrueNasApiClient<D> & {
   readonly connection: FakeConnection;
   readonly authenticator: FakeAuthenticator;
+  /** Scripted answers, typed by this client's directory. */
+  readonly mock: MockAnswers<D>;
 };
 
 /** How a fake client is set up. Every field has a usable default. */
@@ -102,6 +105,19 @@ function withFakeCollaborators<T extends FakeableClientConstructor>(
  *
  * ```typescript
  * const client = createFakeClient({ version: 'v27.0.0' });
+ *
+ * client.mock.call('system.info', { hostname: 'truenas.local' });
+ * client.api.call('system.info').subscribe(info => …);
+ * ```
+ *
+ * Or drive the frames directly, which is what `mock` does underneath. On a
+ * client with nothing scripted for the method — a `mock.call` still registered
+ * would answer first, and the reply below would then arrive after the caller
+ * had already seen its answer:
+ *
+ * ```typescript
+ * const client = createFakeClient({ version: 'v27.0.0' });
+ *
  * client.api.call('system.info').subscribe(info => …);
  * client.connection.reply('system.info', { hostname: 'truenas.local' });
  * ```
@@ -149,8 +165,15 @@ export function createFakeClient<V extends SupportedApiVersion = SupportedApiVer
     client.authenticator.authenticated$.next(true);
   }
 
-  // The class is chosen by a runtime value, so the directory it is typed
-  // against can only be asserted here — `createTrueNasClient` asserts the same
-  // thing at the same seam, for the same reason.
-  return client as unknown as FakeTrueNasClient<DerivedDirectory<V>>;
+  const fake = client as unknown as FakeTrueNasClient<DerivedDirectory<V>>;
+
+  // Assigned rather than constructed with the client: it needs the connection,
+  // which the base constructor builds, and the client's type is only settled
+  // once. `mock` is the fake's own member, so widening the readonly here is
+  // the definition rather than a mutation of the class's contract.
+  (fake as { mock: MockAnswers<DerivedDirectory<V>> }).mock = createMockAnswers(
+    client.connection
+  );
+
+  return fake;
 }
