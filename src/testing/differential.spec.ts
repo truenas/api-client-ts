@@ -9,24 +9,10 @@ import { createFakeClient, type FakeTrueNasClient } from './create-fake-client';
 import type { ApiDirectoryV27_0_0, v27_0_0 } from '@/generated';
 
 /**
- * The convenience layer against the primitive it wraps.
- *
- * `mock.call` and its siblings exist to save a spec from writing frames by
- * hand. That is only worth having if the two produce the same thing, and
- * "produces the same thing" is a claim that rots quietly: the shorthand grows
- * a default, or answers at a different moment, and specs written against it
- * start passing for reasons the hand-written version would not.
- *
- * So each verb is run twice — once scripted, once driven frame by frame — and
- * the emissions are compared. A difference is a bug in whichever side moved.
- *
- * What it compares is *what* is emitted and in what order, not when. A
- * scripted answer delayed by a macrotask passes here as long as the sequence
- * is unchanged, which is the right line: the client's own contract is about
- * ordering, and a fake that answered on a timer would still be honest. It is
- * only worth stating because "answers at a different moment" is exactly what
- * this caught once, and it caught it through the sequence rather than the
- * clock.
+ * Guards `mock.*` against drifting from the frames it wraps: each verb runs
+ * once scripted and once frame by frame, and the emissions must match. It
+ * compares what is emitted and in what order, not when — the client's
+ * contract is about ordering.
  */
 describe('scripted answers match hand-driven frames', () => {
   const built: FakeTrueNasClient<ApiDirectoryV27_0_0>[] = [];

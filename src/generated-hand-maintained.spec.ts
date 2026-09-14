@@ -1,30 +1,11 @@
 /**
- * What v25.10 holds by hand, checked in full.
- *
- * `virt.*` and `pool.dataset.encryption_algorithm_choices` exist only because
- * someone put them there by hand: middleware removed the `virt` models from
- * every version directory in b9c330ee94 and the pool method in 22ce5eac51, so
- * no dump taken since describes either. The API itself is unchanged — 25.10 is
- * released.
- *
- * A third thing is held by hand here, and it is the opposite case: not something
- * the dump omits, but something it gets wrong. See "the pool.dataset event
- * payload" at the foot of this file.
- *
- * The chain root declares them; the five patch directories re-export them. That
- * re-export block is what a regeneration deletes and a re-freeze then preserves
- * the absence of, and it went missing once already in this repo's history —
- * 40 names from each of five directories, while `tsc`, `eslint` and the whole
- * suite stayed green, because the directories still declared the *methods* and
- * imported their payload types straight from the root.
- *
- * The re-export checks read the files as text rather than asserting types, for
- * two reasons this file learned the hard way. A restore is done by hand and comes back *partial*, so naming
- * one representative per version passes while thirty-nine names are missing —
- * the sibling guard already says it: "Every key, not a chosen few." And a shape
- * assertion cannot express declaration *identity*: re-exporting an ancestor's
- * copy of a type the version redeclares shadows the local one silently, and
- * where the two shapes happen to agree, `toEqualTypeOf` holds either way.
+ * Guards what v25.10 holds by hand: `virt.*` and
+ * `pool.dataset.encryption_algorithm_choices`, which no current dump describes
+ * (removed in middleware b9c330ee94 / 22ce5eac51), plus an event payload the
+ * dump gets wrong. The patch directories' re-export blocks can vanish on
+ * regeneration with `tsc` still green, so they are read as text: every name
+ * is checked, and text catches a re-export shadowing a local declaration,
+ * which `toEqualTypeOf` cannot.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -162,22 +143,11 @@ describe('hand-maintained v25.10 surface', () => {
 
 describe('the pool.dataset event payload', () => {
   /**
-   * The dump describes this one wrongly, and a regeneration writes it back.
-   *
-   * `main.py` filters *methods* per version and then adds every event with no
-   * version test at all, so each slice's events carry the running tree's
-   * models. In the 2026-09-07 dump the v25.10 `pool.dataset.query` event nests
-   * `comments`, `quota_warning`, `quota_critical`, `refquota_warning`,
-   * `refquota_critical` and `managedby` under `user_properties` and adds
-   * `tier` — none of which `api/v25_10_0/pool_dataset.py` declares in that same
-   * image, and none of which the dump's own call side carries. Taking the event
-   * side stopped `fields.comments?.rawvalue` compiling for a shape 25.10 really
-   * does send.
-   *
-   * So the two sides are held equal here. This is not the `app.query` gap in
-   * `generated-known-gaps.spec.ts`, which pins a disagreement we ship; this
-   * pins one we decline to ship, and it fails if a future regeneration
-   * reintroduces it.
+   * The dump gives every version's events master's models, so v25.10's
+   * `pool.dataset.query` event wrongly nests `comments` and friends under
+   * `user_properties`. The call side is correct; this fails if a regeneration
+   * reintroduces the event side's shape. (Unlike `generated-known-gaps.spec.ts`,
+   * this pins a disagreement we decline to ship.)
    */
   it('describes the same object as the call side', () => {
     expectTypeOf<

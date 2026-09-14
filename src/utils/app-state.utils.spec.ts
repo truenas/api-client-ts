@@ -27,20 +27,10 @@ function versionsDeclaringContainerStates(): string[] {
 }
 
 /**
- * The union of the container state vocabulary across every generated version,
- * across *both* renders.
- *
- * Reading `ContainerStatusState` alone missed half the surface. pydantic renders
- * a model differently for validation and serialization, and the generator
- * splits the two whenever they differ — so the vocabulary can widen in one and
- * not the other. The `Input` render is not the obscure half either: it is what
- * event payloads carry (`container.query` -> `ContainerAddedEvent.fields` ->
- * `ContainerEntryInput` -> `ContainerStatusInput`), and `toAppState` is fed from
- * events as well as calls. A state that appeared only there would fold to
- * `Unknown` with this test still green.
- *
- * Matched on prefix rather than the two names, so a third render — or a rename
- * of the suffix — is picked up rather than silently halving the check again.
+ * The container state vocabulary across every generated version and every
+ * render. The `Input` (validation) render can widen independently and is what
+ * event payloads carry, which `toAppState` is also fed from; matching on prefix
+ * covers it and any later render.
  */
 function containerStates(): string[] {
   const all = Object.entries(generated)
@@ -145,27 +135,13 @@ describe('toAppState', () => {
   });
 
   /**
-   * Every state either version declares has to land somewhere deliberate. The
-   * check is that none of them reaches `default`, which is the arm that cannot
-   * distinguish "middleware said UNKNOWN" from "this mapping was not updated".
+   * No declared state may reach `default`, which cannot tell "middleware said
+   * UNKNOWN" from "this mapping was not updated".
    *
-   * The container half is read off the generated consts rather than retyped, so
-   * the regeneration that adds the next `SUSPENDED` turns this red instead of
-   * leaving a stale list passing. A hand-written list is exactly what this test
-   * exists to stop being relied on.
-   *
-   * Read from *every* generated version, not from v26. A type is declared in
-   * the version where its shape changed — which is why this PR re-declares
-   * `AppEntry` at v27 while v26 keeps the older one — so the next widening of
-   * `ContainerStatusState` will declare a new const in the version that widens
-   * it and leave `v26_0_0`'s at three members. Importing v26's alone would keep
-   * returning `RUNNING | STOPPED | SUSPENDED` forever, and the new state would
-   * fold to `Unknown` unnoticed: the exact failure this test exists to catch,
-   * reintroduced one version later.
-   *
-   * The v25.10 half has to stay literal: `VirtInstanceEntry.status` is an
-   * inline union with no runtime value to read. It is also in the frozen tree,
-   * so unlike the container half it cannot move underneath this list.
+   * Container states come from every generated version's consts, not v26's
+   * alone: a widening declares a new const in the version that widens it. The
+   * v25.10 half stays literal because `VirtInstanceEntry.status` is an inline
+   * union with no runtime value.
    */
   it('map every state either version declares without falling through', () => {
     const declared = [

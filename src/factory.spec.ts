@@ -722,20 +722,11 @@ describe('createTrueNasClient', () => {
     });
 
     /**
-     * These pin a coupling that is otherwise invisible from the call site.
-     *
-     * The CORS fallback in `createTrueNasClient` asks "is the *one selected*
-     * failure a network error?", not "did *any* hostname report a network
-     * error?". So membership of `selectRepresentativeFailure`'s top tier
-     * doubles as the fallback's off switch: any failure list holding both a
-     * tier-1 error and a `VersionDiscoveryNetworkError` skips the fallback and
-     * rejects instead of connecting to the CORS-blocked v25.10.0 box.
-     *
-     * That is the intended trade-off — a version verdict or a 404 says more
-     * than an unreachable host — but the fallback is load-bearing until
-     * MIN_SUPPORTED_VERSION > v25.10.0, and nothing else here fails when the
-     * tier moves. Adding an error type to `isVersionError` narrows the
-     * fallback; these tests are what make that narrowing loud.
+     * The CORS fallback fires only when the *selected* failure is a network
+     * error, so each tier-1 type in `selectRepresentativeFailure` also switches
+     * the fallback off when mixed with one. Intended — a version verdict or 404
+     * says more than an unreachable host — but these tests make widening that
+     * tier loud while the fallback is load-bearing.
      */
     describe('tier-1 errors suppress the CORS fallback (deliberate)', () => {
       /**

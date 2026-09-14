@@ -52,23 +52,13 @@ export interface FakeClientOptions<V extends SupportedApiVersion> {
 }
 
 /**
- * Substitutes the fakes into a concrete client class.
+ * Substitutes the fakes into a concrete client class. A mixin over a type
+ * parameter so the concrete class comes through as itself (see
+ * `FakeableClientConstructor`).
  *
- * Written as a mixin over a type parameter rather than `class extends Base`
- * directly: `clientClassFor` is typed as returning the abstract base, and
- * extending that expression asks TypeScript to implement `createOperations`
- * here — a second copy of the operations the version's own class already has.
- * Through a constrained type parameter the concrete class comes through as
- * itself, which is what every value in that map actually is.
- *
- * The fakes are built inside the hooks rather than assigned as fields: the base
- * constructor calls them, and a subclass field is not assigned until after
- * `super()` returns.
- *
- * `declare` narrows the two properties to the fakes without emitting an
- * assignment that would clobber what the base constructor put there. It is
- * sound rather than a cast, because the fakes really are subclasses of what the
- * base declares — which is the whole reason they are written that way.
+ * The fakes are built in the hooks, not as fields: the base constructor calls
+ * the hooks before subclass fields are assigned. `declare` narrows the
+ * properties without emitting an assignment that would clobber them.
  */
 function withFakeCollaborators<T extends FakeableClientConstructor>(
   Base: T,
@@ -94,31 +84,15 @@ function withFakeCollaborators<T extends FakeableClientConstructor>(
 }
 
 /**
- * A real `TrueNasApiClient` with no socket and no version discovery.
- *
- * The client, its `TrueNasApi` and its operations are the production classes:
- * only the connection and the authenticator are substituted, through the
- * `createConnection` / `createAuthenticator` hooks the base class already
- * exposes. So a spec written against this exercises the real dispatch, the
- * real job correlation and the real subscription bookkeeping — the machinery a
- * hand-written double reimplements and then drifts from.
+ * A real `TrueNasApiClient` with no socket or version discovery: only the
+ * connection and authenticator are fakes, so the real dispatch runs.
  *
  * ```typescript
  * const client = createFakeClient({ version: 'v27.0.0' });
- *
  * client.mock.call('system.info', { hostname: 'truenas.local' });
  * client.api.call('system.info').subscribe(info => …);
- * ```
  *
- * Or drive the frames directly, which is what `mock` does underneath. On a
- * client with nothing scripted for the method — a `mock.call` still registered
- * would answer first, and the reply below would then arrive after the caller
- * had already seen its answer:
- *
- * ```typescript
- * const client = createFakeClient({ version: 'v27.0.0' });
- *
- * client.api.call('system.info').subscribe(info => …);
+ * // Instead of `mock.call`, a spec can answer the sent frame by hand:
  * client.connection.reply('system.info', { hostname: 'truenas.local' });
  * ```
  */

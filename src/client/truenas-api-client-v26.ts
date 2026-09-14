@@ -21,20 +21,14 @@ import { toSmbStatusParams } from '@/utils/smb-status.utils';
 import { toAppState } from '@/utils/app-state.utils';
 
 /**
- * API client for TrueNAS API v26
+ * API client for TrueNAS API v26 (JSON-RPC 2.0 over /api/v26.{minor}.{patch}).
  *
- * Protocol: JSON-RPC 2.0
- * WebSocket Path: /api/v26.{minor}.{patch}
- *
- * Container operations use native container.* APIs:
  * - containerQuery → container.query (with response transformation)
  * - containerStart → container.start (synchronous, emits null)
  * - containerStop → container.stop (emits Job updates)
  * - containerRestart → container.stop + container.start (emits Job, then null)
- * - containerDelete → container.delete (a job since v26.0.0; force/recursive)
- *
- * SMB operations:
- * - smbStatus → smb.status, public here and gated on `SHARING_SMB_READ`
+ * - containerDelete → container.delete (a job; force/recursive)
+ * - smbStatus → smb.status (public, gated on `SHARING_SMB_READ`)
  */
 export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
   /**
@@ -97,21 +91,9 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
           );
       },
 
-      // A job since v26.0.0 — middleware made deletion long-running (it stops
-      // the container when asked, tears down the libvirt domain and destroys
-      // the dataset), and the generated directory moved it out of `call`
-      // accordingly. `api.job` is what tracks it; `api.call` would not compile.
-      //
-      // Options pass straight through when given: the unified
-      // `ContainerDeleteOptions` is `force`/`recursive`, exactly what the
-      // generated params take.
-      //
-      // When they are not given the argument is *omitted* rather than passed as
-      // `undefined`. `JSON.stringify` renders a trailing `undefined` array
-      // element as `null`, and middleware declares `options: ContainerDeleteOptions`
-      // with a model default and no `| None` — so `[id, null]` is a validation
-      // error rather than "use the defaults", which is the one thing a caller
-      // passing nothing is asking for.
+      // Absent options are omitted, not passed as `undefined`: that serializes
+      // as `null`, and middleware's `options` has a default but is not
+      // nullable, so `[id, null]` fails validation.
       containerDelete: (id, options) =>
         this.api.job(
           'container.delete',

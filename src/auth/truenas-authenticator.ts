@@ -78,20 +78,13 @@ export class TrueNasAuthenticator {
 
   /**
    * Caller-issued logins still awaiting an answer, keyed by the epoch each
-   * claimed. The value is whether its frame has been written to a socket yet.
+   * claimed; the value is whether its frame has been written to a socket yet.
    *
-   * The auto-relogin below defers while any entry exists. It is this class
-   * retrying a cached credential, not a request anyone made, so it must never
-   * outrank an explicit login — and it would: `TrueNasConnection.send` holds a
-   * frame through an outage rather than dropping it, so a login submitted while
-   * the socket is down is still pending when `opened` fires, and a relogin
-   * claiming the newer epoch has that login answered `LoginSuperseded` while the
-   * client authenticates as the previously cached account.
-   *
-   * Keyed rather than counted, because a count cannot say *which* login a
-   * removal belongs to: a login torn down by its caller would retire a slot
-   * belonging to a different login that is still waiting, and the retry would
-   * overtake it again. Identity also makes a double-subscribed login harmless.
+   * Auto-relogin defers while any entry exists: `TrueNasConnection.send` holds
+   * frames through an outage, so a login sent while the socket is down is still
+   * pending when `opened` fires, and a relogin claiming a newer epoch would
+   * supersede it with the cached account. Keyed rather than counted so a login
+   * torn down by its caller cannot retire another login's slot.
    */
   private liveCallerLogins = new Map<number, boolean>();
 
@@ -350,23 +343,12 @@ export class TrueNasAuthenticator {
   }
 
   /**
-   * Re-authenticate with a token from a previous login's `reconnect_token`.
+   * Re-authenticate with a token from a previous login's `reconnect_token`,
+   * e.g. to open another connection without asking for the password again.
    *
-   * This is what lets a second connection to the same appliance authenticate
-   * without asking the user for a password again — middleware sessions are
-   * per-connection, so a second socket has its own to establish.
-   *
-   * The token is single-use and short-lived. On v26+ a successful login mints
-   * another on the response, so a caller keeping a session alive across
-   * reconnects stores the newest each time; below v26 nothing is minted and
-   * there is no chain to keep.
-   *
-   * Re-login is the caller's to drive. A token session is not covered by the
-   * automatic reconnect this class does for password and api-key sessions,
-   * which is deliberate — the token is single-use — but it means a dropped
-   * socket needs the stored token spending explicitly. Middleware holds tokens
-   * in memory, so a `middlewared` restart voids them, and that is a common
-   * reason the socket dropped in the first place.
+   * Tokens are single-use, short-lived, and voided by a `middlewared` restart.
+   * On v26+ each successful login mints a new one; store the newest. Token
+   * sessions are not re-logged automatically on reconnect — the caller must.
    */
   loginWithToken(token: string) {
     const { sentDuring, callerInitiated } = this.beginLogin();
@@ -516,20 +498,11 @@ export class TrueNasAuthenticator {
   }
 
   logout() {
-    // All of it here, at the call, rather than when the answer comes back — and
-    // unconditionally, whatever the server says.
-    //
-    // `credentials`: auto-relogin consults nothing else, so leaving them set
-    // re-authenticates a session the caller just refused on the next `opened`.
-    //
-    // `authenticated$`: the answer used to set it, as `next(!success)`, which
-    // could only ever be wrong. It *raised* the flag on a failed logout — so a
-    // logout with no session behind it reported the client as authenticated —
-    // and it landed late, after any login issued in the meantime had already
-    // settled. Whether the server tore its session down is a separate question
-    // from whether this client still holds one, and this flag answers the
-    // second: the caller asked to be logged out, and now is, whatever the
-    // appliance did with its own state.
+    // Settled here, unconditionally, not when the answer arrives (which could
+    // land after a login issued meanwhile). Auto-relogin consults only
+    // `credentials`, so leaving them set would re-authenticate on the next
+    // `opened`. `authenticated$` says whether this client holds a session, and
+    // it no longer does, whatever the server did with its own.
     this.credentials = { username: '', password: '', key: '' };
     this.sessionLifetime = TrueNasAuthenticator.DefaultSessionLifetime;
     this.authEpoch += 1;

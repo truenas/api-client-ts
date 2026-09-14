@@ -112,12 +112,11 @@ discovery's `fetch` follows the redirect and looks fine, while the socket opens
 `ws://`, meets the same redirect, and fails the handshake without naming the
 scheme.
 
-Omitting it against a plaintext appliance fails the other way, and more quietly.
-Discovery tries `https://`, `fetch` rejects, and the factory cannot tell that
-apart from the CORS block that v25.10.0 has on `/api/versions` — so it takes the
-fallback and hands back a client pinned to `v25.10.0` on `/api/v25.10.0`, with
-only a `logger.warn` to say so. Against a v26 or v27 box that is a wrong-version
-client that looks configured. If the appliance is plaintext, say so.
+Omitting it against a plaintext appliance fails the other way. Discovery tries
+`https://` and `fetch` rejects just as it does for v25.10.0's CORS block on
+`/api/versions`; the reachability probe runs on the same scheme and fails too,
+so the factory rejects with `VersionDiscoveryNetworkError`, which does not name
+the scheme. If the appliance is plaintext, say so.
 
 Narrow rather than cast: `location.protocol` is a `string`, and it is genuinely
 `file:` for a locally-opened page or `chrome-extension:` in an extension. Both

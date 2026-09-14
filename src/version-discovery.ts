@@ -71,23 +71,13 @@ function hasErrorName(error: unknown, expected: string): boolean {
 }
 
 /**
- * Discovers available API versions from TrueNAS systems.
+ * Discovers the API version via `GET /api/versions`: picks the latest version in
+ * the MIN/MAX range, caches per hostname, and classifies failures into typed
+ * {@link VersionDiscoveryError} subclasses.
  *
- * Performs a `fetch` GET to the `/api/versions` endpoint and:
- * - Parses version strings
- * - Filters to compatible versions (within MIN/MAX range)
- * - Selects the latest compatible version
- * - Caches results per hostname
- * - Classifies failures into typed {@link VersionDiscoveryError} subclasses
- *
- * This is the framework-agnostic replacement for the app's Angular `HttpClient`
- * service. Because `fetch` resolves (rather than rejects) on non-2xx responses and
- * throws a `TypeError` on network/CORS/unreachable failures, the error contract
- * differs from the original: a network/CORS/unreachable failure surfaces as a
- * {@link VersionDiscoveryNetworkError} (replacing the old
- * `HttpErrorResponse.status === 0` check). That error names a symptom with
- * several causes, so it opens the client factory's disambiguation rather than
- * deciding it — see {@link VersionDiscovery.probeReachable}.
+ * `fetch` reports CORS, unreachable and wrong-scheme failures identically, so a
+ * {@link VersionDiscoveryNetworkError} opens the factory's disambiguation rather
+ * than deciding it — see {@link VersionDiscovery.probeReachable}.
  */
 export class VersionDiscovery {
   private versionCache = new Map<string, Observable<ApiVersion>>();

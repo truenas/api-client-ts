@@ -2,28 +2,11 @@ import { AppState } from '@/types/app-query.type';
 
 /**
  * Narrow a middleware instance/container state to the {@link AppState} the
- * unified `Container` promises.
+ * unified `Container` promises. Shared so v25.10's `virt.instance` states and
+ * v26+'s `container` states cannot be mapped inconsistently.
  *
- * The two versions report different vocabularies — v25.10's `virt.instance`
- * has ten states (`FROZEN`, `ABORTING`, `THAWED`, …), v26's `container` has
- * three (`RUNNING`, `STOPPED`, `SUSPENDED`) — so this is shared, and the
- * versions cannot disagree about the mapping.
- *
- * Every state either maps to something that means what it says or to
- * `Unknown`. It previously folded everything unrecognised into `Stopped`,
- * on the reasoning that claiming a frozen or erroring container is running is
- * the failure worth avoiding. That is true, but `Stopped` is not the neutral
- * answer it was taken for: it is a positive claim that the container is at
- * rest, which is what a UI reads before offering a Start button and what a
- * poll loop reads before giving up. `Unknown` avoids the false claim in both
- * directions.
- *
- * The three states this used to lose outright are the reason `AppState` was
- * widened. `SUSPENDED` is the one with teeth: v26 added it and middleware
- * means paused-with-state-retained by it
- * (`plugins/container/attachments.py` — "don't discard the paused state just
- * to restart the container"), so reporting it as `Stopped` describes a
- * container that is holding memory as one that is not running at all.
+ * Anything unrecognised is `Unknown`, never `Stopped`: `Stopped` claims the
+ * container is at rest, which a UI or poll loop acts on.
  */
 export function toAppState(state: string): AppState {
   switch (state.toUpperCase()) {

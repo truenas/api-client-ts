@@ -11,18 +11,10 @@ const analyzerPath = (): string =>
   resolver.resolve('@semantic-release/commit-analyzer');
 
 /**
- * A squash merge turns the PR title into the commit subject, so two separate
- * regexes see it: the gate decides whether the PR may merge, and
- * parserOpts.headerPattern in .releaserc.json decides what gets released. When
- * they disagree the failure is silent — the PR merges and semantic-release
- * publishes nothing — so this asserts they stay in lockstep.
- *
- * The gate itself now lives in iXsystems/ux-github-workflows, so the closest
- * this repo can get is the copy of the pattern documented in the header of
- * .github/workflows/pr-title.yml. That covers the half of the contract that is
- * local — .releaserc.json drifting from what the workflow says the gate is —
- * and not the half that isn't: the shared repo changing its pattern without
- * anyone updating that comment. Nothing here can catch that.
+ * The PR-title gate and parserOpts.headerPattern in .releaserc.json both parse
+ * the squash-merge subject; if they disagree, the PR merges and nothing
+ * releases. The gate lives in iXsystems/ux-github-workflows, so this checks
+ * against the copy in .github/workflows/pr-title.yml, which can itself go stale.
  */
 
 const repoFile = async (path: string): Promise<string> =>
@@ -164,23 +156,10 @@ describe('PR title gate and semantic-release header pattern', () => {
   });
 
   /**
-   * The parsing tests above prove a trailing `!` is *recognised* as breaking.
-   * They say nothing about what that produces, and the two are independent:
-   * `releaseRules` decides the release type, and a rule matching on `type`
-   * alone will happily cap a breaking change at `patch`.
-   *
-   * That gap was not hypothetical. The config carried
-   * `{ breaking: true, release: 'minor' }`, so a breaking change would have
-   * shipped as a minor on a package already published at 1.x.
-   *
-   * Deleting the rule does not help either. `analyzeCommit` returns the highest
-   * matching rule, not the first, and the preset's defaults are consulted only
-   * when *no* custom rule matched at all — so `{ type: 'feat' }` matching is
-   * itself what suppresses the fallback, leaving `feat!:` at `patch`. A
-   * `chore!:`, matching no custom rule, still reaches the preset's
-   * `{ breaking: true, release: 'major' }` and comes out right by accident.
-   * The mapping has to be asserted for the types we override, not inferred
-   * from the fact that the `!` parses.
+   * Parsing `!` says nothing about the release type; `releaseRules` decides.
+   * Preset defaults apply only when no custom rule matched, so a matching
+   * `{ type: 'feat' }` rule suppresses the preset's breaking->major fallback.
+   * Types we override must be asserted; `chore!:` is right only by accident.
    */
   it('release a breaking change as major, whatever its type', async () => {
     expect(await releaseFor('feat!: drop v25.04 support')).toBe('major');

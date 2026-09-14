@@ -1,20 +1,7 @@
 /**
- * Assertions mirroring the README's usage examples.
- *
- * These are hand-maintained copies, not extracted from `README.md` — so they
- * catch the client drifting out from under the documented usage, which is the
- * common direction, and they do NOT catch someone editing a README snippet
- * into something that would not compile. Extracting the fenced blocks and
- * typechecking them would close that gap and is the honest next step; until
- * then this guarantees the shape of the API the README describes still exists,
- * not that the README says it correctly.
- *
- * Type-level only. The `it` bodies exist so the file is picked up by
- * `tsconfig.spec.json`; nothing here opens a socket.
- *
- * The README's `ops.smbStatus` snippets are mirrored in
- * `client/smb-status-ops.spec.ts` rather than here, next to the runtime tests
- * for the same operation.
+ * Type-level copies of the README's usage examples. Hand-maintained, so they
+ * catch the API drifting from the docs but not a README snippet that no longer
+ * compiles. `ops.smbStatus` snippets live in `client/smb-status-ops.spec.ts`.
  */
 import type { Observable } from 'rxjs';
 import { describe, expectTypeOf, it } from 'vitest';

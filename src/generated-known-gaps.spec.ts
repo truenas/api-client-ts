@@ -1,45 +1,13 @@
 /**
- * The gap this PR knowingly ships, pinned so it cannot be forgotten.
+ * A known gap we ship: `app.query`'s call side (`AppEntry`) is narrower than
+ * its event side (`AppEntryInput`, which has `ERROR`, `error_reason` and a
+ * nullable `version`). The event side matches the appliance.
  *
- * `app.query` is described two ways inside one version. The call side takes and
- * returns `AppEntry`; the event payload resolves to `AppEntryInput`. Those two
- * disagree about the same object — `AppEntryInput` carries the `ERROR` state,
- * `error_reason` and a nullable `version`, and `AppEntry` carries none of them —
- * so a caller reading `entry.version` is typed non-null for a field the same
- * object delivers as `null` over the event, and `e.fields.state === 'ERROR'`
- * compiles while `entry.state === 'ERROR'` does not, for a state the appliance
- * reports. The event payload is the side that describes the appliance
- * correctly; the call side is the one that is narrow.
- *
- * These assertions describe what is wrong today, so **they fail when the gap is
- * fixed**. That is the point: nothing else in the repo would notice it closing.
- * `ci.yml` neither regenerates nor diffs the tree, and the drift check in
- * `generate.mts` compares dump to dump, so it stays quiet when only the
- * generator has moved.
- *
- * This file was deleted once, in TNC-2283, on the reading that the gap had
- * closed. It had not — it moved. That regeneration unfroze v25.10, so the
- * corrected input render was written into `v25_10_0/` and the v27 assertions
- * started failing — which is what was read as the gap closing, since this file
- * is written to fail when it does. But the *disagreement* travelled with it,
- * because `AppEntryInput` and `AppEntry` are both homed at the chain root now
- * and still describe the same object differently. Deleting the file recorded a
- * fix that had not happened.
- *
- * **Two versions carry it, and only one of them is frozen.** `v25_10_0` is
- * hand-maintained, so the gap there closes only by deliberate work. `v26_0_0`
- * declares its own narrow `AppEntry` and does not override `app.query`'s event,
- * so it inherits the root's widened `AppEntryInput` — and that directory is
- * rewritten by any routine `yarn generate:api`. Pinning only the frozen version
- * would have left the reachable one unguarded.
- *
- * `v27_0_0` is not pinned, and that is a finding rather than an omission: its
- * own `AppEntry` already carries `ERROR` and a nullable `version`, so its call
- * and event sides agree. It is what the other two should look like.
- *
- * When one version's block fails, delete that block only. The file goes when
- * the last one does — retiring it earlier would drop the record while a shipped
- * version still disagrees.
+ * These assertions **fail when the gap closes** — nothing else would notice.
+ * When a version's block fails, check its call and event sides now agree
+ * (a regeneration once moved the gap rather than closing it), then delete
+ * that block only. v26 is pinned because `yarn generate:api` rewrites it;
+ * v27 already agrees and is the target shape.
  */
 import { describe, expectTypeOf, it } from 'vitest';
 

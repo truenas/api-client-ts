@@ -65,26 +65,13 @@ const EVENT_KINDS: readonly EventKind[] = ['added', 'changed', 'removed'];
 /**
  * TrueNAS API handler using the JSON-RPC 2.0 protocol.
  *
- * It handles:
- * - JSON-RPC 2.0 request formatting
- * - JSON-RPC 2.0 response parsing (result/error)
- * - Event subscriptions
- * - Job tracking
+ * Each verb only accepts method names from its facet of `D` (call, job, query
+ * or event directory), so reaching a method the declared version lacks is a
+ * build error rather than a runtime one.
  *
- * Every method name it accepts comes from `D`, the generated surface it was
- * parameterised with, and each verb reads the facet that describes it:
- * {@link call} the call directory, {@link job} and {@link callAndGetJobId} the
- * job directory, the query verbs the `entity`-marked subset of the call
- * directory. A name that is not in the relevant facet does not compile, so
- * reaching a method the declared version does not have is a build error rather
- * than a runtime one.
- *
- * {@link events} reads the event directory the same way, with one gap named
- * in {@link EventName}.
- *
- * @typeParam D - the generated API surface this instance is typed against, as
- * a whole: `call`, `job` and `event` together. Defaults to the entries
- * identical in every generated version.
+ * @typeParam D - the generated API surface (`call`, `job` and `event`) this
+ * instance is typed against. Defaults to the entries identical in every
+ * generated version.
  */
 export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   /**
@@ -118,21 +105,16 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   }
 
   /**
-   * Send a request to a method of the surface this instance is typed against,
-   * and emit its result.
+   * Call a method of the typed surface and emit its result.
    *
    * ```typescript
    * api.call('system.info')                      // SystemInfo
    * api.call('pool.dataset.delete', ['tank/ds', { recursive: true }])
    * ```
    *
-   * `params` is required exactly when the method takes them — the directory
-   * says which — so a method that needs an id cannot be called without one.
-   *
-   * The polymorphic `.query` methods are reachable here too, but their
-   * `response` is the five-way union the server may return, which is
-   * {@link query} / {@link queryOne} / {@link queryCount}'s job to resolve.
-   * Reach for a verb instead.
+   * `params` is required exactly when the method takes them. For `.query`
+   * methods prefer {@link query} / {@link queryOne} / {@link queryCount},
+   * which narrow the polymorphic response this returns as-is.
    */
   call<M extends CallMethod<D>>(
     method: M,
@@ -154,25 +136,11 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * are in the shared base every surface extends.
    */
   private dispatch<T>(method: string, params?: unknown): Observable<T> {
-    // Deferred, so the request goes out when the caller subscribes rather than
-    // when they build the observable. Sending from the body meant an
-    // observable built in one turn and subscribed in the next lost its reply
-    // outright — the `withId` filter had no subscriber when it arrived — and
-    // left the caller with a promise that never settles.
-    //
-    // The send and the subscription to `reply` happen in the same synchronous
-    // tick, so no reply can interleave between them. That is the invariant,
-    // not "the listener is attached first": `.pipe()` builds an observable, it
-    // does not subscribe one, and `defer` subscribes only after this factory
-    // returns.
-    //
-    // Sent through `connection.send()` rather than `connection.ws` so a
-    // request made before the socket opens is queued until it does, which is
-    // what the authenticator already does for every frame it sends. Reaching
-    // for `ws` directly meant a client used straight after
-    // `createTrueNasClient` failed with a bare
-    // `Cannot read properties of undefined` naming nothing about the
-    // connection.
+    // Deferred so the request is sent on subscribe, not on build; otherwise a
+    // reply can arrive before anything listens and the caller hangs. The send
+    // and the `reply` subscription happen in the same synchronous tick, so no
+    // reply can slip between them. `connection.send()` rather than `ws`, so a
+    // request made before the socket opens is queued.
     return defer(() => {
       const message = createJsonRpcMessage(method, params);
 
@@ -211,32 +179,13 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * Query a collection and emit the matching entries.
    *
    * ```typescript
-   * api.query('user.query')                              // UserEntry[]
-   * api.query('user.query', [['uid', '>', 1000]])        // UserEntry[]
-   * api.query('user.query', [], { select: ['id', 'username'] })
-   *                                       // Pick<UserEntry, 'id' | 'username'>[]
+   * api.query('user.query', [['uid', '>', 1000]])    // UserEntry[]
+   * api.query('user.query', [], { select: ['id'] })  // Pick<UserEntry, 'id'>[]
    * ```
    *
-   * The precise result type comes from reading the options *literal*. Options
-   * annotated as `QueryListOptions<E>` lose that, and the result degrades to
-   * `Partial<E>[]` — not only when a `select` is present, but whenever the
-   * annotation merely permits one:
-   *
-   * ```typescript
-   * const opts: QueryListOptions<UserEntry> = { limit: 10 };
-   * api.query('user.query', [], opts);          // Partial<UserEntry>[]
-   *
-   * const opts = { limit: 10 } satisfies QueryListOptions<UserEntry>;
-   * api.query('user.query', [], opts);          // UserEntry[]
-   * ```
-   *
-   * That is imprecise, never unsound: `Partial<E>` is a supertype of `E`, so a
-   * field is only ever reported as *possibly* missing, never as present when it
-   * is not. Reach for `satisfies` over an annotation to keep the precision —
-   * the checking is the same, the inferred type is narrower.
-   *
-   * `count` and `get` are rejected: they would change the shape of the
-   * response, which is {@link queryCount} and {@link queryOne}'s job.
+   * The result type is inferred from the options literal; annotating them as
+   * `QueryListOptions<E>` degrades it to `Partial<E>[]`, so prefer `satisfies`.
+   * `count`/`get` are rejected in favour of {@link queryCount} / {@link queryOne}.
    */
   query<
     M extends QueryMethod<D['call']> & string,
@@ -326,22 +275,15 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   }
 
   /**
-   * Start a job and follow it to completion.
-   *
-   * Emits the job's state as it progresses and completes when the job reaches
-   * a terminal state, so `last()` gives the finished job and the intermediate
-   * emissions drive a progress indicator.
+   * Start a job, emit its state as it progresses, and complete when it finishes.
    *
    * ```typescript
    * api.job('pool.dataset.unlock', ['tank/enc', { … }])
    *    .subscribe(job => bar.set(job.progress.percent ?? 0));
    * ```
    *
-   * The result is typed from the job directory, which is the whole reason to
-   * prefer this over {@link callAndGetJobId} plus {@link trackJob}: those two
-   * lose the connection between the method and its result, and the job comes
-   * back with `result: unknown`. It is `R | null` either way — a job that has
-   * not finished has no result, and neither does one that failed.
+   * Unlike {@link callAndGetJobId} plus {@link trackJob}, the result is typed
+   * from the job directory. It stays `null` until the job succeeds.
    */
   job<M extends JobMethod<D>>(
     method: M,
@@ -353,10 +295,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   }
 
   /**
-   * Subscribe to a collection and emit its changes.
-   *
-   * Emits the change itself rather than the transport frame, as a union
-   * discriminated on `msg`:
+   * Subscribe to a collection and emit its changes, discriminated on `msg`.
    *
    * ```typescript
    * api.events('app.query').subscribe(event => {
@@ -365,12 +304,8 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * });
    * ```
    *
-   * The narrowing is load-bearing, not decoration: a `removed` event carries
-   * an `id` and no `fields` in 55 of the 56 collections that declare one, so
-   * reaching `fields` unconditionally is wrong for almost all of them.
-   *
-   * Event *sources* — the entries taking subscribe-time arguments — are not
-   * reachable here; see {@link EventName}.
+   * Narrow before reading `fields`: `removed` events almost never carry it.
+   * Sources taking subscribe-time arguments are excluded; see {@link EventName}.
    */
   events<E extends EventName<D>>(event: E): Observable<EventUnion<D, E>> {
     // One stream per event name, shared. Without this each subscriber ran the

@@ -5,27 +5,10 @@ import type { ApiDumpFile, ApiDumpVersion } from './types.mts';
 /**
  * Digest of one version's slice of a dump, used as the frozen-file baseline.
  *
- * Documentation is excluded. It is not part of the generated output — the
- * preprocessor drops `description` and `examples` at intake
- * (`preprocess.mts`, "the generated output carries no docstring metadata") and
- * the manifest says so in its own header — and middleware backports docstring
- * edits into released version directories routinely. Including it would fire
- * the drift check on changes that provably cannot affect a single emitted byte,
- * and a check that cries wolf is a check that gets re-blessed reflexively.
- *
- * `doc` and `description` are discriminated on type, not key alone:
- * `description` is also a legitimate model *field* name, and dropping those
- * schema nodes would hide a real change. Documentation is always a string; a
- * field named `description` is always an object. `examples` gets the same guard
- * on its own shape — always an array as documentation, always an object as a
- * field schema — because "no model declares one" is the guarantee `description`
- * had until a model did.
- *
- * This used to claim `stripDocs` already made the same distinction. It did not:
- * it dropped `description` by key at every node, so the field was gone from the
- * emitted output before this digest ever saw it and the guard here protected
- * nothing. `stripDocs` now discriminates the same way, which is what makes the
- * two halves agree.
+ * Documentation is excluded: it never reaches the output (`stripDocs`) and
+ * middleware backports docstring edits routinely, so it would only cry wolf.
+ * Discriminated on type, matching `stripDocs`, since `description`/`examples`
+ * can also be field names: docs are a string/array, a field is an object.
  */
 export function dumpDigest(value: unknown): string {
   return createHash('sha256')

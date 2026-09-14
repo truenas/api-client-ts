@@ -23,24 +23,11 @@ export interface FakeConnectionOptions {
  * A `TrueNasConnection` that never opens a socket, and that a test drives by
  * hand.
  *
- * It is a real subclass rather than an object cast into shape. That is not
- * ceremony: `TrueNasConnection` has private members, so an object literal is
- * assignable to it only through `as unknown as`, and every fake in this repo
- * and in webui pays that cast today. A subclass is assignable because it *is*
- * one, which is what lets the real `TrueNasApi` and the real clients run on it
- * unmodified — the point of the exercise, since a fake that only satisfies a
- * hand-written interface tests the interface.
- *
- * What it reimplements, it reimplements to match: `send` queues while closed
- * and writes on open, dropping a frame whose caller unsubscribed, because that
- * is what the real one does on `ws$`, and a double that records regardless of
- * `opened` is the divergence this exists to remove. Everything else is
- * inherited and inert — the connection is constructed disabled, so it never
- * reaches its socket factory.
- *
- * One inherited thing is not inert: the base constructor's 20-second ping
- * interval is subscribed. It never sends, because it fires only when `ws$`
- * yields a socket and none ever arrives, but the timer exists until `close()`.
+ * A real subclass, so the real `TrueNasApi` and clients run on it without an
+ * `as unknown as` cast. `send` matches the real one: it queues while closed,
+ * writes on open, and drops frames whose caller unsubscribed. The rest is
+ * inherited and inert, except the base 20-second ping timer, which never sends
+ * but lives until `close()`.
  */
 export class FakeConnection extends TrueNasConnection {
   private readonly incoming = new Subject<TrueNasMessage>();

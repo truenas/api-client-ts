@@ -316,18 +316,10 @@ describe('mock answers', () => {
   });
 
   /**
-   * Every query verb is a one-shot RPC: nobody is subscribed to the job's
-   * events behind one. Releasing the walk to it sends every remaining update
-   * to an empty room and leaves the cursor at the end, so the `trackJob` that
-   * follows reports the terminal state alone — the same silent truncation a
-   * second start used to cause, reached through a read.
-   *
-   * All three verbs, because each sends a different options object and the
-   * first version of the gate asked the wrong question about it: `queryCount`
-   * sends `{ count: true }`, `queryOne` `{ get: true }`, and `query` a bare
-   * `{}` — which sets no shape switch and so passed a gate written as "no
-   * switch set". What marks a tracker is that `trackJob` sends no options
-   * element at all.
+   * A query read has nobody on the job's events, so releasing the walk to it
+   * would leave a later `trackJob` only the terminal state. All three verbs,
+   * because each sends a different options object — `query`'s bare `{}`
+   * included — while `trackJob` sends none.
    */
   it.each([
     ['count', (c: FakeTrueNasClient<ApiDirectoryV27_0_0>, id: number) =>

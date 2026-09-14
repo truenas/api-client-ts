@@ -26,23 +26,11 @@ const version = (methods: ApiDumpMethod[], events: ApiDumpVersion['events'] = []
 
 describe('preprocess', () => {
   /**
-   * A titled inline enum is hoisted into `$defs` under its title, so one title
-   * can name several distinct shapes across documents. Names are then assigned
-   * in two passes: the first names a mode that has exactly one variant, the
-   * second gives origin-qualified names where a mode has several.
-   *
-   * The two collided. A title with several *output* variants and exactly one
-   * *input* variant had its input name assigned by the first pass and then
-   * discarded by the second, which replaced the whole record rather than adding
-   * to it. Input references then fell back to the bare title — which, depending
-   * on what else claimed it, either names nothing (a hard failure downstream) or
-   * silently names the *other* shape, so a request would be typed with the
-   * wrong enum.
-   *
-   * Reached once a dump carries a second output shape under an existing title,
-   * which is what `--dump-api` describing previously free-form objects produces.
-   * Asserted on the resolved shape rather than the chosen name: the point is
-   * that the input reference still reaches its own enum.
+   * Naming runs in two passes (single-variant modes, then origin-qualified
+   * multi-variant ones). With several output variants and one input variant,
+   * the second pass used to discard the input name, so input references fell
+   * back to the bare title and could silently resolve to the other enum.
+   * Asserted on the resolved shape, not the chosen name.
    */
   it('keeps the input name when a title has several output variants', () => {
     const zfsSource: Schema = {
