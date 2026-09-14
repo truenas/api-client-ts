@@ -98,21 +98,11 @@ export type JobResult<
 /**
  * The events a surface can be subscribed to by name alone.
  *
- * Deliberately not every key of the event directory. A few entries are *event
- * sources* rather than collections — five in the shared base
- * (`app.container_log_follow`, `app.stats`, `container.metrics`,
- * `filesystem.file_tail_follow`, `reporting.realtime`), plus
- * `virt.instance.metrics` on v25.10 — and the directory marks them by giving
- * them a `subscriptionParams` model. They take arguments at subscribe time,
- * and how those arguments travel is not something the dump records:
- * `core.subscribe` is declared as `params: [event: string]`, one string, with
- * no documented encoding for the rest.
- *
- * So they are excluded rather than typed on a guess. Subscribing to one today
- * sends its name with the arguments dropped, which is not a subscription the
- * server can honour; a compile error naming the gap is more use than a stream
- * that stays silent. Widen this once the encoding is confirmed against a live
- * appliance — `yarn live-check` is the tool for that.
+ * Excludes *event sources* (entries with a `subscriptionParams` model, e.g.
+ * `app.stats`, `reporting.realtime`). They take subscribe-time arguments whose
+ * encoding the dump does not record (`core.subscribe` takes one string), so
+ * subscribing by name alone would give a silent stream. Widen this once the
+ * encoding is confirmed against a live appliance (`yarn live-check`).
  */
 export type EventName<D extends ApiDirectoryShape> = {
   [E in keyof D['event']]: 'subscriptionParams' extends keyof D['event'][E]

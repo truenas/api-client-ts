@@ -17,20 +17,13 @@ function present<T extends object>(value: T): Partial<T> {
 }
 
 /**
- * A complete `Job`, so a scripted one is the shape a caller actually reads.
+ * A complete `Job`, so a scripted one is the shape a caller actually reads —
+ * a partial fixture cast into place leaves `progress` undefined and breaks
+ * `job.progress.percent`.
  *
- * `Job` has eighteen required fields — `message_ids` is the only optional one.
- * A fixture that supplies three and is cast into place emits an object whose
- * `progress` is `undefined`, and
- * `TrueNasApi.job`'s own example is `bar.set(job.progress.percent ?? 0)`, which
- * then throws. The defaults here are what middleware sends for a job that has
- * been created and not yet done anything, `result: null` included: the
- * appliance sends `null` while a job runs and on failure, and `undefined` is a
- * shape it never produces.
- *
- * `satisfies` rather than a cast, so the literal is checked: a regeneration
- * that adds a required field to the generated job fails here, which is the
- * whole reason to have a builder rather than a cast at every call site.
+ * Defaults are what middleware sends for a job not yet started, including
+ * `result: null`. `satisfies` (not a cast) makes a regeneration that adds a
+ * required field fail here.
  */
 export function fakeJob<R = unknown>(
   overrides: Partial<Omit<Job<R>, 'progress'>> & { progress?: Partial<JobProgress> } = {}

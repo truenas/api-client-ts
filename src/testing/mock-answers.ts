@@ -60,32 +60,15 @@ export interface MockAnswers<D extends ApiDirectoryShape> {
   ): void;
 
   /**
-   * Answer a job method with the updates it should report.
+   * Answer a job method with the updates it should report, in order. Nothing
+   * is synthesised: a sequence with no terminal state never completes.
    *
-   * Three registrations, because starting a job is not a request/response:
-   * `callAndGetJobId` correlates on a `core.get_jobs` event naming the frame it
-   * sent, `trackJob` opens with a `core.get_jobs` snapshot read, and the
-   * progress arrives as further events. A single update is emitted once; a
-   * sequence is emitted in order. Nothing is synthesised — a sequence that
-   * never reaches a terminal state never completes, which is what a hung job
-   * looks like.
+   * Each update is completed by {@link fakeJob} from its defaults, not from the
+   * previous update — progress does not carry and success is not forced to
+   * 100. `arguments` is not filled in from the starting call either, since a
+   * job reached through `trackJob` has no such call.
    *
-   * Each update is completed into a whole `Job` by {@link fakeJob}, so what a
-   * caller reads is the shape the appliance sends rather than the fields the
-   * fixture happened to name — but it is completed from the *defaults*, not
-   * from the update before it. Nothing folds, and a successful job is not
-   * forced to 100: those are middleware's rules, and this replays what it is
-   * told. A spec that wants a percent to carry names it again.
-   *
-   * `arguments` is deliberately not filled in from the call that started the
-   * job. The `autoReply` handler has the frame and could, but a job reached
-   * through `trackJob` has no frame at all — so carrying them would make the
-   * same scripted job report different things depending on how it was read.
-   * A fixture that wants them says so.
-   *
-   * Returns the job's id, which the first update may set: without it a spec
-   * cannot hand a scripted job to `trackJob` or `callAndGetJobId`, the two
-   * verbs this exists to model.
+   * Returns the job's id (the first update may set it), for `trackJob`.
    */
   job<M extends JobMethod<D>>(
     method: M,
@@ -181,18 +164,10 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
   /**
    * Whether this read is the one a tracker opens with.
    *
-   * `trackJob` sends `[[['id', '=', jobId]]]` — the filters and no second
-   * argument at all — and then listens on `jobEvents`. Every query verb sends
-   * one: `query` passes `options ?? {}`, `queryOne` adds `get`, `queryCount`
-   * adds `count`. So the absence of the options element is what marks the
-   * tracker, and asking instead whether the options set a shape switch says
-   * yes to `api.query('core.get_jobs', [['id', '=', id]])`, whose `{}` sets
-   * neither — a one-shot read with nobody on `jobEvents` behind it, which the
-   * walk would then be released to.
-   *
-   * Positive test, not an exclusion: a read this module does not recognise as
-   * a tracker's gets answered from the cursor and leaves the walk alone, which
-   * is the harmless direction.
+   * `trackJob` sends only the filters; every query verb also sends an options
+   * object (`query` sends `{}`). Checking the options for `get`/`count` instead
+   * would mistake a plain `api.query` for a tracker and release the walk to
+   * nobody. Unrecognised reads leave the walk alone, the harmless direction.
    */
   const isTracking = (read: TrueNasMessage): boolean =>
     ((read.params ?? []) as unknown[]).length === 1;
@@ -219,23 +194,12 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
   let fallback: ((frame: TrueNasMessage) => void) | undefined;
 
   /**
-   * What middleware answers a `get` that matched nothing — its frame, not one
-   * shaped like it.
+   * Middleware's exact frame for a `get` that matched nothing — don't invent
+   * friendlier text, or specs end up asserting a message only the fake sends.
    *
-   * `do_get` raises `MatchNotFound`, which is a bare `IndexError`
-   * (`service_exception.py`) with no errno, so `adapt_exception` passes and it
-   * lands in the generic arm of `rpc.py`: `errno.EINVAL`, `errname` from
-   * `get_errname`, `extra` `None`, and `str(error) or repr(error)` — which is
-   * the repr, because a bare `IndexError` stringifies to nothing. Inventing a
-   * friendlier `ENOENT: no results match` here made the fake the only place
-   * that text exists, and the repo's own tests then asserted it.
-   *
-   * Those four fields are the payload, not the frame. `/api/<version>` sends
-   * them inside a JSON-RPC error — `code: -32001`, `message: "Method call
-   * error"`, the payload under `data` — and only the legacy `/websocket`
-   * endpoint puts them at the top level. This sent the legacy shape until the
-   * fixtures work went looking for it, and nothing here noticed, because
-   * `getApiErrorMessage` finds a `reason` at either depth.
+   * `MatchNotFound` is a bare `IndexError`, so `rpc.py`'s generic arm reports
+   * `EINVAL` with its repr as the reason. `/api/<version>` nests that payload
+   * under a JSON-RPC error's `data`; only legacy `/websocket` puts it top-level.
    */
   const notFound = (frame: TrueNasMessage): void => {
     errorTo(frame, {
@@ -257,20 +221,12 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
 
   /**
    * One `core.get_jobs` answer for every scripted job, resolved by the id in
-   * the read's filter.
+   * the read's filter — `autoReply` is last-write-wins per method, so one
+   * registration per job would answer every read with the last job.
    *
-   * `autoReply` is keyed by method and last-write-wins, so a registration per
-   * job would leave the last one answering for all of them — `trackJob(999)`
-   * would resolve with some other job's state and complete, which is worse
-   * than hanging. One dispatcher keyed on the filter answers each read with
-   * the job it asked for.
-   *
-   * A read this module knows nothing about goes to whatever was registered
-   * before it, so `mock.query('core.get_jobs', …)` scripted *first* keeps
-   * working alongside scripted jobs; with nothing behind it, an unknown id
-   * gets `[]`, which is what middleware sends for an id it has reaped. The
-   * other order cannot chain — the later registration would answer a job's own
-   * reads — and is refused rather than allowed to answer wrongly.
+   * Unknown ids fall back to whatever was registered before (so an earlier
+   * `mock.query('core.get_jobs', …)` still works), else `[]`, as middleware
+   * answers a reaped id.
    */
   const installSnapshotAnswer = (): void => {
     if (dispatcher) return;
@@ -295,18 +251,11 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
       const at = position.get(id) ?? 0;
       answerRead(read, sequence[at]);
 
-      // The rest of the walk, once the reader that will see it is subscribed.
-      // The cursor advances *with* each event rather than ahead of them: set
-      // to the end here, a reader arriving before the microtask ran would be
-      // told the job had finished while the tracker that started it had not
-      // yet seen it run.
-      //
-      // Only a tracker's read releases it. A `get` or a `count` is a one-shot
-      // RPC with nobody on `jobEvents` behind it, so replaying into one sends
-      // the walk to an empty room and leaves the cursor at the end — and the
-      // `trackJob` that follows then reports the terminal state alone. That is
-      // the same silent truncation a second start used to cause, reached
-      // through a read instead.
+      // The rest of the walk, once the tracker is subscribed. The cursor
+      // advances with each event, not ahead, so a concurrent reader isn't told
+      // the job finished before the tracker saw it run. Only a tracker's read
+      // releases the walk: a `get`/`count` has nobody on `jobEvents`, and
+      // replaying into it would leave a later `trackJob` only the final state.
       if (!isTracking(read) || at >= sequence.length - 1 || walking.has(id)) return;
       walking.add(id);
       queueMicrotask(() => {
@@ -447,18 +396,9 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
 
       const id = chosen ?? allocateId();
 
-      // Replayed, not simulated. Each update is exactly what the spec gave,
-      // completed by `fakeJob`'s defaults for the fields it did not name — no
-      // folding of one update into the next, no forcing a successful job to
-      // 100. Those are middleware's rules, and modelling them here means
-      // getting middleware's rules right: four review rounds on this one
-      // function found progress folding, the forced 100, the description it
-      // keeps and the cursor that raced its own events, every one a claim
-      // about the appliance rather than about the client. The proposal put
-      // simulating middleware semantics under non-goals for that reason, and
-      // this is the function that drifted across it.
-      //
-      // A spec that wants a percent to carry says so in the next update.
+      // Replayed, not simulated: no folding updates together or forcing success
+      // to 100. Those are middleware's rules, and modelling them makes claims
+      // about the appliance rather than testing the client.
       const sequence = given.map(
         update => fakeJob({ method: String(method), ...update, id }) as Job
       );
@@ -467,20 +407,11 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
       installSnapshotAnswer();
 
       connection.autoReply(String(method), frame => {
-        // A start gets a walk nobody has begun. Starting the method twice is
-        // two jobs on an appliance — a new id, a new walk — and answering the
-        // second with the first job's id hands `trackJob` a cursor already at
-        // the end, so the retry reports its terminal state and nothing else.
-        // Silently, which is the worst of the three things this could do: the
-        // spec sees a job that completed, just not the walk it scripted.
-        //
-        // The registered id is the one the first start runs under, because
-        // that is the id `mock.job` returned and the id a spec reaches the
-        // started job by. It is reusable only while nothing has touched its
-        // walk — not started (`started`), not already reported past its first
-        // update (`position`), not mid-replay (`walking`). A read through
-        // `trackJob` alone consumes the walk without starting anything, so
-        // `started` is not enough on its own.
+        // Each start is a new job with an untouched walk; reusing a consumed
+        // one would silently report only the terminal state. The first start
+        // keeps the id `mock.job` returned, unless its walk was already
+        // started, reported past (a `trackJob` read alone does that) or is
+        // mid-replay.
         const fresh = started.has(id) || position.has(id) || walking.has(id);
         const runId = fresh ? allocateId() : id;
         started.add(runId);

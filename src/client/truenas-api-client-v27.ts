@@ -1,25 +1,13 @@
 /**
  * TrueNAS API Client for v27.X.Y
  *
- * Handles all v27 versions (v27.0.0, v27.0.1, v27.1.2, etc.). Minor and patch
- * releases within a year are backward compatible, so one implementation covers
- * the series; breaking changes only arrive with the next year.
+ * Handles the whole v27 series; breaking changes only arrive with v28.
  *
- * That is what this class supports. What version *discovery* currently admits
- * is narrower: `MAX_SUPPORTED_VERSION` is a concrete version and the range check
- * compares patches, so today only `v27.0.0` clears it — `v27.0.1` and `v27.1.0`
- * are reported too-new and never reach this client. The effect always falls on
- * the newest series and nothing below it, which is why it has gone unnoticed:
- * raising the ceiling to v27.0.0 is what made v26.0.1 admissible in the first
- * place. Closing it means deciding how the ceiling should treat a series rather
- * than a version, which is a change to the compatibility model and not this
- * client's to make.
+ * Discovery admits less: `MAX_SUPPORTED_VERSION` is compared down to the patch,
+ * so v27.0.1 and v27.1.0 are reported too new and never reach this client.
  *
- * To add version-specific behavior, override the factory methods:
- * - createConnection() - for connection-specific changes
- * - createApi() - for API method changes
- * - createAuthenticator() - for authentication changes
- * - createOperations() - for version-specific operation mappings
+ * To add version-specific behavior, override createConnection(), createApi(),
+ * createAuthenticator() or createOperations().
  */
 
 import { concat, from, map, switchMap, toArray } from 'rxjs';
@@ -31,48 +19,12 @@ import { toSmbStatusParams } from '@/utils/smb-status.utils';
 import { toAppState } from '@/utils/app-state.utils';
 
 /**
- * API client for TrueNAS API v27
+ * API client for TrueNAS API v27 (JSON-RPC 2.0 over /api/v27.{minor}.{patch}).
  *
- * Protocol: JSON-RPC 2.0
- * WebSocket Path: /api/v27.{minor}.{patch}
- *
- * Container operations use the native container.* APIs, as v26 does:
- * - containerQuery → container.query (with response transformation)
- * - containerStart → container.start (synchronous, emits null)
- * - containerStop → container.stop (emits Job updates)
- * - containerRestart → container.stop + container.start (emits Job, then null)
- * - containerDelete → container.delete (a job since v26.0.0; force/recursive)
- *
- * SMB operations:
- * - smbStatus → smb.status, public and gated on `SHARING_SMB_READ`, as v26.
- *   v27 inherits the entry rather than re-declaring it.
- *
- * All five container operations are currently identical to v26's, because v27
- * inherits the container entries the facade touches rather than re-declaring
- * them. Five operations, four entries — `containerRestart` has none of its own,
- * being `container.stop` then `container.start`. Asserted rather than assumed,
- * and re-runnable: the spec pins all four entries — `container.query`,
- * `.start`, `.stop`, `.delete` — against v26's, so the day they diverge is a
- * failure there.
- *
- * `smbStatus` is not among them. Its v27 entry is inherited from v26 too, but
- * nothing pins it the way the container entries are pinned. `tsc` is a partial
- * stand-in and worth stating precisely: this leg reads the method out of the
- * directory, so a v27 entry that *narrowed* the arguments or widened the
- * response past `SmbStatusResponse` would stop compiling here. The reverse
- * would not. A widened `info_level` or a narrowed response still compiles, and
- * the operation would go on advertising the stale union. Add an `Identical<>`
- * assertion beside the container ones if that matters.
- *
- * They are written out here rather than shared with v26 because that is what
- * this repo's one-client-per-series design is for: the two are the same today
- * and are expected to diverge — middleware has no `container.restart` yet, and
- * the chained stop+start below is the workaround for its absence. Factoring the
- * bodies into a common base would couple two versions that exist in order to
- * evolve apart, and the coupling would have to be undone by whichever release
- * diverges first. The `@/generated` types are what guard against them drifting
- * silently — though only as far as the paragraph above says: a directory change
- * this code cannot absorb stops compiling here, and one it can absorb does not.
+ * Operations currently match `TrueNasApiClientV26`'s because v27 inherits every
+ * entry they use. The spec pins the four container entries to v26's;
+ * `smb.status` is unpinned, so a widened param or narrowed response would
+ * still compile here. Duplicated rather than shared so the series can diverge.
  */
 export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
   /**
@@ -135,21 +87,7 @@ export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
           );
       },
 
-      // A job since v26.0.0 — middleware made deletion long-running (it stops
-      // the container when asked, tears down the libvirt domain and destroys
-      // the dataset), and the generated directory moved it out of `call`
-      // accordingly. `api.job` is what tracks it; `api.call` would not compile.
-      //
-      // Options pass straight through when given: the unified
-      // `ContainerDeleteOptions` is `force`/`recursive`, exactly what the
-      // generated params take.
-      //
-      // When they are not given the argument is *omitted* rather than passed as
-      // `undefined`. `JSON.stringify` renders a trailing `undefined` array
-      // element as `null`, and middleware declares `options: ContainerDeleteOptions`
-      // with a model default and no `| None` — so `[id, null]` is a validation
-      // error rather than "use the defaults", which is the one thing a caller
-      // passing nothing is asking for.
+      // Absent options are omitted, as in v26: `[id, null]` fails validation.
       containerDelete: (id, options) =>
         this.api.job(
           'container.delete',

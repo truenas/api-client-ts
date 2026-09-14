@@ -6,17 +6,9 @@ import type {
 /**
  * Types for the version-agnostic `ops.smbStatus` operation.
  *
- * `smb.status` is one method with two different standings. On v26+ it is a
- * public, role-gated endpoint (`SHARING_SMB_READ`) and appears in the generated
- * directory. On v25.10 it is declared `private=True`, so `--dump-api` never
- * emitted it and no generated v25.10 type describes it — but the method is
- * there, under the same name, taking the same four positional arguments and
- * returning the same union. These types describe that shared wire contract
- * once, so the operation can present a single shape on every version.
- *
- * They are deliberately *not* re-exports of the generated v26 types. Those
- * describe one version's dump; this describes the contract both versions
- * happen to honour, and the two are only equal for as long as they stay equal.
+ * `smb.status` has the same wire contract on v25.10 (private, so never
+ * generated) and v26+ (public). These describe that contract once, deliberately
+ * not as re-exports of v26's generated types, which track only that version.
  */
 
 /**

@@ -1,43 +1,13 @@
 #!/usr/bin/env node
 /**
- * Generate TypeScript API types from a `middlewared --dump-api --keep-refs`
- * JSON dump.
+ * Generate TypeScript API types from a `middlewared --dump-api --keep-refs` dump.
  *
- * Usage (offline, from a dump file):
- *   yarn generate:api \
- *     --schema dump.json \
- *     --min-version v25.10.0 \
- *     --out scripts/generate-api-interface/generated
- *
- * Usage (fetch a fresh dump via the middleware container — no local setup):
+ *   yarn generate:api --schema dump.json --min-version v25.10.0 --out <dir>
  *   yarn generate:api --fetch docker --min-version v25.10.0
  *
- * Files carrying the FROZEN marker are left untouched (released versions are a
- * record, not an output); everything else in the chain is still generated.
- *
- * `--min-version` generates that version and everything newer, which is how
- * the committed tree is produced: the supported floor is stated once and new
- * middleware releases are picked up by regenerating. `--api-version` selects
- * exact versions (or `all`) instead, for ad-hoc runs — previewing a single
- * version, or narrowing a repro. The two are mutually exclusive.
- *
- * `--fetch docker` pulls the published middleware image (default
- * ghcr.io/truenas/middleware:master) and runs its bundled `middlewared`
- * (`--dump-api --keep-refs`). The bundled copy is a snapshot from image
- * build time (nightly-ish); its package version is logged so every run
- * records what it generated from.
- *
- * To generate from exact code instead — a specific commit, branch, or local
- * changes — pass `--middleware-repo <path>`: the checkout is mounted over
- * the bundled copy and supplies the code, while the image supplies only the
- * dependency environment. With `--fetch`, `--schema` (if given) becomes the
- * cache path the fetched dump is written to.
- *
- * The dump may be either a full `{"versions": [...]}` document or a single
- * version object. `--include` limits generation to method/event name prefixes
- * (comma-separated); omit it to generate the full API surface. With several
- * versions the output is a chain: each type is declared in the version where
- * its shape first appeared and re-exported by later versions.
+ * `--min-version` (committed tree) and `--api-version` (ad-hoc) are exclusive.
+ * `--middleware-repo <path>` mounts a checkout over the image's bundled code;
+ * with `--fetch`, `--schema` becomes the cache path for the fetched dump.
  */
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -318,24 +288,10 @@ try {
 }
 
 /**
- * Marker a released version's files carry once they are no longer an output.
- *
- * A released API cannot change, so its directory is a record. Some of them also
- * hold entries no dump can reproduce — v25.10's `virt.*` namespace was deleted
- * from every version directory in middleware, so regenerating that directory
- * deletes it here rather than restoring it.
- *
- * Checked against what is already on disk rather than against a version number,
- * because the version number would need maintaining and this does not: freeze a
- * version by writing the marker into its files, unfreeze it by removing it.
- *
- * Skipped rather than fatal. The whole chain still has to be generated — later
- * versions are deltas against the frozen one, and the root index enumerates
- * every version — so refusing to run would leave no way to pick up a new
- * release, and narrowing `--min-version` past the frozen version would make the
- * next one the chain root and drop the earlier ones from the package entirely.
- * Skipping is safe precisely because a frozen file does not change: the rest of
- * the tree is generated against the same model it already holds.
+ * Marker for released version files that are a record, not an output (some hold
+ * entries no dump reproduces, e.g. v25.10's `virt.*`). Read from disk, so
+ * freezing needs no version list. Frozen files are skipped, not fatal: later
+ * versions are deltas against them, so the whole chain must still generate.
  */
 const FROZEN_MARKER = 'FROZEN — generated once, then hand-maintained.';
 
@@ -353,19 +309,10 @@ for (const relPath of files.keys()) {
 }
 
 /**
- * A frozen file is skipped on the premise that the dump still describes its
- * version the same way — later versions are deltas against the freshly
- * generated model, while the emitted code references the file on disk, and
- * nothing else compares the two. Middleware does backport into released version
- * directories, so the premise is not guaranteed.
- *
- * Keyed on a hash of the dump's slice for that version, not on the emitted
- * content: the emitted content also moves whenever the generator moves, which
- * would report every emitter change as "the dump changed" and, worse, make the
- * re-seed silently re-bless whatever the dump happened to say at that moment.
- * The dump slice isolates the thing actually being assumed — which is why the
- * digests are taken off the parsed dump before generation touches it, in
- * `dumpDigests`, rather than here.
+ * Skipping a frozen file assumes the dump still describes its version the same
+ * way, and middleware does backport into released versions. Keyed on a hash of
+ * the dump slice, not emitted content, so generator changes don't read as dump
+ * drift; digests are taken before generation mutates the dump (`dumpDigests`).
  */
 
 let recorded: Record<string, string>;

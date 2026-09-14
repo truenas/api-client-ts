@@ -9,19 +9,14 @@ export const legacyCutoffYear = 25;
 /**
  * Parses a version string into an ApiVersion object.
  *
- * Supports two versioning schemes:
- * - Legacy (v25.x): vYY.MM.PATCH where MM is month (1-12)
- * - New (v26+): vYY.MINOR.PATCH where MINOR is minor version (0-99)
+ * Accepts legacy vYY.MM.PATCH (v25.x, MM is the month) and vYY.MINOR.PATCH (v26+).
  *
  * @param versionString - Version string (e.g., "v25.10.0" or "v26.0.0")
  * @returns Parsed ApiVersion object, or null if invalid format
  *
  * @example
- * parseApiVersion('v25.10.0')
- * // Returns: { version: 'v25.10.0', year: 25, minor: 10, patch: 0, websocketPath: '/api/v25.10.0' }
- *
  * parseApiVersion('v26.0.0')
- * // Returns: { version: 'v26.0.0', year: 26, minor: 0, patch: 0, websocketPath: '/api/v26.0.0' }
+ * // { version: 'v26.0.0', year: 26, minor: 0, patch: 0, websocketPath: '/api/v26.0.0' }
  */
 export function parseApiVersion(versionString: string): ApiVersion | null {
   // Version format: vYY.MINOR.PATCH (where MINOR is 1-2 digits)

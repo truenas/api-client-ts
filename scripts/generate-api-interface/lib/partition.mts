@@ -2,29 +2,10 @@
  * Chained materialization: assigns every definition to the version where its
  * current shape first appeared.
  *
- * Versions form a chain (ascending). A definition is *declared* (fully
- * materialized) in version N when its shape differs from version N-1 —
- * directly, or transitively through a referenced definition that changed.
- * Versions where the shape is unchanged inherit the ancestor's declaration
- * via re-export. Every distinct shape is materialized exactly once, released
- * versions' files stay frozen as master evolves (only the newest version's
- * directory churns), and each version directory reads as the pairwise
- * changelog against its predecessor.
- *
- * Comparison is purely structural — fields and field types. The generated
- * output carries no documentation metadata (the preprocessor strips it at
- * intake), so there is nothing non-structural to compare; a `title` is ignored
- * (it is metadata, and definition identity is the name).
- *
- * A *property* named `title` is not that, and is compared like any other field.
- * Dropping it by key name here would hide changes to a property the emitter now
- * ships: two versions differing only in `AlertCategory.title` would compare
- * equal, the later one would inherit the earlier declaration, and the emitted
- * type would describe the wrong shape with every gate green.
- *
- * A shape that changes and later reverts is re-materialized at the revert
- * point (comparison is strictly against the predecessor) — rare, and keeps
- * runs contiguous.
+ * A definition is declared in version N when its shape differs from N-1,
+ * directly or through a referenced definition; otherwise it is re-exported.
+ * Comparison is structural and strictly against the predecessor, so a shape
+ * that changes and later reverts is re-materialized at the revert.
  */
 import type { DefSchema, VersionModel } from './types.mts';
 
@@ -32,19 +13,11 @@ import type { DefSchema, VersionModel } from './types.mts';
  * Keys that never reach the emitted output, so a change to one is not a change
  * to the shape.
  *
- * `title` counts only where it really is a title. A `properties` map is an
- * object whose keys are property names and whose values are those properties'
- * schemas, so a field called `title` is compared like any other field —
- * `emit.mts` and `preprocess.mts` discriminate the same way, for `title` and
- * for `description`/`examples` respectively.
- *
- * `_usedBy` is generator-internal and typed `string[]`, so it goes
- * unconditionally: running it through the value test would keep it in the
- * comparison for good, an array being an object. That is safe only while no
- * model declares a field of that name, which none does in any slice of this
- * dump — the same contingent fact, stated rather than assumed. The leading
- * underscore is not the guarantee: `_name_` and `_required_` are real fields,
- * on two of the models this discrimination exists for.
+ * `title` only when it is a string: a *field* named `title` is a schema object
+ * and must be compared (e.g. `AlertCategory.title`). `_usedBy` is internal and
+ * dropped by key, which is safe only while no model has a field of that name
+ * (none does; `_name_` and `_required_` are real fields, so the underscore is
+ * no guarantee).
  */
 function isNonEmitted(key: string, value: unknown): boolean {
   if (key === '_usedBy') return true;

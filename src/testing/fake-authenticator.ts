@@ -16,19 +16,11 @@ export interface RecordedLogin {
  * A `TrueNasAuthenticator` that records its logins and answers them without a
  * socket.
  *
- * It does not reimplement logging in. Every override records the attempt and
- * then calls the real method, so the frame goes out, the epoch bookkeeping
- * runs, `credentials` are stored for the auto-relogin, and the response is
- * interpreted by the real code. Scripting is done by answering the frame:
- * `succeedNextLogin` and `failNextLogin` arm the connection's reply.
- *
- * That distinction is the whole point. An earlier version of this class
- * answered logins itself and decided success from a flag, which made
- * `succeedNextLogin({ response_type: AUTH_ERR })` — the natural way to script a
- * rejected password — report a *successful* login with `authenticated$` true,
- * where the real client throws `AuthError` and leaves it false. A fake that
- * decides for itself what an answer means will disagree with the thing it
- * stands in for, and the disagreement is invisible until someone trusts it.
+ * Every override records the attempt and then calls the real method, so the
+ * real code sends the frame, stores credentials and interprets the response.
+ * `succeedNextLogin` / `failNextLogin` only script the connection's reply — a
+ * fake that decided success itself would disagree with the real client on
+ * what an answer means.
  */
 export class FakeAuthenticator extends TrueNasAuthenticator {
   private readonly attempts: RecordedLogin[] = [];

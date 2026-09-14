@@ -4,23 +4,12 @@ import type { QueryOptions } from '@/generated/shared/query-types';
 /**
  * Types for the query verbs — `api.query` / `queryOne` / `queryCount`.
  *
- * Middleware's `.query` methods are polymorphic in their *options*: the same
- * endpoint returns a list, a single entry, or a count depending on whether
- * `get` or `count` was passed. The generated directory has to describe that
- * honestly, so every query method's `response` is a five-way union, and every
- * call site would have to narrow it.
- *
- * The verbs remove the narrowing by moving the choice into the method name.
- * Which shape comes back is decided by which verb you call, so there is nothing
- * to infer and no way to infer it wrongly. Only the *fields* stay computed —
- * `select` is data, not a method choice — and that is {@link QueryProjection}.
- *
- * Inferring the shape from the options object instead was the obvious
- * alternative, and it is unsound rather than merely imprecise. `QueryOptions`
- * declares `count?: boolean`, which does not extend `{ count: true }`, so a
- * conditional keyed on it silently picks the list branch for options assembled
- * at runtime — promising an array where the server returns a number. Hence the
- * `never` guards below.
+ * A `.query` method returns a list, one entry, or a count depending on `get` /
+ * `count` in its options, so its generated `response` is a union. The verbs
+ * move that choice into the method name; only the fields stay computed
+ * ({@link QueryProjection}). Inferring the shape from options instead is
+ * unsound: `count?: boolean` does not extend `{ count: true }`, so options
+ * built at runtime would be typed as a list. Hence the `never` guards below.
  */
 
 /** A directory entry the generator marked as a polymorphic query. */

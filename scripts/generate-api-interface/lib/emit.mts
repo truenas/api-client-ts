@@ -361,18 +361,9 @@ function prefixNote(link: DirectoryChainLink): string {
  * Type-level proof that each hand-declared removal names something the previous
  * version actually had.
  *
- * `Omit<T, K>` accepts keys `T` does not have, so a typo in `hand-removed.json`
- * removes nothing and still compiles, generates and passes — the entry stays
- * inherited with no error anywhere. The CLI validates an entry's shape and the
- * version it is keyed to, but it cannot validate the name: these entries exist
- * precisely because no dump describes them any more, so there is nothing on the
- * generator side left to check them against.
- *
- * The previous version's emitted surface does still have them, and TypeScript
- * can see it. `Assert<'name' extends keyof Previous ? true : false>` fails to
- * compile when the name is absent, which turns the silent no-op into a build
- * error — and it works for names that only the frozen, hand-maintained
- * directories declare, which is the case the dump can never cover.
+ * `Omit<T, K>` accepts unknown keys, so a typo in `hand-removed.json` is a silent
+ * no-op, and the CLI can't check names no dump describes. The previous version's
+ * emitted surface (including frozen, hand-maintained files) still has them.
  */
 function handRemovedAssertions(interfaceName: string, prevAlias: string, names: string[]): string {
   if (names.length === 0) return '';

@@ -77,152 +77,28 @@ export interface CreateClientOptions {
    */
   version?: SupportedApiVersion;
   /**
-   * The scheme to reach the appliance on, in `location.protocol` form.
+   * The appliance's scheme, in `location.protocol` form: `https:` (default)
+   * gives https discovery and a `wss` socket, `http:` gives http and `ws`.
    *
-   * Selects both halves of the transport: `https:` gives `https` discovery and
-   * a `wss` socket, `http:` gives `http` and `ws`. Defaults to `https:`, which
-   * is what an appliance serves and what Connect uses.
-   *
-   * This describes the *appliance*, not the page. Passing
-   * `location.protocol` is correct when the appliance serves the page — the
-   * same-origin case this exists for — and wrong otherwise. A page on
-   * `http://localhost:5173` talking to an https appliance gets both halves
-   * wrong, but only one of them says so: `fetch` follows the redirect and
-   * discovery appears to work, while the WebSocket has no such tolerance and
-   * fails the handshake without naming the scheme.
-   *
-   * Omitting it against a plaintext appliance is the quieter failure and the
-   * likelier one, since it is the case this option exists for. Discovery tries
-   * `https` and `fetch` rejects, which reads exactly like the CORS block
-   * v25.10.0 has on `/api/versions`. The reachability probe now runs on the same
-   * scheme and fails the same way, so the mismatch is reported as unreachable
-   * rather than quietly answered with a v25.10.0 client.
+   * It describes the *appliance*, not the page, so `location.protocol` is only
+   * right when the appliance serves the page. A mismatch fails the WebSocket
+   * handshake without naming the scheme, or is reported as unreachable.
    */
   protocol?: ApplianceProtocol;
 }
 
 /**
- * Creates a version-specific TrueNAS API client.
+ * Creates a version-specific TrueNAS API client; dispose of it with `client.close()`.
  *
- * 1. Discovers the API version (`GET /api/versions`), asking every hostname in
- *    parallel. The first usable answer wins — *unless* `opts.version` says
- *    which version this is, in which case discovery is skipped entirely.
- * 2. Selects the matching client implementation (`v25.10.x` -> `TrueNasApiClientV2510`,
- *    `v26.x.y` -> `TrueNasApiClientV26`, `v27.x.y` -> `TrueNasApiClientV27`).
- * 3. Instantiates and returns it.
+ * Without `opts.version`, discovers the version from every hostname in parallel
+ * and types the client as `D` — a claim, not a guarantee. A literal
+ * `opts.version` skips discovery and derives the surface from the string; see
+ * the README's "Naming a version" for the trade-offs.
  *
- * Resolves exactly once with a single client instance — dispose of it with
- * `client.close()` when done.
- *
- * ## Choosing `D`
- *
- * The version is discovered at *runtime*; the query verbs are typed at *compile
- * time*. Something has to bridge that, and `D` is where the caller says which
- * API surface they are writing against:
- *
- * ```typescript
- * const client = await createTrueNasClient(opts);
- * client.api.query('user.query');            // typed against v25.10
- *
- * const client = await createTrueNasClient<ApiDirectoryV26_0_0>(opts);
- * client.api.query('container.query');       // v26-only methods reachable
- * ```
- *
- * It defaults to the oldest supported version's directory, which is the
- * conservative direction: against a newer server the types understate what is
- * available rather than promising methods that are not there. Move it in step
- * with `--min-version` in the `generate:api` script.
- *
- * Note this is a *claim*, not a guarantee — the connected server may be any
- * supported version. Operations that must work across versions belong on
- * `client.ops`, which resolves them at runtime.
- *
- * ## Naming the version instead
- *
- * A caller that already knows its appliance — a UI served by the appliance
- * itself, a test harness against a pinned image — can say so and skip discovery
- * altogether:
- *
- * ```typescript
- * const client = await createTrueNasClient({
- *   uuid, hostnames, enabled: true, version: 'v27.0.0',
- * });
- * // client: TrueNasApiClient<ApiDirectoryV27_0_0>, derived from the string
- * ```
- *
- * The surface is *derived* rather than asserted: `ApiDirectoryByVersion` maps
- * the version string to its directory, so the caller writes no cast and names
- * no directory type. A version this package ships no types for does not
- * compile.
- *
- * **The derivation needs the version to be literal at the call site.** It comes
- * from inference on `{ version: V }`, so it holds for a string literal written
- * in the options object (or a `const`-typed one). It does not survive
- * indirection:
- *
- * - `createTrueNasClient<D>({ …, version: 'v27.0.0' })` — an explicit type
- *   argument makes the derived overload inapplicable, so `D` wins.
- * - `(v?: SupportedApiVersion) => createTrueNasClient({ …, version: v })` — the
- *   property is `SupportedApiVersion | undefined`, which no `V` satisfies.
- * - `(v: SupportedApiVersion) => …` — reaches this overload, but `V` widens to
- *   the whole union, which derives nothing.
- * - `const opts: CreateClientOptions = { …, version: 'v27.0.0' }` — the
- *   annotation widens the property before the call sees it.
- *
- * All of them compile, run against the named version, and type as
- * {@link DefaultApiDirectory}. That fails in the safe direction — understated
- * types give a compile error at the method call rather than a runtime surprise —
- * but it is silent, so a wrapper that forwards a version gets none of the
- * surface it named. Keep the literal at the call site, and if you are adding
- * `version` to an existing `createTrueNasClient<ApiDirectoryV26_0_0>(opts)`
- * call, delete the type argument in the same edit.
- *
- * Two consequences worth knowing before reaching for it.
- *
- * It is a stronger claim than `D` alone, because it also picks the websocket
- * path. Naming `v27.0.0` at a v26 appliance connects on `/api/v27.0.0` with v27
- * types over a v26 server, and discovery cannot correct it — declining
- * discovery is the whole point. `D` on its own only mistyped the surface; this
- * mistypes the surface *and* dials the wrong number.
- *
- * Compatibility is still checked. Skipping discovery skips the network round
- * trip, not the range check, which is local and free. Two refusals reach a
- * caller, and they are not interchangeable:
- *
- * - a string that is not a `SupportedApiVersion` at all — only reachable from
- *   JavaScript — throws a plain `Error` naming the versions that are.
- * - a version this package ships types for but cannot build a client for
- *   throws {@link VersionTooNewError}, the same error discovery raises.
- *
- * The second is not hypothetical. `MAX_SUPPORTED_VERSION` is a hand-written
- * literal, and while it matches the newest generated version today, a
- * regeneration can add a year before anyone writes its client — at which point
- * that version is nameable, promised by the overload, and has nothing to build.
- * `VersionTooOldError` has no counterpart here: `MIN_SUPPORTED_VERSION` is
- * derived from the same list that constrains the type, so nothing nameable is
- * below it.
- *
- * @typeParam V - the version named in `opts.version`, when one is. The returned
- *   surface is `ApiDirectoryByVersion[V]`, so it is derived rather than chosen.
- * @typeParam D - the generated API surface the client is typed against, as a
- *   whole (`call`, `job`, `event`), for the discovery path where no version is
- *   named. Every verb resolves method names against it, so naming a method this
- *   surface does not have is a build error.
- * @returns a Promise that resolves with the created client, or rejects with a
- *   {@link VersionDiscoveryError} subclass (or a client-selection error).
- *   Rejects if version discovery on all hostnames *fails* and is not recoverable.
- *
- *   A `VersionDiscoveryNetworkError` is not by itself a verdict: `fetch` reports
- *   a CORS refusal, an absent appliance, a bad name and the wrong scheme
- *   identically. So that failure opens a reachability probe and a second
- *   discovery attempt. A retry that succeeds is used; one that fails with a
- *   specific error raises that instead; an appliance that answers nothing
- *   rejects with the network error. Only one that answers the probe and still
- *   will not serve `/api/versions` — which is what 25.10.0 looks like from a
- *   browser — falls back to `FALLBACK_VERSION`.
- *
- *   A network error alongside a version-compatibility error or a 404 does
- *   *not* reach any of that — see `selectRepresentativeFailure`.
+ * @typeParam V - the version named in `opts.version`.
+ * @typeParam D - the API surface to type against when no version is named.
+ * @returns the client; rejects with a {@link VersionDiscoveryError} subclass,
+ *   including {@link VersionTooNewError} for a named version with no client.
  */
 export async function createTrueNasClient<V extends SupportedApiVersion>(
   opts: CreateClientOptions & { version: V },
@@ -279,25 +155,10 @@ export async function createTrueNasClient<
       );
     }
 
-    // Skipping discovery is about not making a network round trip, not about
-    // waiving the compatibility check — that one is local and free, and
-    // dropping it would leave this path answering a question discovery answers
-    // properly.
-    //
-    // It is load-bearing rather than defensive. `MAX_SUPPORTED_VERSION` is a
-    // hand-written literal that deliberately lags the newest generated version
-    // (see api-version.config.ts: generating types for a year does not write a
-    // client for it). So a regeneration can add 'v28.0.0' to
-    // `SupportedApiVersion` — making it nameable here, and promised as
-    // `ApiDirectoryV28_0_0` by the overload — while no v28 client exists. Left
-    // unchecked that lands in `instantiateClientForVersion`'s defensive branch
-    // and throws a bare `Error` naming internal version keys, where discovery
-    // would have rejected the same appliance with a typed `VersionTooNewError`.
-    // Same errors, either way in.
-    //
-    // The named version is the only one on offer, so it is what the error
-    // reports as available — the same shape discovery would produce for an
-    // appliance that offered exactly this one.
+    // Skipping discovery skips the network, not the range check. Load-bearing:
+    // `MAX_SUPPORTED_VERSION` can lag the newest generated version, so a
+    // version may be nameable with no client to build. Reject it with
+    // discovery's typed `VersionTooNewError`, not a bare `Error` later.
     const compatibility = checkVersionCompatibility(known);
     if (compatibility === VersionCompatibility.TooNew) {
       // `hostnames[0]` and the single-element list are the caller's claim, not
@@ -347,20 +208,10 @@ export async function createTrueNasClient<
   } catch (error) {
     const errorMessage = errorMessageOrDefault(error, 'Unknown error');
 
-    // CORS / network fallback (load-bearing).
-    //
-    // `fetch` surfaces network/CORS/unreachable failures as a
-    // `VersionDiscoveryNetworkError` (the replacement for the Angular
-    // `HttpClient`'s `status === 0`). IMPORTANT: TrueNAS v25.10.0 does not
-    // have CORS enabled for the /api/versions endpoint, so discovery is
-    // blocked there. This fallback MUST remain until v25.10.0 is no longer in
-    // the supported range (i.e. once MIN_SUPPORTED_VERSION > v25.10.0).
-    //
-    // NOTE: This is reached only when version discovery on all hostnames
-    // failed to give us a usable API version. See `selectRepresentativeFailure`
-    // for how errors are selected.
-    // Basically: version compatibility and `VersionEndpointNotFoundError`
-    // errors are prioritized over network errors.
+    // CORS fallback, load-bearing until MIN_SUPPORTED_VERSION > v25.10.0:
+    // v25.10.0 has no CORS on /api/versions, so browser discovery fails there
+    // with a `VersionDiscoveryNetworkError`. Only reached when that was the
+    // selected failure — see `selectRepresentativeFailure`.
     if (!(error instanceof VersionDiscoveryNetworkError)) {
       // For other errors (version too old/too new, invalid response, etc.), re-throw.
       logger.error('Version discovery failed on every hostname', {
@@ -512,24 +363,11 @@ interface DiscoverySuccess {
 
 /**
  * Asks every hostname for the API version in parallel and takes the first
- * usable answer.
+ * usable answer; every hostname points at the same box.
  *
- * Every hostname on a system points at the same box, so whichever one answers
- * first can be assumed to have given the same information as all the others.
- * The only reason the failures are kept at all is the all-failed case, where we
- * have to pick which error the caller sees and — crucially — whether the CORS
- * fallback in `createTrueNasClient` gets a chance to fire.
- *
- * `Promise.any` is what makes this a fix rather than a reshuffle: it settles on
- * the first *fulfilment*, so a hostname that fails fast (a refused connection
- * resolves far quicker than a healthy round trip) cannot beat a good hostname
- * to the answer, and a hostname that hangs until the 5s discovery timeout does
- * not hold up a good one. A `Promise.all`-style collect-everything would
- * reintroduce exactly the wait this removes.
- *
- * Losing attempts are not cancelled: `discoverVersion` is a `fetch` behind a
- * `defer`, so there is nothing to abort from here. They run out their own 5s
- * timeout unobserved, and their rejections are handled by `Promise.any`.
+ * `Promise.any` settles on the first *fulfilment*, so a fast failure (a refused
+ * connection) cannot beat a good answer and a hung hostname cannot delay one.
+ * Losers are not cancelled; they run out their own timeout unobserved.
  *
  * @param hostnames Non-empty array of hostnames to try.
  * @throws the representative failure if no hostname answered.
@@ -646,17 +484,9 @@ export function clientClassFor(version: ApiVersion): ClientConstructor | undefin
 /**
  * Maps a discovered version to its client implementation.
  *
- * The cast at the end is the one place where runtime and compile time disagree,
- * and it is deliberate. `CLIENT_BY_VERSION_KEY` holds constructors for every
- * supported version under a single type, which is only possible because the
- * directories they are parameterised by have no common supertype — the versions
- * are mutually unassignable (`alert.list_categories` takes no arguments in
- * v25.10 and an options object in v26). So the map is typed against the shared
- * base, and the caller's `D` is reapplied here.
- *
- * Widening it away would mean either giving every caller the base directory —
- * which cannot reach `user.query` or `pool.query`, 22 of the 66 query methods —
- * or pretending the constructors are interchangeable, which they are not.
+ * The final cast is deliberate: per-version directories are mutually
+ * unassignable (`alert.list_categories` changed shape in v26), so the map is
+ * typed against the shared base and the caller's `D` is reapplied here.
  */
 function instantiateClientForVersion<D extends ApiDirectoryShape>(
   version: ApiVersion,

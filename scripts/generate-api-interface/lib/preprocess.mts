@@ -1,23 +1,11 @@
 /**
- * Preprocessor: builds the generator IR from a `middlewared --dump-api
- * --keep-refs` version dump.
+ * Preprocessor: merges a `--dump-api --keep-refs` version's per-document `$defs`
+ * into one table and unwraps Args/Result wrappers into params and returns.
  *
- * With --keep-refs (middleware commit 58b62dd6), every method emits pydantic's
- * native JSON Schema documents — `schemas: {accepts, returns}` with a `$defs`
- * table of named model definitions — and events emit one native document per
- * variant. This module merges all per-document `$defs` into one version-wide
- * definition table and unwraps the Args/Result wrapper models into per-method
- * params and return schemas.
- *
- * Merging wrinkle: pydantic renders the same model differently in validation
- * (accepts) vs serialization (returns) mode, under the same name. Where the
- * two renders differ — directly, or transitively via a referenced model that
- * differs — the definition is split: the serialization render keeps the bare
- * name (consumers read far more than they write) and the validation render
- * gets an `Input` suffix. Same-name/same-mode collisions (distinct middleware
- * models or field enums sharing a name) are qualified by origin — the owning
- * model for hoisted field enums, the defining method's service otherwise —
- * so a colliding `Status` becomes e.g. `CloudBackupEntryStatus`.
+ * Pydantic renders one model differently in accepts vs returns mode under the
+ * same name. Where renders differ (even transitively), returns keeps the bare
+ * name and accepts gets an `Input` suffix. Same-mode name collisions are
+ * qualified by origin (owning model or service), e.g. `CloudBackupEntryStatus`.
  */
 import type {
   ApiDumpVersion,
@@ -467,77 +455,16 @@ function hoistInlineEnums(node: unknown, doc: Schema, owners: Map<string, string
 }
 
 /**
- * Remove documentation prose from a schema document. By team decision the
- * generated output carries no docstring metadata (descriptions/examples):
- * api.truenas.com is the documentation home, and prose edits are not API
- * drift. Semantic annotations (roles, removed_in, usage cross-references)
- * are kept — they are not docstrings.
+ * Remove documentation prose (descriptions/examples); api.truenas.com is the doc
+ * home and prose edits are not API drift. Semantic annotations are kept.
  *
- * `description` is discriminated on type, because it is also a legitimate model
- * *field* name: middleware declares one on ~30 models, `CronJobCreate` and
- * `VMEntry` among them. A docstring is always a string; a field named
- * `description` appears under `properties` as its own schema, so it is always
- * an object. Dropping by key alone deleted the second along with the first, so
- * a field the appliance accepts and returns was missing from the emitted type
- * and a call setting it did not compile.
+ * Discriminated on type, because `description` (e.g. `CronJobCreate`) and
+ * potentially `examples` are also field names: docs are a string/array, a field
+ * schema is an object. Dropping by key silently removes the field.
  *
- * `cronjob.create` was the example this used to give. It was the wrong one for
- * a while — `CronJobCreate` is homed in v25_10_0, which was frozen, so the
- * corrected declaration was emitted and discarded and that call did not
- * compile. It is a fine example again: v25.10 was unfrozen and regenerated in
- * TNC-2283, so the field is there.
- *
- * `examples` is discriminated the same way, and for the same reason one step
- * earlier. No model in `api/v2*` declares a field by that name today — but that
- * was equally true of `description` until one did, and the failure is silent
- * either way: the field vanishes from the emitted interface,
- * `additionalProperties: false` stops callers passing it, and the dump-to-dump
- * digest cannot see it because it excludes the key too. JSON Schema `examples`
- * is always an array and a field schema is always an object, so the check costs
- * nothing and does not rest on an upstream fact nobody re-reads.
- *
- * **This fix reaches fewer models than it looks like it should**, and the
- * reason is worth knowing before relying on it. A model is declared once, in
- * the version where its shape first appeared, and `generate.mts` skips writing
- * any file carrying the frozen marker. So a corrected declaration is emitted
- * for a frozen version and then discarded, while every later version keeps
- * importing the copy on disk.
- *
- * That gap is closed for the models it was measured on. The ones homed in
- * v25_10_0 — `CronJobCreate`, `PoolScrubEntry`, `StaticRouteEntry`, `UPSEntry`,
- * `InterfaceCreate` and the rest — were unreachable while that directory was
- * frozen; TNC-2283 unfroze it, regenerated from the dump and froze it again, so
- * their declarations were rewritten and carry the field. Counted against the
- * tree rather than against a model list: `v25_10_0/api-types.ts` goes from 3
- * declarations carrying a `description` field to 71. No count of *models in
- * this directory* is given — the "~30" above counts the classes that declare
- * the field in one middleware version directory, 31 in `api/v25_10_0`, which is
- * a different population, and collapsing these generated
- * `Create`/`Update`/`Entry`/`Input` variants back onto a model is a judgement
- * call that two reasonable rulesets answer differently. Do not reconcile the
- * two figures: they measure different things, they land near enough to look
- * like they should agree, and treating them as one is how a wrong figure got
- * into this block in the first place.
- *
- * The mechanism is unchanged, which is the part to keep in mind. v25_10_0 is
- * frozen again, so the *next* correction to this function reaches only models
- * homed at v26 and above, and anything homed at the root needs the directory
- * unfrozen and regenerated — or hand-maintenance — exactly as this one did,
- * verified against the v25.10 models rather than against master. Two hazards,
- * and the second is the one that bites: the dump is master describing
- * historical versions, so regenerating a released directory brings master's
- * backports into that slice along with the fix — and it *deletes* the entries
- * no dump describes at all. Unfreezing v25_10_0 for TNC-2283 dropped the whole
- * `virt.*` namespace and `pool.dataset.encryption_algorithm_choices`, which had
- * to be restored by hand afterwards, along with the re-export blocks that carry
- * them through v25_10_1..5. Budget for that before unfreezing anything.
- *
- * Nothing catches that today, and nothing here pretends to. The drift check in
- * `generate.mts` compares dump to dump, so it stays quiet when only the
- * generator has moved, and `ci.yml` does not regenerate or diff the tree at
- * all. The v25.10 directories were reconciled in TNC-2283 and re-frozen, so a
- * further correction here reaches only the models homed at v26/v27 until they
- * are reconciled again.
+ * A change here never reaches frozen files (v25_10_0): those need unfreezing and
+ * regenerating, which also deletes entries no dump describes (`virt.*`) and must
+ * be restored by hand. The frozen-hash drift check won't flag generator changes.
  */
 function stripDocs(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(stripDocs);
