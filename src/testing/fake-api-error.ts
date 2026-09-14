@@ -27,13 +27,37 @@ export interface FakeApiErrorOverrides
 const BARE_REPR = /^([A-Za-z_][A-Za-z0-9_]*)\(\)$/;
 
 /**
+ * A Python `repr()` of a string, quoting the way CPython does.
+ *
+ * Interpolating into single quotes is not it. `repr` picks `"` when the string
+ * contains a `'` and no `"`, and escapes the backslash, the quote it chose,
+ * and the control characters — so the common shapes of a middleware error
+ * message all come out differently from the naive version:
+ * `f"…{value!r}"` messages carry single quotes, and `adapt_exception` builds a
+ * message with an embedded newline for every `CalledProcessError`
+ * (`4303dc8:src/middlewared/middlewared/service_exception.py:114`).
+ */
+function pythonRepr(value: string): string {
+  const quote = value.includes("'") && !value.includes('"') ? '"' : "'";
+
+  const escaped = value
+    .replace(/\\/g, '\\\\')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+    .replace(new RegExp(quote, 'g'), `\\${quote}`);
+
+  return `${quote}${escaped}${quote}`;
+}
+
+/**
  * A trace whose `class` and `repr` agree with the reason, so the three
  * together are a triple an appliance could send. See {@link fakeApiError}.
  */
 function syntheticTrace(reason: string): NonNullable<TrueNasErrorData['trace']> {
   const bare = BARE_REPR.exec(reason);
   const cls = bare ? bare[1] : 'ValueError';
-  const repr = bare ? reason : `ValueError('${reason}')`;
+  const repr = bare ? reason : `ValueError(${pythonRepr(reason)})`;
 
   return {
     class: cls,
@@ -84,10 +108,22 @@ function syntheticTrace(reason: string): NonNullable<TrueNasErrorData['trace']> 
  * reason itself. Any other reason is `str(e)` of an exception that has
  * arguments, so `class` is `ValueError` and `repr` is that call written out.
  * `CallError` is the one name deliberately not used: it is never
- * argument-free, and its `__str__` is `[ERRNAME] errmsg`
- * (`4303dc8:src/middlewared/middlewared/service_exception.py:15-24`), so a
- * frame whose `trace.class` is `CallError` always has a `reason` starting
- * `[EINVAL] `.
+ * argument-free — `__init__` always passes three arguments to `super()` — so
+ * its repr is never the reason
+ * (`4303dc8:src/middlewared/middlewared/service_exception.py:15-21`).
+ *
+ * **Two things this derivation does not model, deliberately.** The
+ * `CallException` arm sends plain `str(e)`, and `CallError.__str__` is
+ * `[<get_errname(self.errno)>] errmsg` (`:22-24`) — `[EFAULT] ` for the
+ * constructor's default errno, not the `[EINVAL] ` this fixture happens to
+ * default `error` to — so the commonest real reason has a prefix this rule
+ * reads as an ordinary message. And on the adapted path the reason and the
+ * trace describe *different* exceptions: `adapt_exception` returns a new
+ * `CallError` whose `str()` becomes the reason, while `sys.exc_info()` is
+ * still the original, so `trace.class` is something like
+ * `CalledProcessError`. A spec that needs either shape should pass `trace`
+ * itself; what the default guarantees is that the triple it does produce is
+ * one an appliance could send, not that it is the one it would have sent.
  *
  * Pass `trace: null` explicitly for the one payload that genuinely has none —
  * the job-event error, which `format_truenas_error` builds without `exc_info`

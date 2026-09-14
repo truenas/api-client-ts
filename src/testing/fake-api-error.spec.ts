@@ -99,6 +99,33 @@ describe('fakeApiError', () => {
   });
 
   /**
+   * The reprs `repr()` actually returns, for the shapes a middleware error
+   * message actually has. Interpolating into single quotes produces none of
+   * these: `f"…{value!r}"` messages carry single quotes, and
+   * `adapt_exception` embeds a newline in every `CalledProcessError` message.
+   *
+   * Each expectation below was taken from CPython's `repr()` of the same
+   * string rather than written by hand.
+   */
+  it.each([
+    ["Dataset 'tank/foo' does not exist", `ValueError("Dataset 'tank/foo' does not exist")`],
+    ['He said "no"', `ValueError('He said "no"')`],
+    [`both ' and "`, `ValueError('both \\' and "')`],
+    ['Command failed (code 1):\ncannot open', `ValueError('Command failed (code 1):\\ncannot open')`],
+    ['back\\slash', `ValueError('back\\\\slash')`],
+  ])('quotes %j the way repr() does', (reason, expected) => {
+    expect(fakeApiError({ reason }).data?.trace?.repr).toBe(expected);
+  });
+
+  /** The shape the JSDoc describes, which nothing else asserts. */
+  it('formats the trace around that repr', () => {
+    const trace = fakeApiError({ reason: "It's locked" }).data?.trace;
+
+    expect(trace?.formatted.startsWith('Traceback (most recent call last):\n')).toBe(true);
+    expect(trace?.formatted.trimEnd().endsWith(trace.repr)).toBe(true);
+  });
+
+  /**
    * The payload's index signature is legitimate — middleware adds
    * `py_exception` — but inheriting it into the overrides turned off
    * excess-property checking, so a typo landed a new key and left the field it

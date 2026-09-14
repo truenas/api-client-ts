@@ -23,22 +23,29 @@ export interface FakeAuthResponseOverrides
  *
  * A `Record` keyed by the enum rather than a chain of comparisons, so a member
  * added to `AuthResponseType` is a compile error here instead of silently
- * taking an empty arm. That matters now rather than hypothetically: the enum
+ * taking an empty arm.
+ *
+ * Each entry is a *function*, because a spread copies references: as plain
+ * objects in module scope, every `REDIRECT` response shared one `urls` array,
+ * so a spec pushing a second SSO URL onto one response changed every later
+ * response in that file. The chain this replaced built its literal per call and
+ * did not have that problem — the exhaustiveness fix introduced it, which is
+ * why the fix that keeps both is one pair of parens rather than a rewrite. That matters now rather than hypothetically: the enum
  * is two arms short of middleware's union — `AuthLoginExResult.result` at
  * `4303dc8:src/middlewared/middlewared/api/v27_0_0/auth.py:335-338` has seven,
  * including `AuthRespDenied` (`:206-209`) and `AuthRespScram` (`:245-262`),
  * and `AuthRespScram` requires `scram_type` and `rfc_str`. Adding either to
  * the enum should stop the build here and make someone say what it carries.
  */
-export const ARMS: Record<AuthResponseType, Partial<AuthResponse>> = {
-  [AuthResponseType.Success]: {
+export const ARMS: Record<AuthResponseType, () => Partial<AuthResponse>> = {
+  [AuthResponseType.Success]: () => ({
     authenticator: 'LEVEL_1',
     reconnect_token: null,
-  },
-  [AuthResponseType.OtpRequired]: { username: 'root' },
-  [AuthResponseType.Redirect]: { urls: ['https://truenas.local/sso'] },
-  [AuthResponseType.AuthErr]: {},
-  [AuthResponseType.Expired]: {},
+  }),
+  [AuthResponseType.OtpRequired]: () => ({ username: 'root' }),
+  [AuthResponseType.Redirect]: () => ({ urls: ['https://truenas.local/sso'] }),
+  [AuthResponseType.AuthErr]: () => ({}),
+  [AuthResponseType.Expired]: () => ({}),
 };
 
 /**
@@ -92,7 +99,9 @@ export const ARMS: Record<AuthResponseType, Partial<AuthResponse>> = {
  * optional, so an optional addition passes here unnoticed; the guard that
  * bites is `ARMS`, whose `Record` fails on an unhandled `response_type`. The
  * `user_info` literal is the stronger half: its type has twenty-two required
- * members, so anything added there fails on the spot.
+ * members, so anything *required* added there fails on the spot. An optional
+ * addition passes there too — `AuthUserInfo` extends `UserGetUserObj`, and
+ * middleware adds fields to it with defaults.
  */
 export function fakeAuthResponse(
   overrides: FakeAuthResponseOverrides = {}
@@ -142,7 +151,7 @@ export function fakeAuthResponse(
 
   return {
     response_type: responseType,
-    ...ARMS[responseType],
+    ...ARMS[responseType](),
     ...present(rest),
     ...(userInfo ? { user_info: userInfo } : {}),
   } satisfies AuthResponse;

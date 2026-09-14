@@ -26,6 +26,24 @@ describe('fakeAuthResponse', () => {
    * one and not the other is an arm nobody has said anything about — which is
    * the state the `Record` was introduced to make impossible one level up.
    */
+  /**
+   * A spread copies references. With the arms as plain objects in module
+   * scope, every `REDIRECT` response shared one `urls` array: a spec pushing a
+   * second SSO URL onto one response — or code under test calling `.sort()` on
+   * it — changed every later response in the file, and the failure landed in a
+   * test that did not cause it.
+   */
+  it('gives each response its own arrays', () => {
+    const first = fakeAuthResponse({ response_type: AuthResponseType.Redirect });
+    const second = fakeAuthResponse({ response_type: AuthResponseType.Redirect });
+
+    expect(first.urls).not.toBe(second.urls);
+
+    first.urls?.push('https://evil.example/added');
+
+    expect(second.urls).toEqual(['https://truenas.local/sso']);
+  });
+
   it('has a row for every arm the builder knows', () => {
     expect(ARM_FIELDS.map(([type]) => String(type)).sort()).toEqual(
       Object.keys(ARMS).sort()

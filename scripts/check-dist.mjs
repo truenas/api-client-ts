@@ -11,11 +11,12 @@ import { pathToFileURL } from 'node:url';
 // Everything shipped, found rather than listed.
 //
 // This was a list of the eight entry files — two entries, two formats, code
-// and types — which was the whole output until `splitting: true` arrived. Splitting leaves `dist/index.js` an 858-byte
-// re-export stub and puts the code — and, more to the point, the types both
-// entries share — in content-hashed chunks whose names no list can carry. A
-// leak in one of those passed this check in silence, which is worse than not
-// having it: the script printed a guarantee it had stopped enforcing.
+// and types — which was the whole output until `splitting: true` arrived.
+// Splitting leaves `dist/index.js` an 858-byte re-export stub and puts the
+// code — and, more to the point, the types both entries share — in
+// content-hashed chunks whose names no list can carry. A leak in one of those
+// passed this check in silence, which is worse than not having it: the script
+// printed a guarantee it had stopped enforcing.
 //
 // `.map` files are excluded by the extension filter rather than by name: a
 // source map legitimately embeds the original `@/` source.
