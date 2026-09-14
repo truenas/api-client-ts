@@ -27,8 +27,8 @@ const stub = {
   events: () => ({ subscribe: () => undefined }),
 };
 
-describe('README: reaching an appliance over http', () => {
-  it('exports the type the snippet imports, with the members it narrows to', () => {
+describe('README: connection', () => {
+  it('exports the protocol values the README names', () => {
     expectTypeOf<ApplianceProtocol>().toEqualTypeOf<'http:' | 'https:'>();
   });
 });
@@ -56,7 +56,7 @@ describe('README: queries', () => {
     expectTypeOf(api.query('user.query', [['uid', '>', 1000]])).toEqualTypeOf<
       Observable<v25_10_0.UserEntry[]>
     >();
-    expectTypeOf(api.queryOne('user.query', [['id', '=', 1]])).toEqualTypeOf<
+    expectTypeOf(api.queryOne('user.query', [['username', '=', 'root']])).toEqualTypeOf<
       Observable<v25_10_0.UserEntry>
     >();
     expectTypeOf(api.queryCount('user.query')).toEqualTypeOf<
@@ -76,6 +76,11 @@ describe('README: queries', () => {
     >();
   });
 
+  it('rejects a filter on a field the entity does not have', () => {
+    // @ts-expect-error no such field.
+    api.query('user.query', [['uidd', '>', 1000]]);
+  });
+
   /** The `satisfies` advice in the README, and the cost of ignoring it. */
   it('keeps precision with satisfies, loses it with an annotation', () => {
     const annotated: QueryListOptions<v25_10_0.UserEntry> = { limit: 10 };
@@ -93,12 +98,8 @@ describe('README: queries', () => {
 describe('README: jobs', () => {
   it('types the result from the job directory', () => {
     expectTypeOf(
-      api.job('pool.dataset.export_key', ['tank/enc'])
+      api.job('pool.dataset.export_key', ['tank/encrypted'])
     ).toEqualTypeOf<Observable<Job<string | null>>>();
-
-    // A job method is not a call method.
-    // @ts-expect-error `app.start` is a job.
-    api.call('app.start', ['my-app']);
   });
 });
 
@@ -116,7 +117,7 @@ describe('README: events', () => {
   });
 });
 
-describe('README: naming a version', () => {
+describe('README: working across versions', () => {
   it('reaches methods the default cannot', () => {
     expectTypeOf(v26.query('container.query')).toEqualTypeOf<
       Observable<v26_0_0.ContainerEntry[]>

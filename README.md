@@ -1,279 +1,207 @@
 # @truenas/api-client
 
-Framework-agnostic TypeScript client for the TrueNAS JSON-RPC 2.0 WebSocket API.
+The TypeScript client for the TrueNAS API. Every method, parameter and response
+middleware exposes is checked at compile time, and every request travels over
+one self-healing WebSocket.
 
-> **Status:** early extraction in progress. The client is being pulled out of the TrueNAS Connect UI
-> into this standalone package.
+```typescript
+const users = await firstValueFrom(
+  client.api.query('user.query', [['builtin', '=', false]], { select: ['id', 'username'] })
+);
+// users: Pick<UserEntry, 'id' | 'username'>[]
+```
 
-## Requirements
+## Why this client
 
-- **Node ≥ 22** (provides a global `WebSocket`) or a browser. On older Node, supply a `WebSocket`
-  implementation (e.g. the [`ws`](https://www.npmjs.com/package/ws) package) via the socket config.
-- **`rxjs` ^7.8** is a peer dependency — the consuming project provides it.
+- **Typed from the source.** Types are generated from `middlewared --dump-api`
+  for every supported release. A misspelled method, a missing parameter or a
+  filter on a field that doesn't exist fails the build, not the user.
+- **Version-aware.** The client asks the appliance which API it speaks and
+  builds the matching implementation. API versions v25.10.0 through v27.0.0
+  are supported side by side.
+- **One call across releases.** `client.ops` keeps working when middleware
+  renames or reshapes an endpoint between versions.
+- **Queries that know their shape.** List, single entry or count is chosen by
+  the method you call, and `select` narrows the result to the fields you asked
+  for.
+- **Jobs and events as streams.** Jobs report progress until they finish.
+  Collection subscriptions deliver typed changes and come back after a
+  reconnect.
+- **Built to stay connected.** It races every hostname you give it, retries,
+  keeps the socket alive, holds requests made while it reconnects, and logs
+  password and API-key sessions back in.
+- **Framework-agnostic.** Plain RxJS, no framework. ESM and CommonJS, Node 22+
+  or any modern browser, and your own logger.
 
-## Usage
+## Install
+
+```bash
+npm install @truenas/api-client rxjs
+```
+
+`rxjs` ^7.8 is a peer dependency.
+
+## Quick start
 
 ```typescript
 import { createTrueNasClient } from '@truenas/api-client';
+import { firstValueFrom } from 'rxjs';
 
 const client = await createTrueNasClient({
-  uuid: 'system-uuid',
-  hostnames: ['truenas.local'],
+  uuid: systemUuid,
+  hostnames: ['truenas.local', '192.168.1.50'],
   enabled: true,
 });
-```
 
-`createTrueNasClient` does not take credentials, so log in before calling
-anything — middleware refuses an unauthenticated call, and `authenticated$`
-only turns true once one of these resolves:
-
-```typescript
 await firstValueFrom(
-  client.authenticator.loginWithApiKey({ username, key })
+  client.authenticator.loginWithApiKey({ username: 'admin', key: apiKey })
 );
-// or client.authenticator.loginWithUserPass(username, password)
+
+const info = await firstValueFrom(client.api.call('system.info'));
+console.log(`${info.hostname} runs ${info.version}`);
+
+client.close();
 ```
 
-Everything below hangs off `client.api`, and every method name it accepts comes
-from types generated from `middlewared --dump-api`. A name the declared version
-does not have is a compile error, and params and responses come from the same
-source — there is no list of endpoint constants to import.
+Every request is a cold `Observable`: nothing is sent until you subscribe, so
+requests compose with the rest of RxJS. `firstValueFrom` turns one into a
+promise.
+
+## Logging in
+
+| Method | Use it for |
+|---|---|
+| `loginWithUserPass(username, password)` | Interactive logins. Resolves with `response_type: 'OTP_REQUIRED'` when two-factor is on. |
+| `loginWithOtp(code)` | The second step of a two-factor login. |
+| `loginWithApiKey({ username, key })` | Services and scripts. |
+| `loginWithToken(token)` | Opening another session from a previous login's `reconnect_token`. |
+
+All four live on `client.authenticator`. Password and API-key sessions log back
+in by themselves after a reconnect. `authenticated$` tracks the session,
+`logout()` ends it, and a rejected login errors with an `AuthError` carrying an
+`AuthErrorCode`.
+
+## Calls
 
 ```typescript
-client.api.call('system.info');                        // SystemInfoResult
-client.api.call('alert.dismiss', ['uuid-1']);          // params required
-client.api.call('nope.nope');                          // ✗ compile error
+client.api.call('system.info');                 // Observable<SystemInfoResult>
+client.api.call('alert.dismiss', ['uuid-1']);   // params checked against the method
+client.api.call('nope.nope');                   // ✗ compile error
 ```
 
-**Queries.** Middleware's `.query` methods are polymorphic in their options —
-the same endpoint returns a list, one entry, or a count. Which you get is
-chosen by the verb, so there is nothing to narrow:
+A failed call errors with middleware's own message.
+
+## Queries
 
 ```typescript
-client.api.query('user.query', [['uid', '>', 1000]]);  // UserEntry[]
-client.api.queryOne('user.query', [['id', '=', 1]]);   // UserEntry
-client.api.queryCount('user.query');                   // number
-
-client.api.query('user.query', [], { select: ['id', 'username'] });
-                                     // Pick<UserEntry, 'id' | 'username'>[]
+client.api.query('user.query', [['uid', '>', 1000]]);                // UserEntry[]
+client.api.query('user.query', [], { select: ['id', 'username'] });  // Pick<UserEntry, 'id' | 'username'>[]
+client.api.queryOne('user.query', [['username', '=', 'root']]);      // UserEntry
+client.api.queryCount('user.query');                                 // number
+client.api.query('user.query', [['uidd', '>', 1000]]);               // ✗ no such field
 ```
 
-Use `satisfies` rather than an annotation when building options into a
-variable — an annotated `QueryListOptions<E>` widens `select`, and the result
-degrades to `Partial<E>[]`.
+When you build options in a variable, write `satisfies QueryListOptions<…>`
+rather than a type annotation, so the result keeps its precise type.
 
-**Jobs.** A separate key space from `call`: `app.start` runs as a job and does
-not appear in the call directory. `job` starts one and follows it to
-completion, typing the result from the job directory:
+## Jobs
 
 ```typescript
-client.api.job('pool.dataset.export_key', ['tank/enc'])
-  .subscribe(job => report(job.progress.percent));     // Job<string | null>
-```
+client.api.job('pool.dataset.export_key', ['tank/encrypted']).subscribe(job => {
+  progress.set(job.progress.percent ?? 0);
 
-**Events.** Emits the change as a union discriminated on `msg`. Narrowing is
-load-bearing: a removal carries an `id` and no `fields` in almost every
-collection.
-
-```typescript
-client.api.events('app.query').subscribe(event => {
-  if (event.msg === 'removed') return drop(event.id);
-  render(event.fields);
+  if (job.state === JobState.Success) save(job.result);
+  if (job.state === JobState.Failed) report(job.error);
 });
 ```
 
-### Reaching an appliance over http
+The stream emits each state and completes when the job finishes. A failed job
+completes too, with `state` and `error` set.
 
-By default the client discovers over `https://` and connects over `wss://`,
-which is what an appliance serves. An appliance reached without TLS needs
-`protocol`:
+## Events
 
 ```typescript
-import type { ApplianceProtocol } from '@truenas/api-client';
-
-const protocol: ApplianceProtocol =
-  location.protocol === 'http:' ? 'http:' : 'https:';
-
-const client = await createTrueNasClient({
-  uuid, hostnames: [location.host], enabled: true, protocol,
+client.api.events('app.query').subscribe(change => {
+  if (change.msg === 'removed') return removeRow(change.id);
+  upsertRow(change.fields);
 });
 ```
 
-It selects both halves of the transport — `https:` gives `https` discovery and a
-`wss` socket, `http:` gives `http` and `ws` — and defaults to `https:`, so
-existing callers are unaffected.
+Changes are typed per collection and discriminated on `msg`. One server
+subscription is shared by every subscriber and re-registered after each
+reconnect.
 
-`protocol` describes the **appliance**, not the page. Reading it from
-`location.protocol` is right when the appliance serves the page, which is the
-same-origin case this exists for. A page served from somewhere else — a dev
-server on `http://localhost:5173` talking to an https appliance — must pass what
-the *appliance* uses. Getting it wrong breaks both halves but reports only one:
-discovery's `fetch` follows the redirect and looks fine, while the socket opens
-`ws://`, meets the same redirect, and fails the handshake without naming the
-scheme.
+## Working across versions
 
-Omitting it against a plaintext appliance fails the other way. Discovery tries
-`https://` and `fetch` rejects just as it does for v25.10.0's CORS block on
-`/api/versions`; the reachability probe runs on the same scheme and fails too,
-so the factory rejects with `VersionDiscoveryNetworkError`, which does not name
-the scheme. If the appliance is plaintext, say so.
-
-Narrow rather than cast: `location.protocol` is a `string`, and it is genuinely
-`file:` for a locally-opened page or `chrome-extension:` in an extension. Both
-halves fall back to the encrypted scheme for anything off-contract, so a bad
-value cannot downgrade the transport — but the compiler will not stop you
-asserting one into this option, and it will not be the value you meant.
-
-### Naming a version
-
-By default the version is discovered at runtime while the types are fixed at
-compile time, and `createTrueNasClient` assumes the oldest supported version —
-which understates a newer server rather than promising methods it lacks. There
-are two ways to reach the rest, and they differ in more than syntax.
-
-**Assert the surface** when you do not know the version but intend to write
-against a particular one:
+Without a hint, the client is typed as the oldest supported version, since that
+is a safe floor against any appliance. Reach newer methods one of two ways:
 
 ```typescript
-const client = await createTrueNasClient<ApiDirectoryV26_0_0>(opts);
-client.api.query('container.query');                   // v26-only, reachable
+// Discover the version, and write against v26:
+const client = await createTrueNasClient<ApiDirectoryV26_0_0>(options);
+client.api.query('container.query');
+
+// Or skip discovery, and let the types follow the version:
+const pinned = await createTrueNasClient({ ...options, version: 'v27.0.0' });
+pinned.api.query('container.query');
 ```
 
-Discovery still runs and still decides which client is built. The type argument
-is a claim about the server, not a guarantee — the client you get is whichever
-version discovery found, so a wrong claim fails at runtime.
+A type argument is a claim about the appliance. Discovery still decides which
+client you get. A named `version` skips discovery and also selects the
+WebSocket endpoint, so name the version the appliance actually runs. The types
+follow it when the version is a literal.
 
-**State the version** when you already know it — a UI served by the appliance,
-a harness against a pinned image:
+For code that must run against any supported release, use `client.ops`. It
+offers the same calls on every version and maps them onto whatever that version
+provides:
 
 ```typescript
-const client = await createTrueNasClient({
-  uuid, hostnames, enabled: true, version: 'v27.0.0',
-});
-client.api.query('container.query');   // typed v27, derived from the string
+client.ops.containerQuery();                    // Observable<Container[]>
+client.ops.containerStop(id, { force: true });  // Observable<Job | null>
+client.ops.smbStatus({ infoLevel: 'SESSIONS' });
 ```
 
-This skips discovery entirely: no `GET /api/versions`, no CORS fallback. The
-surface is *derived* rather than asserted, so there is no type argument to get
-wrong, and a version the package ships no types for does not compile.
+Per-version details, such as permissions that differ between releases, are in
+the `OperationMappings` reference.
 
-It is the stronger claim of the two, because the version also selects the
-websocket path. Naming `v27.0.0` at a v26 appliance connects on `/api/v27.0.0`
-with v27 types over a v26 server, and discovery cannot correct it — declining
-discovery is the point.
+## Connection
 
-The derivation needs the version to be literal at the call site. Passing a type
-argument as well, forwarding `version` through a wrapper, or annotating the
-options object as `CreateClientOptions` all compile, all connect to the version
-you named, and all type as the default surface instead. That
-errs safely — understated types fail at the method call, not at runtime — but
-silently, so keep the literal where the call is.
-
-Compatibility is still checked, and two kinds of refusal reach a caller. A string that
-is not a supported version — reachable only from JavaScript — throws a plain
-`Error` naming the ones that are. A supported version this build has no client
-for throws `VersionTooNewError`, the same type discovery raises; that happens
-when types have been generated for a release before its client was written.
-There is no `VersionTooOldError` here, because the oldest version you can name
-is the oldest one supported.
-
-Operations that must work across versions belong on `client.ops`. On the
-discovery route that resolves against whatever the appliance turned out to be.
-On the named route it cannot: the client class is picked from the version you
-stated, so `ops` is that version's mappings whether or not the server agrees.
-
-`ops` is deliberately flat — `OperationMappings`, not parameterized by the
-directory — so every operation is callable whether or not you pinned a version.
-That is what lets an operation paper over a difference the type system would
-otherwise force the caller to handle.
-
-```ts
-// The same call on every supported version.
-const sessions = await firstValueFrom(
-  client.ops.smbStatus({ infoLevel: 'SESSIONS' })
-);
-
-// A client count is this composed, not a second operation.
-const count = await firstValueFrom(
-  client.ops.smbStatus({
-    infoLevel: 'SESSIONS',
-    options: { count: true },
-    statusOptions: { fast: true },
-  })
-);
+```typescript
+client.connection.opened.subscribe(open => indicator.set(open));
+client.connection.setEnabled(false);   // disconnect; true connects again
+client.close();                        // disconnect for good
 ```
 
-`smbStatus` is worth singling out, because it is the first operation whose
-v25.10 leg is invisible to `middlewared --dump-api`. `smb.status` is public on
-v26+ and generated like any other method; on v25.10 it is the same method taking
-the same four positional arguments and returning the same `list | dict | int`,
-but middleware declares it `private=True`, so the dump omits it and no generated
-v25.10 type mentions it. The v25.10 client therefore *asserts* the method exists
-rather than reading it from the directory — a single narrow declaration admitting
-one method name, one argument tuple and one return type, checked against
-middleware source instead of against the dump.
+An appliance served without TLS needs `protocol: 'http:'`, which switches
+discovery to `http` and the socket to `ws`. It describes the appliance, not the
+page, and defaults to `https:`.
 
-Three consequences worth knowing before you reach for it.
+Pass `logger: consoleLogger`, or any object implementing `Logger`, to see what
+the client is doing.
 
-**It needs a full-admin session on v25.10.** Being private there decides
-authorization, not just documentation. `smb.status` declares no roles on
-v25.10, and middleware role-registers a method only `if roles:` — so it is in no
-role's allowlist, and only a **non-STIG full-admin** session, whose allowlist is
-the wildcard `{ method: '*', resource: '*' }`, reaches it. A session holding
-exactly `SHARING_SMB_READ` is refused with `EACCES` on v25.10 and succeeds on
-v26+, where the method carries that role. Under STIG, full admin is expanded to
-the union of its roles' allowlists rather than the wildcard, so it is refused on
-v25.10 as well. The client does not pre-empt any of this: you get middleware's
-own error, on the version where it applies.
+## Errors
 
-**It logs server-side on every dispatch**, which matters if you poll it. v25.10
-is in maintenance and that cost is accepted there, but it is not a pattern to
-extend.
-
-**The result is the union middleware sends** — which arm arrives is decided by
-the options, not the info level — so callers narrow it themselves.
-
-These types are deliberately not the generated ones. `SmbStatusOptions` is not
-v26's `SMBStatusOptions`, and `SmbStatusResponse` is not that method's generated
-response: the generated types describe one version's dump, while these describe
-the contract both versions honour. They are named `Smb…` rather than `SMB…` so
-the two cannot be confused at a call site — and `SmbStatusOptions` is the one
-pair where the names sit closest, since it is the fourth positional argument on
-both versions.
+- **Calls** error with middleware's message.
+- **Logins** error with `AuthError`. Check `code` against `AuthErrorCode`.
+- **`createTrueNasClient`** rejects with a `VersionDiscoveryError` subclass, such
+  as `VersionTooOldError`, `VersionTooNewError` or
+  `VersionDiscoveryNetworkError`.
 
 ## Documentation
 
-The API reference is generated from the TSDoc comments in the source with
-[TypeDoc](https://typedoc.org/) and published to GitHub Pages with each npm release:
-<https://truenas.github.io/api-client-ts/>
-
-```bash
-yarn docs                # generate locally into docs/ (gitignored)
-yarn docs:check          # validate doc comments without rendering (run in CI)
-```
+The full API reference is at <https://truenas.github.io/api-client-ts/>,
+generated from the source with each release.
 
 ## Development
 
 ```bash
-corepack enable          # once, to enable Yarn 4
+corepack enable          # once, for Yarn 4
 yarn install
-yarn build               # bundle to dist/ (ESM + CJS + .d.ts) via tsup
-yarn typecheck           # tsc --noEmit
-yarn test                # vitest
-yarn lint                # eslint
+yarn build               # ESM + CJS + .d.ts into dist/
+yarn typecheck           # sources, specs and scripts
+yarn test
+yarn lint
+yarn generate:api        # regenerate src/generated from middleware dumps
 ```
 
-## Layout
-
-Sources live under `src/`, grouped by role:
-
-```
-src/
-  connection/   api/   auth/   client/        # the WebSocket client, split by responsibility
-  types/   enums/   utils/   config/   errors/
-  logger.ts   factory.ts   version-discovery.ts   index.ts
-```
-
-Internal modules import each other through the `@/*` path alias (`@/* → src/*`). The alias is a
-build-time convenience only — it is inlined away during bundling and never reaches consumers; the public
-API is solely what `src/index.ts` (the barrel) re-exports.
+Releases are automated from commit titles. See [RELEASING.md](RELEASING.md).
