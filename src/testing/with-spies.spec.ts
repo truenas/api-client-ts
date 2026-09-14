@@ -1,10 +1,10 @@
-import { firstValueFrom } from 'rxjs';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { TrueNasApi } from '@/api/truenas-api';
-import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
-import { createFakeClient, type FakeTrueNasClient } from './create-fake-client';
-import { API_VERBS, AUTHENTICATOR_METHODS, withSpies } from './with-spies';
-import type { ApiDirectoryV27_0_0 } from '@/generated';
+import { firstValueFrom } from "rxjs";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { TrueNasApi } from "@/api/truenas-api";
+import { TrueNasAuthenticator } from "@/auth/truenas-authenticator";
+import { createFakeClient, type FakeTrueNasClient } from "./create-fake-client";
+import { API_VERBS, AUTHENTICATOR_METHODS, withSpies } from "./with-spies";
+import type { ApiDirectoryV27_0_0 } from "@/generated";
 
 /**
  * The verbs `withSpies` installs on `api`, and the public methods it
@@ -39,12 +39,12 @@ const SPIED = API_VERBS;
  * already shows it.
  */
 const UNSPIED = [
-  'authenticated',
-  'connection',
-  'dispatch',
-  'eventStreams',
-  'initializeJobEventsSubscription',
-  'jobEvents',
+  "authenticated",
+  "connection",
+  "dispatch",
+  "eventStreams",
+  "initializeJobEventsSubscription",
+  "jobEvents",
 ] as const;
 
 function members(instance: object): string[] {
@@ -55,23 +55,24 @@ function members(instance: object): string[] {
     level = Object.getPrototypeOf(level) as object | null
   ) {
     for (const name of Object.getOwnPropertyNames(level)) {
-      if (name !== 'constructor') seen.add(name);
+      if (name !== "constructor") seen.add(name);
     }
   }
   return [...seen].sort();
 }
 
 /**
- * The authenticator's half of the same instrument.
+ * The authenticator's half of the same instrument, and the members it leaves
+ * alone.
  *
  * Type-level only: what cannot be named cannot be spied, so the public surface
  * is the whole scope here, and `keyof` is exactly that. Without it, dropping a
  * method from `AUTHENTICATOR_METHODS` removed the check along with the entry —
  * the test iterates that list, so a shorter list is a shorter test.
- */
-/**
- * State a spec reads or drives, not calls. `authenticated$` and
- * `authenticating$` are the subjects the client and the fake both gate on,
+ *
+ * What is listed below is state a spec reads or drives, not calls.
+ * `authenticated$` and `authenticating$` are the subjects the client and the
+ * fake both gate on,
  * `credentials` is what the auto-relogin replays, and `sessionLifetime` is
  * read from the login response. A spy on any of them would replace a stream
  * with a function.
@@ -80,10 +81,7 @@ function members(instance: object): string[] {
  * runtime: the classification is entirely the compiler's to check.
  */
 type AuthenticatorUnspied =
-  | 'authenticated$'
-  | 'authenticating$'
-  | 'credentials'
-  | 'sessionLifetime';
+  "authenticated$" | "authenticating$" | "credentials" | "sessionLifetime";
 
 type UnclassifiedAuthenticator = Exclude<
   keyof TrueNasAuthenticator,
@@ -101,11 +99,11 @@ type Unclassified = Exclude<
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _unclassified: Unclassified extends never ? true : Unclassified = true;
 
-describe('withSpies', () => {
+describe("withSpies", () => {
   const built: FakeTrueNasClient<ApiDirectoryV27_0_0>[] = [];
 
   const client = (): FakeTrueNasClient<ApiDirectoryV27_0_0> => {
-    const made = createFakeClient({ version: 'v27.0.0' });
+    const made = createFakeClient({ version: "v27.0.0" });
     built.push(made);
     return made;
   };
@@ -114,29 +112,31 @@ describe('withSpies', () => {
     for (const made of built.splice(0, built.length)) made.connection.close();
   });
 
-  it('classifies every member of the real api', () => {
+  it("classifies every member of the real api", () => {
     const classified = new Set<string>([...SPIED, ...UNSPIED]);
     const unclassified = members(client().api).filter(
-      name => !classified.has(name)
+      (name) => !classified.has(name),
     );
 
     expect(unclassified).toEqual([]);
   });
 
-  it('leaves behaviour intact', async () => {
+  it("leaves behaviour intact", async () => {
     const c = withSpies(client(), vi.fn);
-    c.mock.call('core.ping', 'pong');
+    c.mock.call("core.ping", "pong");
 
-    await expect(firstValueFrom(c.api.call('core.ping'))).resolves.toBe('pong');
+    await expect(firstValueFrom(c.api.call("core.ping"))).resolves.toBe("pong");
   });
 
-  it('records the call the spec asserts on', async () => {
+  it("records the call the spec asserts on", async () => {
     const c = withSpies(client(), vi.fn);
-    c.mock.call('pool.dataset.get_instance', () => ({ id: 'tank' }));
+    c.mock.call("pool.dataset.get_instance", () => ({ id: "tank" }));
 
-    await firstValueFrom(c.api.call('pool.dataset.get_instance', ['tank']));
+    await firstValueFrom(c.api.call("pool.dataset.get_instance", ["tank"]));
 
-    expect(c.api.call).toHaveBeenCalledWith('pool.dataset.get_instance', ['tank']);
+    expect(c.api.call).toHaveBeenCalledWith("pool.dataset.get_instance", [
+      "tank",
+    ]);
   });
 
   /**
@@ -144,17 +144,19 @@ describe('withSpies', () => {
    * makes a spy on it an assertion about the protocol rather than about the
    * verb that was called.
    */
-  it('spies the connection without swallowing the frame', async () => {
+  it("spies the connection without swallowing the frame", async () => {
     const c = withSpies(client(), vi.fn);
-    c.mock.call('core.ping', 'pong');
+    c.mock.call("core.ping", "pong");
 
-    await firstValueFrom(c.api.call('core.ping'));
+    await firstValueFrom(c.api.call("core.ping"));
 
     expect(c.connection.send).toHaveBeenCalled();
-    expect(c.connection.sent.map(frame => frame.method)).toContain('core.ping');
+    expect(c.connection.sent.map((frame) => frame.method)).toContain(
+      "core.ping",
+    );
   });
 
-  it('spies every login the authenticator offers', () => {
+  it("spies every login the authenticator offers", () => {
     const c = withSpies(client(), vi.fn);
 
     // Also the implementation's list, for the same reason.
@@ -169,15 +171,15 @@ describe('withSpies', () => {
    * throw without them — a spied client behaving differently from the client
    * it observes, which is the one thing this package cannot do.
    */
-  it('does not make a detached verb work where the real one would not', async () => {
+  it("does not make a detached verb work where the real one would not", async () => {
     const plain = client();
     const spied = withSpies(client(), vi.fn);
 
     const { call: detachedFromPlain } = plain.api;
     const { call: detachedFromSpied } = spied.api;
 
-    expect(() => detachedFromPlain('core.ping')).toThrow();
-    expect(() => detachedFromSpied('core.ping')).toThrow();
+    expect(() => detachedFromPlain("core.ping")).toThrow();
+    expect(() => detachedFromSpied("core.ping")).toThrow();
   });
 
   /**
@@ -185,7 +187,7 @@ describe('withSpies', () => {
    * renamed verb would otherwise install a spy on `undefined` and the failure
    * would surface as "not a function" at the call site.
    */
-  it('refuses a name that is not a method', () => {
+  it("refuses a name that is not a method", () => {
     const c = client();
     const broken = {
       api: c.api,

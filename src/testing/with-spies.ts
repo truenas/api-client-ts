@@ -114,9 +114,10 @@ function spyOnMethods<T extends object>(
  * expect(client.api.call).toHaveBeenCalledWith('system.info');
  * ```
  *
- * Behaviour is preserved: each spy wraps the real method bound to its own
- * object, so the call still runs the real dispatch and still answers from
- * whatever `mock` scripted. This only makes the calls visible to the runner's
+ * Behaviour is preserved: each spy wraps the real method, which the runner
+ * then invokes with the `this` of the call — so the call still runs the real
+ * dispatch and still answers from whatever `mock` scripted. Nothing is bound;
+ * see the note in `spyOnMethods` for why that matters. This only makes the calls visible to the runner's
  * matchers — `connection.sent` and `authenticator.logins` record the same
  * calls without a runner, and remain the way to assert without one.
  *

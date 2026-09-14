@@ -19,9 +19,32 @@ export interface FakeAuthResponseOverrides
 }
 
 /**
+ * What each arm of the union carries beyond `response_type`.
+ *
+ * A `Record` keyed by the enum rather than a chain of comparisons, so a member
+ * added to `AuthResponseType` is a compile error here instead of silently
+ * taking an empty arm. That matters now rather than hypothetically: the enum
+ * is two arms short of middleware's union — `AuthLoginExResult.result` at
+ * `4303dc8:src/middlewared/middlewared/api/v27_0_0/auth.py:335-338` has seven,
+ * including `AuthRespDenied` (`:206-209`) and `AuthRespScram` (`:245-262`),
+ * and `AuthRespScram` requires `scram_type` and `rfc_str`. Adding either to
+ * the enum should stop the build here and make someone say what it carries.
+ */
+export const ARMS: Record<AuthResponseType, Partial<AuthResponse>> = {
+  [AuthResponseType.Success]: {
+    authenticator: 'LEVEL_1',
+    reconnect_token: null,
+  },
+  [AuthResponseType.OtpRequired]: { username: 'root' },
+  [AuthResponseType.Redirect]: { urls: ['https://truenas.local/sso'] },
+  [AuthResponseType.AuthErr]: {},
+  [AuthResponseType.Expired]: {},
+};
+
+/**
  * A complete `AuthResponse`, so a scripted login is the shape a caller reads.
  *
- * `user_info` has twenty-three required fields and three nested objects. Every
+ * `user_info` has twenty-two required fields and three nested objects. Every
  * spec in this repo that needed one wrote three of them and cast the rest away
  * with `as unknown as AuthResponse`, which accepts a `response_type` that is
  * not a `response_type` and a `roles` that is not an array — and the cast is
@@ -31,8 +54,13 @@ export interface FakeAuthResponseOverrides
  *
  * **The whole envelope follows `response_type`, not just `user_info`.**
  * `auth.login_ex` returns a discriminated union and each arm carries only its
- * own fields — checked against middleware `4303dc8`,
- * `api/v27_0_0/auth.py:187-243`:
+ * own fields. The table below is the five arms *this package* can name — the
+ * members of `AuthResponseType` — with the fields middleware gives each at
+ * `4303dc8:src/middlewared/middlewared/api/v27_0_0/auth.py`. It is not the
+ * whole union: that has seven arms (`:335-338`), and `AuthRespDenied`
+ * (`:206-209`) and `AuthRespScram` (`:245-262`) are missing from the enum, so
+ * this package cannot name two of the responses a v26+ appliance can send.
+ * See {@link ARMS} for what happens when they are added:
  *
  * | `response_type` | fields |
  * |---|---|
@@ -59,8 +87,12 @@ export interface FakeAuthResponseOverrides
  * — but do not read `'reconnect_token' in response` as a claim about the
  * version.
  *
- * `satisfies` rather than a cast, so the literal is checked: a field added to
- * `AuthResponse` fails here, which is the whole reason to have a builder.
+ * `satisfies` rather than a cast, so the literal is checked — but only for
+ * *required* fields. Every member of `AuthResponse` except `response_type` is
+ * optional, so an optional addition passes here unnoticed; the guard that
+ * bites is `ARMS`, whose `Record` fails on an unhandled `response_type`. The
+ * `user_info` literal is the stronger half: its type has twenty-two required
+ * members, so anything added there fails on the spot.
  */
 export function fakeAuthResponse(
   overrides: FakeAuthResponseOverrides = {}
@@ -108,18 +140,9 @@ export function fakeAuthResponse(
         } satisfies UserInfo)
       : undefined;
 
-  const arm: Partial<AuthResponse> =
-    responseType === AuthResponseType.Success
-      ? { authenticator: 'LEVEL_1', reconnect_token: null }
-      : responseType === AuthResponseType.OtpRequired
-        ? { username: 'root' }
-        : responseType === AuthResponseType.Redirect
-          ? { urls: ['https://truenas.local/sso'] }
-          : {};
-
   return {
     response_type: responseType,
-    ...arm,
+    ...ARMS[responseType],
     ...present(rest),
     ...(userInfo ? { user_info: userInfo } : {}),
   } satisfies AuthResponse;

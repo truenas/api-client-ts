@@ -36,11 +36,16 @@ export interface FakeConnectionOptions {
  * Frames the client sends for itself, which no spec should have to script.
  *
  * `core.subscribe` is the only one reachable: the client sends it for the job
- * stream once authenticated and again for every `events()` name. The other two
- * housekeeping methods are deliberately absent — `core.unsubscribe` is never
- * sent, and the 20-second `core.ping` fires only when `ws$` yields a socket,
- * which a fake connection never does. If either starts arriving, a strict spec
- * fails naming it, which is the right way to find out.
+ * stream once authenticated and again for every `events()` name. If another
+ * method starts arriving through `send`, a strict spec fails naming it, which
+ * is the right way to find out.
+ *
+ * The other two housekeeping methods are absent for different reasons, and
+ * only one of them is covered by that sentence. `core.unsubscribe` is never
+ * sent at all, so it would fail loudly if it ever were. The 20-second
+ * `core.ping` would not: it goes out through `ws.next(…)` rather than `send`
+ * (`truenas-connection.ts`), so it bypasses this check entirely — and a fake
+ * connection never yields a socket for it to fire on in the first place.
  */
 const CLIENT_HOUSEKEEPING = new Set(['core.subscribe']);
 

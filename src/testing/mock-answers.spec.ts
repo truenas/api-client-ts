@@ -515,10 +515,11 @@ describe('mock answers', () => {
           errname: 'EINVAL',
           reason: 'MatchNotFound()',
           extra: null,
-          // Shape, not contents: a fixture has no Python stack to format, and
-          // a `-32001` frame always carries one — see `fakeApiError`.
+          // A real empty `get` raises `MatchNotFound`, which is argument-free
+          // and unadapted, so the appliance sends exactly this class and repr.
+          // Only `formatted` is synthetic — a fixture has no stack to format.
           trace: {
-            class: expect.any(String) as unknown as string,
+            class: 'MatchNotFound',
             formatted: expect.any(String) as unknown as string,
             repr: 'MatchNotFound()',
           },

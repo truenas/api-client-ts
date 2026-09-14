@@ -13,10 +13,19 @@
  *
  * **Where it surfaces depends on who sent the frame.** Every `TrueNasApi` verb
  * dispatches inside a `defer`, so the throw becomes an error notification on
- * the returned observable and a lazily composed call still behaves. The
- * authenticator sends from its method bodies — `logout` and `newApiKey` — so
- * there it throws where the call is written. Both fail, both name the method;
- * only one is catchable as a rejected observable, and a spec written as
+ * the returned observable and a lazily composed call still behaves. Every
+ * authenticator method sends from its own body instead, so an unanswered frame
+ * there throws where the call is written.
+ *
+ * In practice that is `logout` and `newApiKey`, and the reason is the fake's
+ * scripting rather than the shape of the sends: `FakeAuthenticator` installs
+ * an auto-reply for `auth.login_ex` and none for `auth.logout` or
+ * `api_key.create`, so the four login methods are answered and those two are
+ * not. Script either one and it stops throwing; the pair moves if the fake
+ * ever answers one more method.
+ *
+ * Both kinds fail and both name the method. Only the verbs are catchable as a
+ * rejected observable, so a spec written as
  * `await expect(firstValueFrom(client.authenticator.logout())).rejects…` will
  * not reach its assertion.
  */

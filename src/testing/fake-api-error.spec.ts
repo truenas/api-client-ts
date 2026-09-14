@@ -48,10 +48,27 @@ describe('fakeApiError', () => {
     const trace = fakeApiError({ reason: 'Not authorized' }).data?.trace;
 
     expect(trace).not.toBeNull();
+    // `str(e)` of an exception that has arguments, so the repr is that call
+    // written out — not the reason, which is what `CallError` would have made
+    // it, and `CallError`'s own `__str__` would have prefixed `[EINVAL] `.
     expect(trace).toMatchObject({
-      class: expect.any(String) as unknown as string,
-      formatted: expect.any(String) as unknown as string,
-      repr: 'Not authorized',
+      class: 'ValueError',
+      repr: "ValueError('Not authorized')",
+    });
+  });
+
+  /**
+   * A reason that reads as a bare repr is one: `str()` of an argument-free
+   * exception is empty, so `str(error) or repr(error)` falls through to the
+   * repr, and the class is its name. This is the shape `mock.query`'s missed
+   * `get` produces, so the pair has to be the pair `MatchNotFound` sends.
+   */
+  it('reads an argument-free exception out of its own repr', () => {
+    const trace = fakeApiError({ reason: 'MatchNotFound()' }).data?.trace;
+
+    expect(trace).toMatchObject({
+      class: 'MatchNotFound',
+      repr: 'MatchNotFound()',
     });
   });
 

@@ -23,6 +23,25 @@ export interface FakeApiErrorOverrides
   message?: string;
 }
 
+/** A reason that is a bare `repr()` — an exception raised with no arguments. */
+const BARE_REPR = /^([A-Za-z_][A-Za-z0-9_]*)\(\)$/;
+
+/**
+ * A trace whose `class` and `repr` agree with the reason, so the three
+ * together are a triple an appliance could send. See {@link fakeApiError}.
+ */
+function syntheticTrace(reason: string): NonNullable<TrueNasErrorData['trace']> {
+  const bare = BARE_REPR.exec(reason);
+  const cls = bare ? bare[1] : 'ValueError';
+  const repr = bare ? reason : `ValueError('${reason}')`;
+
+  return {
+    class: cls,
+    formatted: `Traceback (most recent call last):\n  <synthetic>\n${repr}\n`,
+    repr,
+  };
+}
+
 /**
  * The error a method call fails with on `/api/<version>`.
  *
@@ -55,13 +74,24 @@ export interface FakeApiErrorOverrides
  * **`trace` is an object, not `null`.** Both arms that send `-32001` pass
  * `sys.exc_info()`, which inside an `except` block is always truthy, so
  * `format_truenas_error` always builds one for this code — an error frame with
- * `trace: null` is not something the versioned endpoint produces. Its
- * *contents* here are synthetic, because a fixture has no Python stack to
- * format; only the shape is faithful, and `repr` carries the reason the way
- * middleware's does for an exception with no arguments. Pass `trace: null`
- * explicitly for the one payload that genuinely has none — the job-event error,
- * which `format_truenas_error` builds without `exc_info` and which is not a
- * JSON-RPC error frame at all.
+ * `trace: null` is not something the versioned endpoint produces.
+ *
+ * `formatted` is synthetic, because a fixture has no Python stack to format.
+ * `class` and `repr` are not: they are chosen so the triple is one an
+ * appliance could send. The generic arm's `reason` is `str(error) or
+ * repr(error)`, so a reason that reads as a bare repr — `MatchNotFound()` —
+ * means an argument-free exception, and `class` is its name and `repr` is the
+ * reason itself. Any other reason is `str(e)` of an exception that has
+ * arguments, so `class` is `ValueError` and `repr` is that call written out.
+ * `CallError` is the one name deliberately not used: it is never
+ * argument-free, and its `__str__` is `[ERRNAME] errmsg`
+ * (`4303dc8:src/middlewared/middlewared/service_exception.py:15-24`), so a
+ * frame whose `trace.class` is `CallError` always has a `reason` starting
+ * `[EINVAL] `.
+ *
+ * Pass `trace: null` explicitly for the one payload that genuinely has none —
+ * the job-event error, which `format_truenas_error` builds without `exc_info`
+ * and which is not a JSON-RPC error frame at all.
  */
 export function fakeApiError(overrides: FakeApiErrorOverrides = {}): TrueNasErrorFrame {
   const { code, message, ...data } = overrides;
@@ -75,11 +105,7 @@ export function fakeApiError(overrides: FakeApiErrorOverrides = {}): TrueNasErro
       errname: 'EINVAL',
       reason,
       extra: null,
-      trace: {
-        class: 'CallError',
-        formatted: `Traceback (most recent call last):\n  <synthetic>\n${reason}\n`,
-        repr: reason,
-      },
+      trace: syntheticTrace(reason),
       ...present(data),
     } satisfies TrueNasErrorData,
   };

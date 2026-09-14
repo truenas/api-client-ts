@@ -1,9 +1,37 @@
 import { describe, expect, it } from 'vitest';
 import { AuthResponseType } from '@/types/auth.type';
 import { UserRole } from '@/enums/user-role.enum';
-import { fakeAuthResponse } from './fake-auth-response';
+import { ARMS, fakeAuthResponse } from './fake-auth-response';
+
+/**
+ * What each arm should come back with, stated here rather than derived from
+ * `ARMS` — derived, this would assert that the builder emits what its own
+ * table says, which is true by construction. These rows are the fidelity
+ * claim, checked against middleware `4303dc8:…/api/v27_0_0/auth.py`:
+ * `AuthRespSuccess` `:226-242`, `AuthRespOTPRequired` `:212-216`,
+ * `AuthRespAuthRedirect` `:193-197`, `AuthRespAuthErr` `:187-190`,
+ * `AuthRespExpired` `:200-203`.
+ */
+const ARM_FIELDS = [
+  [AuthResponseType.Success, ['response_type', 'authenticator', 'reconnect_token', 'user_info']],
+  [AuthResponseType.OtpRequired, ['response_type', 'username']],
+  [AuthResponseType.Redirect, ['response_type', 'urls']],
+  [AuthResponseType.AuthErr, ['response_type']],
+  [AuthResponseType.Expired, ['response_type']],
+] as const satisfies readonly (readonly [AuthResponseType, readonly string[]])[];
 
 describe('fakeAuthResponse', () => {
+  /**
+   * The rows above are a list; `ARMS` is the builder's own. An arm added to
+   * one and not the other is an arm nobody has said anything about — which is
+   * the state the `Record` was introduced to make impossible one level up.
+   */
+  it('has a row for every arm the builder knows', () => {
+    expect(ARM_FIELDS.map(([type]) => String(type)).sort()).toEqual(
+      Object.keys(ARMS).sort()
+    );
+  });
+
   it('describes a successful full-admin login by default', () => {
     const response = fakeAuthResponse();
 
@@ -71,13 +99,7 @@ describe('fakeAuthResponse', () => {
    * hand a spec `authenticator: 'LEVEL_1'` on an `AUTH_ERR` — a shape no arm
    * has, and one a consumer might reasonably read as "this login succeeded".
    */
-  it.each([
-    [AuthResponseType.Success, ['response_type', 'authenticator', 'reconnect_token', 'user_info']],
-    [AuthResponseType.OtpRequired, ['response_type', 'username']],
-    [AuthResponseType.Redirect, ['response_type', 'urls']],
-    [AuthResponseType.AuthErr, ['response_type']],
-    [AuthResponseType.Expired, ['response_type']],
-  ])('carries only the %s arm\'s own fields', (responseType, expected) => {
+  it.each(ARM_FIELDS)('carries only the %s arm\'s own fields', (responseType, expected) => {
     const response = fakeAuthResponse({ response_type: responseType });
 
     expect(Object.keys(response).sort()).toEqual([...expected].sort());
