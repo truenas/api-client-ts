@@ -10,6 +10,7 @@ import type {
   JobResult,
 } from '@/types/api-directory.type';
 import type { Job, JobProgress } from '@/types/job.type';
+import { fakeApiError } from './fake-api-error';
 import { fakeJob } from './fake-job';
 import type { QueryEntity, QueryMethod } from '@/types/query.type';
 import type { TrueNasMessage } from '@/types/truenas-message.type';
@@ -202,17 +203,7 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
    * under a JSON-RPC error's `data`; only legacy `/websocket` puts it top-level.
    */
   const notFound = (frame: TrueNasMessage): void => {
-    errorTo(frame, {
-      code: -32001,
-      message: 'Method call error',
-      data: {
-        error: 22,
-        errname: 'EINVAL',
-        reason: 'MatchNotFound()',
-        extra: null,
-        trace: null,
-      },
-    });
+    errorTo(frame, fakeApiError({ reason: 'MatchNotFound()' }));
   };
 
   const errorTo = (frame: TrueNasMessage, error: NonNullable<TrueNasMessage['error']>): void => {

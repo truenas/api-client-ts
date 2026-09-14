@@ -1,19 +1,8 @@
-import type { JsonRpcError } from '@/types/api-error.type';
+import type {
+  TrueNasErrorData,
+  TrueNasErrorFrame,
+} from '@/types/api-error.type';
 import { present } from './present';
-
-/** The TrueNAS payload a method-call error carries in its `data`. */
-export interface TrueNasErrorData {
-  /** The errno middleware raised — `errno.EINVAL` for anything it cannot adapt. */
-  error: number;
-  /** `get_errname(errno)`. Middleware derives it; a fixture has to keep the pair honest itself. */
-  errname: string;
-  /** `str(e) or repr(e)`, which is the repr for an exception that stringifies to nothing. */
-  reason: string;
-  /** Present and `null` unless the exception was adapted into one that carries a list. */
-  extra: unknown[] | null;
-  /** The formatted traceback, or `null` — which is what a client normally sees. */
-  trace: { class: string; formatted: string; repr: string } | null;
-}
 
 /** Flat overrides for a nested frame: say what varies, get the real shape. */
 export interface FakeApiErrorOverrides extends Partial<TrueNasErrorData> {
@@ -52,7 +41,7 @@ export interface FakeApiErrorOverrides extends Partial<TrueNasErrorData> {
  * table, which this package has declined to do elsewhere for the same reason.
  * Pass both when you want something other than `EINVAL`.
  */
-export function fakeApiError(overrides: FakeApiErrorOverrides = {}): JsonRpcError {
+export function fakeApiError(overrides: FakeApiErrorOverrides = {}): TrueNasErrorFrame {
   const { code, message, ...data } = overrides;
 
   return {
