@@ -1,7 +1,7 @@
 import { Subject, Subscription, distinctUntilChanged, filter, map, takeUntil } from 'rxjs';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import { noopLogger } from '@/logger';
-import type { ApiError } from '@/types/api-error.type';
+import type { TrueNasErrorFrame } from '@/types/api-error.type';
 import type { TrueNasMessage } from '@/types/truenas-message.type';
 
 /** How a fake connection is set up. Every field has a usable default. */
@@ -189,18 +189,20 @@ export class FakeConnection extends TrueNasConnection {
   }
 
   /**
-   * As {@link reply}, with a JSON-RPC error payload instead of a result.
+   * As {@link reply}, with a JSON-RPC error instead of a result.
    *
-   * Typed as what middleware actually sends rather than as
-   * `TrueNasMessage['error']`, whose legacy shape made every call site cast
-   * past this signature to write an ordinary error.
+   * Typed as the frame `/api/<version>` sends and nothing else: `code` and
+   * `message` outside, the TrueNAS payload under `data`. The legacy
+   * `/websocket` shape — those payload fields at the top level — is not
+   * accepted, so a spec cannot script an error this client can never receive.
+   * It was accepted until now only because the parameter was the loose
+   * `ApiError` union, which admits both.
+   *
+   * The cast is gone with it: the frame's own type says this is what an error
+   * looks like.
    */
-  replyError(method: string, error: ApiError): void {
-    this.receive({
-      jsonrpc: '2.0',
-      id: this.idOf(method),
-      error,
-    } as unknown as TrueNasMessage);
+  replyError(method: string, error: TrueNasErrorFrame): void {
+    this.receive({ jsonrpc: '2.0', id: this.idOf(method), error });
   }
 
   /**

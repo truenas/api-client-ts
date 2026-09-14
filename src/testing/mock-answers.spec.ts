@@ -510,8 +510,22 @@ describe('mock answers', () => {
 
     await expect(firstValueFrom(c.api.queryOne('pool.dataset.query'))).rejects.toThrow();
 
+    // The whole frame, envelope included. Asserting the payload alone would
+    // pass against the legacy `/websocket` shape, which is what this sent
+    // until the envelope was found — and `getApiErrorMessage` reduces both to
+    // the same string, so the thrown message certifies nothing either.
     expect(errors).toEqual([
-      { error: 22, errname: 'EINVAL', extra: null, reason: 'MatchNotFound()' },
+      {
+        code: -32001,
+        message: 'Method call error',
+        data: {
+          error: 22,
+          errname: 'EINVAL',
+          reason: 'MatchNotFound()',
+          extra: null,
+          trace: null,
+        },
+      },
     ]);
   });
 

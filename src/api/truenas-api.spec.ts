@@ -86,14 +86,16 @@ describe('TrueNasApi', () => {
     new Promise<void>((resolve, reject) => {
       const mockMethod = 'system.info';
       const mockId = `mock-id-system.info`;
-      const mockErrorResponse = {
+      // No cast: `-32600 / "Invalid request"` is one of the codes middleware
+      // sends without a `data` payload, and the frame type now says so.
+      const mockErrorResponse: TrueNasMessage = {
         jsonrpc: '2.0',
         id: mockId,
         error: {
           code: -32600,
           message: 'Invalid Request',
         },
-      } as unknown as TrueNasMessage;
+      };
 
       api.call(mockMethod).subscribe({
         next: () => reject(new Error('Should have thrown an error')),

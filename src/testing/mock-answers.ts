@@ -229,13 +229,25 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
    * the repr, because a bare `IndexError` stringifies to nothing. Inventing a
    * friendlier `ENOENT: no results match` here made the fake the only place
    * that text exists, and the repo's own tests then asserted it.
+   *
+   * Those four fields are the payload, not the frame. `/api/<version>` sends
+   * them inside a JSON-RPC error — `code: -32001`, `message: "Method call
+   * error"`, the payload under `data` — and only the legacy `/websocket`
+   * endpoint puts them at the top level. This sent the legacy shape until the
+   * fixtures work went looking for it, and nothing here noticed, because
+   * `getApiErrorMessage` finds a `reason` at either depth.
    */
   const notFound = (frame: TrueNasMessage): void => {
     errorTo(frame, {
-      error: 22,
-      errname: 'EINVAL',
-      extra: null,
-      reason: 'MatchNotFound()',
+      code: -32001,
+      message: 'Method call error',
+      data: {
+        error: 22,
+        errname: 'EINVAL',
+        reason: 'MatchNotFound()',
+        extra: null,
+        trace: null,
+      },
     });
   };
 
