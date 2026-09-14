@@ -20,30 +20,50 @@ const ARM_FIELDS = [
   [AuthResponseType.Expired, ['response_type']],
 ] as const satisfies readonly (readonly [AuthResponseType, readonly string[]])[];
 
+/** Every object and array reachable from a response, with the path to it. */
+function referencesIn(value: unknown, path = ''): [string, object][] {
+  if (typeof value !== 'object' || value === null) return [];
+
+  return [
+    [path, value] as [string, object],
+    ...Object.entries(value).flatMap(([key, nested]) =>
+      referencesIn(nested, path ? `${path}.${key}` : key)
+    ),
+  ];
+}
+
 describe('fakeAuthResponse', () => {
-  /**
-   * The rows above are a list; `ARMS` is the builder's own. An arm added to
-   * one and not the other is an arm nobody has said anything about — which is
-   * the state the `Record` was introduced to make impossible one level up.
-   */
   /**
    * A spread copies references. With the arms as plain objects in module
    * scope, every `REDIRECT` response shared one `urls` array: a spec pushing a
    * second SSO URL onto one response — or code under test calling `.sort()` on
    * it — changed every later response in the file, and the failure landed in a
    * test that did not cause it.
+   *
+   * Every reference the builder hands back is walked, not just `urls`: the
+   * `SUCCESS` arm returns eleven more — `user_info` and its `privilege`,
+   * `group` and `attributes` sub-objects among them — and a guard named for
+   * all of them should check all of them.
    */
-  it('gives each response its own arrays', () => {
-    const first = fakeAuthResponse({ response_type: AuthResponseType.Redirect });
-    const second = fakeAuthResponse({ response_type: AuthResponseType.Redirect });
+  it.each(Object.keys(ARMS) as AuthResponseType[])(
+    'gives each %s response its own objects',
+    responseType => {
+      const first = fakeAuthResponse({ response_type: responseType });
+      const second = fakeAuthResponse({ response_type: responseType });
 
-    expect(first.urls).not.toBe(second.urls);
+      const shared = referencesIn(first).filter(([path, value]) =>
+        referencesIn(second).some(([other, otherValue]) => other === path && otherValue === value)
+      );
 
-    first.urls?.push('https://evil.example/added');
+      expect(shared).toEqual([]);
+    }
+  );
 
-    expect(second.urls).toEqual(['https://truenas.local/sso']);
-  });
-
+  /**
+   * The rows above are a list; `ARMS` is the builder's own. An arm added to
+   * one and not the other is an arm nobody has said anything about — which is
+   * the state the `Record` was introduced to make impossible one level up.
+   */
   it('has a row for every arm the builder knows', () => {
     expect(ARM_FIELDS.map(([type]) => String(type)).sort()).toEqual(
       Object.keys(ARMS).sort()

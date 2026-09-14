@@ -25,17 +25,19 @@ export interface FakeAuthResponseOverrides
  * added to `AuthResponseType` is a compile error here instead of silently
  * taking an empty arm.
  *
- * Each entry is a *function*, because a spread copies references: as plain
- * objects in module scope, every `REDIRECT` response shared one `urls` array,
- * so a spec pushing a second SSO URL onto one response changed every later
- * response in that file. The chain this replaced built its literal per call and
- * did not have that problem — the exhaustiveness fix introduced it, which is
- * why the fix that keeps both is one pair of parens rather than a rewrite. That matters now rather than hypothetically: the enum
- * is two arms short of middleware's union — `AuthLoginExResult.result` at
+ * That matters now rather than hypothetically: the enum is two arms short of
+ * middleware's union — `AuthLoginExResult.result` at
  * `4303dc8:src/middlewared/middlewared/api/v27_0_0/auth.py:335-338` has seven,
  * including `AuthRespDenied` (`:206-209`) and `AuthRespScram` (`:245-262`),
  * and `AuthRespScram` requires `scram_type` and `rfc_str`. Adding either to
  * the enum should stop the build here and make someone say what it carries.
+ *
+ * Each entry is a *function*, because a spread copies references: as plain
+ * objects in module scope, every `REDIRECT` response shared one `urls` array,
+ * so a spec pushing a second SSO URL onto one response changed every later
+ * response in that file. The chain this replaced built its literal per call
+ * and did not have that problem — the exhaustiveness fix introduced it, which
+ * is why the fix that keeps both is one pair of parens rather than a rewrite.
  */
 export const ARMS: Record<AuthResponseType, () => Partial<AuthResponse>> = {
   [AuthResponseType.Success]: () => ({

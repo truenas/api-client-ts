@@ -27,25 +27,57 @@ export interface FakeApiErrorOverrides
 const BARE_REPR = /^([A-Za-z_][A-Za-z0-9_]*)\(\)$/;
 
 /**
- * A Python `repr()` of a string, quoting the way CPython does.
+ * Characters CPython's `str.isprintable()` calls unprintable.
  *
- * Interpolating into single quotes is not it. `repr` picks `"` when the string
- * contains a `'` and no `"`, and escapes the backslash, the quote it chose,
- * and the control characters — so the common shapes of a middleware error
- * message all come out differently from the naive version:
- * `f"…{value!r}"` messages carry single quotes, and `adapt_exception` builds a
- * message with an embedded newline for every `CalledProcessError`
- * (`4303dc8:src/middlewared/middlewared/service_exception.py:114`).
+ * Its rule is: not printable if the code point is in category Cc, Cf, Cs, Co,
+ * Cn, Zl, Zp or Zs — with U+0020 the one exception, which is printable. Every
+ * other printable non-ASCII character, `é` and `日` and `😀` alike, is left
+ * alone by `repr()` and is left alone here.
  */
-function pythonRepr(value: string): string {
+const UNPRINTABLE = /[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\p{Zs}]/u;
+
+/** One code point, escaped the way `repr()` escapes it. */
+function escapeCodePoint(character: string): string {
+  if (character === '\n') return '\\n';
+  if (character === '\r') return '\\r';
+  if (character === '\t') return '\\t';
+
+  // `\b`, `\f` and `\v` are not among them: `repr('\x08')` is `'\x08'`.
+  const code = character.codePointAt(0) ?? 0;
+  if (code < 0x100) return `\\x${code.toString(16).padStart(2, '0')}`;
+  if (code < 0x10000) return `\\u${code.toString(16).padStart(4, '0')}`;
+  return `\\U${code.toString(16).padStart(8, '0')}`;
+}
+
+/**
+ * A Python `repr()` of a string, quoting and escaping the way CPython does.
+ *
+ * Interpolating into single quotes is not it, and neither is escaping the
+ * three whitespace controls. `repr` picks `"` when the string contains a `'`
+ * and no `"`, escapes the backslash and the quote it chose, and escapes every
+ * code point `str.isprintable()` rejects — `\xNN` below U+0100, `\uNNNN` below
+ * U+10000, `\UNNNNNNNN` above, with `\n`, `\r` and `\t` the three short forms.
+ *
+ * The inputs that need it are the ordinary ones. Middleware names things with
+ * `{x!r}` in f-strings, so `CallError` messages are full of single quotes;
+ * `adapt_exception` interpolates a command's decoded stderr after a newline
+ * (`4303dc8:src/middlewared/middlewared/service_exception.py:106-114`), and
+ * plugins do the same by hand — so ANSI colour, a stray `\x00` or a `\x0c`
+ * arrives in a reason without anything stripping it.
+ *
+ * Checked against `python3` rather than against expectations written here: see
+ * `fake-api-error.spec.ts`.
+ */
+export function pythonRepr(value: string): string {
   const quote = value.includes("'") && !value.includes('"') ? '"' : "'";
 
-  const escaped = value
-    .replace(/\\/g, '\\\\')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')
-    .replace(new RegExp(quote, 'g'), `\\${quote}`);
+  let escaped = '';
+  for (const character of value) {
+    if (character === '\\') escaped += '\\\\';
+    else if (character === quote) escaped += `\\${quote}`;
+    else if (character === ' ' || !UNPRINTABLE.test(character)) escaped += character;
+    else escaped += escapeCodePoint(character);
+  }
 
   return `${quote}${escaped}${quote}`;
 }
@@ -122,8 +154,11 @@ function syntheticTrace(reason: string): NonNullable<TrueNasErrorData['trace']> 
  * `CallError` whose `str()` becomes the reason, while `sys.exc_info()` is
  * still the original, so `trace.class` is something like
  * `CalledProcessError`. A spec that needs either shape should pass `trace`
- * itself; what the default guarantees is that the triple it does produce is
- * one an appliance could send, not that it is the one it would have sent.
+ * itself; what the default guarantees is that the `class` and `repr` it does
+ * produce are a pair an appliance could send, not that they are the pair it
+ * would have sent. `formatted` is outside that guarantee — middleware builds
+ * it from `traceback.format_exception`, whose frame lines this fixture has no
+ * stack to produce and whose last line is `str(value)` rather than the repr.
  *
  * Pass `trace: null` explicitly for the one payload that genuinely has none —
  * the job-event error, which `format_truenas_error` builds without `exc_info`
