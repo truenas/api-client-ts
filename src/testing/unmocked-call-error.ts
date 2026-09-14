@@ -9,10 +9,16 @@
  *
  * It cannot travel as an error *frame*: `TrueNasApi.dispatch` reduces any
  * frame's error to `new Error(getApiErrorMessage(…))`, so answering with one
- * would deliver the message and drop the class. Thrown from `send` instead,
- * which `dispatch` calls inside a `defer` — so the consumer still gets a
- * failing observable rather than an exception at call time, and still gets
- * this class.
+ * would deliver the message and drop the class. Thrown from `send` instead.
+ *
+ * **Where it surfaces depends on who sent the frame.** Every `TrueNasApi` verb
+ * dispatches inside a `defer`, so the throw becomes an error notification on
+ * the returned observable and a lazily composed call still behaves. The
+ * authenticator sends from its method bodies — `logout` and `newApiKey` — so
+ * there it throws where the call is written. Both fail, both name the method;
+ * only one is catchable as a rejected observable, and a spec written as
+ * `await expect(firstValueFrom(client.authenticator.logout())).rejects…` will
+ * not reach its assertion.
  */
 export class UnmockedCallError extends Error {
   constructor(

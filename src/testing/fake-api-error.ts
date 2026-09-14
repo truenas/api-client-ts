@@ -4,8 +4,19 @@ import type {
 } from '@/types/api-error.type';
 import { present } from './present';
 
-/** Flat overrides for a nested frame: say what varies, get the real shape. */
-export interface FakeApiErrorOverrides extends Partial<TrueNasErrorData> {
+/**
+ * Flat overrides for a nested frame: say what varies, get the real shape.
+ *
+ * Picked field by field rather than `Partial<TrueNasErrorData>`, which would
+ * inherit that type's `[key: string]: unknown` — legitimate on the payload,
+ * since middleware adds `py_exception` there, and fatal on an overrides bag,
+ * because it turns off excess-property checking. `fakeApiError({ resaon: … })`
+ * typechecked, put `resaon` in the payload and left `reason` at its default.
+ */
+export interface FakeApiErrorOverrides
+  extends Partial<
+    Pick<TrueNasErrorData, 'error' | 'errname' | 'reason' | 'extra' | 'trace'>
+  > {
   /** JSON-RPC code. Defaults to `-32001`, middleware's "method call error". */
   code?: number;
   /** JSON-RPC message. Defaults to `'Method call error'`, which is what `rpc.py` sends. */
@@ -40,9 +51,21 @@ export interface FakeApiErrorOverrides extends Partial<TrueNasErrorData> {
  * pairing; reproducing that here would mean carrying a copy of Python's errno
  * table, which this package has declined to do elsewhere for the same reason.
  * Pass both when you want something other than `EINVAL`.
+ *
+ * **`trace` is an object, not `null`.** Both arms that send `-32001` pass
+ * `sys.exc_info()`, which inside an `except` block is always truthy, so
+ * `format_truenas_error` always builds one for this code — an error frame with
+ * `trace: null` is not something the versioned endpoint produces. Its
+ * *contents* here are synthetic, because a fixture has no Python stack to
+ * format; only the shape is faithful, and `repr` carries the reason the way
+ * middleware's does for an exception with no arguments. Pass `trace: null`
+ * explicitly for the one payload that genuinely has none — the job-event error,
+ * which `format_truenas_error` builds without `exc_info` and which is not a
+ * JSON-RPC error frame at all.
  */
 export function fakeApiError(overrides: FakeApiErrorOverrides = {}): TrueNasErrorFrame {
   const { code, message, ...data } = overrides;
+  const reason = data.reason ?? 'Invalid argument';
 
   return {
     code: code ?? -32001,
@@ -50,9 +73,13 @@ export function fakeApiError(overrides: FakeApiErrorOverrides = {}): TrueNasErro
     data: {
       error: 22,
       errname: 'EINVAL',
-      reason: 'Invalid argument',
+      reason,
       extra: null,
-      trace: null,
+      trace: {
+        class: 'CallError',
+        formatted: `Traceback (most recent call last):\n  <synthetic>\n${reason}\n`,
+        repr: reason,
+      },
       ...present(data),
     } satisfies TrueNasErrorData,
   };

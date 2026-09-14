@@ -515,7 +515,13 @@ describe('mock answers', () => {
           errname: 'EINVAL',
           reason: 'MatchNotFound()',
           extra: null,
-          trace: null,
+          // Shape, not contents: a fixture has no Python stack to format, and
+          // a `-32001` frame always carries one — see `fakeApiError`.
+          trace: {
+            class: expect.any(String) as unknown as string,
+            formatted: expect.any(String) as unknown as string,
+            repr: 'MatchNotFound()',
+          },
         },
       },
     ]);

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
 import { createFakeClient, type FakeTrueNasClient } from './create-fake-client';
-import { withSpies } from './with-spies';
+import { API_VERBS, AUTHENTICATOR_METHODS, withSpies } from './with-spies';
 import type { ApiDirectoryV27_0_0 } from '@/generated';
 
 /**
@@ -15,18 +15,12 @@ import type { ApiDirectoryV27_0_0 } from '@/generated';
  * and a spec asserting `expect(api.newVerb).toHaveBeenCalled()` would fail
  * with "not a spy" rather than with anything about the call. A member added to
  * the class fails this test until someone decides which list it belongs on.
+ *
+ * Taken from the implementation rather than restated. A second literal here
+ * pinned a copy of the list: deleting a verb from `API_VERBS` left this test
+ * green, because this test never looked at `API_VERBS`.
  */
-const SPIED = [
-  'call',
-  'callAndGetJobId',
-  'events',
-  'generateToken',
-  'job',
-  'query',
-  'queryCount',
-  'queryOne',
-  'trackJob',
-] as const;
+const SPIED = API_VERBS;
 
 /**
  * Not verbs.
@@ -66,6 +60,39 @@ function members(instance: object): string[] {
   }
   return [...seen].sort();
 }
+
+/**
+ * The authenticator's half of the same instrument.
+ *
+ * Type-level only: what cannot be named cannot be spied, so the public surface
+ * is the whole scope here, and `keyof` is exactly that. Without it, dropping a
+ * method from `AUTHENTICATOR_METHODS` removed the check along with the entry —
+ * the test iterates that list, so a shorter list is a shorter test.
+ */
+/**
+ * State a spec reads or drives, not calls. `authenticated$` and
+ * `authenticating$` are the subjects the client and the fake both gate on,
+ * `credentials` is what the auto-relogin replays, and `sessionLifetime` is
+ * read from the login response. A spy on any of them would replace a stream
+ * with a function.
+ *
+ * A type rather than a `const` because nothing walks the authenticator at
+ * runtime: the classification is entirely the compiler's to check.
+ */
+type AuthenticatorUnspied =
+  | 'authenticated$'
+  | 'authenticating$'
+  | 'credentials'
+  | 'sessionLifetime';
+
+type UnclassifiedAuthenticator = Exclude<
+  keyof TrueNasAuthenticator,
+  (typeof AUTHENTICATOR_METHODS)[number] | AuthenticatorUnspied
+>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _unclassifiedAuthenticator: UnclassifiedAuthenticator extends never
+  ? true
+  : UnclassifiedAuthenticator = true;
 
 type Unclassified = Exclude<
   keyof TrueNasApi<ApiDirectoryV27_0_0>,
@@ -130,14 +157,8 @@ describe('withSpies', () => {
   it('spies every login the authenticator offers', () => {
     const c = withSpies(client(), vi.fn);
 
-    for (const name of [
-      'loginWithApiKey',
-      'loginWithOtp',
-      'loginWithToken',
-      'loginWithUserPass',
-      'logout',
-      'newApiKey',
-    ] as const) {
+    // Also the implementation's list, for the same reason.
+    for (const name of AUTHENTICATOR_METHODS) {
       expect(vi.isMockFunction(c.authenticator[name])).toBe(true);
     }
   });

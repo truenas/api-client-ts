@@ -29,18 +29,35 @@ export interface FakeAuthResponseOverrides
  *
  * The defaults describe a successful password login by a full admin.
  *
- * **`user_info` follows `response_type`.** Middleware sends it on success and
- * not otherwise, so asking for `AUTH_ERR` or `OTP_REQUIRED` gets a response
- * without one rather than a successful login wearing a failure's label. Pass
- * `user_info` explicitly to override that in either direction — the builder
- * will not take it away from you, it only declines to add it.
+ * **The whole envelope follows `response_type`, not just `user_info`.**
+ * `auth.login_ex` returns a discriminated union and each arm carries only its
+ * own fields — checked against middleware `4303dc8`,
+ * `api/v27_0_0/auth.py:187-243`:
  *
- * `reconnect_token` defaults to `null`, which is the v26+ shape for "no token
- * was minted". v25.10 does not declare the field at all, and this builder has
- * no way to say that: an override of literally `undefined` means "leave the
- * default alone", the same as everywhere else here. It costs nothing, because
- * every reader of the field treats absent and `null` alike — but do not read
- * `'reconnect_token' in response` as a claim about the version.
+ * | `response_type` | fields |
+ * |---|---|
+ * | `SUCCESS` | `user_info`, `authenticator`, `reconnect_token` |
+ * | `OTP_REQUIRED` | `username` |
+ * | `REDIRECT` | `urls` |
+ * | `AUTH_ERR`, `EXPIRED` | none |
+ *
+ * So asking for `AUTH_ERR` gets `{ response_type }` and nothing else, rather
+ * than a successful login wearing a failure's label. Any field passed
+ * explicitly is kept whatever the type — the builder declines to add, it does
+ * not take away.
+ *
+ * `max_session_age` and `max_inactivity` are declared by this package's
+ * `AuthResponse` but are on no arm of that union at any version; middleware
+ * has `max_session_age` only as an internal AAL attribute. They are settable
+ * and never defaulted, and the type is worth a look separately.
+ *
+ * `reconnect_token` defaults to `null` on the success arm, which is the v26+
+ * shape for "no token was minted". v25.10 does not declare the field at all,
+ * and this builder has no way to say that: an override of literally
+ * `undefined` means "leave the default alone", the same as everywhere else
+ * here. It costs nothing, because every reader treats absent and `null` alike
+ * — but do not read `'reconnect_token' in response` as a claim about the
+ * version.
  *
  * `satisfies` rather than a cast, so the literal is checked: a field added to
  * `AuthResponse` fails here, which is the whole reason to have a builder.
@@ -91,14 +108,18 @@ export function fakeAuthResponse(
         } satisfies UserInfo)
       : undefined;
 
+  const arm: Partial<AuthResponse> =
+    responseType === AuthResponseType.Success
+      ? { authenticator: 'LEVEL_1', reconnect_token: null }
+      : responseType === AuthResponseType.OtpRequired
+        ? { username: 'root' }
+        : responseType === AuthResponseType.Redirect
+          ? { urls: ['https://truenas.local/sso'] }
+          : {};
+
   return {
     response_type: responseType,
-    username: 'root',
-    authenticator: 'LEVEL_1',
-    reconnect_token: null,
-    max_session_age: 300,
-    max_inactivity: 300,
-    urls: [],
+    ...arm,
     ...present(rest),
     ...(userInfo ? { user_info: userInfo } : {}),
   } satisfies AuthResponse;

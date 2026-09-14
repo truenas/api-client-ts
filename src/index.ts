@@ -99,7 +99,11 @@ export { isJobFinished, JobState } from '@/types/job.type';
 export type { Job, JobProgress } from '@/types/job.type';
 export type { TrueNasDate } from '@/types/truenas-date.type';
 export { getApiErrorMessage } from '@/types/api-error.type';
-export type { ApiError } from '@/types/api-error.type';
+export type {
+  ApiError,
+  TrueNasErrorData,
+  TrueNasErrorFrame,
+} from '@/types/api-error.type';
 export type { AuthResponse } from '@/types/auth.type';
 export type { ApplianceProtocol } from '@/types/transport.type';
 export type { Container } from '@/types/container.type';

@@ -90,6 +90,24 @@ describe('strict mode', () => {
   });
 
   /**
+   * The authenticator sends from its method bodies rather than through a
+   * `defer`, so its unscripted frames throw where the call is written. Both
+   * still fail and both still name the method — but a spec cannot catch this
+   * one off the observable, and the class's own docblock says so rather than
+   * promising one behaviour for the whole client.
+   */
+  it.each(['logout', 'newApiKey'] as const)(
+    'throws at the call site for authenticator.%s',
+    name => {
+      const c = client({ strict: true });
+
+      expect(() =>
+        name === 'logout' ? c.authenticator.logout() : c.authenticator.newApiKey('k')
+      ).toThrow(UnmockedCallError);
+    }
+  );
+
+  /**
    * The default, and the reason strictness is opt-in: a spec answering by hand
    * registers its answer *after* the frame goes out, so refusing an
    * unregistered method at `send` time would refuse every hand-driven spec.

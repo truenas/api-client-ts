@@ -58,10 +58,40 @@ describe('fakeAuthResponse', () => {
   it('leaves the default in place for a field overridden with undefined', () => {
     const response = fakeAuthResponse({
       response_type: undefined,
-      username: undefined,
+      authenticator: undefined,
     });
 
     expect(response.response_type).toBe(AuthResponseType.Success);
-    expect(response.username).toBe('root');
+    expect(response.authenticator).toBe('LEVEL_1');
+  });
+
+  /**
+   * `auth.login_ex` returns a discriminated union and each arm carries only
+   * its own fields. A builder that filled the whole envelope every time would
+   * hand a spec `authenticator: 'LEVEL_1'` on an `AUTH_ERR` — a shape no arm
+   * has, and one a consumer might reasonably read as "this login succeeded".
+   */
+  it.each([
+    [AuthResponseType.Success, ['response_type', 'authenticator', 'reconnect_token', 'user_info']],
+    [AuthResponseType.OtpRequired, ['response_type', 'username']],
+    [AuthResponseType.Redirect, ['response_type', 'urls']],
+    [AuthResponseType.AuthErr, ['response_type']],
+    [AuthResponseType.Expired, ['response_type']],
+  ])('carries only the %s arm\'s own fields', (responseType, expected) => {
+    const response = fakeAuthResponse({ response_type: responseType });
+
+    expect(Object.keys(response).sort()).toEqual([...expected].sort());
+  });
+
+  /**
+   * Declared by this package's `AuthResponse`, on no arm of middleware's
+   * union at any version. Settable, never defaulted.
+   */
+  it('does not invent max_session_age or max_inactivity', () => {
+    const response = fakeAuthResponse();
+
+    expect('max_session_age' in response).toBe(false);
+    expect('max_inactivity' in response).toBe(false);
+    expect(fakeAuthResponse({ max_session_age: 300 }).max_session_age).toBe(300);
   });
 });

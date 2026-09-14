@@ -29,10 +29,20 @@ export type SpyFactory = <A extends unknown[], R>(
  *
  * Enumerated rather than discovered, and pinned by `with-spies.spec.ts`: a
  * verb added to `TrueNasApi` fails that test until someone decides whether it
- * belongs here. `generateToken` is the one public method left out — it is a
- * call like any other and is reachable through `call` if a spec needs it.
+ * belongs here.
+ *
+ * `generateToken` is on it: it is an ordinary call, but it is a public verb of
+ * the class, and a spec asserting on a token request should not have to reach
+ * for `connection.sent` when every other verb is spied.
+ *
+ * Exported for that test alone — it is not re-exported from
+ * `src/testing/index.ts` and is not part of the entry's surface. The test used
+ * to restate these nine strings, which pinned a copy rather than the list:
+ * removing a verb from here left the whole suite and all three tsc projects
+ * green while the verb silently stopped being spied, which is the one state
+ * the inventory exists to make impossible.
  */
-const API_VERBS = [
+export const API_VERBS = [
   'call',
   'callAndGetJobId',
   'events',
@@ -51,10 +61,10 @@ const API_VERBS = [
  * driven by the fake and already recorded: `connection.sent` holds the frames
  * whether or not a spy is installed.
  */
-const CONNECTION_METHODS = ['send'] as const;
+export const CONNECTION_METHODS = ['send'] as const;
 
 /** Every way in, and the way out. */
-const AUTHENTICATOR_METHODS = [
+export const AUTHENTICATOR_METHODS = [
   'loginWithApiKey',
   'loginWithOtp',
   'loginWithToken',

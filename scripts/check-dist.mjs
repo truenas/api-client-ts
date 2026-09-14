@@ -3,23 +3,37 @@
 //     (source maps legitimately embed the original `@/` source, so they are excluded);
 //  2. both entries load in both formats and expose what they promise;
 //  3. the testing entry's client is the *same* class the main entry exports.
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const emitted = [
-  'dist/index.js',
-  'dist/index.cjs',
-  'dist/index.d.ts',
-  'dist/index.d.cts',
-  'dist/testing/index.js',
-  'dist/testing/index.cjs',
-  'dist/testing/index.d.ts',
-  'dist/testing/index.d.cts',
-];
+// Everything shipped, found rather than listed.
+//
+// This was a list of the four entry files, which was the whole output until
+// `splitting: true` arrived. Splitting leaves `dist/index.js` an 858-byte
+// re-export stub and puts the code — and, more to the point, the types both
+// entries share — in content-hashed chunks whose names no list can carry. A
+// leak in one of those passed this check in silence, which is worse than not
+// having it: the script printed a guarantee it had stopped enforcing.
+//
+// `.map` files are excluded by the extension filter rather than by name: a
+// source map legitimately embeds the original `@/` source.
+const emitted = readdirSync('dist', { recursive: true, encoding: 'utf8' })
+  .filter((file) => /\.(?:js|cjs|mjs|d\.ts|d\.cts|d\.mts)$/.test(file))
+  .map((file) => `dist/${file}`);
 
 let failed = false;
+
+// A glob that matches nothing passes every check under it. The floor is the
+// two entries in two formats plus their four type files.
+if (emitted.length < 8) {
+  console.error(
+    `✗ only ${emitted.length} emitted file(s) found under dist/ — expected at ` +
+      'least the two entries in both formats, with their types'
+  );
+  process.exit(1);
+}
 
 // 1. alias-leak guard
 // Matches `from '@/…'`, `import '@/…'`, and the `import("@/…")` / `require('@/…')`
@@ -76,7 +90,10 @@ console.log('✓ both entries load in ESM and CJS and export what they promise')
 // default for CJS: without it the CJS testing entry bundles its own client and
 // this check fails while every other check here passes.
 for (const [format, { main, testing }] of Object.entries(builds)) {
-  const client = testing.createFakeClient({ version: 'v27.0.0' });
+  // No version: `createFakeClient` defaults to the oldest supported one, so
+  // this keeps working when the supported set moves rather than failing
+  // with an unhandled rejection about a version that has been dropped.
+  const client = testing.createFakeClient();
   const shared = client instanceof main.TrueNasApiClient;
   client.connection.close();
 

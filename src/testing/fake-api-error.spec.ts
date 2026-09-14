@@ -34,8 +34,30 @@ describe('fakeApiError', () => {
       errname: 'EINVAL',
       reason: 'Not authorized',
       extra: null,
-      trace: null,
     });
+  });
+
+  /**
+   * Both arms that send `-32001` pass `sys.exc_info()`, which inside an
+   * `except` block is always truthy, so `format_truenas_error` always builds a
+   * trace for this code. `trace: null` is a payload the versioned endpoint
+   * does not produce here, and it is the field a consumer is most likely to
+   * branch on to tell a clean `CallError` from a crash.
+   */
+  it('carries a trace, which a -32001 frame always does', () => {
+    const trace = fakeApiError({ reason: 'Not authorized' }).data?.trace;
+
+    expect(trace).not.toBeNull();
+    expect(trace).toMatchObject({
+      class: expect.any(String) as unknown as string,
+      formatted: expect.any(String) as unknown as string,
+      repr: 'Not authorized',
+    });
+  });
+
+  /** The one payload that genuinely has none is not an error frame at all. */
+  it('lets a spec ask for no trace explicitly', () => {
+    expect(fakeApiError({ trace: null }).data?.trace).toBeNull();
   });
 
   it('takes the errno and its name together', () => {
@@ -57,6 +79,17 @@ describe('fakeApiError', () => {
     expect(getApiErrorMessage(error)).toBe('Dataset is locked');
     expect(error.message).toBe('Method call error');
     expect(error.message).not.toBe(getApiErrorMessage(error));
+  });
+
+  /**
+   * The payload's index signature is legitimate — middleware adds
+   * `py_exception` — but inheriting it into the overrides turned off
+   * excess-property checking, so a typo landed a new key and left the field it
+   * meant at its default.
+   */
+  it('does not accept a key it does not have', () => {
+    // @ts-expect-error 'resaon' is not a field of the payload
+    fakeApiError({ resaon: 'Dataset is locked' });
   });
 
   it('fails a call through the real client', async () => {
