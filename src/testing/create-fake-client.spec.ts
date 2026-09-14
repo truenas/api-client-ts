@@ -65,13 +65,44 @@ describe('createFakeClient', () => {
 
     const result = firstValueFrom(client.api.call('system.info'));
     client.connection.replyError('system.info', {
-      error: -32000,
-      errname: 'EACCES',
-      extra: [],
-      reason: 'Not authorized',
+      code: -32001,
+      message: 'Method call error',
+      data: {
+        error: 13,
+        errname: 'EACCES',
+        reason: 'Not authorized',
+        extra: null,
+        trace: null,
+      },
     });
 
     await expect(result).rejects.toThrow('Not authorized');
+  });
+
+  /**
+   * The legacy `/websocket` shape is not merely discouraged here, it does not
+   * compile. That endpoint is a different handler on a route this client never
+   * opens, so a spec scripting an error in its shape is scripting a frame the
+   * appliance cannot send — and `getApiErrorMessage` would reduce it to the
+   * same message, so nothing at runtime would say otherwise.
+   */
+  it('does not accept the legacy flat error shape', () => {
+    const client = createFakeClient({ version: 'v27.0.0' });
+    built.push(client);
+
+    // Never invoked: the whole content of this test is that it does not
+    // compile, and `replyError` answers a frame that was never sent.
+    const scriptLegacyError = (): void => {
+      client.connection.replyError('system.info', {
+        // @ts-expect-error the payload's fields are not the frame's
+        error: 22,
+        errname: 'EINVAL',
+        extra: null,
+        reason: 'MatchNotFound()',
+      });
+    };
+
+    expect(scriptLegacyError).toBeTypeOf('function');
   });
 
   it('subscribes to events once authenticated and delivers them', async () => {
