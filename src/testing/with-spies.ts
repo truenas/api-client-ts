@@ -19,6 +19,14 @@ export interface SpyableClient {
  * implementation and return something callable with the same signature; what
  * they return beyond that — `mock.calls`, `toHaveBeenCalledWith` — is the
  * runner's business and this type says nothing about it.
+ *
+ * **One requirement the type cannot express: the returned function must invoke
+ * the implementation with its own `this`.** `vi.fn` and `jest.fn` do. An arrow
+ * function does not, so `(impl) => (...args) => impl(...args)` — including the
+ * shape a consumer reaches for when they want a spy *and* something of their
+ * own, `(impl) => vi.fn((...args) => impl(...args))` — type-checks here and
+ * hands every verb a `this` of `undefined`. `withSpies` detects that and says
+ * so rather than letting the real method fail on its own first line.
  */
 export type SpyFactory = <A extends unknown[], R>(
   implementation: (...args: A) => R
@@ -96,9 +104,25 @@ function spyOnMethods<T extends object>(
     // under spies when it throws without them. A spied client that is more
     // permissive than an unspied one is the divergence this package exists to
     // prevent, in the helper meant to observe it.
-    (target as Record<string, unknown>)[name] = spy(
-      original as (...args: unknown[]) => unknown
-    );
+    //
+    // The wrapper is what turns the two ways of losing `this` into a sentence.
+    // Without it the first line of the real method runs against `undefined`
+    // and the caller gets `Cannot read properties of undefined (reading
+    // 'dispatch')` out of a bundled chunk, naming neither spies nor `this`.
+    const method = original as (this: unknown, ...args: unknown[]) => unknown;
+    const forwarded = function (this: unknown, ...args: unknown[]): unknown {
+      if (this === undefined) {
+        throw new Error(
+          `withSpies: ${name} was called without its object. Either the verb ` +
+            'was detached from the client — the real one fails that way too — ' +
+            'or the spy factory does not forward `this` to the implementation ' +
+            'it was given. An arrow function does not; `vi.fn` and `jest.fn` do.'
+        );
+      }
+      return method.apply(this, args);
+    };
+
+    (target as Record<string, unknown>)[name] = spy(forwarded);
   }
 }
 

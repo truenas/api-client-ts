@@ -32,6 +32,7 @@ export { UnmockedCallError } from './unmocked-call-error';
 export { withSpies } from './with-spies';
 export type { SpyFactory, SpyableClient } from './with-spies';
 export { fakeJob } from './fake-job';
+export type { FakeJobOverrides } from './fake-job';
 // Re-exported here too: `fakeApiError` returns one and `replyError` takes
 // one, so a spec writing a typed helper around either needs the name from
 // the entry it is already importing.
@@ -39,5 +40,6 @@ export type { TrueNasErrorData, TrueNasErrorFrame } from '@/types/api-error.type
 export { fakeApiError } from './fake-api-error';
 export type { FakeApiErrorOverrides } from './fake-api-error';
 export { fakeApiVersion } from './fake-api-version';
+export type { FakeApiVersionOverrides } from './fake-api-version';
 export { fakeAuthResponse } from './fake-auth-response';
 export type { FakeAuthResponseOverrides } from './fake-auth-response';

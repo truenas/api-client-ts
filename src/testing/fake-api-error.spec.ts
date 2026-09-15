@@ -139,8 +139,28 @@ describe('fakeApiError', () => {
     // Above U+10000 and unprintable, which is the only input that reaches
     // the `\\U` form — the emoji above is astral but printable, so it does not.
     ['an unprintable astral code point', 'beam\u{1d173}', 'ValueError(\'beam\\U0001d173\')'],
+    // `Cn`, and unassigned in every Unicode table either side has had — the
+    // half of that category the two agree on. A code point assigned between
+    // the engine's table and the appliance's Python is deliberately not
+    // pinned here: the fixture leaves it raw and `repr()` escapes it, which
+    // is the limit `UNPRINTABLE` documents rather than a case to freeze.
+    ['an unassigned code point', 'tank\u{378}vol', 'ValueError(\'tank\\u0378vol\')'],
   ])('reprs %s the way repr() does', (_label, reason, expected) => {
     expect(fakeApiError({ reason }).data?.trace?.repr).toBe(expected);
+  });
+
+  /**
+   * The anchors are the whole classifier. Unanchored, a reason that merely
+   * *contains* a call — `pool.import_pool() failed` — is read as an
+   * argument-free exception, and the bare branch returns the reason verbatim:
+   * a `repr` that is not a Python string literal at all. `'MatchNotFound()'`
+   * matches either pattern, so the positive test above cannot see it.
+   */
+  it('does not read a call in the middle of a reason as a repr', () => {
+    const trace = fakeApiError({ reason: 'pool.import_pool() failed' }).data?.trace;
+
+    expect(trace?.class).toBe('ValueError');
+    expect(trace?.repr).toBe("ValueError('pool.import_pool() failed')");
   });
 
   /** The shape the JSDoc describes, which nothing else asserts. */

@@ -3,7 +3,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
 import { createFakeClient, type FakeTrueNasClient } from './create-fake-client';
-import { API_VERBS, AUTHENTICATOR_METHODS, withSpies } from './with-spies';
+import {
+  API_VERBS,
+  AUTHENTICATOR_METHODS,
+  withSpies,
+  type SpyFactory,
+} from './with-spies';
 import type { ApiDirectoryV27_0_0 } from '@/generated';
 
 /**
@@ -178,6 +183,31 @@ describe('withSpies', () => {
 
     expect(() => detachedFromPlain('core.ping')).toThrow();
     expect(() => detachedFromSpied('core.ping')).toThrow();
+  });
+
+  /**
+   * The type cannot say "forwards `this`", so the helper says it at runtime.
+   * An arrow-returning factory type-checks and would otherwise hand every verb
+   * a `this` of `undefined`, failing on the real method's first line with
+   * `Cannot read properties of undefined (reading 'dispatch')` out of a
+   * bundled chunk — naming neither spies nor `this`.
+   */
+  it.each([
+    [
+      'a plain non-forwarding factory',
+      (<A extends unknown[], R>(implementation: (...args: A) => R) =>
+        (...args: A): R =>
+          implementation(...args)) as SpyFactory,
+    ],
+    [
+      'vi.fn wrapped in an arrow',
+      (<A extends unknown[], R>(implementation: (...args: A) => R) =>
+        vi.fn((...args: A): R => implementation(...args))) as SpyFactory,
+    ],
+  ])('names the problem when %s loses this', (_label, factory) => {
+    const c = withSpies(client(), factory);
+
+    expect(() => c.api.call('core.ping')).toThrow(/does not forward `this`/);
   });
 
   /**

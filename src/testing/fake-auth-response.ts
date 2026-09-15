@@ -38,6 +38,9 @@ export interface FakeAuthResponseOverrides
  * response in that file. The chain this replaced built its literal per call
  * and did not have that problem — the exhaustiveness fix introduced it, which
  * is why the fix that keeps both is one pair of parens rather than a rewrite.
+ *
+ * Exported for `fake-auth-response.spec.ts` alone — it is not re-exported from
+ * `src/testing/index.ts` and is not part of the entry's surface.
  */
 export const ARMS: Record<AuthResponseType, () => Partial<AuthResponse>> = {
   [AuthResponseType.Success]: () => ({

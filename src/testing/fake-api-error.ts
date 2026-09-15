@@ -33,6 +33,17 @@ const BARE_REPR = /^([A-Za-z_][A-Za-z0-9_]*)\(\)$/;
  * Cn, Zl, Zp or Zs — with U+0020 the one exception, which is printable. Every
  * other printable non-ASCII character, `é` and `日` and `😀` alike, is left
  * alone by `repr()` and is left alone here.
+ *
+ * **`Cn` is the one category this cannot get exactly right, and the limit is
+ * worth knowing.** "Unassigned" is not a property of a code point but of a
+ * code point in a Unicode version, and the two sides read different tables:
+ * this class is evaluated against the JS engine's, while the appliance's
+ * `repr()` uses its Python's. They agree on the code points unassigned in
+ * both — which is almost all of them — and disagree inside the gap, where a
+ * character assigned in the newer table comes through raw here and escaped
+ * there. Everything below U+0100, and any reason made of ordinary prose, is
+ * exact; a reason carrying a character from a script added since the
+ * appliance's Python may not be.
  */
 const UNPRINTABLE = /[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\p{Zs}]/u;
 
@@ -43,14 +54,19 @@ function escapeCodePoint(character: string): string {
   if (character === '\t') return '\\t';
 
   // `\b`, `\f` and `\v` are not among them: `repr('\x08')` is `'\x08'`.
-  const code = character.codePointAt(0) ?? 0;
+  //
+  // Non-null rather than `?? 0`: `character` comes from `for…of` over a
+  // string, which never yields an empty one, and a fallback here would
+  // silently emit `\x00` for a character it could not read.
+  const code = character.codePointAt(0)!;
   if (code < 0x100) return `\\x${code.toString(16).padStart(2, '0')}`;
   if (code < 0x10000) return `\\u${code.toString(16).padStart(4, '0')}`;
   return `\\U${code.toString(16).padStart(8, '0')}`;
 }
 
 /**
- * A Python `repr()` of a string, quoting and escaping the way CPython does.
+ * A Python `repr()` of a string, quoting and escaping the way CPython does —
+ * within the one limit {@link UNPRINTABLE} describes.
  *
  * Interpolating into single quotes is not it, and neither is escaping the
  * three whitespace controls. `repr` picks `"` when the string contains a `'`
@@ -65,8 +81,13 @@ function escapeCodePoint(character: string): string {
  * plugins do the same by hand — so ANSI colour, a stray `\x00` or a `\x0c`
  * arrives in a reason without anything stripping it.
  *
- * Checked against `python3` rather than against expectations written here: see
- * `fake-api-error.spec.ts`.
+ * Checked against `python3` rather than against expectations written here:
+ * `fake-api-error.spec.ts` covers the rule as a caller meets it, and
+ * `python-repr.spec.ts` covers the categories that are awkward to carry in a
+ * `reason`.
+ *
+ * Exported for those tests alone — it is not re-exported from
+ * `src/testing/index.ts` and is not part of the entry's surface.
  */
 export function pythonRepr(value: string): string {
   const quote = value.includes("'") && !value.includes('"') ? '"' : "'";
@@ -83,8 +104,9 @@ export function pythonRepr(value: string): string {
 }
 
 /**
- * A trace whose `class` and `repr` agree with the reason, so the three
- * together are a triple an appliance could send. See {@link fakeApiError}.
+ * A trace whose `class` and `repr` agree with the reason, so those two are a
+ * pair an appliance could send. `formatted` is outside that — see
+ * {@link fakeApiError}.
  */
 function syntheticTrace(reason: string): NonNullable<TrueNasErrorData['trace']> {
   const bare = BARE_REPR.exec(reason);

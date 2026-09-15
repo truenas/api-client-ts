@@ -2,6 +2,16 @@ import { JobState, type Job, type JobProgress } from '@/types/job.type';
 import { present } from './present';
 
 /**
+ * Overrides for {@link fakeJob}. `progress` is partial one level down, so a
+ * fixture naming a percent need not name the description beside it. Named so
+ * a consumer can write a helper that takes one, as the other builders are.
+ */
+export interface FakeJobOverrides<R = unknown>
+  extends Partial<Omit<Job<R>, 'progress'>> {
+  progress?: Partial<JobProgress>;
+}
+
+/**
  * A complete `Job`, so a scripted one is the shape a caller actually reads —
  * a partial fixture cast into place leaves `progress` undefined and breaks
  * `job.progress.percent`.
@@ -11,7 +21,7 @@ import { present } from './present';
  * required field fail here.
  */
 export function fakeJob<R = unknown>(
-  overrides: Partial<Omit<Job<R>, 'progress'>> & { progress?: Partial<JobProgress> } = {}
+  overrides: FakeJobOverrides<R> = {}
 ): Job<R> {
   // `JobProgress.description` is `string`, not `string | null`: the generated
   // shape allows null and `job.type.ts` narrows it, because the server sends a

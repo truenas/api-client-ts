@@ -4,6 +4,12 @@ import type { ApiVersion } from '@/types/api-version.type';
 import { parseApiVersion } from '@/utils/api-version.utils';
 
 /**
+ * Overrides for {@link fakeApiVersion}: the fields the parser would have
+ * derived, for the versions it will not produce.
+ */
+export type FakeApiVersionOverrides = Partial<ApiVersion>;
+
+/**
  * A parsed `ApiVersion`, built by the parser the client itself uses.
  *
  * `parseApiVersion` returns `ApiVersion | null`, so a spec that wants one
@@ -23,7 +29,7 @@ import { parseApiVersion } from '@/utils/api-version.utils';
  */
 export function fakeApiVersion(
   version: SupportedApiVersion | (string & {}) = SUPPORTED_API_VERSIONS[0],
-  overrides: Partial<ApiVersion> = {}
+  overrides: FakeApiVersionOverrides = {}
 ): ApiVersion {
   const parsed = parseApiVersion(version);
   if (!parsed) {
