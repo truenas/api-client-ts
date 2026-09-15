@@ -21,26 +21,17 @@ export interface FakeAuthResponseOverrides
 /**
  * What each arm of the union carries beyond `response_type`.
  *
- * A `Record` keyed by the enum rather than a chain of comparisons, so a member
- * added to `AuthResponseType` is a compile error here instead of silently
- * taking an empty arm.
+ * A `Record` keyed by the enum, so a member added to `AuthResponseType` is a
+ * compile error here rather than an empty arm. That matters now: the enum is
+ * two arms short of middleware's union — `AuthLoginExResult.result` at
+ * `4303dc8:…/api/v27_0_0/auth.py:335-338` has seven, and `AuthRespScram`
+ * (`:245-262`) requires fields of its own.
  *
- * That matters now rather than hypothetically: the enum is two arms short of
- * middleware's union — `AuthLoginExResult.result` at
- * `4303dc8:src/middlewared/middlewared/api/v27_0_0/auth.py:335-338` has seven,
- * including `AuthRespDenied` (`:206-209`) and `AuthRespScram` (`:245-262`),
- * and `AuthRespScram` requires `scram_type` and `rfc_str`. Adding either to
- * the enum should stop the build here and make someone say what it carries.
+ * Each entry is a *function*: as plain objects in module scope every
+ * `REDIRECT` response shared one `urls` array, so a spec mutating one changed
+ * every later response in that file.
  *
- * Each entry is a *function*, because a spread copies references: as plain
- * objects in module scope, every `REDIRECT` response shared one `urls` array,
- * so a spec pushing a second SSO URL onto one response changed every later
- * response in that file. The chain this replaced built its literal per call
- * and did not have that problem — the exhaustiveness fix introduced it, which
- * is why the fix that keeps both is one pair of parens rather than a rewrite.
- *
- * Exported for `fake-auth-response.spec.ts` alone — it is not re-exported from
- * `src/testing/index.ts` and is not part of the entry's surface.
+ * Exported for `fake-auth-response.spec.ts` alone, not from the entry.
  */
 export const ARMS: Record<AuthResponseType, () => Partial<AuthResponse>> = {
   [AuthResponseType.Success]: () => ({
@@ -56,23 +47,9 @@ export const ARMS: Record<AuthResponseType, () => Partial<AuthResponse>> = {
 /**
  * A complete `AuthResponse`, so a scripted login is the shape a caller reads.
  *
- * `user_info` has twenty-two required fields and three nested objects. Every
- * spec in this repo that needed one wrote three of them and cast the rest away
- * with `as unknown as AuthResponse`, which accepts a `response_type` that is
- * not a `response_type` and a `roles` that is not an array — and the cast is
- * what a consumer copies out of our own specs.
- *
- * The defaults describe a successful password login by a full admin.
- *
- * **The whole envelope follows `response_type`, not just `user_info`.**
- * `auth.login_ex` returns a discriminated union and each arm carries only its
- * own fields. The table below is the five arms *this package* can name — the
- * members of `AuthResponseType` — with the fields middleware gives each at
- * `4303dc8:src/middlewared/middlewared/api/v27_0_0/auth.py`. It is not the
- * whole union: that has seven arms (`:335-338`), and `AuthRespDenied`
- * (`:206-209`) and `AuthRespScram` (`:245-262`) are missing from the enum, so
- * this package cannot name two of the responses a v26+ appliance can send.
- * See {@link ARMS} for what happens when they are added:
+ * The envelope follows `response_type`: `auth.login_ex` is a discriminated
+ * union and each arm carries only its own fields, so `AUTH_ERR` comes back as
+ * `{ response_type }` rather than a success wearing a failure's label.
  *
  * | `response_type` | fields |
  * |---|---|
@@ -80,37 +57,19 @@ export const ARMS: Record<AuthResponseType, () => Partial<AuthResponse>> = {
  * | `OTP_REQUIRED` | `username` |
  * | `REDIRECT` | `urls` |
  * | `AUTH_ERR`, `EXPIRED` | none |
- *
- * So asking for `AUTH_ERR` gets `{ response_type }` and nothing else, rather
- * than a successful login wearing a failure's label. Any field passed
- * explicitly is kept whatever the type — the builder declines to add, it does
- * not take away.
- *
- * `max_session_age` and `max_inactivity` are declared by this package's
- * `AuthResponse` but are on no arm of that union at any version; middleware
- * has `max_session_age` only as an internal AAL attribute. They are settable
- * and never defaulted, and the type is worth a look separately.
- *
- * `reconnect_token` defaults to `null` on the success arm, which is the v26+
- * shape for "no token was minted". v25.10 does not declare the field at all,
- * and this builder has no way to say that: an override of literally
- * `undefined` means "leave the default alone", the same as everywhere else
- * here. It costs nothing, because every reader treats absent and `null` alike
- * — but do not read `'reconnect_token' in response` as a claim about the
- * version.
- *
- * `satisfies` rather than a cast, so the literal is checked — but only for
- * *required* fields. Every member of `AuthResponse` except `response_type` is
- * optional, so an optional addition passes here unnoticed; the guard that
- * bites is `ARMS`, whose `Record` fails on an unhandled `response_type`. The
- * `user_info` literal is the stronger half: its type has twenty-two required
- * members, so anything *required* added there fails on the spot. An optional
- * addition passes there too — `AuthUserInfo` extends `UserGetUserObj`, and
- * middleware adds fields to it with defaults.
  */
 export function fakeAuthResponse(
   overrides: FakeAuthResponseOverrides = {}
 ): AuthResponse {
+  // The defaults are a successful password login by a full admin. `user_info`
+  // has twenty-two required fields, which every spec here used to supply three
+  // of and cast the rest away — the cast a consumer then copies.
+  //
+  // Any field passed explicitly is kept whatever the type: the builder
+  // declines to add, it does not take away. `max_session_age` and
+  // `max_inactivity` are settable and never defaulted, being on no arm of
+  // middleware's union at any version. `satisfies` below checks the literal,
+  // but only its *required* fields — `ARMS` is the guard that bites.
   const { user_info: userInfoOverrides, ...rest } = overrides;
   const responseType = rest.response_type ?? AuthResponseType.Success;
   const succeeded = responseType === AuthResponseType.Success;

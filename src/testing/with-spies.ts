@@ -15,18 +15,12 @@ export interface SpyableClient {
  * A test runner's spy factory: `vi.fn` or `jest.fn`.
  *
  * Taken as an argument rather than imported, because this package does not
- * depend on a runner and must not start. Both runners' `fn` accept an
- * implementation and return something callable with the same signature; what
- * they return beyond that — `mock.calls`, `toHaveBeenCalledWith` — is the
- * runner's business and this type says nothing about it.
+ * depend on a runner and must not start.
  *
  * **One requirement the type cannot express: the returned function must invoke
- * the implementation with its own `this`.** `vi.fn` and `jest.fn` do. An arrow
- * function does not, so `(impl) => (...args) => impl(...args)` — including the
- * shape a consumer reaches for when they want a spy *and* something of their
- * own, `(impl) => vi.fn((...args) => impl(...args))` — type-checks here and
- * hands every verb a `this` of `undefined`. `withSpies` detects that and says
- * so rather than letting the real method fail on its own first line.
+ * the implementation with its own `this`.** `vi.fn` and `jest.fn` do; an arrow
+ * does not, so `(impl) => vi.fn((...args) => impl(...args))` type-checks and
+ * hands every verb `undefined`. `withSpies` detects that and says so.
  */
 export type SpyFactory = <A extends unknown[], R>(
   implementation: (...args: A) => R
@@ -36,19 +30,13 @@ export type SpyFactory = <A extends unknown[], R>(
  * The verbs of `TrueNasApi` a spec asserts on.
  *
  * Enumerated rather than discovered, and pinned by `with-spies.spec.ts`: a
- * verb added to `TrueNasApi` fails that test until someone decides whether it
- * belongs here.
+ * verb added to `TrueNasApi` fails that test until someone classifies it.
+ * `generateToken` is on the list because it is a public verb, not because it
+ * is special.
  *
- * `generateToken` is on it: it is an ordinary call, but it is a public verb of
- * the class, and a spec asserting on a token request should not have to reach
- * for `connection.sent` when every other verb is spied.
- *
- * Exported for that test alone — it is not re-exported from
- * `src/testing/index.ts` and is not part of the entry's surface. The test used
- * to restate these nine strings, which pinned a copy rather than the list:
- * removing a verb from here left the whole suite and all three tsc projects
- * green while the verb silently stopped being spied, which is the one state
- * the inventory exists to make impossible.
+ * Exported for that test alone, not from the entry. The test used to restate
+ * these strings, which pinned a copy: removing one from here left the suite
+ * green while the verb silently stopped being spied.
  */
 export const API_VERBS = [
   'call',
@@ -98,26 +86,16 @@ function spyOnMethods<T extends object>(
       );
     }
 
-    // Not bound to `target`. Both runners invoke the implementation with the
-    // `this` of the call, so a verb reached as `client.api.call(…)` gets its
-    // own object either way — and binding would make a *detached* verb work
-    // under spies when it throws without them. A spied client that is more
-    // permissive than an unspied one is the divergence this package exists to
-    // prevent, in the helper meant to observe it.
+    // Not bound to `target`: both runners invoke the implementation with the
+    // `this` of the call, and binding would make a *detached* verb work under
+    // spies when it throws without them — a spied client more permissive than
+    // an unspied one is the divergence this helper exists to observe.
     //
-    // The wrapper is what turns the two ways of losing `this` into a sentence.
-    // Without it the first line of the real method runs against `undefined`
-    // and the caller gets `Cannot read properties of undefined (reading
-    // 'dispatch')` out of a bundled chunk, naming neither spies nor `this`.
-    //
-    // It calls the method either way rather than refusing on a missing `this`.
-    // Refusing made the spied client *stricter* than the real one:
-    // `callAndGetJobId`'s body is inside a `defer`, so it reads no `this`
-    // until someone subscribes and a detached call returns an observable — and
-    // the guard threw. Binding was rejected for making a detached verb work
-    // where the real one throws; this was the same divergence pointing the
-    // other way. Now the outcome is always the real method's, and the sentence
-    // is added only to a failure that was going to happen anyway.
+    // The wrapper turns the two ways of losing `this` into a sentence, instead
+    // of `Cannot read properties of undefined (reading 'dispatch')` out of a
+    // bundled chunk. It calls the method either way: refusing made the spied
+    // client *stricter* for `callAndGetJobId`, whose body sits inside a
+    // `defer` and tolerates a detached call.
     const method = original as (this: unknown, ...args: unknown[]) => unknown;
     const forwarded = function (this: unknown, ...args: unknown[]): unknown {
       if (this !== undefined) return method.apply(this, args);
@@ -154,23 +132,14 @@ function spyOnMethods<T extends object>(
  *
  * ```typescript
  * const client = withSpies(createFakeClient({ version: 'v27.0.0' }), vi.fn);
- *
- * client.mock.call('system.info', { hostname: 'truenas.local' });
- * await firstValueFrom(client.api.call('system.info'));
- *
  * expect(client.api.call).toHaveBeenCalledWith('system.info');
  * ```
  *
  * Behaviour is preserved: each spy wraps the real method, which the runner
- * then invokes with the `this` of the call — so the call still runs the real
- * dispatch and still answers from whatever `mock` scripted. Nothing is bound;
- * see the note in `spyOnMethods` for why that matters. This only makes the calls visible to the runner's
- * matchers — `connection.sent` and `authenticator.logins` record the same
- * calls without a runner, and remain the way to assert without one.
- *
- * The client is mutated and returned, rather than wrapped in a proxy: a proxy
- * would be a different object from the one the client's own collaborators
- * hold, and the point of this package's fakes is that there is one object.
+ * invokes with the `this` of the call, so a spied call still dispatches and
+ * still answers from whatever `mock` scripted. Nothing is bound — see
+ * `spyOnMethods`. The client is mutated and returned rather than proxied,
+ * because a proxy would not be the object its own collaborators hold.
  */
 export function withSpies<C extends SpyableClient>(client: C, spy: SpyFactory): C {
   spyOnMethods(client.api, API_VERBS, spy);

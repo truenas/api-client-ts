@@ -1,25 +1,15 @@
 /**
- * Test doubles for `@truenas/api-client`.
+ * Test doubles for `@truenas/api-client`, from
+ * `@truenas/api-client/testing` — a subpath, so a consumer that never imports
+ * it never sees a byte of it.
  *
- * ```typescript
- * import { createFakeClient } from '@truenas/api-client/testing';
- * ```
+ * The doubles subclass the real collaborators rather than being cast into
+ * shape, so a fake client is a real `TrueNasApiClient` over a socketless
+ * connection. Both entries are code-split and share one copy of those
+ * classes; `scripts/check-dist.mjs` fails the build if that stops being true.
  *
- * A subpath, so nothing here can reach a production bundle by accident: a
- * consumer that never imports `@truenas/api-client/testing` never sees a byte
- * of it.
- *
- * The doubles are subclasses of the real collaborators rather than objects cast
- * into shape, so a fake client is a real `TrueNasApiClient` running its real
- * `TrueNasApi` over a connection that happens not to have a socket. Both
- * entries are built with code splitting, so they share one copy of those
- * classes and a fake client really is an instance of the exported one —
- * `scripts/check-dist.mjs` fails the build if that stops being true.
- *
- * **This is public surface.** A breaking change here breaks consumers' suites,
- * which is not less disruptive for being test-only, so it moves under the same
- * semver rules as the main entry and the surface is kept deliberately small.
- * Every helper is a commitment.
+ * **Public surface**, under the same semver rules as the main entry: a break
+ * here breaks consumers' suites. Every helper is a commitment.
  */
 export { FakeConnection } from './fake-connection';
 export type { FakeConnectionOptions } from './fake-connection';

@@ -30,18 +30,14 @@ const SPIED = API_VERBS;
 /**
  * Not verbs.
  *
- * `authenticated` and `connection` are the two collaborators the constructor
- * takes — the first is the `BehaviorSubject` the event subscription gates on,
- * which a spec drives rather than calls — and `eventStreams` / `jobEvents` are
- * the class's own bookkeeping. Spying on any of them would replace a field
- * with a function and record nothing a spec asserts on.
+ * `authenticated` and `connection` are the constructor's collaborators, and
+ * `eventStreams` / `jobEvents` the class's own bookkeeping; spying on any
+ * would replace a field with a function.
  *
  * `dispatch` and `initializeJobEventsSubscription` are `private`, which is
- * compile-time only: they are on the prototype and the runtime walk below sees
- * them. Listed rather than filtered, because the point of the list is that
- * nothing on the class is unaccounted for — and a spy on `dispatch` would be
- * a spec reaching past the verbs into the transport, which `connection.send`
- * already shows it.
+ * compile-time only — the runtime walk sees them. Listed rather than filtered,
+ * because the point of the list is that nothing on the class is unaccounted
+ * for.
  */
 const UNSPIED = [
   'authenticated',
@@ -70,19 +66,13 @@ function members(instance: object): string[] {
  * The authenticator's half of the same instrument, and the members it leaves
  * alone.
  *
- * Type-level only: what cannot be named cannot be spied, so the public surface
- * is the whole scope here, and `keyof` is exactly that. Without it, dropping a
- * method from `AUTHENTICATOR_METHODS` removed the check along with the entry —
- * the test iterates that list, so a shorter list is a shorter test.
+ * Type-level only: what cannot be named cannot be spied, so `keyof` is the
+ * whole scope. Without it, dropping a method from `AUTHENTICATOR_METHODS`
+ * removed the check along with the entry.
  *
- * What is listed below is state a spec reads or drives, not calls.
- * `authenticated$` and `authenticating$` are the subjects the client and the
- * fake both gate on, `credentials` is what the auto-relogin replays, and
- * `sessionLifetime` is read from the login response. A spy on any of them
- * would replace a stream with a function.
- *
- * A type rather than a `const` because nothing walks the authenticator at
- * runtime: the classification is entirely the compiler's to check.
+ * Below is state a spec reads or drives rather than calls — the subjects the
+ * client gates on, the credentials the auto-relogin replays, the lifetime read
+ * from the login response.
  */
 type AuthenticatorUnspied =
   | 'authenticated$'

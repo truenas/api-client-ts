@@ -27,27 +27,16 @@ export interface FakeApiErrorOverrides
 const BARE_REPR = /^([A-Za-z_][A-Za-z0-9_]*)\(\)$/;
 
 /**
- * Characters CPython's `str.isprintable()` calls unprintable.
+ * Characters CPython's `str.isprintable()` calls unprintable: categories Cc,
+ * Cf, Cs, Co, Cn, Zl, Zp and Zs, with U+0020 the one exception. Printable
+ * non-ASCII — `é`, `日`, `😀` — is left alone, as `repr()` leaves it.
  *
- * Its rule is: not printable if the code point is in category Cc, Cf, Cs, Co,
- * Cn, Zl, Zp or Zs — with U+0020 the one exception, which is printable. Every
- * other printable non-ASCII character, `é` and `日` and `😀` alike, is left
- * alone by `repr()` and is left alone here.
- *
- * **`Cn` is the one category this cannot get exactly right, and the limit is
- * worth knowing.** "Unassigned" is not a property of a code point but of a
- * code point in a Unicode version, and the two sides read different tables:
- * this class is evaluated against the JS engine's, while the appliance's
- * `repr()` uses its Python's. They agree on the code points unassigned in
- * both — which is almost all of them — and disagree on any code point the two
- * tables classify differently, in whichever direction they happen to sit: a
- * code point assigned to the engine but not to that Python comes through raw
- * here and escaped there, and one assigned to the Python but not the engine
- * does the reverse. Neither side is reliably the newer one — this package
- * supports Node 22 upward, and an appliance's Python moves on its own
- * schedule. Everything below U+0100 is exact, because every code point there
- * has been assigned in every Unicode version either side has had, and so is
- * any reason made of ordinary prose.
+ * `Cn` is the one category this cannot get exactly right. "Unassigned" is a
+ * property of a code point *in a Unicode version*, and this class reads the
+ * engine's table while the appliance's `repr()` reads its Python's. They agree
+ * on the code points unassigned in both, which is almost all of them, and
+ * disagree either way on the rest; neither side is reliably newer. Everything
+ * below U+0100 is exact, and so is any reason made of ordinary prose.
  */
 const UNPRINTABLE = /[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\p{Zs}]/u;
 
@@ -72,26 +61,15 @@ function escapeCodePoint(character: string): string {
  * A Python `repr()` of a string, quoting and escaping the way CPython does —
  * within the one limit {@link UNPRINTABLE} describes.
  *
- * Interpolating into single quotes is not it, and neither is escaping the
- * three whitespace controls. `repr` picks `"` when the string contains a `'`
- * and no `"`, escapes the backslash and the quote it chose, and escapes every
- * code point `str.isprintable()` rejects — `\xNN` below U+0100, `\uNNNN` below
- * U+10000, `\UNNNNNNNN` above, with `\n`, `\r` and `\t` the three short forms.
+ * `repr` picks `"` when the string holds a `'` and no `"`, escapes the
+ * backslash and the chosen quote, and escapes every code point
+ * `str.isprintable()` rejects: `\xNN` below U+0100, `\uNNNN` below U+10000,
+ * `\UNNNNNNNN` above, with `\n`, `\r` and `\t` the short forms. Ordinary
+ * middleware messages need all of it — `{x!r}` f-strings carry single quotes,
+ * and `adapt_exception` interpolates raw stderr after a newline.
  *
- * The inputs that need it are the ordinary ones. Middleware names things with
- * `{x!r}` in f-strings, so `CallError` messages are full of single quotes;
- * `adapt_exception` interpolates a command's decoded stderr after a newline
- * (`4303dc8:src/middlewared/middlewared/service_exception.py:106-114`), and
- * plugins do the same by hand — so ANSI colour, a stray `\x00` or a `\x0c`
- * arrives in a reason without anything stripping it.
- *
- * Checked against `python3` rather than against expectations written here:
- * `fake-api-error.spec.ts` covers the rule as a caller meets it, and
- * `python-repr.spec.ts` covers the categories that are awkward to carry in a
- * `reason`.
- *
- * Exported for those tests alone — it is not re-exported from
- * `src/testing/index.ts` and is not part of the entry's surface.
+ * Checked against `python3`, not against expectations written here; see
+ * `fake-api-error.spec.ts` and `python-repr.spec.ts`. Exported for those alone.
  */
 export function pythonRepr(value: string): string {
   const quote = value.includes("'") && !value.includes('"') ? '"' : "'";
@@ -109,8 +87,16 @@ export function pythonRepr(value: string): string {
 
 /**
  * A trace whose `class` and `repr` agree with the reason, so those two are a
- * pair an appliance could send. `formatted` is outside that — see
- * {@link fakeApiError}.
+ * pair an appliance could send. `formatted` is outside that: middleware builds
+ * it from `traceback.format_exception`, whose frames a fixture cannot produce.
+ *
+ * It is an object rather than `null` because both arms sending `-32001` pass
+ * `sys.exc_info()`, always truthy inside an `except`.
+ *
+ * The rule follows the generic arm's `str(error) or repr(error)`: a bare repr
+ * means an argument-free exception, so the class is its name; anything else is
+ * `ValueError` with the call written out. `CallError` is never argument-free
+ * and so is deliberately not used.
  */
 function syntheticTrace(reason: string): NonNullable<TrueNasErrorData['trace']> {
   const bare = BARE_REPR.exec(reason);
@@ -127,68 +113,16 @@ function syntheticTrace(reason: string): NonNullable<TrueNasErrorData['trace']> 
 /**
  * The error a method call fails with on `/api/<version>`.
  *
- * The versioned endpoint answers a failed call with a JSON-RPC error whose
- * `data` carries the TrueNAS payload:
+ * The versioned endpoint wraps the TrueNAS payload in a JSON-RPC error —
+ * `{code: -32001, message: 'Method call error', data: {…}}` — and that nesting
+ * is the part worth a builder. The flat `{error, errname, extra, reason}` is
+ * `/websocket`'s, a route this client never opens; `getApiErrorMessage` reads
+ * either, so only a consumer branching on `error.code` or `error.data.errname`
+ * finds out. Verified at middleware `4303dc8`, `ws_handler/rpc.py:81-124`.
  *
- * ```json
- * {"code": -32001, "message": "Method call error",
- *  "data": {"error": 22, "errname": "EINVAL", "reason": "…", "trace": null, "extra": null}}
- * ```
- *
- * That nesting is the part worth having a builder for. The flat
- * `{error, errname, extra, reason}` is what `/websocket` sends — a different
- * handler for a different endpoint — and a spec that answers with it passes
- * against this package's own `getApiErrorMessage`, which reads either, while a
- * consumer branching on `error.code` or `error.data.errname` fails against an
- * appliance.
- *
- * Verified against middleware master at `4303dc8`:
- * `api/base/server/ws_handler/rpc.py:81-124` builds the envelope,
- * `:408,422` passes `"Method call error"` for both the `CallError` and generic
- * arms, and `middlewared_docs/docs/jsonrpc.rst` documents `-32001`.
- *
- * **`error` and `errname` have to agree, and this does not check.** Middleware
- * derives the name from the number with `get_errname`, so there is exactly one
- * pairing; reproducing that here would mean carrying a copy of Python's errno
- * table, which this package has declined to do elsewhere for the same reason.
- * Pass both when you want something other than `EINVAL`.
- *
- * **`trace` is an object, not `null`.** Both arms that send `-32001` pass
- * `sys.exc_info()`, which inside an `except` block is always truthy, so
- * `format_truenas_error` always builds one for this code — an error frame with
- * `trace: null` is not something the versioned endpoint produces.
- *
- * `formatted` is synthetic, because a fixture has no Python stack to format.
- * `class` and `repr` are not: they are chosen so the triple is one an
- * appliance could send. The generic arm's `reason` is `str(error) or
- * repr(error)`, so a reason that reads as a bare repr — `MatchNotFound()` —
- * means an argument-free exception, and `class` is its name and `repr` is the
- * reason itself. Any other reason is `str(e)` of an exception that has
- * arguments, so `class` is `ValueError` and `repr` is that call written out.
- * `CallError` is the one name deliberately not used: it is never
- * argument-free — `__init__` always passes three arguments to `super()` — so
- * its repr is never the reason
- * (`4303dc8:src/middlewared/middlewared/service_exception.py:15-21`).
- *
- * **Two things this derivation does not model, deliberately.** The
- * `CallException` arm sends plain `str(e)`, and `CallError.__str__` is
- * `[<get_errname(self.errno)>] errmsg` (`:22-24`) — `[EFAULT] ` for the
- * constructor's default errno, not the `[EINVAL] ` this fixture happens to
- * default `error` to — so the commonest real reason has a prefix this rule
- * reads as an ordinary message. And on the adapted path the reason and the
- * trace describe *different* exceptions: `adapt_exception` returns a new
- * `CallError` whose `str()` becomes the reason, while `sys.exc_info()` is
- * still the original, so `trace.class` is something like
- * `CalledProcessError`. A spec that needs either shape should pass `trace`
- * itself; what the default guarantees is that the `class` and `repr` it does
- * produce are a pair an appliance could send, not that they are the pair it
- * would have sent. `formatted` is outside that guarantee — middleware builds
- * it from `traceback.format_exception`, whose frame lines this fixture has no
- * stack to produce and whose last line is `str(value)` rather than the repr.
- *
- * Pass `trace: null` explicitly for the one payload that genuinely has none —
- * the job-event error, which `format_truenas_error` builds without `exc_info`
- * and which is not a JSON-RPC error frame at all.
+ * `error` and `errname` are the caller's to keep consistent; middleware
+ * derives one from the other. For `trace`, see {@link syntheticTrace} — pass
+ * `trace: null` only for the job-event payload, which is not an error frame.
  */
 export function fakeApiError(overrides: FakeApiErrorOverrides = {}): TrueNasErrorFrame {
   const { code, message, ...data } = overrides;
