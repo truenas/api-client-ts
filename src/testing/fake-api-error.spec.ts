@@ -156,11 +156,21 @@ describe('fakeApiError', () => {
    * a `repr` that is not a Python string literal at all. `'MatchNotFound()'`
    * matches either pattern, so the positive test above cannot see it.
    */
-  it('does not read a call in the middle of a reason as a repr', () => {
+  it('does not read a call anywhere but the whole reason as a repr', () => {
     const trace = fakeApiError({ reason: 'pool.import_pool() failed' }).data?.trace;
 
     expect(trace?.class).toBe('ValueError');
     expect(trace?.repr).toBe("ValueError('pool.import_pool() failed')");
+
+    // One reason per anchor: the pair above fails both, so it only kills the
+    // fully-unanchored pattern. A reason that *ends* in a call survives a
+    // missing `^`, and one that *begins* with a call survives a missing `$`.
+    expect(
+      fakeApiError({ reason: 'Failed to import pool.import_pool()' }).data?.trace?.class
+    ).toBe('ValueError');
+    expect(
+      fakeApiError({ reason: 'MatchNotFound() while scrubbing' }).data?.trace?.class
+    ).toBe('ValueError');
   });
 
   /** The shape the JSDoc describes, which nothing else asserts. */

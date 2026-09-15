@@ -109,18 +109,41 @@ function spyOnMethods<T extends object>(
     // Without it the first line of the real method runs against `undefined`
     // and the caller gets `Cannot read properties of undefined (reading
     // 'dispatch')` out of a bundled chunk, naming neither spies nor `this`.
+    //
+    // It calls the method either way rather than refusing on a missing `this`.
+    // Refusing made the spied client *stricter* than the real one:
+    // `callAndGetJobId`'s body is inside a `defer`, so it reads no `this`
+    // until someone subscribes and a detached call returns an observable — and
+    // the guard threw. Binding was rejected for making a detached verb work
+    // where the real one throws; this was the same divergence pointing the
+    // other way. Now the outcome is always the real method's, and the sentence
+    // is added only to a failure that was going to happen anyway.
     const method = original as (this: unknown, ...args: unknown[]) => unknown;
     const forwarded = function (this: unknown, ...args: unknown[]): unknown {
-      if (this === undefined) {
+      if (this !== undefined) return method.apply(this, args);
+
+      try {
+        return method.apply(this, args);
+      } catch (cause) {
         throw new Error(
           `withSpies: ${name} was called without its object. Either the verb ` +
-            'was detached from the client — the real one fails that way too — ' +
-            'or the spy factory does not forward `this` to the implementation ' +
-            'it was given. An arrow function does not; `vi.fn` and `jest.fn` do.'
+            'was detached from the client, or the spy factory does not forward ' +
+            '`this` to the implementation it was given. An arrow function does ' +
+            'not; `vi.fn` and `jest.fn` do.',
+          { cause }
         );
       }
-      return method.apply(this, args);
     };
+
+    // Both runners copy the implementation's `name` and `length` onto the
+    // mock, so without these every spied method would report `forwarded` — and
+    // the moment `expect(client.api.call).toHaveBeenCalledWith(…)` matters is
+    // the moment it fails and prints that name.
+    Object.defineProperty(forwarded, 'name', { value: name, configurable: true });
+    Object.defineProperty(forwarded, 'length', {
+      value: method.length,
+      configurable: true,
+    });
 
     (target as Record<string, unknown>)[name] = spy(forwarded);
   }

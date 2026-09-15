@@ -1,4 +1,4 @@
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
@@ -186,6 +186,44 @@ describe('withSpies', () => {
   });
 
   /**
+   * `callAndGetJobId` is the one verb whose body is entirely inside a `defer`,
+   * so it reads no `this` until someone subscribes and a detached call returns
+   * an observable rather than throwing. A guard that refused on a missing
+   * `this` made the spied client stricter than the real one — the same
+   * divergence binding would have caused, pointing the other way.
+   */
+  it('matches the real client on a verb that tolerates a missing this', () => {
+    const plain = client();
+    const spied = withSpies(client(), vi.fn);
+
+    const { callAndGetJobId: detachedFromPlain } = plain.api;
+    const { callAndGetJobId: detachedFromSpied } = spied.api;
+
+    expect(detachedFromPlain('app.delete', ['plex'])).toBeInstanceOf(Observable);
+    expect(detachedFromSpied('app.delete', ['plex'])).toBeInstanceOf(Observable);
+  });
+
+  /**
+   * Both runners copy the implementation's `name` onto the mock, so a wrapper
+   * handed to the factory unnamed makes every verb report the wrapper's name —
+   * and `expected "forwarded" to be called once, but got 0 times` names
+   * nothing. The moment this matters is the moment an assertion fails.
+   */
+  it.each(API_VERBS)('keeps %s reporting its own name and arity', name => {
+    const c = withSpies(client(), vi.fn);
+    const spiedVerb = c.api[name] as unknown as {
+      getMockName: () => string;
+      length: number;
+    };
+    const real = (Object.getPrototypeOf(client().api) as Record<string, unknown>)[
+      name
+    ] as (...args: unknown[]) => unknown;
+
+    expect(spiedVerb.getMockName()).toBe(name);
+    expect(spiedVerb.length).toBe(real.length);
+  });
+
+  /**
    * The type cannot say "forwards `this`", so the helper says it at runtime.
    * An arrow-returning factory type-checks and would otherwise hand every verb
    * a `this` of `undefined`, failing on the real method's first line with
@@ -193,16 +231,20 @@ describe('withSpies', () => {
    * bundled chunk — naming neither spies nor `this`.
    */
   it.each([
+    // `satisfies`, not `as`: half the claim is that these shapes type-check as
+    // a `SpyFactory`, which is why the runtime guard has to exist. A cast
+    // would suppress exactly the check that proves it, and the docblock would
+    // go quietly wrong if the type were ever narrowed to reject them.
     [
       'a plain non-forwarding factory',
       (<A extends unknown[], R>(implementation: (...args: A) => R) =>
         (...args: A): R =>
-          implementation(...args)) as SpyFactory,
+          implementation(...args)) satisfies SpyFactory,
     ],
     [
       'vi.fn wrapped in an arrow',
       (<A extends unknown[], R>(implementation: (...args: A) => R) =>
-        vi.fn((...args: A): R => implementation(...args))) as SpyFactory,
+        vi.fn((...args: A): R => implementation(...args))) satisfies SpyFactory,
     ],
   ])('names the problem when %s loses this', (_label, factory) => {
     const c = withSpies(client(), factory);

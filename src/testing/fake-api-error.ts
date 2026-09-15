@@ -39,11 +39,15 @@ const BARE_REPR = /^([A-Za-z_][A-Za-z0-9_]*)\(\)$/;
  * code point in a Unicode version, and the two sides read different tables:
  * this class is evaluated against the JS engine's, while the appliance's
  * `repr()` uses its Python's. They agree on the code points unassigned in
- * both — which is almost all of them — and disagree inside the gap, where a
- * character assigned in the newer table comes through raw here and escaped
- * there. Everything below U+0100, and any reason made of ordinary prose, is
- * exact; a reason carrying a character from a script added since the
- * appliance's Python may not be.
+ * both — which is almost all of them — and disagree on any code point the two
+ * tables classify differently, in whichever direction they happen to sit: a
+ * code point assigned to the engine but not to that Python comes through raw
+ * here and escaped there, and one assigned to the Python but not the engine
+ * does the reverse. Neither side is reliably the newer one — this package
+ * supports Node 22 upward, and an appliance's Python moves on its own
+ * schedule. Everything below U+0100 is exact, because every code point there
+ * has been assigned in every Unicode version either side has had, and so is
+ * any reason made of ordinary prose.
  */
 const UNPRINTABLE = /[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\p{Zs}]/u;
 
