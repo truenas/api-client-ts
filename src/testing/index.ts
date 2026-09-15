@@ -33,3 +33,6 @@ export { fakeApiVersion } from './fake-api-version';
 export type { FakeApiVersionOverrides } from './fake-api-version';
 export { fakeAuthResponse } from './fake-auth-response';
 export type { FakeAuthResponseOverrides } from './fake-auth-response';
+// Same reason as the error types above: every arm but the default of
+// `fakeAuthResponse` and `failNextLogin` is named through this enum.
+export { AuthResponseType } from '@/types/auth.type';

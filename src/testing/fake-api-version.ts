@@ -2,6 +2,7 @@ import { SUPPORTED_API_VERSIONS } from '@/generated';
 import type { SupportedApiVersion } from '@/generated';
 import type { ApiVersion } from '@/types/api-version.type';
 import { parseApiVersion } from '@/utils/api-version.utils';
+import { present } from './present';
 
 /**
  * Overrides for {@link fakeApiVersion}: the fields the parser would have
@@ -30,10 +31,10 @@ export function fakeApiVersion(
   if (!parsed) {
     throw new Error(
       `fakeApiVersion('${version}'): not a version this package parses. ` +
-        'Expected vYY.MINOR.PATCH — v25.10.0, v27.0.0. Pass overrides if you ' +
-        'need a version the parser rejects.'
+        'Expected vYY.MINOR.PATCH — v25.10.0, v27.0.0. For a version the ' +
+        'parser rejects, pass one it accepts and override its fields.'
     );
   }
 
-  return { ...parsed, ...overrides };
+  return { ...parsed, ...present(overrides) };
 }

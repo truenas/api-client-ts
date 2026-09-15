@@ -121,8 +121,8 @@ function syntheticTrace(reason: string): NonNullable<TrueNasErrorData['trace']> 
  * finds out. Verified at middleware `4303dc8`, `ws_handler/rpc.py:81-124`.
  *
  * `error` and `errname` are the caller's to keep consistent; middleware
- * derives one from the other. For `trace`, see {@link syntheticTrace} — pass
- * `trace: null` only for the job-event payload, which is not an error frame.
+ * derives one from the other. `trace` defaults to one whose `class` and `repr`
+ * agree with `reason`; pass `null` only for the job-event payload.
  */
 export function fakeApiError(overrides: FakeApiErrorOverrides = {}): TrueNasErrorFrame {
   const { code, message, ...data } = overrides;

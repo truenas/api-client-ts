@@ -35,4 +35,14 @@ describe('fakeApiVersion', () => {
     expect(version.websocketPath).toBe('/api/current');
     expect(version.version).toBe('v27.0.0');
   });
+
+  /**
+   * `ApiVersion`'s fields are all required, so an `undefined` would be a lie.
+   * `toStrictEqual`, because `toEqual` treats an `undefined` key as absent.
+   */
+  it('ignores an override that is explicitly undefined', () => {
+    const version = fakeApiVersion('v27.0.0', { websocketPath: undefined });
+
+    expect(version).toStrictEqual(parseApiVersion('v27.0.0'));
+  });
 });
