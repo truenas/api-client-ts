@@ -92,8 +92,8 @@ export interface CreateClientOptions {
  *
  * Without `opts.version`, discovers the version from every hostname in parallel
  * and types the client as `D` — a claim, not a guarantee. A literal
- * `opts.version` skips discovery and derives the surface from the string; see
- * the README's "Naming a version" for the trade-offs.
+ * `opts.version` skips discovery and derives the surface from the string, unless
+ * a type argument overrides it. See the README's "Working across versions".
  *
  * @typeParam V - the version named in `opts.version`.
  * @typeParam D - the API surface to type against when no version is named.

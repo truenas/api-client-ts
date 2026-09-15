@@ -8,7 +8,7 @@ describe('socketScheme', () => {
   });
 
   /**
-   * TypeScript rejects these, but the README shows callers casting
+   * TypeScript rejects these, but a caller can still cast
    * `location.protocol` — a `string` that is genuinely `file:` for a local page
    * and `chrome-extension:` in an extension origin. Getting a plaintext socket
    * out of that would put credentials on the wire with nothing raised.
