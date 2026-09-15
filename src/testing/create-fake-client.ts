@@ -49,6 +49,18 @@ export interface FakeClientOptions<V extends SupportedApiVersion> {
   authenticated?: boolean;
   /** Whether the connection starts opened. Defaults to `true`. */
   opened?: boolean;
+  /**
+   * Whether a call nothing is scripted to answer fails with
+   * {@link UnmockedCallError} instead of hanging. Defaults to `false`.
+   *
+   * A spec that scripts every call with `mock` can turn this on and find out
+   * which one it missed, by name, instead of watching a promise never settle.
+   * A spec that answers frames by hand with `connection.reply` cannot: the
+   * answer is registered after the frame goes out, and there is no way to tell
+   * that apart from a frame nobody will ever answer. See
+   * {@link FakeConnectionOptions.strict}.
+   */
+  strict?: boolean;
 }
 
 /**
@@ -62,7 +74,7 @@ export interface FakeClientOptions<V extends SupportedApiVersion> {
  */
 function withFakeCollaborators<T extends FakeableClientConstructor>(
   Base: T,
-  options: { opened?: boolean }
+  options: { opened?: boolean; strict?: boolean }
 ) {
   return class FakeClient extends Base {
     declare readonly connection: FakeConnection;
@@ -74,6 +86,7 @@ function withFakeCollaborators<T extends FakeableClientConstructor>(
         uuid: this.uuid,
         websocketPath: this.version.websocketPath,
         opened: options.opened ?? true,
+        strict: options.strict ?? false,
       });
     }
 

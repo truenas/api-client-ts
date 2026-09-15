@@ -3,6 +3,7 @@ import { TrueNasConnection } from '@/connection/truenas-connection';
 import { noopLogger } from '@/logger';
 import type { TrueNasErrorFrame } from '@/types/api-error.type';
 import type { TrueNasMessage } from '@/types/truenas-message.type';
+import { UnmockedCallError } from './unmocked-call-error';
 
 /** How a fake connection is set up. Every field has a usable default. */
 export interface FakeConnectionOptions {
@@ -17,7 +18,33 @@ export interface FakeConnectionOptions {
    * is after.
    */
   opened?: boolean;
+  /**
+   * Whether a frame nothing is scripted to answer fails instead of hanging.
+   * Defaults to `false`.
+   *
+   * Off by default because the two ways to answer cannot be told apart at
+   * `send` time. A spec that scripts everything with `mock` has registered its
+   * answers before the frame goes out; a spec that drives frames by hand calls
+   * `reply` *after* it — so refusing an unregistered method would break every
+   * hand-driven spec, 24 of them in this repo's own suite. Strictness is the
+   * spec's claim that it scripted everything, which only the spec can make.
+   */
+  strict?: boolean;
 }
+
+/**
+ * Frames the client sends for itself, which no spec should have to script.
+ *
+ * `core.subscribe` is the only one reachable: for the job stream once
+ * authenticated, and again per `events()` name. If another method starts
+ * arriving through `send`, a strict spec fails naming it.
+ *
+ * The other two are absent for different reasons. `core.unsubscribe` is never
+ * sent, so it would fail loudly if it were. `core.ping` would not — it goes
+ * out through `ws.next(…)` rather than `send`, so it cannot reach this check,
+ * and a fake connection never yields a socket for it to fire on.
+ */
+const CLIENT_HOUSEKEEPING = new Set(['core.subscribe']);
 
 /**
  * A `TrueNasConnection` that never opens a socket, and that a test drives by
@@ -41,6 +68,9 @@ export class FakeConnection extends TrueNasConnection {
 
   /** Set by `close()`. Latched, because the real connection cannot come back. */
   private terminated = false;
+
+  /** See {@link FakeConnectionOptions.strict}. Assigned in the constructor. */
+  private readonly strict: boolean;
 
   /**
    * The canonical streams, re-pointed at what this class actually drives.
@@ -82,6 +112,8 @@ export class FakeConnection extends TrueNasConnection {
       noopLogger
     );
 
+    this.strict = options.strict ?? false;
+
     if (options.opened ?? true) this.simulateOpen();
   }
 
@@ -101,6 +133,18 @@ export class FakeConnection extends TrueNasConnection {
    * in here would have been the same bug in a better-looking place.
    */
   override send(message: TrueNasMessage): Subscription {
+    // Before the terminated and queued paths, so a strict spec is told what it
+    // failed to script whatever state the connection is in. A frame that is
+    // going to hang forever hangs the same way closed as it does open.
+    if (
+      this.strict &&
+      message.method !== undefined &&
+      !this.autoReplies.has(message.method) &&
+      !CLIENT_HOUSEKEEPING.has(message.method)
+    ) {
+      throw new UnmockedCallError(message.method, message.params);
+    }
+
     if (this.terminated) {
       const dropped = new Subscription();
       dropped.unsubscribe();

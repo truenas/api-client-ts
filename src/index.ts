@@ -5,6 +5,8 @@
  * The curated public API. Everything exported here is the package's contract
  * under semver; connection/socket internals are intentionally not re-exported
  * (reach them via `client.connection` / `client.api` / `client.authenticator`).
+ *
+ * @module @truenas/api-client
  */
 
 // ── Factory (primary entry point) ────────────────────────────────────────────
@@ -99,7 +101,15 @@ export { isJobFinished, JobState } from '@/types/job.type';
 export type { Job, JobProgress } from '@/types/job.type';
 export type { TrueNasDate } from '@/types/truenas-date.type';
 export { getApiErrorMessage } from '@/types/api-error.type';
-export type { ApiError } from '@/types/api-error.type';
+export type {
+  ApiError,
+  TrueNasErrorData,
+  TrueNasErrorFrame,
+} from '@/types/api-error.type';
+// Value export for the same reason as `AppState` below: `response_type` is a
+// string enum, which rejects its own literals, so without it a consumer cannot
+// name any arm — nor script one through `fakeAuthResponse` or `failNextLogin`.
+export { AuthResponseType } from '@/types/auth.type';
 export type { AuthResponse } from '@/types/auth.type';
 export type { ApplianceProtocol } from '@/types/transport.type';
 export type { Container } from '@/types/container.type';

@@ -3,7 +3,9 @@ import { OptionDefaults } from 'typedoc';
 
 /** @type {Partial<import('typedoc').TypeDocOptions>} */
 export default {
-  entryPoints: ['src/index.ts'],
+  // The testing subpath is published under the same semver rules, so it gets
+  // the same docs and the same link validation.
+  entryPoints: ['src/index.ts', 'src/testing/index.ts'],
   out: 'docs',
   readme: 'README.md',
   excludeInternal: true,

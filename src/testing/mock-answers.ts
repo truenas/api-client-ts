@@ -9,8 +9,9 @@ import type {
   JobMethod,
   JobResult,
 } from '@/types/api-directory.type';
-import type { Job, JobProgress } from '@/types/job.type';
-import { fakeJob } from './fake-job';
+import type { Job } from '@/types/job.type';
+import { fakeApiError } from './fake-api-error';
+import { fakeJob, type FakeJobOverrides } from './fake-job';
 import type { QueryEntity, QueryMethod } from '@/types/query.type';
 import type { TrueNasMessage } from '@/types/truenas-message.type';
 
@@ -80,14 +81,11 @@ export interface MockAnswers<D extends ApiDirectoryShape> {
 }
 
 /**
- * One scripted job update.
- *
- * `progress` is partial too: a fixture that names a percent should not have to
- * name the description and the extra alongside it.
+ * One scripted job update. An alias rather than a second statement of the
+ * shape: `job` completes each update through {@link fakeJob}, so the two
+ * cannot usefully differ.
  */
-export type JobUpdate<R> = Partial<Omit<Job<R>, 'progress'>> & {
-  progress?: Partial<JobProgress>;
-};
+export type JobUpdate<R> = FakeJobOverrides<R>;
 
 /**
  * The id a `core.get_jobs` read is asking about.
@@ -202,17 +200,7 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
    * under a JSON-RPC error's `data`; only legacy `/websocket` puts it top-level.
    */
   const notFound = (frame: TrueNasMessage): void => {
-    errorTo(frame, {
-      code: -32001,
-      message: 'Method call error',
-      data: {
-        error: 22,
-        errname: 'EINVAL',
-        reason: 'MatchNotFound()',
-        extra: null,
-        trace: null,
-      },
-    });
+    errorTo(frame, fakeApiError({ reason: 'MatchNotFound()' }));
   };
 
   const errorTo = (frame: TrueNasMessage, error: NonNullable<TrueNasMessage['error']>): void => {

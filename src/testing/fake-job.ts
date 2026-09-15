@@ -1,19 +1,14 @@
 import { JobState, type Job, type JobProgress } from '@/types/job.type';
+import { present } from './present';
 
 /**
- * Fields whose value is literally `undefined` are dropped rather than applied.
- *
- * `Partial<Job>` makes every field optional, so `{ state: done ? Success :
- * undefined }` compiles — and spreading that over a default puts `undefined`
- * where a `JobState` is declared. The job then never finishes, because
- * `isJobFinished` is false for a state that is not there. Dropping them makes
- * an absent field mean "unchanged", which is what a partial update means
- * everywhere else here.
+ * Overrides for {@link fakeJob}. `progress` is partial one level down, so a
+ * fixture naming a percent need not name the description beside it. Named so
+ * a consumer can write a helper that takes one, as the other builders are.
  */
-function present<T extends object>(value: T): Partial<T> {
-  return Object.fromEntries(
-    Object.entries(value).filter(([, v]) => v !== undefined)
-  ) as Partial<T>;
+export interface FakeJobOverrides<R = unknown>
+  extends Partial<Omit<Job<R>, 'progress'>> {
+  progress?: Partial<JobProgress>;
 }
 
 /**
@@ -26,7 +21,7 @@ function present<T extends object>(value: T): Partial<T> {
  * required field fail here.
  */
 export function fakeJob<R = unknown>(
-  overrides: Partial<Omit<Job<R>, 'progress'>> & { progress?: Partial<JobProgress> } = {}
+  overrides: FakeJobOverrides<R> = {}
 ): Job<R> {
   // `JobProgress.description` is `string`, not `string | null`: the generated
   // shape allows null and `job.type.ts` narrows it, because the server sends a

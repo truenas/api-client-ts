@@ -139,6 +139,7 @@ describe('FakeConnection surface', () => {
       'sent',
       'simulateClose',
       'simulateOpen',
+      'strict',
       'terminated',
       'write',
     ]);

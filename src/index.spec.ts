@@ -15,6 +15,7 @@ const RUNTIME_EXPORTS = [
   'AppState',
   'AuthError',
   'AuthErrorCode',
+  'AuthResponseType',
   'InvalidVersionResponseError',
   'JobState',
   'NoCompatibleVersionsError',
