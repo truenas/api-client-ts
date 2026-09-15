@@ -10,6 +10,8 @@
  *
  * **Public surface**, under the same semver rules as the main entry: a break
  * here breaks consumers' suites. Every helper is a commitment.
+ *
+ * @module @truenas/api-client/testing
  */
 export { FakeConnection } from './fake-connection';
 export type { FakeConnectionOptions } from './fake-connection';

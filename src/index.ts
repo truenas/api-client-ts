@@ -5,6 +5,8 @@
  * The curated public API. Everything exported here is the package's contract
  * under semver; connection/socket internals are intentionally not re-exported
  * (reach them via `client.connection` / `client.api` / `client.authenticator`).
+ *
+ * @module @truenas/api-client
  */
 
 // ── Factory (primary entry point) ────────────────────────────────────────────
