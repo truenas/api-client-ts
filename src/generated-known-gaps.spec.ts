@@ -117,3 +117,36 @@ describe('known gap: removed_in is carried and not enforced', () => {
     );
   });
 });
+
+
+/**
+ * A third known gap: at v26, `interface.query`'s event payload contradicts its
+ * call side.
+ *
+ * `4303dc820b` documented `stp`, `xmit_hash_policy` and `lacpdu_rate` and
+ * dropped `extra = "allow"` in `api/v27_0_0/interface.py` alone. Every slice's
+ * events carry the running tree's models, so v26's event payload took the v27
+ * shape while v26's own `InterfaceEntry` kept the open one — and a v26
+ * appliance still sends keys the closed shape does not admit.
+ *
+ * Not hand-corrected like `pool.dataset.query`: that lives in a frozen file
+ * and v26 is rewritten by every run. These **fail when the gap closes**.
+ */
+describe('known gap: v26 interface events disagree with interface calls', () => {
+  it('keeps the call side open', () => {
+    expectTypeOf<v26_0_0.InterfaceEntry>().toHaveProperty('failover_group');
+    expectTypeOf<v26_0_0.InterfaceEntry['anything else']>().toEqualTypeOf<unknown>();
+  });
+
+  it('still types the event payload as closed, with the v27 fields', () => {
+    expectTypeOf<v26_0_0.InterfaceEntryInput>().toHaveProperty('stp');
+    expectTypeOf<v26_0_0.InterfaceEntryInput>().toHaveProperty('xmit_hash_policy');
+    expectTypeOf<v26_0_0.InterfaceEntryInput>().toHaveProperty('lacpdu_rate');
+  });
+
+  it('is what the event arms carry', () => {
+    expectTypeOf<
+      v26_0_0.ApiEventDirectory['interface.query']['added']['fields']
+    >().toEqualTypeOf<v26_0_0.InterfaceEntryInput>();
+  });
+});

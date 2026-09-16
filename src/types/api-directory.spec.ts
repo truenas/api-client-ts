@@ -239,18 +239,18 @@ describe('job results', () => {
   /**
    * The tripwire that deriving from a frozen version took away.
    *
-   * `Job` used to come from the shared base, so any cross-version divergence
-   * in `core.get_jobs` deleted the key and `job.type.ts` stopped compiling —
-   * which is how `exc_info.errname` was caught. It comes from v25.10.0 now,
-   * the floor every appliance meets, and a frozen entry cannot diverge: this
-   * is what fails instead, when the newest version grows a field `Job` does
-   * not carry.
+   * `Job` used to come from the shared base, so any divergence in
+   * `core.get_jobs` deleted the key and `job.type.ts` stopped compiling —
+   * which is how `exc_info.errname` was caught. A frozen entry cannot diverge,
+   * so this is what fails instead.
    *
-   * The newest version is derived from `SUPPORTED_API_VERSIONS`, not named:
-   * naming it would leave `Job` unguarded again the day a version is added,
-   * which is the same shape of trap the base-derived version fell into.
+   * It compares the *shapes*, not the key lists. A key-list version passed the
+   * very drift that started this: `errname` is nested inside `exc_info`, and
+   * the top-level keys never moved. The newest version is derived from
+   * `SUPPORTED_API_VERSIONS` rather than named, so adding one does not quietly
+   * retire the guard.
    */
-  it('carries every field the newest version declares', () => {
+  it('matches the newest version everywhere it does not override', () => {
     type Newest = typeof SUPPORTED_API_VERSIONS extends readonly [
       ...unknown[],
       infer Last,
@@ -261,9 +261,47 @@ describe('job results', () => {
       ApiDirectoryByVersion[Newest & keyof ApiDirectoryByVersion]['call'],
       'core.get_jobs'
     >;
-    type Unmodelled = Exclude<keyof NewestJob, keyof Job>;
 
-    expectTypeOf<Unmodelled>().toEqualTypeOf<never>();
+    // The keys `job.type.ts` deliberately replaces. Everything else has to be
+    // the newest version's shape, all the way down.
+    type Overridden =
+      | 'state'
+      | 'result'
+      | 'progress'
+      | 'time_started'
+      | 'time_finished'
+      | 'message_ids'
+      | 'exc_info';
+
+    expectTypeOf<Omit<Job, Overridden>>().toEqualTypeOf<
+      Omit<NewestJob, Overridden>
+    >();
+  });
+
+  /**
+   * The overridden keys, one level in: their own shapes are replaced, so the
+   * assertion above cannot see a field appearing inside them — which is
+   * exactly where `errname` appeared.
+   */
+  it('carries every field the newest version nests inside an override', () => {
+    type Newest = typeof SUPPORTED_API_VERSIONS extends readonly [
+      ...unknown[],
+      infer Last,
+    ]
+      ? Last
+      : never;
+    type NewestJob = QueryEntity<
+      ApiDirectoryByVersion[Newest & keyof ApiDirectoryByVersion]['call'],
+      'core.get_jobs'
+    >;
+
+    type MissingFrom<Override extends keyof Job & keyof NewestJob> = Exclude<
+      keyof NonNullable<NewestJob[Override]>,
+      keyof NonNullable<Job[Override]>
+    >;
+
+    expectTypeOf<MissingFrom<'exc_info'>>().toEqualTypeOf<never>();
+    expectTypeOf<MissingFrom<'progress'>>().toEqualTypeOf<never>();
   });
 
   /**
