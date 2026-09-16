@@ -141,7 +141,7 @@ causes a change.
 | catalog.update | call | introduced v25.10.0; changed v26.0.0 |
 | certificate.acme_server_choices | call | introduced v25.10.0 |
 | certificate.country_choices | call | introduced v25.10.0 |
-| certificate.create | job | introduced v25.10.0; changed v25.10.2 (via referenced types), v27.0.0 |
+| certificate.create | job | introduced v25.10.0; changed v25.10.2 (via referenced types), v26.0.0 (via referenced types), v27.0.0 |
 | certificate.delete | job | introduced v25.10.0 |
 | certificate.ec_curve_choices | call | introduced v25.10.0 |
 | certificate.extended_key_usage_choices | call | introduced v25.10.0 |
@@ -212,8 +212,8 @@ causes a change.
 | core.arp | call | introduced v25.10.0 |
 | core.bulk | job | introduced v25.10.0 |
 | core.download | call | introduced v25.10.0 |
-| core.get_jobs | call | introduced v25.10.0 |
-| core.get_jobs | event | introduced v25.10.0 |
+| core.get_jobs | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
+| core.get_jobs | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | core.get_methods | call | introduced v25.10.0 |
 | core.get_services | call | introduced v25.10.0 |
 | core.job_abort | call | introduced v25.10.0 |
@@ -685,6 +685,7 @@ causes a change.
 | sharing.s3.audit_choices | call | introduced v26.0.0 |
 | sharing.s3.create | call | introduced v26.0.0 |
 | sharing.s3.delete | call | introduced v26.0.0 |
+| sharing.s3.force_disable_versioning | call | introduced v26.0.0 |
 | sharing.s3.get_instance | call | introduced v26.0.0 |
 | sharing.s3.query | call | introduced v26.0.0 |
 | sharing.s3.query | event | introduced v26.0.0 |
@@ -798,6 +799,7 @@ causes a change.
 | truecommand.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
 | truenas.accept_eula | call | introduced v25.10.0 |
 | truenas.entitlements.check | call | introduced v26.0.0 |
+| truenas.entitlements.facts | call | introduced v26.0.0 |
 | truenas.entitlements.info | call | introduced v26.0.0 |
 | truenas.get_chassis_hardware | call | introduced v25.10.0 |
 | truenas.get_eula | call | introduced v25.10.0 |
@@ -912,7 +914,7 @@ causes a change.
 | webshare.bindip_choices | call | introduced v26.0.0 |
 | webshare.config | call | introduced v26.0.0 |
 | webshare.update | call | introduced v26.0.0 |
-| webui.crypto.csr_profiles | call | introduced v25.10.0 |
+| webui.crypto.csr_profiles | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | webui.crypto.get_certificate_domain_names | call | introduced v25.10.0 |
 | webui.enclosure.dashboard | call | introduced v25.10.0 |
 | webui.main.dashboard.sys_info | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
@@ -1141,13 +1143,15 @@ causes a change.
 | CertificateAddedEvent | type | introduced v25.10.0; changed v25.10.2 |
 | CertificateChangedEvent | type | introduced v25.10.0; changed v25.10.2 |
 | CertificateCreate | type | introduced v27.0.0 |
-| CertificateCreateArgs | type | introduced v25.10.0; removed v27.0.0 |
+| CertificateCreateArgs | type | introduced v25.10.0; changed v26.0.0 (via referenced types); removed v27.0.0 |
 | CertificateEntry | type | introduced v25.10.0; changed v25.10.2 |
 | CertificateEntryInput | type | introduced v25.10.0; removed v25.10.2 |
-| CertificateExtensions | type | introduced v25.10.0 |
+| CertificateExtensions | type | introduced v25.10.0; changed v26.0.0 |
 | CertificateQueryResultItem | type | introduced v25.10.0; changed v25.10.2 |
 | CertificateRemovedEvent | type | introduced v25.10.0 |
 | CertificateUpdate | type | introduced v25.10.0 |
+| ClientAuthExtendedKeyUsageModel | type | introduced v26.0.0 |
+| ClientCSRExtensionsModel | type | introduced v26.0.0 |
 | CloudBackupAddedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | CloudBackupChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | CloudBackupCreate | type | introduced v25.10.0 |
@@ -1235,13 +1239,15 @@ causes a change.
 | ContainerUSBDevice | type | introduced v26.0.0 |
 | CoreArpArgs | type | introduced v25.10.0 |
 | CoreBulkResultItem | type | introduced v25.10.0 |
-| CoreGetJobsAddedEvent | type | introduced v25.10.0 |
-| CoreGetJobsChangedEvent | type | introduced v25.10.0 |
-| CoreGetJobsItem | type | introduced v25.10.0 |
+| CoreGetJobsAddedEvent | type | introduced v25.10.0; changed v26.0.0 |
+| CoreGetJobsChangedEvent | type | introduced v25.10.0; changed v26.0.0 |
+| CoreGetJobsItem | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | CoreGetJobsItemCredentials | type | introduced v25.10.0 |
-| CoreGetJobsItemExcInfo | type | introduced v25.10.0 |
+| CoreGetJobsItemExcInfo | type | introduced v25.10.0; changed v26.0.0 |
+| CoreGetJobsItemExcInfoInput | type | introduced v25.10.0; removed v26.0.0 |
+| CoreGetJobsItemInput | type | introduced v25.10.0; removed v26.0.0 |
 | CoreGetJobsItemProgress | type | introduced v25.10.0 |
-| CoreGetJobsItemQueryResultItem | type | introduced v25.10.0 |
+| CoreGetJobsItemQueryResultItem | type | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | CoreOptions | type | introduced v25.10.0 |
 | CorePingRemoteArgs | type | introduced v25.10.0 |
 | CorePingRemoteTypeInput | type | introduced v25.10.0 |
@@ -1268,7 +1274,7 @@ causes a change.
 | CronJobSchedule | type | introduced v25.10.0 |
 | CronJobUpdate | type | introduced v25.10.0 |
 | CronModel | type | introduced v25.10.0 |
-| CSRProfilesModel | type | introduced v25.10.0 |
+| CSRProfilesModel | type | introduced v25.10.0; changed v26.0.0 |
 | DefaultIdmapConfiguration | type | introduced v26.0.0 |
 | DefaultOpt | type | introduced v25.10.0; changed v25.10.1 |
 | DefaultOptInput | type | introduced v25.10.1 |
@@ -1329,9 +1335,9 @@ causes a change.
 | DockerUpdate | type | introduced v27.0.0 |
 | DockerUpdateArgs | type | introduced v25.10.0; changed v26.0.0; removed v27.0.0 |
 | DropboxCredentialsModel | type | introduced v25.10.0 |
-| ECCCSRExtensions | type | introduced v25.10.0 |
-| ECCCSRExtensionsModel | type | introduced v25.10.0 |
-| ECCKeyUsageModel | type | introduced v25.10.0 |
+| ECCCSRExtensions | type | introduced v25.10.0; removed v26.0.0 |
+| ECCCSRExtensionsModel | type | introduced v25.10.0; removed v26.0.0 |
+| ECCKeyUsageModel | type | introduced v25.10.0; removed v26.0.0 |
 | EmptyDict | type | introduced v25.10.0 |
 | Enclosure2Entry | type | introduced v25.10.0 |
 | Enclosure2QueryResultItem | type | introduced v25.10.0 |
@@ -1339,10 +1345,11 @@ causes a change.
 | Enclosure2SetSlotStatusStatusInput | type | introduced v25.10.0 |
 | Endpoint | type | introduced v25.10.0 |
 | EntitlementEntry | type | introduced v26.0.0 |
+| EntitlementFactsEntry | type | introduced v26.0.0 |
 | EntitlementsInfo | type | introduced v26.0.0 |
 | Exec | type | introduced v25.10.0 |
-| ExtendedKeyUsageModel | type | introduced v25.10.0 |
-| ExtendedKeyUsageModelInput | type | introduced v25.10.0 |
+| ExtendedKeyUsageModel | type | introduced v25.10.0; changed v26.0.0 |
+| ExtendedKeyUsageModelInput | type | introduced v25.10.0; removed v26.0.0 |
 | ExternalOpt | type | introduced v25.10.0 |
 | ExternalOptInput | type | introduced v25.10.0 |
 | FailoverDisabledReasonsChangedEvent | type | introduced v25.10.0 |
@@ -1441,7 +1448,7 @@ causes a change.
 | InterfaceChangedEvent | type | introduced v25.10.0; changed v26.0.0 (via referenced types), v27.0.0 |
 | InterfaceChoicesOptions | type | introduced v25.10.0 |
 | InterfaceCommitOptions | type | introduced v25.10.0 |
-| InterfaceCreate | type | introduced v25.10.0 |
+| InterfaceCreate | type | introduced v25.10.0; changed v27.0.0 |
 | InterfaceCreateAlias | type | introduced v25.10.0 |
 | InterfaceCreateAlias2 | type | introduced v25.10.0 |
 | InterfaceCreateAliasTypeInput | type | introduced v25.10.0 |
@@ -1462,7 +1469,7 @@ causes a change.
 | InterfaceRemovedEvent | type | introduced v25.10.0 |
 | InterfaceSaveNetworkConfigArgs | type | introduced v25.10.0 |
 | InterfaceServicesRestartedOnSyncItem | type | introduced v25.10.0 |
-| InterfaceUpdate | type | introduced v25.10.0; changed v26.0.0 |
+| InterfaceUpdate | type | introduced v25.10.0; changed v26.0.0, v27.0.0 |
 | InterfaceXmitHashPolicyChoicesResult | type | introduced v25.10.0 |
 | Interval | type | introduced v26.0.0 |
 | Iotype | type | introduced v25.10.0 |
@@ -1910,9 +1917,9 @@ causes a change.
 | RouteSystemRoutesItem | type | introduced v25.10.0 |
 | RouteSystemRoutesItemQueryResultItem | type | introduced v25.10.0 |
 | Rpm | type | introduced v25.10.0 |
-| RSACSRExtensions | type | introduced v25.10.0 |
-| RSACSRExtensionsModel | type | introduced v25.10.0 |
-| RSAKeyUsageModel | type | introduced v25.10.0 |
+| RSACSRExtensions | type | introduced v25.10.0; removed v26.0.0 |
+| RSACSRExtensionsModel | type | introduced v25.10.0; removed v26.0.0 |
+| RSAKeyUsageModel | type | introduced v25.10.0; removed v26.0.0 |
 | RsyncTaskAddedEvent | type | introduced v25.10.0 |
 | RsyncTaskChangedEvent | type | introduced v25.10.0 |
 | RsyncTaskCreate | type | introduced v25.10.0 |
@@ -1946,6 +1953,10 @@ causes a change.
 | Security | type | introduced v25.10.0 |
 | SerialInfo | type | introduced v25.10.0 |
 | Serialspeed | type | introduced v25.10.0 |
+| ServerAuthExtendedKeyUsageModel | type | introduced v26.0.0 |
+| ServerECCSRExtensionsModel | type | introduced v26.0.0 |
+| ServerRSACSRExtensionsModel | type | introduced v26.0.0 |
+| ServerRSAKeyUsageModel | type | introduced v26.0.0 |
 | Service | type | introduced v25.10.0; changed v27.0.0 |
 | ServiceAddedEvent | type | introduced v25.10.0 |
 | ServiceAnnouncement | type | introduced v25.10.0 |
@@ -2006,6 +2017,7 @@ causes a change.
 | SharingWebshareUpdate | type | introduced v26.0.0 |
 | ShellSchema | type | introduced v25.10.0 |
 | Shutdown | type | introduced v25.10.0 |
+| SigningKeyUsageModel | type | introduced v26.0.0 |
 | SlackServiceModel | type | introduced v25.10.0 |
 | SmbAuditConfig | type | introduced v25.10.0 |
 | SMBEntry | type | introduced v25.10.0; changed v26.0.0 |
@@ -2093,6 +2105,10 @@ causes a change.
 | TimeLockedOptInput | type | introduced v25.10.1 |
 | TimeMachineOpt | type | introduced v25.10.0; changed v25.10.1 |
 | TimeMachineOptInput | type | introduced v25.10.1 |
+| TLSClientECProfile | type | introduced v26.0.0 |
+| TLSClientRSAProfile | type | introduced v26.0.0 |
+| TLSServerECProfile | type | introduced v26.0.0 |
+| TLSServerRSAProfile | type | introduced v26.0.0 |
 | TokenCredentialData | type | introduced v25.10.0 |
 | TokenParentCredentialsData | type | introduced v25.10.0 |
 | TruecommandConfigChangedEvent | type | introduced v25.10.0 |

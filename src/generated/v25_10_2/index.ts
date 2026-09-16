@@ -342,6 +342,8 @@ export type {
   CoreGetJobsItem,
   CoreGetJobsItemCredentials,
   CoreGetJobsItemExcInfo,
+  CoreGetJobsItemExcInfoInput,
+  CoreGetJobsItemInput,
   CoreGetJobsItemProgress,
   CoreGetJobsItemQueryResultItem,
   CoreOptions,

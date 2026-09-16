@@ -112,6 +112,7 @@ import type {
   AuthSCRAM,
   AuthTokenPlain,
   BootGetState,
+  CSRProfilesModel,
   CatalogAppDetails,
   CatalogApps,
   CatalogAppsResponse,
@@ -133,6 +134,8 @@ import type {
   ContainerImageQueryRegistryResultImage,
   ContainerQueryResultItem,
   ContainerUpdate,
+  CoreGetJobsItem,
+  CoreGetJobsItemQueryResultItem,
   CredentialsEntry,
   CredentialsQueryResultItem,
   DiskEntry,
@@ -143,6 +146,7 @@ import type {
   DiskUpdate,
   DockerEntry,
   EntitlementEntry,
+  EntitlementFactsEntry,
   EntitlementsInfo,
   FailoverUpdate,
   GraphIdentifier,
@@ -540,6 +544,12 @@ export interface ApiCallDirectoryDelta {
   'container.update': {
     params: [id: number, container_update: ContainerUpdate];
     response: ContainerEntry;
+  };
+
+  'core.get_jobs': {
+    params: [filters?: QueryFilters<CoreGetJobsItem>, options?: QueryOptions<CoreGetJobsItem>];
+    response: CoreGetJobsItem[] | CoreGetJobsItem | CoreGetJobsItemQueryResultItem[] | CoreGetJobsItemQueryResultItem | number;
+    entity: CoreGetJobsItem;
   };
 
   'directoryservices.status': {
@@ -983,6 +993,11 @@ export interface ApiCallDirectoryDelta {
     response: true;
   };
 
+  'sharing.s3.force_disable_versioning': {
+    params: [id: number];
+    response: SharingS3Entry;
+  };
+
   'sharing.s3.get_instance': {
     params: [id: number, options?: QueryOptions<SharingS3Entry>];
     response: SharingS3Entry;
@@ -1129,6 +1144,11 @@ export interface ApiCallDirectoryDelta {
   'truenas.entitlements.check': {
     params: [feature: string];
     response: EntitlementEntry;
+  };
+
+  'truenas.entitlements.facts': {
+    params: [];
+    response: EntitlementFactsEntry;
   };
 
   'truenas.entitlements.info': {
@@ -1288,6 +1308,11 @@ export interface ApiCallDirectoryDelta {
   'webshare.update': {
     params: [webshare_update: WebshareUpdate];
     response: WebshareEntry;
+  };
+
+  'webui.crypto.csr_profiles': {
+    params: [];
+    response: CSRProfilesModel;
   };
 
   'webui.main.dashboard.sys_info': {

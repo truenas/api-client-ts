@@ -57,9 +57,11 @@ describe('the surface a client is typed against', () => {
 
     expectTypeOf<TrueNasApi>().toEqualTypeOf<TrueNasApi<BaseApiDirectory>>();
 
-    // In the shared base.
+    // In the shared base. `core.get_jobs` used to stand here and no longer
+    // can: v26 added `exc_info.errname`, so its shape is not identical across
+    // versions any more and the base dropped it.
     api.query('cronjob.query');
-    api.query('core.get_jobs');
+    api.query('alertservice.query');
 
     // @ts-expect-error not in the shared base — naming a version is the fix.
     api.query('pool.query');
@@ -270,17 +272,21 @@ describe('events', () => {
   /**
    * The runtime filter forwards any of the three kinds; the directory lists
    * only some for 16 of v25.10's collections. Without an arm for the rest, a
-   * `removed` frame on `core.get_jobs` — which declares only `added` and
-   * `changed` — would arrive typed as carrying `fields`.
+   * `changed` frame on `auth.sessions` — which declares only `added` and
+   * `removed` — would arrive typed as carrying whatever those two carry.
+   *
+   * `core.get_jobs` was the example until v26 added `exc_info.errname` and the
+   * base stopped carrying it; `auth.sessions` is the same shape of gap with a
+   * different kind missing.
    */
   it('leaves an arm for kinds the directory does not declare', () => {
-    type JobEvent = EventUnion<BaseApiDirectory, 'core.get_jobs'>;
+    type SessionEvent = EventUnion<BaseApiDirectory, 'auth.sessions'>;
 
-    expectTypeOf<JobEvent['msg']>().toEqualTypeOf<
+    expectTypeOf<SessionEvent['msg']>().toEqualTypeOf<
       'added' | 'changed' | 'removed'
     >();
     expectTypeOf<
-      Extract<JobEvent, { msg: 'removed' }>
+      Extract<SessionEvent, { msg: 'changed' }>
     >().not.toHaveProperty('fields');
 
     // Collections that declare all three gain nothing: no extra arm.

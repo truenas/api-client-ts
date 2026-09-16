@@ -3293,6 +3293,24 @@ export interface CoreGetJobsItemExcInfo {
   errno: number | null;
   extra: unknown;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * CoreGetJobsItemInput / CoreGetJobsItemExcInfoInput — HAND-MAINTAINED,
+ * as PoolDatasetEntryInput is.
+ *
+ * The dump gives every version's events master's models, so this version's
+ * `core.get_jobs` event arms come back carrying v26's `exc_info.errname` —
+ * a field 25.10 does not send. Generation therefore computes a divergent
+ * payload type for the 25.10 slice and `MANIFEST.md`, which is regenerated on
+ * every run, records both names as introduced here.
+ *
+ * The files themselves are frozen and keep the correct shape, so the names
+ * would otherwise be recorded and undeclared. They are declared here, pointing
+ * at what this version really sends — which is the same object on both sides.
+ * See `src/generated-hand-maintained.spec.ts`.
+ * ───────────────────────────────────────────────────────────────────────────*/
+export type CoreGetJobsItemInput = CoreGetJobsItem;
+export type CoreGetJobsItemExcInfoInput = CoreGetJobsItemExcInfo;
 export interface CoreGetJobsItemCredentials {
   type: string;
   data: {

@@ -17,6 +17,8 @@ import type {
   Autotrim,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
+  BasicConstraintsModel,
+  BasicConstraintsModelInput,
   Blocksize,
   Bootloader,
   BoxCredentialsModel,
@@ -29,6 +31,8 @@ import type {
   CloudTaskAttributes,
   CloudTaskAttributesInput,
   Compression,
+  CoreGetJobsItemCredentials,
+  CoreGetJobsItemProgress,
   DiskEntryEnclosure,
   DropboxCredentialsModel,
   Exec,
@@ -48,6 +52,7 @@ import type {
   InterfaceEntryStateAlias,
   InterfaceEntryStatePort,
   IscsiExtentCreateType,
+  KeyUsageModel,
   KeychainCredentialEntry,
   KeychainCredentialEntryInput,
   LegacyOpt,
@@ -735,6 +740,76 @@ export interface CatalogApps {
 export interface CatalogUpdate {
   preferred_trains?: string[];
 }
+export interface CertificateCreateArgs {
+  name: string;
+  create_type:
+    | "CERTIFICATE_CREATE_IMPORTED"
+    | "CERTIFICATE_CREATE_CSR"
+    | "CERTIFICATE_CREATE_IMPORTED_CSR"
+    | "CERTIFICATE_CREATE_ACME";
+  add_to_trusted_store?: boolean;
+  certificate?: string | null;
+  privatekey?: string | null;
+  CSR?: string | null;
+  key_length?: (2048 | 4096) | null;
+  key_type?: "RSA" | "EC";
+  ec_curve?: "SECP256R1" | "SECP384R1" | "SECP521R1" | "ed25519";
+  passphrase?: string | null;
+  city?: string | null;
+  common?: string | null;
+  country?: string | null;
+  email?: string | null;
+  organization?: string | null;
+  organizational_unit?: string | null;
+  state?: string | null;
+  digest_algorithm?: "SHA224" | "SHA256" | "SHA384" | "SHA512";
+  san?: string[];
+  cert_extensions?: CertificateExtensions;
+  acme_directory_uri?: string | null;
+  csr_id?: number | null;
+  tos?: boolean | null;
+  dns_mapping?: {
+    [k: string]: number;
+  };
+  renew_days?: number;
+}
+export interface CertificateExtensions {
+  BasicConstraints?: BasicConstraintsModelInput;
+  ExtendedKeyUsage?: ExtendedKeyUsageModel;
+  KeyUsage?: KeyUsageModel;
+}
+export interface ExtendedKeyUsageModel {
+  usages?: (
+    | "ANY_EXTENDED_KEY_USAGE"
+    | "CERTIFICATE_TRANSPARENCY"
+    | "CLIENT_AUTH"
+    | "CODE_SIGNING"
+    | "EMAIL_PROTECTION"
+    | "IPSEC_IKE"
+    | "KERBEROS_PKINIT_KDC"
+    | "OCSP_SIGNING"
+    | "SERVER_AUTH"
+    | "SMARTCARD_LOGON"
+    | "TIME_STAMPING"
+  )[];
+  enabled?: boolean;
+  extension_critical?: boolean;
+}
+export interface ClientAuthExtendedKeyUsageModel {
+  enabled?: boolean;
+  extension_critical?: boolean;
+  usages?: string[];
+}
+export interface ClientCSRExtensionsModel {
+  BasicConstraints?: BasicConstraintsModel;
+  ExtendedKeyUsage?: ClientAuthExtendedKeyUsageModel;
+  KeyUsage?: SigningKeyUsageModel;
+}
+export interface SigningKeyUsageModel {
+  enabled?: boolean;
+  extension_critical?: boolean;
+  digital_signature?: boolean;
+}
 export interface CloudBackupAddedEvent {
   id: number;
   fields: CloudBackupEntryInput;
@@ -1279,6 +1354,63 @@ export interface ContainerUpdate {
     [k: string]: boolean;
   };
 }
+export interface CoreGetJobsAddedEvent {
+  id: number;
+  fields: CoreGetJobsItem;
+}
+export interface CoreGetJobsItem {
+  id: number;
+  message_ids: unknown[];
+  method: string;
+  arguments: unknown[];
+  transient: boolean;
+  description: string | null;
+  abortable: boolean;
+  logs_path: string | null;
+  logs_excerpt: string | null;
+  progress: CoreGetJobsItemProgress;
+  result: unknown;
+  result_encoding_error: unknown;
+  error: string | null;
+  exception: string | null;
+  exc_info: CoreGetJobsItemExcInfo | null;
+  state: string;
+  time_started: string | null;
+  time_finished: string | null;
+  credentials: CoreGetJobsItemCredentials | null;
+}
+export interface CoreGetJobsItemExcInfo {
+  repr: string | null;
+  type: string | null;
+  errno: number | null;
+  errname: string | null;
+  extra: unknown;
+}
+export interface CoreGetJobsChangedEvent {
+  id: number;
+  fields: CoreGetJobsItem;
+}
+export interface CoreGetJobsItemQueryResultItem {
+  id?: number;
+  message_ids?: unknown[];
+  method?: string;
+  arguments?: unknown[];
+  transient?: boolean;
+  description?: string | null;
+  abortable?: boolean;
+  logs_path?: string | null;
+  logs_excerpt?: string | null;
+  progress?: CoreGetJobsItemProgress;
+  result?: unknown;
+  result_encoding_error?: unknown;
+  error?: string | null;
+  exception?: string | null;
+  exc_info?: CoreGetJobsItemExcInfo | null;
+  state?: string;
+  time_started?: string | null;
+  time_finished?: string | null;
+  credentials?: CoreGetJobsItemCredentials | null;
+}
 export interface CredentialsAddedEvent {
   id: number;
   fields: CredentialsEntryInput;
@@ -1310,6 +1442,57 @@ export interface CredentialsQueryResultItem {
     | SwiftCredentialsModel
     | WebDavCredentialsModel
     | YandexCredentialsModel;
+}
+export interface CSRProfilesModel {
+  "TLS Server (e.g. Web UI, FTPS, Apps) - RSA"?: TLSServerRSAProfile;
+  "TLS Server (e.g. Web UI, FTPS, Apps) - EC"?: TLSServerECProfile;
+  "TLS Client (e.g. Syslog, LDAP, KMIP) - RSA"?: TLSClientRSAProfile;
+  "TLS Client (e.g. Syslog, LDAP, KMIP) - EC"?: TLSClientECProfile;
+}
+export interface TLSServerRSAProfile {
+  cert_extensions?: ServerRSACSRExtensionsModel;
+  key_length?: number;
+  key_type?: string;
+  digest_algorithm?: string;
+}
+export interface ServerRSACSRExtensionsModel {
+  BasicConstraints?: BasicConstraintsModel;
+  ExtendedKeyUsage?: ServerAuthExtendedKeyUsageModel;
+  KeyUsage?: ServerRSAKeyUsageModel;
+}
+export interface ServerAuthExtendedKeyUsageModel {
+  enabled?: boolean;
+  extension_critical?: boolean;
+  usages?: string[];
+}
+export interface ServerRSAKeyUsageModel {
+  enabled?: boolean;
+  extension_critical?: boolean;
+  digital_signature?: boolean;
+  key_encipherment?: boolean;
+}
+export interface TLSServerECProfile {
+  cert_extensions?: ServerECCSRExtensionsModel;
+  ec_curve?: string;
+  key_type?: string;
+  digest_algorithm?: string;
+}
+export interface ServerECCSRExtensionsModel {
+  BasicConstraints?: BasicConstraintsModel;
+  ExtendedKeyUsage?: ServerAuthExtendedKeyUsageModel;
+  KeyUsage?: SigningKeyUsageModel;
+}
+export interface TLSClientRSAProfile {
+  cert_extensions?: ClientCSRExtensionsModel;
+  key_length?: number;
+  key_type?: string;
+  digest_algorithm?: string;
+}
+export interface TLSClientECProfile {
+  cert_extensions?: ClientCSRExtensionsModel;
+  ec_curve?: string;
+  key_type?: string;
+  digest_algorithm?: string;
 }
 export interface DiskEntry {
   identifier: string;
@@ -1393,7 +1576,6 @@ export interface DiskUpdate {
   enclosure?: DiskEntryEnclosure | null;
   pool?: string | null;
   passwd?: string;
-  sed?: boolean | null;
   sed_status?: string | null;
 }
 export interface DockerEntry {
@@ -1423,6 +1605,10 @@ export interface EntitlementEntry {
   entitled: boolean;
   reason: Reason;
   message: string;
+}
+export interface EntitlementFactsEntry {
+  hardware_type: "TRUENAS" | "COMMUNITY";
+  license_type: string | null;
 }
 export interface EntitlementsInfo {
   features: {
@@ -1468,6 +1654,14 @@ export interface InterfaceAddedEvent {
   fields: InterfaceEntryInput;
 }
 export interface InterfaceEntryInput {
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  stp?: boolean;
+  lag_ports?: string[];
+  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
+  lacpdu_rate?: "SLOW" | "FAST" | null;
+  failover_critical?: boolean;
+  failover_group?: number | null;
   id: string;
   name: string;
   fake: boolean;
@@ -1483,15 +1677,9 @@ export interface InterfaceEntryInput {
   vlan_tag?: number | null;
   vlan_pcp?: number | null;
   lag_protocol?: string;
-  lag_ports?: string[];
-  bridge_members?: string[];
-  enable_learning?: boolean;
-  failover_critical?: boolean;
-  failover_group?: number | null;
   failover_vhid?: number | null;
   failover_aliases?: InterfaceEntryAlias[];
   failover_virtual_aliases?: InterfaceEntryAlias[];
-  [k: string]: unknown;
 }
 export interface InterfaceEntryState {
   name: string;
@@ -2754,6 +2942,13 @@ export interface S3Entry {
         | "PutObjectRetention"
         | "PutObjectLegalHold"
         | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
       )[]
     | "ALL";
   default_audit_overflow?: "DROP" | "BACKPRESSURE";
@@ -2798,6 +2993,13 @@ export interface S3Update {
         | "PutObjectRetention"
         | "PutObjectLegalHold"
         | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
       )[]
     | "ALL";
   default_audit_overflow?: "DROP" | "BACKPRESSURE";
@@ -2909,6 +3111,13 @@ export interface SharingS3Entry {
         | "PutObjectRetention"
         | "PutObjectLegalHold"
         | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
       )[]
     | "ALL"
     | null;
@@ -2950,6 +3159,13 @@ export interface SharingS3Create {
         | "PutObjectRetention"
         | "PutObjectLegalHold"
         | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
       )[]
     | "ALL"
     | null;
@@ -2988,6 +3204,13 @@ export interface SharingS3QueryResultItem {
         | "PutObjectRetention"
         | "PutObjectLegalHold"
         | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
       )[]
     | "ALL"
     | null;
@@ -3027,6 +3250,13 @@ export interface SharingS3Update {
         | "PutObjectRetention"
         | "PutObjectLegalHold"
         | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
       )[]
     | "ALL"
     | null;
