@@ -399,6 +399,55 @@ describe('TrueNasConnection', () => {
       vi.advanceTimersByTime(pingDelay * 2);
       expect(nextSpy).toHaveBeenCalledTimes(1);
     });
+
+    // The timer's *lifetime*, not just its output. A ping that never fires is
+    // indistinguishable from a timer that never ran — until the timer is the
+    // thing keeping a test harness from settling.
+    it('holds no timer while disabled', () => {
+      const connection = createConnection({ enabled: false });
+
+      expect(vi.getTimerCount()).toBe(0);
+
+      vi.advanceTimersByTime(pingDelay * 2);
+      expect(mockSocketInstances).toHaveLength(0);
+      connection.close();
+    });
+
+    it('holds no timer once closed', () => {
+      const { connection } = establishConnection();
+      expect(vi.getTimerCount()).toBeGreaterThan(0);
+
+      connection.close();
+
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('drops the timer with the socket and starts a fresh one for the next', () => {
+      const { connection, socket } = establishConnection();
+      const firstNext = vi.spyOn(socket, 'next');
+      firstNext.mockClear();
+
+      // Ten seconds into the interval the socket drops: the pending ping
+      // must not fire on the dead socket, and the timer must not survive it.
+      vi.advanceTimersByTime(pingDelay / 2);
+      socket.simulateClose(1006, '');
+      vi.advanceTimersByTime(pingDelay);
+      expect(firstNext).not.toHaveBeenCalledWith(expect.objectContaining({ method: 'core.ping' }));
+
+      // The retry lands a new socket; its interval starts from its own open.
+      const replacement = mockSocketInstances[mockSocketInstances.length - 1];
+      expect(replacement).not.toBe(socket);
+      replacement.simulateOpen();
+      replacement.next(handshakeResponse);
+      const secondNext = vi.spyOn(replacement, 'next');
+      secondNext.mockClear();
+
+      vi.advanceTimersByTime(pingDelay - 1);
+      expect(secondNext).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
+      expect(secondNext).toHaveBeenCalledWith(expect.objectContaining({ method: 'core.ping' }));
+      connection.close();
+    });
   });
 
   describe('error handling', () => {

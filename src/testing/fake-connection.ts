@@ -53,8 +53,8 @@ const CLIENT_HOUSEKEEPING = new Set(['core.subscribe']);
  * A real subclass, so the real `TrueNasApi` and clients run on it without an
  * `as unknown as` cast. `send` matches the real one: it queues while closed,
  * writes on open, and drops frames whose caller unsubscribed. The rest is
- * inherited and inert, except the base 20-second ping timer, which never sends
- * but lives until `close()`.
+ * inherited and inert: the base ping timer is derived from the socket stream,
+ * and a fake never yields a socket, so no timer is ever started.
  */
 export class FakeConnection extends TrueNasConnection {
   private readonly incoming = new Subject<TrueNasMessage>();

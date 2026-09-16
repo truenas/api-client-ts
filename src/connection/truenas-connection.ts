@@ -10,7 +10,6 @@ import {
   take,
   timer,
   interval,
-  combineLatest,
   tap,
   filter,
   switchMap,
@@ -243,21 +242,20 @@ export class TrueNasConnection {
     readonly logger: Logger = noopLogger,
     readonly protocol: ApplianceProtocol = 'https:',
   ) {
-    // create a ping observable which only stops when the connection is *manually* closed.
-    // we can safely do this since we can assume that if `closeConnection` fires, then
-    // this connection is probably dead and will be recreated.
-    //
-    // ping behavior across connection failures is resilient, because `ws$` is resilient
-    combineLatest([
-      interval(twentySeconds),
-      this.ws$,
-    ]).pipe(
+    // Ping while a socket exists, and only then: a socket arriving starts a
+    // fresh 20-second interval, a socket going away (or the gate closing) ends
+    // it, and `closeConnection` ends everything. The timer is derived from
+    // `ws$` rather than run alongside it because the old always-on interval,
+    // filtered at each tick, pinged identically but pended for the
+    // connection's whole life, socket or not — invisible against an appliance,
+    // and inside a test harness's zone the reason a fixture never settled: the
+    // testing entry's `FakeConnection` never yields a socket, so every one held
+    // a live timer.
+    this.ws$.pipe(
+      switchMap(ws => ws ? interval(twentySeconds).pipe(map(() => ws)) : EMPTY),
       takeUntil(this.closeConnection),
-    ).subscribe(([, ws]) => {
-      if (ws) {
-        const pingMessage = createJsonRpcMessage('core.ping');
-        ws.next(pingMessage);
-      }
+    ).subscribe(ws => {
+      ws.next(createJsonRpcMessage('core.ping'));
     });
 
     // compatibility property subscriptions
