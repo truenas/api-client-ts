@@ -40,8 +40,8 @@ describe('TrueNasApi', () => {
     api = new TrueNasApi(authenticated$, connection);
   });
 
-  // Every connection inherits the base's 20-second ping interval, which lives
-  // until `close()`. A file's worth of them is a file's worth of live timers.
+  // Ordinary teardown: nothing pends on an unclosed fake, but closing is what
+  // a consumer would do, and the spec should not look like an exception.
   afterEach(() => {
     connection.close();
   });

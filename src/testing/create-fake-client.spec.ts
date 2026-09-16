@@ -1,5 +1,5 @@
 import { firstValueFrom, take, toArray } from 'rxjs';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
 import { SUPPORTED_API_VERSIONS } from '@/generated';
 import { AuthResponseType } from '@/types/auth.type';
@@ -10,13 +10,25 @@ import { createFakeClient } from './create-fake-client';
 describe('createFakeClient', () => {
   const built: { connection: { close(): void } }[] = [];
 
-  /**
-   * Every fake connection inherits the base class's 20-second ping interval,
-   * which lives until `close()`. Left open, a spec file's worth of them is a
-   * spec file's worth of live timers.
-   */
+  /** Ordinary teardown; nothing pends on an unclosed fake (see the timer test below). */
   afterEach(() => {
     for (const client of built.splice(0, built.length)) client.connection.close();
+  });
+
+  it('holds no timer, so a harness waiting for stability can settle', () => {
+    vi.useFakeTimers();
+    try {
+      const client = createFakeClient({ version: 'v27.0.0' });
+      built.push(client);
+
+      // The base connection's ping interval is derived from its socket stream,
+      // and a fake never yields a socket. Before that was so, every fake held
+      // a live 20-second interval — harmless in Node, and inside Angular's
+      // zone the reason `fixture.whenStable()` never resolved.
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('builds a real client whose collaborators are the fakes', () => {
