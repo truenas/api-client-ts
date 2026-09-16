@@ -11,7 +11,13 @@
  */
 import { describe, expectTypeOf, it } from 'vitest';
 
-import type { v25_10_0, v26_0_0, v27_0_0 } from '@/generated';
+import type {
+  ApiDirectoryV26_0_0,
+  ApiDirectoryV27_0_0,
+  v25_10_0,
+  v26_0_0,
+  v27_0_0,
+} from '@/generated';
 
 describe('known gap: app events disagree with app calls', () => {
   /**
@@ -68,5 +74,46 @@ describe('known gap: app events disagree with app calls', () => {
     expectTypeOf<v27_0_0.AppEntry['version']>().toEqualTypeOf<string | null>();
     type CallHasError = 'ERROR' extends v27_0_0.AppEntry['state'] ? true : false;
     expectTypeOf<CallHasError>().toEqualTypeOf<true>();
+  });
+});
+
+
+
+/**
+ * A second known gap: ten methods the dump marks `removed_in` are still
+ * declared at the versions that removed them.
+ *
+ * `preprocess.mts` puts `removed_in` on `MethodModel.removedIn` and nothing
+ * reads it. `_create_api` makes a removed method *private*, so a v26 appliance
+ * already refuses `service.start` while this package types it as callable
+ * (`b755b2b:plugins/service/__init__.py:255`, `main.py:493-495`). Eleven carry
+ * the marker; `pool.ddt_prefetch` is already absent for an unrelated reason,
+ * and `service.*` moved to the call directory at v26 rather than leaving.
+ *
+ * These **fail when the gap closes**. Delete the ones that close.
+ */
+describe('known gap: removed_in is carried and not enforced', () => {
+  /** Gone at v26 upstream; still declared at v26 and at v27. */
+  it('keeps the v26 removals callable', () => {
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('pool.is_upgraded');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('system.feature_enabled');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('service.start');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('service.stop');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('service.restart');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('service.reload');
+
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('service.start');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('pool.is_upgraded');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('system.feature_enabled');
+  });
+
+  /** Gone at v27 upstream; still declared at v27. */
+  it('keeps the v27 removals callable', () => {
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('auth.login');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('auth.login_with_api_key');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('system.product_type');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty(
+      'system.advanced.syslog_certificate_authority_choices'
+    );
   });
 });

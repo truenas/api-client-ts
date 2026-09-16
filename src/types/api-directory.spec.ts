@@ -16,9 +16,10 @@ import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type {
   ApiCallDirectoryV26_0_0,
+  ApiDirectoryByVersion,
   ApiDirectoryV26_0_0,
+  SUPPORTED_API_VERSIONS,
   v25_10_0,
-  v27_0_0,
 } from '@/generated';
 import type {
   BaseApiDirectory,
@@ -26,6 +27,7 @@ import type {
   EventUnion,
 } from '@/types/api-directory.type';
 import type { Job, JobProgress, JobState } from '@/types/job.type';
+import type { QueryEntity } from '@/types/query.type';
 import type { TrueNasDate } from '@/types/truenas-date.type';
 
 describe('the surface a client is typed against', () => {
@@ -241,11 +243,25 @@ describe('job results', () => {
    * in `core.get_jobs` deleted the key and `job.type.ts` stopped compiling —
    * which is how `exc_info.errname` was caught. It comes from v25.10.0 now,
    * the floor every appliance meets, and a frozen entry cannot diverge: this
-   * line is what fails instead, when the newest version grows a field `Job`
-   * does not carry.
+   * is what fails instead, when the newest version grows a field `Job` does
+   * not carry.
+   *
+   * The newest version is derived from `SUPPORTED_API_VERSIONS`, not named:
+   * naming it would leave `Job` unguarded again the day a version is added,
+   * which is the same shape of trap the base-derived version fell into.
    */
   it('carries every field the newest version declares', () => {
-    type Unmodelled = Exclude<keyof v27_0_0.CoreGetJobsItem, keyof Job>;
+    type Newest = typeof SUPPORTED_API_VERSIONS extends readonly [
+      ...unknown[],
+      infer Last,
+    ]
+      ? Last
+      : never;
+    type NewestJob = QueryEntity<
+      ApiDirectoryByVersion[Newest & keyof ApiDirectoryByVersion]['call'],
+      'core.get_jobs'
+    >;
+    type Unmodelled = Exclude<keyof NewestJob, keyof Job>;
 
     expectTypeOf<Unmodelled>().toEqualTypeOf<never>();
   });
