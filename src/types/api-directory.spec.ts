@@ -18,6 +18,7 @@ import type {
   ApiCallDirectoryV26_0_0,
   ApiDirectoryV26_0_0,
   v25_10_0,
+  v27_0_0,
 } from '@/generated';
 import type {
   BaseApiDirectory,
@@ -231,6 +232,33 @@ describe('job results', () => {
     expectTypeOf<Job['id']>().toEqualTypeOf<number>();
     expectTypeOf<Job['transient']>().toEqualTypeOf<boolean>();
     expectTypeOf<Job['exception']>().toEqualTypeOf<string | null>();
+  });
+
+  /**
+   * The tripwire that deriving from a frozen version took away.
+   *
+   * `Job` used to come from the shared base, so any cross-version divergence
+   * in `core.get_jobs` deleted the key and `job.type.ts` stopped compiling —
+   * which is how `exc_info.errname` was caught. It comes from v25.10.0 now,
+   * the floor every appliance meets, and a frozen entry cannot diverge: this
+   * line is what fails instead, when the newest version grows a field `Job`
+   * does not carry.
+   */
+  it('carries every field the newest version declares', () => {
+    type Unmodelled = Exclude<keyof v27_0_0.CoreGetJobsItem, keyof Job>;
+
+    expectTypeOf<Unmodelled>().toEqualTypeOf<never>();
+  });
+
+  /**
+   * The half of that the `Exclude` cannot see: a field `Job` declares only
+   * because it was added by hand. v26 sends `errname` and v25.10 does not, so
+   * it is optional — and nothing else in the tree pins it.
+   */
+  it('keeps the hand-added errname optional', () => {
+    expectTypeOf<NonNullable<Job['exc_info']>['errname']>().toEqualTypeOf<
+      string | null | undefined
+    >();
   });
 });
 
