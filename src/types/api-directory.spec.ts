@@ -16,7 +16,9 @@ import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type {
   ApiCallDirectoryV26_0_0,
+  ApiDirectoryByVersion,
   ApiDirectoryV26_0_0,
+  SUPPORTED_API_VERSIONS,
   v25_10_0,
 } from '@/generated';
 import type {
@@ -25,6 +27,7 @@ import type {
   EventUnion,
 } from '@/types/api-directory.type';
 import type { Job, JobProgress, JobState } from '@/types/job.type';
+import type { QueryEntity } from '@/types/query.type';
 import type { TrueNasDate } from '@/types/truenas-date.type';
 
 describe('the surface a client is typed against', () => {
@@ -57,9 +60,11 @@ describe('the surface a client is typed against', () => {
 
     expectTypeOf<TrueNasApi>().toEqualTypeOf<TrueNasApi<BaseApiDirectory>>();
 
-    // In the shared base.
+    // In the shared base. `core.get_jobs` used to stand here and no longer
+    // can: v26 added `exc_info.errname`, so its shape is not identical across
+    // versions any more and the base dropped it.
     api.query('cronjob.query');
-    api.query('core.get_jobs');
+    api.query('alertservice.query');
 
     // @ts-expect-error not in the shared base — naming a version is the fix.
     api.query('pool.query');
@@ -230,6 +235,85 @@ describe('job results', () => {
     expectTypeOf<Job['transient']>().toEqualTypeOf<boolean>();
     expectTypeOf<Job['exception']>().toEqualTypeOf<string | null>();
   });
+
+  /**
+   * The tripwire that deriving from a frozen version took away.
+   *
+   * `Job` used to come from the shared base, so any divergence in
+   * `core.get_jobs` deleted the key and `job.type.ts` stopped compiling —
+   * which is how `exc_info.errname` was caught. A frozen entry cannot diverge,
+   * so this is what fails instead.
+   *
+   * It compares the *shapes*, not the key lists. A key-list version passed the
+   * very drift that started this: `errname` is nested inside `exc_info`, and
+   * the top-level keys never moved. The newest version is derived from
+   * `SUPPORTED_API_VERSIONS` rather than named, so adding one does not quietly
+   * retire the guard.
+   */
+  it('matches the newest version everywhere it does not override', () => {
+    type Newest = typeof SUPPORTED_API_VERSIONS extends readonly [
+      ...unknown[],
+      infer Last,
+    ]
+      ? Last
+      : never;
+    type NewestJob = QueryEntity<
+      ApiDirectoryByVersion[Newest & keyof ApiDirectoryByVersion]['call'],
+      'core.get_jobs'
+    >;
+
+    // The keys `job.type.ts` deliberately replaces. Everything else has to be
+    // the newest version's shape, all the way down.
+    type Overridden =
+      | 'state'
+      | 'result'
+      | 'progress'
+      | 'time_started'
+      | 'time_finished'
+      | 'message_ids'
+      | 'exc_info';
+
+    expectTypeOf<Omit<Job, Overridden>>().toEqualTypeOf<
+      Omit<NewestJob, Overridden>
+    >();
+  });
+
+  /**
+   * The overridden keys, one level in: their own shapes are replaced, so the
+   * assertion above cannot see a field appearing inside them — which is
+   * exactly where `errname` appeared.
+   */
+  it('carries every field the newest version nests inside an override', () => {
+    type Newest = typeof SUPPORTED_API_VERSIONS extends readonly [
+      ...unknown[],
+      infer Last,
+    ]
+      ? Last
+      : never;
+    type NewestJob = QueryEntity<
+      ApiDirectoryByVersion[Newest & keyof ApiDirectoryByVersion]['call'],
+      'core.get_jobs'
+    >;
+
+    type MissingFrom<Override extends keyof Job & keyof NewestJob> = Exclude<
+      keyof NonNullable<NewestJob[Override]>,
+      keyof NonNullable<Job[Override]>
+    >;
+
+    expectTypeOf<MissingFrom<'exc_info'>>().toEqualTypeOf<never>();
+    expectTypeOf<MissingFrom<'progress'>>().toEqualTypeOf<never>();
+  });
+
+  /**
+   * The half of that the `Exclude` cannot see: a field `Job` declares only
+   * because it was added by hand. v26 sends `errname` and v25.10 does not, so
+   * it is optional — and nothing else in the tree pins it.
+   */
+  it('keeps the hand-added errname optional', () => {
+    expectTypeOf<NonNullable<Job['exc_info']>['errname']>().toEqualTypeOf<
+      string | null | undefined
+    >();
+  });
 });
 
 describe('events', () => {
@@ -270,17 +354,21 @@ describe('events', () => {
   /**
    * The runtime filter forwards any of the three kinds; the directory lists
    * only some for 16 of v25.10's collections. Without an arm for the rest, a
-   * `removed` frame on `core.get_jobs` — which declares only `added` and
-   * `changed` — would arrive typed as carrying `fields`.
+   * `changed` frame on `auth.sessions` — which declares only `added` and
+   * `removed` — would arrive typed as carrying whatever those two carry.
+   *
+   * `core.get_jobs` was the example until v26 added `exc_info.errname` and the
+   * base stopped carrying it; `auth.sessions` is the same shape of gap with a
+   * different kind missing.
    */
   it('leaves an arm for kinds the directory does not declare', () => {
-    type JobEvent = EventUnion<BaseApiDirectory, 'core.get_jobs'>;
+    type SessionEvent = EventUnion<BaseApiDirectory, 'auth.sessions'>;
 
-    expectTypeOf<JobEvent['msg']>().toEqualTypeOf<
+    expectTypeOf<SessionEvent['msg']>().toEqualTypeOf<
       'added' | 'changed' | 'removed'
     >();
     expectTypeOf<
-      Extract<JobEvent, { msg: 'removed' }>
+      Extract<SessionEvent, { msg: 'changed' }>
     >().not.toHaveProperty('fields');
 
     // Collections that declare all three gain nothing: no extra arm.

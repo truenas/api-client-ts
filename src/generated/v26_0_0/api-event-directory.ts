@@ -41,6 +41,8 @@ import type {
   ContainerDeviceChangedEvent,
   ContainerDeviceRemovedEvent,
   ContainerRemovedEvent,
+  CoreGetJobsAddedEvent,
+  CoreGetJobsChangedEvent,
   CredentialsAddedEvent,
   CredentialsChangedEvent,
   DiskQueryAddedEvent,
@@ -132,6 +134,11 @@ export interface ApiEventDirectoryDelta {
     added: ContainerAddedEvent;
     changed: ContainerChangedEvent;
     removed: ContainerRemovedEvent;
+  };
+
+  'core.get_jobs': {
+    added: CoreGetJobsAddedEvent;
+    changed: CoreGetJobsChangedEvent;
   };
 
   'disk.query': {

@@ -11,7 +11,13 @@
  */
 import { describe, expectTypeOf, it } from 'vitest';
 
-import type { v25_10_0, v26_0_0, v27_0_0 } from '@/generated';
+import type {
+  ApiDirectoryV26_0_0,
+  ApiDirectoryV27_0_0,
+  v25_10_0,
+  v26_0_0,
+  v27_0_0,
+} from '@/generated';
 
 describe('known gap: app events disagree with app calls', () => {
   /**
@@ -68,5 +74,79 @@ describe('known gap: app events disagree with app calls', () => {
     expectTypeOf<v27_0_0.AppEntry['version']>().toEqualTypeOf<string | null>();
     type CallHasError = 'ERROR' extends v27_0_0.AppEntry['state'] ? true : false;
     expectTypeOf<CallHasError>().toEqualTypeOf<true>();
+  });
+});
+
+
+
+/**
+ * A second known gap: ten methods the dump marks `removed_in` are still
+ * declared at the versions that removed them.
+ *
+ * `preprocess.mts` puts `removed_in` on `MethodModel.removedIn` and nothing
+ * reads it. `_create_api` makes a removed method *private*, so a v26 appliance
+ * already refuses `service.start` while this package types it as callable
+ * (`b755b2b:plugins/service/__init__.py:255`, `main.py:493-495`). Eleven carry
+ * the marker; `pool.ddt_prefetch` is already absent for an unrelated reason,
+ * and `service.*` moved to the call directory at v26 rather than leaving.
+ *
+ * These **fail when the gap closes**. Delete the ones that close.
+ */
+describe('known gap: removed_in is carried and not enforced', () => {
+  /** Gone at v26 upstream; still declared at v26 and at v27. */
+  it('keeps the v26 removals callable', () => {
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('pool.is_upgraded');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('system.feature_enabled');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('service.start');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('service.stop');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('service.restart');
+    expectTypeOf<ApiDirectoryV26_0_0['call']>().toHaveProperty('service.reload');
+
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('service.start');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('pool.is_upgraded');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('system.feature_enabled');
+  });
+
+  /** Gone at v27 upstream; still declared at v27. */
+  it('keeps the v27 removals callable', () => {
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('auth.login');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('auth.login_with_api_key');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty('system.product_type');
+    expectTypeOf<ApiDirectoryV27_0_0['call']>().toHaveProperty(
+      'system.advanced.syslog_certificate_authority_choices'
+    );
+  });
+});
+
+
+/**
+ * A third known gap: at v26, `interface.query`'s event payload contradicts its
+ * call side.
+ *
+ * `4303dc820b` documented `stp`, `xmit_hash_policy` and `lacpdu_rate` and
+ * dropped `extra = "allow"` in `api/v27_0_0/interface.py` alone. Every slice's
+ * events carry the running tree's models, so v26's event payload took the v27
+ * shape while v26's own `InterfaceEntry` kept the open one — and a v26
+ * appliance still sends keys the closed shape does not admit.
+ *
+ * Not hand-corrected like `pool.dataset.query`: that lives in a frozen file
+ * and v26 is rewritten by every run. These **fail when the gap closes**.
+ */
+describe('known gap: v26 interface events disagree with interface calls', () => {
+  it('keeps the call side open', () => {
+    expectTypeOf<v26_0_0.InterfaceEntry>().toHaveProperty('failover_group');
+    expectTypeOf<v26_0_0.InterfaceEntry['anything else']>().toEqualTypeOf<unknown>();
+  });
+
+  it('still types the event payload as closed, with the v27 fields', () => {
+    expectTypeOf<v26_0_0.InterfaceEntryInput>().toHaveProperty('stp');
+    expectTypeOf<v26_0_0.InterfaceEntryInput>().toHaveProperty('xmit_hash_policy');
+    expectTypeOf<v26_0_0.InterfaceEntryInput>().toHaveProperty('lacpdu_rate');
+  });
+
+  it('is what the event arms carry', () => {
+    expectTypeOf<
+      v26_0_0.ApiEventDirectory['interface.query']['added']['fields']
+    >().toEqualTypeOf<v26_0_0.InterfaceEntryInput>();
   });
 });

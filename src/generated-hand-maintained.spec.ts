@@ -12,7 +12,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 
-import type { v25_10_0, v25_10_5 } from '@/generated';
+import type {
+  v25_10_0,
+  v25_10_1,
+  v25_10_2,
+  v25_10_3,
+  v25_10_4,
+  v25_10_5,
+} from '@/generated';
 
 const generatedDir = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -138,6 +145,63 @@ describe('hand-maintained v25.10 surface', () => {
     expect(directoryKeys('v25_10_0', 'api-call-directory.ts')).toContain(
       'pool.dataset.encryption_algorithm_choices'
     );
+  });
+});
+
+describe('the core.get_jobs event payload', () => {
+  /**
+   * Same leak, one version later: the dump gives 25.10's `core.get_jobs`
+   * events v26's `exc_info.errname`, which this version does not send. The
+   * frozen files keep the correct shape, so generation's divergent payload
+   * names are declared as aliases of it — this fails if either stops pointing
+   * at the shape the call side uses.
+   */
+  it('names the same object the call side uses', () => {
+    expectTypeOf<v25_10_0.CoreGetJobsItemInput>().toEqualTypeOf<
+      v25_10_0.CoreGetJobsItem
+    >();
+    expectTypeOf<v25_10_0.CoreGetJobsItemExcInfoInput>().toEqualTypeOf<
+      v25_10_0.CoreGetJobsItemExcInfo
+    >();
+  });
+
+  /**
+   * The equality above would hold if `CoreGetJobsItemExcInfo` itself acquired
+   * `errname`, since both sides would move together. This names the field.
+   */
+  it('keeps errname off the 25.10 exception', () => {
+    expectTypeOf<v25_10_0.CoreGetJobsItemExcInfo>().not.toHaveProperty('errname');
+  });
+
+  /** The event arms themselves, which is what a consumer actually reads. */
+  it('describes the same object as the call side', () => {
+    expectTypeOf<
+      v25_10_0.ApiEventDirectory['core.get_jobs']['added']['fields']
+    >().toEqualTypeOf<v25_10_0.CoreGetJobsItem>();
+    expectTypeOf<
+      v25_10_0.ApiEventDirectory['core.get_jobs']['changed']['fields']
+    >().toEqualTypeOf<v25_10_0.CoreGetJobsItem>();
+  });
+
+  /**
+   * The root declares the aliases and each patch directory re-exports them by
+   * name from the root — not from its predecessor — so there is no chain to
+   * propagate a failure along and every version has to be named. A name
+   * missing from one of them is a version `MANIFEST.md` is wrong about, and
+   * nothing else would say so.
+   */
+  it('carries the aliases to every version of the 25.10 chain', () => {
+    expectTypeOf<v25_10_1.CoreGetJobsItemInput>().toEqualTypeOf<v25_10_1.CoreGetJobsItem>();
+    expectTypeOf<v25_10_2.CoreGetJobsItemInput>().toEqualTypeOf<v25_10_2.CoreGetJobsItem>();
+    expectTypeOf<v25_10_3.CoreGetJobsItemInput>().toEqualTypeOf<v25_10_3.CoreGetJobsItem>();
+    expectTypeOf<v25_10_4.CoreGetJobsItemInput>().toEqualTypeOf<v25_10_4.CoreGetJobsItem>();
+    expectTypeOf<v25_10_5.CoreGetJobsItemInput>().toEqualTypeOf<v25_10_5.CoreGetJobsItem>();
+
+    expectTypeOf<v25_10_1.CoreGetJobsItemExcInfoInput>().toEqualTypeOf<v25_10_1.CoreGetJobsItemExcInfo>();
+    expectTypeOf<v25_10_2.CoreGetJobsItemExcInfoInput>().toEqualTypeOf<v25_10_2.CoreGetJobsItemExcInfo>();
+    expectTypeOf<v25_10_3.CoreGetJobsItemExcInfoInput>().toEqualTypeOf<v25_10_3.CoreGetJobsItemExcInfo>();
+    expectTypeOf<v25_10_4.CoreGetJobsItemExcInfoInput>().toEqualTypeOf<v25_10_4.CoreGetJobsItemExcInfo>();
+    expectTypeOf<v25_10_5.CoreGetJobsItemExcInfoInput>().toEqualTypeOf<v25_10_5.CoreGetJobsItemExcInfo>();
   });
 });
 

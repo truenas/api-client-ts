@@ -1,15 +1,19 @@
-import type { QueryDirectory, QueryEntity } from '@/types/query.type';
+import type { ApiCallDirectoryV25_10_0 } from '@/generated';
+import type { QueryEntity } from '@/types/query.type';
 import { TrueNasDate } from '@/types/truenas-date.type';
 
 /**
  * What `core.get_jobs` says a job looks like, straight from the generated
  * surface.
  *
- * Taken from the base directory rather than a version folder: `core.get_jobs`
- * is one of the entries identical in every generated version, so this is
- * version-stable, and it stops compiling if that ever stops being true.
+ * Taken from the oldest supported version rather than the base directory.
+ * It was the base until v26 added `exc_info.errname`, which made
+ * `core.get_jobs` stop being one of the entries identical in every version —
+ * the base dropped it and this stopped compiling, which is what the previous
+ * note here promised it would do. The floor is the honest choice for a type
+ * every version shares; `errname` is added back below as optional.
  */
-type GeneratedJob = QueryEntity<QueryDirectory, 'core.get_jobs'>;
+type GeneratedJob = QueryEntity<ApiCallDirectoryV25_10_0, 'core.get_jobs'>;
 
 /**
  * A middleware job: the generated shape, overridden only where the dump is
@@ -32,6 +36,7 @@ export type Job<R = unknown> = Omit<
   | 'time_started'
   | 'time_finished'
   | 'message_ids'
+  | 'exc_info'
 > & {
   state: JobState;
   /** The job's result once it succeeds; `null` while it runs, and on failure. */
@@ -45,6 +50,11 @@ export type Job<R = unknown> = Omit<
    * Used in v26+ to correlate API calls with their jobs.
    */
   message_ids?: string[];
+  /**
+   * The exception, with `errname` optional: v26 added it and v25.10 does not
+   * send it, so it is absent rather than wrong on an older appliance.
+   */
+  exc_info: (GeneratedJob['exc_info'] & { errname?: string | null }) | null;
 };
 
 /**

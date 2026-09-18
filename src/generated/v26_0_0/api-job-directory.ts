@@ -20,11 +20,15 @@ import type {
   ZFSFileAttrsData,
 } from '../v25_10_0/api-types';
 import type {
+  CertificateEntry,
+} from '../v25_10_2/api-types';
+import type {
   AppBulkUpgradeJobResult,
   AppDelete,
   AppEntry,
   AppUpgradeBulkEntry,
   AuditExport,
+  CertificateCreateArgs,
   ContainerCreateArgs,
   ContainerDeleteOptions,
   ContainerEntry,
@@ -89,6 +93,11 @@ export interface ApiJobDirectoryDelta {
   'audit.export': {
     params: [data?: AuditExport];
     response: string;
+  };
+
+  'certificate.create': {
+    params: [certificate_create: CertificateCreateArgs];
+    response: CertificateEntry;
   };
 
   'container.create': {

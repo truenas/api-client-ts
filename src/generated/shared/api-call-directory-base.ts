@@ -82,7 +82,6 @@ export type ApiCallDirectoryBase = Pick<
   | 'cloudsync.providers'
   | 'core.arp'
   | 'core.download'
-  | 'core.get_jobs'
   | 'core.get_methods'
   | 'core.get_services'
   | 'core.job_abort'
@@ -458,7 +457,6 @@ export type ApiCallDirectoryBase = Pick<
   | 'vmware.delete'
   | 'vmware.get_datastores'
   | 'vmware.match_datastores_with_datasets'
-  | 'webui.crypto.csr_profiles'
   | 'webui.crypto.get_certificate_domain_names'
   | 'webui.enclosure.dashboard'
 >;

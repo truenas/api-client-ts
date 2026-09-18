@@ -16,7 +16,6 @@ export type ApiEventDirectoryBase = Pick<
   | 'auth.sessions'
   | 'boot.environment.query'
   | 'container.metrics'
-  | 'core.get_jobs'
   | 'cronjob.query'
   | 'directoryservices.status'
   | 'docker.events'

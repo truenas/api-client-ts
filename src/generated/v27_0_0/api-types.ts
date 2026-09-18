@@ -8,7 +8,6 @@ import type {
   AppVersionInfo,
   AuditEntrySpace,
   Bootloader,
-  CertificateExtensions,
   CloudFlareSchema,
   CloudTaskAttributesInput,
   DigitalOceanSchema,
@@ -17,6 +16,11 @@ import type {
   FilesystemMkdirOptions,
   GetDisplayDevice,
   GraphiteExporter,
+  InterfaceCreateAlias,
+  InterfaceCreateAlias2,
+  InterfaceCreateFailoverAlias,
+  InterfaceCreateFailoverAlias2,
+  InterfaceCreateTypeInput,
   InterfaceEntryAlias,
   MailEntryOAuth,
   Maintainer,
@@ -48,6 +52,7 @@ import type {
   AclTemplateFormatOptions,
   AppActiveWorkloads,
   AuditExportQueryOptions,
+  CertificateExtensions,
   ContainerCreateImage,
   ContainerFilesystemDevice,
   ContainerGPUDevice,
@@ -647,6 +652,14 @@ export interface InterfaceAddedEvent {
   fields: InterfaceEntry;
 }
 export interface InterfaceEntry {
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  stp?: boolean;
+  lag_ports?: string[];
+  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
+  lacpdu_rate?: "SLOW" | "FAST" | null;
+  failover_critical?: boolean;
+  failover_group?: number | null;
   id: string;
   name: string;
   fake: boolean;
@@ -662,21 +675,47 @@ export interface InterfaceEntry {
   vlan_tag?: number | null;
   vlan_pcp?: number | null;
   lag_protocol?: string;
-  lag_ports?: string[];
-  bridge_members?: string[];
-  enable_learning?: boolean;
-  failover_critical?: boolean;
-  failover_group?: number | null;
   failover_vhid?: number | null;
   failover_aliases?: InterfaceEntryAlias[];
   failover_virtual_aliases?: InterfaceEntryAlias[];
-  [k: string]: unknown;
 }
 export interface InterfaceChangedEvent {
   id: string;
   fields: InterfaceEntry;
 }
+export interface InterfaceCreate {
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  stp?: boolean;
+  lag_ports?: string[];
+  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
+  lacpdu_rate?: "SLOW" | "FAST" | null;
+  failover_critical?: boolean;
+  failover_group?: number | null;
+  name?: string;
+  description?: string;
+  type: InterfaceCreateTypeInput;
+  ipv4_dhcp?: boolean;
+  ipv6_auto?: boolean;
+  aliases?: InterfaceCreateAlias2[];
+  failover_vhid?: number | null;
+  failover_aliases?: InterfaceCreateFailoverAlias2[];
+  failover_virtual_aliases?: InterfaceCreateFailoverAlias2[];
+  lag_protocol?: "LACP" | "FAILOVER" | "LOADBALANCE" | "ROUNDROBIN" | "NONE";
+  vlan_parent_interface?: string;
+  vlan_tag?: number;
+  vlan_pcp?: number | null;
+  mtu?: number | null;
+}
 export interface InterfaceQueryResultItem {
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  stp?: boolean;
+  lag_ports?: string[];
+  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
+  lacpdu_rate?: "SLOW" | "FAST" | null;
+  failover_critical?: boolean;
+  failover_group?: number | null;
   id?: string;
   name?: string;
   fake?: boolean;
@@ -692,15 +731,33 @@ export interface InterfaceQueryResultItem {
   vlan_tag?: number | null;
   vlan_pcp?: number | null;
   lag_protocol?: string;
-  lag_ports?: string[];
-  bridge_members?: string[];
-  enable_learning?: boolean;
-  failover_critical?: boolean;
-  failover_group?: number | null;
   failover_vhid?: number | null;
   failover_aliases?: InterfaceEntryAlias[];
   failover_virtual_aliases?: InterfaceEntryAlias[];
-  [k: string]: unknown;
+}
+export interface InterfaceUpdate {
+  bridge_members?: string[];
+  enable_learning?: boolean;
+  stp?: boolean;
+  lag_ports?: string[];
+  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
+  lacpdu_rate?: "SLOW" | "FAST" | null;
+  failover_critical?: boolean;
+  failover_group?: number | null;
+  name?: string;
+  description?: string;
+  ipv4_dhcp?: boolean;
+  ipv6_auto?: boolean;
+  aliases?: InterfaceCreateAlias[];
+  failover_vhid?: number | null;
+  failover_aliases?: InterfaceCreateFailoverAlias[];
+  failover_virtual_aliases?: InterfaceCreateFailoverAlias[];
+  lag_protocol?: "LACP" | "FAILOVER" | "LOADBALANCE" | "ROUNDROBIN" | "NONE";
+  vlan_parent_interface?: string;
+  vlan_tag?: number;
+  vlan_pcp?: number | null;
+  mtu?: number | null;
+  fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
 }
 export interface KMIPUpdate {
   enabled?: boolean;
