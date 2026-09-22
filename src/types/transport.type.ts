@@ -50,7 +50,8 @@ export interface ReconnectOptions {
   /**
    * Retries per hostname before the connection reports an error state
    * (`hasConnectionError$`) and starts the next cycle. Defaults to 3.
-   * `Infinity` never reports one; watch `closes$` instead.
+   * `Infinity` reports none for attempts that fail to open; losing a live
+   * socket still reports one until a socket opens again.
    */
   maxRetry?: number;
 }

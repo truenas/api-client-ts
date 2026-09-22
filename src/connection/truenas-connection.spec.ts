@@ -806,6 +806,32 @@ describe('TrueNasConnection', () => {
   });
 
   describe('reconnect pacing', () => {
+    it('counts an attempt that times out unanswered, without reporting a close', () => {
+      const connection = createConnection({ maxRetry: 3 });
+      const closes: ConnectionClose[] = [];
+      connection.closes$.subscribe(close => closes.push(close));
+
+      // A dropped-packet hostname: nothing answers, only the 10 s timeout ends
+      // each attempt. One cycle is four attempts with three waits between.
+      vi.advanceTimersByTime(4 * 10_000 + 3 * retryDelay);
+
+      expect(connection.connectionAttempts.value).toBe(4);
+      expect(connection.hasExhaustedRetries()).toBe(true);
+      expect(closes).toEqual([]);
+      connection.close();
+    });
+
+    it('still reports an error when a live socket is lost, even with maxRetry Infinity', () => {
+      const { connection, socket } = establishConnection({ maxRetry: Infinity });
+      const errors: boolean[] = [];
+      connection.hasConnectionError$.subscribe(val => errors.push(val));
+
+      socket.simulateClose(1006, '');
+
+      expect(errors.at(-1)).toBe(true);
+      connection.close();
+    });
+
     it('keeps retrying at retryDelay, with no ceiling, when maxRetry is Infinity', () => {
       const connection = createConnection({ retryDelay: 5_000, maxRetry: Infinity });
       const errors: boolean[] = [];

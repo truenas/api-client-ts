@@ -4,6 +4,7 @@ import {
   Observable,
   Subject,
   timeout,
+  TimeoutError,
   takeUntil,
   retry,
   race,
@@ -98,7 +99,8 @@ export class TrueNasConnection {
   /**
    * Every socket close this client did not cause itself: failed attempts, lost
    * connections and refusals, each with its code. Tearing a socket down through
-   * `setEnabled(false)`, `setEndpoint()` or `close()` does not report one.
+   * `setEnabled(false)`, `setEndpoint()` or `close()` does not report one, nor
+   * does an attempt that times out unanswered after 10 s, as nothing closed.
    */
   closes$: Observable<ConnectionClose> = this.closesSubject.asObservable();
 
@@ -461,8 +463,17 @@ export class TrueNasConnection {
       }
     }).pipe(
       // retry logic:
-      //   * if a connection is not established in 10 seconds, consider that an error
-      timeout({ first: tenSeconds }),
+      //   * if a connection is not established in 10 seconds, consider that an error.
+      //     Counted here: rxjs never closes a socket still connecting, so no
+      //     close event reliably follows, and one that does finds `subscriber`
+      //     closed. Nothing on `closes$` either: nothing closed.
+      timeout({
+        first: tenSeconds,
+        with: info => {
+          this.connectionAttempts.next(this.connectionAttempts.value + 1);
+          return throwError(() => new TimeoutError(info));
+        },
+      }),
       retry({
         //   * while still *establishing*: wait `retryDelay` before trying again, giving up
         //     after `maxRetry` retries.

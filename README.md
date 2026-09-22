@@ -176,7 +176,8 @@ The connection reconnects on its own and never gives up, so an appliance
 rebooting or failing over just comes back. `retryDelay` (default 10 s) sets the
 pause between failed attempts. `maxRetry` (default 3) sets how many retries run
 before `hasConnectionError$` reports an error; retrying carries on after that.
-Pass `maxRetry: Infinity` to never report one:
+Pass `maxRetry: Infinity` so failed attempts never report one. Losing a live
+socket still does, until a socket opens again:
 
 ```typescript
 const client = await createTrueNasClient({
