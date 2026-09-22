@@ -27,7 +27,12 @@ import { TrueNasMessage } from '@/types/truenas-message.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
 import { getHttpError, getWebSocketError, isHttpStatusError, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
 import { TrueNasSocket } from '@/connection/truenas-socket';
-import { socketScheme, type ApplianceProtocol } from '@/types/transport.type';
+import {
+  socketScheme,
+  type ApplianceProtocol,
+  type ConnectionClose,
+  type ConnectionEndpoint,
+} from '@/types/transport.type';
 
 // helper types
 interface ActiveConnection {
@@ -45,7 +50,11 @@ interface ConnectionError extends Error {
    * that is the difference between "policy violation" and which policy.
    */
   closeReason?: string;
+  /** Whether the socket had opened; a lost live socket reconnects without waiting. */
+  wasOpen?: boolean;
 }
+
+type ResolvedEndpoint = Required<ConnectionEndpoint>;
 
 type Connection =
   | ActiveConnection & { state: 'active' }
@@ -75,6 +84,19 @@ export class TrueNasConnection {
    */
   private enabled$ = new BehaviorSubject<boolean>(false);
 
+  /** Replaced in the constructor, before anything subscribes. See `setEndpoint()`. */
+  private endpoint$ = new BehaviorSubject<ResolvedEndpoint>({ hostnames: [], protocol: 'https:' });
+
+  /** Protected so the testing entry's `FakeConnection` can script closes. */
+  protected readonly closesSubject = new Subject<ConnectionClose>();
+
+  /**
+   * Every socket close this client did not cause itself: failed attempts, lost
+   * connections and refusals, each with its code. Tearing a socket down through
+   * `setEnabled(false)`, `setEndpoint()` or `close()` does not report one.
+   */
+  closes$: Observable<ConnectionClose> = this.closesSubject.asObservable();
+
   /**
    * observable which emits the current gate value and only emits again when it changes.
    */
@@ -85,35 +107,19 @@ export class TrueNasConnection {
    */
   connection$ = this.enabledChange$.pipe(
     switchMap(enabled => {
-      if (enabled) {
-        // if enabled, establish a connection and push it down the pipeline.
-        return this.connect().pipe(
-          map((conn) => makeActiveConnection(conn.ws, conn.hostname)),
-          // A refusal becomes a value here rather than an error, so it never
-          // reaches the `retry` below and nothing reconnects on its own.
-          //
-          // Handled at this depth on purpose: letting it out completes the
-          // pipeline and unsubscribes `enabledChange$`, and `setEnabled` is the
-          // documented way an app asks for another attempt once the network
-          // changes. Not retrying is a statement about what this client does on
-          // its own; it is not a reason to refuse the caller asking again.
-          catchError((err: ConnectionError) =>
-            isTerminalClose(err)
-              ? of<Connection>(
-                  makeConnectionError(
-                    err.message,
-                    err.hostname,
-                    err.closeCode,
-                    err.closeReason
-                  )
-                )
-              : throwError(() => err)
-          )
-        );
+      if (!enabled) {
+        return of(closedConnection);
       }
-
-      // if not enabled, emit a closed connection.
-      return of(closedConnection);
+      // Each endpoint change tears down the current attempt and starts one on the
+      // new endpoint. `closed` goes first so the old socket is not still reported
+      // as open while the new one connects; the first endpoint needs none.
+      return this.endpoint$.pipe(
+        distinctUntilChanged(sameEndpoint),
+        switchMap((endpoint, index) => {
+          const attempt = this.attempt(endpoint);
+          return index === 0 ? attempt : attempt.pipe(startWith(closedConnection));
+        }),
+      );
     }),
     switchMap((connection): Observable<Connection> => {
       // if the connection we received is a closed connection from upstream,
@@ -150,11 +156,16 @@ export class TrueNasConnection {
             err.closeReason
           )
         ),
-        // since this error will immediately get caught by `retry` there's no reason to build a real error.
-        throwError(() => null)
+        throwError(() => err)
       );
     }),
-    retry(),
+    // A lost live socket reconnects at once. A cycle that never opened waits
+    // `retryDelay` like any other attempt; without it the next cycle's first
+    // attempt followed the last one back to back.
+    retry({
+      delay: (err: ConnectionError | null) =>
+        err?.wasOpen ? of(null) : timer(this.retryDelay),
+    }),
     // start with a closed connection.
     startWith<Connection>(closedConnection),
     // prevent multiple subscriptions from re-evaluating the entire pipeline.
@@ -233,15 +244,17 @@ export class TrueNasConnection {
 
   constructor(
     initialEnabled: boolean,
-    private readonly hostnames: string[],
+    hostnames: string[],
     readonly systemUuid: string,
     readonly websocketPath: string,
     readonly systemName?: string,
     readonly retryDelay: number = tenSeconds,
     readonly maxRetry: number = 3,
     readonly logger: Logger = noopLogger,
-    readonly protocol: ApplianceProtocol = 'https:',
+    protocol: ApplianceProtocol = 'https:',
   ) {
+    this.endpoint$.next({ hostnames, protocol });
+
     // Ping while a socket exists, and only then: a socket arriving starts a
     // fresh 20-second interval, a socket going away (or the gate closing) ends
     // it, and `closeConnection` ends everything. The timer is derived from
@@ -276,6 +289,37 @@ export class TrueNasConnection {
     this.enabled$.next(initialEnabled);
   }
 
+  /** The hostnames and protocol the connection currently points at. */
+  get endpoint(): Readonly<Required<ConnectionEndpoint>> {
+    return this.endpoint$.value;
+  }
+
+  /** The appliance's scheme; changed through `setEndpoint()`. */
+  get protocol(): ApplianceProtocol {
+    return this.endpoint$.value.protocol;
+  }
+
+  /**
+   * Re-points the connection, e.g. after the appliance's GUI address or
+   * protocol changes. Any open socket is closed and, while enabled, the new
+   * hostnames are raced at once; an unchanged endpoint does nothing. The
+   * websocket path stays, so a different API version needs a new client.
+   */
+  setEndpoint(endpoint: ConnectionEndpoint): void {
+    if (endpoint.hostnames.length === 0) {
+      throw new Error('Cannot point the connection at an empty hostnames array');
+    }
+    const next = {
+      hostnames: [...endpoint.hostnames],
+      protocol: endpoint.protocol ?? this.protocol,
+    };
+    if (sameEndpoint(next, this.endpoint$.value)) return;
+
+    // The retry budget belongs to the old endpoint.
+    this.connectionAttempts.next(0);
+    this.endpoint$.next(next);
+  }
+
   /**
    * whether the connection has exhausted its retries — the **cumulative** snapshot, read
    * synchronously. (Formerly `hasConnectionError()`; renamed to disambiguate it from the
@@ -286,7 +330,7 @@ export class TrueNasConnection {
    */
   hasExhaustedRetries(): boolean {
     const attemptsExhausted =
-      this.connectionAttempts.value > this.hostnames.length * this.maxRetry;
+      this.connectionAttempts.value > this.endpoint.hostnames.length * this.maxRetry;
 
     const hasErrorMessage = this.lastErrorMessage.value !== null;
 
@@ -332,6 +376,7 @@ export class TrueNasConnection {
   close() {
     this.closeConnection.next();
     this.closeConnection.complete();
+    this.closesSubject.complete();
   }
 
   /**
@@ -339,8 +384,8 @@ export class TrueNasConnection {
    * after it establishes a connection to the given hostname. the observable will emit an
    * error if the connection is never established and will not complete until unsubscribed from or closed.
    */
-  private createSocket(hostname: string): Observable<ActiveConnection> {
-    const url = `${socketScheme(this.protocol)}//${hostname}${this.websocketPath}`;
+  private createSocket(hostname: string, protocol: ApplianceProtocol): Observable<ActiveConnection> {
+    const url = `${socketScheme(protocol)}//${hostname}${this.websocketPath}`;
 
     // track whether a socket has actually been opened and emitted by the observable.
     // this controls the `retry` operator at the end of this pipeline.
@@ -374,9 +419,23 @@ export class TrueNasConnection {
             // `hasExhaustedRetries` wants to check the *total* number.
             this.connectionAttempts.next(this.connectionAttempts.value + 1);
 
-            subscriber.error(
-              makeConnectionError(errorMessage, hostname, event.code, reason)
-            );
+            // A closed subscriber means this client tore the socket down itself
+            // (lost race, gate, endpoint, `close()`); that is not news to report.
+            if (!subscriber.closed) {
+              this.closesSubject.next({
+                code: event.code,
+                reason,
+                message: errorMessage,
+                hostname,
+                wasOpen: hasOpened,
+                refused: event.code === policyViolationCloseCode,
+              });
+            }
+
+            subscriber.error({
+              ...makeConnectionError(errorMessage, hostname, event.code, reason),
+              wasOpen: hasOpened,
+            });
           }
         }
       });
@@ -415,12 +474,39 @@ export class TrueNasConnection {
     );
   }
 
+  /** One attempt at `endpoint`: the race, with a refusal turned into a value. */
+  private attempt(endpoint: ResolvedEndpoint): Observable<Connection> {
+    return this.connect(endpoint).pipe(
+      map((conn) => makeActiveConnection(conn.ws, conn.hostname)),
+      // A refusal becomes a value here rather than an error, so it never
+      // reaches the `retry` in `connection$` and nothing reconnects on its own.
+      //
+      // Handled at this depth on purpose: letting it out completes the
+      // pipeline and unsubscribes `enabledChange$`, and `setEnabled` (or
+      // `setEndpoint`) is how an app asks for another attempt once the network
+      // changes. Not retrying is a statement about what this client does on
+      // its own; it is not a reason to refuse the caller asking again.
+      catchError((err: ConnectionError) =>
+        isTerminalClose(err)
+          ? of<Connection>(
+              makeConnectionError(
+                err.message,
+                err.hostname,
+                err.closeCode,
+                err.closeReason
+              )
+            )
+          : throwError(() => err)
+      )
+    );
+  }
+
   /**
    * helper function which actually performs the parallel connection `race`.
    */
-  private connect(): Observable<ActiveConnection> {
+  private connect(endpoint: ResolvedEndpoint): Observable<ActiveConnection> {
     return race(
-      this.hostnames.map(this.createSocket.bind(this))
+      endpoint.hostnames.map(hostname => this.createSocket(hostname, endpoint.protocol))
     ).pipe(
       tap(conn => this.logger.debug(`TrueNas socket opened to ${conn.hostname}.`)),
       takeUntil(this.closeConnection),
@@ -460,6 +546,11 @@ const makeConnectionError = (
  */
 const isTerminalClose = (err: ConnectionError | null | undefined): boolean =>
   err?.closeCode === policyViolationCloseCode;
+
+const sameEndpoint = (a: ResolvedEndpoint, b: ResolvedEndpoint): boolean =>
+  a.protocol === b.protocol
+  && a.hostnames.length === b.hostnames.length
+  && a.hostnames.every((hostname, i) => hostname === b.hostnames[i]);
 
 /**
  * the canonical closed connection.

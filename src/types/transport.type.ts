@@ -25,3 +25,47 @@ export function httpScheme(protocol: ApplianceProtocol): 'http:' | 'https:' {
 export function socketScheme(protocol: ApplianceProtocol): 'ws:' | 'wss:' {
   return protocol === 'http:' ? 'ws:' : 'wss:';
 }
+
+/**
+ * Where the connection points: the hostnames it races and the appliance's scheme.
+ * Passed to `connection.setEndpoint()` to re-point a live client.
+ */
+export interface ConnectionEndpoint {
+  /** Hostnames to race, as for `createTrueNasClient`. Must not be empty. */
+  hostnames: string[];
+  /** Defaults to the connection's current protocol. */
+  protocol?: ApplianceProtocol;
+}
+
+/**
+ * How the connection retries. Reconnecting never stops on its own — only a
+ * refusal (1008), `setEnabled(false)` or `close()` stops it; these set its pace.
+ */
+export interface ReconnectOptions {
+  /** Milliseconds between attempts that failed to open. Defaults to 10 000. */
+  retryDelay?: number;
+  /**
+   * Retries per hostname before the connection reports an error state
+   * (`hasConnectionError$`) and starts the next cycle. Defaults to 3.
+   * `Infinity` never reports one; watch `closes$` instead.
+   */
+  maxRetry?: number;
+}
+
+/** One socket closing, as `connection.closes$` reports it. */
+export interface ConnectionClose {
+  /** The WebSocket close code. */
+  code: number;
+  /** The server's reason text, verbatim; often empty. */
+  reason: string;
+  /** This client's rendering of the code (or of an HTTP status in the reason). */
+  message: string;
+  hostname: string;
+  /** `false` for an attempt that never opened, `true` for a live socket lost. */
+  wasOpen: boolean;
+  /**
+   * The appliance refused this client (1008, e.g. not in Allowed IP Addresses).
+   * The connection does not retry after it; `setEnabled` or `setEndpoint` asks again.
+   */
+  refused: boolean;
+}

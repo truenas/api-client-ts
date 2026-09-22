@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { TrueNasConnection } from '@/connection/truenas-connection';
+import type { ConnectionClose } from '@/types/transport.type';
 import { FakeConnection } from './fake-connection';
 
 /**
@@ -21,6 +22,8 @@ const DRIVEN = [
   'closeConnection',
   'closed',
   'closed$',
+  'closes$',
+  'closesSubject',
   'messages',
   'messages$',
   'opened',
@@ -40,17 +43,19 @@ const DRIVEN = [
  * around, throws. Frames go in through `receive` and come out through `sent`.
  */
 const INERT = [
+  'attempt',
   'connect',
   'connection$',
   'connectionAttempts',
   'createSocket',
   'enabled$',
   'enabledChange$',
+  'endpoint',
+  'endpoint$',
   'hasConnectionError$',
   'hasExhaustedRetries',
   'hostname',
   'hostname$',
-  'hostnames',
   'lastErrorMessage',
   'lastErrorMessage$',
   'logger',
@@ -62,6 +67,8 @@ const INERT = [
   // nothing here, which is the one entry on this list a downstream spec might
   // reasonably reach for.
   'setEnabled',
+  // As `setEnabled`: it records the endpoint, and there is no socket to re-point.
+  'setEndpoint',
   'systemName',
   'ws',
   'ws$',
@@ -153,6 +160,35 @@ describe('FakeConnection surface', () => {
 
   afterAll(() => {
     real.close();
+    fake.close();
+  });
+});
+
+describe('FakeConnection.simulateClose', () => {
+  it('reports the close on closes$, so a spec can script a refusal', () => {
+    const fake = new FakeConnection();
+    const closes: ConnectionClose[] = [];
+    fake.closes$.subscribe(close => closes.push(close));
+
+    fake.simulateClose(1008, 'You are not allowed to access this resource');
+
+    expect(closes).toEqual([expect.objectContaining({
+      code: 1008,
+      reason: 'You are not allowed to access this resource',
+      wasOpen: true,
+      refused: true,
+    })]);
+    fake.close();
+  });
+
+  it('defaults to an abnormal closure', () => {
+    const fake = new FakeConnection();
+    const closes: ConnectionClose[] = [];
+    fake.closes$.subscribe(close => closes.push(close));
+
+    fake.simulateClose();
+
+    expect(closes).toEqual([expect.objectContaining({ code: 1006, refused: false })]);
     fake.close();
   });
 });

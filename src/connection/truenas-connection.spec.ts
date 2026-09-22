@@ -2,7 +2,7 @@ import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { randomUUID } from '@/utils/utils';
-import type { ApplianceProtocol } from '@/types/transport.type';
+import type { ApplianceProtocol, ConnectionClose } from '@/types/transport.type';
 import { TrueNasConnection } from './truenas-connection';
 // Import the mock's exports from the `__mocks__` file directly: `tsc` can't see the
 // runtime `vi.mock` redirect, and only the mock exports `mockSocketInstances`. At
@@ -168,11 +168,10 @@ describe('TrueNasConnection', () => {
     it('clears error on successful reconnection', () => {
       // first, exhaust all retries so an error message is set
       const connection = exhaustRetries({ closeCode: 1006 });
-      vi.advanceTimersByTime(0);
-
       expect(connection.lastErrorMessage.value).not.toBeNull();
 
-      // the race is now attempting a new socket — open it and handshake to clear the error
+      // the next cycle starts after `retryDelay` — open it and handshake to clear the error
+      vi.advanceTimersByTime(retryDelay);
       const recoverySocket = mockSocketInstances[mockSocketInstances.length - 1];
       recoverySocket.simulateOpen();
       recoverySocket.next(handshakeResponse);
@@ -556,8 +555,8 @@ describe('TrueNasConnection', () => {
 
       expect(connection.connectionAttempts.value).toBeGreaterThan(0);
 
-      // since we've exhausted all retries, the `connection$` should retry immediately and succeed.
-      vi.advanceTimersByTime(0);
+      // retries are exhausted, so the next cycle starts after `retryDelay` and succeeds.
+      vi.advanceTimersByTime(retryDelay);
       const recoverySocket = mockSocketInstances[mockSocketInstances.length - 1];
       recoverySocket.simulateOpen();
 
@@ -569,6 +568,7 @@ describe('TrueNasConnection', () => {
       connection = exhaustRetries({ maxRetry: 1 });
       expect(connection.hasExhaustedRetries()).toBe(true);
 
+      vi.advanceTimersByTime(retryDelay);
       const recoverySocket = mockSocketInstances[mockSocketInstances.length - 1];
       recoverySocket.simulateOpen();
       recoverySocket.next(handshakeResponse);
@@ -802,6 +802,219 @@ describe('TrueNasConnection', () => {
       vi.advanceTimersByTime(40_000);
 
       expect(nextSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('reconnect pacing', () => {
+    it('keeps retrying at retryDelay, with no ceiling, when maxRetry is Infinity', () => {
+      const connection = createConnection({ retryDelay: 5_000, maxRetry: Infinity });
+      const errors: boolean[] = [];
+      connection.hasConnectionError$.subscribe(val => errors.push(val));
+
+      // An appliance reboot: an hour of refused attempts, one every 5 seconds.
+      for (let i = 0; i < 720; i++) {
+        const count = mockSocketInstances.length;
+        mockSocketInstances[count - 1].simulateClose();
+        vi.advanceTimersByTime(4_999);
+        expect(mockSocketInstances.length).toBe(count);
+        vi.advanceTimersByTime(1);
+        expect(mockSocketInstances.length).toBe(count + 1);
+      }
+
+      expect(errors).not.toContain(true);
+      const last = mockSocketInstances[mockSocketInstances.length - 1];
+      last.simulateOpen();
+      last.next(handshakeResponse);
+      expect(connection.opened.value).toBe(true);
+      connection.close();
+    });
+
+    it('waits retryDelay between cycles, not only within one', () => {
+      const connection = createConnection({ maxRetry: 1 });
+      mockSocketInstances[0].simulateClose();
+      vi.advanceTimersByTime(retryDelay);
+      mockSocketInstances[1].simulateClose();
+
+      // The cycle is exhausted and reported; the next one is not started at once.
+      expect(connection.hasExhaustedRetries()).toBe(true);
+      expect(mockSocketInstances).toHaveLength(2);
+      vi.advanceTimersByTime(retryDelay - 1);
+      expect(mockSocketInstances).toHaveLength(2);
+      vi.advanceTimersByTime(1);
+      expect(mockSocketInstances).toHaveLength(3);
+      connection.close();
+    });
+  });
+
+  describe('closes$', () => {
+    const refusal = 'You are not allowed to access this resource';
+
+    function record(connection: TrueNasConnection): ConnectionClose[] {
+      const closes: ConnectionClose[] = [];
+      connection.closes$.subscribe(close => closes.push(close));
+      return closes;
+    }
+
+    it('reports a failed attempt with its code', () => {
+      const connection = createConnection();
+      const closes = record(connection);
+
+      mockSocketInstances[0].simulateClose(1015, '');
+
+      expect(closes).toEqual([{
+        code: 1015,
+        reason: '',
+        message: 'TLS/Certificate error - Certificate may be expired',
+        hostname: 'truenas.test',
+        wasOpen: false,
+        refused: false,
+      }]);
+      connection.close();
+    });
+
+    it('reports a live socket lost', () => {
+      const { connection, socket } = establishConnection();
+      const closes = record(connection);
+
+      socket.simulateClose(1001, '');
+
+      expect(closes).toEqual([expect.objectContaining({ code: 1001, wasOpen: true, refused: false })]);
+      connection.close();
+    });
+
+    it('marks a 1008 as refused, with the server reason verbatim', () => {
+      const connection = createConnection();
+      const closes = record(connection);
+
+      mockSocketInstances[0].simulateOpen();
+      mockSocketInstances[0].simulateClose(1008, refusal);
+
+      expect(closes).toEqual([expect.objectContaining({ code: 1008, reason: refusal, refused: true })]);
+      connection.close();
+    });
+
+    it('does not report sockets the client tore down itself', () => {
+      const connection = createConnection({ hostnames: ['host-a', 'host-b'] });
+      const closes = record(connection);
+
+      // host-b loses the race and is torn down; its close event arrives after.
+      mockSocketInstances[0].simulateOpen();
+      mockSocketInstances[0].next(handshakeResponse);
+      mockSocketInstances[1].simulateClose(1000, '');
+      // The gate closes the winner.
+      connection.setEnabled(false);
+      mockSocketInstances[0].simulateClose(1000, '');
+
+      expect(closes).toEqual([]);
+      connection.close();
+    });
+
+    it('completes on close()', () => {
+      const connection = createConnection();
+      let completed = false;
+      connection.closes$.subscribe({ complete: () => completed = true });
+
+      connection.close();
+
+      expect(completed).toBe(true);
+    });
+  });
+
+  describe('setEndpoint()', () => {
+    it('re-points a live connection at the new hostnames and protocol', () => {
+      const { connection, socket } = establishConnection();
+      const completeSpy = vi.spyOn(socket, 'complete');
+      let closedCount = 0;
+      connection.closed.subscribe(() => closedCount++);
+
+      connection.setEndpoint({ hostnames: ['new.test'], protocol: 'http:' });
+
+      expect(completeSpy).toHaveBeenCalled();
+      // Not still reported open on the old socket while the new one connects.
+      expect(connection.opened.value).toBe(false);
+      expect(closedCount).toBe(1);
+      const next = mockSocketInstances[mockSocketInstances.length - 1];
+      expect(next.config.url).toBe(`ws://new.test${websocketPath}`);
+
+      next.simulateOpen();
+      next.next(handshakeResponse);
+      expect(connection.opened.value).toBe(true);
+      expect(connection.hostname.value).toBe('new.test');
+      expect(connection.endpoint).toEqual({ hostnames: ['new.test'], protocol: 'http:' });
+      connection.close();
+    });
+
+    it('keeps the current protocol when none is given', () => {
+      const connection = createConnection({ protocol: 'http:' });
+
+      connection.setEndpoint({ hostnames: ['new.test'] });
+
+      const next = mockSocketInstances[mockSocketInstances.length - 1];
+      expect(next.config.url).toBe(`ws://new.test${websocketPath}`);
+      connection.close();
+    });
+
+    it('does nothing for an unchanged endpoint', () => {
+      const { connection } = establishConnection();
+      const before = mockSocketInstances.length;
+
+      connection.setEndpoint({ hostnames: ['truenas.test'], protocol: 'https:' });
+
+      expect(mockSocketInstances).toHaveLength(before);
+      expect(connection.opened.value).toBe(true);
+      connection.close();
+    });
+
+    it('only records the endpoint while disabled, and connects there once enabled', () => {
+      const connection = createConnection({ enabled: false });
+
+      connection.setEndpoint({ hostnames: ['new.test'] });
+      expect(mockSocketInstances).toHaveLength(0);
+
+      connection.setEnabled(true);
+      expect(mockSocketInstances[0].config.url).toBe(`wss://new.test${websocketPath}`);
+      connection.close();
+    });
+
+    it('stays on the new endpoint through later retries', () => {
+      const connection = createConnection({ maxRetry: 0 });
+      connection.setEndpoint({ hostnames: ['new.test'] });
+
+      mockSocketInstances[mockSocketInstances.length - 1].simulateClose();
+      vi.advanceTimersByTime(retryDelay);
+
+      const next = mockSocketInstances[mockSocketInstances.length - 1];
+      expect(next.config.url).toBe(`wss://new.test${websocketPath}`);
+      connection.close();
+    });
+
+    it('tries again after a refusal', () => {
+      const connection = createConnection();
+      mockSocketInstances[0].simulateOpen();
+      mockSocketInstances[0].simulateClose(1008, 'refused');
+      const before = mockSocketInstances.length;
+
+      connection.setEndpoint({ hostnames: ['other.test'] });
+
+      expect(mockSocketInstances.length).toBeGreaterThan(before);
+      connection.close();
+    });
+
+    it('starts a fresh retry budget', () => {
+      const connection = exhaustRetries({ maxRetry: 1 });
+      expect(connection.hasExhaustedRetries()).toBe(true);
+
+      connection.setEndpoint({ hostnames: ['new.test'] });
+
+      expect(connection.connectionAttempts.value).toBe(0);
+      connection.close();
+    });
+
+    it('rejects an empty hostnames array', () => {
+      const connection = createConnection();
+
+      expect(() => connection.setEndpoint({ hostnames: [] })).toThrow(/empty/);
+      connection.close();
     });
   });
 });
