@@ -847,6 +847,16 @@ describe('TrueNasConnection', () => {
   });
 
   describe('the wait between cycles', () => {
+    it('ends with close(), rather than opening another socket when it runs out', () => {
+      const connection = exhaustRetries({ maxRetry: 1 });
+      const before = mockSocketInstances.length;
+
+      connection.close();
+      vi.advanceTimersByTime(retryDelay * 3);
+
+      expect(mockSocketInstances).toHaveLength(before);
+    });
+
     it('ends when the gate closes, rather than reporting an error until it runs out', () => {
       const connection = exhaustRetries({ maxRetry: 1 });
       expect(connection.lastErrorMessage.value).not.toBeNull();
@@ -955,6 +965,27 @@ describe('TrueNasConnection', () => {
       expect(connection.opened.value).toBe(true);
       expect(connection.hostname.value).toBe('new.test');
       expect(connection.endpoint).toEqual({ hostnames: ['new.test'], protocol: 'http:' });
+      connection.close();
+    });
+
+    it('accepts its own endpoint back, spread with a change', () => {
+      const connection = createConnection();
+
+      connection.setEndpoint({ ...connection.endpoint, protocol: 'http:' });
+
+      const next = mockSocketInstances[mockSocketInstances.length - 1];
+      expect(next.config.url).toBe(`ws://truenas.test${websocketPath}`);
+      connection.close();
+    });
+
+    it('does not count the socket it tore down as an attempt', () => {
+      const { connection, socket } = establishConnection();
+
+      connection.setEndpoint({ hostnames: ['new.test'] });
+      // A real socket reports its close after `complete()`, from `onclose`.
+      socket.simulateClose(1000, '');
+
+      expect(connection.connectionAttempts.value).toBe(0);
       connection.close();
     });
 

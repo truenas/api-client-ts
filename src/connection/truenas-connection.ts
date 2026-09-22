@@ -26,7 +26,7 @@ import {
 import { Logger, noopLogger } from '@/logger';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
-import { getHttpError, getWebSocketError, isHttpStatusError, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
+import { getCloseMessage, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
 import { TrueNasSocket } from '@/connection/truenas-socket';
 import {
   socketScheme,
@@ -56,10 +56,7 @@ interface ConnectionError extends Error {
 }
 
 /** Frozen, with its own copy of the hostnames: see `resolveEndpoint`. */
-interface ResolvedEndpoint {
-  readonly hostnames: readonly string[];
-  readonly protocol: ApplianceProtocol;
-}
+type ResolvedEndpoint = Readonly<Required<ConnectionEndpoint>>;
 
 type Connection =
   | ActiveConnection & { state: 'active' }
@@ -186,9 +183,11 @@ export class TrueNasConnection {
     }),
     // start with a closed connection.
     startWith<Connection>(closedConnection),
+    // Above `shareReplay`, whose `refCount: false` subscription would otherwise
+    // outlive `close()` and let a pending retry wait open another socket.
+    takeUntil(this.closeConnection),
     // prevent multiple subscriptions from re-evaluating the entire pipeline.
     shareReplay({ bufferSize: 1, refCount: false }),
-    takeUntil(this.closeConnection),
   );
 
   /**
@@ -422,21 +421,14 @@ export class TrueNasConnection {
         closeObserver: {
           next: (event: CloseEvent) => {
             const reason = event.reason || '';
-            let errorMessage: string;
-            if (isHttpStatusError(reason)) {
-              errorMessage = getHttpError(reason);
-            } else {
-              errorMessage = getWebSocketError(event.code);
-            }
-
-            // we let individual sockets update the total connection attempts, since
-            // this can be safely done in parallel and also the compatibility property
-            // `hasExhaustedRetries` wants to check the *total* number.
-            this.connectionAttempts.next(this.connectionAttempts.value + 1);
+            const errorMessage = getCloseMessage(event.code, reason);
 
             // A closed subscriber means this client tore the socket down itself
-            // (lost race, gate, endpoint, `close()`); that is not news to report.
+            // (lost race, gate, endpoint, `close()`): neither an attempt to count
+            // nor news to report. Sockets count individually, in parallel, because
+            // `hasExhaustedRetries` wants the *total* number.
             if (!subscriber.closed) {
+              this.connectionAttempts.next(this.connectionAttempts.value + 1);
               this.closesSubject.next({
                 code: event.code,
                 reason,

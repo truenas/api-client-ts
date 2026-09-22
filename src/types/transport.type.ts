@@ -31,8 +31,11 @@ export function socketScheme(protocol: ApplianceProtocol): 'ws:' | 'wss:' {
  * Passed to `connection.setEndpoint()` to re-point a live client.
  */
 export interface ConnectionEndpoint {
-  /** Hostnames to race, as for `createTrueNasClient`. Must not be empty. */
-  hostnames: string[];
+  /**
+   * Hostnames to race, as for `createTrueNasClient`. Must not be empty.
+   * Readonly so `connection.endpoint` can be spread back into `setEndpoint`.
+   */
+  hostnames: readonly string[];
   /** Defaults to the connection's current protocol. */
   protocol?: ApplianceProtocol;
 }

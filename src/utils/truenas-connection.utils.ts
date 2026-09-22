@@ -24,6 +24,11 @@ export function getHttpError(reason: string): string {
   return '';
 }
 
+/** The message for a socket close: the HTTP status in the reason if any, else the code. */
+export function getCloseMessage(code: number, reason: string): string {
+  return isHttpStatusError(reason) ? getHttpError(reason) : getWebSocketError(code);
+}
+
 export function getWebSocketError(code: number): string {
   switch (code) {
     case 1000: // Normal closure

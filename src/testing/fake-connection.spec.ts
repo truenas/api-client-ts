@@ -182,6 +182,17 @@ describe('FakeConnection.simulateClose', () => {
     fake.close();
   });
 
+  it('renders the message as the real connection does, HTTP status first', () => {
+    const fake = new FakeConnection();
+    const closes: ConnectionClose[] = [];
+    fake.closes$.subscribe(close => closes.push(close));
+
+    fake.simulateClose(1006, '503 Service Unavailable');
+
+    expect(closes[0].message).toBe('Service Unavailable - System may be overloaded');
+    fake.close();
+  });
+
   it('defaults to an abnormal closure', () => {
     const fake = new FakeConnection();
     const closes: ConnectionClose[] = [];

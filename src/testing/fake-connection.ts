@@ -1,7 +1,7 @@
 import { Subject, Subscription, distinctUntilChanged, filter, map, takeUntil } from 'rxjs';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import { noopLogger } from '@/logger';
-import { getWebSocketError, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
+import { getCloseMessage, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
 import type { TrueNasErrorFrame } from '@/types/api-error.type';
 import type { TrueNasMessage } from '@/types/truenas-message.type';
 import { UnmockedCallError } from './unmocked-call-error';
@@ -272,7 +272,7 @@ export class FakeConnection extends TrueNasConnection {
     this.closesSubject.next({
       code,
       reason,
-      message: getWebSocketError(code),
+      message: getCloseMessage(code, reason),
       hostname: this.endpoint.hostnames[0] ?? '',
       wasOpen: true,
       refused: code === policyViolationCloseCode,
