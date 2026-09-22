@@ -270,6 +270,29 @@ describe('createTrueNasClient', () => {
     });
   });
 
+  describe('reconnect pacing', () => {
+    it('reaches the connection', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false,
+        version: 'v27.0.0', retryDelay: 5_000, maxRetry: Infinity,
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      expect(client.connection.retryDelay).toBe(5_000);
+      expect(client.connection.maxRetry).toBe(Infinity);
+    });
+
+    it('keeps the connection defaults when not given', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v27.0.0',
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      expect(client.connection.retryDelay).toBe(10_000);
+      expect(client.connection.maxRetry).toBe(3);
+    });
+  });
+
   describe('a caller that names the version', () => {
     it('skips discovery entirely — no request is made', async () => {
       const client = await createTrueNasClient({

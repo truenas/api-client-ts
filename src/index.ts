@@ -111,7 +111,12 @@ export type {
 // name any arm — nor script one through `fakeAuthResponse` or `failNextLogin`.
 export { AuthResponseType } from '@/types/auth.type';
 export type { AuthResponse } from '@/types/auth.type';
-export type { ApplianceProtocol } from '@/types/transport.type';
+export type {
+  ApplianceProtocol,
+  ConnectionClose,
+  ConnectionEndpoint,
+  ReconnectOptions,
+} from '@/types/transport.type';
 export type { Container } from '@/types/container.type';
 // Value export, not type-only: `Container.status` is an `AppState`, and
 // without the enum itself a consumer has nothing to compare it against —

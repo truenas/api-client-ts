@@ -172,6 +172,37 @@ client.connection.setEnabled(false);   // disconnect; true connects again
 client.close();                        // disconnect for good
 ```
 
+The connection reconnects on its own and never gives up, so an appliance
+rebooting or failing over just comes back. `retryDelay` (default 10 s) sets the
+pause between failed attempts. `maxRetry` (default 3) sets how many retries run
+before `hasConnectionError$` reports an error; retrying carries on after that.
+Pass `maxRetry: Infinity` so failed attempts never report one. Losing a live
+socket still does, until a socket opens again:
+
+```typescript
+const client = await createTrueNasClient({
+  uuid, hostnames, enabled: true, retryDelay: 5_000, maxRetry: Infinity,
+});
+```
+
+The one close that stops retrying is 1008: the appliance refusing this client,
+for example because its address is not in Allowed IP Addresses. `closes$`
+reports every socket close with its code, so the two cases can be told apart:
+
+```typescript
+client.connection.closes$.subscribe(({ code, reason, refused }) => {
+  if (refused) showAccessDeniedDialog(reason);
+});
+```
+
+`setEndpoint` re-points a live client at new hostnames or a new protocol, for
+example after the GUI address changes. The socket reconnects there; the API
+version stays the same, so a different version needs a new client:
+
+```typescript
+client.connection.setEndpoint({ hostnames: ['10.0.0.5'], protocol: 'http:' });
+```
+
 An appliance served without TLS needs `protocol: 'http:'`, which switches
 discovery to `http` and the socket to `ws`. It describes the appliance, not the
 page, and defaults to `https:`.

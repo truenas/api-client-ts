@@ -1,6 +1,7 @@
 import { Subject, Subscription, distinctUntilChanged, filter, map, takeUntil } from 'rxjs';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 import { noopLogger } from '@/logger';
+import { getCloseMessage, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
 import type { TrueNasErrorFrame } from '@/types/api-error.type';
 import type { TrueNasMessage } from '@/types/truenas-message.type';
 import { UnmockedCallError } from './unmocked-call-error';
@@ -256,17 +257,26 @@ export class FakeConnection extends TrueNasConnection {
   }
 
   /**
-   * Lower `opened` and fire `closed`, as a socket closing would.
+   * Lower `opened`, fire `closed` and report the close on `closes$`, as a live
+   * socket closing with `code` would. 1008 is the appliance refusing the client.
    *
    * Named for what it simulates rather than overriding `close()`, which on the
    * real connection means "stop, and do not retry" — a different verb that
    * callers already use for teardown.
    */
-  simulateClose(): void {
+  simulateClose(code = 1006, reason = ''): void {
     if (this.terminated || !this.opened.getValue()) return;
 
     this.opened.next(false);
     this.closed.next();
+    this.closesSubject.next({
+      code,
+      reason,
+      message: getCloseMessage(code, reason),
+      hostname: this.endpoint.hostnames[0] ?? '',
+      wasOpen: true,
+      refused: code === policyViolationCloseCode,
+    });
   }
 
   /**

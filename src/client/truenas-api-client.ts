@@ -22,7 +22,7 @@ import type {
   BaseApiDirectory,
 } from '@/types/api-directory.type';
 import { getWebSocketPath } from '@/utils/api-version.utils';
-import type { ApplianceProtocol } from '@/types/transport.type';
+import type { ApplianceProtocol, ReconnectOptions } from '@/types/transport.type';
 
 /**
  * @typeParam D - the generated API surface this client is typed against —
@@ -63,7 +63,10 @@ export abstract class TrueNasApiClient<
   /** System UUID */
   protected readonly uuid: string;
 
-  /** System hostnames (primary and fallback) */
+  /**
+   * System hostnames (primary and fallback) at construction. After
+   * `connection.setEndpoint()`, read `connection.endpoint` instead.
+   */
   protected readonly hostnames: string[];
 
   /**
@@ -80,6 +83,9 @@ export abstract class TrueNasApiClient<
 
   protected readonly protocol: ApplianceProtocol;
 
+  /** Retry pacing forwarded to the connection; unset fields take its defaults. */
+  protected readonly reconnect: ReconnectOptions;
+
   constructor(
     uuid: string,
     hostnames: string[],
@@ -87,7 +93,8 @@ export abstract class TrueNasApiClient<
     enabled: boolean,
     systemName?: string,
     logger: Logger = noopLogger,
-    protocol: ApplianceProtocol = 'https:'
+    protocol: ApplianceProtocol = 'https:',
+    reconnect: ReconnectOptions = {}
   ) {
     this.uuid = uuid;
     this.hostnames = hostnames;
@@ -96,6 +103,7 @@ export abstract class TrueNasApiClient<
     this.systemName = systemName;
     this.logger = logger;
     this.protocol = protocol;
+    this.reconnect = reconnect;
 
     // Initialize components using factory methods
     // Subclasses can override factory methods to provide version-specific implementations
@@ -148,8 +156,8 @@ export abstract class TrueNasApiClient<
       this.uuid,
       websocketPath,
       this.systemName,
-      undefined, // retryDelay (use default)
-      undefined, // maxRetry (use default)
+      this.reconnect.retryDelay,
+      this.reconnect.maxRetry,
       this.logger,
       this.protocol
     );
