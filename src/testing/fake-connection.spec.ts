@@ -56,6 +56,7 @@ const INERT = [
   'hasExhaustedRetries',
   'hostname',
   'hostname$',
+  'lastAttempted',
   'lastErrorMessage',
   'lastErrorMessage$',
   'logger',

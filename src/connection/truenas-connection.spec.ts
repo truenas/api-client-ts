@@ -846,6 +846,20 @@ describe('TrueNasConnection', () => {
     });
   });
 
+  describe('the wait between cycles', () => {
+    it('ends when the gate closes, rather than reporting an error until it runs out', () => {
+      const connection = exhaustRetries({ maxRetry: 1 });
+      expect(connection.lastErrorMessage.value).not.toBeNull();
+
+      connection.setEnabled(false);
+
+      expect(connection.lastErrorMessage.value).toBeNull();
+      vi.advanceTimersByTime(retryDelay * 3);
+      expect(mockSocketInstances).toHaveLength(2);
+      connection.close();
+    });
+  });
+
   describe('closes$', () => {
     const refusal = 'You are not allowed to access this resource';
 
@@ -1007,6 +1021,32 @@ describe('TrueNasConnection', () => {
       connection.setEndpoint({ hostnames: ['new.test'] });
 
       expect(connection.connectionAttempts.value).toBe(0);
+      // The old endpoint's error message is part of that budget too.
+      expect(connection.lastErrorMessage.value).toBeNull();
+      expect(connection.hasExhaustedRetries()).toBe(false);
+      connection.close();
+    });
+
+    it('races the new endpoint at once, even while waiting between cycles', () => {
+      const connection = exhaustRetries({ maxRetry: 1 });
+      const before = mockSocketInstances.length;
+
+      connection.setEndpoint({ hostnames: ['new.test'] });
+
+      expect(mockSocketInstances).toHaveLength(before + 1);
+      expect(mockSocketInstances[before].config.url).toBe(`wss://new.test${websocketPath}`);
+      connection.close();
+    });
+
+    it('does not share its hostnames array with the caller', () => {
+      const hostnames = ['truenas.test'];
+      const connection = createConnection({ hostnames });
+
+      hostnames.push('other.test');
+
+      expect(connection.endpoint.hostnames).toEqual(['truenas.test']);
+      expect(Object.isFrozen(connection.endpoint.hostnames)).toBe(true);
+      expect(() => (connection.endpoint.hostnames as string[]).push('x')).toThrow();
       connection.close();
     });
 

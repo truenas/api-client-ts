@@ -21,6 +21,7 @@ import {
   throwError,
   shareReplay,
   distinctUntilChanged,
+  skip,
 } from 'rxjs';
 import { Logger, noopLogger } from '@/logger';
 import { TrueNasMessage } from '@/types/truenas-message.type';
@@ -54,7 +55,11 @@ interface ConnectionError extends Error {
   wasOpen?: boolean;
 }
 
-type ResolvedEndpoint = Required<ConnectionEndpoint>;
+/** Frozen, with its own copy of the hostnames: see `resolveEndpoint`. */
+interface ResolvedEndpoint {
+  readonly hostnames: readonly string[];
+  readonly protocol: ApplianceProtocol;
+}
 
 type Connection =
   | ActiveConnection & { state: 'active' }
@@ -85,7 +90,10 @@ export class TrueNasConnection {
   private enabled$ = new BehaviorSubject<boolean>(false);
 
   /** Replaced in the constructor, before anything subscribes. See `setEndpoint()`. */
-  private endpoint$ = new BehaviorSubject<ResolvedEndpoint>({ hostnames: [], protocol: 'https:' });
+  private endpoint$ = new BehaviorSubject<ResolvedEndpoint>(resolveEndpoint([], 'https:'));
+
+  /** The endpoint the last attempt raced; a different one starts with `closed`. */
+  private lastAttempted: ResolvedEndpoint | null = null;
 
   /** Protected so the testing entry's `FakeConnection` can script closes. */
   protected readonly closesSubject = new Subject<ConnectionClose>();
@@ -111,13 +119,16 @@ export class TrueNasConnection {
         return of(closedConnection);
       }
       // Each endpoint change tears down the current attempt and starts one on the
-      // new endpoint. `closed` goes first so the old socket is not still reported
-      // as open while the new one connects; the first endpoint needs none.
+      // new endpoint. `closed` goes first, so the old socket is not reported open
+      // and the old endpoint's error is cleared; compared against the last
+      // attempt rather than the last emission, as `retry` resubscribes here.
       return this.endpoint$.pipe(
         distinctUntilChanged(sameEndpoint),
-        switchMap((endpoint, index) => {
+        switchMap(endpoint => {
+          const changed = this.lastAttempted !== null && !sameEndpoint(this.lastAttempted, endpoint);
+          this.lastAttempted = endpoint;
           const attempt = this.attempt(endpoint);
-          return index === 0 ? attempt : attempt.pipe(startWith(closedConnection));
+          return changed ? attempt.pipe(startWith(closedConnection)) : attempt;
         }),
       );
     }),
@@ -161,10 +172,17 @@ export class TrueNasConnection {
     }),
     // A lost live socket reconnects at once. A cycle that never opened waits
     // `retryDelay` like any other attempt; without it the next cycle's first
-    // attempt followed the last one back to back.
+    // attempt followed the last one back to back. Nothing upstream is
+    // subscribed during the wait, so a gate or endpoint change ends it early.
     retry({
       delay: (err: ConnectionError | null) =>
-        err?.wasOpen ? of(null) : timer(this.retryDelay),
+        err?.wasOpen
+          ? of(null)
+          : race(
+              timer(this.retryDelay),
+              this.enabledChange$.pipe(skip(1)),
+              this.endpoint$.pipe(skip(1)),
+            ),
     }),
     // start with a closed connection.
     startWith<Connection>(closedConnection),
@@ -253,7 +271,7 @@ export class TrueNasConnection {
     readonly logger: Logger = noopLogger,
     protocol: ApplianceProtocol = 'https:',
   ) {
-    this.endpoint$.next({ hostnames, protocol });
+    this.endpoint$.next(resolveEndpoint(hostnames, protocol));
 
     // Ping while a socket exists, and only then: a socket arriving starts a
     // fresh 20-second interval, a socket going away (or the gate closing) ends
@@ -290,7 +308,7 @@ export class TrueNasConnection {
   }
 
   /** The hostnames and protocol the connection currently points at. */
-  get endpoint(): Readonly<Required<ConnectionEndpoint>> {
+  get endpoint(): ResolvedEndpoint {
     return this.endpoint$.value;
   }
 
@@ -309,10 +327,7 @@ export class TrueNasConnection {
     if (endpoint.hostnames.length === 0) {
       throw new Error('Cannot point the connection at an empty hostnames array');
     }
-    const next = {
-      hostnames: [...endpoint.hostnames],
-      protocol: endpoint.protocol ?? this.protocol,
-    };
+    const next = resolveEndpoint(endpoint.hostnames, endpoint.protocol ?? this.protocol);
     if (sameEndpoint(next, this.endpoint$.value)) return;
 
     // The retry budget belongs to the old endpoint.
@@ -546,6 +561,10 @@ const makeConnectionError = (
  */
 const isTerminalClose = (err: ConnectionError | null | undefined): boolean =>
   err?.closeCode === policyViolationCloseCode;
+
+/** A frozen copy, so neither the caller's array nor `endpoint`'s can move it. */
+const resolveEndpoint = (hostnames: readonly string[], protocol: ApplianceProtocol): ResolvedEndpoint =>
+  Object.freeze({ hostnames: Object.freeze([...hostnames]), protocol });
 
 const sameEndpoint = (a: ResolvedEndpoint, b: ResolvedEndpoint): boolean =>
   a.protocol === b.protocol
