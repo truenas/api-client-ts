@@ -48,8 +48,6 @@ import type {
   DockerStatusInfoStatus,
 } from '../v25_10_1/api-types';
 import type {
-  ACLTemplateByPathQueryOptions,
-  AclTemplateFormatOptions,
   AppActiveWorkloads,
   AuditExportQueryOptions,
   CertificateExtensions,
@@ -82,12 +80,6 @@ export type VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput = (typeof
 
 export type DockerBackupMap = Record<string, DockerBackupEntry>;
 
-export interface ACLTemplateByPathArgs {
-  path?: string;
-  "query-filters"?: unknown[];
-  "query-options"?: ACLTemplateByPathQueryOptions;
-  "format-options"?: AclTemplateFormatOptions;
-}
 export interface ACMEDNSAuthenticatorCreate {
   attributes: CloudFlareSchema | DigitalOceanSchema | OVHSchema | Route53Schema | ShellSchema;
   name: string;
@@ -1263,14 +1255,4 @@ export interface ZFSResourceCreateEncryption {
   key?: string | null;
   passphrase?: string | null;
   pbkdf2iters?: number;
-}
-export interface ZfsTierRewriteJobFailuresArgs {
-  tier_job_id: string;
-  "query-filters"?: unknown[];
-  "query-options"?: QueryOptionsModel;
-}
-export interface ZfsTierRewriteJobQueryArgs {
-  status?: ("COMPLETE" | "RUNNING" | "QUEUED" | "CANCELLED" | "STOPPED" | "ERROR")[] | null;
-  "query-filters"?: unknown[];
-  "query-options"?: QueryOptionsModel;
 }

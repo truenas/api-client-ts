@@ -64,9 +64,7 @@ describe('chainAssign', () => {
 
   /**
    * `_usedBy` is generator-internal and never emitted, so a change to it is not
-   * a change to the shape. It is typed `string[]`, which is why it cannot ride
-   * the same value test as `title`: an array is an object, and the test would
-   * keep it.
+   * a change to the shape.
    */
   it('ignores _usedBy, which is an array rather than a scalar', () => {
     const { homes } = chainAssign([
@@ -77,11 +75,11 @@ describe('chainAssign', () => {
   });
 
   /**
-   * The other `title`, and the reason the one above has to be discriminated by
-   * value rather than by key. A model may have a *field* called `title`, and
-   * fourteen in the v25.10.0 slice of the 2026-09-07 dump do. Ignoring it here
-   * would compare two different shapes equal: the later version would inherit
-   * the earlier declaration and emit the wrong type for a property the emitter
+   * The other `title`, and the reason a non-emitted keyword can only be ignored
+   * at a keyword position. A model may have a *field* called `title`, and 328
+   * models in the 2026-10-01 dump do. Ignoring the key wherever it appears would
+   * compare two different shapes equal: the later version would inherit the
+   * earlier declaration and emit the wrong type for a property the emitter
    * ships, with every gate green.
    */
   it('re-declares when a property named title changes', () => {
@@ -93,6 +91,61 @@ describe('chainAssign', () => {
       model('v2', { A: withTitle('integer') }),
     ]);
     expect(homes[1].get('A')).toBe(1);
+  });
+
+  /**
+   * The case that sent `config.save` out of `ApiJobDirectoryBase` on the
+   * 2026-10-01 dump: middleware flipped `ConfigSave.secretseed`'s default from
+   * false to true, and nothing in the emitted output can express a default, so
+   * the two versions' `ConfigSave` rendered byte-identically while the shape
+   * comparison called them different. Re-homing the type cost the *method* its
+   * place in the base directory, because an entry hoists there only when every
+   * type it references is chain-stable.
+   */
+  it('does not re-declare on default-only changes (defaults are not emitted)', () => {
+    const { homes } = chainAssign([
+      model('v1', { A: str({ properties: { a: { type: 'boolean', default: false } } }) }),
+      model('v2', { A: str({ properties: { a: { type: 'boolean', default: true } } }) }),
+    ]);
+    expect(homes[1].get('A')).toBe(0);
+  });
+
+  /**
+   * And its trap, which is worse than `title`'s: 216 models in that same dump
+   * have a field called `default`, and unlike a title it cannot be told apart
+   * from the keyword by value — a keyword `default` is an object as often as a
+   * field's schema is.
+   */
+  it('re-declares when a property named default changes', () => {
+    const withDefault = (type: string): DefSchema => ({
+      type: 'object', properties: { default: { type, default: null } },
+    });
+    const { homes } = chainAssign([
+      model('v1', { A: withDefault('string') }),
+      model('v2', { A: withDefault('integer') }),
+    ]);
+    expect(homes[1].get('A')).toBe(1);
+  });
+
+  /**
+   * The two assertions that are not safe to ignore. json-schema-to-typescript
+   * renders `minItems` as a non-empty tuple (`[number, ...number[]]`) and both
+   * as `@minItems` / `@maxItems` JSDoc, so they reach the emitted text and a
+   * change to either is a change to the shape. They are the only two: no other
+   * annotation tag appears anywhere in the generated tree.
+   */
+  it('re-declares on minItems and maxItems changes, which the emitter does render', () => {
+    const items = (extra: Partial<DefSchema>): DefSchema => ({
+      type: 'object', properties: { a: { type: 'array', items: { type: 'string' }, ...extra } },
+    });
+    expect(chainAssign([
+      model('v1', { A: items({ minItems: 1 }) }),
+      model('v2', { A: items({ minItems: 2 }) }),
+    ]).homes[1].get('A')).toBe(1);
+    expect(chainAssign([
+      model('v1', { A: items({ maxItems: 4 }) }),
+      model('v2', { A: items({ maxItems: 5 }) }),
+    ]).homes[1].get('A')).toBe(1);
   });
 
 

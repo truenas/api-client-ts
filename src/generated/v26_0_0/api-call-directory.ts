@@ -16,6 +16,7 @@ import type {
   ApiKeyCreate,
   ApiKeyUpdate,
   AppContainerIDOptions,
+  AuditQuery,
   AuthRespAuthErr,
   AuthRespAuthRedirect,
   AuthRespExpired,
@@ -34,7 +35,6 @@ import type {
   DirectoryServicesStatus,
   DropboxCredentialsModel,
   FTPCredentialsModel,
-  FailoverEntry,
   FailoverRebootInfo,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
@@ -58,6 +58,7 @@ import type {
   PoolDatasetProjectQuota,
   PoolDatasetUpdate,
   PoolDatasetUserGroupQuota,
+  PoolSnapshotCreateUpdateEntry,
   PoolSnapshotTaskCreate,
   PoolSnapshotTaskUpdate,
   ReplicationCountEligibleManualSnapshotsTransportInput,
@@ -77,7 +78,6 @@ import type {
   UPSEntry,
   VMCreateArgs,
   VMDeleteOptions,
-  VMDeviceUpdate,
   VMWareCreate,
   VMWareUpdate,
   WebDavCredentialsModel,
@@ -100,7 +100,6 @@ import type {
   AppImageEntry,
   AppImageQueryResultItem,
   AppQueryResultItem,
-  AuditQuery,
   AuditQueryResultItem,
   AuditQueryResultItemQueryResultItem,
   AuthApiKeyPlain,
@@ -148,7 +147,6 @@ import type {
   EntitlementEntry,
   EntitlementFactsEntry,
   EntitlementsInfo,
-  FailoverUpdate,
   GraphIdentifier,
   ISCSIGlobalEntry,
   ISCSIGlobalSessionsItem,
@@ -177,13 +175,9 @@ import type {
   PoolDatasetQueryResultItem,
   PoolEntry,
   PoolQueryResultItem,
-  PoolSnapshotCreateUpdateEntry,
   PoolSnapshotCreateWithName,
   PoolSnapshotCreateWithSchema,
-  PoolSnapshotEntry,
-  PoolSnapshotQueryResultItem,
   PoolSnapshotRenameOptions,
-  PoolSnapshotUpdate,
   ReplicationEntry,
   ReplicationQueryResultItem,
   ReportingGetDataResponse,
@@ -232,10 +226,7 @@ import type {
   UserQueryResultItem,
   UserRenew2FaSecretResult,
   UserUpdate,
-  VMDeviceCreateArgs,
-  VMDeviceEntry,
   VMDeviceNicAttachChoicesResult,
-  VMDeviceQueryResultItem,
   VMEntry,
   VMQueryResultItem,
   VMStatus,
@@ -598,11 +589,6 @@ export interface ApiCallDirectoryDelta {
     response: FailoverRebootInfo;
   };
 
-  'failover.update': {
-    params: [data: FailoverUpdate];
-    response: FailoverEntry;
-  };
-
   'filesystem.acltemplate.by_path': {
     params: [filesystem_acl?: ACLTemplateByPathArgs];
     response: ACLTemplateEntry[];
@@ -797,25 +783,9 @@ export interface ApiCallDirectoryDelta {
     response: PoolSnapshotCreateUpdateEntry;
   };
 
-  'pool.snapshot.get_instance': {
-    params: [id: string, options?: QueryOptions<PoolSnapshotEntry>];
-    response: PoolSnapshotEntry;
-  };
-
-  'pool.snapshot.query': {
-    params: [filters?: QueryFilters<PoolSnapshotEntry>, options?: QueryOptions<PoolSnapshotEntry>];
-    response: PoolSnapshotEntry[] | PoolSnapshotEntry | PoolSnapshotQueryResultItem[] | PoolSnapshotQueryResultItem | number;
-    entity: PoolSnapshotEntry;
-  };
-
   'pool.snapshot.rename': {
     params: [id: string, options: PoolSnapshotRenameOptions];
     response: null;
-  };
-
-  'pool.snapshot.update': {
-    params: [id: string, data: PoolSnapshotUpdate];
-    response: PoolSnapshotCreateUpdateEntry;
   };
 
   'pool.snapshottask.create': {
@@ -1212,30 +1182,9 @@ export interface ApiCallDirectoryDelta {
     response: null;
   };
 
-  'vm.device.create': {
-    params: [vm_device_create: VMDeviceCreateArgs];
-    response: VMDeviceEntry;
-  };
-
-  'vm.device.get_instance': {
-    params: [id: number, options?: QueryOptions<VMDeviceEntry>];
-    response: VMDeviceEntry;
-  };
-
   'vm.device.nic_attach_choices': {
     params: [];
     response: VMDeviceNicAttachChoicesResult;
-  };
-
-  'vm.device.query': {
-    params: [filters?: QueryFilters<VMDeviceEntry>, options?: QueryOptions<VMDeviceEntry>];
-    response: VMDeviceEntry[] | VMDeviceEntry | VMDeviceQueryResultItem[] | VMDeviceQueryResultItem | number;
-    entity: VMDeviceEntry;
-  };
-
-  'vm.device.update': {
-    params: [id: number, vm_device_update: VMDeviceUpdate];
-    response: VMDeviceEntry;
   };
 
   'vm.device.usb_controller_choices': {

@@ -76,10 +76,6 @@ import type {
   PoolDatasetEntryProperty,
   PoolDatasetEntryUserProperties,
   PoolScanStateInput,
-  PoolSnapshotEntryPropertyFieldsSource,
-  PoolSnapshotHoldTag,
-  PoolSnapshotRetentionPST,
-  PoolSnapshotRetentionProperty,
   PoolSnapshotTaskCron,
   PoolTopology,
   PropertyValue,
@@ -120,15 +116,8 @@ import type {
   UpgradeOptions,
   UsedPorts,
   UserTwofactorConfigEntry,
-  VMCDROMDevice,
+  VMDeviceEntry,
   VMDeviceEntryInput,
-  VMDiskDevice,
-  VMDiskDeviceInput,
-  VMDisplayDevice,
-  VMPCIDevice,
-  VMRAWDevice,
-  VMRAWDeviceInput,
-  VMUSBDevice,
   VMWareEntryStateStateInput,
   Volblocksize,
   WebDavCredentialsModel,
@@ -574,12 +563,6 @@ export interface AuditExportQueryOptions {
   offset?: number;
   limit?: number;
   force_sql_filters?: boolean;
-}
-export interface AuditQuery {
-  services?: ("MIDDLEWARE" | "SMB" | "SUDO" | "SYSTEM")[];
-  "query-filters"?: unknown[];
-  "query-options"?: QueryOptionsModel;
-  remote_controller?: boolean;
 }
 export interface AuditQueryResultItem {
   audit_id: string | number | null;
@@ -1615,11 +1598,6 @@ export interface EntitlementsInfo {
     [k: string]: EntitlementEntry;
   };
 }
-export interface FailoverUpdate {
-  disabled?: boolean;
-  master?: boolean;
-  timeout?: number;
-}
 export interface FilesystemSetaclArgs {
   path: string;
   dacl: NFS4ACEInput[] | POSIXACE[];
@@ -2207,13 +2185,6 @@ export interface PoolDatasetChangedEvent {
   id: string;
   fields: PoolDatasetEntryInput;
 }
-export interface PoolDatasetChangeKeyOptions {
-  generate_key?: boolean;
-  key_file?: boolean;
-  pbkdf2iters?: number;
-  passphrase?: string | null;
-  key?: string | null;
-}
 export interface PoolDatasetCreateFilesystem {
   name: string;
   comments?: string;
@@ -2423,10 +2394,6 @@ export interface PoolEntry {
   };
   topology: PoolTopology | null;
 }
-export interface PoolImportPoolArgs {
-  guid: string;
-  name?: string | null;
-}
 export interface PoolQueryResultItem {
   id?: number;
   name?: string;
@@ -2463,24 +2430,6 @@ export interface PoolScanChangedEvent {
   name: string;
   scan: PoolScanInput;
 }
-export interface PoolSnapshotCreateUpdateEntry {
-  id: string;
-  properties: {
-    [k: string]: PoolSnapshotEntryPropertyFields;
-  };
-  pool: string;
-  name: string;
-  type: "SNAPSHOT";
-  snapshot_name: string;
-  dataset: string;
-  createtxg: string;
-}
-export interface PoolSnapshotEntryPropertyFields {
-  value: string;
-  rawvalue: string;
-  source: PoolSnapshotEntryPropertyFieldsSource;
-  parsed: unknown;
-}
 export interface PoolSnapshotCreateWithName {
   dataset: string;
   recursive?: boolean;
@@ -2503,34 +2452,6 @@ export interface PoolSnapshotCreateWithSchema {
   };
   naming_schema: string;
 }
-export interface PoolSnapshotEntry {
-  id: string;
-  properties: {
-    [k: string]: PoolSnapshotEntryPropertyFields;
-  };
-  pool: string;
-  name: string;
-  type: "SNAPSHOT";
-  snapshot_name: string;
-  dataset: string;
-  createtxg: string;
-  holds?: PoolSnapshotHoldTag;
-  retention?: (PoolSnapshotRetentionPST | PoolSnapshotRetentionProperty) | null;
-}
-export interface PoolSnapshotQueryResultItem {
-  id?: string;
-  properties?: {
-    [k: string]: PoolSnapshotEntryPropertyFields;
-  };
-  pool?: string;
-  name?: string;
-  type?: "SNAPSHOT";
-  snapshot_name?: string;
-  dataset?: string;
-  createtxg?: string;
-  holds?: PoolSnapshotHoldTag;
-  retention?: (PoolSnapshotRetentionPST | PoolSnapshotRetentionProperty) | null;
-}
 export interface PoolSnapshotRenameOptions {
   new_name: string;
   force?: boolean;
@@ -2548,14 +2469,6 @@ export interface PoolSnapshotTaskDBEntry {
   allow_empty?: boolean;
   schedule?: PoolSnapshotTaskCron;
   state: string;
-}
-export interface PoolSnapshotUpdate {
-  user_properties_update?: PoolSnapshotUserPropertyUpdate[];
-  user_properties_remove?: string[];
-}
-export interface PoolSnapshotUserPropertyUpdate {
-  key: string;
-  value: string;
 }
 export interface PoolUpdate {
   dedup_table_quota?: "AUTO" | "CUSTOM" | null;
@@ -3901,47 +3814,9 @@ export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
 }
-export interface VMDeviceCreateArgs {
-  attributes:
-    | VMCDROMDevice
-    | VMDisplayDevice
-    | VmVMNICDeviceInput
-    | VMPCIDevice
-    | VMRAWDeviceInput
-    | VMDiskDeviceInput
-    | VMUSBDevice;
-  vm: number;
-  order?: number | null;
-}
-export interface VmVMNICDeviceInput {
-  dtype: "NIC";
-  trust_guest_rx_filters?: boolean;
-  type?: "E1000" | "VIRTIO";
-  nic_attach?: string | null;
-  mac?: string | null;
-}
-export interface VMDeviceEntry {
-  id: number;
-  attributes: VMCDROMDevice | VMDisplayDevice | VMNICDevice | VMPCIDevice | VMRAWDevice | VMDiskDevice | VMUSBDevice;
-  vm: number;
-  order: number;
-}
-export interface VMNICDevice {
-  dtype: "NIC";
-  trust_guest_rx_filters?: boolean;
-  type?: "E1000" | "VIRTIO";
-  nic_attach?: string | null;
-  mac?: string | null;
-}
 export interface VMDeviceNicAttachChoicesResult {
   BRIDGE: string[];
   MACVLAN: string[];
-}
-export interface VMDeviceQueryResultItem {
-  id?: number;
-  attributes?: VMCDROMDevice | VMDisplayDevice | VMNICDevice | VMPCIDevice | VMRAWDevice | VMDiskDevice | VMUSBDevice;
-  vm?: number;
-  order?: number;
 }
 export interface VMEntry {
   command_line_args?: string;

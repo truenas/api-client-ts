@@ -9,6 +9,7 @@ import type {
   AppCreateArgs,
   AppRollbackOptions,
   AppUpdate,
+  CertificateEntry,
   DISABLED_ACLResult,
   MailSendMessage,
   MailUpdate,
@@ -19,9 +20,6 @@ import type {
   UpgradeOptions,
   ZFSFileAttrsData,
 } from '../v25_10_0/api-types';
-import type {
-  CertificateEntry,
-} from '../v25_10_2/api-types';
 import type {
   AppBulkUpgradeJobResult,
   AppDelete,
@@ -38,9 +36,7 @@ import type {
   FilesystemSetZfsAttributesArgs,
   FilesystemSetaclArgs,
   PoolCreate,
-  PoolDatasetChangeKeyOptions,
   PoolEntry,
-  PoolImportPoolArgs,
   PoolScrubAction,
   PoolUpdate,
   ReplicationRunOptions,
@@ -143,16 +139,6 @@ export interface ApiJobDirectoryDelta {
   'pool.create': {
     params: [data: PoolCreate];
     response: PoolEntry;
-  };
-
-  'pool.dataset.change_key': {
-    params: [id: string, options?: PoolDatasetChangeKeyOptions];
-    response: null;
-  };
-
-  'pool.import_pool': {
-    params: [pool_import: PoolImportPoolArgs];
-    response: true;
   };
 
   'pool.prefetch': {
