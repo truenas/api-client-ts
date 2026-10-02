@@ -66,7 +66,7 @@ describe('chainAssign', () => {
    * `_usedBy` is generator-internal and never emitted, so a change to it is not
    * a change to the shape.
    */
-  it('ignores _usedBy, which is an array rather than a scalar', () => {
+  it('ignores _usedBy, which is generator-internal', () => {
     const { homes } = chainAssign([
       model('v1', { A: str({ _usedBy: ['x'] }) }),
       model('v2', { A: str({ _usedBy: ['x', 'y'] }) }),
@@ -125,6 +125,32 @@ describe('chainAssign', () => {
       model('v2', { A: withDefault('integer') }),
     ]);
     expect(homes[1].get('A')).toBe(1);
+  });
+
+  /**
+   * The rest of the assertion keywords, one at a time. None of the three in the
+   * middle occurs in any dump generated so far — they are listed because the
+   * filter has to be complete to be any use, and pydantic can emit all three
+   * (`Field(multiple_of=…)`, and `min_length`/`max_length` on a `dict` field).
+   */
+  it('does not re-declare on assertion-only changes', () => {
+    const field = (extra: Partial<DefSchema>): DefSchema => ({
+      type: 'object', properties: { a: { type: 'integer', ...extra } },
+    });
+    const cases: [Partial<DefSchema>, Partial<DefSchema>][] = [
+      [{ minimum: 1 }, { minimum: 2 }],
+      [{ multipleOf: 5 }, { multipleOf: 7 }],
+      [{ minProperties: 1 }, { minProperties: 2 }],
+      [{ maxProperties: 8 }, { maxProperties: 9 }],
+      [{ minLength: 1 }, { minLength: 3 }],
+      [{ pattern: '^a' }, { pattern: '^b' }],
+      [{ format: 'ipv4' }, { format: 'ipv6' }],
+      [{ uniqueItems: true }, { uniqueItems: false }],
+    ];
+    for (const [before, after] of cases) {
+      const { homes } = chainAssign([model('v1', { A: field(before) }), model('v2', { A: field(after) })]);
+      expect(homes[1].get('A'), Object.keys(before)[0]).toBe(0);
+    }
   });
 
   /**

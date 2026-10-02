@@ -16,10 +16,11 @@ import type { DefSchema, VersionModel } from './types.mts';
  * are absent deliberately: it turns those into tuple types and `@minItems` /
  * `@maxItems` JSDoc, the only annotation tags anywhere in the generated tree.
  *
- * A denylist, not an allowlist of structural keywords, because the failure
- * directions differ: a keyword wrongly listed makes two different shapes
- * compare equal and a version silently under-declares, while one wrongly
- * omitted only re-declares a type needlessly. `_usedBy` is internal.
+ * A denylist, not an allowlist: listing a structural keyword ships the wrong
+ * type, while omitting a non-emitted one re-homes the type and can cost its
+ * method a base entry, as `config.save` did. Neither is free, so keep this
+ * list complete; an unrecognised keyword stays compared. `_usedBy` is
+ * internal, and nothing in the generator sets it today.
  */
 const NON_EMITTED_KEYWORDS = new Set([
   '_usedBy',
@@ -32,8 +33,11 @@ const NON_EMITTED_KEYWORDS = new Set([
   'maximum',
   'exclusiveMinimum',
   'exclusiveMaximum',
+  'multipleOf',
   'minLength',
   'maxLength',
+  'minProperties',
+  'maxProperties',
 ]);
 
 /** Keywords whose value maps *names* to schemas — those keys are field names. */
