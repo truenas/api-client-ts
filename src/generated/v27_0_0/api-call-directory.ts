@@ -11,7 +11,6 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  ACLTemplateEntry,
   AppAvailableItem,
   AppsIxVolumeEntry,
   AuditUpdate,
@@ -59,13 +58,8 @@ import type {
   TruecommandEntry,
   VMUpdate,
   ZFSResourceEntry,
-  ZfsTierRewriteJobEntry,
-  ZfsTierRewriteJobFailureEntry,
-  ZfsTierRewriteJobFailureQueryResultItem,
-  ZfsTierRewriteJobQueryResultItem,
 } from '../v26_0_0/api-types';
 import type {
-  ACLTemplateByPathArgs,
   ACMEDNSAuthenticatorCreate,
   Alert,
   AppAvailableItemQueryResultItem,
@@ -137,8 +131,6 @@ import type {
   VMQueryResultItem,
   VMVirtualizationDetails,
   ZFSResourceCreateArgsData,
-  ZfsTierRewriteJobFailuresArgs,
-  ZfsTierRewriteJobQueryArgs,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
@@ -284,11 +276,6 @@ export interface ApiCallDirectoryDelta {
   'enclosure2.set_slot_status': {
     params: [enclosure2_set_slot_status: Enclosure2SetSlotStatusArgs];
     response: null;
-  };
-
-  'filesystem.acltemplate.by_path': {
-    params: [filesystem_acl?: ACLTemplateByPathArgs];
-    response: ACLTemplateEntry[];
   };
 
   'filesystem.listdir': {
@@ -581,16 +568,6 @@ export interface ApiCallDirectoryDelta {
   'zfs.resource.create': {
     params: [data: ZFSResourceCreateArgsData];
     response: ZFSResourceEntry;
-  };
-
-  'zfs.tier.rewrite_job_failures': {
-    params: [zfs_tier_rewrite_job_failures: ZfsTierRewriteJobFailuresArgs];
-    response: ZfsTierRewriteJobFailureEntry[] | ZfsTierRewriteJobFailureEntry | ZfsTierRewriteJobFailureQueryResultItem[] | ZfsTierRewriteJobFailureQueryResultItem | number;
-  };
-
-  'zfs.tier.rewrite_job_query': {
-    params: [zfs_tier_rewrite_job_query?: ZfsTierRewriteJobQueryArgs];
-    response: ZfsTierRewriteJobEntry[] | ZfsTierRewriteJobEntry | ZfsTierRewriteJobQueryResultItem[] | ZfsTierRewriteJobQueryResultItem | number;
   };
 }
 

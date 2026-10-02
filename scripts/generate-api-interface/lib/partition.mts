@@ -10,32 +10,87 @@
 import type { DefSchema, VersionModel } from './types.mts';
 
 /**
- * Keys that never reach the emitted output, so a change to one is not a change
- * to the shape.
+ * Keywords that never reach the emitted output, so a change to one is not a
+ * change to the shape. JSON Schema's assertions are not TypeScript's, and
+ * json-schema-to-typescript renders none of these. `minItems` and `maxItems`
+ * are absent deliberately: it turns those into tuple types and `@minItems` /
+ * `@maxItems` JSDoc, the only annotation tags anywhere in the generated tree.
  *
- * `title` only when it is a string: a *field* named `title` is a schema object
- * and must be compared (e.g. `AlertCategory.title`). `_usedBy` is internal and
- * dropped by key, which is safe only while no model has a field of that name
- * (none does; `_name_` and `_required_` are real fields, so the underscore is
- * no guarantee).
+ * A denylist, not an allowlist: listing a structural keyword ships the wrong
+ * type, while omitting a non-emitted one re-homes the type and can cost its
+ * method a base entry, as `config.save` did. Neither is free, so keep this
+ * list complete; an unrecognised keyword stays compared. `_usedBy` is
+ * internal, and nothing in the generator sets it today.
  */
-function isNonEmitted(key: string, value: unknown): boolean {
-  if (key === '_usedBy') return true;
-  return key === 'title' && typeof value === 'string';
+const NON_EMITTED_KEYWORDS = new Set([
+  '_usedBy',
+  'title',
+  'default',
+  'format',
+  'pattern',
+  'uniqueItems',
+  'minimum',
+  'maximum',
+  'exclusiveMinimum',
+  'exclusiveMaximum',
+  'multipleOf',
+  'minLength',
+  'maxLength',
+  'minProperties',
+  'maxProperties',
+]);
+
+/** Keywords whose value maps *names* to schemas — those keys are field names. */
+const SCHEMA_MAPS = new Set(['properties', '$defs', 'definitions', 'patternProperties', 'dependentSchemas']);
+/** Keywords whose value is a single schema. */
+const SCHEMA_VALUES = new Set(['items', 'additionalProperties', 'additionalItems', 'not', 'if', 'then',
+  'else', 'contains', 'propertyNames', 'unevaluatedItems', 'unevaluatedProperties']);
+/** Keywords whose value is a list of schemas. */
+const SCHEMA_LISTS = new Set(['anyOf', 'oneOf', 'allOf', 'prefixItems']);
+
+/** Deep key sort, for values compared verbatim: shape equality must not depend on key order. */
+function sortDeep(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(sortDeep);
+  if (node === null || typeof node !== 'object') return node;
+  const record = node as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(record).sort()) out[key] = sortDeep(record[key]);
+  return out;
 }
 
+/**
+ * The comparable shape of a schema, with non-emitted keywords dropped.
+ *
+ * Which keys are keywords depends on position, not on the value's type, and
+ * getting that wrong deletes real fields: a model with a field called `title`
+ * or `default` (328 and 216 of them respectively in the 2026-10-01 dump) keeps
+ * both, because inside a `properties` map the keys are field names. The
+ * previous value-type test — a title is a string, a field is its schema object
+ * — cannot separate the two for `default`, whose keyword value is an object as
+ * often as not.
+ */
 function canonical(node: unknown): unknown {
   if (Array.isArray(node)) return node.map(canonical);
-  if (node !== null && typeof node === 'object') {
-    const record = node as Record<string, unknown>;
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(record).sort()) {
-      if (isNonEmitted(key, record[key])) continue;
-      out[key] = canonical(record[key]);
+  if (node === null || typeof node !== 'object') return node;
+  const record = node as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(record).sort()) {
+    if (NON_EMITTED_KEYWORDS.has(key)) continue;
+    const value = record[key];
+    if (SCHEMA_MAPS.has(key) && value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      const members = value as Record<string, unknown>;
+      const mapped: Record<string, unknown> = {};
+      for (const name of Object.keys(members).sort()) mapped[name] = canonical(members[name]);
+      out[key] = mapped;
+    } else if (SCHEMA_VALUES.has(key)) {
+      out[key] = canonical(value);
+    } else if (SCHEMA_LISTS.has(key) && Array.isArray(value)) {
+      out[key] = value.map(canonical);
+    } else {
+      out[key] = sortDeep(value);
     }
-    return out;
   }
-  return node;
+  return out;
 }
 
 export function refNames(node: unknown, into = new Set<string>()): Set<string> {
