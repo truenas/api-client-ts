@@ -2474,3 +2474,29 @@ not find it either — hence removed at v26.0.0 via `hand-removed.json`.
 |------|------|---------|
 | pool.dataset.encryption_algorithm_choices | call | introduced v25.10.0; removed v26.0.0 |
 | PoolDatasetEncryptionAlgorithmChoicesResult | type | introduced v25.10.0; removed v26.0.0 |
+
+## config.save defaults (hand-maintained)
+
+No type here can carry this, which is why it is written down. At v27.0.0
+middleware flipped the default of `ConfigSave.secretseed` from `false` to
+`true` (`20261001001317~truenas+1`). `secretseed?: boolean` is emitted
+identically at v25.10.0 and v27.0.0 — an optional boolean has nowhere to put a
+default — so nothing a consumer imports says this changed.
+
+The consequence is caller-visible and worth knowing: at 27.0.0,
+`config.save()` with no arguments writes the secret seed into the backup, where
+at 25.10 and 26.0 the same call left it out. Middleware's own description for
+the field is the warning to read — the seed decrypts every password, private
+key and API key the backup contains, so a backup that includes it is itself a
+secret. Pass `{ secretseed: false }` to get the old behaviour, bearing in mind
+middleware also states that a backup saved without the seed cannot be
+uploaded.
+
+Listed here rather than in the tables above because there is no entry to list:
+`config.save` is unchanged in every version's directory, and `ConfigSave` is
+unchanged as a type.
+
+This file is not in the published package — `files` is `["dist"]` and nothing
+copies it there — so it reaches people reading this repository, not people who
+install `@truenas/api-client`. The README is in the tarball, and carries the
+same note for them.
