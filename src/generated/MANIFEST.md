@@ -689,6 +689,8 @@ causes a change.
 | sharing.s3.get_instance | call | introduced v26.0.0 |
 | sharing.s3.query | call | introduced v26.0.0 |
 | sharing.s3.query | event | introduced v26.0.0 |
+| sharing.s3.recover | call | introduced v26.0.0 |
+| sharing.s3.recoverable_buckets | call | introduced v26.0.0 |
 | sharing.s3.update | call | introduced v26.0.0 |
 | sharing.smb.create | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
 | sharing.smb.delete | call | introduced v25.10.0 |
@@ -912,8 +914,8 @@ causes a change.
 | vmware.query | event | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | vmware.update | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | webshare.bindip_choices | call | introduced v26.0.0 |
-| webshare.config | call | introduced v26.0.0 |
-| webshare.update | call | introduced v26.0.0 |
+| webshare.config | call | introduced v26.0.0; changed v27.0.0 (via referenced types) |
+| webshare.update | call | introduced v26.0.0; changed v27.0.0 (via referenced types) |
 | webui.crypto.csr_profiles | call | introduced v25.10.0; changed v26.0.0 (via referenced types) |
 | webui.crypto.get_certificate_domain_names | call | introduced v25.10.0 |
 | webui.enclosure.dashboard | call | introduced v25.10.0 |
@@ -1981,7 +1983,11 @@ causes a change.
 | SharingS3ChangedEvent | type | introduced v26.0.0 |
 | SharingS3Create | type | introduced v26.0.0 |
 | SharingS3Entry | type | introduced v26.0.0 |
+| SharingS3EntryInput | type | introduced v26.0.0 |
 | SharingS3QueryResultItem | type | introduced v26.0.0 |
+| SharingS3RecoverableBucket | type | introduced v26.0.0 |
+| SharingS3RecoverBucket | type | introduced v26.0.0 |
+| SharingS3RecoveredBucket | type | introduced v26.0.0 |
 | SharingS3RemovedEvent | type | introduced v26.0.0 |
 | SharingS3Update | type | introduced v26.0.0 |
 | SharingSMBAddedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v26.0.0 (via referenced types) |
@@ -2292,8 +2298,8 @@ causes a change.
 | VMWareUpdate | type | introduced v25.10.0 |
 | Volblocksize | type | introduced v25.10.0 |
 | WebDavCredentialsModel | type | introduced v25.10.0 |
-| WebshareEntry | type | introduced v26.0.0 |
-| WebshareUpdate | type | introduced v26.0.0 |
+| WebshareEntry | type | introduced v26.0.0; changed v27.0.0 |
+| WebshareUpdate | type | introduced v26.0.0; changed v27.0.0 |
 | When | type | introduced v25.10.0 |
 | YandexCredentialsModel | type | introduced v25.10.0 |
 | ZFSFileAttrsData | type | introduced v25.10.0 |

@@ -60,6 +60,7 @@ import type {
   FilesystemSetZfsAttributesOptions,
   InterfaceEntryState,
   IsolatedIdmapConfiguration,
+  Passkey,
   VMStatus,
 } from '../v26_0_0/api-types';
 
@@ -1214,6 +1215,25 @@ export interface VMQueryResultItem {
 export interface VMVirtualizationDetails {
   supported: boolean;
   error: string | null;
+}
+export interface WebshareEntry {
+  id: number;
+  bindip: string[];
+  search: boolean;
+  passkey: Passkey;
+  groups: string[];
+  mcp_enabled: boolean;
+  mcp_allowed_groups: string[];
+  mcp_allow_write: boolean;
+}
+export interface WebshareUpdate {
+  bindip?: string[];
+  search?: boolean;
+  passkey?: Passkey;
+  groups?: string[];
+  mcp_enabled?: boolean;
+  mcp_allowed_groups?: string[];
+  mcp_allow_write?: boolean;
 }
 export interface ZFSResourceCreateArgsData {
   path: string;

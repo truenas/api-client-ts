@@ -199,6 +199,9 @@ import type {
   SharingS3Create,
   SharingS3Entry,
   SharingS3QueryResultItem,
+  SharingS3RecoverBucket,
+  SharingS3RecoverableBucket,
+  SharingS3RecoveredBucket,
   SharingS3Update,
   SharingSMBEntry,
   SharingSMBQueryResultItem,
@@ -977,6 +980,16 @@ export interface ApiCallDirectoryDelta {
     params: [filters?: QueryFilters<SharingS3Entry>, options?: QueryOptions<SharingS3Entry>];
     response: SharingS3Entry[] | SharingS3Entry | SharingS3QueryResultItem[] | SharingS3QueryResultItem | number;
     entity: SharingS3Entry;
+  };
+
+  'sharing.s3.recover': {
+    params: [buckets: SharingS3RecoverBucket[]];
+    response: SharingS3RecoveredBucket[];
+  };
+
+  'sharing.s3.recoverable_buckets': {
+    params: [];
+    response: SharingS3RecoverableBucket[];
   };
 
   'sharing.s3.update': {

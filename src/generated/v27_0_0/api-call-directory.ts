@@ -130,6 +130,8 @@ import type {
   VMPortWizard,
   VMQueryResultItem,
   VMVirtualizationDetails,
+  WebshareEntry,
+  WebshareUpdate,
   ZFSResourceCreateArgsData,
 } from './api-types';
 
@@ -563,6 +565,16 @@ export interface ApiCallDirectoryDelta {
   'vm.virtualization_details': {
     params: [];
     response: VMVirtualizationDetails;
+  };
+
+  'webshare.config': {
+    params: [];
+    response: WebshareEntry;
+  };
+
+  'webshare.update': {
+    params: [webshare_update: WebshareUpdate];
+    response: WebshareEntry;
   };
 
   'zfs.resource.create': {
