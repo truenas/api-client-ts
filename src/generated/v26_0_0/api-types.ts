@@ -1868,7 +1868,6 @@ export interface LicenseFeatureEntry {
   name: string;
   start_date: string | null;
   expires_at: string | null;
-  source: string;
   type: string | null;
 }
 export interface LicenseInfoEntry {
@@ -1881,6 +1880,7 @@ export interface LicenseInfoEntry {
     [k: string]: number;
   };
   contract_type: string | null;
+  issued_at: string | null;
 }
 export interface LXCConfigEntry {
   id: number;
@@ -2989,7 +2989,101 @@ export interface SharingNFSQueryResultItem {
 }
 export interface SharingS3AddedEvent {
   id: number;
-  fields: SharingS3Entry;
+  fields: SharingS3EntryInput;
+}
+export interface SharingS3EntryInput {
+  id: number;
+  name: string;
+  dataset: string;
+  enabled?: boolean;
+  owner: string;
+  owner_uid: number;
+  grants?: S3GrantEntry[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+  locked?: boolean | null;
+  tier?: TierInfoInput | null;
+}
+export interface SharingS3ChangedEvent {
+  id: number;
+  fields: SharingS3EntryInput;
+}
+export interface SharingS3Create {
+  name: string;
+  dataset?: string | null;
+  enabled?: boolean;
+  owner: string;
+  grants?: S3Grant[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
 }
 export interface SharingS3Entry {
   id: number;
@@ -3036,53 +3130,7 @@ export interface SharingS3Entry {
     | null;
   audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
   locked?: boolean | null;
-}
-export interface SharingS3ChangedEvent {
-  id: number;
-  fields: SharingS3Entry;
-}
-export interface SharingS3Create {
-  name: string;
-  dataset?: string | null;
-  enabled?: boolean;
-  owner: string;
-  grants?: S3Grant[];
-  permissions_model?: "S3" | "MULTIPROTOCOL";
-  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
-  versioning?: Versioning;
-  snapshot_versions?: string[];
-  snapshot_versions_max?: number;
-  multipart_etag?: "COMPOSITE" | "MINTED";
-  object_lock?: boolean;
-  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
-  object_lock_default_days?: number | null;
-  audit?:
-    | (
-        | "GetObject"
-        | "PutObject"
-        | "DeleteObject"
-        | "GetObjectTagging"
-        | "PutObjectTagging"
-        | "DeleteObjectTagging"
-        | "ListBucket"
-        | "GetBucketLocation"
-        | "ListBucketMultipartUploads"
-        | "ListMultipartUploadParts"
-        | "AbortMultipartUpload"
-        | "PutObjectRetention"
-        | "PutObjectLegalHold"
-        | "ListAllMyBuckets"
-        | "GetObjectAcl"
-        | "PutObjectAcl"
-        | "GetBucketAcl"
-        | "PutBucketAcl"
-        | "PutBucketVersioning"
-        | "CreateBucket"
-        | "DeleteBucket"
-      )[]
-    | "ALL"
-    | null;
-  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+  tier?: TierInfo | null;
 }
 export interface SharingS3QueryResultItem {
   id?: number;
@@ -3129,6 +3177,61 @@ export interface SharingS3QueryResultItem {
     | null;
   audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
   locked?: boolean | null;
+  tier?: TierInfo | null;
+}
+export interface SharingS3RecoverableBucket {
+  name: string;
+  dataset: string;
+  enabled?: boolean;
+  owner: string;
+  owner_uid: number;
+  grants?: S3GrantEntry[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+}
+export interface SharingS3RecoverBucket {
+  dataset: string;
+  name_override?: string | null;
+  owner_override?: string | null;
+}
+export interface SharingS3RecoveredBucket {
+  dataset: string;
+  bucket: SharingS3Entry | null;
+  error: string | null;
 }
 export interface SharingS3RemovedEvent {
   id: number;
@@ -4260,6 +4363,9 @@ export interface ZPoolVdev {
   children: ZPoolVdev[];
   top_guid?: number | null;
   path?: string | null;
+  stats_ex?: {
+    [k: string]: number | number[];
+  } | null;
 }
 export interface ZPoolVdevStats {
   timestamp?: number;
