@@ -17,7 +17,7 @@ const users = await firstValueFrom(
   for every supported release. A misspelled method, a missing parameter or a
   filter on a field that doesn't exist fails the build, not the user.
 - **Version-aware.** The client asks the appliance which API it speaks and
-  builds the matching implementation. API versions v25.10.0 through v27.0.0
+  builds the matching implementation. API versions v25.10.0 through v28.0.0
   are supported side by side.
 - **One call across releases.** `client.ops` keeps working when middleware
   renames or reshapes an endpoint between versions.
@@ -137,12 +137,12 @@ Without a hint, the client is typed as the oldest supported version, since that
 is a safe floor against any appliance. Reach newer methods one of two ways:
 
 ```typescript
-// Discover the version, and write against v26:
-const client = await createTrueNasClient<ApiDirectoryV26_0_0>(options);
+// Discover the version, and write against v27:
+const client = await createTrueNasClient<ApiDirectoryV27_0_0>(options);
 client.api.query('container.query');
 
 // Or skip discovery, and let the types follow the version:
-const pinned = await createTrueNasClient({ ...options, version: 'v27.0.0' });
+const pinned = await createTrueNasClient({ ...options, version: 'v28.0.0' });
 pinned.api.query('container.query');
 ```
 

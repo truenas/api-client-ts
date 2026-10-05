@@ -180,7 +180,7 @@ describe('API Version Utils', () => {
     });
 
     it('should return Compatible for max supported version', () => {
-      const version = assertVersion(parseApiVersion('v26.0.0'));
+      const version = assertVersion(parseApiVersion('v27.0.0'));
       expect(checkVersionCompatibility(version)).toBe(
         VersionCompatibility.Compatible
       );
@@ -217,7 +217,7 @@ describe('API Version Utils', () => {
 
   describe('isVersionSupported', () => {
     it('should return true for supported version', () => {
-      const version = assertVersion(parseApiVersion('v26.0.0'));
+      const version = assertVersion(parseApiVersion('v27.0.0'));
       expect(isVersionSupported(version)).toBe(true);
     });
 
@@ -237,7 +237,7 @@ describe('API Version Utils', () => {
       const versions = [
         assertVersion(parseApiVersion('v24.04.0')), // Too old
         assertVersion(parseApiVersion('v25.10.0')), // Compatible
-        assertVersion(parseApiVersion('v26.0.0')), // Compatible
+        assertVersion(parseApiVersion('v27.0.0')), // Compatible
         assertVersion(parseApiVersion('v29.0.0')), // Too new
       ];
 
@@ -245,7 +245,7 @@ describe('API Version Utils', () => {
 
       expect(result).toHaveLength(2);
       expect(result[0].version).toBe('v25.10.0');
-      expect(result[1].version).toBe('v26.0.0');
+      expect(result[1].version).toBe('v27.0.0');
     });
 
     it('should return empty array when no compatible versions', () => {
@@ -262,7 +262,7 @@ describe('API Version Utils', () => {
     it('should return all versions when all are compatible', () => {
       const versions = [
         assertVersion(parseApiVersion('v25.10.0')),
-        assertVersion(parseApiVersion('v26.0.0')),
+        assertVersion(parseApiVersion('v27.0.0')),
       ];
 
       const result = filterCompatibleVersions(versions);
@@ -273,11 +273,11 @@ describe('API Version Utils', () => {
 
   describe('selectLatestCompatibleVersion', () => {
     it('should select latest compatible version from multiple patches', () => {
-      const versions = ['v25.10.0', 'v25.10.1', 'v25.10.2', 'v26.0.0'];
+      const versions = ['v25.10.0', 'v25.10.1', 'v25.10.2', 'v27.0.0'];
 
       const result = selectLatestCompatibleVersion(versions);
 
-      expect(result?.version).toBe('v26.0.0');
+      expect(result?.version).toBe('v27.0.0');
     });
 
     it('should select latest patch version when same year.minor', () => {
@@ -311,27 +311,27 @@ describe('API Version Utils', () => {
     });
 
     it('should skip invalid versions and select from valid ones', () => {
-      const versions = ['invalid', 'v25.10.0', 'v26.0.0', 'bad-format'];
+      const versions = ['invalid', 'v25.10.0', 'v27.0.0', 'bad-format'];
 
       const result = selectLatestCompatibleVersion(versions);
 
-      expect(result?.version).toBe('v26.0.0');
+      expect(result?.version).toBe('v27.0.0');
     });
 
     it('should handle unsorted input', () => {
-      const versions = ['v26.0.0', 'v25.10.2', 'v25.10.0', 'v25.10.1'];
+      const versions = ['v27.0.0', 'v25.10.2', 'v25.10.0', 'v25.10.1'];
 
       const result = selectLatestCompatibleVersion(versions);
 
-      expect(result?.version).toBe('v26.0.0');
+      expect(result?.version).toBe('v27.0.0');
     });
 
     it('should filter out versions outside supported range', () => {
-      const versions = ['v24.04.0', 'v25.10.0', 'v26.0.0', 'v29.0.0'];
+      const versions = ['v24.04.0', 'v25.10.0', 'v27.0.0', 'v29.0.0'];
 
       const result = selectLatestCompatibleVersion(versions);
 
-      expect(result?.version).toBe('v26.0.0');
+      expect(result?.version).toBe('v27.0.0');
     });
   });
 
@@ -407,6 +407,89 @@ describe('API Version Utils', () => {
       expect(maxIndex).toBeGreaterThanOrEqual(
         SUPPORTED_API_VERSIONS.indexOf(apiVersionConfig.MIN_SUPPORTED_VERSION)
       );
+    });
+  });
+
+  /**
+   * The span is not the set. Middleware renumbered 26.0.0 to 27.0.0 before
+   * releasing it, so v26.0.0 falls between two shipped versions — a span check
+   * called it compatible, discovery handed it on, and it died in a branch whose
+   * comment says it cannot be reached. These pin the verdict that replaced that.
+   */
+  describe('versions inside the span that the package does not ship', () => {
+    it('reports v26.0.0 as Unsupported rather than Compatible', () => {
+      const version = assertVersion(parseApiVersion('v26.0.0'));
+      // Inside the span on both sides, which is the whole difficulty.
+      expect(
+        compareVersions(
+          version,
+          assertVersion(parseApiVersion(apiVersionConfig.MIN_SUPPORTED_VERSION))
+        )
+      ).toBeGreaterThan(0);
+      expect(
+        compareVersions(
+          version,
+          assertVersion(parseApiVersion(apiVersionConfig.MAX_SUPPORTED_VERSION))
+        )
+      ).toBeLessThan(0);
+
+      expect(checkVersionCompatibility(version)).toBe(
+        VersionCompatibility.Unsupported
+      );
+      expect(isVersionSupported(version)).toBe(false);
+      expect([...SUPPORTED_API_VERSIONS]).not.toContain('v26.0.0');
+    });
+
+    /**
+     * A patch bump *below* the ceiling, which is the case membership changed.
+     * It used to answer TooNew for the wrong reason — not because the appliance
+     * was ahead of the package, but because MAX is compared down to the patch.
+     *
+     * A patch bump above the ceiling still answers TooNew, and should: the
+     * range check runs first and that answer is the useful one there.
+     */
+    it('reports an unshipped patch below the ceiling as Unsupported, not TooNew', () => {
+      expect(
+        SUPPORTED_API_VERSIONS.length,
+        'needs a shipped version below the ceiling to bump'
+      ).toBeGreaterThan(1);
+      const belowCeiling = assertVersion(
+        parseApiVersion(
+          SUPPORTED_API_VERSIONS[SUPPORTED_API_VERSIONS.length - 2]
+        )
+      );
+      const unshippedPatch = assertVersion(
+        parseApiVersion(
+          `v${belowCeiling.year.toString()}.${belowCeiling.minor.toString()}.${(
+            belowCeiling.patch + 1
+          ).toString()}`
+        )
+      );
+      expect([...SUPPORTED_API_VERSIONS]).not.toContain(unshippedPatch.version);
+      expect(checkVersionCompatibility(unshippedPatch)).toBe(
+        VersionCompatibility.Unsupported
+      );
+    });
+
+    it('still reports versions past the newest shipped series as TooNew', () => {
+      const parsedNewest = assertVersion(
+        parseApiVersion(SUPPORTED_API_VERSIONS[SUPPORTED_API_VERSIONS.length - 1])
+      );
+      const nextYear = assertVersion(
+        parseApiVersion(`v${(parsedNewest.year + 1).toString()}.0.0`)
+      );
+      expect(checkVersionCompatibility(nextYear)).toBe(
+        VersionCompatibility.TooNew
+      );
+    });
+
+    it('filters an unshipped in-span version out of a mixed list', () => {
+      const result = filterCompatibleVersions([
+        assertVersion(parseApiVersion('v25.10.0')),
+        assertVersion(parseApiVersion('v26.0.0')),
+        assertVersion(parseApiVersion('v27.0.0')),
+      ]);
+      expect(result.map((v) => v.version)).toEqual(['v25.10.0', 'v27.0.0']);
     });
   });
 });

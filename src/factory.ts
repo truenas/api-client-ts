@@ -173,9 +173,11 @@ export async function createTrueNasClient<
     if (compatibility !== VersionCompatibility.Compatible) {
       // `TooOld` cannot occur: `MIN_SUPPORTED_VERSION` is derived from the same
       // list that constrains `SupportedApiVersion`, so the oldest nameable
-      // version *is* the floor. That leaves `Invalid`, which means MIN or MAX
-      // failed to parse — a defect in this package rather than in the call, and
-      // not something to build a client through.
+      // version *is* the floor. Nor can `Unsupported`, which is membership of
+      // that same list and is already rejected above with a better message.
+      // That leaves `Invalid`, which means MIN or MAX failed to parse — a defect
+      // in this package rather than in the call, and not something to build a
+      // client through.
       throw new Error(
         `Cannot create client for system ${uuid}: the supported version range ` +
           `is not usable (${apiVersionConfig.MIN_SUPPORTED_VERSION}..` +

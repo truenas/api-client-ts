@@ -1,4 +1,5 @@
 import { apiVersionConfig } from '@/config/api-version.config';
+import { SUPPORTED_API_VERSIONS } from '@/generated';
 
 /**
  * Base class for all version discovery errors
@@ -101,20 +102,28 @@ export class VersionDiscoveryNetworkError extends VersionDiscoveryError {
 
 /**
  * Thrown when no compatible versions are found in the response
+ *
+ * The message lists the versions rather than a span. An appliance can offer a
+ * version inside `supportedRange` that this package still ships no types for —
+ * v26.0.0, which middleware renumbered to v27.0.0 before release — and telling
+ * that caller "supported: v25.10.0 to v28.0.0" would describe their version as
+ * qualifying while refusing it.
  */
 export class NoCompatibleVersionsError extends VersionDiscoveryError {
   constructor(
     hostname: string,
     readonly availableVersions: string[],
+    /** The span the range checks use. Retained for callers that render it; it is wider than {@link supportedVersions}. */
     readonly supportedRange: { min: string; max: string } = {
       min: apiVersionConfig.MIN_SUPPORTED_VERSION,
       max: apiVersionConfig.MAX_SUPPORTED_VERSION,
-    }
+    },
+    readonly supportedVersions: readonly string[] = SUPPORTED_API_VERSIONS
   ) {
     super(
-      `No compatible API versions available. Supported: ${
-        supportedRange.min
-      } to ${supportedRange.max}. Available: ${availableVersions.join(', ')}`,
+      `No compatible API versions available. Supported: ${supportedVersions.join(
+        ', '
+      )}. Available: ${availableVersions.join(', ')}`,
       hostname
     );
   }

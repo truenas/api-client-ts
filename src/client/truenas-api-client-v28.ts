@@ -1,10 +1,11 @@
 /**
  * TrueNAS API Client for v28.X.Y
  *
- * Handles the whole v28 series; breaking changes only arrive with v28.
+ * Handles the whole v28 series; breaking changes only arrive with v29.
  *
- * Discovery admits less: `MAX_SUPPORTED_VERSION` is compared down to the patch,
- * so v28.0.1 and v28.1.0 are reported too new and never reach this client.
+ * Discovery admits less: a version has to be one `SUPPORTED_API_VERSIONS`
+ * names, so v28.0.1 and v28.1.0 are reported `Unsupported` and never reach this
+ * client until the types are regenerated for them.
  *
  * To add version-specific behavior, override createConnection(), createApi(),
  * createAuthenticator() or createOperations().

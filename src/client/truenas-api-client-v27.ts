@@ -1,9 +1,10 @@
 /**
  * TrueNAS API Client for v27.X.Y
  *
- * Handles all v27 versions (v27.0.0, v27.0.1, v27.1.2, etc.).
- * Minor AND patch versions are backward compatible, so one client implementation
- * handles all patches within the v27 series.
+ * Handles the v27 series: minor and patch versions are backward compatible, so
+ * one implementation covers them. Discovery is stricter — it admits only what
+ * `SUPPORTED_API_VERSIONS` names, so a v27 patch reaches this client only once
+ * the types are regenerated for it.
  *
  * To add version-specific behavior, override the factory methods:
  * - createConnection() - for connection-specific changes
