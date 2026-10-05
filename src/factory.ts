@@ -1,8 +1,8 @@
 import { firstValueFrom } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
-import { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 import { TrueNasApiClientV27 } from '@/client/truenas-api-client-v27';
+import { TrueNasApiClientV28 } from '@/client/truenas-api-client-v28';
 import { apiVersionConfig } from '@/config/api-version.config';
 import { SUPPORTED_API_VERSIONS } from '@/generated';
 import type { ApiDirectoryByVersion, ApiDirectoryV25_10_0, SupportedApiVersion } from '@/generated';
@@ -230,7 +230,7 @@ export async function createTrueNasClient<
     // A network failure is the one discovery error that does not say what went
     // wrong. `fetch` reports a CORS refusal, a dead box, a bad DNS name and the
     // wrong scheme as the same `TypeError`, and falling back on all of them
-    // pinned healthy v26/v27 appliances to a v25.10 surface. So ask two further
+    // pinned healthy v27/v28 appliances to a v25.10 surface. So ask two further
     // questions before assuming CORS.
     const reachable = await probeAnyHostname(hostnames, versionDiscovery);
 
@@ -453,13 +453,13 @@ type ClientConstructor = new (
  */
 const CLIENT_BY_VERSION_KEY: Readonly<Record<string, ClientConstructor>> = {
   '25.10': TrueNasApiClientV2510,
-  '26': TrueNasApiClientV26,
   '27': TrueNasApiClientV27,
+  '28': TrueNasApiClientV28,
 };
 
 /**
  * The key that selects a client: `year.month` for the legacy vYY.MM scheme
- * (all patches of a month share one client), `year` for v26+.
+ * (all patches of a month share one client), `year` for v27+.
  */
 export function clientVersionKey(version: ApiVersion): string {
   if (version.year <= legacyCutoffYear) {
@@ -489,7 +489,7 @@ export function clientClassFor(version: ApiVersion): ClientConstructor | undefin
  * Maps a discovered version to its client implementation.
  *
  * The final cast is deliberate: per-version directories are mutually
- * unassignable (`alert.list_categories` changed shape in v26), so the map is
+ * unassignable (`alert.list_categories` changed shape in v27), so the map is
  * typed against the shared base and the caller's `D` is reapplied here.
  */
 function instantiateClientForVersion<D extends ApiDirectoryShape>(

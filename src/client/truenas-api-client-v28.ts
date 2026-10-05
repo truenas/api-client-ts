@@ -1,38 +1,34 @@
 /**
- * TrueNAS API Client for v26.X.Y
+ * TrueNAS API Client for v28.X.Y
  *
- * Handles all v26 versions (v26.0.0, v26.0.1, v26.1.2, etc.).
- * Minor AND patch versions are backward compatible, so one client implementation
- * handles all patches within the v26 series.
+ * Handles the whole v28 series; breaking changes only arrive with v28.
  *
- * To add version-specific behavior, override the factory methods:
- * - createConnection() - for connection-specific changes
- * - createApi() - for API method changes
- * - createAuthenticator() - for authentication changes
- * - createOperations() - for version-specific operation mappings
+ * Discovery admits less: `MAX_SUPPORTED_VERSION` is compared down to the patch,
+ * so v28.0.1 and v28.1.0 are reported too new and never reach this client.
+ *
+ * To add version-specific behavior, override createConnection(), createApi(),
+ * createAuthenticator() or createOperations().
  */
 
 import { concat, from, map, switchMap, toArray } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
-import type { ApiDirectoryV26_0_0, v26_0_0 } from '@/generated';
+import type { ApiDirectoryV28_0_0, v28_0_0 } from '@/generated';
 import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
 import { toSmbStatusParams } from '@/utils/smb-status.utils';
 import { toAppState } from '@/utils/app-state.utils';
 
 /**
- * API client for TrueNAS API v26 (JSON-RPC 2.0 over /api/v26.{minor}.{patch}).
+ * API client for TrueNAS API v28 (JSON-RPC 2.0 over /api/v28.{minor}.{patch}).
  *
- * - containerQuery → container.query (with response transformation)
- * - containerStart → container.start (synchronous, emits null)
- * - containerStop → container.stop (emits Job updates)
- * - containerRestart → container.stop + container.start (emits Job, then null)
- * - containerDelete → container.delete (a job; force/recursive)
- * - smbStatus → smb.status (public, gated on `SHARING_SMB_READ`)
+ * Operations currently match `TrueNasApiClientV27`'s because v28 inherits every
+ * entry they use. The spec pins the four container entries to v27's;
+ * `smb.status` is unpinned, so a widened param or narrowed response would
+ * still compile here. Duplicated rather than shared so the series can diverge.
  */
-export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
+export class TrueNasApiClientV28 extends TrueNasApiClient<ApiDirectoryV28_0_0> {
   /**
-   * Create v26-specific operation mappings
+   * Create v28-specific operation mappings
    *
    * Operations return Observable<Job | null>:
    * - Async operations emit Job updates until complete
@@ -48,7 +44,7 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
           map(containers => containers.map(toContainer))
         ),
 
-      // container.start is synchronous in v26.0.0 - emit null
+      // container.start is synchronous in v28 - emit null
       containerStart: (id: string) =>
         this.api
           .call('container.start', [parseInt(id, 10)])
@@ -64,8 +60,8 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
           },
         ]),
 
-      // v26.0.0 doesn't have container.restart - chain stop + start
-      // Emits Job updates during stop, then null when start completes
+      // v28 still has no container.restart - chain stop + start.
+      // Emits Job updates during stop, then null when start completes.
       containerRestart: (id, options) => {
         const numericId = parseInt(id, 10);
         return this.api
@@ -91,9 +87,7 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
           );
       },
 
-      // Absent options are omitted, not passed as `undefined`: that serializes
-      // as `null`, and middleware's `options` has a default but is not
-      // nullable, so `[id, null]` fails validation.
+      // Absent options are omitted, as in v27: `[id, null]` fails validation.
       containerDelete: (id, options) =>
         this.api.job(
           'container.delete',
@@ -116,18 +110,13 @@ export class TrueNasApiClientV26 extends TrueNasApiClient<ApiDirectoryV26_0_0> {
 }
 
 /**
- * Transform a v26 `container` entry into the unified Container.
+ * Transform a v28 `container` entry into the unified Container.
  *
- * `cpu`, `memory` and `image` are not part of `container.query` in v26 and are
- * left unset.
- *
- * `description` used to be read through a widening, because `stripDocs` was
- * deleting every model field of that name along with the docstrings and the
- * generated `ContainerEntry` did not declare one. Both halves are fixed now:
- * the generator discriminates documentation from fields, and this tree is
- * regenerated, so the field is declared and read directly.
+ * `cpu`, `memory` and `image` are not part of `container.query` in v28 and are
+ * left unset, as in v27. `v28_0_0.ContainerEntry` is v27's, re-exported — v28
+ * does not re-declare it — so this reads the same fields for the same reasons.
  */
-function toContainer(container: v26_0_0.ContainerEntry): Container {
+function toContainer(container: v28_0_0.ContainerEntry): Container {
   const { description } = container;
 
   return {

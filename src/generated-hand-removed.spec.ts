@@ -7,7 +7,7 @@
  *
  * That file's entry is a quoted literal inside an `Omit`, and TypeScript's
  * `Omit` accepts keys a type does not have — so a typo there removes nothing,
- * compiles, generates, and leaves the method inherited at v26 with no error
+ * compiles, generates, and leaves the method inherited at v27 with no error
  * anywhere. These assertions are what turns that into a failure.
  *
  * Type-level; the `it` bodies exist so `tsconfig.spec.json` picks the file up.
@@ -17,8 +17,8 @@ import { describe, expectTypeOf, it } from 'vitest';
 import type {
   ApiCallDirectoryV25_10_0,
   ApiCallDirectoryV25_10_5,
-  ApiCallDirectoryV26_0_0,
   ApiCallDirectoryV27_0_0,
+  ApiCallDirectoryV28_0_0,
 } from '@/generated';
 
 type Method = 'pool.dataset.encryption_algorithm_choices';
@@ -32,11 +32,11 @@ describe('pool.dataset.encryption_algorithm_choices', () => {
     expectTypeOf<Method>().toExtend<keyof ApiCallDirectoryV25_10_5>();
   });
 
-  it('is gone from v26 onward, where the method does not exist', () => {
+  it('is gone from v27 onward, where the method does not exist', () => {
     // Removed from the plugin itself rather than only from the versioned
     // models, so a v25.10-pinned client on a 26 appliance does not get it
     // either — `stable/26` has no match for the name at all.
-    expectTypeOf<Extract<keyof ApiCallDirectoryV26_0_0, Method>>().toEqualTypeOf<never>();
     expectTypeOf<Extract<keyof ApiCallDirectoryV27_0_0, Method>>().toEqualTypeOf<never>();
+    expectTypeOf<Extract<keyof ApiCallDirectoryV28_0_0, Method>>().toEqualTypeOf<never>();
   });
 });

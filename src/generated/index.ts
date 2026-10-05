@@ -9,8 +9,8 @@ import type { ApiDirectory as ApiDirectoryV25_10_2 } from './v25_10_2';
 import type { ApiDirectory as ApiDirectoryV25_10_3 } from './v25_10_3';
 import type { ApiDirectory as ApiDirectoryV25_10_4 } from './v25_10_4';
 import type { ApiDirectory as ApiDirectoryV25_10_5 } from './v25_10_5';
-import type { ApiDirectory as ApiDirectoryV26_0_0 } from './v26_0_0';
 import type { ApiDirectory as ApiDirectoryV27_0_0 } from './v27_0_0';
+import type { ApiDirectory as ApiDirectoryV28_0_0 } from './v28_0_0';
 
 export * as v25_10_0 from './v25_10_0';
 export * as v25_10_1 from './v25_10_1';
@@ -18,8 +18,8 @@ export * as v25_10_2 from './v25_10_2';
 export * as v25_10_3 from './v25_10_3';
 export * as v25_10_4 from './v25_10_4';
 export * as v25_10_5 from './v25_10_5';
-export * as v26_0_0 from './v26_0_0';
 export * as v27_0_0 from './v27_0_0';
+export * as v28_0_0 from './v28_0_0';
 
 export type {
   ApiCallDirectory as ApiCallDirectoryV25_10_0,
@@ -52,15 +52,15 @@ export type {
   ApiEventDirectory as ApiEventDirectoryV25_10_5,
 } from './v25_10_5';
 export type {
-  ApiCallDirectory as ApiCallDirectoryV26_0_0,
-  ApiJobDirectory as ApiJobDirectoryV26_0_0,
-  ApiEventDirectory as ApiEventDirectoryV26_0_0,
-} from './v26_0_0';
-export type {
   ApiCallDirectory as ApiCallDirectoryV27_0_0,
   ApiJobDirectory as ApiJobDirectoryV27_0_0,
   ApiEventDirectory as ApiEventDirectoryV27_0_0,
 } from './v27_0_0';
+export type {
+  ApiCallDirectory as ApiCallDirectoryV28_0_0,
+  ApiJobDirectory as ApiJobDirectoryV28_0_0,
+  ApiEventDirectory as ApiEventDirectoryV28_0_0,
+} from './v28_0_0';
 export type {
   ApiDirectoryV25_10_0,
   ApiDirectoryV25_10_1,
@@ -68,8 +68,8 @@ export type {
   ApiDirectoryV25_10_3,
   ApiDirectoryV25_10_4,
   ApiDirectoryV25_10_5,
-  ApiDirectoryV26_0_0,
   ApiDirectoryV27_0_0,
+  ApiDirectoryV28_0_0,
 };
 
 /** Runtime version string -> that version's complete typed API surface. */
@@ -80,8 +80,8 @@ export interface ApiDirectoryByVersion {
   'v25.10.3': ApiDirectoryV25_10_3;
   'v25.10.4': ApiDirectoryV25_10_4;
   'v25.10.5': ApiDirectoryV25_10_5;
-  'v26.0.0': ApiDirectoryV26_0_0;
   'v27.0.0': ApiDirectoryV27_0_0;
+  'v28.0.0': ApiDirectoryV28_0_0;
 }
 
 /** Every API version this package ships types for. */
@@ -95,6 +95,6 @@ export const SUPPORTED_API_VERSIONS = [
   'v25.10.3',
   'v25.10.4',
   'v25.10.5',
-  'v26.0.0',
   'v27.0.0',
+  'v28.0.0',
 ] as const satisfies readonly SupportedApiVersion[];

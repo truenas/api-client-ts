@@ -23,7 +23,7 @@ vi.mock('@/config/api-version.config', async () => {
     apiVersionConfig: {
       MIN_SUPPORTED_VERSION: SUPPORTED_API_VERSIONS[0],
       // Behind the newest generated version, which is what a regeneration does.
-      MAX_SUPPORTED_VERSION: 'v26.0.0',
+      MAX_SUPPORTED_VERSION: 'v27.0.0',
       FALLBACK_VERSION: SUPPORTED_API_VERSIONS[0],
     },
   };
@@ -47,7 +47,7 @@ describe('naming a version above the supported ceiling', () => {
       uuid: 'uuid-1234',
       hostnames: ['box'],
       enabled: false,
-      version: 'v27.0.0',
+      version: 'v28.0.0',
     });
 
     // Typed, not a bare Error: a caller catching VersionTooNewError from the
@@ -60,10 +60,10 @@ describe('naming a version above the supported ceiling', () => {
 
   it('still builds a version at or below the ceiling', async () => {
     const client = await createTrueNasClient({
-      uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v26.0.0',
+      uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v27.0.0',
     });
 
-    expect(client.version.version).toBe('v26.0.0');
+    expect(client.version.version).toBe('v27.0.0');
     await client.close();
   });
 });

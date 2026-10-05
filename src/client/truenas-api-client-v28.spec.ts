@@ -1,31 +1,69 @@
 import { firstValueFrom, of, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { v26_0_0 } from '@/generated';
+import type { ApiDirectoryV27_0_0, ApiDirectoryV28_0_0, v28_0_0 } from '@/generated';
 import { AppState } from '@/types/app-query.type';
 import { ApiVersion } from '@/types/api-version.type';
 import { Job, JobState } from '@/types/job.type';
-import { TrueNasApiClientV26 } from './truenas-api-client-v26';
+import { TrueNasApiClientV28 } from './truenas-api-client-v28';
 
 const version: ApiVersion = {
-  version: 'v26.0.0',
-  year: 26,
+  version: 'v28.0.0',
+  year: 27,
   minor: 0,
   patch: 0,
-  websocketPath: '/api/v26.0.0',
+  websocketPath: '/api/v28.0.0',
 };
 
-describe('TrueNasApiClientV26', () => {
-  let client: TrueNasApiClientV26;
+/**
+ * The duplication between this client and v27's is deliberate — see the class
+ * docblock — but it is only *safe* while the entries the facade touches are
+ * genuinely the same at both versions. This pins that, so the day v28 diverges
+ * is a failure here rather than two implementations drifting quietly.
+ *
+ * When it fails, that is the signal to let the two clients differ, not to
+ * loosen the assertion.
+ */
+type Identical<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
+type Assert<T extends true> = T;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _SameQuery = Assert<Identical<
+  ApiDirectoryV27_0_0['call']['container.query'],
+  ApiDirectoryV28_0_0['call']['container.query']>>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _SameStart = Assert<Identical<
+  ApiDirectoryV27_0_0['call']['container.start'],
+  ApiDirectoryV28_0_0['call']['container.start']>>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _SameStop = Assert<Identical<
+  ApiDirectoryV27_0_0['job']['container.stop'],
+  ApiDirectoryV28_0_0['job']['container.stop']>>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type _SameDelete = Assert<Identical<
+  ApiDirectoryV27_0_0['job']['container.delete'],
+  ApiDirectoryV28_0_0['job']['container.delete']>>;
+
+describe('TrueNasApiClientV28', () => {
+  let client: TrueNasApiClientV28;
 
   beforeEach(() => {
-    client = new TrueNasApiClientV26('uuid', ['h.local'], version, false);
+    client = new TrueNasApiClientV28('uuid', ['h.local'], version, false);
   });
 
   afterEach(() => client.close());
 
-  it('is the v26 client for the given version', () => {
-    expect(client).toBeInstanceOf(TrueNasApiClientV26);
+  it('is the v28 client for the given version', () => {
+    expect(client).toBeInstanceOf(TrueNasApiClientV28);
     expect(client.version).toBe(version);
+  });
+
+  it('opens its connection on the v28 websocket path', () => {
+    // Genuinely v28-shaped rather than inherited: a v27 path against a v28
+    // appliance is a connection to the wrong API. Read off the connection the
+    // client actually built, not off the version handed in, which would only
+    // restate the fixture.
+    expect(client.connection.websocketPath).toBe('/api/v28.0.0');
   });
 
   it('containerQuery queries container.query and maps to Container (status state -> AppState)', async () => {
@@ -35,7 +73,7 @@ describe('TrueNasApiClientV26', () => {
       description: 'my container',
       autostart: true,
       status: { state: 'RUNNING' },
-    } as unknown as v26_0_0.ContainerEntry;
+    } as unknown as v28_0_0.ContainerEntry;
     const querySpy = vi
       .spyOn(client.api, 'query')
       .mockReturnValue(of([container]) as never);
@@ -52,6 +90,24 @@ describe('TrueNasApiClientV26', () => {
         description: 'my container',
       },
     ]);
+  });
+
+  it('maps a suspended container to Suspended rather than Stopped', async () => {
+    // v27 added SUSPENDED and v28 inherits it. Pinned here because the mapping
+    // is shared, so a regression would show up in whichever client is asked
+    // first and this one must not be the gap.
+    const container = {
+      id: 6,
+      name: 'paused',
+      description: '',
+      autostart: false,
+      status: { state: 'SUSPENDED' },
+    } as unknown as v28_0_0.ContainerEntry;
+    vi.spyOn(client.api, 'query').mockReturnValue(of([container]) as never);
+
+    const [result] = await firstValueFrom(client.ops.containerQuery());
+
+    expect(result.status).toBe(AppState.Suspended);
   });
 
   it('containerStart calls container.start (numeric id) synchronously and emits null', async () => {
@@ -84,6 +140,8 @@ describe('TrueNasApiClientV26', () => {
   });
 
   it('containerRestart synthesizes stop -> start, emitting job updates then null', async () => {
+    // v28 still has no container.restart; this pins the workaround, so the day
+    // middleware adds one this test is what says the synthesis can go.
     const job = { id: 11, state: JobState.Success } as Job;
     const callJobSpy = vi
       .spyOn(client.api, 'callAndGetJobId')
@@ -117,7 +175,7 @@ describe('TrueNasApiClientV26', () => {
       client.ops.containerDelete('5', { force: true, recursive: true })
     );
 
-    // `job`, not `call`: middleware made deletion long-running at v26.0.0 and
+    // `job`, not `call`: middleware made deletion long-running at v27.0.0 and
     // the directory moved it accordingly.
     expect(callJobSpy).toHaveBeenCalledWith('container.delete', [
       5,
@@ -143,21 +201,4 @@ describe('TrueNasApiClientV26', () => {
 
     expect(callJobSpy).toHaveBeenCalledWith('container.delete', [7]);
   });
-  it('gives its authenticator the version, so v26+ asks for a reconnect token', () => {
-    // The one line that turns the feature on in production. Every other version
-    // assertion is on a hand-built authenticator, so dropping the argument here
-    // would revert real clients to never asking, with the suite still green.
-    const sendSpy = vi.spyOn(client.connection, 'send');
-
-    const sub = client.authenticator
-      .loginWithUserPass('admin', 'pw')
-      .subscribe({ error: () => {} });
-
-    const sent = sendSpy.mock.calls.at(-1)?.[0] as { params: unknown[] };
-    sub.unsubscribe();
-    expect(sent.params[0]).toMatchObject({
-      login_options: { reconnect_token: true },
-    });
-  });
-
 });

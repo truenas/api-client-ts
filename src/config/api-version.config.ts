@@ -5,9 +5,9 @@
  * Version format:
  * - Legacy (v25.x): vYY.MM.PATCH where MM is month (01-12)
  *   - Example: v25.10.0 = October 2025, patch 0
- * - New (v26+): vYY.MINOR.PATCH where MINOR is minor version (0-99)
- *   - Example: v26.0.0 = 2026, minor 0, patch 0
- *   - Breaking changes only in yearly releases (v26.0.0, v27.0.0, etc.)
+ * - New (v27+): vYY.MINOR.PATCH where MINOR is minor version (0-99)
+ *   - Example: v27.0.0 = 2027, minor 0, patch 0
+ *   - Breaking changes only in yearly releases (v27.0.0, v28.0.0, etc.)
  */
 import { SUPPORTED_API_VERSIONS, type SupportedApiVersion } from '@/generated';
 
@@ -34,7 +34,7 @@ export const apiVersionConfig = {
    * not write its client, so the ceiling is the newest version in
    * `CLIENT_BY_VERSION_KEY`. A factory test asserts the two agree.
    */
-  MAX_SUPPORTED_VERSION: 'v27.0.0',
+  MAX_SUPPORTED_VERSION: 'v28.0.0',
 
   /**
    * Version assumed when discovery is CORS-blocked, as v25.10.0's

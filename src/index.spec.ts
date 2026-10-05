@@ -22,8 +22,8 @@ const RUNTIME_EXPORTS = [
   'SUPPORTED_API_VERSIONS',
   'TrueNasApiClient',
   'TrueNasApiClientV2510',
-  'TrueNasApiClientV26',
   'TrueNasApiClientV27',
+  'TrueNasApiClientV28',
   'TrueNasAuthMechanism',
   'UserRole',
   'VersionCompatibility',
@@ -45,8 +45,8 @@ const RUNTIME_EXPORTS = [
   'v25_10_3',
   'v25_10_4',
   'v25_10_5',
-  'v26_0_0',
   'v27_0_0',
+  'v28_0_0',
 ] as const;
 
 describe('public barrel', () => {
@@ -72,8 +72,8 @@ describe('public barrel', () => {
   it('exposes the client classes', () => {
     expect(typeof api.TrueNasApiClient).toBe('function');
     expect(typeof api.TrueNasApiClientV2510).toBe('function');
-    expect(typeof api.TrueNasApiClientV26).toBe('function');
     expect(typeof api.TrueNasApiClientV27).toBe('function');
+    expect(typeof api.TrueNasApiClientV28).toBe('function');
   });
 
   it('exposes version-discovery + typed errors', () => {

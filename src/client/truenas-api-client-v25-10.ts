@@ -29,7 +29,7 @@ import { toSmbStatusParams } from '@/utils/smb-status.utils';
  * `--dump-api` omits private methods, so it is absent from
  * `ApiDirectoryV25_10_0`; this shape is checked against middleware source.
  * Deliberately one name, one tuple, one return type, so it cannot become a
- * general escape around the directory (`client.api` is public). v26+ needs none
+ * general escape around the directory (`client.api` is public). v27+ needs none
  * of this.
  */
 type PrivateSmbStatusCall = {
@@ -144,7 +144,7 @@ function toContainer(instance: v25_10_0.VirtInstanceEntry): Container {
     // declares only `description`, but the API returns `architecture`, `os`,
     // `release` and more, and callers were already receiving them. Narrowing
     // to the declared field would take data away to match a type that was
-    // always an under-declaration — the same call as the v26 `description`
+    // always an under-declaration — the same call as the v27 `description`
     // widening, decided the same way.
     image:
       instance.image.description === null

@@ -281,7 +281,6 @@ export type ApiCallDirectoryBase = Pick<
   | 'nvmet.subsys.update'
   | 'pool.attachments'
   | 'pool.dataset.attachments'
-  | 'pool.dataset.checksum_choices'
   | 'pool.dataset.compression_choices'
   | 'pool.dataset.delete'
   | 'pool.dataset.details'
