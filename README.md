@@ -164,6 +164,17 @@ client.ops.smbStatus({ infoLevel: 'SESSIONS' });
 Per-version details, such as permissions that differ between releases, are in
 the `OperationMappings` reference.
 
+Some behaviour differs between versions in ways no type can express, because a
+default is not part of a TypeScript signature. One worth knowing: at v28.0.0,
+`config.save()` with no arguments includes the secret seed in the backup, where
+at v25.10 and v27.0 the same call left it out. That seed decrypts every
+password, private key and API key the backup contains, so treat such a backup
+as a secret; pass `{ secretseed: false }` for the old behaviour, bearing in mind
+a backup saved without it cannot be uploaded. These are recorded as they are
+found in
+[`src/generated/MANIFEST.md`](https://github.com/truenas/api-client-ts/blob/main/src/generated/MANIFEST.md),
+which is in the repository rather than the published package.
+
 ## Connection
 
 ```typescript
