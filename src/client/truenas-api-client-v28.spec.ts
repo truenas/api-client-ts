@@ -8,7 +8,7 @@ import { TrueNasApiClientV28 } from './truenas-api-client-v28';
 
 const version: ApiVersion = {
   version: 'v28.0.0',
-  year: 27,
+  year: 28,
   minor: 0,
   patch: 0,
   websocketPath: '/api/v28.0.0',

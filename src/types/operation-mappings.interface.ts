@@ -27,21 +27,21 @@ export interface OperationMappings {
   /**
    * Query all containers
    * - v25.10: virt.instance.query with type=CONTAINER filter
-   * - v26+: container.query
+   * - v27+: container.query
    */
   containerQuery: () => Observable<Container[]>;
 
   /**
    * Start a container
    * - v25.10: Emits Job updates until started
-   * - v26+: Emits null (synchronous operation)
+   * - v27+: Emits null (synchronous operation)
    */
   containerStart: (id: string) => Observable<Job | null>;
 
   /**
    * Stop a container
    * - v25.10: Emits Job updates until stopped
-   * - v26+: Emits Job updates until stopped
+   * - v27+: Emits Job updates until stopped
    */
   containerStop: (
     id: string,
@@ -51,7 +51,7 @@ export interface OperationMappings {
   /**
    * Restart a container
    * - v25.10: Emits Job updates until restarted
-   * - v26+: Emits Job updates (stop phase), then null (sync start)
+   * - v27+: Emits Job updates (stop phase), then null (sync start)
    */
   containerRestart: (
     id: string,
@@ -61,9 +61,9 @@ export interface OperationMappings {
   /**
    * Delete a container
    * - v25.10: `virt.instance.delete` — emits Job updates
-   * - v26+: `container.delete` — emits Job updates
+   * - v27+: `container.delete` — emits Job updates
    *
-   * `options` are honoured on v26+ only; on v25.10 they are ignored with a
+   * `options` are honoured on v27+ only; on v25.10 they are ignored with a
    * logged warning.
    */
   containerDelete: (
@@ -78,7 +78,7 @@ export interface OperationMappings {
   /**
    * Read SMB server status — sessions, shares, locks, notifications.
    *
-   * - v26+: `smb.status`, public and gated on the `SHARING_SMB_READ` role
+   * - v27+: `smb.status`, public and gated on the `SHARING_SMB_READ` role
    * - v25.10: the same method, but `private=True`: it declares no roles, so
    *   `SHARING_SMB_READ` is refused with `EACCES` and only a non-STIG full-admin
    *   session may call it. Each call also logs a warning server-side.

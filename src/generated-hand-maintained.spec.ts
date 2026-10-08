@@ -139,7 +139,7 @@ describe('hand-maintained v25.10 surface', () => {
   /**
    * The one hand-restored entry that is not in the `virt.` namespace, so the
    * derived check above cannot see it. `generated-hand-removed.spec.ts` asserts
-   * v26 omits it; nothing else asserted v25.10 still has it.
+   * v27 omits it; nothing else asserted v25.10 still has it.
    */
   it('keeps pool.dataset.encryption_algorithm_choices at the root', () => {
     expect(directoryKeys('v25_10_0', 'api-call-directory.ts')).toContain(
@@ -151,7 +151,7 @@ describe('hand-maintained v25.10 surface', () => {
 describe('the core.get_jobs event payload', () => {
   /**
    * Same leak, one version later: the dump gives 25.10's `core.get_jobs`
-   * events v26's `exc_info.errname`, which this version does not send. The
+   * events v27's `exc_info.errname`, which this version does not send. The
    * frozen files keep the correct shape, so generation's divergent payload
    * names are declared as aliases of it — this fails if either stops pointing
    * at the shape the call side uses.

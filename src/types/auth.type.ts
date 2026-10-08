@@ -20,7 +20,7 @@ export interface AuthResponse {
   /**
    * A token for re-authenticating without credentials.
    *
-   * Absent below v26. From v26 always present, and `null` when none was minted:
+   * Absent below v27. From v27 always present, and `null` when none was minted:
    * none was requested, the session used a one-time *password* (not 2FA), or it
    * is a 2FA login — `loginWithOtp` does not resend `login_options` on the
    * second step, a client-side gap that middleware would honour if closed.

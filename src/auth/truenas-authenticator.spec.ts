@@ -35,9 +35,9 @@ describe('TrueNasAuthenticator', () => {
   let sendSpy: ReturnType<typeof vi.fn>;
   let makeAuthenticator: (version?: ApiVersion) => TrueNasAuthenticator;
 
-  const v26: ApiVersion = {
-    version: 'v26.0.0', year: 26, minor: 0, patch: 0,
-    websocketPath: '/api/v26.0.0',
+  const v27: ApiVersion = {
+    version: 'v27.0.0', year: 27, minor: 0, patch: 0,
+    websocketPath: '/api/v27.0.0',
   };
   const v25: ApiVersion = {
     version: 'v25.10.0', year: 25, minor: 10, patch: 0,
@@ -71,7 +71,7 @@ describe('TrueNasAuthenticator', () => {
 
     makeAuthenticator = (version?: ApiVersion) =>
       new TrueNasAuthenticator(connection, version);
-    authenticator = makeAuthenticator(v26);
+    authenticator = makeAuthenticator(v27);
   });
 
   /**

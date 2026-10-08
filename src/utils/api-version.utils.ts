@@ -10,14 +10,16 @@ export const legacyCutoffYear = 25;
 /**
  * Parses a version string into an ApiVersion object.
  *
- * Accepts legacy vYY.MM.PATCH (v25.x, MM is the month) and vYY.MINOR.PATCH (v26+).
+ * Accepts legacy vYY.MM.PATCH (v25.x, MM is the month) and vYY.MINOR.PATCH (v27+).
  *
- * @param versionString - Version string (e.g., "v25.10.0" or "v26.0.0")
+ * Parses the format; it does not ask whether the package ships the version.
+ *
+ * @param versionString - Version string (e.g., "v25.10.0" or "v27.0.0")
  * @returns Parsed ApiVersion object, or null if invalid format
  *
  * @example
- * parseApiVersion('v26.0.0')
- * // { version: 'v26.0.0', year: 26, minor: 0, patch: 0, websocketPath: '/api/v26.0.0' }
+ * parseApiVersion('v27.0.0')
+ * // { version: 'v27.0.0', year: 27, minor: 0, patch: 0, websocketPath: '/api/v27.0.0' }
  */
 export function parseApiVersion(versionString: string): ApiVersion | null {
   // Version format: vYY.MINOR.PATCH (where MINOR is 1-2 digits)
@@ -154,9 +156,12 @@ export function filterCompatibleVersions(versions: ApiVersion[]): ApiVersion[] {
  * @param versionStrings - Array of version strings
  * @returns Latest compatible version, or null if none found
  *
+ * Latest of those the package ships, not the latest in the list: an unshipped
+ * version is dropped even when it is the highest.
+ *
  * @example
  * selectLatestCompatibleVersion(['v25.10.0', 'v25.10.1', 'v26.0.0'])
- * // Returns: { version: 'v26.0.0', ... } (highest compatible version)
+ * // Returns: { version: 'v25.10.1', ... } — v26.0.0 is not a shipped version
  */
 export function selectLatestCompatibleVersion(
   versionStrings: string[]
@@ -188,10 +193,10 @@ export function selectLatestCompatibleVersion(
  * Gets the WebSocket path for a given API version.
  *
  * @param version - API version
- * @returns WebSocket path (e.g., "/api/v26.0.0")
+ * @returns WebSocket path (e.g., "/api/v27.0.0")
  *
  * @example
- * getWebSocketPath(v26_0_0) // Returns "/api/v26.0.0"
+ * getWebSocketPath(v27_0_0) // Returns "/api/v27.0.0"
  */
 export function getWebSocketPath(version: ApiVersion): string {
   return version.websocketPath;

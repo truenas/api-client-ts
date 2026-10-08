@@ -3,7 +3,7 @@ import { AppState } from '@/types/app-query.type';
 /**
  * Narrow a middleware instance/container state to the {@link AppState} the
  * unified `Container` promises. Shared so v25.10's `virt.instance` states and
- * v26+'s `container` states cannot be mapped inconsistently.
+ * v27+'s `container` states cannot be mapped inconsistently.
  *
  * Anything unrecognised is `Unknown`, never `Stopped`: `Stopped` claims the
  * container is at rest, which a UI or poll loop acts on.
@@ -26,7 +26,7 @@ export function toAppState(state: string): AppState {
     case 'STARTING':
     case 'DEPLOYING':
       return AppState.Deploying;
-    // v25.10's freezer states are the same idea as v26's `SUSPENDED`: the
+    // v25.10's freezer states are the same idea as v27's `SUSPENDED`: the
     // processes are paused, not exited. `FROZEN` is that pause completed, so it
     // and `SUSPENDED` are the same answer.
     case 'SUSPENDED':

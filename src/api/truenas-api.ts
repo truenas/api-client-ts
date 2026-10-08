@@ -244,7 +244,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    *
    * The id comes from the first job event whose `message_ids` carries this
    * request's id, not from the response: what a job method returns on the wire
-   * differs by version (v25.10 answers with the id, v26 with `null`), while
+   * differs by version (v25.10 answers with the id, v27 with `null`), while
    * the event correlation holds for both.
    *
    * @returns Observable that emits the job ID when received from websocket events

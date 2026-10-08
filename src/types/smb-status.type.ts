@@ -7,8 +7,8 @@ import type {
  * Types for the version-agnostic `ops.smbStatus` operation.
  *
  * `smb.status` has the same wire contract on v25.10 (private, so never
- * generated) and v26+ (public). These describe that contract once, deliberately
- * not as re-exports of v26's generated types, which track only that version.
+ * generated) and v27+ (public). These describe that contract once, deliberately
+ * not as re-exports of v27's generated types, which track only that version.
  */
 
 /**
@@ -19,7 +19,7 @@ import type {
  * `audit.query` rather than to `smbstatus` — while its own argument model
  * refuses it: the `Literal` there lists exactly these six. It is unreachable
  * even from middleware's own internal calls, because `api_method` validates
- * every invocation. v26+ does not have it at all; the level was deleted rather
+ * every invocation. v27+ does not have it at all; the level was deleted rather
  * than left dormant.
  */
 export type SmbStatusInfoLevel =
@@ -36,7 +36,7 @@ export type SmbStatusInfoLevel =
  * Field names are snake_case because this object is passed to middleware
  * verbatim; it is the wire shape, not a translation of it.
  *
- * Every field is optional here, matching the generated v26 type. Middleware
+ * Every field is optional here, matching the generated v27 type. Middleware
  * defaults them on both versions — `verbose` and `resolve_uids` to true,
  * `fast` to false, the two `restrict_*` to empty strings.
  */
@@ -110,8 +110,8 @@ export interface SmbStatusRequest {
  * The positional argument array `smb.status` is invoked with, on every version.
  *
  * Middleware takes four positional arguments and this tuple is that call,
- * spelled once. The labels below are v26+'s field names; v25.10 calls the
- * middle two `query_filters` and `query_options`, and was renamed at v26. That
+ * spelled once. The labels below are v27+'s field names; v25.10 calls the
+ * middle two `query_filters` and `query_options`, and was renamed at v27. That
  * difference never reaches the wire — middleware binds positional arguments by
  * field *order*, not by name — which is the reason one tuple can serve both
  * versions, and the reason the labels here are cosmetic.

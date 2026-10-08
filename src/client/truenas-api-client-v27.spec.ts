@@ -8,7 +8,7 @@ import { TrueNasApiClientV27 } from './truenas-api-client-v27';
 
 const version: ApiVersion = {
   version: 'v27.0.0',
-  year: 26,
+  year: 27,
   minor: 0,
   patch: 0,
   websocketPath: '/api/v27.0.0',
@@ -26,6 +26,32 @@ describe('TrueNasApiClientV27', () => {
   it('is the v27 client for the given version', () => {
     expect(client).toBeInstanceOf(TrueNasApiClientV27);
     expect(client.version).toBe(version);
+  });
+
+  it('opens its connection on the v27 websocket path', () => {
+    // Genuinely v27-shaped rather than inherited: a v25.10 or v28 path against a
+    // v27 appliance is a connection to the wrong API. Read off the connection
+    // the client actually built, not off the version handed in, which would only
+    // restate the fixture.
+    expect(client.connection.websocketPath).toBe('/api/v27.0.0');
+  });
+
+  it('maps a suspended container to Suspended rather than Stopped', async () => {
+    // This client has its own copy of `toContainer` — the duplication with v28
+    // is deliberate, per the class docblock — so the v28 spec's version of this
+    // test covers none of it.
+    const container = {
+      id: 6,
+      name: 'paused',
+      description: '',
+      autostart: false,
+      status: { state: 'SUSPENDED' },
+    } as unknown as v27_0_0.ContainerEntry;
+    vi.spyOn(client.api, 'query').mockReturnValue(of([container]) as never);
+
+    const [result] = await firstValueFrom(client.ops.containerQuery());
+
+    expect(result.status).toBe(AppState.Suspended);
   });
 
   it('containerQuery queries container.query and maps to Container (status state -> AppState)', async () => {

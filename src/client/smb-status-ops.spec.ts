@@ -48,14 +48,14 @@ const versions = {
   },
   v27: {
     version: 'v27.0.0',
-    year: 26,
+    year: 27,
     minor: 0,
     patch: 0,
     websocketPath: '/api/v27.0.0',
   },
   v28: {
     version: 'v28.0.0',
-    year: 27,
+    year: 28,
     minor: 0,
     patch: 0,
     websocketPath: '/api/v28.0.0',
