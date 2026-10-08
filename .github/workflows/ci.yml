@@ -44,7 +44,11 @@ jobs:
       - run: yarn build
       - run: yarn check:dist
       - run: yarn check:package
-      - run: yarn docs:check # validates doc comments ({@link} targets etc.) without rendering
+      # Renders for real, into a throwaway directory. `--emit none` resolves
+      # {@link} targets but never runs the HTML theme, which is what warns when
+      # a target resolves to something it renders no page for — so it passed a
+      # link to a constructor parameter property that failed the deploy build.
+      - run: yarn docs:check
 
   release:
     name: Release

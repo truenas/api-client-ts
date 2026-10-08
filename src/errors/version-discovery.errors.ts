@@ -113,7 +113,7 @@ export class NoCompatibleVersionsError extends VersionDiscoveryError {
   constructor(
     hostname: string,
     readonly availableVersions: string[],
-    /** The span the range checks use. Retained for callers that render it; it is wider than {@link supportedVersions}. */
+    /** The span the range checks use. Retained for callers that render it; it is wider than the `supportedVersions` list. */
     readonly supportedRange: { min: string; max: string } = {
       min: apiVersionConfig.MIN_SUPPORTED_VERSION,
       max: apiVersionConfig.MAX_SUPPORTED_VERSION,
