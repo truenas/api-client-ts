@@ -2,6 +2,7 @@ node_modules/
 dist/
 coverage/
 docs/
+.typedoc-validate/
 *.log
 .DS_Store
 
