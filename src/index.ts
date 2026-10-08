@@ -14,16 +14,16 @@ export { createTrueNasClient } from '@/factory';
 export type { CreateClientOptions, DefaultApiDirectory } from '@/factory';
 
 // ── Generated API types (from `middlewared --dump-api --keep-refs`) ──────────
-// Version namespaces (v25_10_5, v26_0_0, v27_0_0, …), version-suffixed
-// directory aliases (ApiCallDirectoryV27_0_0, ApiDirectoryV27_0_0, …), and the
+// Version namespaces (v25_10_5, v27_0_0, v28_0_0, …), version-suffixed
+// directory aliases (ApiCallDirectoryV28_0_0, ApiDirectoryV28_0_0, …), and the
 // query grammar re-exported per version. Regenerate with `yarn generate:api`.
 export * from '@/generated';
 
 // ── Clients ──────────────────────────────────────────────────────────────────
 export { TrueNasApiClient } from '@/client/truenas-api-client';
 export { TrueNasApiClientV2510 } from '@/client/truenas-api-client-v25-10';
-export { TrueNasApiClientV26 } from '@/client/truenas-api-client-v26';
 export { TrueNasApiClientV27 } from '@/client/truenas-api-client-v27';
+export { TrueNasApiClientV28 } from '@/client/truenas-api-client-v28';
 
 // ── Version discovery (advanced) ─────────────────────────────────────────────
 export { VersionDiscovery } from '@/version-discovery';
@@ -53,7 +53,7 @@ export type { OperationMappings } from '@/types/operation-mappings.interface';
 
 // The unified shapes `ops.smbStatus` speaks in. Deliberately distinct from the
 // generated `SMBStatusOptions`, which describes one version's dump; these
-// describe the contract v25.10 and v26+ both honour. Named `Smb…` rather than
+// describe the contract v25.10 and v27+ both honour. Named `Smb…` rather than
 // `SMB…` so the two cannot be confused at a call site, and so neither shadows
 // the other through `export * from '@/generated'`.
 //

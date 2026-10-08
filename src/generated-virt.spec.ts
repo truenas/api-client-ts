@@ -1,7 +1,7 @@
 /**
  * `virt.*` is hand-maintained in `src/generated/v25_10_0/` because middleware
  * removed its models from every dump (`b9c330ee94`), so a regeneration would
- * delete it. This file guards the root and v26 at the type level, plus a
+ * delete it. This file guards the root and v27 at the type level, plus a
  * runtime check that the generator cannot touch the frozen versions; the
  * patch versions' re-exports are guarded in `generated-hand-maintained.spec.ts`.
  */
@@ -12,10 +12,10 @@ import type { Observable } from 'rxjs';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import type {
-  ApiCallDirectoryV26_0_0,
+  ApiCallDirectoryV27_0_0,
   ApiDirectoryV25_10_0,
-  ApiEventDirectoryV26_0_0,
-  ApiJobDirectoryV26_0_0,
+  ApiEventDirectoryV27_0_0,
+  ApiJobDirectoryV27_0_0,
   v25_10_0,
 } from '@/generated';
 import type { QueryDirectory, QueryMethod } from '@/types/query.type';
@@ -86,19 +86,19 @@ describe('virt.* on the v25.10 directory', () => {
   });
 
   it('does not leak into versions that never had it', () => {
-    // v26 dropped virt for container.*; the shared base is the intersection of
+    // v27 dropped virt for container.*; the shared base is the intersection of
     // every version, so virt must not appear in either.
     // Every key, not a chosen few: naming two of thirty-five would pass just as
     // happily after a partial re-application, which is the shape the failure
     // would actually take.
     expectTypeOf<
-      Extract<keyof ApiCallDirectoryV26_0_0, `virt.${string}`>
+      Extract<keyof ApiCallDirectoryV27_0_0, `virt.${string}`>
     >().toEqualTypeOf<never>();
     expectTypeOf<
-      Extract<keyof ApiJobDirectoryV26_0_0, `virt.${string}`>
+      Extract<keyof ApiJobDirectoryV27_0_0, `virt.${string}`>
     >().toEqualTypeOf<never>();
     expectTypeOf<
-      Extract<keyof ApiEventDirectoryV26_0_0, `virt.${string}`>
+      Extract<keyof ApiEventDirectoryV27_0_0, `virt.${string}`>
     >().toEqualTypeOf<never>();
 
     expectTypeOf<'virt.instance.query'>().not.toExtend<QueryMethod<QueryDirectory>>();
@@ -110,7 +110,7 @@ const repoRoot = () =>
 
 describe('the freeze that keeps virt.* alive', () => {
   /**
-   * Narrowing `--min-version` past v25.10 would make v26 the chain root: the
+   * Narrowing `--min-version` past v25.10 would make v27 the chain root: the
    * later versions would stop being deltas against a frozen directory, and
    * v25.10 would drop out of `SUPPORTED_API_VERSIONS` and the package entirely.
    * The freeze is the marker's job; this pins the range it operates over.
@@ -129,7 +129,7 @@ describe('the freeze that keeps virt.* alive', () => {
         .filter((f) => statSync(path.join(generated, dir, f)).isFile());
 
     // Derived rather than listed: a directory counts as frozen if any of its
-    // files says so, which covers a future v26 frozen after release and does
+    // files says so, which covers a future v27 frozen after release and does
     // not break the day a v25_10_6 lands.
     const versionDirs = readdirSync(generated).filter((d) => /^v\d/.test(d));
     const frozen = versionDirs.filter((d) =>
@@ -156,7 +156,7 @@ describe('the freeze that keeps virt.* alive', () => {
       scripts: Record<string, string>;
     };
 
-    // v25.10.0, not v26: the whole chain must be generated, because later
+    // v25.10.0, not v27: the whole chain must be generated, because later
     // versions are deltas against v25.10 and the root index enumerates every
     // version. The freeze is enforced by the marker, not by narrowing this.
     expect(pkg.scripts['generate:api']).toContain('--min-version v25.10.0');

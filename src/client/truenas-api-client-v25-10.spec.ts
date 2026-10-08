@@ -76,7 +76,7 @@ describe('TrueNasApiClientV2510', () => {
    * and the nullable fields were previously passed through a type that said
    * they were always present. Both are normalised now, so both are pinned.
    *
-   * `FROZEN` is the state under test because it is v25.10-only: v26 says
+   * `FROZEN` is the state under test because it is v25.10-only: v27 says
    * `SUSPENDED` for the same condition, and both have to arrive as the same
    * `AppState` or the two clients disagree about a paused container.
    */

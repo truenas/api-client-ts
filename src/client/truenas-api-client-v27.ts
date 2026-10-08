@@ -1,13 +1,16 @@
 /**
  * TrueNAS API Client for v27.X.Y
  *
- * Handles the whole v27 series; breaking changes only arrive with v28.
+ * Handles the v27 series: minor and patch versions are backward compatible, so
+ * one implementation covers them. Discovery is stricter — it admits only what
+ * `SUPPORTED_API_VERSIONS` names, so a v27 patch reaches this client only once
+ * the types are regenerated for it.
  *
- * Discovery admits less: `MAX_SUPPORTED_VERSION` is compared down to the patch,
- * so v27.0.1 and v27.1.0 are reported too new and never reach this client.
- *
- * To add version-specific behavior, override createConnection(), createApi(),
- * createAuthenticator() or createOperations().
+ * To add version-specific behavior, override the factory methods:
+ * - createConnection() - for connection-specific changes
+ * - createApi() - for API method changes
+ * - createAuthenticator() - for authentication changes
+ * - createOperations() - for version-specific operation mappings
  */
 
 import { concat, from, map, switchMap, toArray } from 'rxjs';
@@ -21,10 +24,12 @@ import { toAppState } from '@/utils/app-state.utils';
 /**
  * API client for TrueNAS API v27 (JSON-RPC 2.0 over /api/v27.{minor}.{patch}).
  *
- * Operations currently match `TrueNasApiClientV26`'s because v27 inherits every
- * entry they use. The spec pins the four container entries to v26's;
- * `smb.status` is unpinned, so a widened param or narrowed response would
- * still compile here. Duplicated rather than shared so the series can diverge.
+ * - containerQuery → container.query (with response transformation)
+ * - containerStart → container.start (synchronous, emits null)
+ * - containerStop → container.stop (emits Job updates)
+ * - containerRestart → container.stop + container.start (emits Job, then null)
+ * - containerDelete → container.delete (a job; force/recursive)
+ * - smbStatus → smb.status (public, gated on `SHARING_SMB_READ`)
  */
 export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
   /**
@@ -44,7 +49,7 @@ export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
           map(containers => containers.map(toContainer))
         ),
 
-      // container.start is synchronous in v27 - emit null
+      // container.start is synchronous in v27.0.0 - emit null
       containerStart: (id: string) =>
         this.api
           .call('container.start', [parseInt(id, 10)])
@@ -60,8 +65,8 @@ export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
           },
         ]),
 
-      // v27 still has no container.restart - chain stop + start.
-      // Emits Job updates during stop, then null when start completes.
+      // v27.0.0 doesn't have container.restart - chain stop + start
+      // Emits Job updates during stop, then null when start completes
       containerRestart: (id, options) => {
         const numericId = parseInt(id, 10);
         return this.api
@@ -87,7 +92,9 @@ export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
           );
       },
 
-      // Absent options are omitted, as in v26: `[id, null]` fails validation.
+      // Absent options are omitted, not passed as `undefined`: that serializes
+      // as `null`, and middleware's `options` has a default but is not
+      // nullable, so `[id, null]` fails validation.
       containerDelete: (id, options) =>
         this.api.job(
           'container.delete',
@@ -113,8 +120,13 @@ export class TrueNasApiClientV27 extends TrueNasApiClient<ApiDirectoryV27_0_0> {
  * Transform a v27 `container` entry into the unified Container.
  *
  * `cpu`, `memory` and `image` are not part of `container.query` in v27 and are
- * left unset, as in v26. `v27_0_0.ContainerEntry` is v26's, re-exported — v27
- * does not re-declare it — so this reads the same fields for the same reasons.
+ * left unset.
+ *
+ * `description` used to be read through a widening, because `stripDocs` was
+ * deleting every model field of that name along with the docstrings and the
+ * generated `ContainerEntry` did not declare one. Both halves are fixed now:
+ * the generator discriminates documentation from fields, and this tree is
+ * regenerated, so the field is declared and read directly.
  */
 function toContainer(container: v27_0_0.ContainerEntry): Container {
   const { description } = container;

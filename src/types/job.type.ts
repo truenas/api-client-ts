@@ -7,7 +7,7 @@ import { TrueNasDate } from '@/types/truenas-date.type';
  * surface.
  *
  * Taken from the oldest supported version rather than the base directory.
- * It was the base until v26 added `exc_info.errname`, which made
+ * It was the base until v27 added `exc_info.errname`, which made
  * `core.get_jobs` stop being one of the entries identical in every version —
  * the base dropped it and this stopped compiling, which is what the previous
  * note here promised it would do. The floor is the honest choice for a type
@@ -47,11 +47,11 @@ export type Job<R = unknown> = Omit<
   description: string | null;
   /**
    * Array of JSON-RPC request IDs that triggered this job.
-   * Used in v26+ to correlate API calls with their jobs.
+   * Used in v27+ to correlate API calls with their jobs.
    */
   message_ids?: string[];
   /**
-   * The exception, with `errname` optional: v26 added it and v25.10 does not
+   * The exception, with `errname` optional: v27 added it and v25.10 does not
    * send it, so it is absent rather than wrong on an older appliance.
    */
   exc_info: (GeneratedJob['exc_info'] & { errname?: string | null }) | null;

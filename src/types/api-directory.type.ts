@@ -5,12 +5,12 @@ import type { ApiJobDirectoryBase } from '@/generated/shared/api-job-directory-b
 /**
  * The API surface a client is typed against.
  *
- * Every generated version emits one of these — `ApiDirectoryV26_0_0` and
+ * Every generated version emits one of these — `ApiDirectoryV27_0_0` and
  * friends — bundling the three directories that describe it: `call` for
  * request/response methods, `job` for the ones that return a job, `event` for
  * what can be subscribed to. A client takes the *bundle* as its type parameter
  * rather than one directory, because the three are facets of a single version
- * and pairing a v26 call directory with a v25.10 event directory describes no
+ * and pairing a v27 call directory with a v25.10 event directory describes no
  * server that exists.
  */
 export interface ApiDirectoryShape {

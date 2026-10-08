@@ -4,99 +4,350 @@
  */
 
 import type {
-  AppImageAuthConfig,
-  AppVersionInfo,
-  AuditEntrySpace,
+  Aclmode,
+  AddressPool,
+  Advpowermgmt,
+  Aggregations,
+  AppImageParsedRepoTags,
+  AppNetworks,
+  AppVolumes,
+  Atime,
+  AuthUserInfo,
+  Authenticator,
+  Autotrim,
+  AzureBlobCredentialsModel,
+  B2CredentialsModel,
+  BasicConstraintsModel,
+  BasicConstraintsModelInput,
+  Blocksize,
   Bootloader,
-  CloudFlareSchema,
+  BoxCredentialsModel,
+  Casesensitivity,
+  CatalogTrainInfo,
+  CloudCron,
+  CloudSyncBwlimit,
+  CloudSyncCreateDirection,
+  CloudSyncCreateDirectionInput,
+  CloudTaskAttributes,
   CloudTaskAttributesInput,
-  DigitalOceanSchema,
-  DockerStatusInfoStatusInput,
-  FilesystemDirEntryType,
-  FilesystemMkdirOptions,
-  GetDisplayDevice,
-  GraphiteExporter,
+  Compression,
+  CoreGetJobsItemCredentials,
+  CoreGetJobsItemProgress,
+  DiskEntryEnclosure,
+  DropboxCredentialsModel,
+  Exec,
+  ExternalOpt,
+  ExternalOptInput,
+  FTPCredentialsModel,
+  Function,
+  GoogleCloudStorageCredentialsModel,
+  GoogleDriveCredentialsModel,
+  GooglePhotosCredentialsModel,
+  HTTPCredentialsModel,
+  Hddstandby,
+  HubicCredentialsModel,
   InterfaceCreateAlias,
-  InterfaceCreateAlias2,
   InterfaceCreateFailoverAlias,
-  InterfaceCreateFailoverAlias2,
-  InterfaceCreateTypeInput,
   InterfaceEntryAlias,
-  MailEntryOAuth,
+  InterfaceEntryStateAlias,
+  InterfaceEntryStatePort,
+  IscsiExtentCreateType,
+  KeyUsageModel,
+  KeychainCredentialEntry,
+  KeychainCredentialEntryInput,
+  LegacyOpt,
+  LegacyOptInput,
   Maintainer,
-  OVHSchema,
-  Protocol,
+  MegaCredentialsModel,
+  NFS4ACEInput,
+  NFS4ACL_Flags,
+  NVMetSubsysEntry,
+  OneDriveCredentialsModel,
+  PCloudCredentialsModel,
+  POSIXACE,
+  PoolCreateChecksum,
+  PoolCreateDeduplication,
+  PoolCreateTopologyCacheVdev,
+  PoolDatasetCreateFilesystemAcltypeInput,
+  PoolDatasetCreateFilesystemChecksum,
+  PoolDatasetCreateFilesystemDeduplication,
+  PoolDatasetCreateFilesystemReadonlyInput,
+  PoolDatasetCreateUserProperty,
+  PoolDatasetEntryProperty,
+  PoolDatasetEntryUserProperties,
+  PoolScanStateInput,
+  PoolSnapshotTaskCron,
+  PoolTopology,
+  PropertyValue,
   QueryOptionsModel,
-  Route53Schema,
-  Security,
-  ShellSchema,
+  Readonly,
+  ReplicationCountEligibleManualSnapshotsTransport,
+  ReplicationCountEligibleManualSnapshotsTransportInput,
+  ReplicationCreateReadonlyInput,
+  ReplicationLifetimeModel,
+  ReplicationTimeCronModel,
+  Rpm,
+  RsyncTaskCreateDirection,
+  RsyncTaskCreateMode,
+  RsyncTaskSchedule,
+  SFTPCredentialsModel,
+  SMBEntryEncryption,
+  SMBEntryEncryptionInput,
+  SMBShareAclEntryWhoId,
+  Serialspeed,
+  Service,
+  Shutdown,
+  SmbAuditConfig,
+  Snapdev,
+  Snapdir,
+  StorjIxCredentialsModel,
+  StorjIxCredentialsModelInput,
+  SwiftCredentialsModel,
+  Sync,
+  SyslogServer,
+  SyslogServerInput,
+  Sysloglevel,
   Time,
-  TunableCreateType,
-  VMCDROMDevice,
-  VMDiskDevice,
-  VMDiskDeviceInput,
-  VMDisplayDevice,
-  VMISCSIDiskDevice,
-  VMNICPciAddress,
-  VMPCIDevice,
-  VMRAWDevice,
-  VMRAWDeviceInput,
-  VMUSBDevice,
+  TruecommandConfigChangedEventFieldsStatus,
+  UPSEntryModeInput,
+  USBAttributes,
+  USBCapability,
+  Unixcharset,
+  UpgradeOptions,
+  UsedPorts,
+  UserTwofactorConfigEntry,
+  VMDeviceEntry,
+  VMDeviceEntryInput,
+  VMWareEntryStateStateInput,
+  Volblocksize,
+  WebDavCredentialsModel,
+  YandexCredentialsModel,
   ZFSFileAttrsData,
+  ZFSPropertiesEntry,
+  ZfsTierRewriteJobEntryStatusInput,
 } from '../v25_10_0/api-types';
 import type {
-  DockerStatusInfoStatus,
+  DefaultOpt,
+  DefaultOptInput,
+  FCPStorageOpt,
+  FCPStorageOptInput,
+  MultiprotocolOpt,
+  MultiprotocolOptInput,
+  PrivateDatasetOpt,
+  PrivateDatasetOptInput,
+  Purpose,
+  TimeLockedOpt,
+  TimeLockedOptInput,
+  TimeMachineOpt,
+  TimeMachineOptInput,
+  VeeamRepositoryOpt,
+  VeeamRepositoryOptInput,
 } from '../v25_10_1/api-types';
-import type {
-  AppActiveWorkloads,
-  AuditExportQueryOptions,
-  CertificateExtensions,
-  ContainerCreateImage,
-  ContainerFilesystemDevice,
-  ContainerGPUDevice,
-  ContainerNICDeviceInput,
-  ContainerUSBDevice,
-  DefaultIdmapConfiguration,
-  FilesystemSetZfsAttributesOptions,
-  InterfaceEntryState,
-  IsolatedIdmapConfiguration,
-  Passkey,
-  VMStatus,
-} from '../v26_0_0/api-types';
 
-export const Service = {
-  Middleware: 'MIDDLEWARE',
-  S3: 'S3',
-  Smb: 'SMB',
-  Sudo: 'SUDO',
-  System: 'SYSTEM',
+export const Access = {
+  Readonly: 'READONLY',
+  Writeonly: 'WRITEONLY',
+  Readwrite: 'READWRITE',
+  Deny: 'DENY',
 } as const;
-export type Service = (typeof Service)[keyof typeof Service];
+export type Access = (typeof Access)[keyof typeof Access];
 
-export const VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput = {
-  Filesystem: 'FILESYSTEM',
-  Volume: 'VOLUME',
+export const AppContainerDetailsState = {
+  Crashed: 'crashed',
+  Created: 'created',
+  Exited: 'exited',
+  Running: 'running',
+  Starting: 'starting',
 } as const;
-export type VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput = (typeof VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput)[keyof typeof VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput];
+export type AppContainerDetailsState = (typeof AppContainerDetailsState)[keyof typeof AppContainerDetailsState];
 
-export type DockerBackupMap = Record<string, DockerBackupEntry>;
+export const ContainerNICDeviceType = {
+  E1000: 'E1000',
+  Virtio: 'VIRTIO',
+} as const;
+export type ContainerNICDeviceType = (typeof ContainerNICDeviceType)[keyof typeof ContainerNICDeviceType];
 
-export interface ACMEDNSAuthenticatorCreate {
-  attributes: CloudFlareSchema | DigitalOceanSchema | OVHSchema | Route53Schema | ShellSchema;
-  name: string;
+export const ContainerNICDeviceTypeInput = {
+  E1000: 'E1000',
+  Virtio: 'VIRTIO',
+} as const;
+export type ContainerNICDeviceTypeInput = (typeof ContainerNICDeviceTypeInput)[keyof typeof ContainerNICDeviceTypeInput];
+
+export const ContainerStatusState = {
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+  Suspended: 'SUSPENDED',
+} as const;
+export type ContainerStatusState = (typeof ContainerStatusState)[keyof typeof ContainerStatusState];
+
+export const ContainerStatusStateInput = {
+  Running: 'RUNNING',
+  Stopped: 'STOPPED',
+  Suspended: 'SUSPENDED',
+} as const;
+export type ContainerStatusStateInput = (typeof ContainerStatusStateInput)[keyof typeof ContainerStatusStateInput];
+
+export const Interval = {
+  '30': 30,
+  '60': 60,
+} as const;
+export type Interval = (typeof Interval)[keyof typeof Interval];
+
+export const Name = {
+  Cpu: 'cpu',
+  Cputemp: 'cputemp',
+  Disk: 'disk',
+  Interface: 'interface',
+  Load: 'load',
+  Processes: 'processes',
+  Memory: 'memory',
+  Uptime: 'uptime',
+  Arcsize: 'arcsize',
+  Disktemp: 'disktemp',
+  Upscharge: 'upscharge',
+  Upsruntime: 'upsruntime',
+  Upsvoltage: 'upsvoltage',
+  Upscurrent: 'upscurrent',
+  Upsfrequency: 'upsfrequency',
+  Upsload: 'upsload',
+  Upstemperature: 'upstemperature',
+} as const;
+export type Name = (typeof Name)[keyof typeof Name];
+
+export const Passkey = {
+  Enabled: 'ENABLED',
+  Disabled: 'DISABLED',
+  Required: 'REQUIRED',
+} as const;
+export type Passkey = (typeof Passkey)[keyof typeof Passkey];
+
+export const PoolCreateTopologyDedupVdevTypeInput = {
+  Mirror: 'MIRROR',
+  Stripe: 'STRIPE',
+} as const;
+export type PoolCreateTopologyDedupVdevTypeInput = (typeof PoolCreateTopologyDedupVdevTypeInput)[keyof typeof PoolCreateTopologyDedupVdevTypeInput];
+
+export const PoolScanState = {
+  Scanning: 'SCANNING',
+  Finished: 'FINISHED',
+  Canceled: 'CANCELED',
+} as const;
+export type PoolScanState = (typeof PoolScanState)[keyof typeof PoolScanState];
+
+export const PoolScrubAction = {
+  Start: 'START',
+  Stop: 'STOP',
+  Pause: 'PAUSE',
+} as const;
+export type PoolScrubAction = (typeof PoolScrubAction)[keyof typeof PoolScrubAction];
+
+export const Reason = {
+  Entitled: 'ENTITLED',
+  NoLicense: 'NO_LICENSE',
+  KeyMissing: 'KEY_MISSING',
+  WrongHardware: 'WRONG_HARDWARE',
+  TierInsufficient: 'TIER_INSUFFICIENT',
+  WrongLicenseType: 'WRONG_LICENSE_TYPE',
+  NotGated: 'NOT_GATED',
+} as const;
+export type Reason = (typeof Reason)[keyof typeof Reason];
+
+export const S3AccesskeyEntryStatus = {
+  Enabled: 'ENABLED',
+  Disabled: 'DISABLED',
+  Expired: 'EXPIRED',
+  UserMissing: 'USER_MISSING',
+  SecretLost: 'SECRET_LOST',
+} as const;
+export type S3AccesskeyEntryStatus = (typeof S3AccesskeyEntryStatus)[keyof typeof S3AccesskeyEntryStatus];
+
+export const S3AccesskeyEntryStatusInput = {
+  Enabled: 'ENABLED',
+  Disabled: 'DISABLED',
+  Expired: 'EXPIRED',
+  UserMissing: 'USER_MISSING',
+  SecretLost: 'SECRET_LOST',
+} as const;
+export type S3AccesskeyEntryStatusInput = (typeof S3AccesskeyEntryStatusInput)[keyof typeof S3AccesskeyEntryStatusInput];
+
+export const Versioning = {
+  Off: 'OFF',
+  Enabled: 'ENABLED',
+  Suspended: 'SUSPENDED',
+} as const;
+export type Versioning = (typeof Versioning)[keyof typeof Versioning];
+
+export const VMWareEntryStateState = {
+  Pending: 'PENDING',
+  Success: 'SUCCESS',
+  Error: 'ERROR',
+  Blocked: 'BLOCKED',
+} as const;
+export type VMWareEntryStateState = (typeof VMWareEntryStateState)[keyof typeof VMWareEntryStateState];
+
+export const ZfsTierRewriteJobEntryStatus = {
+  Complete: 'COMPLETE',
+  Running: 'RUNNING',
+  Queued: 'QUEUED',
+  Cancelled: 'CANCELLED',
+  Stopped: 'STOPPED',
+  Error: 'ERROR',
+} as const;
+export type ZfsTierRewriteJobEntryStatus = (typeof ZfsTierRewriteJobEntryStatus)[keyof typeof ZfsTierRewriteJobEntryStatus];
+
+export const ZpoolScrubRunAction = {
+  Start: 'START',
+  Pause: 'PAUSE',
+  Cancel: 'CANCEL',
+} as const;
+export type ZpoolScrubRunAction = (typeof ZpoolScrubRunAction)[keyof typeof ZpoolScrubRunAction];
+
+export type AppContainerResponse = Record<string, ContainerDetails>;
+
+export type CatalogAppsResponse = Record<string, CatalogTrainInfo>;
+
+export type CatalogTrainsResponse = string[];
+
+export type ReplicationRunOptions = Record<string, never>;
+
+export type USBPassthroughInfo = Record<string, USBPassthroughDevice>;
+
+export type ZfsTierRewriteJobQueryEventSourceArgs = Record<string, never>;
+
+export interface ACLTemplateByPathArgs {
+  path?: string;
+  "query-filters"?: unknown[];
+  "query-options"?: ACLTemplateByPathQueryOptions;
+  "format-options"?: AclTemplateFormatOptions;
 }
-export interface Aggregations {
-  min: {
-    [k: string]: number;
-  };
-  mean: {
-    [k: string]: number;
-  };
-  max: {
-    [k: string]: number;
-  };
+export interface ACLTemplateByPathQueryOptions {
+  order_by?: string[];
+  offset?: number;
+  limit?: number;
+  force_sql_filters?: boolean;
+}
+export interface AclTemplateFormatOptions {
+  ensure_builtins?: boolean;
+  resolve_names?: boolean;
 }
 export interface Alert {
+  id: string;
+  uuid: string;
+  source: string;
+  klass: string;
+  args: unknown;
+  node: string;
+  key: string;
+  datetime: string;
+  last_occurrence: string;
+  dismissed: boolean;
+  mail: unknown;
+  text: string;
+  level: string;
+  formatted: string | null;
+  one_shot: boolean;
+}
+export interface AlertInput {
   uuid: string;
   source: string;
   klass: string;
@@ -115,37 +366,95 @@ export interface Alert {
 }
 export interface AlertListAddedEvent {
   id: number;
-  fields: Alert;
+  fields: AlertInput;
+}
+export interface AlertListCategoriesOptions {
+  include_all_products?: boolean;
+  include_hidden_classes?: boolean;
 }
 export interface AlertListChangedEvent {
   id: number;
-  fields: Alert;
+  fields: AlertInput;
 }
-export interface AppAvailableItemQueryResultItem {
-  app_readme?: string | null;
-  categories?: string[];
-  description?: string;
-  healthy?: boolean;
-  healthy_error?: string | null;
-  home?: string;
-  location?: string;
-  latest_version?: string | null;
-  latest_app_version?: string | null;
-  latest_human_version?: string | null;
-  last_update?: string | null;
+export interface ApiKeyAddedEvent {
+  id: number;
+  fields: ApiKeyEntry;
+}
+export interface ApiKeyEntry {
+  id: number;
+  name: string;
+  username: string | null;
+  user_identifier: number | string;
+  iterations: number;
+  salt: string;
+  stored_key: string;
+  server_key: string;
+  created_at: string;
+  expires_at?: string | null;
+  local: boolean;
+  revoked: boolean;
+  revoked_reason: string | null;
+}
+export interface ApiKeyChangedEvent {
+  id: number;
+  fields: ApiKeyEntry;
+}
+export interface ApiKeyEntryWithKey {
+  id: number;
+  name: string;
+  username: string | null;
+  user_identifier: number | string;
+  iterations: number;
+  salt: string;
+  stored_key: string;
+  server_key: string;
+  created_at: string;
+  expires_at?: string | null;
+  local: boolean;
+  revoked: boolean;
+  revoked_reason: string | null;
+  key: string;
+  client_key: string;
+}
+export interface ApiKeyQueryResultItem {
+  id?: number;
   name?: string;
-  recommended?: boolean;
-  title?: string;
-  maintainers?: Maintainer[];
-  tags?: string[];
-  screenshots?: string[];
-  sources?: string[];
-  icon_url?: string | null;
-  catalog?: string;
-  installed?: boolean;
-  train?: string;
-  popularity_rank?: number | null;
-  [k: string]: unknown;
+  username?: string | null;
+  user_identifier?: number | string;
+  iterations?: number;
+  salt?: string;
+  stored_key?: string;
+  server_key?: string;
+  created_at?: string;
+  expires_at?: string | null;
+  local?: boolean;
+  revoked?: boolean;
+  revoked_reason?: string | null;
+}
+export interface ApiKeyScramData {
+  api_key_id: number;
+  iterations: number;
+  salt: string;
+  client_key: string;
+  stored_key: string;
+  server_key: string;
+}
+export interface AppActiveWorkloads {
+  containers: number;
+  used_ports: UsedPorts[];
+  used_host_ips: string[];
+  container_details: AppContainerDetails[];
+  volumes: AppVolumes[];
+  images: string[];
+  networks: AppNetworks[];
+}
+export interface AppContainerDetails {
+  id: string;
+  service_name: string;
+  image: string;
+  port_config: UsedPorts[];
+  state: AppContainerDetailsState;
+  volume_mounts: AppVolumes[];
 }
 export interface AppBulkUpgradeJobResult {
   app_name: string;
@@ -155,16 +464,15 @@ export interface AppBulkUpgradeJobResult {
 export interface AppEntry {
   name: string;
   id: string;
-  state: "CRASHED" | "DEPLOYING" | "ERROR" | "RUNNING" | "STOPPED" | "STOPPING";
-  error_reason?: ("METADATA_MISSING" | "METADATA_UNREADABLE" | "METADATA_INCOMPLETE") | null;
+  state: "CRASHED" | "DEPLOYING" | "RUNNING" | "STOPPED" | "STOPPING";
   upgrade_available: boolean;
   latest_version: string | null;
   latest_app_version: string | null;
   image_updates_available: boolean;
   custom_app: boolean;
   migrated: boolean;
-  human_version: string | null;
-  version: string | null;
+  human_version: string;
+  version: string;
   metadata: {
     [k: string]: unknown;
   };
@@ -181,96 +489,47 @@ export interface AppEntry {
     [k: string]: unknown;
   } | null;
 }
-export interface AppCreate {
-  custom_app?: boolean;
-  values?: {
-    [k: string]: unknown;
-  };
-  custom_compose_config?: {
-    [k: string]: unknown;
-  };
-  custom_compose_config_string?: string;
-  catalog_app?: string | null;
-  app_name: string;
-  train?: string;
-  version?: string;
+export interface AppDelete {
+  remove_images?: boolean;
+  remove_ix_volumes?: boolean;
+  force_remove_custom_app?: boolean;
 }
-export interface AppImageDockerhubRateLimitInfo {
-  total_pull_limit?: number | null;
-  total_time_limit_in_secs?: number | null;
-  remaining_pull_limit?: number | null;
-  remaining_time_limit_in_secs?: number | null;
-  error?: string | null;
+export interface AppImageEntry {
+  id: string;
+  repo_tags: string[];
+  repo_digests: string[];
+  size: number;
+  dangling: boolean;
+  update_available: boolean;
+  created: string | null;
+  author: string | null;
+  comment: string | null;
+  parsed_repo_tags?: AppImageParsedRepoTags[] | null;
 }
-export interface AppImagePull {
-  auth_config?: AppImageAuthConfig | null;
-  image: string;
-}
-export interface AppLatestItem {
-  app_readme: string | null;
-  categories: string[];
-  description: string;
-  healthy: boolean;
-  healthy_error?: string | null;
-  home: string;
-  location: string;
-  latest_version: string | null;
-  latest_app_version: string | null;
-  latest_human_version: string | null;
-  last_update: string | null;
-  name: string;
-  recommended: boolean;
-  title: string;
-  maintainers: Maintainer[];
-  tags: string[];
-  screenshots: string[];
-  sources: string[];
-  icon_url?: string | null;
-  catalog: string;
-  installed: boolean;
-  train: string;
-  popularity_rank: number | null;
-  [k: string]: unknown;
-}
-export interface AppLatestItemQueryResultItem {
-  app_readme?: string | null;
-  categories?: string[];
-  description?: string;
-  healthy?: boolean;
-  healthy_error?: string | null;
-  home?: string;
-  location?: string;
-  latest_version?: string | null;
-  latest_app_version?: string | null;
-  latest_human_version?: string | null;
-  last_update?: string | null;
-  name?: string;
-  recommended?: boolean;
-  title?: string;
-  maintainers?: Maintainer[];
-  tags?: string[];
-  screenshots?: string[];
-  sources?: string[];
-  icon_url?: string | null;
-  catalog?: string;
-  installed?: boolean;
-  train?: string;
-  popularity_rank?: number | null;
-  [k: string]: unknown;
+export interface AppImageQueryResultItem {
+  id?: string;
+  repo_tags?: string[];
+  repo_digests?: string[];
+  size?: number;
+  dangling?: boolean;
+  update_available?: boolean;
+  created?: string | null;
+  author?: string | null;
+  comment?: string | null;
+  parsed_repo_tags?: AppImageParsedRepoTags[] | null;
 }
 export interface AppQueryResultItem {
   name?: string;
   id?: string;
-  state?: "CRASHED" | "DEPLOYING" | "ERROR" | "RUNNING" | "STOPPED" | "STOPPING";
-  error_reason?: ("METADATA_MISSING" | "METADATA_UNREADABLE" | "METADATA_INCOMPLETE") | null;
+  state?: "CRASHED" | "DEPLOYING" | "RUNNING" | "STOPPED" | "STOPPING";
   upgrade_available?: boolean;
   latest_version?: string | null;
   latest_app_version?: string | null;
   image_updates_available?: boolean;
   custom_app?: boolean;
   migrated?: boolean;
-  human_version?: string | null;
-  version?: string | null;
+  human_version?: string;
+  version?: string;
   metadata?: {
     [k: string]: unknown;
   };
@@ -289,55 +548,21 @@ export interface AppQueryResultItem {
 }
 export interface AppUpgradeBulkEntry {
   app_name: string;
-  options?: AppUpgradeOptions;
-}
-export interface AppUpgradeOptions {
-  app_version?: string;
-  values?: {
-    [k: string]: unknown;
-  };
-  snapshot_hostpaths?: boolean;
-}
-export interface AppUpgradeSummary {
-  latest_version: string;
-  latest_human_version: string;
-  upgrade_version: string;
-  upgrade_human_version: string;
-  available_versions_for_upgrade: AppVersionInfo[];
-  changelog: string | null;
-}
-export interface AppUpgradeSummaryOptions {
-  app_version?: string;
-}
-export interface AuditEntry {
-  id: number;
-  retention: number;
-  reservation: number;
-  quota: number;
-  quota_fill_warning: number;
-  quota_fill_critical: number;
-  remote_logging_enabled: boolean;
-  space: AuditEntrySpace;
-  enabled_services: AuditEntryEnabledServices;
-}
-export interface AuditEntryEnabledServices {
-  MIDDLEWARE: unknown[];
-  S3: unknown[];
-  SMB: unknown[];
-  SUDO: string[];
+  options?: UpgradeOptions;
 }
 export interface AuditExport {
-  services?: ("MIDDLEWARE" | "S3" | "SMB" | "SUDO" | "SYSTEM")[];
+  services?: ("MIDDLEWARE" | "SMB" | "SUDO" | "SYSTEM")[];
   "query-filters"?: unknown[];
   "query-options"?: AuditExportQueryOptions;
   remote_controller?: boolean;
   export_format?: "CSV" | "JSON" | "YAML";
 }
-export interface AuditQuery {
-  services?: ("MIDDLEWARE" | "S3" | "SMB" | "SUDO" | "SYSTEM")[];
-  "query-filters"?: unknown[];
-  "query-options"?: QueryOptionsModel;
-  remote_controller?: boolean;
+export interface AuditExportQueryOptions {
+  order_by?: string[];
+  select?: (string | unknown[])[];
+  offset?: number;
+  limit?: number;
+  force_sql_filters?: boolean;
 }
 export interface AuditQueryResultItem {
   audit_id: string | number | null;
@@ -375,21 +600,130 @@ export interface AuditQueryResultItemQueryResultItem {
   success?: boolean;
   [k: string]: unknown;
 }
-export interface BootEnvironmentActivate {
-  id: string;
+export interface AuthApiKeyPlain {
+  mechanism: "API_KEY_PLAIN";
+  username: string;
+  api_key: string;
+  login_options?: AuthCommonOptions;
 }
-export interface BootEnvironmentClone {
-  id: string;
-  target: string;
+export interface AuthCommonOptions {
+  user_info?: boolean;
+  reconnect_token?: boolean;
 }
-export interface BootEnvironmentDestroy {
-  id: string;
+export interface AuthOTPToken {
+  mechanism: "OTP_TOKEN";
+  otp_token: string;
+  login_options?: AuthCommonOptions;
 }
-export interface BootEnvironmentKeep {
-  id: string;
-  value: boolean;
+export interface AuthPasswordPlain {
+  mechanism: "PASSWORD_PLAIN";
+  username: string;
+  password: string;
+  login_options?: AuthCommonOptions;
 }
-export interface CertificateCreate {
+export interface AuthRespDenied {
+  response_type: "DENIED";
+}
+export interface AuthRespScram {
+  response_type: "SCRAM_RESPONSE";
+  scram_type: "SERVER_FIRST_RESPONSE" | "SERVER_FINAL_RESPONSE";
+  rfc_str: string;
+  user_info: AuthUserInfo | null;
+}
+export interface AuthRespSuccess {
+  response_type: "SUCCESS";
+  user_info: AuthUserInfo | null;
+  authenticator: Authenticator;
+  reconnect_token: string | null;
+}
+export interface AuthSCRAM {
+  mechanism: "SCRAM";
+  scram_type: "CLIENT_FIRST_MESSAGE" | "CLIENT_FINAL_MESSAGE";
+  rfc_str: string;
+}
+export interface AuthTokenPlain {
+  mechanism: "TOKEN_PLAIN";
+  token: string;
+  login_options?: AuthCommonOptions;
+}
+export interface BootGetState {
+  name: string;
+  all_sed: boolean | null;
+  status: string;
+  path: string;
+  scan: PoolScan | null;
+  expand: {
+    [k: string]: unknown;
+  } | null;
+  is_upgraded?: boolean;
+  healthy: boolean;
+  warning: boolean;
+  status_code: string | null;
+  status_detail: string | null;
+  size: number | null;
+  allocated: number | null;
+  free: number | null;
+  freeing: number | null;
+  dedup_table_size: number | null;
+  dedup_table_quota: string | null;
+  fragmentation: string | null;
+  size_str: string | null;
+  allocated_str: string | null;
+  free_str: string | null;
+  freeing_str: string | null;
+  autotrim: {
+    [k: string]: unknown;
+  };
+  topology: PoolTopology | null;
+}
+export interface PoolScan {
+  function: Function;
+  state: PoolScanState;
+  start_time: string;
+  end_time: string | null;
+  percentage: number;
+  bytes_to_process: number;
+  bytes_processed: number;
+  bytes_issued: number;
+  pause: string | null;
+  errors: number;
+  total_secs_left: number | null;
+}
+export interface CatalogAppDetails {
+  app_readme: string | null;
+  categories: string[];
+  description: string;
+  healthy: boolean;
+  healthy_error?: string | null;
+  home: string;
+  location: string;
+  latest_version: string | null;
+  latest_app_version: string | null;
+  latest_human_version: string | null;
+  last_update: string | null;
+  name: string;
+  recommended: boolean;
+  title: string;
+  maintainers: Maintainer[];
+  tags: string[];
+  screenshots: string[];
+  sources: string[];
+  icon_url?: string | null;
+  versions: {
+    [k: string]: unknown;
+  };
+  [k: string]: unknown;
+}
+export interface CatalogApps {
+  cache?: boolean;
+  cache_only?: boolean;
+  retrieve_all_trains?: boolean;
+  trains?: string[];
+}
+export interface CatalogUpdate {
+  preferred_trains?: string[];
+}
+export interface CertificateCreateArgs {
   name: string;
   create_type:
     | "CERTIFICATE_CREATE_IMPORTED"
@@ -422,16 +756,414 @@ export interface CertificateCreate {
   };
   renew_days?: number;
 }
-export interface CloudSyncListDirectory {
-  credentials: number;
+export interface CertificateExtensions {
+  BasicConstraints?: BasicConstraintsModelInput;
+  ExtendedKeyUsage?: ExtendedKeyUsageModel;
+  KeyUsage?: KeyUsageModel;
+}
+export interface ExtendedKeyUsageModel {
+  usages?: (
+    | "ANY_EXTENDED_KEY_USAGE"
+    | "CERTIFICATE_TRANSPARENCY"
+    | "CLIENT_AUTH"
+    | "CODE_SIGNING"
+    | "EMAIL_PROTECTION"
+    | "IPSEC_IKE"
+    | "KERBEROS_PKINIT_KDC"
+    | "OCSP_SIGNING"
+    | "SERVER_AUTH"
+    | "SMARTCARD_LOGON"
+    | "TIME_STAMPING"
+  )[];
+  enabled?: boolean;
+  extension_critical?: boolean;
+}
+export interface ClientAuthExtendedKeyUsageModel {
+  enabled?: boolean;
+  extension_critical?: boolean;
+  usages?: string[];
+}
+export interface ClientCSRExtensionsModel {
+  BasicConstraints?: BasicConstraintsModel;
+  ExtendedKeyUsage?: ClientAuthExtendedKeyUsageModel;
+  KeyUsage?: SigningKeyUsageModel;
+}
+export interface SigningKeyUsageModel {
+  enabled?: boolean;
+  extension_critical?: boolean;
+  digital_signature?: boolean;
+}
+export interface CloudBackupAddedEvent {
+  id: number;
+  fields: CloudBackupEntryInput;
+}
+export interface CloudBackupEntryInput {
+  id: number;
+  description?: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  credentials: CredentialsEntryInput;
+  attributes: CloudTaskAttributesInput;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job: {
+    [k: string]: unknown;
+  } | null;
+  locked: boolean;
+  password: string;
+  keep_last: number;
+  transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
+  absolute_paths?: boolean;
+  cache_path?: string | null;
+  rate_limit?: number | null;
+}
+export interface CredentialsEntryInput {
+  id: number;
+  name: string;
+  provider:
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | MegaCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
+    | S3CredentialsModel
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModelInput
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
+}
+export interface S3CredentialsModel {
+  type: "S3";
+  access_key_id: string;
+  secret_access_key: string;
+  endpoint?: "" | string;
+  region?: string;
+  skip_region?: boolean & string;
+  signatures_v2?: boolean & string;
+  max_upload_parts?: number & string;
+  provider?: string;
+  force_path_style?: boolean;
+  sign_accept_encoding?: boolean;
+}
+export interface CloudBackupChangedEvent {
+  id: number;
+  fields: CloudBackupEntryInput;
+}
+export interface CloudBackupEntry {
+  id: number;
+  description?: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  credentials: CredentialsEntry;
+  attributes: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job: {
+    [k: string]: unknown;
+  } | null;
+  locked: boolean;
+  password: string;
+  keep_last: number;
+  transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
+  absolute_paths?: boolean;
+  cache_path?: string | null;
+  rate_limit?: number | null;
+}
+export interface CredentialsEntry {
+  id: number;
+  name: string;
+  provider:
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | MegaCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
+    | S3CredentialsModel
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModel
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
+}
+export interface CloudBackupQueryResultItem {
+  id?: number;
+  description?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  credentials?: CredentialsEntry;
+  attributes?: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  locked?: boolean;
+  password?: string;
+  keep_last?: number;
+  transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
+  absolute_paths?: boolean;
+  cache_path?: string | null;
+  rate_limit?: number | null;
+}
+export interface CloudCredentialCreate {
+  name: string;
+  provider:
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | MegaCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
+    | S3CredentialsModel
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModelInput
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
+}
+export interface CloudCredentialUpdate {
+  name?: string;
+  provider?:
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | MegaCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
+    | S3CredentialsModel
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModelInput
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
+}
+export interface CloudSyncAddedEvent {
+  id: number;
+  fields: CloudSyncEntryInput;
+}
+export interface CloudSyncEntryInput {
+  id: number;
+  description?: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  credentials: CredentialsEntryInput;
+  attributes: CloudTaskAttributesInput;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job: {
+    [k: string]: unknown;
+  } | null;
+  locked: boolean;
+  bwlimit?: CloudSyncBwlimit[];
+  transfers?: number | null;
+  direction: CloudSyncCreateDirectionInput;
+  transfer_mode: "SYNC" | "COPY" | "MOVE";
   encryption?: boolean;
   filename_encryption?: boolean;
   encryption_password?: string;
   encryption_salt?: string;
-  attributes: CloudTaskAttributesInput;
-  args?: string;
+  create_empty_src_dirs?: boolean;
+  follow_symlinks?: boolean;
 }
-export interface ContainerCreate {
+export interface CloudSyncChangedEvent {
+  id: number;
+  fields: CloudSyncEntryInput;
+}
+export interface CloudSyncEntry {
+  id: number;
+  description?: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  credentials: CredentialsEntry;
+  attributes: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job: {
+    [k: string]: unknown;
+  } | null;
+  locked: boolean;
+  bwlimit?: CloudSyncBwlimit[];
+  transfers?: number | null;
+  direction: CloudSyncCreateDirection;
+  transfer_mode: "SYNC" | "COPY" | "MOVE";
+  encryption?: boolean;
+  filename_encryption?: boolean;
+  encryption_password?: string;
+  encryption_salt?: string;
+  create_empty_src_dirs?: boolean;
+  follow_symlinks?: boolean;
+}
+export interface CloudSyncQueryResultItem {
+  id?: number;
+  description?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  credentials?: CredentialsEntry;
+  attributes?: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  locked?: boolean;
+  bwlimit?: CloudSyncBwlimit[];
+  transfers?: number | null;
+  direction?: CloudSyncCreateDirection;
+  transfer_mode?: "SYNC" | "COPY" | "MOVE";
+  encryption?: boolean;
+  filename_encryption?: boolean;
+  encryption_password?: string;
+  encryption_salt?: string;
+  create_empty_src_dirs?: boolean;
+  follow_symlinks?: boolean;
+}
+export interface ContainerAddedEvent {
+  id: number;
+  fields: ContainerEntryInput;
+}
+export interface ContainerEntryInput {
+  id: number;
+  uuid: string;
+  name: string;
+  description?: string;
+  devices?: ContainerDeviceEntryInput[];
+  cpuset?: string | null;
+  autostart?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  dataset: string;
+  init?: string;
+  initdir?: string | null;
+  initenv?: {
+    [k: string]: string;
+  };
+  inituser?: string | null;
+  initgroup?: string | null;
+  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
+  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
+  capabilities_state?: {
+    [k: string]: boolean;
+  };
+  default_network?: string | null;
+  status: ContainerStatusInput;
+}
+export interface ContainerDeviceEntryInput {
+  id: number;
+  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
+  container: number;
+}
+export interface ContainerFilesystemDevice {
+  dtype: "FILESYSTEM";
+  target: string;
+  source: string;
+}
+export interface ContainerGPUDevice {
+  dtype: "GPU";
+  gpu_type: "AMD" | "INTEL" | "NVIDIA";
+  pci_address: string;
+}
+export interface ContainerNICDeviceInput {
+  dtype: "NIC";
+  trust_guest_rx_filters?: boolean;
+  type?: ContainerNICDeviceTypeInput;
+  nic_attach?: string | null;
+  mac?: string | null;
+}
+export interface ContainerUSBDevice {
+  dtype: "USB";
+  usb?: USBAttributes | null;
+  device?: string | null;
+}
+export interface DefaultIdmapConfiguration {
+  type: "DEFAULT";
+}
+export interface IsolatedIdmapConfiguration {
+  type: "ISOLATED";
+  slice: number | null;
+}
+export interface ContainerStatusInput {
+  state: ContainerStatusStateInput;
+  pid: number | null;
+  domain_state: string | null;
+}
+export interface ContainerChangedEvent {
+  id: number;
+  fields: ContainerEntryInput;
+}
+export interface ContainerCreateArgs {
   uuid?: string | null;
   name: string;
   description?: string;
@@ -454,197 +1186,452 @@ export interface ContainerCreate {
   pool?: string | null;
   image: ContainerCreateImage;
 }
-export interface ContainerDeviceCreate {
+export interface ContainerCreateImage {
+  name: string;
+  version: string;
+}
+export interface ContainerDeleteOptions {
+  force?: boolean;
+  recursive?: boolean;
+}
+export interface ContainerDetails {
+  id: string;
+  service_name: string;
+  image: string;
+  state: AppContainerDetailsState;
+}
+export interface ContainerDeviceAddedEvent {
+  id: number;
+  fields: ContainerDeviceEntryInput;
+}
+export interface ContainerDeviceChangedEvent {
+  id: number;
+  fields: ContainerDeviceEntryInput;
+}
+export interface ContainerDeviceCreateArgs {
   attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDeviceInput | ContainerUSBDevice;
   container: number;
 }
-export interface ContainerDeviceNicAttachChoices {
+export interface ContainerDeviceDeleteOptions {
+  force?: boolean;
+  raw_file?: boolean;
+  zvol?: boolean;
+}
+export interface ContainerDeviceEntry {
+  id: number;
+  attributes: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDevice | ContainerUSBDevice;
+  container: number;
+}
+export interface ContainerNICDevice {
+  dtype: "NIC";
+  trust_guest_rx_filters?: boolean;
+  type?: ContainerNICDeviceType;
+  nic_attach?: string | null;
+  mac?: string | null;
+}
+export interface ContainerDeviceNicAttachChoicesResult {
   BRIDGE: string[];
   MACVLAN: string[];
 }
-export interface CredentialsVerifyData {
-  valid: boolean;
-  error?: string | null;
-  excerpt?: string | null;
+export interface ContainerDeviceQueryResultItem {
+  id?: number;
+  attributes?: ContainerFilesystemDevice | ContainerGPUDevice | ContainerNICDevice | ContainerUSBDevice;
+  container?: number;
 }
-export interface DockerAddressPool {
-  base: string;
-  size: number;
+export interface ContainerDeviceRemovedEvent {
+  id: number;
 }
-export interface DockerBackupAppInfo {
-  id: string;
+export interface ContainerDeviceUpdate {
+  attributes?: {
+    [k: string]: unknown;
+  };
+  container?: number;
+}
+export interface ContainerEntry {
+  id: number;
+  uuid: string;
   name: string;
+  description?: string;
+  devices?: ContainerDeviceEntry[];
+  cpuset?: string | null;
+  autostart?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  dataset: string;
+  init?: string;
+  initdir?: string | null;
+  initenv?: {
+    [k: string]: string;
+  };
+  inituser?: string | null;
+  initgroup?: string | null;
+  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
+  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
+  capabilities_state?: {
+    [k: string]: boolean;
+  };
+  default_network?: string | null;
+  status: ContainerStatus;
+}
+export interface ContainerStatus {
+  state: ContainerStatusState;
+  pid: number | null;
+  domain_state: string | null;
+}
+export interface ContainerImageQueryRegistryResultImage {
+  name: string;
+  versions: ContainerImageQueryRegistryResultImageVersion[];
+}
+export interface ContainerImageQueryRegistryResultImageVersion {
+  version: string;
+}
+export interface ContainerQueryResultItem {
+  id?: number;
+  uuid?: string;
+  name?: string;
+  description?: string;
+  devices?: ContainerDeviceEntry[];
+  cpuset?: string | null;
+  autostart?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  dataset?: string;
+  init?: string;
+  initdir?: string | null;
+  initenv?: {
+    [k: string]: string;
+  };
+  inituser?: string | null;
+  initgroup?: string | null;
+  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
+  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
+  capabilities_state?: {
+    [k: string]: boolean;
+  };
+  default_network?: string | null;
+  status?: ContainerStatus;
+}
+export interface ContainerRemovedEvent {
+  id: number;
+}
+export interface ContainerStopOptions {
+  force?: boolean;
+  force_after_timeout?: boolean;
+}
+export interface ContainerUpdate {
+  name?: string;
+  description?: string;
+  cpuset?: string | null;
+  autostart?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  init?: string;
+  initdir?: string | null;
+  initenv?: {
+    [k: string]: string;
+  };
+  inituser?: string | null;
+  initgroup?: string | null;
+  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
+  capabilities_state?: {
+    [k: string]: boolean;
+  };
+}
+export interface CoreGetJobsAddedEvent {
+  id: number;
+  fields: CoreGetJobsItem;
+}
+export interface CoreGetJobsItem {
+  id: number;
+  message_ids: unknown[];
+  method: string;
+  arguments: unknown[];
+  transient: boolean;
+  description: string | null;
+  abortable: boolean;
+  logs_path: string | null;
+  logs_excerpt: string | null;
+  progress: CoreGetJobsItemProgress;
+  result: unknown;
+  result_encoding_error: unknown;
+  error: string | null;
+  exception: string | null;
+  exc_info: CoreGetJobsItemExcInfo | null;
   state: string;
+  time_started: string | null;
+  time_finished: string | null;
+  credentials: CoreGetJobsItemCredentials | null;
 }
-export interface DockerBackupEntry {
+export interface CoreGetJobsItemExcInfo {
+  repr: string | null;
+  type: string | null;
+  errno: number | null;
+  errname: string | null;
+  extra: unknown;
+}
+export interface CoreGetJobsChangedEvent {
+  id: number;
+  fields: CoreGetJobsItem;
+}
+export interface CoreGetJobsItemQueryResultItem {
+  id?: number;
+  message_ids?: unknown[];
+  method?: string;
+  arguments?: unknown[];
+  transient?: boolean;
+  description?: string | null;
+  abortable?: boolean;
+  logs_path?: string | null;
+  logs_excerpt?: string | null;
+  progress?: CoreGetJobsItemProgress;
+  result?: unknown;
+  result_encoding_error?: unknown;
+  error?: string | null;
+  exception?: string | null;
+  exc_info?: CoreGetJobsItemExcInfo | null;
+  state?: string;
+  time_started?: string | null;
+  time_finished?: string | null;
+  credentials?: CoreGetJobsItemCredentials | null;
+}
+export interface CredentialsAddedEvent {
+  id: number;
+  fields: CredentialsEntryInput;
+}
+export interface CredentialsChangedEvent {
+  id: number;
+  fields: CredentialsEntryInput;
+}
+export interface CredentialsQueryResultItem {
+  id?: number;
+  name?: string;
+  provider?:
+    | AzureBlobCredentialsModel
+    | B2CredentialsModel
+    | BoxCredentialsModel
+    | DropboxCredentialsModel
+    | FTPCredentialsModel
+    | GoogleCloudStorageCredentialsModel
+    | GoogleDriveCredentialsModel
+    | GooglePhotosCredentialsModel
+    | HTTPCredentialsModel
+    | HubicCredentialsModel
+    | MegaCredentialsModel
+    | OneDriveCredentialsModel
+    | PCloudCredentialsModel
+    | S3CredentialsModel
+    | SFTPCredentialsModel
+    | StorjIxCredentialsModel
+    | SwiftCredentialsModel
+    | WebDavCredentialsModel
+    | YandexCredentialsModel;
+}
+export interface CSRProfilesModel {
+  "TLS Server (e.g. Web UI, FTPS, Apps) - RSA"?: TLSServerRSAProfile;
+  "TLS Server (e.g. Web UI, FTPS, Apps) - EC"?: TLSServerECProfile;
+  "TLS Client (e.g. Syslog, LDAP, KMIP) - RSA"?: TLSClientRSAProfile;
+  "TLS Client (e.g. Syslog, LDAP, KMIP) - EC"?: TLSClientECProfile;
+}
+export interface TLSServerRSAProfile {
+  cert_extensions?: ServerRSACSRExtensionsModel;
+  key_length?: number;
+  key_type?: string;
+  digest_algorithm?: string;
+}
+export interface ServerRSACSRExtensionsModel {
+  BasicConstraints?: BasicConstraintsModel;
+  ExtendedKeyUsage?: ServerAuthExtendedKeyUsageModel;
+  KeyUsage?: ServerRSAKeyUsageModel;
+}
+export interface ServerAuthExtendedKeyUsageModel {
+  enabled?: boolean;
+  extension_critical?: boolean;
+  usages?: string[];
+}
+export interface ServerRSAKeyUsageModel {
+  enabled?: boolean;
+  extension_critical?: boolean;
+  digital_signature?: boolean;
+  key_encipherment?: boolean;
+}
+export interface TLSServerECProfile {
+  cert_extensions?: ServerECCSRExtensionsModel;
+  ec_curve?: string;
+  key_type?: string;
+  digest_algorithm?: string;
+}
+export interface ServerECCSRExtensionsModel {
+  BasicConstraints?: BasicConstraintsModel;
+  ExtendedKeyUsage?: ServerAuthExtendedKeyUsageModel;
+  KeyUsage?: SigningKeyUsageModel;
+}
+export interface TLSClientRSAProfile {
+  cert_extensions?: ClientCSRExtensionsModel;
+  key_length?: number;
+  key_type?: string;
+  digest_algorithm?: string;
+}
+export interface TLSClientECProfile {
+  cert_extensions?: ClientCSRExtensionsModel;
+  ec_curve?: string;
+  key_type?: string;
+  digest_algorithm?: string;
+}
+export interface DiskEntry {
+  identifier: string;
   name: string;
-  apps: DockerBackupAppInfo[];
-  snapshot_name: string;
-  created_on: string;
-  backup_path: string;
+  subsystem: string;
+  number: number;
+  serial: string;
+  lunid: string | null;
+  size: number | null;
+  description: string;
+  transfermode: string;
+  hddstandby: Hddstandby;
+  advpowermgmt: Advpowermgmt;
+  expiretime: string | null;
+  model: string | null;
+  rotationrate: number | null;
+  type: string | null;
+  zfs_guid: string | null;
+  bus: string;
+  devname: string;
+  enclosure: DiskEntryEnclosure | null;
+  pool: string | null;
+  passwd?: string;
+  kmip_uid?: string | null;
+  sed: boolean | null;
+  sed_status?: string | null;
+}
+export interface DiskQueryAddedEvent {
+  id: string;
+  fields: DiskEntry;
+}
+export interface DiskQueryChangedEvent {
+  id: string;
+  fields: DiskEntry;
+}
+export interface DiskQueryResultItem {
+  identifier?: string;
+  name?: string;
+  subsystem?: string;
+  number?: number;
+  serial?: string;
+  lunid?: string | null;
+  size?: number | null;
+  description?: string;
+  transfermode?: string;
+  hddstandby?: Hddstandby;
+  advpowermgmt?: Advpowermgmt;
+  expiretime?: string | null;
+  model?: string | null;
+  rotationrate?: number | null;
+  type?: string | null;
+  zfs_guid?: string | null;
+  bus?: string;
+  devname?: string;
+  enclosure?: DiskEntryEnclosure | null;
+  pool?: string | null;
+  passwd?: string;
+  kmip_uid?: string | null;
+  sed?: boolean | null;
+  sed_status?: string | null;
+}
+export interface DiskResetSedArgs {
+  name: string;
+  psid: string;
+}
+export interface DiskSetupSedArgs {
+  name: string;
+  password?: string | null;
+}
+export interface DiskUnlockSedArgs {
+  name: string;
+  password?: string | null;
+}
+export interface DiskUpdate {
+  number?: number;
+  lunid?: string | null;
+  description?: string;
+  hddstandby?: Hddstandby;
+  advpowermgmt?: Advpowermgmt;
+  bus?: string;
+  enclosure?: DiskEntryEnclosure | null;
+  pool?: string | null;
+  passwd?: string;
+  sed_status?: string | null;
 }
 export interface DockerEntry {
   id: number;
   enable_image_updates: boolean;
   dataset: string | null;
   pool: string | null;
-  address_pools: DockerAddressPool[];
+  address_pools: {
+    [k: string]: unknown;
+  }[];
   cidr_v6: string;
-  registry_mirrors: DockerRegistryMirror[];
+  registry_mirrors: RegistryMirror[];
 }
-export interface DockerRegistryMirror {
+export interface RegistryMirror {
   url: string;
   insecure: boolean;
 }
-export interface DockerStateChangedEvent {
-  fields: DockerStatusInfoInput;
-}
-export interface DockerStatusInfoInput {
-  description: string;
-  status: DockerStatusInfoStatusInput;
-}
-export interface DockerStatusInfo {
-  description: string;
-  status: DockerStatusInfoStatus;
-}
-export interface DockerUpdate {
+export interface DockerUpdateArgs {
   enable_image_updates?: boolean;
   pool?: string | null;
-  address_pools?: DockerAddressPool[];
+  address_pools?: AddressPool[];
   cidr_v6?: string;
-  registry_mirrors?: DockerRegistryMirror[];
+  registry_mirrors?: RegistryMirror[];
   migrate_applications?: boolean;
 }
-export interface FilesystemDirEntry {
-  name: string;
+export interface EntitlementEntry {
+  entitled: boolean;
+  reason: Reason;
+  message: string;
+}
+export interface EntitlementFactsEntry {
+  hardware_type: "TRUENAS" | "COMMUNITY";
+  license_type: string | null;
+}
+export interface EntitlementsInfo {
+  features: {
+    [k: string]: EntitlementEntry;
+  };
+}
+export interface FilesystemSetaclArgs {
   path: string;
-  realpath: string | null;
-  type: FilesystemDirEntryType;
-  size: number;
-  allocation_size: number;
-  mode: number;
-  mount_id: number;
-  acl: boolean | null;
-  uid: number;
-  gid: number;
-  is_mountpoint: boolean;
-  is_ctldir: boolean | null;
-  attributes: (
-    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
-  )[];
-  xattrs: string[] | null;
-  zfs_attrs:
-    | (
-        | "READONLY"
-        | "HIDDEN"
-        | "SYSTEM"
-        | "ARCHIVE"
-        | "IMMUTABLE"
-        | "NOUNLINK"
-        | "APPENDONLY"
-        | "NODUMP"
-        | "OPAQUE"
-        | "AV_QUARANTINED"
-        | "AV_MODIFIED"
-        | "REPARSE"
-        | "OFFLINE"
-        | "SPARSE"
-      )[]
-    | null;
+  dacl: NFS4ACEInput[] | POSIXACE[];
+  options?: FilesystemSetAclOptions;
+  nfs41_flags?: NFS4ACL_Flags;
+  uid?: number | null;
+  user?: string | null;
+  gid?: number | null;
+  group?: string | null;
+  acltype?: ("NFS4" | "POSIX1E") | null;
 }
-export interface FilesystemDirQueryResultItem {
-  name?: string;
-  path?: string;
-  realpath?: string | null;
-  type?: FilesystemDirEntryType;
-  size?: number;
-  allocation_size?: number;
-  mode?: number;
-  mount_id?: number;
-  acl?: boolean | null;
-  uid?: number;
-  gid?: number;
-  is_mountpoint?: boolean;
-  is_ctldir?: boolean | null;
-  attributes?: (
-    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
-  )[];
-  xattrs?: string[] | null;
-  zfs_attrs?:
-    | (
-        | "READONLY"
-        | "HIDDEN"
-        | "SYSTEM"
-        | "ARCHIVE"
-        | "IMMUTABLE"
-        | "NOUNLINK"
-        | "APPENDONLY"
-        | "NODUMP"
-        | "OPAQUE"
-        | "AV_QUARANTINED"
-        | "AV_MODIFIED"
-        | "REPARSE"
-        | "OFFLINE"
-        | "SPARSE"
-      )[]
-    | null;
+export interface FilesystemSetAclOptions {
+  stripacl?: boolean;
+  recursive?: boolean;
+  traverse?: boolean;
+  validate_effective_acl?: boolean;
 }
-export interface FilesystemMkdirData {
-  path: string;
-  options?: FilesystemMkdirOptions;
-}
-export interface FilesystemSetZfsAttributesData {
+export interface FilesystemSetZfsAttributesArgs {
   path: string;
   zfs_file_attributes: ZFSFileAttrsData;
   options?: FilesystemSetZfsAttributesOptions;
 }
-export interface FTPUpdate {
-  port?: number;
-  clients?: number;
-  ipconnections?: number;
-  loginattempt?: number;
-  timeout?: number;
-  timeout_notransfer?: number;
-  onlyanonymous?: boolean;
-  anonpath?: string | null;
-  onlylocal?: boolean;
-  banner?: string;
-  filemask?: string;
-  dirmask?: string;
-  fxp?: boolean;
-  resume?: boolean;
-  defaultroot?: boolean;
-  ident?: boolean;
-  reversedns?: boolean;
-  masqaddress?: string;
-  passiveportsmin?: number;
-  passiveportsmax?: number;
-  localuserbw?: number;
-  localuserdlbw?: number;
-  anonuserbw?: number;
-  anonuserdlbw?: number;
-  tls?: boolean;
-  tls_policy?:
-    "" | "on" | "off" | "data" | "!data" | "auth" | "ctrl" | "ctrl+data" | "ctrl+!data" | "auth+data" | "auth+!data";
-  tls_opt_allow_client_renegotiations?: boolean;
-  tls_opt_allow_dot_login?: boolean;
-  tls_opt_allow_per_user?: boolean;
-  tls_opt_common_name_required?: boolean;
-  tls_opt_enable_diags?: boolean;
-  tls_opt_export_cert_data?: boolean;
-  tls_opt_no_empty_fragments?: boolean;
-  tls_opt_no_session_reuse_required?: boolean;
-  tls_opt_stdenvvars?: boolean;
-  tls_opt_dns_name_required?: boolean;
-  tls_opt_ip_address_required?: boolean;
-  ssltls_certificate?: number | null;
-  options?: string;
+export interface FilesystemSetZfsAttributesOptions {
+  recursive?: ("FILES" | "DIRECTORIES")[] | null;
+}
+export interface GraphIdentifier {
+  name: Name;
+  identifier?: string | null;
 }
 export interface InterfaceAddedEvent {
   id: string;
-  fields: InterfaceEntry;
+  fields: InterfaceEntryInput;
 }
-export interface InterfaceEntry {
+export interface InterfaceEntryInput {
   bridge_members?: string[];
   enable_learning?: boolean;
   stp?: boolean;
@@ -672,43 +1659,64 @@ export interface InterfaceEntry {
   failover_aliases?: InterfaceEntryAlias[];
   failover_virtual_aliases?: InterfaceEntryAlias[];
 }
+export interface InterfaceEntryState {
+  name: string;
+  orig_name: string;
+  description: string;
+  mtu: number;
+  cloned: boolean;
+  flags: string[];
+  nd6_flags: unknown[];
+  capabilities: unknown[];
+  link_state: string;
+  media_type: string;
+  media_subtype: string;
+  active_media_type: string;
+  active_media_subtype: string;
+  supported_media: unknown[];
+  media_options: unknown[] | null;
+  link_address: string;
+  permanent_link_address: string | null;
+  hardware_link_address: string;
+  rx_queues?: number;
+  tx_queues?: number;
+  aliases: InterfaceEntryStateAlias[];
+  vrrp_config?: unknown[] | null;
+  protocol?: string | null;
+  ports?: InterfaceEntryStatePort[];
+  xmit_hash_policy?: string | null;
+  lacpdu_rate?: string | null;
+  parent?: string | null;
+  tag?: number | null;
+  pcp?: number | null;
+  fec_mode?: ("AUTO" | "OFF" | "RS" | "BASER" | "LLRS") | null;
+}
 export interface InterfaceChangedEvent {
   id: string;
-  fields: InterfaceEntry;
+  fields: InterfaceEntryInput;
 }
-export interface InterfaceCreate {
+export interface InterfaceEntry {
+  id: string;
+  name: string;
+  fake: boolean;
+  type: string;
+  state: InterfaceEntryState;
+  aliases: InterfaceEntryAlias[];
+  ipv4_dhcp: boolean;
+  ipv6_auto: boolean;
+  description: string;
+  mtu: number | null;
+  fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
+  vlan_parent_interface?: string | null;
+  vlan_tag?: number | null;
+  vlan_pcp?: number | null;
+  lag_protocol?: string;
+  lag_ports?: string[];
   bridge_members?: string[];
   enable_learning?: boolean;
-  stp?: boolean;
-  lag_ports?: string[];
-  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
-  lacpdu_rate?: "SLOW" | "FAST" | null;
-  failover_critical?: boolean;
-  failover_group?: number | null;
-  name?: string;
-  description?: string;
-  type: InterfaceCreateTypeInput;
-  ipv4_dhcp?: boolean;
-  ipv6_auto?: boolean;
-  aliases?: InterfaceCreateAlias2[];
-  failover_vhid?: number | null;
-  failover_aliases?: InterfaceCreateFailoverAlias2[];
-  failover_virtual_aliases?: InterfaceCreateFailoverAlias2[];
-  lag_protocol?: "LACP" | "FAILOVER" | "LOADBALANCE" | "ROUNDROBIN" | "NONE";
-  vlan_parent_interface?: string;
-  vlan_tag?: number;
-  vlan_pcp?: number | null;
-  mtu?: number | null;
+  [k: string]: unknown;
 }
 export interface InterfaceQueryResultItem {
-  bridge_members?: string[];
-  enable_learning?: boolean;
-  stp?: boolean;
-  lag_ports?: string[];
-  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
-  lacpdu_rate?: "SLOW" | "FAST" | null;
-  failover_critical?: boolean;
-  failover_group?: number | null;
   id?: string;
   name?: string;
   fake?: boolean;
@@ -724,107 +1732,962 @@ export interface InterfaceQueryResultItem {
   vlan_tag?: number | null;
   vlan_pcp?: number | null;
   lag_protocol?: string;
-  failover_vhid?: number | null;
-  failover_aliases?: InterfaceEntryAlias[];
-  failover_virtual_aliases?: InterfaceEntryAlias[];
-}
-export interface InterfaceUpdate {
+  lag_ports?: string[];
   bridge_members?: string[];
   enable_learning?: boolean;
-  stp?: boolean;
-  lag_ports?: string[];
-  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
-  lacpdu_rate?: "SLOW" | "FAST" | null;
-  failover_critical?: boolean;
-  failover_group?: number | null;
+  [k: string]: unknown;
+}
+export interface InterfaceUpdate {
   name?: string;
   description?: string;
   ipv4_dhcp?: boolean;
   ipv6_auto?: boolean;
   aliases?: InterfaceCreateAlias[];
+  failover_critical?: boolean;
+  failover_group?: number | null;
   failover_vhid?: number | null;
   failover_aliases?: InterfaceCreateFailoverAlias[];
   failover_virtual_aliases?: InterfaceCreateFailoverAlias[];
+  bridge_members?: unknown[];
+  enable_learning?: boolean;
+  stp?: boolean;
   lag_protocol?: "LACP" | "FAILOVER" | "LOADBALANCE" | "ROUNDROBIN" | "NONE";
+  xmit_hash_policy?: "LAYER2" | "LAYER2+3" | "LAYER3+4" | null;
+  lacpdu_rate?: "SLOW" | "FAST" | null;
+  lag_ports?: string[];
   vlan_parent_interface?: string;
   vlan_tag?: number;
   vlan_pcp?: number | null;
   mtu?: number | null;
   fec_mode?: "AUTO" | "OFF" | "RS" | "BASER" | "LLRS";
 }
-export interface KMIPUpdate {
-  enabled?: boolean;
-  manage_sed_disks?: boolean;
-  manage_zfs_keys?: boolean;
-  certificate?: number | null;
-  certificate_authority?: number | null;
-  port?: number;
-  server?: string | null;
-  ssl_version?: "PROTOCOL_TLSv1" | "PROTOCOL_TLSv1_1" | "PROTOCOL_TLSv1_2";
-  force_clear?: boolean;
-  change_server?: boolean;
-  validate?: boolean;
+export interface ISCSIGlobalEntry {
+  id: number;
+  basename: string;
+  isns_servers: string[];
+  listen_port?: number;
+  pool_avail_threshold?: number | null;
+  alua: boolean;
+  iser: boolean;
+  direct_config: boolean | null;
+  mode: number;
 }
-export interface LXCConfigUpdate {
+export interface ISCSIGlobalSessionsItem {
+  initiator: string;
+  initiator_addr: string;
+  initiator_alias: string | null;
+  target: string;
+  target_alias: string;
+  header_digest: string | null;
+  data_digest: string | null;
+  max_data_segment_length: number | null;
+  max_receive_data_segment_length: number | null;
+  max_xmit_data_segment_length: number | null;
+  max_burst_length: number | null;
+  first_burst_length: number | null;
+  immediate_data: boolean;
+  iser: boolean;
+  offload: boolean;
+}
+export interface ISCSIGlobalSessionsItemQueryResultItem {
+  initiator?: string;
+  initiator_addr?: string;
+  initiator_alias?: string | null;
+  target?: string;
+  target_alias?: string;
+  header_digest?: string | null;
+  data_digest?: string | null;
+  max_data_segment_length?: number | null;
+  max_receive_data_segment_length?: number | null;
+  max_xmit_data_segment_length?: number | null;
+  max_burst_length?: number | null;
+  first_burst_length?: number | null;
+  immediate_data?: boolean;
+  iser?: boolean;
+  offload?: boolean;
+}
+export interface ISCSIGlobalUpdateArgs {
+  basename?: string;
+  isns_servers?: string[];
+  listen_port?: number;
+  pool_avail_threshold?: number | null;
+  alua?: boolean;
+  iser?: boolean;
+  direct_config?: boolean | null;
+  mode?: number;
+}
+export interface ISCSITargetExtentEntry {
+  id: number;
+  name: string;
+  type?: IscsiExtentCreateType;
+  disk?: string | null;
+  serial?: string | null;
+  path?: string | null;
+  dataset: string | null;
+  relative_path: string | null;
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  pblocksize?: boolean;
+  avail_threshold?: number | null;
+  comment?: string;
+  naa: string;
+  insecure_tpc?: boolean;
+  xen?: boolean;
+  rpm?: Rpm;
+  ro?: boolean;
+  enabled?: boolean;
+  vendor: string;
+  product_id?: string | null;
+  locked: boolean | null;
+}
+export interface ISCSITargetExtentQueryResultItem {
+  id?: number;
+  name?: string;
+  type?: IscsiExtentCreateType;
+  disk?: string | null;
+  serial?: string | null;
+  path?: string | null;
+  dataset?: string | null;
+  relative_path?: string | null;
+  filesize?: string | number;
+  blocksize?: Blocksize;
+  pblocksize?: boolean;
+  avail_threshold?: number | null;
+  comment?: string;
+  naa?: string;
+  insecure_tpc?: boolean;
+  xen?: boolean;
+  rpm?: Rpm;
+  ro?: boolean;
+  enabled?: boolean;
+  vendor?: string;
+  product_id?: string | null;
+  locked?: boolean | null;
+}
+export interface LicenseFeatureEntry {
+  name: string;
+  start_date: string | null;
+  expires_at: string | null;
+  type: string | null;
+}
+export interface LicenseInfoEntry {
+  id: string;
+  type: string;
+  model: string | null;
+  features: LicenseFeatureEntry[];
+  serials: string[];
+  enclosures: {
+    [k: string]: number;
+  };
+  contract_type: string | null;
+  issued_at: string | null;
+}
+export interface LXCConfigEntry {
+  id: number;
+  preferred_pool?: string | null;
+  bridge?: string | null;
+  v4_network: string;
+  v6_network: string;
+}
+export interface LXCConfigUpdateArgs {
   preferred_pool?: string | null;
   bridge?: string | null;
   v4_network?: string;
   v6_network?: string;
 }
-export interface MailEntry {
-  fromemail: string;
-  fromname: string;
-  outgoingserver: string;
-  port: number;
-  security: Security;
-  smtp: boolean;
-  user: string | null;
-  pass: string | null;
-  oauth: MailEntryOAuth | null;
+export interface NVMetHostAddedEvent {
   id: number;
+  fields: NVMetHostEntry;
 }
-export interface MailSendMessage {
-  subject: string;
-  text?: string;
-  html?: string | null;
-  to?: string[];
-  cc?: string[];
-  timeout?: number;
-  attachments?: boolean;
-  queue?: boolean;
-  extra_headers?: {
+export interface NVMetHostEntry {
+  id: number;
+  hostnqn: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetHostChangedEvent {
+  id: number;
+  fields: NVMetHostEntry;
+}
+export interface NVMetHostCreate {
+  hostnqn: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetHostQueryResultItem {
+  id?: number;
+  hostnqn?: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetHostSubsysAddedEvent {
+  id: number;
+  fields: NVMetHostSubsysEntry;
+}
+export interface NVMetHostSubsysEntry {
+  id: number;
+  host: NVMetHostEntry;
+  subsys: NVMetSubsysEntry;
+}
+export interface NVMetHostSubsysChangedEvent {
+  id: number;
+  fields: NVMetHostSubsysEntry;
+}
+export interface NVMetHostSubsysQueryResultItem {
+  id?: number;
+  host?: NVMetHostEntry;
+  subsys?: NVMetSubsysEntry;
+}
+export interface NVMetHostUpdate {
+  hostnqn?: string;
+  description?: string;
+  dhchap_key?: string | null;
+  dhchap_ctrl_key?: string | null;
+  dhchap_dhgroup?: ("2048-BIT" | "3072-BIT" | "4096-BIT" | "6144-BIT" | "8192-BIT") | null;
+  dhchap_hash?: "SHA-256" | "SHA-384" | "SHA-512";
+}
+export interface NVMetNamespaceAddedEvent {
+  id: number;
+  fields: NVMetNamespaceEntry;
+}
+export interface NVMetNamespaceEntry {
+  id: number;
+  nsid?: number | null;
+  subsys: NVMetSubsysEntry;
+  device_type: "ZVOL" | "FILE";
+  device_path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  filesize?: number | null;
+  device_uuid: string;
+  device_nguid: string;
+  enabled?: boolean;
+  locked: boolean | null;
+}
+export interface NVMetNamespaceChangedEvent {
+  id: number;
+  fields: NVMetNamespaceEntry;
+}
+export interface NVMetNamespaceQueryResultItem {
+  id?: number;
+  nsid?: number | null;
+  subsys?: NVMetSubsysEntry;
+  device_type?: "ZVOL" | "FILE";
+  device_path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  filesize?: number | null;
+  device_uuid?: string;
+  device_nguid?: string;
+  enabled?: boolean;
+  locked?: boolean | null;
+}
+export interface PeriodicSnapshotTaskAddedEvent {
+  id: number;
+  fields: PeriodicSnapshotTaskEntry;
+}
+export interface PeriodicSnapshotTaskEntry {
+  id: number;
+  dataset: string;
+  recursive?: boolean;
+  lifetime_value?: number;
+  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
+  enabled?: boolean;
+  exclude?: string[];
+  naming_schema?: string;
+  allow_empty?: boolean;
+  schedule?: PoolSnapshotTaskCron;
+  vmware_sync: boolean;
+  state: unknown;
+}
+export interface PeriodicSnapshotTaskChangedEvent {
+  id: number;
+  fields: PeriodicSnapshotTaskEntry;
+}
+export interface PoolAddedEvent {
+  id: number;
+  fields: PoolEntryInput;
+}
+export interface PoolEntryInput {
+  id: number;
+  name: string;
+  guid: string;
+  all_sed: boolean | null;
+  status: string;
+  path: string;
+  scan: PoolScanInput | null;
+  expand: {
+    [k: string]: unknown;
+  } | null;
+  is_upgraded?: boolean;
+  healthy: boolean;
+  warning: boolean;
+  status_code: string | null;
+  status_detail: string | null;
+  size: number | null;
+  allocated: number | null;
+  free: number | null;
+  freeing: number | null;
+  dedup_table_size: number | null;
+  dedup_table_quota: string | null;
+  fragmentation: string | null;
+  size_str: string | null;
+  allocated_str: string | null;
+  free_str: string | null;
+  freeing_str: string | null;
+  autotrim: {
     [k: string]: unknown;
   };
+  topology: PoolTopology | null;
 }
-export interface MailUpdate {
-  fromemail?: string;
-  fromname?: string;
-  outgoingserver?: string;
-  port?: number;
-  security?: Security;
-  smtp?: boolean;
-  user?: string | null;
-  pass?: string | null;
-  oauth?: MailEntryOAuth | null;
+export interface PoolScanInput {
+  function: Function;
+  state: PoolScanStateInput;
+  start_time: string;
+  end_time: string | null;
+  percentage: number;
+  bytes_to_process: number;
+  bytes_processed: number;
+  bytes_issued: number;
+  pause: string | null;
+  errors: number;
+  total_secs_left: number | null;
 }
-export interface NVMetGlobalSessionsItem {
-  host_traddr: string;
-  hostnqn: string;
-  subsys_id: number;
-  port_id: number;
-  ctrl: number;
+export interface PoolChangedEvent {
+  id: number;
+  fields: PoolEntryInput;
 }
-export interface NVMetGlobalSessionsItemQueryResultItem {
-  host_traddr?: string;
-  hostnqn?: string;
-  subsys_id?: number;
-  port_id?: number;
-  ctrl?: number;
-}
-export interface ReportingExportsCreate {
-  enabled: boolean;
-  attributes: GraphiteExporter;
+export interface PoolCreate {
   name: string;
+  encryption?: boolean;
+  dedup_table_quota?: "AUTO" | "CUSTOM" | null;
+  dedup_table_quota_value?: number | null;
+  deduplication?: PoolCreateDeduplication;
+  checksum?: PoolCreateChecksum;
+  encryption_options?: PoolCreateEncryptionOptions;
+  topology: PoolCreateTopology;
+  allow_duplicate_serials?: boolean;
+  all_sed?: boolean;
+  force_topology?: boolean;
+}
+export interface PoolCreateEncryptionOptions {
+  generate_key?: boolean;
+  pbkdf2iters?: number;
+  passphrase?: string | null;
+  key?: string | null;
+}
+export interface PoolCreateTopology {
+  /**
+   * @minItems 1
+   */
+  data: [
+    PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID,
+    ...(PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID)[]
+  ];
+  special?: (PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID)[];
+  dedup?: PoolCreateTopologyDedupVdev[];
+  cache?: PoolCreateTopologyCacheVdev[];
+  log?: PoolCreateTopologyLogVdev[];
+  spares?: string[];
+}
+export interface PoolCreateTopologyVdevDRAID {
+  type: "DRAID1" | "DRAID2" | "DRAID3";
+  disks: string[];
+  draid_data_disks?: number | null;
+  draid_spare_disks?: number;
+}
+export interface PoolCreateTopologyVdevNonDRAID {
+  type: "RAIDZ1" | "RAIDZ2" | "RAIDZ3" | "MIRROR" | "STRIPE";
+  disks: string[];
+}
+export interface PoolCreateTopologyDedupVdev {
+  type: PoolCreateTopologyDedupVdevTypeInput;
+  disks: string[];
+}
+export interface PoolCreateTopologyLogVdev {
+  type: PoolCreateTopologyDedupVdevTypeInput;
+  disks: string[];
+}
+export interface PoolDatasetAddedEvent {
+  id: string;
+  fields: PoolDatasetEntryInput;
+}
+export interface PoolDatasetEntryInput {
+  id?: string;
+  type?: string;
+  name?: string;
+  pool?: string;
+  encrypted?: boolean;
+  encryption_root?: string | null;
+  key_loaded?: boolean | null;
+  children?: unknown[];
+  user_properties?: PoolDatasetEntryUserProperties;
+  locked?: boolean;
+  tier?: TierInfoInput | null;
+  deduplication?: PoolDatasetEntryProperty;
+  aclmode?: PoolDatasetEntryProperty;
+  acltype?: PoolDatasetEntryProperty;
+  xattr?: PoolDatasetEntryProperty;
+  atime?: PoolDatasetEntryProperty;
+  casesensitivity?: PoolDatasetEntryProperty;
+  checksum?: PoolDatasetEntryProperty;
+  exec?: PoolDatasetEntryProperty;
+  sync?: PoolDatasetEntryProperty;
+  compression?: PoolDatasetEntryProperty;
+  compressratio?: PoolDatasetEntryProperty;
+  origin?: PoolDatasetEntryProperty;
+  quota?: PoolDatasetEntryProperty;
+  refquota?: PoolDatasetEntryProperty;
+  reservation?: PoolDatasetEntryProperty;
+  refreservation?: PoolDatasetEntryProperty;
+  copies?: PoolDatasetEntryProperty;
+  snapdir?: PoolDatasetEntryProperty;
+  readonly?: PoolDatasetEntryProperty;
+  recordsize?: PoolDatasetEntryProperty;
+  sparse?: PoolDatasetEntryProperty;
+  volsize?: PoolDatasetEntryProperty;
+  volblocksize?: PoolDatasetEntryProperty;
+  key_format?: PoolDatasetEntryProperty;
+  encryption_algorithm?: PoolDatasetEntryProperty;
+  used?: PoolDatasetEntryProperty;
+  usedbychildren?: PoolDatasetEntryProperty;
+  usedbydataset?: PoolDatasetEntryProperty;
+  usedbyrefreservation?: PoolDatasetEntryProperty;
+  usedbysnapshots?: PoolDatasetEntryProperty;
+  available?: PoolDatasetEntryProperty;
+  special_small_block_size?: PoolDatasetEntryProperty;
+  pbkdf2iters?: PoolDatasetEntryProperty;
+  creation?: PoolDatasetEntryProperty;
+  snapdev?: PoolDatasetEntryProperty;
+  mountpoint?: string | null;
+  [k: string]: unknown;
+}
+export interface TierInfoInput {
+  tier_type: "REGULAR" | "PERFORMANCE";
+  tier_job?: ZfsTierRewriteJobEntryInput | null;
+}
+export interface ZfsTierRewriteJobEntryInput {
+  tier_job_id: string;
+  dataset_name: string;
+  job_uuid: string;
+  status: ZfsTierRewriteJobEntryStatusInput;
+}
+export interface PoolDatasetChangedEvent {
+  id: string;
+  fields: PoolDatasetEntryInput;
+}
+export interface PoolDatasetCreateFilesystem {
+  name: string;
+  comments?: string;
+  sync?: Sync;
+  snapdev?: Snapdev;
+  compression?: Compression;
+  exec?: Exec;
+  managedby?: string;
+  quota_warning?: number | "INHERIT";
+  quota_critical?: number | "INHERIT";
+  refquota_warning?: number | "INHERIT";
+  refquota_critical?: number | "INHERIT";
+  reservation?: number;
+  refreservation?: number;
+  special_small_block_size?: number | "INHERIT";
+  copies?: number | "INHERIT";
+  snapdir?: Snapdir;
+  deduplication?: PoolDatasetCreateFilesystemDeduplication;
+  checksum?: PoolDatasetCreateFilesystemChecksum;
+  readonly?: PoolDatasetCreateFilesystemReadonlyInput;
+  share_type?: "GENERIC" | "MULTIPROTOCOL" | "NFS" | "SMB" | "APPS";
+  encryption_options?: PoolCreateEncryptionOptions;
+  encryption?: boolean;
+  inherit_encryption?: boolean;
+  user_properties?: PoolDatasetCreateUserProperty[];
+  create_ancestors?: boolean;
+  type?: "FILESYSTEM";
+  aclmode?: Aclmode;
+  acltype?: PoolDatasetCreateFilesystemAcltypeInput;
+  atime?: Atime;
+  casesensitivity?: Casesensitivity;
+  quota?: number | (0 | null);
+  refquota?: number | (0 | null);
+  recordsize?: string;
+}
+export interface PoolDatasetCreateVolume {
+  name: string;
+  comments?: string;
+  sync?: Sync;
+  snapdev?: Snapdev;
+  compression?: Compression;
+  exec?: Exec;
+  managedby?: string;
+  quota_warning?: number | "INHERIT";
+  quota_critical?: number | "INHERIT";
+  refquota_warning?: number | "INHERIT";
+  refquota_critical?: number | "INHERIT";
+  reservation?: number;
+  refreservation?: number;
+  special_small_block_size?: number | "INHERIT";
+  copies?: number | "INHERIT";
+  snapdir?: Snapdir;
+  deduplication?: PoolDatasetCreateFilesystemDeduplication;
+  checksum?: PoolDatasetCreateFilesystemChecksum;
+  readonly?: PoolDatasetCreateFilesystemReadonlyInput;
+  share_type?: "GENERIC" | "MULTIPROTOCOL" | "NFS" | "SMB" | "APPS";
+  encryption_options?: PoolCreateEncryptionOptions;
+  encryption?: boolean;
+  inherit_encryption?: boolean;
+  user_properties?: PoolDatasetCreateUserProperty[];
+  create_ancestors?: boolean;
+  type?: "VOLUME";
+  force_size?: boolean;
+  sparse?: boolean;
+  volsize: number;
+  volblocksize?: Volblocksize;
+}
+export interface PoolDatasetEntry {
+  id?: string;
+  type?: string;
+  name?: string;
+  pool?: string;
+  encrypted?: boolean;
+  encryption_root?: string | null;
+  key_loaded?: boolean | null;
+  children?: unknown[];
+  user_properties?: PoolDatasetEntryUserProperties;
+  locked?: boolean;
+  tier?: TierInfo | null;
+  deduplication?: PoolDatasetEntryProperty;
+  aclmode?: PoolDatasetEntryProperty;
+  acltype?: PoolDatasetEntryProperty;
+  xattr?: PoolDatasetEntryProperty;
+  atime?: PoolDatasetEntryProperty;
+  casesensitivity?: PoolDatasetEntryProperty;
+  checksum?: PoolDatasetEntryProperty;
+  exec?: PoolDatasetEntryProperty;
+  sync?: PoolDatasetEntryProperty;
+  compression?: PoolDatasetEntryProperty;
+  compressratio?: PoolDatasetEntryProperty;
+  origin?: PoolDatasetEntryProperty;
+  quota?: PoolDatasetEntryProperty;
+  refquota?: PoolDatasetEntryProperty;
+  reservation?: PoolDatasetEntryProperty;
+  refreservation?: PoolDatasetEntryProperty;
+  copies?: PoolDatasetEntryProperty;
+  snapdir?: PoolDatasetEntryProperty;
+  readonly?: PoolDatasetEntryProperty;
+  recordsize?: PoolDatasetEntryProperty;
+  sparse?: PoolDatasetEntryProperty;
+  volsize?: PoolDatasetEntryProperty;
+  volblocksize?: PoolDatasetEntryProperty;
+  key_format?: PoolDatasetEntryProperty;
+  encryption_algorithm?: PoolDatasetEntryProperty;
+  used?: PoolDatasetEntryProperty;
+  usedbychildren?: PoolDatasetEntryProperty;
+  usedbydataset?: PoolDatasetEntryProperty;
+  usedbyrefreservation?: PoolDatasetEntryProperty;
+  usedbysnapshots?: PoolDatasetEntryProperty;
+  available?: PoolDatasetEntryProperty;
+  special_small_block_size?: PoolDatasetEntryProperty;
+  pbkdf2iters?: PoolDatasetEntryProperty;
+  creation?: PoolDatasetEntryProperty;
+  snapdev?: PoolDatasetEntryProperty;
+  mountpoint?: string | null;
+  [k: string]: unknown;
+}
+export interface TierInfo {
+  tier_type: "REGULAR" | "PERFORMANCE";
+  tier_job?: ZfsTierRewriteJobEntry | null;
+}
+export interface ZfsTierRewriteJobEntry {
+  tier_job_id: string;
+  dataset_name: string;
+  job_uuid: string;
+  status: ZfsTierRewriteJobEntryStatus;
+}
+export interface PoolDatasetQueryResultItem {
+  id?: string;
+  type?: string;
+  name?: string;
+  pool?: string;
+  encrypted?: boolean;
+  encryption_root?: string | null;
+  key_loaded?: boolean | null;
+  children?: unknown[];
+  user_properties?: PoolDatasetEntryUserProperties;
+  locked?: boolean;
+  tier?: TierInfo | null;
+  deduplication?: PoolDatasetEntryProperty;
+  aclmode?: PoolDatasetEntryProperty;
+  acltype?: PoolDatasetEntryProperty;
+  xattr?: PoolDatasetEntryProperty;
+  atime?: PoolDatasetEntryProperty;
+  casesensitivity?: PoolDatasetEntryProperty;
+  checksum?: PoolDatasetEntryProperty;
+  exec?: PoolDatasetEntryProperty;
+  sync?: PoolDatasetEntryProperty;
+  compression?: PoolDatasetEntryProperty;
+  compressratio?: PoolDatasetEntryProperty;
+  origin?: PoolDatasetEntryProperty;
+  quota?: PoolDatasetEntryProperty;
+  refquota?: PoolDatasetEntryProperty;
+  reservation?: PoolDatasetEntryProperty;
+  refreservation?: PoolDatasetEntryProperty;
+  copies?: PoolDatasetEntryProperty;
+  snapdir?: PoolDatasetEntryProperty;
+  readonly?: PoolDatasetEntryProperty;
+  recordsize?: PoolDatasetEntryProperty;
+  sparse?: PoolDatasetEntryProperty;
+  volsize?: PoolDatasetEntryProperty;
+  volblocksize?: PoolDatasetEntryProperty;
+  key_format?: PoolDatasetEntryProperty;
+  encryption_algorithm?: PoolDatasetEntryProperty;
+  used?: PoolDatasetEntryProperty;
+  usedbychildren?: PoolDatasetEntryProperty;
+  usedbydataset?: PoolDatasetEntryProperty;
+  usedbyrefreservation?: PoolDatasetEntryProperty;
+  usedbysnapshots?: PoolDatasetEntryProperty;
+  available?: PoolDatasetEntryProperty;
+  special_small_block_size?: PoolDatasetEntryProperty;
+  pbkdf2iters?: PoolDatasetEntryProperty;
+  creation?: PoolDatasetEntryProperty;
+  snapdev?: PoolDatasetEntryProperty;
+  mountpoint?: string | null;
+  [k: string]: unknown;
+}
+export interface PoolEntry {
+  id: number;
+  name: string;
+  guid: string;
+  all_sed: boolean | null;
+  status: string;
+  path: string;
+  scan: PoolScan | null;
+  expand: {
+    [k: string]: unknown;
+  } | null;
+  is_upgraded?: boolean;
+  healthy: boolean;
+  warning: boolean;
+  status_code: string | null;
+  status_detail: string | null;
+  size: number | null;
+  allocated: number | null;
+  free: number | null;
+  freeing: number | null;
+  dedup_table_size: number | null;
+  dedup_table_quota: string | null;
+  fragmentation: string | null;
+  size_str: string | null;
+  allocated_str: string | null;
+  free_str: string | null;
+  freeing_str: string | null;
+  autotrim: {
+    [k: string]: unknown;
+  };
+  topology: PoolTopology | null;
+}
+export interface PoolQueryResultItem {
+  id?: number;
+  name?: string;
+  guid?: string;
+  all_sed?: boolean | null;
+  status?: string;
+  path?: string;
+  scan?: PoolScan | null;
+  expand?: {
+    [k: string]: unknown;
+  } | null;
+  is_upgraded?: boolean;
+  healthy?: boolean;
+  warning?: boolean;
+  status_code?: string | null;
+  status_detail?: string | null;
+  size?: number | null;
+  allocated?: number | null;
+  free?: number | null;
+  freeing?: number | null;
+  dedup_table_size?: number | null;
+  dedup_table_quota?: string | null;
+  fragmentation?: string | null;
+  size_str?: string | null;
+  allocated_str?: string | null;
+  free_str?: string | null;
+  freeing_str?: string | null;
+  autotrim?: {
+    [k: string]: unknown;
+  };
+  topology?: PoolTopology | null;
+}
+export interface PoolScanChangedEvent {
+  name: string;
+  scan: PoolScanInput;
+}
+export interface PoolSnapshotCreateWithName {
+  dataset: string;
+  recursive?: boolean;
+  exclude?: string[];
+  vmware_sync?: boolean;
+  suspend_vms?: boolean;
+  properties?: {
+    [k: string]: unknown;
+  };
+  name: string;
+}
+export interface PoolSnapshotCreateWithSchema {
+  dataset: string;
+  recursive?: boolean;
+  exclude?: string[];
+  vmware_sync?: boolean;
+  suspend_vms?: boolean;
+  properties?: {
+    [k: string]: unknown;
+  };
+  naming_schema: string;
+}
+export interface PoolSnapshotRenameOptions {
+  new_name: string;
+  force?: boolean;
+  recursive?: boolean;
+}
+export interface PoolSnapshotTaskDBEntry {
+  id: number;
+  dataset: string;
+  recursive?: boolean;
+  lifetime_value?: number;
+  lifetime_unit?: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
+  enabled?: boolean;
+  exclude?: string[];
+  naming_schema?: string;
+  allow_empty?: boolean;
+  schedule?: PoolSnapshotTaskCron;
+  state: string;
+}
+export interface PoolUpdate {
+  dedup_table_quota?: "AUTO" | "CUSTOM" | null;
+  dedup_table_quota_value?: number | null;
+  topology?: PoolUpdateTopology;
+  allow_duplicate_serials?: boolean;
+  all_sed?: boolean;
+  force_topology?: boolean;
+  autotrim?: Autotrim;
+}
+export interface PoolUpdateTopology {
+  data?: (PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID)[];
+  special?: (PoolCreateTopologyVdevDRAID | PoolCreateTopologyVdevNonDRAID)[];
+  dedup?: PoolCreateTopologyDedupVdev[];
+  cache?: PoolCreateTopologyCacheVdev[];
+  log?: PoolCreateTopologyLogVdev[];
+  spares?: string[];
+}
+export interface RemoteInfo {
+  platform: string;
+  version: string;
+  license: {
+    [k: string]: unknown;
+  } | null;
+  system_serial: string;
+  hostname: string;
+  uptime_seconds: number;
+  datetime: string;
+}
+export interface ReplicationAddedEvent {
+  id: number;
+  fields: ReplicationEntryInput;
+}
+export interface ReplicationEntryInput {
+  id: number;
+  name: string;
+  direction: CloudSyncCreateDirectionInput;
+  transport: ReplicationCountEligibleManualSnapshotsTransportInput;
+  ssh_credentials?: KeychainCredentialEntryInput | null;
+  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
+  netcat_active_side_listen_address?: string | null;
+  netcat_active_side_port_min?: number | null;
+  netcat_active_side_port_max?: number | null;
+  netcat_passive_side_connect_address?: string | null;
+  sudo?: boolean;
+  /**
+   * @minItems 1
+   */
+  source_datasets: [string, ...string[]];
+  target_dataset: string;
+  recursive: boolean;
+  exclude?: string[];
+  properties?: boolean;
+  properties_exclude?: string[];
+  properties_override?: {
+    [k: string]: string;
+  };
+  replicate?: boolean;
+  encryption?: boolean;
+  encryption_inherit?: boolean | null;
+  encryption_key?: string | null;
+  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
+  encryption_key_location?: string | null;
+  periodic_snapshot_tasks: PoolSnapshotTaskDBEntry[];
+  naming_schema?: string[];
+  also_include_naming_schema?: string[];
+  name_regex?: string | null;
+  auto: boolean;
+  schedule?: ReplicationTimeCronModel | null;
+  restrict_schedule?: ReplicationTimeCronModel | null;
+  only_matching_schedule?: boolean;
+  allow_from_scratch?: boolean;
+  readonly?: ReplicationCreateReadonlyInput;
+  hold_pending_snapshots?: boolean;
+  retention_policy: "SOURCE" | "CUSTOM" | "NONE";
+  lifetime_value?: number | null;
+  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
+  lifetimes?: ReplicationLifetimeModel[];
+  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
+  speed_limit?: number | null;
+  large_block?: boolean;
+  embed?: boolean;
+  compressed?: boolean;
+  retries?: number;
+  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
+  enabled?: boolean;
+  state: {
+    [k: string]: unknown;
+  };
+  job: {
+    [k: string]: unknown;
+  } | null;
+  has_encrypted_dataset_keys: boolean;
+}
+export interface ReplicationChangedEvent {
+  id: number;
+  fields: ReplicationEntryInput;
+}
+export interface ReplicationEntry {
+  id: number;
+  name: string;
+  direction: CloudSyncCreateDirection;
+  transport: ReplicationCountEligibleManualSnapshotsTransport;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
+  netcat_active_side_listen_address?: string | null;
+  netcat_active_side_port_min?: number | null;
+  netcat_active_side_port_max?: number | null;
+  netcat_passive_side_connect_address?: string | null;
+  sudo?: boolean;
+  /**
+   * @minItems 1
+   */
+  source_datasets: [string, ...string[]];
+  target_dataset: string;
+  recursive: boolean;
+  exclude?: string[];
+  properties?: boolean;
+  properties_exclude?: string[];
+  properties_override?: {
+    [k: string]: string;
+  };
+  replicate?: boolean;
+  encryption?: boolean;
+  encryption_inherit?: boolean | null;
+  encryption_key?: string | null;
+  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
+  encryption_key_location?: string | null;
+  periodic_snapshot_tasks: PoolSnapshotTaskDBEntry[];
+  naming_schema?: string[];
+  also_include_naming_schema?: string[];
+  name_regex?: string | null;
+  auto: boolean;
+  schedule?: ReplicationTimeCronModel | null;
+  restrict_schedule?: ReplicationTimeCronModel | null;
+  only_matching_schedule?: boolean;
+  allow_from_scratch?: boolean;
+  readonly?: Readonly;
+  hold_pending_snapshots?: boolean;
+  retention_policy: "SOURCE" | "CUSTOM" | "NONE";
+  lifetime_value?: number | null;
+  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
+  lifetimes?: ReplicationLifetimeModel[];
+  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
+  speed_limit?: number | null;
+  large_block?: boolean;
+  embed?: boolean;
+  compressed?: boolean;
+  retries?: number;
+  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
+  enabled?: boolean;
+  state: {
+    [k: string]: unknown;
+  };
+  job: {
+    [k: string]: unknown;
+  } | null;
+  has_encrypted_dataset_keys: boolean;
+}
+export interface ReplicationQueryResultItem {
+  id?: number;
+  name?: string;
+  direction?: CloudSyncCreateDirection;
+  transport?: ReplicationCountEligibleManualSnapshotsTransport;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  netcat_active_side?: ("LOCAL" | "REMOTE") | null;
+  netcat_active_side_listen_address?: string | null;
+  netcat_active_side_port_min?: number | null;
+  netcat_active_side_port_max?: number | null;
+  netcat_passive_side_connect_address?: string | null;
+  sudo?: boolean;
+  /**
+   * @minItems 1
+   */
+  source_datasets?: [string, ...string[]];
+  target_dataset?: string;
+  recursive?: boolean;
+  exclude?: string[];
+  properties?: boolean;
+  properties_exclude?: string[];
+  properties_override?: {
+    [k: string]: string;
+  };
+  replicate?: boolean;
+  encryption?: boolean;
+  encryption_inherit?: boolean | null;
+  encryption_key?: string | null;
+  encryption_key_format?: ("HEX" | "PASSPHRASE") | null;
+  encryption_key_location?: string | null;
+  periodic_snapshot_tasks?: PoolSnapshotTaskDBEntry[];
+  naming_schema?: string[];
+  also_include_naming_schema?: string[];
+  name_regex?: string | null;
+  auto?: boolean;
+  schedule?: ReplicationTimeCronModel | null;
+  restrict_schedule?: ReplicationTimeCronModel | null;
+  only_matching_schedule?: boolean;
+  allow_from_scratch?: boolean;
+  readonly?: Readonly;
+  hold_pending_snapshots?: boolean;
+  retention_policy?: "SOURCE" | "CUSTOM" | "NONE";
+  lifetime_value?: number | null;
+  lifetime_unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;
+  lifetimes?: ReplicationLifetimeModel[];
+  compression?: ("LZ4" | "PIGZ" | "PLZIP") | null;
+  speed_limit?: number | null;
+  large_block?: boolean;
+  embed?: boolean;
+  compressed?: boolean;
+  retries?: number;
+  logging_level?: ("DEBUG" | "INFO" | "WARNING" | "ERROR") | null;
+  enabled?: boolean;
+  state?: {
+    [k: string]: unknown;
+  };
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  has_encrypted_dataset_keys?: boolean;
 }
 export interface ReportingGetDataResponse {
   name: string;
@@ -835,102 +2698,1177 @@ export interface ReportingGetDataResponse {
   end: number;
   legend: string[];
 }
-export interface ReportingGraphsItem {
-  name: string;
-  title: string;
-  vertical_label: string;
-  identifiers: string[] | null;
-}
-export interface ReportingGraphsItemQueryResultItem {
-  name?: string;
-  title?: string;
-  vertical_label?: string;
-  identifiers?: string[] | null;
-}
-export interface ReportingNetdataGraphsItem {
-  name: string;
-  title: string;
-  vertical_label: string;
-  identifiers: string[] | null;
-}
-export interface ReportingNetdataGraphsItemQueryResultItem {
-  name?: string;
-  title?: string;
-  vertical_label?: string;
-  identifiers?: string[] | null;
-}
-export interface ReportingUpdate {
-  tier0_days?: number;
-  tier1_days?: number;
-  tier1_update_interval?: number;
-}
-export interface SNMPEntry {
+export interface RsyncTaskEntry {
   id: number;
-  location: string;
-  contact: string;
-  traps: boolean;
-  v3: boolean;
-  community?: string;
-  v3_username: string;
-  v3_authtype: "" | "MD5" | "SHA";
-  v3_password: string;
-  v3_privproto: (null | "AES" | "DES") | null;
-  v3_privpassphrase?: string | null;
-  options: string;
-  zilstat: boolean;
-}
-export interface SNMPUpdate {
-  location?: string;
-  contact?: string;
-  traps?: boolean;
-  v3?: boolean;
-  community?: string;
-  v3_username?: string;
-  v3_authtype?: "" | "MD5" | "SHA";
-  v3_password?: string;
-  v3_privproto?: (null | "AES" | "DES") | null;
-  v3_privpassphrase?: string | null;
-  options?: string;
-  zilstat?: boolean;
-}
-export interface SupportAttachTicket {
-  ticket: number;
-  filename: string;
-  token?: string;
-}
-export interface SystemSecurityUpdate {
-  enable_fips?: boolean;
-  enable_gpos_stig?: boolean;
-  min_password_age?: number | null;
-  max_password_age?: number | null;
-  password_complexity_ruleset?: ("UPPER" | "LOWER" | "NUMBER" | "SPECIAL")[] | null;
-  min_password_length?: number | null;
-  password_history_length?: number | null;
-}
-export interface TruecommandUpdate {
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  user: string;
+  mode?: RsyncTaskCreateMode;
+  remotehost?: string | null;
+  remoteport?: number | null;
+  remotemodule?: string | null;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  remotepath?: string;
+  direction?: RsyncTaskCreateDirection;
+  desc?: string;
+  schedule?: RsyncTaskSchedule;
+  recursive?: boolean;
+  times?: boolean;
+  compress?: boolean;
+  archive?: boolean;
+  delete?: boolean;
+  quiet?: boolean;
+  preserveperm?: boolean;
+  preserveattr?: boolean;
+  delayupdates?: boolean;
+  extra?: string[];
   enabled?: boolean;
-  api_key?: string | null;
+  locked: boolean;
+  job: {
+    [k: string]: unknown;
+  } | null;
 }
-export interface TrueNASConnectUpdate {
-  enabled?: boolean;
-}
-export interface TunableEntry {
-  type?: TunableCreateType;
-  var: string;
-  value: string;
-  comment?: string;
-  enabled?: boolean;
-  id: number;
-  orig_value: string;
-}
-export interface TunableQueryResultItem {
-  type?: TunableCreateType;
-  var?: string;
-  value?: string;
-  comment?: string;
-  enabled?: boolean;
+export interface RsyncTaskQueryResultItem {
   id?: number;
-  orig_value?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  user?: string;
+  mode?: RsyncTaskCreateMode;
+  remotehost?: string | null;
+  remoteport?: number | null;
+  remotemodule?: string | null;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  remotepath?: string;
+  direction?: RsyncTaskCreateDirection;
+  desc?: string;
+  schedule?: RsyncTaskSchedule;
+  recursive?: boolean;
+  times?: boolean;
+  compress?: boolean;
+  archive?: boolean;
+  delete?: boolean;
+  quiet?: boolean;
+  preserveperm?: boolean;
+  preserveattr?: boolean;
+  delayupdates?: boolean;
+  extra?: string[];
+  enabled?: boolean;
+  locked?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+}
+export interface S3AccesskeyAddedEvent {
+  id: number;
+  fields: S3AccesskeyEntryInput;
+}
+export interface S3AccesskeyEntryInput {
+  id: number;
+  name: string;
+  username: string | null;
+  user_identifier: number | string;
+  local: boolean;
+  access_key: string;
+  secret: string | null;
+  enabled: boolean;
+  expires_at?: string | null;
+  created_at: string;
+  last_used_at?: string | null;
+  manage_buckets?: boolean;
+  status: S3AccesskeyEntryStatusInput;
+}
+export interface S3AccesskeyChangedEvent {
+  id: number;
+  fields: S3AccesskeyEntryInput;
+}
+export interface S3AccesskeyCreate {
+  name: string;
+  username: string;
+  access_key?: string | null;
+  secret?: string | null;
+  enabled?: boolean;
+  expires_at?: string | null;
+  manage_buckets?: boolean;
+}
+export interface S3AccesskeyEntry {
+  id: number;
+  name: string;
+  username: string | null;
+  user_identifier: number | string;
+  local: boolean;
+  access_key: string;
+  secret: string | null;
+  enabled: boolean;
+  expires_at?: string | null;
+  created_at: string;
+  last_used_at?: string | null;
+  manage_buckets?: boolean;
+  status: S3AccesskeyEntryStatus;
+}
+export interface S3AccesskeyQueryResultItem {
+  id?: number;
+  name?: string;
+  username?: string | null;
+  user_identifier?: number | string;
+  local?: boolean;
+  access_key?: string;
+  secret?: string | null;
+  enabled?: boolean;
+  expires_at?: string | null;
+  created_at?: string;
+  last_used_at?: string | null;
+  manage_buckets?: boolean;
+  status?: S3AccesskeyEntryStatus;
+}
+export interface S3AccesskeyRemovedEvent {
+  id: number;
+}
+export interface S3AccesskeyUpdate {
+  name?: string;
+  enabled?: boolean;
+  expires_at?: string | null;
+  manage_buckets?: boolean;
+  rotate?: boolean;
+}
+export interface S3Entry {
+  id: number;
+  listeners?: S3Listener[];
+  servers?: number;
+  certificate?: number | null;
+  region?: string;
+  log_level?: "ERROR" | "WARNING" | "NOTICE" | "INFO" | "DEBUG";
+  default_audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL";
+  default_audit_overflow?: "DROP" | "BACKPRESSURE";
+  global_grants?: S3GrantEntry[];
+  managed_root_dataset?: string;
+}
+export interface S3Listener {
+  address: string;
+  port?: number;
+  tls?: boolean;
+}
+export interface S3GrantEntry {
+  principal_type: "USER" | "GROUP" | "EVERYONE";
+  xid?: number | null;
+  access: Access;
+  name: string;
+}
+export interface S3Grant {
+  principal_type: "USER" | "GROUP" | "EVERYONE";
+  xid?: number | null;
+  access: Access;
+}
+export interface S3Update {
+  listeners?: S3Listener[];
+  servers?: number;
+  certificate?: number | null;
+  region?: string;
+  log_level?: "ERROR" | "WARNING" | "NOTICE" | "INFO" | "DEBUG";
+  default_audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL";
+  default_audit_overflow?: "DROP" | "BACKPRESSURE";
+  global_grants?: S3Grant[];
+  managed_root_dataset?: string;
+}
+export interface SharingNFSAddedEvent {
+  id: number;
+  fields: SharingNFSEntryInput;
+}
+export interface SharingNFSEntryInput {
+  id: number;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  aliases?: string[];
+  comment?: string;
+  networks?: string[];
+  hosts?: string[];
+  ro?: boolean;
+  maproot_user?: string | null;
+  maproot_group?: string | null;
+  mapall_user?: string | null;
+  mapall_group?: string | null;
+  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
+  enabled?: boolean;
+  locked: boolean | null;
+  expose_snapshots?: boolean;
+  tier?: TierInfoInput | null;
+}
+export interface SharingNFSChangedEvent {
+  id: number;
+  fields: SharingNFSEntryInput;
+}
+export interface SharingNFSEntry {
+  id: number;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  aliases?: string[];
+  comment?: string;
+  networks?: string[];
+  hosts?: string[];
+  ro?: boolean;
+  maproot_user?: string | null;
+  maproot_group?: string | null;
+  mapall_user?: string | null;
+  mapall_group?: string | null;
+  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
+  enabled?: boolean;
+  locked: boolean | null;
+  expose_snapshots?: boolean;
+  tier?: TierInfo | null;
+}
+export interface SharingNFSQueryResultItem {
+  id?: number;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  aliases?: string[];
+  comment?: string;
+  networks?: string[];
+  hosts?: string[];
+  ro?: boolean;
+  maproot_user?: string | null;
+  maproot_group?: string | null;
+  mapall_user?: string | null;
+  mapall_group?: string | null;
+  security?: ("SYS" | "KRB5" | "KRB5I" | "KRB5P")[];
+  enabled?: boolean;
+  locked?: boolean | null;
+  expose_snapshots?: boolean;
+  tier?: TierInfo | null;
+}
+export interface SharingS3AddedEvent {
+  id: number;
+  fields: SharingS3EntryInput;
+}
+export interface SharingS3EntryInput {
+  id: number;
+  name: string;
+  dataset: string;
+  enabled?: boolean;
+  owner: string;
+  owner_uid: number;
+  grants?: S3GrantEntry[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+  locked?: boolean | null;
+  tier?: TierInfoInput | null;
+}
+export interface SharingS3ChangedEvent {
+  id: number;
+  fields: SharingS3EntryInput;
+}
+export interface SharingS3Create {
+  name: string;
+  dataset?: string | null;
+  enabled?: boolean;
+  owner: string;
+  grants?: S3Grant[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+}
+export interface SharingS3Entry {
+  id: number;
+  name: string;
+  dataset: string;
+  enabled?: boolean;
+  owner: string;
+  owner_uid: number;
+  grants?: S3GrantEntry[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+  locked?: boolean | null;
+  tier?: TierInfo | null;
+}
+export interface SharingS3QueryResultItem {
+  id?: number;
+  name?: string;
+  dataset?: string;
+  enabled?: boolean;
+  owner?: string;
+  owner_uid?: number;
+  grants?: S3GrantEntry[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+  locked?: boolean | null;
+  tier?: TierInfo | null;
+}
+export interface SharingS3RecoverableBucket {
+  name: string;
+  dataset: string;
+  enabled?: boolean;
+  owner: string;
+  owner_uid: number;
+  grants?: S3GrantEntry[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+}
+export interface SharingS3RecoverBucket {
+  dataset: string;
+  name_override?: string | null;
+  owner_override?: string | null;
+}
+export interface SharingS3RecoveredBucket {
+  dataset: string;
+  bucket: SharingS3Entry | null;
+  error: string | null;
+}
+export interface SharingS3RemovedEvent {
+  id: number;
+}
+export interface SharingS3Update {
+  name?: string;
+  enabled?: boolean;
+  owner?: string;
+  grants?: S3Grant[];
+  permissions_model?: "S3" | "MULTIPROTOCOL";
+  object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
+  versioning?: Versioning;
+  snapshot_versions?: string[];
+  snapshot_versions_max?: number;
+  multipart_etag?: "COMPOSITE" | "MINTED";
+  object_lock?: boolean;
+  object_lock_default_mode?: ("GOVERNANCE" | "COMPLIANCE") | null;
+  object_lock_default_days?: number | null;
+  audit?:
+    | (
+        | "GetObject"
+        | "PutObject"
+        | "DeleteObject"
+        | "GetObjectTagging"
+        | "PutObjectTagging"
+        | "DeleteObjectTagging"
+        | "ListBucket"
+        | "GetBucketLocation"
+        | "ListBucketMultipartUploads"
+        | "ListMultipartUploadParts"
+        | "AbortMultipartUpload"
+        | "PutObjectRetention"
+        | "PutObjectLegalHold"
+        | "ListAllMyBuckets"
+        | "GetObjectAcl"
+        | "PutObjectAcl"
+        | "GetBucketAcl"
+        | "PutBucketAcl"
+        | "PutBucketVersioning"
+        | "CreateBucket"
+        | "DeleteBucket"
+      )[]
+    | "ALL"
+    | null;
+  audit_overflow?: ("DROP" | "BACKPRESSURE") | null;
+}
+export interface SharingSMBAddedEvent {
+  id: number;
+  fields: SharingSMBEntryInput;
+}
+export interface SharingSMBEntryInput {
+  id: number;
+  purpose?: Purpose;
+  name: string;
+  path: string | "EXTERNAL";
+  dataset: string | null;
+  relative_path: string | null;
+  enabled?: boolean;
+  comment?: string;
+  readonly?: boolean;
+  browsable?: boolean;
+  access_based_share_enumeration?: boolean;
+  locked: boolean | null;
+  audit?: SmbAuditConfig;
+  options?:
+    | (
+        | LegacyOptInput
+        | DefaultOptInput
+        | TimeMachineOptInput
+        | MultiprotocolOptInput
+        | TimeLockedOptInput
+        | PrivateDatasetOptInput
+        | ExternalOptInput
+        | VeeamRepositoryOptInput
+        | FCPStorageOptInput
+      )
+    | null;
+  tier?: TierInfoInput | null;
+}
+export interface SharingSMBChangedEvent {
+  id: number;
+  fields: SharingSMBEntryInput;
+}
+export interface SharingSMBEntry {
+  id: number;
+  purpose?: Purpose;
+  name: string;
+  path: string | "EXTERNAL";
+  dataset: string | null;
+  relative_path: string | null;
+  enabled?: boolean;
+  comment?: string;
+  readonly?: boolean;
+  browsable?: boolean;
+  access_based_share_enumeration?: boolean;
+  locked: boolean | null;
+  audit?: SmbAuditConfig;
+  options?:
+    | (
+        | LegacyOpt
+        | DefaultOpt
+        | TimeMachineOpt
+        | MultiprotocolOpt
+        | TimeLockedOpt
+        | PrivateDatasetOpt
+        | ExternalOpt
+        | VeeamRepositoryOpt
+        | FCPStorageOpt
+      )
+    | null;
+  tier?: TierInfo | null;
+}
+export interface SharingSMBQueryResultItem {
+  id?: number;
+  purpose?: Purpose;
+  name?: string;
+  path?: string | "EXTERNAL";
+  dataset?: string | null;
+  relative_path?: string | null;
+  enabled?: boolean;
+  comment?: string;
+  readonly?: boolean;
+  browsable?: boolean;
+  access_based_share_enumeration?: boolean;
+  locked?: boolean | null;
+  audit?: SmbAuditConfig;
+  options?:
+    | (
+        | LegacyOpt
+        | DefaultOpt
+        | TimeMachineOpt
+        | MultiprotocolOpt
+        | TimeLockedOpt
+        | PrivateDatasetOpt
+        | ExternalOpt
+        | VeeamRepositoryOpt
+        | FCPStorageOpt
+      )
+    | null;
+  tier?: TierInfo | null;
+}
+export interface SharingSMBSetaclArgs {
+  share_name: string;
+  share_acl?: SMBShareAclEntry[];
+}
+export interface SMBShareAclEntry {
+  ae_perm: "FULL" | "CHANGE" | "READ" | "CUSTOM";
+  ae_type: "ALLOWED" | "DENIED";
+  ae_who_sid?: string | null;
+  ae_who_id?: SMBShareAclEntryWhoId | null;
+  ae_who_str?: string | null;
+}
+export interface SharingWebshareAddedEvent {
+  id: number;
+  fields: SharingWebshareEntryInput;
+}
+export interface SharingWebshareEntryInput {
+  id: number;
+  name: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  enabled?: boolean;
+  is_home_base?: boolean;
+  locked: boolean | null;
+  tier?: TierInfoInput | null;
+}
+export interface SharingWebshareChangedEvent {
+  id: number;
+  fields: SharingWebshareEntryInput;
+}
+export interface SharingWebshareCreate {
+  name: string;
+  path: string;
+  enabled?: boolean;
+  is_home_base?: boolean;
+}
+export interface SharingWebshareEntry {
+  id: number;
+  name: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  enabled?: boolean;
+  is_home_base?: boolean;
+  locked: boolean | null;
+  tier?: TierInfo | null;
+}
+export interface SharingWebshareQueryResultItem {
+  id?: number;
+  name?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  enabled?: boolean;
+  is_home_base?: boolean;
+  locked?: boolean | null;
+  tier?: TierInfo | null;
+}
+export interface SharingWebshareRemovedEvent {
+  id: number;
+}
+export interface SharingWebshareUpdate {
+  name?: string;
+  path?: string;
+  enabled?: boolean;
+  is_home_base?: boolean;
+}
+export interface SMBEntry {
+  id: number;
+  netbiosname: string;
+  netbiosalias: string[];
+  workgroup: string;
+  description: string;
+  minimum_protocol: "SMB1" | "SMB2" | "SMB3";
+  unixcharset: Unixcharset;
+  localmaster: boolean;
+  syslog: boolean;
+  aapl_extensions: boolean;
+  search_protocols?: "SPOTLIGHT"[];
+  admin_group: string | null;
+  guest: string;
+  filemask: string | "DEFAULT";
+  dirmask: string | "DEFAULT";
+  ntlmv1_auth: boolean;
+  multichannel: boolean;
+  encryption: SMBEntryEncryption;
+  bindip: string[];
+  server_sid: string | null;
+  smb_options: string;
+  debug: boolean;
+  stateful_failover: boolean;
+}
+export interface SMBShareAcl {
+  share_name: string;
+  share_acl?: SMBShareAclEntry[];
+}
+export interface SMBStatusOptions {
+  verbose?: boolean;
+  fast?: boolean;
+  restrict_user?: string;
+  restrict_session?: string;
+  resolve_uids?: boolean;
+}
+export interface SMBUpdateArgs {
+  netbiosname?: string;
+  netbiosalias?: string[];
+  workgroup?: string;
+  description?: string;
+  minimum_protocol?: "SMB1" | "SMB2" | "SMB3";
+  unixcharset?: Unixcharset;
+  localmaster?: boolean;
+  syslog?: boolean;
+  aapl_extensions?: boolean;
+  search_protocols?: "SPOTLIGHT"[];
+  admin_group?: string | null;
+  guest?: string;
+  filemask?: string | "DEFAULT";
+  dirmask?: string | "DEFAULT";
+  ntlmv1_auth?: boolean;
+  multichannel?: boolean;
+  encryption?: SMBEntryEncryptionInput;
+  bindip?: string[];
+  server_sid?: string | null;
+  smb_options?: string;
+  debug?: boolean;
+  stateful_failover?: boolean;
+}
+export interface SupportNewTicket {
+  ticket: number | null;
+  url: string | null;
+  has_debug: boolean;
+  debug_attach_error: string | null;
+}
+export interface SysInfo {
+  platform: string;
+  version: string;
+  license: {
+    [k: string]: unknown;
+  } | null;
+  system_serial: string;
+  hostname: string;
+  uptime_seconds: number;
+  datetime: string;
+  remote_info: RemoteInfo | null;
+}
+export interface SystemAdvancedEntry {
+  id: number;
+  advancedmode: boolean;
+  autotune: boolean;
+  kdump_enabled: boolean;
+  boot_scrub: number;
+  consolemenu: boolean;
+  consolemsg: boolean;
+  debugkernel: boolean;
+  fqdn_syslog: boolean;
+  motd: string;
+  login_banner: string;
+  powerdaemon: boolean;
+  serialconsole: boolean;
+  serialport: string;
+  anonstats_token: string;
+  serialspeed: Serialspeed;
+  overprovision: number | null;
+  traceback: boolean;
+  uploadcrash: boolean;
+  anonstats: boolean;
+  sed_user: "USER" | "MASTER";
+  sysloglevel: Sysloglevel;
+  /**
+   * @maxItems 2
+   */
+  syslogservers?: [] | [SyslogServer] | [SyslogServer, SyslogServer];
+  syslog_audit?: boolean;
+  isolated_gpu_pci_ids: string[];
+  kernel_extra_options: string;
+  nvidia: boolean;
+}
+export interface SystemAdvancedUpdate {
+  advancedmode?: boolean;
+  autotune?: boolean;
+  kdump_enabled?: boolean;
+  boot_scrub?: number;
+  consolemenu?: boolean;
+  consolemsg?: boolean;
+  debugkernel?: boolean;
+  fqdn_syslog?: boolean;
+  motd?: string;
+  login_banner?: string;
+  powerdaemon?: boolean;
+  serialconsole?: boolean;
+  serialport?: string;
+  serialspeed?: Serialspeed;
+  overprovision?: number | null;
+  traceback?: boolean;
+  uploadcrash?: boolean;
+  anonstats?: boolean;
+  sed_user?: "USER" | "MASTER";
+  sysloglevel?: Sysloglevel;
+  /**
+   * @maxItems 2
+   */
+  syslogservers?: [] | [SyslogServerInput] | [SyslogServerInput, SyslogServerInput];
+  syslog_audit?: boolean;
+  kernel_extra_options?: string;
+  nvidia?: boolean;
+  sed_passwd?: string;
+}
+export interface SystemGeneralEntry {
+  id: number;
+  ui_certificate: number | null;
+  ui_httpsport: number;
+  ui_httpsredirect: boolean;
+  ui_httpsprotocols: ("TLSv1" | "TLSv1.1" | "TLSv1.2" | "TLSv1.3")[];
+  ui_port: number;
+  /**
+   * @minItems 1
+   */
+  ui_address: [string, ...string[]];
+  /**
+   * @minItems 1
+   */
+  ui_v6address: [string, ...string[]];
+  ui_allowlist: string[];
+  ui_consolemsg: boolean;
+  ui_x_frame_options: "SAMEORIGIN" | "DENY" | "ALLOW_ALL";
+  kbdmap: string;
+  timezone: string;
+  usage_collection: boolean | null;
+  wizardshown: boolean;
+  usage_collection_is_set: boolean;
+  ds_auth: boolean;
+  ui_certificate_name: string | null;
+}
+export interface TruecommandEntry {
+  id: number;
+  api_key: string | null;
+  status: TruecommandConfigChangedEventFieldsStatus;
+  status_reason:
+    | "Truecommand service is connected."
+    | "Pending Confirmation From iX Portal for Truecommand API Key."
+    | "Truecommand service is disabled."
+    | "Truecommand API Key Disabled by iX Portal."
+    | "Waiting for connection from Truecommand."
+    | "Truecommand service is disabled on standby controller";
+  remote_url: string | null;
+  remote_ip_address: string | null;
+  enabled: boolean;
+}
+export interface TrueNASConnectEntry {
+  id: number;
+  enabled: boolean;
+  registration_details: {
+    [k: string]: unknown;
+  };
+  status: string;
+  status_reason: string;
+  certificate: number | null;
+  account_service_base_url: string;
+  leca_service_base_url: string;
+  tnc_base_url: string;
+  heartbeat_url: string;
+  tier: ("FOUNDATION" | "PLUS" | "BUSINESS") | null;
+  last_heartbeat_failure_datetime: string | null;
+}
+export interface TrueNASConnectUpdateArgs {
+  enabled?: boolean;
+}
+export interface TrueNASLicenseUploadOptions {
+  ha_propagate?: boolean;
+}
+export interface TwofactorOptions {
+  otp_digits?: number;
+  interval?: Interval;
+}
+export interface UPSUpdate {
+  powerdown?: boolean;
+  rmonitor?: boolean;
+  nocommwarntime?: number | null;
+  remoteport?: number;
+  shutdowntimer?: number;
+  hostsync?: number;
+  description?: string;
+  driver?: string;
+  extrausers?: string;
+  identifier?: string;
+  mode?: UPSEntryModeInput;
+  monpwd?: string;
+  monuser?: string;
+  options?: string;
+  optionsupsd?: string;
+  port?: string;
+  remotehost?: string;
+  shutdown?: Shutdown;
+  shutdowncmd?: string | null;
+}
+export interface USBPassthroughDevice {
+  capability: USBCapability;
+  available: boolean;
+  error: string | null;
+  description: string;
+}
+export interface UserAddedEvent {
+  id: number;
+  fields: UserEntry;
+}
+export interface UserEntry {
+  id: number;
+  uid: number;
+  username: string;
+  unixhash: string | null;
+  smbhash: string | null;
+  home?: string;
+  shell?: string;
+  full_name: string;
+  builtin: boolean;
+  smb?: boolean;
+  webshare?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group: {
+    [k: string]: unknown;
+  };
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  local: boolean;
+  immutable: boolean;
+  twofactor_auth_configured: boolean;
+  sid: string | null;
+  last_password_change: string | null;
+  password_age: number | null;
+  password_history: unknown[] | null;
+  password_change_required: boolean;
+  roles: string[];
+  api_keys: number[];
+}
+export interface UserChangedEvent {
+  id: number;
+  fields: UserEntry;
+}
+export interface UserCreate {
+  uid?: number | null;
+  username: string;
+  home?: string;
+  shell?: string;
+  full_name: string;
+  smb?: boolean;
+  webshare?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group?: number | null;
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  group_create?: boolean;
+  home_create?: boolean;
+  home_mode?: string;
+  password?: string | null;
+  random_password?: boolean;
+}
+export interface UserCreateUpdateResult {
+  id: number;
+  uid: number;
+  username: string;
+  unixhash: string | null;
+  smbhash: string | null;
+  home?: string;
+  shell?: string;
+  full_name: string;
+  builtin: boolean;
+  smb?: boolean;
+  webshare?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group: {
+    [k: string]: unknown;
+  };
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  local: boolean;
+  immutable: boolean;
+  twofactor_auth_configured: boolean;
+  sid: string | null;
+  last_password_change: string | null;
+  password_age: number | null;
+  password_history: unknown[] | null;
+  password_change_required: boolean;
+  roles: string[];
+  api_keys: number[];
+  password: string | null;
+}
+export interface UserQueryResultItem {
+  id?: number;
+  uid?: number;
+  username?: string;
+  unixhash?: string | null;
+  smbhash?: string | null;
+  home?: string;
+  shell?: string;
+  full_name?: string;
+  builtin?: boolean;
+  smb?: boolean;
+  webshare?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group?: {
+    [k: string]: unknown;
+  };
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  local?: boolean;
+  immutable?: boolean;
+  twofactor_auth_configured?: boolean;
+  sid?: string | null;
+  last_password_change?: string | null;
+  password_age?: number | null;
+  password_history?: unknown[] | null;
+  password_change_required?: boolean;
+  roles?: string[];
+  api_keys?: number[];
+}
+export interface UserRenew2FaSecretResult {
+  id: number;
+  uid: number;
+  username: string;
+  unixhash: string | null;
+  smbhash: string | null;
+  home?: string;
+  shell?: string;
+  full_name: string;
+  builtin: boolean;
+  smb?: boolean;
+  webshare?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group: {
+    [k: string]: unknown;
+  };
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  local: boolean;
+  immutable: boolean;
+  twofactor_auth_configured: boolean;
+  sid: string | null;
+  last_password_change: string | null;
+  password_age: number | null;
+  password_history: unknown[] | null;
+  password_change_required: boolean;
+  roles: string[];
+  api_keys: number[];
+  twofactor_config: UserTwofactorConfigEntry;
+}
+export interface UserUpdate {
+  username?: string;
+  home?: string;
+  shell?: string;
+  full_name?: string;
+  smb?: boolean;
+  webshare?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group?: number | null;
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  home_create?: boolean;
+  home_mode?: string;
+  password?: string | null;
+  random_password?: boolean;
 }
 export interface VMAddedEvent {
   id: number;
@@ -970,139 +3908,18 @@ export interface VMEntryInput {
   status: VMStatus;
   enable_secure_boot?: boolean;
 }
-export interface VMDeviceEntryInput {
-  id: number;
-  attributes:
-    | VMCDROMDevice
-    | VMDisplayDevice
-    | VMISCSIDiskDevice
-    | VMNICDevice
-    | VMPCIDevice
-    | VMRAWDeviceInput
-    | VMDiskDeviceInput
-    | VMUSBDevice;
-  vm: number;
-  order: number;
-}
-export interface VMNICDevice {
-  dtype: "NIC";
-  trust_guest_rx_filters?: boolean;
-  type?: "E1000" | "VIRTIO";
-  nic_attach?: string | null;
-  mac?: string | null;
-  pci_address?: VMNICPciAddress | null;
-}
-export interface VMBootloaderOptions {
-  UEFI?: "UEFI";
-  UEFI_CSM?: "Legacy BIOS";
+export interface VMStatus {
+  state: string;
+  pid: number | null;
+  domain_state: string | null;
 }
 export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
 }
-export interface VMCreate {
-  command_line_args?: string;
-  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
-  cpu_model?: string | null;
-  name: string;
-  description?: string;
-  vcpus?: number;
-  cores?: number;
-  threads?: number;
-  cpuset?: string | null;
-  nodeset?: string | null;
-  enable_cpu_topology_extension?: boolean;
-  pin_vcpus?: boolean;
-  suspend_on_snapshot?: boolean;
-  trusted_platform_module?: boolean;
-  memory: number;
-  min_memory?: number | null;
-  hyperv_enlightenments?: boolean;
-  bootloader?: Bootloader;
-  bootloader_ovmf?: string | null;
-  autostart?: boolean;
-  hide_from_msr?: boolean;
-  ensure_display_device?: boolean;
-  time?: Time;
-  shutdown_timeout?: number;
-  arch_type?: string | null;
-  machine_type?: string | null;
-  uuid?: string | null;
-  enable_secure_boot?: boolean;
-}
-export interface VMDeviceAddedEvent {
-  id: number;
-  fields: VMDeviceEntryInput;
-}
-export interface VMDeviceChangedEvent {
-  id: number;
-  fields: VMDeviceEntryInput;
-}
-export interface VMDeviceConvert {
-  source: string;
-  destination: string;
-}
-export interface VMDeviceCreate {
-  attributes:
-    | VMCDROMDevice
-    | VMDisplayDevice
-    | VMISCSIDiskDevice
-    | VMNICDevice
-    | VMPCIDevice
-    | VMRAWDeviceInput
-    | VMDiskDeviceInput
-    | VMUSBDevice;
-  vm: number;
-  order?: number | null;
-}
-export interface VMDeviceEntry {
-  id: number;
-  attributes:
-    | VMCDROMDevice
-    | VMDisplayDevice
-    | VMISCSIDiskDevice
-    | VMNICDevice
-    | VMPCIDevice
-    | VMRAWDevice
-    | VMDiskDevice
-    | VMUSBDevice;
-  vm: number;
-  order: number;
-}
-export interface VMDeviceIotypeChoices {
-  NATIVE?: string;
-  THREADS?: string;
-  IO_URING?: string;
-}
-export interface VMDeviceNicAttachChoices {
+export interface VMDeviceNicAttachChoicesResult {
   BRIDGE: string[];
   MACVLAN: string[];
-}
-export interface VMDeviceQueryResultItem {
-  id?: number;
-  attributes?:
-    | VMCDROMDevice
-    | VMDisplayDevice
-    | VMISCSIDiskDevice
-    | VMNICDevice
-    | VMPCIDevice
-    | VMRAWDevice
-    | VMDiskDevice
-    | VMUSBDevice;
-  vm?: number;
-  order?: number;
-}
-export interface VMDeviceVirtualSize {
-  path: string;
-}
-export interface VMDisplayDeviceInfo {
-  id: number;
-  attributes: GetDisplayDevice;
-  vm: number;
-  order: number;
-}
-export interface VMDisplayWebURIOptions {
-  protocol?: Protocol;
 }
 export interface VMEntry {
   command_line_args?: string;
@@ -1131,52 +3948,12 @@ export interface VMEntry {
   shutdown_timeout?: number;
   arch_type?: string | null;
   machine_type?: string | null;
-  uuid: string;
+  uuid?: string | null;
   devices: VMDeviceEntry[];
   display_available: boolean;
   id: number;
   status: VMStatus;
   enable_secure_boot?: boolean;
-}
-export interface VMFlags {
-  intel_vmx: boolean;
-  unrestricted_guest: boolean;
-  amd_rvi: boolean;
-  amd_asids: boolean;
-}
-export interface VMGetDisplayWebUri {
-  error: string | null;
-  uri: string | null;
-}
-export interface VMGetVmemoryInUse {
-  RNP: number;
-  PRD: number;
-  RPRD: number;
-}
-export interface VMGetVmMemoryInfo {
-  minimum_memory_requested: number | null;
-  total_memory_requested: number;
-  overcommit_required: boolean;
-  memory_req_fulfilled_after_overcommit: boolean;
-  arc_to_shrink: number | null;
-  current_arc_max: number;
-  arc_min: number;
-  arc_max_after_shrink: number;
-  actual_vm_requested_memory: number;
-}
-export interface VMGuestNetworkInterface {
-  name: string;
-  hardware_address: string;
-  ip_addresses: VMGuestNetworkInterfaceIPAddress[];
-}
-export interface VMGuestNetworkInterfaceIPAddress {
-  ip_address: "" | string;
-  prefix: number;
-  ip_address_type: "IPV4" | "IPV6";
-}
-export interface VMPortWizard {
-  port: number;
-  web: number;
 }
 export interface VMQueryResultItem {
   command_line_args?: string;
@@ -1205,16 +3982,84 @@ export interface VMQueryResultItem {
   shutdown_timeout?: number;
   arch_type?: string | null;
   machine_type?: string | null;
-  uuid?: string;
+  uuid?: string | null;
   devices?: VMDeviceEntry[];
   display_available?: boolean;
   id?: number;
   status?: VMStatus;
   enable_secure_boot?: boolean;
 }
-export interface VMVirtualizationDetails {
-  supported: boolean;
-  error: string | null;
+export interface VMUpdate {
+  command_line_args?: string;
+  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
+  cpu_model?: string | null;
+  name?: string;
+  description?: string;
+  vcpus?: number;
+  cores?: number;
+  threads?: number;
+  cpuset?: string | null;
+  nodeset?: string | null;
+  enable_cpu_topology_extension?: boolean;
+  pin_vcpus?: boolean;
+  suspend_on_snapshot?: boolean;
+  trusted_platform_module?: boolean;
+  memory?: number;
+  min_memory?: number | null;
+  hyperv_enlightenments?: boolean;
+  bootloader?: Bootloader;
+  autostart?: boolean;
+  hide_from_msr?: boolean;
+  ensure_display_device?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  arch_type?: string | null;
+  machine_type?: string | null;
+}
+export interface VMWareAddedEvent {
+  id: number;
+  fields: VMWareEntryInput;
+}
+export interface VMWareEntryInput {
+  id: number;
+  datastore: string;
+  filesystem: string;
+  hostname: string;
+  username: string;
+  password: string;
+  state: VMWareEntryStateInput;
+}
+export interface VMWareEntryStateInput {
+  state?: VMWareEntryStateStateInput;
+  error?: string;
+  datetime?: string;
+}
+export interface VMWareChangedEvent {
+  id: number;
+  fields: VMWareEntryInput;
+}
+export interface VMWareEntry {
+  id: number;
+  datastore: string;
+  filesystem: string;
+  hostname: string;
+  username: string;
+  password: string;
+  state: VMWareEntryState;
+}
+export interface VMWareEntryState {
+  state?: VMWareEntryStateState;
+  error?: string;
+  datetime?: string;
+}
+export interface VMWareQueryResultItem {
+  id?: number;
+  datastore?: string;
+  filesystem?: string;
+  hostname?: string;
+  username?: string;
+  password?: string;
+  state?: VMWareEntryState;
 }
 export interface WebshareEntry {
   id: number;
@@ -1222,57 +4067,418 @@ export interface WebshareEntry {
   search: boolean;
   passkey: Passkey;
   groups: string[];
-  mcp_enabled: boolean;
-  mcp_allowed_groups: string[];
-  mcp_allow_write: boolean;
 }
 export interface WebshareUpdate {
   bindip?: string[];
   search?: boolean;
   passkey?: Passkey;
   groups?: string[];
-  mcp_enabled?: boolean;
-  mcp_allowed_groups?: string[];
-  mcp_allow_write?: boolean;
 }
-export interface ZFSResourceCreateArgsData {
+export interface ZFSResourceDestroyArgsData {
   path: string;
-  type?: VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput;
-  properties?: ZFSResourceCreateProperties;
+  recursive?: boolean;
+}
+export interface ZFSResourceEntry {
+  createtxg: number;
+  guid: number;
+  name: string;
+  pool: string;
+  properties: ZFSPropertiesEntry | null;
+  type: "FILESYSTEM" | "VOLUME";
+  user_properties: {
+    [k: string]: string;
+  } | null;
+  children: unknown[] | null;
+  tier?: TierInfo | null;
+}
+export interface ZFSResourceQuery {
+  paths?: string[];
+  properties?: string[] | null;
+  get_user_properties?: boolean;
+  get_source?: boolean;
+  nest_results?: boolean;
+  get_children?: boolean;
+  max_depth?: number;
+  get_tier?: boolean;
+}
+export interface ZFSResourceSnapshotCloneQuery {
+  snapshot: string;
+  dataset: string;
+  properties?: {
+    [k: string]: string | number;
+  };
+}
+export interface ZFSResourceSnapshotCountQuery {
+  paths?: string[];
+  recursive?: boolean;
+}
+export interface ZFSResourceSnapshotCreateQuery {
+  dataset: string;
+  name: string;
+  recursive?: boolean;
+  exclude?: string[];
   user_properties?: {
     [k: string]: string;
   };
-  create_ancestors?: boolean;
-  encryption?: ZFSResourceCreateEncryption | null;
 }
-export interface ZFSResourceCreateProperties {
-  aclinherit?: string | null;
-  aclmode?: string | null;
-  acltype?: string | null;
-  atime?: string | null;
-  casesensitivity?: string | null;
-  checksum?: string | null;
-  compression?: string | null;
-  copies?: string | number | null;
-  dedup?: string | null;
-  exec?: string | null;
-  quota?: string | number | null;
-  readonly?: string | null;
-  recordsize?: string | number | null;
-  refquota?: string | number | null;
-  refreservation?: string | number | null;
-  reservation?: string | number | null;
-  snapdev?: string | null;
-  snapdir?: string | null;
-  special_small_blocks?: string | number | null;
-  sync?: string | null;
-  volblocksize?: string | number | null;
-  volsize?: string | number | null;
-  xattr?: string | null;
+export interface ZFSResourceSnapshotDestroyQuery {
+  path: string;
+  recursive?: boolean;
+  all_snapshots?: boolean;
+  defer?: boolean;
 }
-export interface ZFSResourceCreateEncryption {
-  generate_key?: boolean;
-  key?: string | null;
-  passphrase?: string | null;
-  pbkdf2iters?: number;
+export interface ZFSResourceSnapshotEntry {
+  createtxg: number;
+  guid: number;
+  name: string;
+  pool: string;
+  dataset: string;
+  snapshot_name: string;
+  type?: "SNAPSHOT";
+  holds: unknown[] | null;
+  properties: ZFSResourceSnapshotPropertiesEntry | null;
+  user_properties: {
+    [k: string]: string;
+  } | null;
+}
+export interface ZFSResourceSnapshotPropertiesEntry {
+  type?: PropertyValue;
+  creation?: PropertyValue;
+  used?: PropertyValue;
+  referenced?: PropertyValue;
+  compressratio?: PropertyValue;
+  createtxg?: PropertyValue;
+  guid?: PropertyValue;
+  primarycache?: PropertyValue;
+  secondarycache?: PropertyValue;
+  objsetid?: PropertyValue;
+  mlslabel?: PropertyValue;
+  refcompressratio?: PropertyValue;
+  written?: PropertyValue;
+  logicalreferenced?: PropertyValue;
+  context?: PropertyValue;
+  fscontext?: PropertyValue;
+  defcontext?: PropertyValue;
+  rootcontext?: PropertyValue;
+  encryption?: PropertyValue;
+  encryptionroot?: PropertyValue;
+  keystatus?: PropertyValue;
+  redact_snaps?: PropertyValue;
+  prefetch?: PropertyValue;
+  devices?: PropertyValue;
+  exec?: PropertyValue;
+  setuid?: PropertyValue;
+  xattr?: PropertyValue;
+  version?: PropertyValue;
+  utf8only?: PropertyValue;
+  normalization?: PropertyValue;
+  casesensitivity?: PropertyValue;
+  nbmand?: PropertyValue;
+  acltype?: PropertyValue;
+  defaultuserquota?: PropertyValue;
+  defaultgroupquota?: PropertyValue;
+  defaultprojectquota?: PropertyValue;
+  defaultuserobjquota?: PropertyValue;
+  defaultgroupobjquota?: PropertyValue;
+  defaultprojectobjquota?: PropertyValue;
+  volsize?: PropertyValue;
+}
+export interface ZFSResourceSnapshotHoldQuery {
+  path: string;
+  tag?: string;
+  recursive?: boolean;
+}
+export interface ZFSResourceSnapshotHoldsQuery {
+  path: string;
+}
+export interface ZFSResourceSnapshotQuery {
+  paths?: string[];
+  recursive?: boolean;
+  properties?: string[] | null;
+  get_user_properties?: boolean;
+  get_source?: boolean;
+  get_holds?: boolean;
+  min_txg?: number;
+  max_txg?: number;
+}
+export interface ZFSResourceSnapshotReleaseQuery {
+  path: string;
+  tag?: string | null;
+  recursive?: boolean;
+}
+export interface ZFSResourceSnapshotRenameQuery {
+  current_name: string;
+  new_name: string;
+  recursive?: boolean;
+}
+export interface ZFSResourceSnapshotRollbackQuery {
+  path: string;
+  recursive?: boolean;
+  recursive_clones?: boolean;
+  force?: boolean;
+  recursive_rollback?: boolean;
+}
+export interface ZfsTierDatasetSetTierArgs {
+  dataset_name: string;
+  tier_type: "REGULAR" | "PERFORMANCE";
+  move_existing_data?: boolean;
+}
+export interface ZfsTierEntry {
+  id: number;
+  enabled: boolean;
+  max_concurrent_jobs: number;
+  max_used_percentage: number;
+  special_class_metadata_reserve_pct: number;
+}
+export interface ZfsTierRewriteJobCancelArgs {
+  tier_job_id: string;
+}
+export interface ZfsTierRewriteJobCreateArgs {
+  dataset_name: string;
+}
+export interface ZfsTierRewriteJobFailureEntry {
+  filename: string;
+  error: ZfsTierRewriteJobFailureError;
+  path: string | null;
+}
+export interface ZfsTierRewriteJobFailureError {
+  errno: number;
+  strerror: string;
+}
+export interface ZfsTierRewriteJobFailureQueryResultItem {
+  filename?: string;
+  error?: ZfsTierRewriteJobFailureError;
+  path?: string | null;
+}
+export interface ZfsTierRewriteJobFailuresArgs {
+  tier_job_id: string;
+  "query-filters"?: unknown[];
+  "query-options"?: QueryOptionsModel;
+}
+export interface ZfsTierRewriteJobQueryArgs {
+  status?: ("COMPLETE" | "RUNNING" | "QUEUED" | "CANCELLED" | "STOPPED" | "ERROR")[] | null;
+  "query-filters"?: unknown[];
+  "query-options"?: QueryOptionsModel;
+}
+export interface ZfsTierRewriteJobQueryEventSourceEvent {
+  fields: ZfsTierRewriteJobEntryInput;
+}
+export interface ZfsTierRewriteJobQueryEventSourceEvent2 {
+  fields: ZfsTierRewriteJobQueryEventSourceEvent;
+}
+export interface ZfsTierRewriteJobQueryResultItem {
+  tier_job_id?: string;
+  dataset_name?: string;
+  job_uuid?: string;
+  status?: ZfsTierRewriteJobEntryStatus;
+}
+export interface ZfsTierRewriteJobRecoverArgs {
+  tier_job_id: string;
+}
+export interface ZfsTierRewriteJobStats {
+  start_time: number;
+  initial_time: number;
+  update_time: number;
+  count_items: number;
+  count_bytes: number;
+  total_items: number;
+  total_bytes: number;
+  failures: number;
+  success: number;
+  parent: string;
+  name: string;
+}
+export interface ZfsTierRewriteJobStatusArgs {
+  tier_job_id: string;
+}
+export interface ZfsTierRewriteJobStatusEntry {
+  tier_job_id: string;
+  dataset_name: string;
+  job_uuid: string;
+  status: ZfsTierRewriteJobEntryStatus;
+  stats: ZfsTierRewriteJobStats | null;
+  error: string | null;
+}
+export interface ZfsTierRewriteJobStatusEntryInput {
+  tier_job_id: string;
+  dataset_name: string;
+  job_uuid: string;
+  status: ZfsTierRewriteJobEntryStatusInput;
+  stats: ZfsTierRewriteJobStats | null;
+  error: string | null;
+}
+export interface ZfsTierRewriteJobStatusEventSourceArgs {
+  tier_job_id: string;
+}
+export interface ZfsTierRewriteJobStatusEventSourceEvent {
+  fields: ZfsTierRewriteJobStatusEntryInput;
+}
+export interface ZfsTierRewriteJobStatusEventSourceEvent2 {
+  fields: ZfsTierRewriteJobStatusEventSourceEvent;
+}
+export interface ZfsTierUpdateArgs {
+  enabled?: boolean;
+  max_concurrent_jobs?: number;
+  max_used_percentage?: number;
+  special_class_metadata_reserve_pct?: number;
+}
+export interface ZPoolEntry {
+  id?: number | null;
+  name: string;
+  guid: number;
+  status: string;
+  healthy: boolean;
+  warning: boolean;
+  status_code: string | null;
+  status_detail: string | null;
+  is_upgraded?: boolean | null;
+  all_sed?: boolean | null;
+  properties?: {
+    [k: string]: ZPoolPropertyValue;
+  } | null;
+  topology?: ZPoolTopology | null;
+  scan?: ZPoolScan | null;
+  expand?: ZPoolExpand | null;
+  features?: ZPoolFeature[] | null;
+}
+export interface ZPoolPropertyValue {
+  raw: string;
+  source: string | null;
+  value: number | string | boolean | null;
+}
+export interface ZPoolTopology {
+  data: ZPoolVdev[];
+  log: ZPoolVdev[];
+  cache: ZPoolVdev[];
+  spares: ZPoolVdev[];
+  special: ZPoolVdev[];
+  dedup: ZPoolVdev[];
+}
+export interface ZPoolVdev {
+  name: string;
+  vdev_type: string;
+  guid: number;
+  state: string;
+  stats: ZPoolVdevStats;
+  children: ZPoolVdev[];
+  top_guid?: number | null;
+  path?: string | null;
+  stats_ex?: {
+    [k: string]: number | number[];
+  } | null;
+}
+export interface ZPoolVdevStats {
+  timestamp?: number;
+  allocated?: number;
+  space?: number;
+  dspace?: number;
+  pspace?: number;
+  rsize?: number;
+  esize?: number;
+  read_errors?: number;
+  write_errors?: number;
+  checksum_errors?: number;
+  initialize_errors?: number;
+  dio_verify_errors?: number;
+  slow_ios?: number | null;
+  self_healed_bytes?: number;
+  fragmentation?: number;
+  scan_processed?: number;
+  scan_removing?: number;
+  rebuild_processed?: number;
+  noalloc?: number;
+  ops_read?: number;
+  ops_write?: number;
+  bytes_read?: number;
+  bytes_write?: number;
+  configured_ashift?: number | null;
+  logical_ashift?: number | null;
+  physical_ashift?: number | null;
+}
+export interface ZPoolScan {
+  function: Function;
+  state: PoolScanState;
+  start_time: number;
+  end_time: number | null;
+  percentage: number;
+  bytes_to_process: number;
+  bytes_processed: number;
+  bytes_issued: number;
+  pause: number | null;
+  errors: number;
+  total_secs_left: number | null;
+}
+export interface ZPoolExpand {
+  state: string;
+  expanding_vdev: number;
+  start_time: number;
+  end_time: number | null;
+  bytes_to_reflow: number;
+  bytes_reflowed: number;
+  waiting_for_resilver: number;
+  total_secs_left: number | null;
+  percentage: number;
+}
+export interface ZPoolFeature {
+  name: string;
+  guid: string;
+  description: string;
+  state: string;
+}
+export interface ZPoolEntryInput {
+  id?: number | null;
+  name: string;
+  guid: number;
+  status: string;
+  healthy: boolean;
+  warning: boolean;
+  status_code: string | null;
+  status_detail: string | null;
+  is_upgraded?: boolean | null;
+  all_sed?: boolean | null;
+  properties?: {
+    [k: string]: ZPoolPropertyValue;
+  } | null;
+  topology?: ZPoolTopology | null;
+  scan?: ZPoolScanInput | null;
+  expand?: ZPoolExpand | null;
+  features?: ZPoolFeature[] | null;
+}
+export interface ZPoolScanInput {
+  function: Function;
+  state: PoolScanStateInput;
+  start_time: number;
+  end_time: number | null;
+  percentage: number;
+  bytes_to_process: number;
+  bytes_processed: number;
+  bytes_issued: number;
+  pause: number | null;
+  errors: number;
+  total_secs_left: number | null;
+}
+export interface ZPoolQuery {
+  pool_names?: string[] | null;
+  properties?: string[] | null;
+  topology?: boolean;
+  scan?: boolean;
+  expand?: boolean;
+  features?: boolean;
+}
+export interface ZPoolQueryAddedEvent {
+  id: number;
+  fields: ZPoolEntryInput;
+}
+export interface ZPoolQueryChangedEvent {
+  id: number;
+  fields: ZPoolEntryInput;
+}
+export interface ZPoolQueryRemovedEvent {
+  id: number;
+}
+export interface ZpoolScrubRun {
+  pool_name: string;
+  scan_type?: "SCRUB" | "ERRORSCRUB";
+  action?: ZpoolScrubRunAction;
+  threshold?: number;
 }

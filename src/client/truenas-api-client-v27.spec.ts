@@ -1,6 +1,6 @@
 import { firstValueFrom, of, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ApiDirectoryV26_0_0, ApiDirectoryV27_0_0, v27_0_0 } from '@/generated';
+import type { v27_0_0 } from '@/generated';
 import { AppState } from '@/types/app-query.type';
 import { ApiVersion } from '@/types/api-version.type';
 import { Job, JobState } from '@/types/job.type';
@@ -13,36 +13,6 @@ const version: ApiVersion = {
   patch: 0,
   websocketPath: '/api/v27.0.0',
 };
-
-/**
- * The duplication between this client and v26's is deliberate — see the class
- * docblock — but it is only *safe* while the entries the facade touches are
- * genuinely the same at both versions. This pins that, so the day v27 diverges
- * is a failure here rather than two implementations drifting quietly.
- *
- * When it fails, that is the signal to let the two clients differ, not to
- * loosen the assertion.
- */
-type Identical<A, B> =
-  (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
-type Assert<T extends true> = T;
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _SameQuery = Assert<Identical<
-  ApiDirectoryV26_0_0['call']['container.query'],
-  ApiDirectoryV27_0_0['call']['container.query']>>;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _SameStart = Assert<Identical<
-  ApiDirectoryV26_0_0['call']['container.start'],
-  ApiDirectoryV27_0_0['call']['container.start']>>;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _SameStop = Assert<Identical<
-  ApiDirectoryV26_0_0['job']['container.stop'],
-  ApiDirectoryV27_0_0['job']['container.stop']>>;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _SameDelete = Assert<Identical<
-  ApiDirectoryV26_0_0['job']['container.delete'],
-  ApiDirectoryV27_0_0['job']['container.delete']>>;
 
 describe('TrueNasApiClientV27', () => {
   let client: TrueNasApiClientV27;
@@ -59,11 +29,29 @@ describe('TrueNasApiClientV27', () => {
   });
 
   it('opens its connection on the v27 websocket path', () => {
-    // Genuinely v27-shaped rather than inherited: a v26 path against a v27
-    // appliance is a connection to the wrong API. Read off the connection the
-    // client actually built, not off the version handed in, which would only
+    // Genuinely v27-shaped rather than inherited: a v25.10 or v28 path against a
+    // v27 appliance is a connection to the wrong API. Read off the connection
+    // the client actually built, not off the version handed in, which would only
     // restate the fixture.
     expect(client.connection.websocketPath).toBe('/api/v27.0.0');
+  });
+
+  it('maps a suspended container to Suspended rather than Stopped', async () => {
+    // This client has its own copy of `toContainer` — the duplication with v28
+    // is deliberate, per the class docblock — so the v28 spec's version of this
+    // test covers none of it.
+    const container = {
+      id: 6,
+      name: 'paused',
+      description: '',
+      autostart: false,
+      status: { state: 'SUSPENDED' },
+    } as unknown as v27_0_0.ContainerEntry;
+    vi.spyOn(client.api, 'query').mockReturnValue(of([container]) as never);
+
+    const [result] = await firstValueFrom(client.ops.containerQuery());
+
+    expect(result.status).toBe(AppState.Suspended);
   });
 
   it('containerQuery queries container.query and maps to Container (status state -> AppState)', async () => {
@@ -90,24 +78,6 @@ describe('TrueNasApiClientV27', () => {
         description: 'my container',
       },
     ]);
-  });
-
-  it('maps a suspended container to Suspended rather than Stopped', async () => {
-    // v26 added SUSPENDED and v27 inherits it. Pinned here because the mapping
-    // is shared, so a regression would show up in whichever client is asked
-    // first and this one must not be the gap.
-    const container = {
-      id: 6,
-      name: 'paused',
-      description: '',
-      autostart: false,
-      status: { state: 'SUSPENDED' },
-    } as unknown as v27_0_0.ContainerEntry;
-    vi.spyOn(client.api, 'query').mockReturnValue(of([container]) as never);
-
-    const [result] = await firstValueFrom(client.ops.containerQuery());
-
-    expect(result.status).toBe(AppState.Suspended);
   });
 
   it('containerStart calls container.start (numeric id) synchronously and emits null', async () => {
@@ -140,8 +110,6 @@ describe('TrueNasApiClientV27', () => {
   });
 
   it('containerRestart synthesizes stop -> start, emitting job updates then null', async () => {
-    // v27 still has no container.restart; this pins the workaround, so the day
-    // middleware adds one this test is what says the synthesis can go.
     const job = { id: 11, state: JobState.Success } as Job;
     const callJobSpy = vi
       .spyOn(client.api, 'callAndGetJobId')
@@ -175,7 +143,7 @@ describe('TrueNasApiClientV27', () => {
       client.ops.containerDelete('5', { force: true, recursive: true })
     );
 
-    // `job`, not `call`: middleware made deletion long-running at v26.0.0 and
+    // `job`, not `call`: middleware made deletion long-running at v27.0.0 and
     // the directory moved it accordingly.
     expect(callJobSpy).toHaveBeenCalledWith('container.delete', [
       5,
@@ -201,4 +169,21 @@ describe('TrueNasApiClientV27', () => {
 
     expect(callJobSpy).toHaveBeenCalledWith('container.delete', [7]);
   });
+  it('gives its authenticator the version, so v27+ asks for a reconnect token', () => {
+    // The one line that turns the feature on in production. Every other version
+    // assertion is on a hand-built authenticator, so dropping the argument here
+    // would revert real clients to never asking, with the suite still green.
+    const sendSpy = vi.spyOn(client.connection, 'send');
+
+    const sub = client.authenticator
+      .loginWithUserPass('admin', 'pw')
+      .subscribe({ error: () => {} });
+
+    const sent = sendSpy.mock.calls.at(-1)?.[0] as { params: unknown[] };
+    sub.unsubscribe();
+    expect(sent.params[0]).toMatchObject({
+      login_options: { reconnect_token: true },
+    });
+  });
+
 });

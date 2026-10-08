@@ -138,13 +138,13 @@ describe('VersionDiscovery', () => {
 
   it('fetches /api/versions and selects the latest compatible version', async () => {
     fetchMock.mockResolvedValue(
-      fakeResponse({ body: ['v25.10.0', 'v25.10.1', 'v26.0.0'] })
+      fakeResponse({ body: ['v25.10.0', 'v25.10.1', 'v27.0.0'] })
     );
 
     const version = await firstValueFrom(discovery.discoverVersion('box'));
 
-    expect(version.version).toBe('v26.0.0');
-    expect(version.websocketPath).toBe('/api/v26.0.0');
+    expect(version.version).toBe('v27.0.0');
+    expect(version.websocketPath).toBe('/api/v27.0.0');
     expect(fetchMock).toHaveBeenCalledWith(
       'https://box/api/versions',
       expect.objectContaining({ signal: expect.any(AbortSignal) })
@@ -204,7 +204,7 @@ describe('VersionDiscovery', () => {
   });
 
   it('fetches over http when the appliance is reached over http', async () => {
-    fetchMock.mockResolvedValue(fakeResponse({ body: ['v26.0.0'] }));
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v27.0.0'] }));
     const httpDiscovery = new VersionDiscovery(undefined, 'http:');
 
     await firstValueFrom(httpDiscovery.discoverVersion('box'));
@@ -216,12 +216,14 @@ describe('VersionDiscovery', () => {
   });
 
   it('throws VersionTooNewError when all versions are above the supported range', async () => {
-    // Both above the ceiling. This used to read `['v26.0.1', 'v28.0.0']`, which
-    // passed only because the ceiling was v26.0.0 — so v26.0.1 counted as "above
-    // the supported range" and the fixture quietly documented that a v26 patch
-    // release is rejected. Raising MAX to v27.0.0 makes v26.0.1 compatible and
-    // the name true again.
-    fetchMock.mockResolvedValue(fakeResponse({ body: ['v28.0.0', 'v29.0.0'] }));
+    // Both above the ceiling, which is what this test's name claims. It once
+    // read `['v26.0.1', 'v28.0.0']` and passed only because the ceiling was then
+    // v26.0.0, so a v26 patch counted as "above the supported range" — the
+    // fixture was documenting something other than its name. Versions are now
+    // admitted by membership of `SUPPORTED_API_VERSIONS`, so an unshipped patch
+    // is `Unsupported` rather than too new, and a fixture for *too new* has to
+    // sit past the newest shipped version.
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v29.0.0', 'v30.0.0'] }));
 
     const error = await settle(discovery.discoverVersion('box'));
 
@@ -229,11 +231,36 @@ describe('VersionDiscovery', () => {
   });
 
   it('throws NoCompatibleVersionsError when versions straddle the range but none fit', async () => {
-    fetchMock.mockResolvedValue(fakeResponse({ body: ['v24.10.0', 'v28.0.0'] }));
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v24.10.0', 'v29.0.0'] }));
 
     const error = await settle(discovery.discoverVersion('box'));
 
     expect(error).toBeInstanceOf(NoCompatibleVersionsError);
+  });
+
+  /**
+   * The case this whole mechanism exists for. v26.0.0 is between two shipped
+   * versions, so a span check called it compatible: discovery selected it,
+   * reported it as the appliance's version, and the factory then hit the branch
+   * whose comment says discovery only yields compatible versions. It has to be
+   * refused here, where the caller still gets a typed discovery error.
+   */
+  it('refuses a version inside the span that the package does not ship', async () => {
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v26.0.0'] }));
+
+    const error = await settle(discovery.discoverVersion('box'));
+
+    expect(error).toBeInstanceOf(NoCompatibleVersionsError);
+    // The message has to name the shipped versions. Phrased as a span it would
+    // read "supported: v25.10.0 to v28.0.0" at someone whose appliance says
+    // v26.0.0 — describing their version as qualifying while refusing it.
+    expect((error as NoCompatibleVersionsError).message).toContain('v27.0.0');
+    expect((error as NoCompatibleVersionsError).message).not.toMatch(
+      /v25\.10\.0 to v28\.0\.0/
+    );
+    expect(
+      (error as NoCompatibleVersionsError).supportedVersions
+    ).not.toContain('v26.0.0');
   });
 
   it('throws InvalidVersionResponseError when no version string parses', async () => {
@@ -274,7 +301,7 @@ describe('VersionDiscovery', () => {
   });
 
   it('caches the result per hostname (a second call does not re-fetch)', async () => {
-    fetchMock.mockResolvedValue(fakeResponse({ body: ['v26.0.0'] }));
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v27.0.0'] }));
 
     await firstValueFrom(discovery.discoverVersion('box'));
     await firstValueFrom(discovery.discoverVersion('box'));
@@ -284,18 +311,18 @@ describe('VersionDiscovery', () => {
 
   it('clears the cache on failure so the next call retries', async () => {
     fetchMock.mockResolvedValueOnce(fakeResponse({ status: 404 }));
-    fetchMock.mockResolvedValueOnce(fakeResponse({ body: ['v26.0.0'] }));
+    fetchMock.mockResolvedValueOnce(fakeResponse({ body: ['v27.0.0'] }));
 
     const firstError = await settle(discovery.discoverVersion('box'));
     expect(firstError).toBeInstanceOf(VersionEndpointNotFoundError);
 
     const version = await firstValueFrom(discovery.discoverVersion('box'));
-    expect(version.version).toBe('v26.0.0');
+    expect(version.version).toBe('v27.0.0');
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('clearCache(hostname) forces a re-fetch for that hostname', async () => {
-    fetchMock.mockResolvedValue(fakeResponse({ body: ['v26.0.0'] }));
+    fetchMock.mockResolvedValue(fakeResponse({ body: ['v27.0.0'] }));
 
     await firstValueFrom(discovery.discoverVersion('box'));
     discovery.clearCache('box');

@@ -4,7 +4,7 @@ import * as generated from '@/generated';
 import { AppState } from '@/types/app-query.type';
 import { toAppState } from '@/utils/app-state.utils';
 
-/** `v25_10_0`, `v26_0_0`, … — the per-version namespaces the barrel re-exports. */
+/** `v25_10_0`, `v27_0_0`, … — the per-version namespaces the barrel re-exports. */
 const VERSION_NAMESPACE = /^v\d+_\d+_\d+$/;
 
 /** `ContainerStatusState` and `ContainerStatusStateInput`, and any later render. */
@@ -71,7 +71,7 @@ describe('toAppState', () => {
 
   it('accept any case', () => {
     // Defensive, not measured. Both statuses this maps declare upper case:
-    // v25.10 `VirtInstanceEntry.status` and v26 `ContainerStatusState`
+    // v25.10 `VirtInstanceEntry.status` and v27 `ContainerStatusState`
     // (`'RUNNING' | 'STOPPED' | 'SUSPENDED'`). The lower-case state enums in
     // the generated tree — `AppContainerDetailsState`, `State` — belong to app
     // container details and never reach this function.
@@ -84,13 +84,13 @@ describe('toAppState', () => {
   });
 
   /**
-   * `SUSPENDED` is the arm with consequences. v26 added it to
+   * `SUSPENDED` is the arm with consequences. v27 added it to
    * `ContainerStatusState`, and middleware means paused-with-state-retained by
    * it, so the pre-widening answer — `Stopped` — described a container holding
    * memory as one that was not running.
    */
   it('map a paused container to Suspended, not Stopped', () => {
-    // v26's word, then v25.10's for the same completed condition.
+    // v27's word, then v25.10's for the same completed condition.
     expect(toAppState('SUSPENDED')).toBe(AppState.Suspended);
     expect(toAppState('FROZEN')).toBe(AppState.Suspended);
     // Deleting either case above turns these red rather than falling through to
@@ -138,7 +138,7 @@ describe('toAppState', () => {
    * No declared state may reach `default`, which cannot tell "middleware said
    * UNKNOWN" from "this mapping was not updated".
    *
-   * Container states come from every generated version's consts, not v26's
+   * Container states come from every generated version's consts, not v27's
    * alone: a widening declares a new const in the version that widens it. The
    * v25.10 half stays literal because `VirtInstanceEntry.status` is an inline
    * union with no runtime value.

@@ -6,7 +6,7 @@ import { AppState } from '@/types/app-query.type';
  * This interface provides a version-agnostic representation of a container.
  * It normalizes the response from different API versions:
  * - v25.10: virt.instance.query (filtered by type=CONTAINER)
- * - v26+: container.query
+ * - v27+: container.query
  *
  * Components should use this type instead of version-specific response types.
  */
@@ -41,7 +41,7 @@ export interface ContainerStopOptions {
  */
 export interface ContainerDeleteOptions {
   /**
-   * Stop the container first if it is not already stopped. Without it, v26+
+   * Stop the container first if it is not already stopped. Without it, v27+
    * refuses to delete a running or suspended container rather than tearing it
    * down underneath itself.
    */
@@ -52,7 +52,7 @@ export interface ContainerDeleteOptions {
    * and any holds on them.
    *
    * Releasing a hold can break a replication task that depends on it, and none
-   * of what this destroys is recoverable. Without it, v26+ refuses to delete a
+   * of what this destroys is recoverable. Without it, v27+ refuses to delete a
    * container whose dataset has children or snapshots — which is the refusal
    * this option exists to override, deliberately.
    */
@@ -65,12 +65,4 @@ export interface ContainerDeleteOptions {
 export interface ContainerRestartOptions {
   timeout?: number;
   force: boolean;
-}
-
-/**
- * v26+ container.stop options format
- */
-export interface ContainerStopOptionsV26 {
-  force: boolean;
-  force_after_timeout: boolean;
 }

@@ -15,9 +15,9 @@ import { describe, expectTypeOf, it } from 'vitest';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type {
-  ApiCallDirectoryV26_0_0,
+  ApiCallDirectoryV27_0_0,
   ApiDirectoryByVersion,
-  ApiDirectoryV26_0_0,
+  ApiDirectoryV27_0_0,
   SUPPORTED_API_VERSIONS,
   v25_10_0,
 } from '@/generated';
@@ -40,11 +40,11 @@ describe('the surface a client is typed against', () => {
    */
   it('rejects a bare call directory', () => {
     // @ts-expect-error a call directory is one facet, not a whole surface.
-    expectTypeOf<TrueNasApi<ApiCallDirectoryV26_0_0>>().not.toBeNever();
+    expectTypeOf<TrueNasApi<ApiCallDirectoryV27_0_0>>().not.toBeNever();
     // @ts-expect-error same, through the client.
-    expectTypeOf<TrueNasApiClient<ApiCallDirectoryV26_0_0>>().not.toBeNever();
+    expectTypeOf<TrueNasApiClient<ApiCallDirectoryV27_0_0>>().not.toBeNever();
 
-    expectTypeOf<TrueNasApi<ApiDirectoryV26_0_0>>().not.toBeNever();
+    expectTypeOf<TrueNasApi<ApiDirectoryV27_0_0>>().not.toBeNever();
   });
 
   /**
@@ -61,7 +61,7 @@ describe('the surface a client is typed against', () => {
     expectTypeOf<TrueNasApi>().toEqualTypeOf<TrueNasApi<BaseApiDirectory>>();
 
     // In the shared base. `core.get_jobs` used to stand here and no longer
-    // can: v26 added `exc_info.errname`, so its shape is not identical across
+    // can: v27 added `exc_info.errname`, so its shape is not identical across
     // versions any more and the base dropped it.
     api.query('cronjob.query');
     api.query('alertservice.query');
@@ -79,9 +79,9 @@ describe('the surface a client is typed against', () => {
    */
   it('carries all three facets of one version', () => {
     expectTypeOf<
-      ApiDirectoryV26_0_0['call']
-    >().toEqualTypeOf<ApiCallDirectoryV26_0_0>();
-    expectTypeOf<keyof ApiDirectoryV26_0_0>().toEqualTypeOf<
+      ApiDirectoryV27_0_0['call']
+    >().toEqualTypeOf<ApiCallDirectoryV27_0_0>();
+    expectTypeOf<keyof ApiDirectoryV27_0_0>().toEqualTypeOf<
       'call' | 'job' | 'event'
     >();
   });
@@ -93,9 +93,9 @@ describe('call and callAndGetJobId', () => {
     callAndGetJobId: () => undefined,
   } as unknown as TrueNasApi;
 
-  const v26 = {
+  const v27 = {
     call: () => undefined,
-  } as unknown as TrueNasApi<ApiDirectoryV26_0_0>;
+  } as unknown as TrueNasApi<ApiDirectoryV27_0_0>;
 
   /**
    * The property that replaces the endpoint constants this package used to
@@ -110,7 +110,7 @@ describe('call and callAndGetJobId', () => {
     api.call('container.start', [5]);
 
     // The same name against a surface that does have it.
-    v26.call('container.start', [5]);
+    v27.call('container.start', [5]);
   });
 
   it('takes params and response from the directory entry', () => {
@@ -306,7 +306,7 @@ describe('job results', () => {
 
   /**
    * The half of that the `Exclude` cannot see: a field `Job` declares only
-   * because it was added by hand. v26 sends `errname` and v25.10 does not, so
+   * because it was added by hand. v27 sends `errname` and v25.10 does not, so
    * it is optional — and nothing else in the tree pins it.
    */
   it('keeps the hand-added errname optional', () => {
@@ -357,7 +357,7 @@ describe('events', () => {
    * `changed` frame on `auth.sessions` — which declares only `added` and
    * `removed` — would arrive typed as carrying whatever those two carry.
    *
-   * `core.get_jobs` was the example until v26 added `exc_info.errname` and the
+   * `core.get_jobs` was the example until v27 added `exc_info.errname` and the
    * base stopped carrying it; `auth.sessions` is the same shape of gap with a
    * different kind missing.
    */

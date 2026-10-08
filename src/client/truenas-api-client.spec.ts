@@ -7,11 +7,11 @@ import { OperationMappings } from '@/types/operation-mappings.interface';
 import { TrueNasApiClient } from './truenas-api-client';
 
 const version: ApiVersion = {
-  version: 'v26.0.0',
-  year: 26,
+  version: 'v27.0.0',
+  year: 27,
   minor: 0,
   patch: 0,
-  websocketPath: '/api/v26.0.0',
+  websocketPath: '/api/v27.0.0',
 };
 
 /** Concrete test subclass with stub operations. */

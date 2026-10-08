@@ -171,7 +171,7 @@ export class TrueNasAuthenticator {
   /**
    * `login_options` asking for a reconnect token, when the server understands it.
    *
-   * Omitted below v26. `AuthCommonOptions` is `additionalProperties: false`
+   * Omitted below v27. `AuthCommonOptions` is `additionalProperties: false`
    * there and has only `user_info`, so sending the member is a validation
    * error, not an ignored field — it would fail login outright on the oldest
    * version this client supports.
@@ -179,7 +179,7 @@ export class TrueNasAuthenticator {
   /**
    * Two things this does not do, both deliberate and both worth knowing.
    *
-   * There is no way for a consumer to decline: every v26+ password login now
+   * There is no way for a consumer to decline: every v27+ password login now
    * mints a single-use credential carrying that session's roles, whether or not
    * the caller wants one. And the auto-relogin in the constructor subscribes
    * with no observer, so the token it mints is dropped — a caller reconnecting
@@ -347,7 +347,7 @@ export class TrueNasAuthenticator {
    * e.g. to open another connection without asking for the password again.
    *
    * Tokens are single-use, short-lived, and voided by a `middlewared` restart.
-   * On v26+ each successful login mints a new one; store the newest. Token
+   * On v27+ each successful login mints a new one; store the newest. Token
    * sessions are not re-logged automatically on reconnect — the caller must.
    */
   loginWithToken(token: string) {
@@ -414,7 +414,7 @@ export class TrueNasAuthenticator {
   }
 
   /**
-   * No reconnect token is requested here, though v26+ would mint one: an
+   * No reconnect token is requested here, though v27+ would mint one: an
    * api-key session already reconnects without a prompt, since the key is held
    * and replayed. The token exists for the credential that cannot be.
    */

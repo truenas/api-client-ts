@@ -10,7 +10,7 @@ import {
 } from 'vitest';
 import type * as publicApi from '@/index';
 import type { DefaultApiDirectory } from '@/factory';
-import type { ApiDirectoryV25_10_0, ApiDirectoryV26_0_0 } from '@/generated';
+import type { ApiDirectoryV25_10_0, ApiDirectoryV27_0_0 } from '@/generated';
 import type { Logger } from '@/logger';
 import type { CallMethod } from '@/types/api-directory.type';
 import type { ApiVersion } from '@/types/api-version.type';
@@ -23,8 +23,8 @@ import type {
 } from '@/types/smb-status.type';
 import { TrueNasApiClient } from './truenas-api-client';
 import { TrueNasApiClientV2510 } from './truenas-api-client-v25-10';
-import { TrueNasApiClientV26 } from './truenas-api-client-v26';
 import { TrueNasApiClientV27 } from './truenas-api-client-v27';
+import { TrueNasApiClientV28 } from './truenas-api-client-v28';
 
 /**
  * Cross-version tests for `ops.smbStatus`.
@@ -34,7 +34,7 @@ import { TrueNasApiClientV27 } from './truenas-api-client-v27';
  * `truenas-api-client.spec.ts`. Everything is tested here, across the versions
  * together, because the claim the operation is *built* on is one no single
  * client can be asked to demonstrate: that the private v25.10 method and the
- * public v26+ one are invoked identically. If that stops being true the
+ * public v27+ one are invoked identically. If that stops being true the
  * operation is no longer one operation, it is two that share a name.
  */
 
@@ -46,19 +46,19 @@ const versions = {
     patch: 0,
     websocketPath: '/api/v25.10.0',
   },
-  v26: {
-    version: 'v26.0.0',
-    year: 26,
-    minor: 0,
-    patch: 0,
-    websocketPath: '/api/v26.0.0',
-  },
   v27: {
     version: 'v27.0.0',
     year: 27,
     minor: 0,
     patch: 0,
     websocketPath: '/api/v27.0.0',
+  },
+  v28: {
+    version: 'v28.0.0',
+    year: 28,
+    minor: 0,
+    patch: 0,
+    websocketPath: '/api/v28.0.0',
   },
 } satisfies Record<string, ApiVersion>;
 
@@ -84,8 +84,8 @@ describe('ops.smbStatus across versions', () => {
   beforeEach(() => {
     legs = [
       { name: 'v25.10', ctor: TrueNasApiClientV2510, version: versions.v25_10 },
-      { name: 'v26', ctor: TrueNasApiClientV26, version: versions.v26 },
       { name: 'v27', ctor: TrueNasApiClientV27, version: versions.v27 },
+      { name: 'v28', ctor: TrueNasApiClientV28, version: versions.v28 },
     ].map(({ name, ctor, version }) => {
       const logger = fakeLogger();
       return {
@@ -126,7 +126,7 @@ describe('ops.smbStatus across versions', () => {
   // registers zero tests and reports success, and a `legs` that came out empty
   // would do the same to every loop below.
   it('covers all three version clients', () => {
-    expect(legs.map((leg) => leg.name)).toEqual(['v25.10', 'v26', 'v27']);
+    expect(legs.map((leg) => leg.name)).toEqual(['v25.10', 'v27', 'v28']);
   });
 
   it('calls the same method name on every version', async () => {
@@ -218,7 +218,7 @@ describe('ops.smbStatus across versions', () => {
       await invoke(leg);
     }
 
-    const [v2510, v26, v27] = legs;
+    const [v2510, v27, v28] = legs;
     expect(v2510.logger.debug).toHaveBeenCalledOnce();
     expect(vi.mocked(v2510.logger.debug).mock.calls[0][0]).toContain(
       'private on v25.10'
@@ -230,9 +230,9 @@ describe('ops.smbStatus across versions', () => {
       expect(leg.logger.error, leg.name).not.toHaveBeenCalled();
     }
 
-    // v26+ is an ordinary public call and says nothing at all.
-    expect(v26.logger.debug).not.toHaveBeenCalled();
+    // v27+ is an ordinary public call and says nothing at all.
     expect(v27.logger.debug).not.toHaveBeenCalled();
+    expect(v28.logger.debug).not.toHaveBeenCalled();
   });
 
   /**
@@ -300,8 +300,8 @@ describe('ops.smbStatus is reachable without pinning a version', () => {
 
   /**
    * The premise the whole operation rests on, stated as a type. `smb.status` is
-   * not a callable method of the v25.10 directory and is one of v26's, which is
-   * why the v25.10 leg needs an assertion and the v26 leg does not.
+   * not a callable method of the v25.10 directory and is one of v27's, which is
+   * why the v25.10 leg needs an assertion and the v27 leg does not.
    *
    * If `smb.status` ever appears in the v25.10 directory the first of these
    * fails, and that is the signal to delete `PrivateSmbStatusCall` and the cast
@@ -311,11 +311,11 @@ describe('ops.smbStatus is reachable without pinning a version', () => {
    * deliberate hand edit can — which is to say this guard watches a maintainer,
    * not the generator.
    */
-  it('has smb.status on v26 and not on v25.10', () => {
+  it('has smb.status on v27 and not on v25.10', () => {
     expectTypeOf<'smb.status'>().not.toExtend<
       CallMethod<ApiDirectoryV25_10_0>
     >();
-    expectTypeOf<'smb.status'>().toExtend<CallMethod<ApiDirectoryV26_0_0>>();
+    expectTypeOf<'smb.status'>().toExtend<CallMethod<ApiDirectoryV27_0_0>>();
   });
   /**
    * The barrel is part of the contract, and nothing else pins it.

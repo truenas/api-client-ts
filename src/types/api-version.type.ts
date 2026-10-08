@@ -35,10 +35,17 @@ export interface ApiVersion {
 
 /**
  * Version compatibility status
+ *
+ * `Unsupported` is the gap `TooOld`/`TooNew` cannot express: a version inside
+ * the supported span that this package still ships no types for. Middleware
+ * renumbered 26.0.0 to 27.0.0 before releasing it, so v26.0.0 sits between two
+ * shipped versions and a range check calls it compatible — which is how an
+ * appliance claiming it reached a code path documented as unreachable.
  */
 export enum VersionCompatibility {
   Compatible = 'compatible',
   TooOld = 'too-old',
   TooNew = 'too-new',
+  Unsupported = 'unsupported',
   Invalid = 'invalid',
 }

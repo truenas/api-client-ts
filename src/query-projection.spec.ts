@@ -17,7 +17,7 @@ import { TrueNasApi } from '@/api/truenas-api';
 import type { DefaultApiDirectory } from '@/factory';
 import type {
   ApiDirectoryV25_10_0,
-  ApiDirectoryV26_0_0,
+  ApiDirectoryV27_0_0,
   v25_10_0,
 } from '@/generated';
 import type { QueryListOptions, QueryMethod } from '@/types/query.type';
@@ -208,12 +208,12 @@ describe('the directory the factory hands back', () => {
   });
 
   it('lets a caller name a newer surface, and holds them to it', () => {
-    const v26 = {
+    const v27 = {
       query: () => undefined,
-    } as unknown as TrueNasApi<ApiDirectoryV26_0_0>;
+    } as unknown as TrueNasApi<ApiDirectoryV27_0_0>;
 
-    // v26 added containers; the default (v25.10) has never heard of them.
-    v26.query('container.query');
+    // v27 added containers; the default (v25.10) has never heard of them.
+    v27.query('container.query');
 
     const api = fromFactory();
     // @ts-expect-error not in v25.10 — declaring a newer directory is the fix.

@@ -7,7 +7,7 @@ import type { Observable } from 'rxjs';
 import { describe, expectTypeOf, it } from 'vitest';
 import type { TrueNasApi } from '@/api/truenas-api';
 import type { DefaultApiDirectory } from '@/factory';
-import type { ApiDirectoryV26_0_0, v25_10_0, v26_0_0 } from '@/generated';
+import type { ApiDirectoryV27_0_0, v25_10_0, v27_0_0 } from '@/generated';
 import type { ApplianceProtocol } from '@/index';
 import type { Job } from '@/types/job.type';
 import type { QueryListOptions } from '@/types/query.type';
@@ -37,7 +37,7 @@ describe('README: connection', () => {
 const api = stub as unknown as TrueNasApi<DefaultApiDirectory>;
 
 /** ...and with one named. */
-const v26 = stub as unknown as TrueNasApi<ApiDirectoryV26_0_0>;
+const v27 = stub as unknown as TrueNasApi<ApiDirectoryV27_0_0>;
 
 describe('README: calls', () => {
   it('resolves params and responses from the directory', () => {
@@ -119,8 +119,8 @@ describe('README: events', () => {
 
 describe('README: working across versions', () => {
   it('reaches methods the default cannot', () => {
-    expectTypeOf(v26.query('container.query')).toEqualTypeOf<
-      Observable<v26_0_0.ContainerEntry[]>
+    expectTypeOf(v27.query('container.query')).toEqualTypeOf<
+      Observable<v27_0_0.ContainerEntry[]>
     >();
 
     // @ts-expect-error the default is v25.10, which has never heard of containers.
