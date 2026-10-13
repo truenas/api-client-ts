@@ -100,6 +100,7 @@ export type { ApiVersion, ApiVersionResponse } from '@/types/api-version.type';
 export { isJobFinished, JobState } from '@/types/job.type';
 export type { Job, JobProgress } from '@/types/job.type';
 export type { TrueNasDate } from '@/types/truenas-date.type';
+export { TrueNasApiError } from '@/errors/api.errors';
 export { getApiErrorMessage } from '@/types/api-error.type';
 export type {
   ApiError,

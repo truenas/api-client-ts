@@ -5,6 +5,7 @@ import {
   distinctUntilChanged,
   filter,
   finalize,
+  ignoreElements,
   map,
   merge,
   share,
@@ -37,7 +38,7 @@ import type {
   QueryMethod,
   QuerySingleOptions,
 } from '@/types/query.type';
-import { getApiErrorMessage } from '@/types/api-error.type';
+import { TrueNasApiError } from '@/errors/api.errors';
 import { isJobFinished, Job } from '@/types/job.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
 import { withId } from '@/utils/utils';
@@ -150,14 +151,10 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       const reply = this.connection.messages().pipe(
         withId(messageId),
         map(msg => {
-          // JSON-RPC 2.0 response format
+          // The whole error, not just its reason: `errname` and `extra` are
+          // what a caller acts on. `message` is the reason, as before.
           if (msg.error) {
-            // Handle both JSON-RPC 2.0 standard error (message) and TrueNAS error (reason)
-            const errorMessage = getApiErrorMessage(
-              msg.error,
-              'API call failed'
-            );
-            throw new Error(errorMessage);
+            throw new TrueNasApiError(msg.error, method);
           }
           return msg.result as T;
         }),
@@ -247,7 +244,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * differs by version (v25.10 answers with the id, v27 with `null`), while
    * the event correlation holds for both.
    *
-   * @returns Observable that emits the job ID when received from websocket events
+   * @returns the job's id; errors with a {@link TrueNasApiError} if the method is refused before a job starts
    */
   callAndGetJobId<M extends JobMethod<D>>(
     method: M,
@@ -263,14 +260,30 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
 
       // Built before the send and subscribed in the same synchronous tick;
       // see `dispatch` for why that is the invariant that matters.
-      const seen = this.jobEvents.pipe(
+      const started = this.jobEvents.pipe(
         filter(job => job.message_ids?.includes(message.id ?? '') ?? false),
-        map(job => job.id),
-        take(1)
+        map(job => job.id)
+      );
+      // The response is read for one thing: a refusal. A method refused before
+      // it starts a job (validation, a missing role) answers with an error and
+      // starts nothing, so no event will ever carry this request's id. Without
+      // this the caller waited for one forever. A success is ignored: it is not
+      // the id on every version (see above), so the event stays its one source.
+      const refused = this.connection.messages().pipe(
+        withId(message.id ?? ''),
+        map(reply => {
+          if (reply.error) {
+            throw new TrueNasApiError(reply.error, method);
+          }
+        }),
+        ignoreElements()
       );
 
       const sending = this.connection.send(message);
-      return seen.pipe(finalize(() => sending.unsubscribe()));
+      return merge(started, refused).pipe(
+        take(1),
+        finalize(() => sending.unsubscribe())
+      );
     });
   }
 
