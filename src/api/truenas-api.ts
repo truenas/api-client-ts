@@ -421,7 +421,11 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
             (res.params as CollectionUpdate | undefined)?.collection === name
         ),
         map(res => res.params as CollectionUpdate),
-        filter(params => EVENT_KINDS.includes(params.msg as EventKind))
+        filter(params => EVENT_KINDS.includes(params.msg as EventKind)),
+        // `merge` below ends only when both inputs do. The connection closing
+        // for good ends this one; `ended` has to follow, or the stream never
+        // completes and nothing tears down the resubscription.
+        finalize(() => ended.complete())
       );
       // The server ended the subscription — an event source finished, or
       // rejected its arguments. Nothing is left to release.

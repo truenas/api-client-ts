@@ -691,6 +691,21 @@ describe('TrueNasApi', () => {
   });
 
   /**
+   * Closing the connection for good ends every event stream, so a consumer
+   * waiting on completion hears it and the resubscription is torn down.
+   */
+  it('completes an event stream when the connection is closed for good', async () => {
+    authenticated$.next(true);
+    let completed = false;
+    api.events('app.query').subscribe({ complete: () => (completed = true) });
+    await settle();
+
+    connection.close();
+
+    expect(completed).toBe(true);
+  });
+
+  /**
    * Re-registering IS right after a reconnect: the server forgot. That is a
    * different trigger from a subscriber cycling, and the two must not be
    * conflated.
