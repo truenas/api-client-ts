@@ -3,7 +3,9 @@ import tseslint from 'typescript-eslint';
 import maxCommentLines from '@truenas/common-typescript/eslint/rules/max-comment-lines.mjs';
 
 export default tseslint.config(
-  { ignores: ['dist/', 'coverage/', 'node_modules/', 'docs/'] },
+  // `.typedoc-validate/` is `docs:check`'s throwaway render — generated HTML and
+  // its bundled assets, which lint has no business reading.
+  { ignores: ['dist/', 'coverage/', 'node_modules/', 'docs/', '.typedoc-validate/'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
