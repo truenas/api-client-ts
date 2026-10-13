@@ -1,5 +1,7 @@
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { TrueNasApiError } from '@/errors/api.errors';
+import { fakeApiError } from '@/testing/fake-api-error';
 import { FakeConnection } from '@/testing/fake-connection';
 import { Job, JobState } from '@/types/job.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
@@ -889,5 +891,103 @@ describe('TrueNasApi', () => {
           result: 42,
         } as unknown as TrueNasMessage);
       }));
+  });
+
+  /**
+   * What a caller gets when middleware refuses a request: the reason as the
+   * message, as before, and the frame it came in for everything else.
+   */
+  describe('refusals', () => {
+    const validationError = fakeApiError({
+      error: 22,
+      errname: 'EINVAL',
+      reason: '[EINVAL] user.create.username: Already in use',
+      extra: [['user.create.username', 'Already in use', 22]],
+    });
+
+    const refuse = (method: string) =>
+      connection.receive({
+        jsonrpc: '2.0',
+        id: `mock-id-${method}`,
+        error: validationError,
+      });
+
+    it('rejects a call with the whole error frame, keeping the reason as the message', async () => {
+      const result = firstValueFrom(api.call('system.info'));
+      refuse('system.info');
+
+      const error = await result.catch((caught: unknown) => caught);
+      expect(error).toBeInstanceOf(TrueNasApiError);
+      expect(error).toMatchObject({
+        message: '[EINVAL] user.create.username: Already in use',
+        method: 'system.info',
+        code: -32001,
+        errname: 'EINVAL',
+        data: { extra: [['user.create.username', 'Already in use', 22]] },
+      });
+    });
+
+    it('rejects a query the same way', async () => {
+      const queryApi = api as unknown as TrueNasApi<{
+        call: { 'user.query': { entity: { id: number } } };
+        job: Record<never, never>;
+        event: Record<never, never>;
+      }>;
+      const result = firstValueFrom(queryApi.query('user.query'));
+      refuse('user.query');
+
+      await expect(result).rejects.toMatchObject({ errname: 'EINVAL' });
+    });
+
+    it('keeps a code middleware sends without a payload, and has no errname for it', async () => {
+      const result = firstValueFrom(api.call('system.info'));
+      connection.receive({
+        jsonrpc: '2.0',
+        id: 'mock-id-system.info',
+        error: { code: -32601, message: 'Method does not exist' },
+      });
+
+      await expect(result).rejects.toMatchObject({
+        message: 'Method does not exist',
+        code: -32601,
+        errname: undefined,
+      });
+    });
+
+    /**
+     * A job method refused before it starts a job answers with an error and
+     * sends no job event at all. Correlating by event alone, this waited for
+     * one forever.
+     */
+    it('rejects callAndGetJobId when the method is refused before a job starts', async () => {
+      const result = firstValueFrom(api.callAndGetJobId('app.start', ['my-app']));
+      refuse('app.start');
+
+      await expect(result).rejects.toBeInstanceOf(TrueNasApiError);
+    });
+
+    it('rejects job when the method is refused before a job starts', async () => {
+      const result = firstValueFrom(api.job('app.start', ['my-app']));
+      refuse('app.start');
+
+      await expect(result).rejects.toMatchObject({ method: 'app.start', errname: 'EINVAL' });
+    });
+
+    it('still takes the id from the job event when the response succeeds', async () => {
+      const result = firstValueFrom(api.callAndGetJobId('app.start', ['my-app']));
+      // v27 answers a job method with `null`; the id is never read from here.
+      connection.receive({ jsonrpc: '2.0', id: 'mock-id-app.start', result: null });
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'collection_update',
+        params: {
+          collection: 'core.get_jobs',
+          msg: 'added',
+          fields: { id: 4180, message_ids: ['mock-id-app.start'] },
+        },
+      } as unknown as TrueNasMessage);
+
+      await expect(result).resolves.toBe(4180);
+    });
   });
 });

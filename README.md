@@ -89,7 +89,9 @@ client.api.call('alert.dismiss', ['uuid-1']);   // params checked against the me
 client.api.call('nope.nope');                   // ✗ compile error
 ```
 
-A failed call errors with middleware's own message.
+A failed call errors with a `TrueNasApiError`. Its `message` is middleware's own
+reason, and the rest of the error is there too: `errname` (such as `EINVAL`),
+and `data.extra`, where a validation error names the fields it rejected.
 
 ## Queries
 
@@ -116,7 +118,9 @@ client.api.job('pool.dataset.export_key', ['tank/encrypted']).subscribe(job => {
 ```
 
 The stream emits each state and completes when the job finishes. A failed job
-completes too, with `state` and `error` set.
+completes too, with `state` and `error` set. A job method refused before it
+starts a job, such as for a validation error, errors with a `TrueNasApiError`
+instead, because there is no job to report.
 
 ## Events
 
@@ -223,7 +227,8 @@ the client is doing.
 
 ## Errors
 
-- **Calls** error with middleware's message.
+- **Calls, queries and job starts** error with `TrueNasApiError`. Its `message`
+  is middleware's reason, and `errname`, `code` and `data` carry the rest.
 - **Logins** error with `AuthError`. Check `code` against `AuthErrorCode`.
 - **`createTrueNasClient`** rejects with a `VersionDiscoveryError` subclass, such
   as `VersionTooOldError`, `VersionTooNewError` or
