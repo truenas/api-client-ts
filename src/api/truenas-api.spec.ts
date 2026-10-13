@@ -1067,6 +1067,31 @@ describe('TrueNasApi', () => {
       });
     });
 
+    /**
+     * Middleware validates a source's arguments before it answers
+     * `core.subscribe`, so a rejection's `notify_unsubscribed` can beat the id.
+     * The server has already dropped that id; releasing it is a stray frame.
+     */
+    it('releases nothing when the server ended the subscription before its id came back', async () => {
+      const rejected = firstValueFrom(
+        sourceApi().events('filesystem.file_tail_follow', { path: '/nope' })
+      ).catch(() => 'rejected');
+
+      // Before the fake's microtask answer to `core.subscribe` lands.
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: {
+          collection: 'filesystem.file_tail_follow:{"path":"/nope"}',
+          error: fakeApiError({ reason: '[ENOENT] /nope: does not exist' }).data,
+        },
+      });
+      await expect(rejected).resolves.toBe('rejected');
+      await settle();
+
+      expect(unsubscribed()).toEqual([]);
+    });
+
     it('subscribes afresh after a source ended', async () => {
       const ended = firstValueFrom(
         sourceApi().events('filesystem.file_tail_follow', tail),

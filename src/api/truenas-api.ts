@@ -362,6 +362,10 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       // takes its subscriptions with it, so a drop voids the id.
       let subscriptionId: string | undefined;
       let released = false;
+      // Set by `notify_unsubscribed`. Middleware validates a source's arguments
+      // before answering `core.subscribe`, so a rejection can arrive before the
+      // id: by then the server has dropped it, and there is nothing to release.
+      let serverEnded = false;
 
       // Every authentication, not just the first: `authenticated$` cycles
       // false -> true on each reconnect, and the new socket has to be told again.
@@ -383,9 +387,10 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
               // A refusal (a role the session lacks) leaves the stream silent,
               // as it always has. There is nothing to release.
               if (typeof reply.result !== 'string') return;
-              // Everyone left before the id came back: release it now.
-              if (released) this.unsubscribe(reply.result);
-              else subscriptionId = reply.result;
+              // Everyone left before the id came back: release it now, unless
+              // the server ended the subscription first.
+              if (!released) subscriptionId = reply.result;
+              else if (!serverEnded) this.unsubscribe(reply.result);
             });
           this.connection.send(request);
         });
@@ -402,6 +407,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
         tap(res => {
           if (res.method !== 'notify_unsubscribed') return;
           subscriptionId = undefined;
+          serverEnded = true;
           const { error } = res.params as NotifyUnsubscribed;
           if (error) {
             throw new TrueNasApiError(
