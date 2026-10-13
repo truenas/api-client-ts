@@ -43,9 +43,13 @@ const UNSPIED = [
   'authenticated',
   'connection',
   'dispatch',
+  'endNotices',
   'eventStreams',
   'initializeJobEventsSubscription',
   'jobEvents',
+  'listenForEndNotices',
+  'owedEndNotices',
+  'serverEnds',
   'unsubscribe',
 ] as const;
 

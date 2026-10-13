@@ -9,6 +9,8 @@ import {
   map,
   merge,
   share,
+  Subject,
+  Subscription,
   takeUntil,
   switchMap,
   take,
@@ -111,6 +113,21 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
    * name *with* its arguments: a tail of one file is not a tail of another.
    */
   private readonly eventStreams = new Map<string, Observable<unknown>>();
+
+  /**
+   * `notify_unsubscribed` names only the collection, and middleware sends one
+   * for every `core.unsubscribe` of an event source, not just when a source
+   * ends (`EventSourceManager.unsubscribe` -> `terminate`). After a subscriber
+   * leaves and another arrives, the notice for the released subscription would
+   * end the new one. So the notices are counted here per name, owed for each
+   * release, and only the rest reach the live subscription through `serverEnds`.
+   */
+  private readonly owedEndNotices = new Map<string, number>();
+
+  /** The live subscription per name, told when the server ends it. */
+  private readonly serverEnds = new Map<string, Subject<NotifyUnsubscribed>>();
+
+  private endNotices?: Subscription;
 
   constructor(
     public authenticated: BehaviorSubject<boolean>,
@@ -348,6 +365,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     params?: unknown
   ): Observable<EventUnion<D, E>> {
     const name = subscriptionName(event, params);
+    this.listenForEndNotices();
 
     // One stream per subscription, shared: middleware keeps one per
     // `core.subscribe`, so each duplicate would be another one streaming.
@@ -366,6 +384,8 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       // before answering `core.subscribe`, so a rejection can arrive before the
       // id: by then the server has dropped it, and there is nothing to release.
       let serverEnded = false;
+      const ended = new Subject<NotifyUnsubscribed>();
+      this.serverEnds.set(name, ended);
 
       // Every authentication, not just the first: `authenticated$` cycles
       // false -> true on each reconnect, and the new socket has to be told again.
@@ -390,35 +410,37 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
               // Everyone left before the id came back: release it now, unless
               // the server ended the subscription first.
               if (!released) subscriptionId = reply.result;
-              else if (!serverEnded) this.unsubscribe(reply.result);
+              else if (!serverEnded) this.unsubscribe(name, reply.result);
             });
           this.connection.send(request);
         });
 
-      return this.connection.messages().pipe(
+      const updates = this.connection.messages().pipe(
         filter(
           res =>
-            (res.method === 'collection_update' ||
-              res.method === 'notify_unsubscribed') &&
+            res.method === 'collection_update' &&
             (res.params as CollectionUpdate | undefined)?.collection === name
         ),
-        // The server ended the subscription — an event source finished, or
-        // rejected its arguments. Nothing is left to release.
-        tap(res => {
-          if (res.method !== 'notify_unsubscribed') return;
+        map(res => res.params as CollectionUpdate),
+        filter(params => EVENT_KINDS.includes(params.msg as EventKind))
+      );
+      // The server ended the subscription — an event source finished, or
+      // rejected its arguments. Nothing is left to release.
+      const end = ended.pipe(
+        map(notice => {
           subscriptionId = undefined;
           serverEnded = true;
-          const { error } = res.params as NotifyUnsubscribed;
-          if (error) {
+          if (notice.error) {
             throw new TrueNasApiError(
-              { code: -32001, message: error.reason, data: error },
+              { code: -32001, message: notice.error.reason, data: notice.error },
               name
             );
           }
-        }),
-        takeWhile(res => res.method === 'collection_update'),
-        map(res => res.params as CollectionUpdate),
-        filter(params => EVENT_KINDS.includes(params.msg as EventKind)),
+        })
+      );
+
+      return merge(updates, end).pipe(
+        takeWhile((change): change is CollectionUpdate => change !== undefined),
         // `collection` is the subscription the caller already named; what is
         // left is exactly the payload the directory declares, plus its tag.
         map(({ collection, ...change }) => change as EventUnion<D, E>),
@@ -428,7 +450,8 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
         finalize(() => {
           released = true;
           subscribing.unsubscribe();
-          if (subscriptionId) this.unsubscribe(subscriptionId);
+          if (this.serverEnds.get(name) === ended) this.serverEnds.delete(name);
+          if (subscriptionId) this.unsubscribe(name, subscriptionId);
         })
       );
       // Released when the last subscriber leaves: the next one subscribes
@@ -447,10 +470,45 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     return stream;
   }
 
-  /** Release a subscription by the id `core.subscribe` answered with. */
-  private unsubscribe(subscriptionId: string): void {
+  /**
+   * Release a subscription by the id `core.subscribe` answered with. An event
+   * source answers that with a `notify_unsubscribed` (error-free), owed here
+   * so it is not taken for the next subscription's end.
+   */
+  private unsubscribe(name: string, subscriptionId: string): void {
+    this.owedEndNotices.set(name, (this.owedEndNotices.get(name) ?? 0) + 1);
     this.connection.send(
       createJsonRpcMessage('core.unsubscribe', [subscriptionId])
+    );
+  }
+
+  /**
+   * Route each `notify_unsubscribed` once: an error-free one owed for a
+   * release is dropped, anything else ends the name's live subscription. Owed
+   * notices die with the socket, as the subscriptions they were owed for do.
+   *
+   * Installed on the first `events()` call, before any stream listens.
+   */
+  private listenForEndNotices(): void {
+    if (this.endNotices) return;
+
+    this.endNotices = this.connection
+      .messages()
+      .pipe(filter(res => res.method === 'notify_unsubscribed'))
+      .subscribe(res => {
+        const notice = res.params as NotifyUnsubscribed;
+        const owed = this.owedEndNotices.get(notice.collection) ?? 0;
+        if (!notice.error && owed > 0) {
+          if (owed > 1) this.owedEndNotices.set(notice.collection, owed - 1);
+          else this.owedEndNotices.delete(notice.collection);
+          return;
+        }
+        this.serverEnds.get(notice.collection)?.next(notice);
+      });
+    this.endNotices.add(
+      this.authenticated
+        .pipe(filter(isUp => !isUp))
+        .subscribe(() => this.owedEndNotices.clear())
     );
   }
 

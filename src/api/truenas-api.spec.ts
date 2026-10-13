@@ -1092,6 +1092,66 @@ describe('TrueNasApi', () => {
       expect(unsubscribed()).toEqual([]);
     });
 
+    /** Sent by middleware for every `core.unsubscribe` of a source, error-free. */
+    const endNotice = (error: unknown = null) =>
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: { collection: tailName, error },
+      });
+
+    /**
+     * Middleware answers every `core.unsubscribe` of a source with a
+     * `notify_unsubscribed` naming only the collection. A subscriber arriving
+     * after a release must not be ended by the notice for the one released.
+     */
+    it('is not ended by the notice owed for the subscription released before it', async () => {
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+      expect(unsubscribed()).toHaveLength(1);
+
+      const lines: unknown[] = [];
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ next: line => lines.push(line), complete: () => (completed = true) });
+      await settle();
+
+      endNotice();
+      connection.receive(
+        collectionUpdate({ collection: tailName, msg: 'added', fields: { data: 'still here' } })
+      );
+
+      expect(completed).toBe(false);
+      expect(lines).toEqual([{ msg: 'added', fields: { data: 'still here' } }]);
+    });
+
+    it('owes the notice even when it arrives with no subscriber listening', async () => {
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+      endNotice();
+
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ complete: () => (completed = true) });
+      await settle();
+
+      // The owed notice was spent on arrival, so this one is the server's own.
+      endNotice();
+      expect(completed).toBe(true);
+    });
+
+    it('still ends on an error notice while a release notice is owed', async () => {
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+
+      const rejected = firstValueFrom(sourceApi().events('filesystem.file_tail_follow', tail));
+      endNotice(fakeApiError({ reason: 'gone' }).data);
+
+      await expect(rejected).rejects.toMatchObject({ message: 'gone' });
+    });
+
     it('subscribes afresh after a source ended', async () => {
       const ended = firstValueFrom(
         sourceApi().events('filesystem.file_tail_follow', tail),
