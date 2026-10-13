@@ -1,4 +1,4 @@
-import { BehaviorSubject, firstValueFrom, Subject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, merge, Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrueNasApiError } from '@/errors/api.errors';
 import { fakeApiError } from '@/testing/fake-api-error';
@@ -1181,5 +1181,29 @@ describe('TrueNasApi', () => {
 
       await expect(result).resolves.toBe(4180);
     });
+  });
+
+  /**
+   * The verbs read `messages()` when they run, so a consumer can wrap it after
+   * the client exists — webui's debug panel mixes mocked answers in that way.
+   * Job tracking read it once, at construction, and so never heard them.
+   */
+  it('tracks jobs over a messages() wrapped after construction', async () => {
+    const injected = new Subject<TrueNasMessage>();
+    const original = connection.messages.bind(connection);
+    connection.messages = () => merge(original(), injected);
+
+    const jobId = firstValueFrom(api.callAndGetJobId('app.start', ['my-app']));
+    injected.next({
+      jsonrpc: '2.0',
+      method: 'collection_update',
+      params: {
+        collection: 'core.get_jobs',
+        msg: 'added',
+        fields: { id: 4180, message_ids: ['mock-id-app.start'] },
+      },
+    });
+
+    await expect(jobId).resolves.toBe(4180);
   });
 });
