@@ -115,14 +115,13 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   private readonly eventStreams = new Map<string, Observable<unknown>>();
 
   /**
-   * `notify_unsubscribed` names only the collection, and middleware sends one
-   * for every `core.unsubscribe` of an event source, not just when a source
-   * ends (`EventSourceManager.unsubscribe` -> `terminate`). After a subscriber
-   * leaves and another arrives, the notice for the released subscription would
-   * end the new one. So the notices are counted here per name, owed for each
-   * release, and only the rest reach the live subscription through `serverEnds`.
+   * Releases awaiting their `core.unsubscribe` reply, per name. Middleware
+   * sends a source's release notice (`terminate`) before that reply, and a
+   * notice names only the collection; so an error-free one arriving inside
+   * that window belongs to the release, not to a later subscription. One per
+   * window, which closes on the reply whether or not a notice came.
    */
-  private readonly owedEndNotices = new Map<string, number>();
+  private readonly releasing = new Map<string, { noticed: boolean }[]>();
 
   /** The live subscription per name, told when the server ends it. */
   private readonly serverEnds = new Map<string, Subject<NotifyUnsubscribed>>();
@@ -471,23 +470,35 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   }
 
   /**
-   * Release a subscription by the id `core.subscribe` answered with. An event
-   * source answers that with a `notify_unsubscribed` (error-free), owed here
-   * so it is not taken for the next subscription's end.
+   * Release a subscription by the id `core.subscribe` answered with, holding
+   * its notice window (see {@link releasing}) open until the reply.
    */
   private unsubscribe(name: string, subscriptionId: string): void {
-    this.owedEndNotices.set(name, (this.owedEndNotices.get(name) ?? 0) + 1);
-    this.connection.send(
-      createJsonRpcMessage('core.unsubscribe', [subscriptionId])
-    );
+    const release = { noticed: false };
+    this.releasing.set(name, [...(this.releasing.get(name) ?? []), release]);
+
+    const request = createJsonRpcMessage('core.unsubscribe', [subscriptionId]);
+    this.connection
+      .messages()
+      .pipe(
+        withId(request.id ?? ''),
+        take(1),
+        takeUntil(this.authenticated.pipe(filter(isUp => !isUp))),
+        finalize(() => {
+          const open = (this.releasing.get(name) ?? []).filter(r => r !== release);
+          if (open.length) this.releasing.set(name, open);
+          else this.releasing.delete(name);
+        })
+      )
+      .subscribe();
+    this.connection.send(request);
   }
 
   /**
-   * Route each `notify_unsubscribed` once: an error-free one owed for a
-   * release is dropped, anything else ends the name's live subscription. Owed
-   * notices die with the socket, as the subscriptions they were owed for do.
-   *
-   * Installed on the first `events()` call, before any stream listens.
+   * Route each `notify_unsubscribed` once: an error-free one inside an open
+   * release window is that release's, anything else ends the name's live
+   * subscription. Installed on the first `events()` call, before any stream
+   * listens.
    */
   private listenForEndNotices(): void {
     if (this.endNotices) return;
@@ -497,19 +508,12 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       .pipe(filter(res => res.method === 'notify_unsubscribed'))
       .subscribe(res => {
         const notice = res.params as NotifyUnsubscribed;
-        const owed = this.owedEndNotices.get(notice.collection) ?? 0;
-        if (!notice.error && owed > 0) {
-          if (owed > 1) this.owedEndNotices.set(notice.collection, owed - 1);
-          else this.owedEndNotices.delete(notice.collection);
-          return;
-        }
-        this.serverEnds.get(notice.collection)?.next(notice);
+        const release = notice.error
+          ? undefined
+          : this.releasing.get(notice.collection)?.find(r => !r.noticed);
+        if (release) release.noticed = true;
+        else this.serverEnds.get(notice.collection)?.next(notice);
       });
-    this.endNotices.add(
-      this.authenticated
-        .pipe(filter(isUp => !isUp))
-        .subscribe(() => this.owedEndNotices.clear())
-    );
   }
 
   /**

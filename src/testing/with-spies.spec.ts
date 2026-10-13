@@ -48,7 +48,7 @@ const UNSPIED = [
   'initializeJobEventsSubscription',
   'jobEvents',
   'listenForEndNotices',
-  'owedEndNotices',
+  'releasing',
   'serverEnds',
   'unsubscribe',
 ] as const;

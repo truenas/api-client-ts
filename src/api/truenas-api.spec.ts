@@ -1009,6 +1009,20 @@ describe('TrueNasApi', () => {
       ).toHaveLength(2);
     });
 
+    it('shares one subscription for the same arguments in another key order', () => {
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
+      sourceApi()
+        .events('filesystem.file_tail_follow', { tail_lines: 500, path: '/var/log/messages' })
+        .subscribe();
+
+      const tailSubscriptions = connection.sent.filter(
+        m =>
+          m.method === 'core.subscribe' &&
+          String((m.params as string[])[0]).startsWith('filesystem.file_tail_follow:')
+      );
+      expect(tailSubscriptions).toHaveLength(1);
+    });
+
     it('subscribes by the bare name when the arguments are left out', () => {
       sourceApi().events('reporting.realtime').subscribe();
 
@@ -1092,7 +1106,6 @@ describe('TrueNasApi', () => {
       expect(unsubscribed()).toEqual([]);
     });
 
-    /** Sent by middleware for every `core.unsubscribe` of a source, error-free. */
     const endNotice = (error: unknown = null) =>
       connection.receive({
         jsonrpc: '2.0',
@@ -1101,14 +1114,20 @@ describe('TrueNasApi', () => {
       });
 
     /**
-     * Middleware answers every `core.unsubscribe` of a source with a
-     * `notify_unsubscribed` naming only the collection. A subscriber arriving
-     * after a release must not be ended by the notice for the one released.
+     * Middleware's answer to releasing a source: the error-free notice from
+     * `terminate`, then the call's own `null` reply, in that order.
      */
-    it('is not ended by the notice owed for the subscription released before it', async () => {
+    const answerReleasesAsMiddlewareDoes = () =>
+      connection.autoReply('core.unsubscribe', frame => {
+        endNotice();
+        connection.receive({ jsonrpc: '2.0', id: frame.id, result: null });
+      });
+
+    /** Notices name only the collection; the released one's must not end the next. */
+    it('is not ended by the release notice of the subscription before it', async () => {
+      answerReleasesAsMiddlewareDoes();
       sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
       await settle();
-      expect(unsubscribed()).toHaveLength(1);
 
       const lines: unknown[] = [];
       let completed = false;
@@ -1116,8 +1135,8 @@ describe('TrueNasApi', () => {
         .events('filesystem.file_tail_follow', tail)
         .subscribe({ next: line => lines.push(line), complete: () => (completed = true) });
       await settle();
+      await settle();
 
-      endNotice();
       connection.receive(
         collectionUpdate({ collection: tailName, msg: 'added', fields: { data: 'still here' } })
       );
@@ -1126,10 +1145,18 @@ describe('TrueNasApi', () => {
       expect(lines).toEqual([{ msg: 'added', fields: { data: 'still here' } }]);
     });
 
-    it('owes the notice even when it arrives with no subscriber listening', async () => {
-      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+    /**
+     * A source ending on its own as its last subscriber leaves: its notice
+     * lands inside the release's window, and the release (of an id middleware
+     * already dropped) is answered with no notice. Nothing may be left over to
+     * swallow the next subscription's own end.
+     */
+    it('leaves nothing owed when a source ends as it is released', async () => {
+      const first = sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
       await settle();
+      first.unsubscribe();
       endNotice();
+      await settle();
 
       let completed = false;
       sourceApi()
@@ -1137,12 +1164,30 @@ describe('TrueNasApi', () => {
         .subscribe({ complete: () => (completed = true) });
       await settle();
 
-      // The owed notice was spent on arrival, so this one is the server's own.
       endNotice();
       expect(completed).toBe(true);
     });
 
-    it('still ends on an error notice while a release notice is owed', async () => {
+    /** The window closes on the reply even when no notice came inside it. */
+    it('leaves nothing owed by a release answered without a notice', async () => {
+      // The fake's own answer: `null`, no notice — as for an id already dropped.
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+      await settle();
+
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ complete: () => (completed = true) });
+      await settle();
+      endNotice();
+
+      expect(completed).toBe(true);
+    });
+
+    it('still ends on an error notice inside a release window', async () => {
+      // Unanswered, so the window stays open.
+      connection.autoReply('core.unsubscribe', () => undefined);
       sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
       await settle();
 

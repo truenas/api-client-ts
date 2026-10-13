@@ -135,7 +135,7 @@ describe('FakeConnection surface', () => {
     );
 
     expect(added.sort()).toEqual([
-      'answerSubscribe',
+      'answerHousekeeping',
       'autoReplies',
       'autoReply',
       'frames',
