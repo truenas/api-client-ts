@@ -115,6 +115,15 @@ describe('README: events', () => {
       expectTypeOf(event.fields).toEqualTypeOf<v25_10_0.AppEntryInput>();
     });
   });
+
+  it('takes an event source\'s arguments after the name', () => {
+    api
+      .events('filesystem.file_tail_follow', { path: '/var/log/messages' })
+      .subscribe(line => {
+        if (line.msg !== 'added') return;
+        expectTypeOf(line.fields.data).toEqualTypeOf<string>();
+      });
+  });
 });
 
 describe('README: working across versions', () => {

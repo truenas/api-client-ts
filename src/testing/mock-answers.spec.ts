@@ -614,6 +614,28 @@ describe('mock answers', () => {
     await expect(second).resolves.toMatchObject({ msg: 'added' });
   });
 
+  it('emits to an event source subscribed with the same arguments, and no other', async () => {
+    const c = client();
+    const tail = { path: '/var/log/messages' };
+
+    const ours = firstValueFrom(
+      c.api.events('filesystem.file_tail_follow', tail).pipe(take(1))
+    );
+    const theirs: unknown[] = [];
+    c.api
+      .events('filesystem.file_tail_follow', { path: '/var/log/other' })
+      .subscribe(event => theirs.push(event));
+
+    c.mock.emit(
+      'filesystem.file_tail_follow',
+      { msg: 'added', fields: { data: 'boot' } },
+      tail
+    );
+
+    await expect(ours).resolves.toMatchObject({ msg: 'added' });
+    expect(theirs).toEqual([]);
+  });
+
   /**
    * The frames are still the real ones. A scripted answer changes what comes
    * back, not what went out, which is what makes `sent` worth asserting on.

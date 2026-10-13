@@ -46,6 +46,7 @@ const UNSPIED = [
   'eventStreams',
   'initializeJobEventsSubscription',
   'jobEvents',
+  'unsubscribe',
 ] as const;
 
 function members(instance: object): string[] {

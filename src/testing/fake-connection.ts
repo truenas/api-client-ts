@@ -34,18 +34,15 @@ export interface FakeConnectionOptions {
 }
 
 /**
- * Frames the client sends for itself, which no spec should have to script.
+ * Frames the client sends for itself, which no spec should have to script:
+ * `core.subscribe` for the job stream and per `events()` subscription, and
+ * `core.unsubscribe` when the last subscriber leaves one. If another method
+ * starts arriving through `send`, a strict spec fails naming it.
  *
- * `core.subscribe` is the only one reachable: for the job stream once
- * authenticated, and again per `events()` name. If another method starts
- * arriving through `send`, a strict spec fails naming it.
- *
- * The other two are absent for different reasons. `core.unsubscribe` is never
- * sent, so it would fail loudly if it were. `core.ping` would not — it goes
- * out through `ws.next(…)` rather than `send`, so it cannot reach this check,
+ * `core.ping` is absent: it goes out through `ws.next(…)` rather than `send`,
  * and a fake connection never yields a socket for it to fire on.
  */
-const CLIENT_HOUSEKEEPING = new Set(['core.subscribe']);
+const CLIENT_HOUSEKEEPING = new Set(['core.subscribe', 'core.unsubscribe']);
 
 /**
  * A `TrueNasConnection` that never opens a socket, and that a test drives by
@@ -192,7 +189,11 @@ export class FakeConnection extends TrueNasConnection {
   private write(message: TrueNasMessage): void {
     this.frames.push(message);
 
-    const answer = this.autoReplies.get(String(message.method));
+    const answer =
+      this.autoReplies.get(String(message.method)) ??
+      (message.method === 'core.subscribe'
+        ? (frame: TrueNasMessage) => this.answerSubscribe(frame)
+        : undefined);
     if (!answer) return;
 
     // On a microtask, not inline. A real reply crosses a socket, so it cannot
@@ -201,6 +202,16 @@ export class FakeConnection extends TrueNasConnection {
     // and returns the observable for the caller to subscribe afterwards, so an
     // inline answer arrives with nobody listening and the login never settles.
     queueMicrotask(() => answer(message));
+  }
+
+  /**
+   * Answers `core.subscribe` with an id, as middleware does, so that releasing
+   * the subscription can be seen as a `core.unsubscribe` carrying it. A spec
+   * that wants to answer it differently registers an `autoReply`.
+   */
+  private answerSubscribe(frame: TrueNasMessage): void {
+    const count = this.frames.filter(f => f.method === 'core.subscribe').length;
+    this.receive({ jsonrpc: '2.0', id: frame.id, result: `subscription-${count}` });
   }
 
   /** Deliver a message as if middleware had sent it. */

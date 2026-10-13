@@ -96,13 +96,8 @@ export type JobResult<
 > = D['job'][M] extends { response: infer R } ? R : never;
 
 /**
- * The events a surface can be subscribed to by name alone.
- *
- * Excludes *event sources* (entries with a `subscriptionParams` model, e.g.
- * `app.stats`, `reporting.realtime`). They take subscribe-time arguments whose
- * encoding the dump does not record (`core.subscribe` takes one string), so
- * subscribing by name alone would give a silent stream. Widen this once the
- * encoding is confirmed against a live appliance (`yarn live-check`).
+ * The collections a surface can be subscribed to: by name alone, with no
+ * arguments. Event sources are {@link EventSourceName}.
  */
 export type EventName<D extends ApiDirectoryShape> = {
   [E in keyof D['event']]: 'subscriptionParams' extends keyof D['event'][E]
@@ -110,6 +105,45 @@ export type EventName<D extends ApiDirectoryShape> = {
     : E;
 }[keyof D['event']] &
   string;
+
+/**
+ * The *event sources* of a surface: entries with a `subscriptionParams` model,
+ * such as `filesystem.file_tail_follow` or `reporting.realtime`, which take
+ * arguments when subscribed to. See {@link SubscriptionParams}.
+ */
+export type EventSourceName<D extends ApiDirectoryShape> = {
+  [E in keyof D['event']]: 'subscriptionParams' extends keyof D['event'][E]
+    ? E
+    : never;
+}[keyof D['event']] &
+  string;
+
+/** Everything a surface can be subscribed to: collections and event sources. */
+export type SubscribableEvent<D extends ApiDirectoryShape> =
+  | EventName<D>
+  | EventSourceName<D>;
+
+/** The arguments an event source takes, e.g. `{ path, tail_lines? }`. */
+export type SubscriptionParams<
+  D extends ApiDirectoryShape,
+  E extends EventSourceName<D>,
+> = D['event'][E] extends { subscriptionParams: infer P } ? P : never;
+
+/**
+ * What `events()` takes after an event source's name: its arguments, which may
+ * be left out when none of them is required.
+ *
+ * Not {@link ArgsOf}: that asks whether an empty *tuple* fits, and the
+ * arguments here are an object. `Record<string, never>` — a source taking no
+ * arguments, such as `zfs.tier.rewrite_job_query` — would then be required.
+ */
+export type SubscriptionArgs<
+  D extends ApiDirectoryShape,
+  E extends EventSourceName<D>,
+> =
+  Record<never, never> extends SubscriptionParams<D, E>
+    ? [params?: SubscriptionParams<D, E>]
+    : [params: SubscriptionParams<D, E>];
 
 /** The kinds of change a collection event reports. */
 export type EventKind = 'added' | 'changed' | 'removed';
@@ -124,14 +158,14 @@ export type EventKind = 'added' | 'changed' | 'removed';
  */
 type EventArm<
   D extends ApiDirectoryShape,
-  E extends EventName<D>,
+  E extends SubscribableEvent<D>,
   K extends EventKind,
 > = K extends keyof D['event'][E] ? { msg: K } & D['event'][E][K] : never;
 
 /** The kinds the directory says this event reports. */
 type DeclaredKinds<
   D extends ApiDirectoryShape,
-  E extends EventName<D>,
+  E extends SubscribableEvent<D>,
 > = Extract<keyof D['event'][E], EventKind>;
 
 /**
@@ -147,7 +181,7 @@ type DeclaredKinds<
  */
 type UndeclaredArm<
   D extends ApiDirectoryShape,
-  E extends EventName<D>,
+  E extends SubscribableEvent<D>,
 > = [Exclude<EventKind, DeclaredKinds<D, E>>] extends [never]
   ? never
   : { msg: Exclude<EventKind, DeclaredKinds<D, E>>; id?: unknown };
@@ -159,7 +193,10 @@ type UndeclaredArm<
  * no `fields` in 55 of the 56 collections that declare one — so narrowing on
  * `msg` is what makes the payload safe to reach.
  */
-export type EventUnion<D extends ApiDirectoryShape, E extends EventName<D>> =
+export type EventUnion<
+  D extends ApiDirectoryShape,
+  E extends SubscribableEvent<D>,
+> =
   | EventArm<D, E, 'added'>
   | EventArm<D, E, 'changed'>
   | EventArm<D, E, 'removed'>

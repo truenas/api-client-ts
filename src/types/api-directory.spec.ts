@@ -24,7 +24,9 @@ import type {
 import type {
   BaseApiDirectory,
   EventName,
+  EventSourceName,
   EventUnion,
+  SubscriptionParams,
 } from '@/types/api-directory.type';
 import type { Job, JobProgress, JobState } from '@/types/job.type';
 import type { QueryEntity } from '@/types/query.type';
@@ -379,18 +381,66 @@ describe('events', () => {
   });
 
   /**
-   * Event sources take subscribe-time arguments, and `core.subscribe` is
-   * declared as a single string with no documented encoding for them. They are
-   * excluded rather than typed on a guess — see `EventName`. This is the test
-   * to delete once the encoding is confirmed.
+   * Event sources take their arguments after the name, typed from the
+   * directory's `subscriptionParams`: required when any field is, omissible
+   * when none is. A collection takes none.
    */
-  it('excludes event sources, which take subscribe-time arguments', () => {
-    // @ts-expect-error `app.stats` needs subscription params we cannot send.
+  it('types an event source\'s arguments from its subscription params', () => {
+    api.events('filesystem.file_tail_follow', { path: '/var/log/messages' });
     api.events('app.stats');
-    // @ts-expect-error likewise.
-    api.events('filesystem.file_tail_follow');
+    api.events('app.stats', { interval: 5 });
 
-    expectTypeOf<'app.stats'>().toExtend<keyof BaseApiDirectory['event']>();
+    // @ts-expect-error `path` is required.
+    api.events('filesystem.file_tail_follow');
+    // @ts-expect-error no such argument.
+    api.events('filesystem.file_tail_follow', { file: '/var/log/messages' });
+    // @ts-expect-error a collection takes no arguments.
+    api.events('app.query', {});
+
+    expectTypeOf<'app.stats'>().toExtend<EventSourceName<BaseApiDirectory>>();
     expectTypeOf<'app.stats'>().not.toExtend<EventName<BaseApiDirectory>>();
+    expectTypeOf<'app.query'>().not.toExtend<EventSourceName<BaseApiDirectory>>();
+    expectTypeOf<
+      SubscriptionParams<BaseApiDirectory, 'filesystem.file_tail_follow'>
+    >().toEqualTypeOf<v25_10_0.FileFollowTailEventSourceArgs>();
+  });
+
+  /**
+   * A source declaring an empty argument model — `Record<string, never>` —
+   * is subscribed by name alone. Checking for an empty tuple, as `ArgsOf`
+   * does, would have made its arguments required.
+   */
+  it('lets a source with no arguments be subscribed by name alone', () => {
+    const v27 = api as unknown as TrueNasApi<ApiDirectoryV27_0_0>;
+
+    v27.events('zfs.tier.rewrite_job_query');
+    v27.events('zfs.tier.rewrite_job_status', { tier_job_id: 'job-1' });
+    // @ts-expect-error `tier_job_id` is required.
+    v27.events('zfs.tier.rewrite_job_status');
+  });
+
+  /**
+   * Consumers wrap `events` in their own verb, generic over the name. Taking
+   * a source's arguments must not cost them that: a single signature with a
+   * conditional rest tuple stays unresolved for a generic `E`, and refused
+   * webui's wrapper outright.
+   */
+  it('stays callable from a wrapper generic over the collection name', () => {
+    function follow<E extends EventName<BaseApiDirectory>>(event: E) {
+      return api.events(event);
+    }
+
+    expectTypeOf(follow('app.query')).toEqualTypeOf<
+      Observable<EventUnion<BaseApiDirectory, 'app.query'>>
+    >();
+  });
+
+  it('emits the source\'s declared payload', () => {
+    type TailEvent = EventUnion<BaseApiDirectory, 'filesystem.file_tail_follow'>;
+
+    expectTypeOf(
+      api.events('filesystem.file_tail_follow', { path: '/var/log/messages' })
+    ).toEqualTypeOf<Observable<TailEvent>>();
+    expectTypeOf<Extract<TailEvent, { msg: 'added' }>>().toHaveProperty('fields');
   });
 });

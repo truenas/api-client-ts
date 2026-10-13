@@ -133,7 +133,20 @@ client.api.events('app.query').subscribe(change => {
 
 Changes are typed per collection and discriminated on `msg`. One server
 subscription is shared by every subscriber and re-registered after each
-reconnect.
+reconnect. When the last subscriber leaves, it is released with
+`core.unsubscribe`.
+
+Event sources take their arguments after the name, typed from the method's
+`subscriptionParams`:
+
+```typescript
+client.api.events('filesystem.file_tail_follow', { path: '/var/log/messages' })
+  .subscribe(line => append(line.fields.data));
+```
+
+A source with different arguments is a separate subscription. If middleware
+ends a source, the stream completes. If it rejects the arguments, the stream
+errors with a `TrueNasApiError`.
 
 ## Working across versions
 
