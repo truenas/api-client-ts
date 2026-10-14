@@ -9,10 +9,13 @@ import {
   map,
   merge,
   share,
+  Subject,
+  Subscription,
   takeUntil,
   switchMap,
   take,
   takeWhile,
+  tap,
 } from 'rxjs';
 import type {
   QueryFilters,
@@ -27,11 +30,15 @@ import type {
   CallResponse,
   EventKind,
   EventName,
+  EventSourceName,
   EventUnion,
   JobMethod,
   JobParams,
   JobResult,
+  SubscribableEvent,
+  SubscriptionArgs,
 } from '@/types/api-directory.type';
+import type { TrueNasErrorData } from '@/types/api-error.type';
 import type {
   QueryEntity,
   QueryListOptions,
@@ -41,6 +48,7 @@ import type {
 import { TrueNasApiError } from '@/errors/api.errors';
 import { isJobFinished, Job } from '@/types/job.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
+import { subscriptionName } from '@/utils/subscription.utils';
 import { withId } from '@/utils/utils';
 import { TrueNasConnection } from '@/connection/truenas-connection';
 
@@ -62,6 +70,15 @@ interface CollectionUpdate {
 
 /** The `msg` values {@link TrueNasApi.events} forwards. */
 const EVENT_KINDS: readonly EventKind[] = ['added', 'changed', 'removed'];
+
+/**
+ * The `params` of a `notify_unsubscribed` notification: the server ended a
+ * subscription, with the reason when it was an error (`rpc.py`).
+ */
+interface NotifyUnsubscribed {
+  collection: string;
+  error: TrueNasErrorData | null;
+}
 
 /**
  * TrueNAS API handler using the JSON-RPC 2.0 protocol.
@@ -92,11 +109,24 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   );
 
   /**
-   * One shared stream per subscribed event name — see {@link events}.
-   * Keyed by name rather than by caller, because the subscription it stands
-   * for lives on the server and is per socket, not per caller.
+   * One shared stream per subscription — see {@link events}. Keyed by the
+   * name *with* its arguments: a tail of one file is not a tail of another.
    */
   private readonly eventStreams = new Map<string, Observable<unknown>>();
+
+  /**
+   * Releases awaiting their `core.unsubscribe` reply, per name. Middleware
+   * sends a source's release notice (`terminate`) before that reply, and a
+   * notice names only the collection; so an error-free one arriving inside
+   * that window belongs to the release, not to a later subscription. One per
+   * window, which closes on the reply whether or not a notice came.
+   */
+  private readonly releasing = new Map<string, { noticed: boolean }[]>();
+
+  /** The live subscription per name, told when the server ends it. */
+  private readonly serverEnds = new Map<string, Subject<NotifyUnsubscribed>>();
+
+  private endNotices?: Subscription;
 
   constructor(
     public authenticated: BehaviorSubject<boolean>,
@@ -308,67 +338,186 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   }
 
   /**
-   * Subscribe to a collection and emit its changes, discriminated on `msg`.
+   * Subscribe to a collection or an event source and emit its changes,
+   * discriminated on `msg`.
    *
    * ```typescript
    * api.events('app.query').subscribe(event => {
    *   if (event.msg === 'removed') return drop(event.id);
    *   render(event.fields);          // only reachable once narrowed
    * });
+   * api.events('filesystem.file_tail_follow', { path: '/var/log/messages' });
    * ```
    *
    * Narrow before reading `fields`: `removed` events almost never carry it.
-   * Sources taking subscribe-time arguments are excluded; see {@link EventName}.
    */
-  events<E extends EventName<D>>(event: E): Observable<EventUnion<D, E>> {
-    // One stream per event name, shared. Without this each subscriber ran the
-    // `defer` and put its own `core.subscribe` frame on the wire, and since
-    // `core.unsubscribe` is never sent, every duplicate leaked a server-side
-    // subscription for the life of the socket.
-    const existing = this.eventStreams.get(event);
+  events<E extends EventName<D>>(event: E): Observable<EventUnion<D, E>>;
+  // A separate overload rather than one signature taking `...params` for both:
+  // a wrapper generic over `E extends EventName<D>` could not call that one,
+  // since the rest tuple stays unresolved for a generic `E`.
+  events<E extends EventSourceName<D>>(
+    event: E,
+    ...params: SubscriptionArgs<D, E>
+  ): Observable<EventUnion<D, E>>;
+  events<E extends SubscribableEvent<D>>(
+    event: E,
+    params?: unknown
+  ): Observable<EventUnion<D, E>> {
+    const name = subscriptionName(event, params);
+    this.listenForEndNotices();
+
+    // One stream per subscription, shared: middleware keeps one per
+    // `core.subscribe`, so each duplicate would be another one streaming.
+    const existing = this.eventStreams.get(name);
     if (existing) return existing as Observable<EventUnion<D, E>>;
 
+    const forget = () => {
+      if (this.eventStreams.get(name) === stream) this.eventStreams.delete(name);
+    };
     const stream = defer(() => {
-      // Every authentication, not just the first. `authenticated$` cycles
-      // false -> true on each reconnect, and a `take(1)` here meant the
-      // subscription was re-established on the server exactly once: after a
-      // socket drop the stream stayed alive and silently never emitted again.
-      // Deferred so this happens when the first caller subscribes, and torn
-      // down by the `finalize` below when the stream itself ends — the
-      // connection completing or erroring. Not when a caller unsubscribes:
-      // `resetOnRefCountZero: false` keeps the share alive through that on
-      // purpose, for the reason given where it is set.
-      const resubscribe = this.authenticated
-        .pipe(distinctUntilChanged(), filter(Boolean))
-        .subscribe(() => {
-          this.connection.send(createJsonRpcMessage('core.subscribe', [event]));
+      // The server's id for this subscription on the current socket. A socket
+      // takes its subscriptions with it, so a drop voids the id.
+      let subscriptionId: string | undefined;
+      let released = false;
+      // Set by `notify_unsubscribed`. Middleware validates a source's arguments
+      // before answering `core.subscribe`, so a rejection can arrive before the
+      // id: by then the server has dropped it, and there is nothing to release.
+      let serverEnded = false;
+      const ended = new Subject<NotifyUnsubscribed>();
+      this.serverEnds.set(name, ended);
+
+      // Every authentication, not just the first: `authenticated$` cycles
+      // false -> true on each reconnect, and the new socket has to be told again.
+      const subscribing = this.authenticated
+        .pipe(distinctUntilChanged())
+        .subscribe(isAuthenticated => {
+          subscriptionId = undefined;
+          if (!isAuthenticated) return;
+
+          const request = createJsonRpcMessage('core.subscribe', [name]);
+          this.connection
+            .messages()
+            .pipe(
+              withId(request.id ?? ''),
+              take(1),
+              takeUntil(this.authenticated.pipe(filter(isUp => !isUp)))
+            )
+            .subscribe(reply => {
+              // A refusal (a role the session lacks) leaves the stream silent,
+              // as it always has. There is nothing to release.
+              if (typeof reply.result !== 'string') return;
+              // Everyone left before the id came back: release it now, unless
+              // the server ended the subscription first.
+              if (!released) subscriptionId = reply.result;
+              else if (!serverEnded) this.unsubscribe(name, reply.result);
+            });
+          this.connection.send(request);
         });
 
-      return this.connection.messages().pipe(
-        filter(res => res.method === 'collection_update'),
-        map(res => res.params as CollectionUpdate | undefined),
+      const updates = this.connection.messages().pipe(
         filter(
-          (params): params is CollectionUpdate =>
-            params?.collection === event &&
-            EVENT_KINDS.includes(params.msg as EventKind)
+          res =>
+            res.method === 'collection_update' &&
+            (res.params as CollectionUpdate | undefined)?.collection === name
         ),
+        map(res => res.params as CollectionUpdate),
+        filter(params => EVENT_KINDS.includes(params.msg as EventKind)),
+        // `merge` below ends only when both inputs do. The connection closing
+        // for good ends this one; `ended` has to follow, or the stream never
+        // completes and nothing tears down the resubscription.
+        finalize(() => ended.complete())
+      );
+      // The server ended the subscription — an event source finished, or
+      // rejected its arguments. Nothing is left to release.
+      const end = ended.pipe(
+        map(notice => {
+          subscriptionId = undefined;
+          serverEnded = true;
+          if (notice.error) {
+            throw new TrueNasApiError(
+              { code: -32001, message: notice.error.reason, data: notice.error },
+              name
+            );
+          }
+        })
+      );
+
+      return merge(updates, end).pipe(
+        takeWhile((change): change is CollectionUpdate => change !== undefined),
         // `collection` is the subscription the caller already named; what is
         // left is exactly the payload the directory declares, plus its tag.
         map(({ collection, ...change }) => change as EventUnion<D, E>),
-        finalize(() => resubscribe.unsubscribe())
+        // An ended stream stays ended (below), so the next `events()` call for
+        // this name needs a new one.
+        tap({ complete: forget, error: forget }),
+        finalize(() => {
+          released = true;
+          subscribing.unsubscribe();
+          if (this.serverEnds.get(name) === ended) this.serverEnds.delete(name);
+          if (subscriptionId) this.unsubscribe(name, subscriptionId);
+        })
       );
-      // `resetOnRefCountZero: false` is what makes the comment above true.
-      // With the default, the share resets when the last subscriber leaves and
-      // the next one re-runs the `defer`, so a component subscribing in
-      // `ngOnInit` and unsubscribing in `ngOnDestroy` registers the collection
-      // again on every mount — the same leak, on a different axis, since
-      // nothing sends `core.unsubscribe`. `resetOnComplete: false` covers the
-      // closed-connection case: once the socket is gone the stream stays
-      // completed instead of re-registering onto a dead connection.
-    }).pipe(share({ resetOnRefCountZero: false, resetOnComplete: false }));
+      // Released when the last subscriber leaves: the next one subscribes
+      // afresh. Not reset on completion, so a stream that ended — the source
+      // finished, or the connection closed for good — stays ended for anyone
+      // still holding it, rather than registering again on its own.
+    }).pipe(
+      share({
+        resetOnRefCountZero: true,
+        resetOnComplete: false,
+        resetOnError: false,
+      })
+    );
 
-    this.eventStreams.set(event, stream as Observable<unknown>);
+    this.eventStreams.set(name, stream as Observable<unknown>);
     return stream;
+  }
+
+  /**
+   * Release a subscription by the id `core.subscribe` answered with, holding
+   * its notice window (see {@link releasing}) open until the reply.
+   */
+  private unsubscribe(name: string, subscriptionId: string): void {
+    const release = { noticed: false };
+    this.releasing.set(name, [...(this.releasing.get(name) ?? []), release]);
+
+    const request = createJsonRpcMessage('core.unsubscribe', [subscriptionId]);
+    this.connection
+      .messages()
+      .pipe(
+        withId(request.id ?? ''),
+        take(1),
+        takeUntil(this.authenticated.pipe(filter(isUp => !isUp))),
+        finalize(() => {
+          const open = (this.releasing.get(name) ?? []).filter(r => r !== release);
+          if (open.length) this.releasing.set(name, open);
+          else this.releasing.delete(name);
+        })
+      )
+      .subscribe();
+    this.connection.send(request);
+  }
+
+  /**
+   * Route each `notify_unsubscribed` once: an error-free one inside an open
+   * release window is that release's, anything else ends the name's live
+   * subscription. Installed on the first `events()` call, before any stream
+   * listens.
+   */
+  private listenForEndNotices(): void {
+    if (this.endNotices) return;
+
+    this.endNotices = this.connection
+      .messages()
+      .pipe(filter(res => res.method === 'notify_unsubscribed'))
+      .subscribe(res => {
+        const notice = res.params as NotifyUnsubscribed;
+        const release = notice.error
+          ? undefined
+          : this.releasing.get(notice.collection)?.find(r => !r.noticed);
+        if (release) release.noticed = true;
+        else this.serverEnds.get(notice.collection)?.next(notice);
+      });
   }
 
   /**

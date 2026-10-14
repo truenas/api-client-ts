@@ -9,11 +9,15 @@ import alerts from 'test-data/alerts.json';
 import jobEvent from 'test-data/job-event.json';
 import { TrueNasApi } from './truenas-api';
 
-// Mock createJsonRpcMessage so message ids are deterministic.
+// Mock createJsonRpcMessage so message ids are deterministic. Subscriptions
+// are keyed by their argument too: the job stream subscribes alongside every
+// `events()` call, and one id for all of them would cross their answers.
 vi.mock('@/utils/jsonrpc.utils', () => ({
   createJsonRpcMessage: vi.fn((method: string, params?: unknown) => ({
     jsonrpc: '2.0',
-    id: `mock-id-${method}`,
+    id: /^core\.(un)?subscribe$/.test(method) && Array.isArray(params)
+      ? `mock-id-${method}-${String(params[0])}`
+      : `mock-id-${method}`,
     method,
     params: params ?? [],
   })),
@@ -140,7 +144,7 @@ describe('TrueNasApi', () => {
       try {
         expect(connection.sent).toContainEqual({
           jsonrpc: '2.0',
-          id: 'mock-id-core.subscribe',
+          id: 'mock-id-core.subscribe-app.query',
           method: 'core.subscribe',
           params: ['app.query'],
         });
@@ -622,22 +626,83 @@ describe('TrueNasApi', () => {
     expect(subscribeFrames('app.query')).toHaveLength(1);
   });
 
+  /** `core.unsubscribe` frames, in send order, by the id each releases. */
+  const unsubscribed = () =>
+    connection.sent
+      .filter(m => m.method === 'core.unsubscribe')
+      .map(m => (m.params as string[])[0]);
+
   /**
-   * The case the concurrent test above cannot see. `share()` resets when the
-   * last subscriber leaves, so a component subscribing on mount and
-   * unsubscribing on unmount re-registered the collection every time it came
-   * back — and nothing sends `core.unsubscribe`, so each one persisted for the
-   * life of the socket.
+   * Lets the fake's microtask answer to `core.subscribe` land. It numbers its
+   * answers, and the job stream's subscribe on authentication is the first, so
+   * the first `events()` subscription is answered `subscription-2`.
    */
-  it('does not re-register when a subscriber leaves and another arrives', () => {
+  const settle = () => new Promise<void>(resolve => queueMicrotask(resolve));
+
+  /**
+   * Middleware keeps a subscription per `core.subscribe` until it is told to
+   * drop it, so the last subscriber leaving has to tell it, by the id the
+   * subscribe was answered with. Until this, nothing ever did: a timer-driven
+   * source kept streaming to a page that had closed.
+   */
+  it('releases the subscription by its id when the last subscriber leaves', async () => {
     authenticated$.next(true);
     const stream = api.events('app.query');
+    const first = stream.subscribe();
+    const second = stream.subscribe();
+    await settle();
 
-    stream.subscribe().unsubscribe();
-    stream.subscribe().unsubscribe();
-    stream.subscribe();
+    first.unsubscribe();
+    expect(unsubscribed()).toEqual([]);
 
-    expect(subscribeFrames('app.query')).toHaveLength(1);
+    second.unsubscribe();
+    expect(unsubscribed()).toEqual(['subscription-2']);
+  });
+
+  it('registers again for a subscriber arriving after the release', async () => {
+    authenticated$.next(true);
+    api.events('app.query').subscribe().unsubscribe();
+    api.events('app.query').subscribe();
+    await settle();
+
+    expect(subscribeFrames('app.query')).toHaveLength(2);
+  });
+
+  it('releases a subscription its subscribers left before the id came back', async () => {
+    authenticated$.next(true);
+    api.events('app.query').subscribe().unsubscribe();
+    expect(unsubscribed()).toEqual([]);
+
+    await settle();
+
+    expect(unsubscribed()).toEqual(['subscription-2']);
+  });
+
+  /** A lost socket takes its subscriptions with it; there is nothing to release. */
+  it('does not release a subscription the lost socket already took', async () => {
+    authenticated$.next(true);
+    const subscription = api.events('app.query').subscribe();
+    await settle();
+
+    authenticated$.next(false);
+    subscription.unsubscribe();
+
+    expect(unsubscribed()).toEqual([]);
+  });
+
+  /**
+   * Closing the connection for good ends every event stream, so a consumer
+   * waiting on completion hears it and the resubscription is torn down.
+   */
+  it('completes an event stream when the connection is closed for good', async () => {
+    authenticated$.next(true);
+    let completed = false;
+    api.events('app.query').subscribe({ complete: () => (completed = true) });
+    await settle();
+
+    connection.close();
+
+    expect(completed).toBe(true);
   });
 
   /**
@@ -891,6 +956,278 @@ describe('TrueNasApi', () => {
           result: 42,
         } as unknown as TrueNasMessage);
       }));
+  });
+
+  /**
+   * Event sources take arguments, encoded the way middleware decodes them:
+   * `core.subscribe('<name>:<json>')`, split on the first `:` and parsed as
+   * JSON. The same string comes back as each update's `collection`.
+   */
+  describe('event sources', () => {
+    const tail = { path: '/var/log/messages', tail_lines: 500 };
+    const tailName = `filesystem.file_tail_follow:${JSON.stringify(tail)}`;
+
+    const sourceApi = () =>
+      api as unknown as TrueNasApi<{
+        call: Record<never, never>;
+        job: Record<never, never>;
+        event: {
+          'filesystem.file_tail_follow': {
+            subscriptionParams: { path: string; tail_lines?: number };
+            added: { fields: { data: string } };
+          };
+          'reporting.realtime': {
+            subscriptionParams: { interval?: number };
+            added: { fields: unknown };
+          };
+        };
+      }>;
+
+    beforeEach(() => {
+      authenticated$.next(true);
+    });
+
+    it('subscribes with the arguments encoded into the name, and emits what comes back under it', async () => {
+      const lines: unknown[] = [];
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe(event => lines.push(event));
+
+      expect(subscribeFrames(tailName)).toHaveLength(1);
+
+      connection.receive(
+        collectionUpdate({ collection: tailName, msg: 'added', fields: { data: 'boot' } })
+      );
+      // Another file's tail on the same socket is someone else's.
+      connection.receive(
+        collectionUpdate({
+          collection: 'filesystem.file_tail_follow:{"path":"/var/log/other"}',
+          msg: 'added',
+          fields: { data: 'not ours' },
+        })
+      );
+
+      expect(lines).toEqual([{ msg: 'added', fields: { data: 'boot' } }]);
+    });
+
+    it('keeps one subscription per set of arguments', () => {
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
+      sourceApi()
+        .events('filesystem.file_tail_follow', { path: '/var/log/other' })
+        .subscribe();
+
+      expect(
+        connection.sent.filter(
+          m => m.method === 'core.subscribe' && m.params?.toString() !== 'core.get_jobs'
+        )
+      ).toHaveLength(2);
+    });
+
+    it('shares one subscription for the same arguments in another key order', () => {
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
+      sourceApi()
+        .events('filesystem.file_tail_follow', { tail_lines: 500, path: '/var/log/messages' })
+        .subscribe();
+
+      const tailSubscriptions = connection.sent.filter(
+        m =>
+          m.method === 'core.subscribe' &&
+          String((m.params as string[])[0]).startsWith('filesystem.file_tail_follow:')
+      );
+      expect(tailSubscriptions).toHaveLength(1);
+    });
+
+    it('subscribes by the bare name when the arguments are left out', () => {
+      sourceApi().events('reporting.realtime').subscribe();
+
+      expect(subscribeFrames('reporting.realtime')).toHaveLength(1);
+    });
+
+    it('releases the source when the last subscriber leaves', async () => {
+      const subscription = sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe();
+      await settle();
+
+      subscription.unsubscribe();
+
+      expect(unsubscribed()).toEqual(['subscription-2']);
+    });
+
+    it('completes when middleware ends the subscription, and releases nothing', async () => {
+      const ended = firstValueFrom(
+        sourceApi().events('filesystem.file_tail_follow', tail),
+        { defaultValue: 'completed' }
+      );
+      await settle();
+
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: { collection: tailName, error: null },
+      });
+
+      await expect(ended).resolves.toBe('completed');
+      expect(unsubscribed()).toEqual([]);
+    });
+
+    it('errors with the reason when middleware rejects the arguments', async () => {
+      const rejected = firstValueFrom(
+        sourceApi().events('filesystem.file_tail_follow', { path: '/nope' })
+      );
+
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: {
+          collection: 'filesystem.file_tail_follow:{"path":"/nope"}',
+          error: fakeApiError({
+            errname: 'ENOENT',
+            error: 2,
+            reason: '[ENOENT] /nope: does not exist',
+          }).data,
+        },
+      });
+
+      await expect(rejected).rejects.toMatchObject({
+        message: '[ENOENT] /nope: does not exist',
+        errname: 'ENOENT',
+      });
+    });
+
+    /**
+     * Middleware validates a source's arguments before it answers
+     * `core.subscribe`, so a rejection's `notify_unsubscribed` can beat the id.
+     * The server has already dropped that id; releasing it is a stray frame.
+     */
+    it('releases nothing when the server ended the subscription before its id came back', async () => {
+      const rejected = firstValueFrom(
+        sourceApi().events('filesystem.file_tail_follow', { path: '/nope' })
+      ).catch(() => 'rejected');
+
+      // Before the fake's microtask answer to `core.subscribe` lands.
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: {
+          collection: 'filesystem.file_tail_follow:{"path":"/nope"}',
+          error: fakeApiError({ reason: '[ENOENT] /nope: does not exist' }).data,
+        },
+      });
+      await expect(rejected).resolves.toBe('rejected');
+      await settle();
+
+      expect(unsubscribed()).toEqual([]);
+    });
+
+    const endNotice = (error: unknown = null) =>
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: { collection: tailName, error },
+      });
+
+    /**
+     * Middleware's answer to releasing a source: the error-free notice from
+     * `terminate`, then the call's own `null` reply, in that order.
+     */
+    const answerReleasesAsMiddlewareDoes = () =>
+      connection.autoReply('core.unsubscribe', frame => {
+        endNotice();
+        connection.receive({ jsonrpc: '2.0', id: frame.id, result: null });
+      });
+
+    /** Notices name only the collection; the released one's must not end the next. */
+    it('is not ended by the release notice of the subscription before it', async () => {
+      answerReleasesAsMiddlewareDoes();
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+
+      const lines: unknown[] = [];
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ next: line => lines.push(line), complete: () => (completed = true) });
+      await settle();
+      await settle();
+
+      connection.receive(
+        collectionUpdate({ collection: tailName, msg: 'added', fields: { data: 'still here' } })
+      );
+
+      expect(completed).toBe(false);
+      expect(lines).toEqual([{ msg: 'added', fields: { data: 'still here' } }]);
+    });
+
+    /**
+     * A source ending on its own as its last subscriber leaves: its notice
+     * lands inside the release's window, and the release (of an id middleware
+     * already dropped) is answered with no notice. Nothing may be left over to
+     * swallow the next subscription's own end.
+     */
+    it('leaves nothing owed when a source ends as it is released', async () => {
+      const first = sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
+      await settle();
+      first.unsubscribe();
+      endNotice();
+      await settle();
+
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ complete: () => (completed = true) });
+      await settle();
+
+      endNotice();
+      expect(completed).toBe(true);
+    });
+
+    /** The window closes on the reply even when no notice came inside it. */
+    it('leaves nothing owed by a release answered without a notice', async () => {
+      // The fake's own answer: `null`, no notice — as for an id already dropped.
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+      await settle();
+
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ complete: () => (completed = true) });
+      await settle();
+      endNotice();
+
+      expect(completed).toBe(true);
+    });
+
+    it('still ends on an error notice inside a release window', async () => {
+      // Unanswered, so the window stays open.
+      connection.autoReply('core.unsubscribe', () => undefined);
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+
+      const rejected = firstValueFrom(sourceApi().events('filesystem.file_tail_follow', tail));
+      endNotice(fakeApiError({ reason: 'gone' }).data);
+
+      await expect(rejected).rejects.toMatchObject({ message: 'gone' });
+    });
+
+    it('subscribes afresh after a source ended', async () => {
+      const ended = firstValueFrom(
+        sourceApi().events('filesystem.file_tail_follow', tail),
+        { defaultValue: null }
+      );
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: { collection: tailName, error: null },
+      });
+      await ended;
+
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
+
+      expect(subscribeFrames(tailName)).toHaveLength(2);
+    });
   });
 
   /**

@@ -43,9 +43,14 @@ const UNSPIED = [
   'authenticated',
   'connection',
   'dispatch',
+  'endNotices',
   'eventStreams',
   'initializeJobEventsSubscription',
   'jobEvents',
+  'listenForEndNotices',
+  'releasing',
+  'serverEnds',
+  'unsubscribe',
 ] as const;
 
 function members(instance: object): string[] {

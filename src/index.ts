@@ -81,10 +81,14 @@ export type {
   CallResponse,
   EventKind,
   EventName,
+  EventSourceName,
   EventUnion,
   JobMethod,
   JobParams,
   JobResult,
+  SubscribableEvent,
+  SubscriptionArgs,
+  SubscriptionParams,
 } from '@/types/api-directory.type';
 export type {
   QueryDirectory,

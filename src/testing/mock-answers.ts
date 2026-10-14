@@ -5,15 +5,18 @@ import type {
   CallParams,
   CallResponse,
   EventName,
+  EventSourceName,
   EventUnion,
   JobMethod,
   JobResult,
+  SubscriptionArgs,
 } from '@/types/api-directory.type';
 import type { Job } from '@/types/job.type';
 import { fakeApiError } from './fake-api-error';
 import { fakeJob, type FakeJobOverrides } from './fake-job';
 import type { QueryEntity, QueryMethod } from '@/types/query.type';
 import type { TrueNasMessage } from '@/types/truenas-message.type';
+import { subscriptionName } from '@/utils/subscription.utils';
 
 /**
  * Scripted answers, typed by the directory the client is typed against.
@@ -76,8 +79,17 @@ export interface MockAnswers<D extends ApiDirectoryShape> {
     updates: JobUpdate<JobResult<D, M>> | JobUpdate<JobResult<D, M>>[]
   ): number;
 
-  /** Push a change to every subscriber of `events(event)`. */
+  /**
+   * Push a change to every subscriber of `events(event)`, or of
+   * `events(event, params)` for an event source — the same arguments, since
+   * they are part of what the subscription is called.
+   */
   emit<E extends EventName<D>>(event: E, change: EventUnion<D, E>): void;
+  emit<E extends EventSourceName<D>>(
+    event: E,
+    change: EventUnion<D, E>,
+    ...params: SubscriptionArgs<D, E>
+  ): void;
 }
 
 /**
@@ -423,11 +435,11 @@ export function createMockAnswers<D extends ApiDirectoryShape>(
       return id;
     },
 
-    emit(event, change) {
+    emit(event: string, change: object, params?: unknown) {
       connection.receive({
         jsonrpc: '2.0',
         method: 'collection_update',
-        params: { collection: event, ...change },
+        params: { collection: subscriptionName(event, params), ...change },
       } as unknown as TrueNasMessage);
     },
   };
