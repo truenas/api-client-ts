@@ -191,8 +191,8 @@ export class FakeConnection extends TrueNasConnection {
 
     const answer =
       this.autoReplies.get(String(message.method)) ??
-      (message.method === 'core.subscribe'
-        ? (frame: TrueNasMessage) => this.answerSubscribe(frame)
+      (CLIENT_HOUSEKEEPING.has(String(message.method))
+        ? (frame: TrueNasMessage) => this.answerHousekeeping(frame)
         : undefined);
     if (!answer) return;
 
@@ -205,13 +205,16 @@ export class FakeConnection extends TrueNasConnection {
   }
 
   /**
-   * Answers `core.subscribe` with an id, as middleware does, so that releasing
-   * the subscription can be seen as a `core.unsubscribe` carrying it. A spec
-   * that wants to answer it differently registers an `autoReply`.
+   * Answers the client's own housekeeping as middleware does: `core.subscribe`
+   * with an id, so a release shows as a `core.unsubscribe` carrying it, and
+   * `core.unsubscribe` with `null`. Not modelled: the `notify_unsubscribed`
+   * middleware sends before that `null` when the release was of an event
+   * source. A spec that wants it, or any other answer, registers an `autoReply`.
    */
-  private answerSubscribe(frame: TrueNasMessage): void {
+  private answerHousekeeping(frame: TrueNasMessage): void {
     const count = this.frames.filter(f => f.method === 'core.subscribe').length;
-    this.receive({ jsonrpc: '2.0', id: frame.id, result: `subscription-${count}` });
+    const result = frame.method === 'core.subscribe' ? `subscription-${count}` : null;
+    this.receive({ jsonrpc: '2.0', id: frame.id, result });
   }
 
   /** Deliver a message as if middleware had sent it. */

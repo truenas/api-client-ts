@@ -691,6 +691,21 @@ describe('TrueNasApi', () => {
   });
 
   /**
+   * Closing the connection for good ends every event stream, so a consumer
+   * waiting on completion hears it and the resubscription is torn down.
+   */
+  it('completes an event stream when the connection is closed for good', async () => {
+    authenticated$.next(true);
+    let completed = false;
+    api.events('app.query').subscribe({ complete: () => (completed = true) });
+    await settle();
+
+    connection.close();
+
+    expect(completed).toBe(true);
+  });
+
+  /**
    * Re-registering IS right after a reconnect: the server forgot. That is a
    * different trigger from a subscriber cycling, and the two must not be
    * conflated.
@@ -1009,6 +1024,20 @@ describe('TrueNasApi', () => {
       ).toHaveLength(2);
     });
 
+    it('shares one subscription for the same arguments in another key order', () => {
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
+      sourceApi()
+        .events('filesystem.file_tail_follow', { tail_lines: 500, path: '/var/log/messages' })
+        .subscribe();
+
+      const tailSubscriptions = connection.sent.filter(
+        m =>
+          m.method === 'core.subscribe' &&
+          String((m.params as string[])[0]).startsWith('filesystem.file_tail_follow:')
+      );
+      expect(tailSubscriptions).toHaveLength(1);
+    });
+
     it('subscribes by the bare name when the arguments are left out', () => {
       sourceApi().events('reporting.realtime').subscribe();
 
@@ -1065,6 +1094,122 @@ describe('TrueNasApi', () => {
         message: '[ENOENT] /nope: does not exist',
         errname: 'ENOENT',
       });
+    });
+
+    /**
+     * Middleware validates a source's arguments before it answers
+     * `core.subscribe`, so a rejection's `notify_unsubscribed` can beat the id.
+     * The server has already dropped that id; releasing it is a stray frame.
+     */
+    it('releases nothing when the server ended the subscription before its id came back', async () => {
+      const rejected = firstValueFrom(
+        sourceApi().events('filesystem.file_tail_follow', { path: '/nope' })
+      ).catch(() => 'rejected');
+
+      // Before the fake's microtask answer to `core.subscribe` lands.
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: {
+          collection: 'filesystem.file_tail_follow:{"path":"/nope"}',
+          error: fakeApiError({ reason: '[ENOENT] /nope: does not exist' }).data,
+        },
+      });
+      await expect(rejected).resolves.toBe('rejected');
+      await settle();
+
+      expect(unsubscribed()).toEqual([]);
+    });
+
+    const endNotice = (error: unknown = null) =>
+      connection.receive({
+        jsonrpc: '2.0',
+        method: 'notify_unsubscribed',
+        params: { collection: tailName, error },
+      });
+
+    /**
+     * Middleware's answer to releasing a source: the error-free notice from
+     * `terminate`, then the call's own `null` reply, in that order.
+     */
+    const answerReleasesAsMiddlewareDoes = () =>
+      connection.autoReply('core.unsubscribe', frame => {
+        endNotice();
+        connection.receive({ jsonrpc: '2.0', id: frame.id, result: null });
+      });
+
+    /** Notices name only the collection; the released one's must not end the next. */
+    it('is not ended by the release notice of the subscription before it', async () => {
+      answerReleasesAsMiddlewareDoes();
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+
+      const lines: unknown[] = [];
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ next: line => lines.push(line), complete: () => (completed = true) });
+      await settle();
+      await settle();
+
+      connection.receive(
+        collectionUpdate({ collection: tailName, msg: 'added', fields: { data: 'still here' } })
+      );
+
+      expect(completed).toBe(false);
+      expect(lines).toEqual([{ msg: 'added', fields: { data: 'still here' } }]);
+    });
+
+    /**
+     * A source ending on its own as its last subscriber leaves: its notice
+     * lands inside the release's window, and the release (of an id middleware
+     * already dropped) is answered with no notice. Nothing may be left over to
+     * swallow the next subscription's own end.
+     */
+    it('leaves nothing owed when a source ends as it is released', async () => {
+      const first = sourceApi().events('filesystem.file_tail_follow', tail).subscribe();
+      await settle();
+      first.unsubscribe();
+      endNotice();
+      await settle();
+
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ complete: () => (completed = true) });
+      await settle();
+
+      endNotice();
+      expect(completed).toBe(true);
+    });
+
+    /** The window closes on the reply even when no notice came inside it. */
+    it('leaves nothing owed by a release answered without a notice', async () => {
+      // The fake's own answer: `null`, no notice — as for an id already dropped.
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+      await settle();
+
+      let completed = false;
+      sourceApi()
+        .events('filesystem.file_tail_follow', tail)
+        .subscribe({ complete: () => (completed = true) });
+      await settle();
+      endNotice();
+
+      expect(completed).toBe(true);
+    });
+
+    it('still ends on an error notice inside a release window', async () => {
+      // Unanswered, so the window stays open.
+      connection.autoReply('core.unsubscribe', () => undefined);
+      sourceApi().events('filesystem.file_tail_follow', tail).subscribe().unsubscribe();
+      await settle();
+
+      const rejected = firstValueFrom(sourceApi().events('filesystem.file_tail_follow', tail));
+      endNotice(fakeApiError({ reason: 'gone' }).data);
+
+      await expect(rejected).rejects.toMatchObject({ message: 'gone' });
     });
 
     it('subscribes afresh after a source ended', async () => {
