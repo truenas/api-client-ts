@@ -95,8 +95,13 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
   /**
    * Stream of job events from websocket.
    * JSON-RPC 2.0 events have structure: { method: 'collection_update', params: { collection, fields, ... } }
+   *
+   * Reads `messages()` when first subscribed, not when this is built, as every
+   * other verb does. A consumer that wraps the connection's `messages()` after
+   * the client is created — a debug panel mixing in mocked answers — is
+   * otherwise heard by `call` and `events` but not by job tracking.
    */
-  private jobEvents = this.connection.messages().pipe(
+  private jobEvents = defer(() => this.connection.messages()).pipe(
     filter(
       res =>
         res.method === 'collection_update' &&
