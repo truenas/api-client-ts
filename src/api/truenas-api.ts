@@ -1,6 +1,8 @@
 import {
   BehaviorSubject,
+  EMPTY,
   Observable,
+  catchError,
   defer,
   distinctUntilChanged,
   filter,
@@ -8,7 +10,9 @@ import {
   ignoreElements,
   map,
   merge,
+  pairwise,
   share,
+  skipWhile,
   Subject,
   Subscription,
   takeUntil,
@@ -566,15 +570,15 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       map(job => job as Job<R>)
     );
 
+    const readJob = (): Observable<Job<R> | undefined> =>
+      this.dispatch<Job<R>[]>('core.get_jobs', [[['id', '=', jobId]]]).pipe(
+        map(jobs => jobs[0])
+      );
+
     // Opening read, so an already-finished job is still reported. `share`d
     // because two consumers read it — the snapshot and the not-found signal —
     // and it must stay one request.
-    const read$ = this.dispatch<Job<R>[]>('core.get_jobs', [
-      [['id', '=', jobId]],
-    ]).pipe(
-      map(jobs => jobs[0]),
-      share()
-    );
+    const read$ = readJob().pipe(share());
 
     // No such job: middleware has reaped it, or the id was never real. The
     // stream has to end — completing empty is what this did before the read
@@ -596,6 +600,32 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
       takeUntil(updates$)
     );
 
+    // Read again after every reconnect. The server forgets a socket's
+    // subscriptions with it, so an event sent while it was down went to nobody
+    // — a job that finished in the gap, often one restarting services over this
+    // socket, left the stream open forever. No gap: the renewed subscription is
+    // sent first, by the constructor's subscriber, and the server answers in
+    // order. Not the first connection, which has the opening read queued.
+    const reread$ = this.authenticated.pipe(
+      distinctUntilChanged(),
+      skipWhile(isUp => !isUp),
+      pairwise(),
+      filter(([wasUp, isUp]) => !wasUp && isUp),
+      switchMap(() =>
+        readJob().pipe(
+          // Stale once events flow again, as the opening read is; they carry the end.
+          takeUntil(updates$),
+          // A failed read waits for the next reconnect.
+          catchError(() => EMPTY)
+        )
+      ),
+      share()
+    );
+    const gone$ = reread$.pipe(filter(job => job === undefined));
+    const rereadJob$ = reread$.pipe(
+      filter((job): job is Job<R> => job !== undefined)
+    );
+
     // Both are subscribed immediately, which is the point: waiting for the
     // read to come back before watching for updates leaves a window one round
     // trip wide with no subscriber on the event stream. `jobEvents` is
@@ -603,9 +633,9 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     // dropped — and a short job whose terminal event lands there would leave
     // this observable hanging forever, since `takeWhile` never sees the state
     // that ends it.
-    return merge(snapshot$, updates$).pipe(
+    return merge(snapshot$, updates$, rereadJob$).pipe(
       takeWhile(job => !isJobFinished(job), true), // Include the final state
-      takeUntil(missing$)
+      takeUntil(merge(missing$, gone$))
     );
   }
 
