@@ -735,6 +735,105 @@ describe('TrueNasApi', () => {
   });
 
   /**
+   * The server forgets a socket's subscriptions with it, so a job's events
+   * sent while the socket was down went to nobody. Jobs that restart services
+   * over this socket finish in exactly that gap, and the stream used to stay
+   * open forever waiting for an end it had already missed.
+   */
+  describe('trackJob across a reconnect', () => {
+    const reads = () =>
+      connection.sent.filter(m => m.method === 'core.get_jobs');
+    const reply = (frame: { result: unknown[] } | { error: unknown }) =>
+      connection.receive({
+        jsonrpc: '2.0',
+        id: 'mock-id-core.get_jobs',
+        ...frame,
+      } as unknown as TrueNasMessage);
+    const update = (fields: Record<string, unknown>) =>
+      connection.receive(
+        collectionUpdate({ collection: 'core.get_jobs', msg: 'changed', fields })
+      );
+    const reconnect = () => {
+      authenticated$.next(false);
+      authenticated$.next(true);
+    };
+
+    function track(): { states: JobState[]; percents: number[]; done: () => boolean } {
+      const states: JobState[] = [];
+      const percents: number[] = [];
+      let completed = false;
+      api.trackJob(77).subscribe({
+        next: job => {
+          states.push(job.state);
+          percents.push(job.progress?.percent ?? -1);
+        },
+        complete: () => (completed = true),
+      });
+      return { states, percents, done: () => completed };
+    }
+
+    it('reads the job again, and ends on a finish it missed', () => {
+      authenticated$.next(true);
+      const job = track();
+      reply({ result: [{ id: 77, state: JobState.Running }] });
+
+      reconnect();
+      expect(reads()).toHaveLength(2);
+      reply({ result: [{ id: 77, state: JobState.Success }] });
+
+      expect(job.states).toEqual([JobState.Running, JobState.Success]);
+      expect(job.done()).toBe(true);
+    });
+
+    it('completes when the job was reaped while the socket was down', () => {
+      authenticated$.next(true);
+      const job = track();
+      reply({ result: [{ id: 77, state: JobState.Running }] });
+
+      reconnect();
+      reply({ result: [] });
+
+      expect(job.states).toEqual([JobState.Running]);
+      expect(job.done()).toBe(true);
+    });
+
+    /** The opening read is queued for the first socket, so nothing was missed. */
+    it('does not read again on the first connection', () => {
+      track();
+      authenticated$.next(true);
+
+      expect(reads()).toHaveLength(1);
+    });
+
+    /** As with the opening read: once events flow again, the reply is behind them. */
+    it('drops a reply that a live update has overtaken', () => {
+      authenticated$.next(true);
+      const job = track();
+      reply({ result: [{ id: 77, state: JobState.Running, progress: { percent: 10 } }] });
+
+      reconnect();
+      update({ id: 77, state: JobState.Running, progress: { percent: 60 } });
+      reply({ result: [{ id: 77, state: JobState.Running, progress: { percent: 50 } }] });
+
+      expect(job.percents).toEqual([10, 60]);
+      expect(job.done()).toBe(false);
+    });
+
+    it('keeps listening for events when the read fails', () => {
+      authenticated$.next(true);
+      const job = track();
+      reply({ result: [{ id: 77, state: JobState.Running }] });
+
+      reconnect();
+      reply({ error: fakeApiError() });
+      update({ id: 77, state: JobState.Success });
+
+      expect(job.states).toEqual([JobState.Running, JobState.Success]);
+      expect(job.done()).toBe(true);
+    });
+  });
+
+  /**
    * An event can beat the point-in-time read. The snapshot arm is dropped once
    * an update lands, so a stale reply cannot walk the state backwards — but
    * dropping it must not cost the terminal transition when the update that
