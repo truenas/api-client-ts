@@ -71,15 +71,18 @@ promise.
 
 | Method | Use it for |
 |---|---|
-| `loginWithUserPass(username, password)` | Interactive logins. Resolves with `response_type: 'OTP_REQUIRED'` when two-factor is on. |
+| `loginWithUserPass(username, password, options?)` | Interactive logins. Resolves with `response_type: 'OTP_REQUIRED'` when two-factor is on. Pass `{ rememberPassword: false }` to keep the password out of memory once the login succeeds. |
 | `loginWithOtp(code)` | The second step of a two-factor login. |
 | `loginWithApiKey({ username, key })` | Services and scripts. |
 | `loginWithToken(token)` | Opening another session from a previous login's `reconnect_token`. |
 
 All four live on `client.authenticator`. Password and API-key sessions log back
-in by themselves after a reconnect. `authenticated$` tracks the session,
-`logout()` ends it, and a rejected login errors with an `AuthError` carrying an
-`AuthErrorCode`.
+in by themselves after a reconnect, unless the password login passed
+`rememberPassword: false`; a token session is the caller's to restore.
+`authenticated$` tracks the session, `logout()` ends it, and a rejected login
+errors with an `AuthError` carrying an `AuthErrorCode`, plus the refusing
+`response` when middleware answered with one (`response.response_type` tells
+`EXPIRED`, `DENIED` and `REDIRECT` apart from `AUTH_ERR`).
 
 ## Calls
 
