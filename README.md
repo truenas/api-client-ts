@@ -168,6 +168,21 @@ client you get. A named `version` skips discovery and also selects the
 WebSocket endpoint, so name the version the appliance actually runs. The types
 follow it when the version is a literal.
 
+To be written against one version but run against whatever the appliance
+serves, as an appliance's own UI is, keep the `version` and move the socket:
+
+```typescript
+const client = await createTrueNasClient({
+  ...options,
+  version: 'v28.0.0',            // the surface you compile against
+  websocketPath: '/api/current', // the appliance's newest version, whichever it is
+});
+```
+
+The client then works against an older or newer release call for call; a
+method or field that release lacks fails when it is called rather than at
+compile time.
+
 For code that must run against any supported release, use `client.ops`. It
 offers the same calls on every version and maps them onto whatever that version
 provides:

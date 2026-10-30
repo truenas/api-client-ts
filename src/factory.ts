@@ -80,6 +80,21 @@ export interface CreateClientOptions extends ReconnectOptions {
    */
   version?: SupportedApiVersion;
   /**
+   * Where the WebSocket connects, when not at the version's own endpoint.
+   *
+   * By default the socket goes to the endpoint of the version the client was
+   * built for (`/api/v28.0.0`), named or discovered. Pass `'/api/current'` to
+   * follow whatever the appliance's newest version is instead, as an appliance's
+   * own UI does: it keeps working, call for call, against an older or newer
+   * release than the one it was written for. The typed surface and the client
+   * class still come from `version` (or discovery); this changes only the URL,
+   * so a method or field the appliance's version lacks fails when it is called,
+   * not when it is compiled.
+   *
+   * Must be an absolute path (start with `/`).
+   */
+  websocketPath?: string;
+  /**
    * The appliance's scheme, in `location.protocol` form: `https:` (default)
    * gives https discovery and a `wss` socket, `http:` gives http and `ws`.
    *
@@ -118,6 +133,13 @@ export async function createTrueNasClient<
   if (!hostnames || hostnames.length === 0) {
     throw new Error(
       `Cannot create client for system ${uuid}: hostnames array is empty`
+    );
+  }
+
+  if (opts.websocketPath !== undefined && !opts.websocketPath.startsWith('/')) {
+    throw new Error(
+      `Cannot create client for system ${uuid}: websocketPath must be an ` +
+        `absolute path, got '${opts.websocketPath}'.`
     );
   }
 
@@ -501,6 +523,11 @@ function instantiateClientForVersion<D extends ApiDirectoryShape>(
 ): TrueNasApiClient<D> {
   const { uuid, hostnames, enabled, systemName } = opts;
   const versionKey = clientVersionKey(version);
+  // Only the URL moves: which client is built, and what it assumes about the
+  // appliance (reconnect tokens, per-version operations), still follow `version`.
+  const endpoint = opts.websocketPath === undefined
+    ? version
+    : { ...version, websocketPath: opts.websocketPath };
   const Client = CLIENT_BY_VERSION_KEY[versionKey];
 
   if (!Client) {
@@ -521,11 +548,12 @@ function instantiateClientForVersion<D extends ApiDirectoryShape>(
     uuid: uuid.slice(0, 8),
     version: version.version,
     versionKey,
+    websocketPath: endpoint.websocketPath,
   });
   return new Client(
     uuid,
     hostnames,
-    version,
+    endpoint,
     enabled,
     systemName,
     logger,
