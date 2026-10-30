@@ -344,6 +344,21 @@ describe('createTrueNasClient', () => {
       expectTypeOf(client).toEqualTypeOf<TrueNasApiClient<ApiDirectoryV28_0_0>>();
     });
 
+    it('logs the path it dials, not the version\'s own, from the first line on', async () => {
+      const logger = { trace: vi.fn(), debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v28.0.0',
+        websocketPath: '/api/current', logger,
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      const loggedPaths = logger.info.mock.calls
+        .map(([, context]) => (context as { websocketPath?: string } | undefined)?.websocketPath)
+        .filter(Boolean);
+      expect(loggedPaths.length).toBeGreaterThan(0);
+      expect(new Set(loggedPaths)).toEqual(new Set(['/api/current']));
+    });
+
     it('rejects a websocketPath that is not absolute', async () => {
       await expect(createTrueNasClient({
         uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v28.0.0',

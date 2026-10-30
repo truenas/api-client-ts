@@ -209,7 +209,7 @@ export async function createTrueNasClient<
     logger.info('API version supplied by the caller, skipping discovery', {
       uuid: uuid.slice(0, 8),
       version: known.version,
-      websocketPath: known.websocketPath,
+      websocketPath: opts.websocketPath ?? known.websocketPath,
     });
     return instantiateClientForVersion<D>(known, opts, logger);
   }
@@ -230,7 +230,7 @@ export async function createTrueNasClient<
       // of them anyway.
       hostname: winner.hostname,
       version: version.version,
-      websocketPath: version.websocketPath,
+      websocketPath: opts.websocketPath ?? version.websocketPath,
     });
   } catch (error) {
     const errorMessage = errorMessageOrDefault(error, 'Unknown error');
