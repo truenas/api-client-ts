@@ -22,10 +22,25 @@ import { AuthResponse, AuthResponseType } from '@/types/auth.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
 import { randomUUID, withId } from '@/utils/utils';
 
+/** Options for `client.authenticator.loginWithUserPass`. */
+export interface PasswordLoginOptions {
+  /**
+   * Whether to keep the password once the login succeeds, so that the session logs
+   * itself back in with it after a reconnect. Defaults to `true`.
+   *
+   * Pass `false` when the password should not outlive the login: it is then never
+   * stored, and nothing logs in on reconnect. Restore the session with
+   * `loginWithToken` and the `reconnect_token` the login
+   * returned instead. Note what keeping it means: a session an administrator ended
+   * with `auth.terminate_session` is logged straight back in on the next reconnect.
+   */
+  rememberPassword?: boolean;
+}
+
 const throwOnAuthenticationFailure = (code: AuthErrorCode, message: string) =>
   switchMap((response: AuthResponse) => {
     if (response.response_type === AuthResponseType.AuthErr) {
-      return throwError(() => new AuthError(code, message));
+      return throwError(() => new AuthError(code, message, response));
     }
 
     return of(response);
@@ -231,7 +246,12 @@ export class TrueNasAuthenticator {
     this.authenticating$.next(false);
   }
 
-  loginWithUserPass(username: string, password: string) {
+  loginWithUserPass(
+    username: string,
+    password: string,
+    options: PasswordLoginOptions = {}
+  ) {
+    const { rememberPassword = true } = options;
     const { sentDuring, callerInitiated } = this.beginLogin();
     let answered = false;
     // Versioned API uses auth.login_ex with a single object parameter
@@ -275,12 +295,25 @@ export class TrueNasAuthenticator {
           // Whole record: a field-by-field update leaves the other mechanism's
           // credential behind, and the relogin prefers `password`, so an api-key
           // login after a password login would replay the old password under the
-          // new username on every reconnect.
-          this.credentials = { username, password, key: '' };
+          // new username on every reconnect. Cleared rather than kept when the
+          // caller declined, for the same reason: an earlier login's password or
+          // key would otherwise be replayed for this session.
+          this.credentials = rememberPassword
+            ? { username, password, key: '' }
+            : { username: '', password: '', key: '' };
           this.sessionLifetime =
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
           this.authenticated$.next(true);
+        } else if (
+          res.response_type === AuthResponseType.OtpRequired &&
+          !rememberPassword &&
+          this.authEpoch === sentDuring
+        ) {
+          // A two-factor login finishes in `loginWithOtp`, which never writes the
+          // record, so a declined password has to clear it here; otherwise an
+          // earlier login's key would be replayed for the session the code opens.
+          this.credentials = { username: '', password: '', key: '' };
         }
       }),
       finalize(() => {
@@ -392,7 +425,8 @@ export class TrueNasAuthenticator {
             AuthErrorCode.TokenAuthFailed,
             `TrueNAS token authentication failed (${res.response_type}). The ` +
               'token may have expired or been used, or the account may no longer ' +
-              'be permitted to log in.'
+              'be permitted to log in.',
+            res
           );
         }
         return res;

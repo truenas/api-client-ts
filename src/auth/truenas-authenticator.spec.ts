@@ -393,6 +393,48 @@ describe('TrueNasAuthenticator', () => {
       }
     }));
 
+  it('does not re-log in on reconnect when the password login declined to keep it', () => {
+    authenticator.loginWithUserPass('admin', 'pw', { rememberPassword: false }).subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.authenticated$.value).toBe(true);
+    expect(authenticator.credentials).toEqual({ username: '', password: '', key: '' });
+
+    sendSpy.mockClear();
+    opened$.next(true);
+
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  it('a password login that declines to keep it drops an earlier login\'s key too', () => {
+    authenticator.loginWithApiKey({ username: 'svc', key: 'k' }).subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('admin', 'pw', { rememberPassword: false }).subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    sendSpy.mockClear();
+    opened$.next(true);
+
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
+  it('a two-factor login that declines to keep the password drops an earlier key too', () => {
+    authenticator.loginWithApiKey({ username: 'svc', key: 'k' }).subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('admin', 'pw', { rememberPassword: false }).subscribe();
+    respondWith({ response_type: AuthResponseType.OtpRequired });
+    authenticator.loginWithOtp('123456').subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.authenticated$.value).toBe(true);
+    sendSpy.mockClear();
+    opened$.next(true);
+
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
   it('OTP login succeeds and sets authenticated$ (no full-admin gate)', () =>
     new Promise<void>((resolve, reject) => {
       authenticator.loginWithOtp('123456').subscribe({
@@ -847,6 +889,25 @@ describe('TrueNasAuthenticator', () => {
       });
       respondWith(authErrResponse);
     }));
+
+  it('a refused login carries the response it was refused with', () => {
+    const errors: unknown[] = [];
+    authenticator.loginWithUserPass('admin', 'bad').subscribe({ error: e => errors.push(e) });
+    respondWith(authErrResponse);
+
+    expect((errors[0] as AuthError).response).toEqual(authErrResponse);
+  });
+
+  it('a refused token login says which refusal it was', () => {
+    const errors: unknown[] = [];
+    const expired = { response_type: AuthResponseType.Expired } as AuthResponse;
+    authenticator.loginWithToken('old').subscribe({ error: e => errors.push(e) });
+    respondWith(expired);
+
+    expect(errors[0]).toBeInstanceOf(AuthError);
+    expect((errors[0] as AuthError).code).toBe(AuthErrorCode.TokenAuthFailed);
+    expect((errors[0] as AuthError).response?.response_type).toBe(AuthResponseType.Expired);
+  });
 
   it('token login authenticates a non-admin, as password login does', () =>
     new Promise<void>((resolve, reject) => {

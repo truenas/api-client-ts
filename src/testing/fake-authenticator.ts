@@ -1,5 +1,5 @@
 import type { Observable } from 'rxjs';
-import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
+import { TrueNasAuthenticator, type PasswordLoginOptions } from '@/auth/truenas-authenticator';
 import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 import type { ApiVersion } from '@/types/api-version.type';
 import { AuthResponseType, type AuthResponse } from '@/types/auth.type';
@@ -103,9 +103,13 @@ export class FakeAuthenticator extends TrueNasAuthenticator {
     return { response_type: AuthResponseType.Success };
   }
 
-  override loginWithUserPass(username: string, password: string): Observable<AuthResponse> {
+  override loginWithUserPass(
+    username: string,
+    password: string,
+    options?: PasswordLoginOptions,
+  ): Observable<AuthResponse> {
     this.record(TrueNasAuthMechanism.Password, username);
-    return super.loginWithUserPass(username, password);
+    return super.loginWithUserPass(username, password, options);
   }
 
   override loginWithToken(token: string): Observable<AuthResponse> {

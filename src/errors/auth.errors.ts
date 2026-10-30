@@ -3,6 +3,8 @@
  * `AuthError` with one of these codes; consumers translate the code to a localized
  * message (the `message` here is a plain-English default / fallback).
  */
+import type { AuthResponse } from '@/types/auth.type';
+
 export enum AuthErrorCode {
   PasswordAuthFailed = 'PASSWORD_AUTH_FAILED',
   OtpAuthFailed = 'OTP_AUTH_FAILED',
@@ -26,9 +28,16 @@ export enum AuthErrorCode {
 }
 
 export class AuthError extends Error {
+  /**
+   * @param response - the answer middleware refused the login with, when there was one.
+   * Its `response_type` is what tells `EXPIRED`, `DENIED` and `REDIRECT` apart from
+   * `AUTH_ERR`; the code alone says only which mechanism failed. Absent when the login
+   * never got an answer of that kind (an error frame, or a superseded login).
+   */
   constructor(
     readonly code: AuthErrorCode,
     message: string,
+    readonly response?: AuthResponse,
   ) {
     super(message);
     this.name = 'AuthError';

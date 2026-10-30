@@ -40,6 +40,7 @@ export {
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
 export { AuthError, AuthErrorCode } from '@/errors/auth.errors';
+export type { PasswordLoginOptions } from '@/auth/truenas-authenticator';
 export { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 export { UserRole } from '@/enums/user-role.enum';
 export type { UserRoleName } from '@/enums/user-role.enum';
