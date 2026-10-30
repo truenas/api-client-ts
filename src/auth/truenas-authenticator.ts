@@ -305,6 +305,15 @@ export class TrueNasAuthenticator {
             res.user_info?.attributes?.preferences?.lifetime ??
             TrueNasAuthenticator.DefaultSessionLifetime;
           this.authenticated$.next(true);
+        } else if (
+          res.response_type === AuthResponseType.OtpRequired &&
+          !rememberPassword &&
+          this.authEpoch === sentDuring
+        ) {
+          // A two-factor login finishes in `loginWithOtp`, which never writes the
+          // record, so a declined password has to clear it here; otherwise an
+          // earlier login's key would be replayed for the session the code opens.
+          this.credentials = { username: '', password: '', key: '' };
         }
       }),
       finalize(() => {

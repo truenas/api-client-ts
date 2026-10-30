@@ -419,6 +419,22 @@ describe('TrueNasAuthenticator', () => {
     expect(sendSpy).not.toHaveBeenCalled();
   });
 
+  it('a two-factor login that declines to keep the password drops an earlier key too', () => {
+    authenticator.loginWithApiKey({ username: 'svc', key: 'k' }).subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    authenticator.loginWithUserPass('admin', 'pw', { rememberPassword: false }).subscribe();
+    respondWith({ response_type: AuthResponseType.OtpRequired });
+    authenticator.loginWithOtp('123456').subscribe();
+    respondWith(successResponse([UserRole.FullAdmin]));
+
+    expect(authenticator.authenticated$.value).toBe(true);
+    sendSpy.mockClear();
+    opened$.next(true);
+
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+
   it('OTP login succeeds and sets authenticated$ (no full-admin gate)', () =>
     new Promise<void>((resolve, reject) => {
       authenticator.loginWithOtp('123456').subscribe({
