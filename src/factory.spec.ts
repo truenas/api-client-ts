@@ -331,6 +331,41 @@ describe('createTrueNasClient', () => {
       expect(client.connection.websocketPath).toBe('/api/v28.0.0');
     });
 
+    it('connects where websocketPath says, keeping the named version\'s client and surface', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v28.0.0',
+        websocketPath: '/api/current',
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      expect(client.connection.websocketPath).toBe('/api/current');
+      expect(client).toBeInstanceOf(TrueNasApiClientV28);
+      expect(client.version.version).toBe('v28.0.0');
+      expectTypeOf(client).toEqualTypeOf<TrueNasApiClient<ApiDirectoryV28_0_0>>();
+    });
+
+    it('logs the path it dials, not the version\'s own, from the first line on', async () => {
+      const logger = { trace: vi.fn(), debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v28.0.0',
+        websocketPath: '/api/current', logger,
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      const loggedPaths = logger.info.mock.calls
+        .map(([, context]) => (context as { websocketPath?: string } | undefined)?.websocketPath)
+        .filter(Boolean);
+      expect(loggedPaths.length).toBeGreaterThan(0);
+      expect(new Set(loggedPaths)).toEqual(new Set(['/api/current']));
+    });
+
+    it('rejects a websocketPath that is not absolute', async () => {
+      await expect(createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false, version: 'v28.0.0',
+        websocketPath: 'api/current',
+      })).rejects.toThrow(/absolute path/);
+    });
+
     /**
      * Reachable only from JavaScript — `SupportedApiVersion` rejects it at
      * compile time — but this is a published entry point. Falling through to
@@ -398,6 +433,17 @@ describe('createTrueNasClient', () => {
         : opts.discovery()
     );
   }
+
+  it('applies websocketPath to a discovered version too', async () => {
+    fetchMock.mockResolvedValue(fakeResponse(['v27.0.0']));
+    const client = await createTrueNasClient({
+      uuid: 'uuid-1234', hostnames: ['box'], enabled: false, websocketPath: '/api/current',
+    });
+    created.push(client);
+
+    expect(client).toBeInstanceOf(TrueNasApiClientV27);
+    expect(client.connection.websocketPath).toBe('/api/current');
+  });
 
   it('falls back to the assumed version when the box answers but discovery does not', async () => {
     // What v25.10.0 looks like from a browser: the appliance is there, but it
