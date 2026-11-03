@@ -290,6 +290,19 @@ describe('createTrueNasClient', () => {
 
       expect(client.connection.retryDelay).toBe(10_000);
       expect(client.connection.maxRetry).toBe(3);
+      expect(client.connection.maxConcurrentCalls).toBeUndefined();
+    });
+  });
+
+  describe('call pacing', () => {
+    it('reaches the connection', async () => {
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false,
+        version: 'v28.0.0', maxConcurrentCalls: 20,
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      expect(client.connection.maxConcurrentCalls).toBe(20);
     });
   });
 
