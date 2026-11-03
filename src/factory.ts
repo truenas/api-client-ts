@@ -48,6 +48,7 @@ export type DerivedDirectory<V extends SupportedApiVersion> =
  * Options for {@link createTrueNasClient}. `retryDelay` and `maxRetry` pace
  * reconnection, which never stops on its own; see {@link ReconnectOptions}.
  * `interceptor` sees the traffic; see {@link ConnectionInterceptor}.
+ * `maxConcurrentCalls` paces requests; see {@link ConnectionOptions}.
  */
 export interface CreateClientOptions extends ConnectionOptions {
   /** System UUID. */
@@ -559,7 +560,12 @@ function instantiateClientForVersion<D extends ApiDirectoryShape>(
     systemName,
     logger,
     opts.protocol,
-    { retryDelay: opts.retryDelay, maxRetry: opts.maxRetry, interceptor: opts.interceptor }
+    {
+      retryDelay: opts.retryDelay,
+      maxRetry: opts.maxRetry,
+      interceptor: opts.interceptor,
+      maxConcurrentCalls: opts.maxConcurrentCalls,
+    }
   ) as unknown as TrueNasApiClient<D>;
 }
 

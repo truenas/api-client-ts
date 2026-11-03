@@ -11,6 +11,7 @@
  * - TrueNasAuthenticator (authentication)
  */
 
+import { distinctUntilChanged, filter, takeUntil } from 'rxjs';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
 import { TrueNasConnection } from '@/connection/truenas-connection';
@@ -83,7 +84,7 @@ export abstract class TrueNasApiClient<
 
   protected readonly protocol: ApplianceProtocol;
 
-  /** Retry pacing and the interceptor, forwarded to the connection; unset fields take its defaults. */
+  /** Retry pacing, call pacing and the interceptor, forwarded to the connection; unset fields take its defaults. */
   protected readonly reconnect: ConnectionOptions;
 
   constructor(
@@ -118,6 +119,14 @@ export abstract class TrueNasApiClient<
     this.authenticator = this.createAuthenticator();
     this.api = this.createApi();
     this.ops = this.createOperations();
+
+    // Calls held from a lost socket wait for the session, not for the socket:
+    // sent before it is back, middleware refuses them. A no-op without a limit.
+    this.authenticator.authenticated$.pipe(
+      distinctUntilChanged(),
+      filter(Boolean),
+      takeUntil(this.connection.closeConnection),
+    ).subscribe(() => this.connection.releaseHeldCalls());
   }
 
   /**
@@ -160,7 +169,8 @@ export abstract class TrueNasApiClient<
       this.reconnect.maxRetry,
       this.logger,
       this.protocol,
-      this.reconnect.interceptor
+      this.reconnect.interceptor,
+      this.reconnect.maxConcurrentCalls
     );
   }
 
