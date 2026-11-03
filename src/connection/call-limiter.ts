@@ -28,8 +28,12 @@ export class CallLimiter {
 
   private readonly waiting: WaitingCall[] = [];
 
-  /** Set by a lost socket while calls wait, until `release()`. */
-  private isHeld = false;
+  /**
+   * Calls that were waiting when a socket was lost, kept apart from `waiting`
+   * until `release()`. A call sent after the loss, the sign-in among them, then
+   * never waits behind one: nothing would write it, and `release()` waits on it.
+   */
+  private readonly heldCalls: WaitingCall[] = [];
 
   constructor(
     readonly limit: number,
@@ -44,12 +48,12 @@ export class CallLimiter {
 
   /** Requests waiting for a place, held ones included. */
   get waitingCount(): number {
-    return this.waiting.length;
+    return this.waiting.length + this.heldCalls.length;
   }
 
   /** Whether calls are being kept from a lost socket until `release()`. */
   get held(): boolean {
-    return this.isHeld;
+    return this.heldCalls.length > 0;
   }
 
   /**
@@ -74,10 +78,8 @@ export class CallLimiter {
 
     this.waiting.push(call);
     call.handle.add(() => {
-      const index = this.waiting.indexOf(call);
-      if (index >= 0) {
-        this.waiting.splice(index, 1);
-      }
+      remove(this.waiting, call);
+      remove(this.heldCalls, call);
     });
     return call.handle;
   }
@@ -117,12 +119,15 @@ export class CallLimiter {
         this.inFlight.delete(id);
       }
     });
-    this.isHeld = this.waiting.length > 0;
+    this.heldCalls.push(...this.waiting.splice(0));
   }
 
-  /** Lets held calls go out again, once the session they were made in is back. */
+  /**
+   * Lets held calls go out again, once the session they were made in is back.
+   * They were sent before anything still waiting, so they go first.
+   */
   release(): void {
-    this.isHeld = false;
+    this.waiting.unshift(...this.heldCalls.splice(0));
     this.startWaiting();
   }
 
@@ -131,11 +136,7 @@ export class CallLimiter {
    * ids so the caller can answer them. Does nothing while nothing is held.
    */
   takeHeld(): string[] {
-    if (!this.isHeld) {
-      return [];
-    }
-    this.isHeld = false;
-    return this.waiting.splice(0).map(({ id }) => id);
+    return this.heldCalls.splice(0).map(({ id }) => id);
   }
 
   // The three below call each other in a ring.
@@ -168,7 +169,7 @@ export class CallLimiter {
   }
 
   private startWaiting(): void {
-    while (!this.isHeld && this.inFlight.size < this.limit) {
+    while (this.inFlight.size < this.limit) {
       const next = this.waiting.shift();
       if (!next) {
         return;
@@ -181,6 +182,13 @@ export class CallLimiter {
     if (this.inFlight.delete(id)) {
       this.startWaiting();
     }
+  }
+}
+
+function remove(calls: WaitingCall[], call: WaitingCall): void {
+  const index = calls.indexOf(call);
+  if (index >= 0) {
+    calls.splice(index, 1);
   }
 }
 

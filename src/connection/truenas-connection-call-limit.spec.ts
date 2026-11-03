@@ -182,6 +182,30 @@ describe('TrueNasConnection with maxConcurrentCalls', () => {
       expect(written(second)).toEqual(['sign-in', 'b']);
     });
 
+    it('does not queue a call sent at the limit behind the held ones', () => {
+      connection = createConnection(1);
+      const first = openSocket();
+      connection.send(call('a'));
+      connection.send(call('b'));
+
+      first.simulateClose(1006, '');
+      vi.advanceTimersByTime(0);
+      // Sent while there is no socket: it takes the place `a` freed and stays
+      // counted until the next socket writes it.
+      connection.send(call('c'));
+      const second = openSocket();
+      vi.spyOn(second, 'next');
+
+      // Every place is taken, so the sign-in waits for one, but not behind `b`.
+      connection.send(call('sign-in'));
+      second.next(answer('c'));
+      expect(written(second)).toEqual(['sign-in']);
+
+      second.next(answer('sign-in'));
+      connection.releaseHeldCalls();
+      expect(written(second)).toEqual(['sign-in', 'b']);
+    });
+
     it('answers held calls with ENOTAUTHENTICATED when refused, and sends none of them', () => {
       connection = createConnection(1);
       const first = openSocket();
