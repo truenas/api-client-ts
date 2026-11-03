@@ -59,9 +59,16 @@ const INERT = [
   'lastAttempted',
   'lastErrorMessage',
   'lastErrorMessage$',
+  // The call limit is the real connection's, and the fake has none: with no
+  // limit, both of its methods are documented no-ops, which is what they are here.
+  'limiter',
   'logger',
+  'maxConcurrentCalls',
   'maxRetry',
   'protocol',
+  'refusals$',
+  'refuseHeldCalls',
+  'releaseHeldCalls',
   'retryDelay',
   // Reachable and silently inert: the package's own docs point apps at
   // `setEnabled`, and a fake has no socket to enable. Driving it changes
@@ -70,7 +77,9 @@ const INERT = [
   'setEnabled',
   // As `setEnabled`: it records the endpoint, and there is no socket to re-point.
   'setEndpoint',
+  'socketMessages$',
   'systemName',
+  'writeToNextSocket',
   'ws',
   'ws$',
 ] as const;

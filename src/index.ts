@@ -121,6 +121,7 @@ export type {
   ApplianceProtocol,
   ConnectionClose,
   ConnectionEndpoint,
+  ConnectionOptions,
   ReconnectOptions,
 } from '@/types/transport.type';
 export type { Container } from '@/types/container.type';

@@ -23,11 +23,14 @@ import {
   shareReplay,
   distinctUntilChanged,
   skip,
+  merge,
+  Subscription,
 } from 'rxjs';
 import { Logger, noopLogger } from '@/logger';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
 import { getCloseMessage, policyViolationCloseCode } from '@/utils/truenas-connection.utils';
+import { CallLimiter } from '@/connection/call-limiter';
 import { TrueNasSocket } from '@/connection/truenas-socket';
 import {
   socketScheme,
@@ -251,15 +254,25 @@ export class TrueNasConnection {
     takeUntil(this.closeConnection),
   );
 
-  /**
-   * observable which always emits messages from the current socket.
-   */
-  messages$ = this.ws$.pipe(
+  /** What the appliance sends, on whichever socket is current. */
+  private readonly socketMessages$ = this.ws$.pipe(
     filter(ws => ws !== null),
     switchMap(ws => ws.messages().pipe(
       catchError(() => EMPTY),
     )),
   );
+
+  /** Answers given here, to calls ended without being sent. See `refuseHeldCalls()`. */
+  private readonly refusals$ = new Subject<TrueNasMessage>();
+
+  /**
+   * observable which always emits messages from the current socket, and the
+   * refusals `refuseHeldCalls()` gives.
+   */
+  messages$ = merge(this.socketMessages$, this.refusals$);
+
+  /** Set when `maxConcurrentCalls` is; see there. */
+  private readonly limiter: CallLimiter | null;
 
   constructor(
     initialEnabled: boolean,
@@ -271,7 +284,18 @@ export class TrueNasConnection {
     readonly maxRetry: number = 3,
     readonly logger: Logger = noopLogger,
     protocol: ApplianceProtocol = 'https:',
+    /**
+     * How many requests may await an answer at once; the rest wait their turn.
+     * Unset, nothing is held back. See `ConnectionOptions.maxConcurrentCalls`.
+     */
+    readonly maxConcurrentCalls?: number,
   ) {
+    if (maxConcurrentCalls !== undefined && !(Number.isInteger(maxConcurrentCalls) && maxConcurrentCalls > 0)) {
+      throw new Error(`maxConcurrentCalls must be a positive integer, got ${String(maxConcurrentCalls)}`);
+    }
+    this.limiter = maxConcurrentCalls === undefined
+      ? null
+      : new CallLimiter(maxConcurrentCalls, message => this.writeToNextSocket(message));
     this.endpoint$.next(resolveEndpoint(hostnames, protocol));
 
     // Ping while a socket exists, and only then: a socket arriving starts a
@@ -287,8 +311,30 @@ export class TrueNasConnection {
       switchMap(ws => ws ? interval(twentySeconds).pipe(map(() => ws)) : EMPTY),
       takeUntil(this.closeConnection),
     ).subscribe(ws => {
-      ws.next(createJsonRpcMessage('core.ping'));
+      const ping = createJsonRpcMessage('core.ping');
+      // Middleware counts the ping among the calls it holds. With every place
+      // taken it is skipped rather than queued: the calls in flight keep the
+      // socket busy, and a ping queued behind them could outlive its socket.
+      if (this.limiter && !this.limiter.tryTrack(ping.id ?? '')) {
+        this.logger.debug('Skipping core.ping: every concurrent call place is taken');
+        return;
+      }
+      ws.next(ping);
     });
+
+    if (this.limiter) {
+      const limiter = this.limiter;
+      this.socketMessages$.pipe(takeUntil(this.closeConnection)).subscribe(message => {
+        limiter.received(message);
+      });
+      let wasOpen = false;
+      this.opened$.pipe(takeUntil(this.closeConnection)).subscribe(isOpen => {
+        if (wasOpen && !isOpen) {
+          limiter.socketLost();
+        }
+        wasOpen = isOpen;
+      });
+    }
 
     // compatibility property subscriptions
     this.opened$.subscribe(val => this.opened.next(val));
@@ -378,8 +424,46 @@ export class TrueNasConnection {
    * sends a message over the current websocket OR queues it to send once
    * the next websocket is opened. messages sent via `send` will not be lost until after
    * the next `closed$` emission.
+   *
+   * With `maxConcurrentCalls` set, a request beyond the limit waits for an
+   * answer to make room. Unsubscribing the returned handle takes back a frame
+   * not written yet, waiting or queued.
    */
-  send(message: TrueNasMessage) {
+  send(message: TrueNasMessage): Subscription {
+    return this.limiter ? this.limiter.send(message) : this.writeToNextSocket(message);
+  }
+
+  /**
+   * Lets calls held from a lost socket go out again. The client calls this
+   * whenever the session is authenticated, so a consumer does not need to;
+   * a no-op without `maxConcurrentCalls`, or with nothing held.
+   *
+   * Calls waiting for a place when a socket is lost are held, not sent on the
+   * next one: a new socket starts signed out, so middleware would refuse them
+   * with `ENOTAUTHENTICATED`.
+   */
+  releaseHeldCalls(): void {
+    this.limiter?.release();
+  }
+
+  /**
+   * Ends every call held from a lost socket without sending it, answering each
+   * on `messages()` with the refusal middleware would have given it on a socket
+   * that is not signed in: `ENOTAUTHENTICATED`. Returns how many it ended.
+   *
+   * For an app whose next sign-in may be a different user than the one who made
+   * those calls, e.g. a password prompt after the session was lost. Call it
+   * before that sign-in; otherwise the calls go out once it succeeds. A no-op
+   * while nothing is held, so a healthy session's waiting calls are not touched.
+   */
+  refuseHeldCalls(): number {
+    const ids = this.limiter?.takeHeld() ?? [];
+    ids.forEach(id => this.refusals$.next(notAuthenticatedRefusal(id)));
+    return ids.length;
+  }
+
+  /** Writes to the current socket, or to the next one once it opens. */
+  private writeToNextSocket(message: TrueNasMessage): Subscription {
     return this.ws$.pipe(
       filter(ws => ws !== null),
       take(1),
@@ -573,6 +657,27 @@ const sameEndpoint = (a: ResolvedEndpoint, b: ResolvedEndpoint): boolean =>
   a.protocol === b.protocol
   && a.hostnames.length === b.hostnames.length
   && a.hostnames.every((hostname, i) => hostname === b.hostnames[i]);
+
+/**
+ * The answer middleware gives a call on a socket that is not signed in: the
+ * versioned endpoint's error frame, `ENOTAUTHENTICATED` in `data`.
+ */
+const notAuthenticatedRefusal = (id: string): TrueNasMessage => ({
+  jsonrpc: '2.0',
+  id,
+  error: {
+    code: -32001,
+    message: 'Method call error',
+    data: {
+      // `ErrnoMixin.ENOTAUTHENTICATED` in truenas_api_client.
+      error: 207,
+      errname: 'ENOTAUTHENTICATED',
+      reason: 'The session this call was made in ended before it could be sent.',
+      extra: null,
+      trace: null,
+    },
+  },
+});
 
 /**
  * the canonical closed connection.

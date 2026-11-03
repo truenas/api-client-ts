@@ -9,7 +9,7 @@ import type { ApiDirectoryByVersion, ApiDirectoryV25_10_0, SupportedApiVersion }
 import { NoCompatibleVersionsError, VersionDiscoveryNetworkError, VersionEndpointNotFoundError, VersionTooNewError, VersionTooOldError } from '@/errors/version-discovery.errors';
 import { Logger, noopLogger } from '@/logger';
 import type { ApiDirectoryShape } from '@/types/api-directory.type';
-import type { ApplianceProtocol, ReconnectOptions } from '@/types/transport.type';
+import type { ApplianceProtocol, ConnectionOptions } from '@/types/transport.type';
 import { ApiVersion, VersionCompatibility } from '@/types/api-version.type';
 import { checkVersionCompatibility, legacyCutoffYear, parseApiVersion } from '@/utils/api-version.utils';
 import { VersionDiscovery, type Reachability } from '@/version-discovery';
@@ -47,8 +47,9 @@ export type DerivedDirectory<V extends SupportedApiVersion> =
 /**
  * Options for {@link createTrueNasClient}. `retryDelay` and `maxRetry` pace
  * reconnection, which never stops on its own; see {@link ReconnectOptions}.
+ * `maxConcurrentCalls` paces requests; see {@link ConnectionOptions}.
  */
-export interface CreateClientOptions extends ReconnectOptions {
+export interface CreateClientOptions extends ConnectionOptions {
   /** System UUID. */
   uuid: string;
   /**
@@ -463,7 +464,7 @@ type ClientConstructor = new (
   systemName?: string,
   logger?: Logger,
   protocol?: ApplianceProtocol,
-  reconnect?: ReconnectOptions
+  reconnect?: ConnectionOptions
 ) => TrueNasApiClient;
 
 /**
@@ -558,7 +559,7 @@ function instantiateClientForVersion<D extends ApiDirectoryShape>(
     systemName,
     logger,
     opts.protocol,
-    { retryDelay: opts.retryDelay, maxRetry: opts.maxRetry }
+    { retryDelay: opts.retryDelay, maxRetry: opts.maxRetry, maxConcurrentCalls: opts.maxConcurrentCalls }
   ) as unknown as TrueNasApiClient<D>;
 }
 

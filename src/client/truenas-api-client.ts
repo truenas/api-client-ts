@@ -11,6 +11,7 @@
  * - TrueNasAuthenticator (authentication)
  */
 
+import { distinctUntilChanged, filter, takeUntil } from 'rxjs';
 import { TrueNasApi } from '@/api/truenas-api';
 import { TrueNasAuthenticator } from '@/auth/truenas-authenticator';
 import { TrueNasConnection } from '@/connection/truenas-connection';
@@ -22,7 +23,7 @@ import type {
   BaseApiDirectory,
 } from '@/types/api-directory.type';
 import { getWebSocketPath } from '@/utils/api-version.utils';
-import type { ApplianceProtocol, ReconnectOptions } from '@/types/transport.type';
+import type { ApplianceProtocol, ConnectionOptions } from '@/types/transport.type';
 
 /**
  * @typeParam D - the generated API surface this client is typed against —
@@ -83,8 +84,8 @@ export abstract class TrueNasApiClient<
 
   protected readonly protocol: ApplianceProtocol;
 
-  /** Retry pacing forwarded to the connection; unset fields take its defaults. */
-  protected readonly reconnect: ReconnectOptions;
+  /** Retry and call pacing forwarded to the connection; unset fields take its defaults. */
+  protected readonly reconnect: ConnectionOptions;
 
   constructor(
     uuid: string,
@@ -94,7 +95,7 @@ export abstract class TrueNasApiClient<
     systemName?: string,
     logger: Logger = noopLogger,
     protocol: ApplianceProtocol = 'https:',
-    reconnect: ReconnectOptions = {}
+    reconnect: ConnectionOptions = {}
   ) {
     this.uuid = uuid;
     this.hostnames = hostnames;
@@ -118,6 +119,14 @@ export abstract class TrueNasApiClient<
     this.authenticator = this.createAuthenticator();
     this.api = this.createApi();
     this.ops = this.createOperations();
+
+    // Calls held from a lost socket wait for the session, not for the socket:
+    // sent before it is back, middleware refuses them. A no-op without a limit.
+    this.authenticator.authenticated$.pipe(
+      distinctUntilChanged(),
+      filter(Boolean),
+      takeUntil(this.connection.closeConnection),
+    ).subscribe(() => this.connection.releaseHeldCalls());
   }
 
   /**
@@ -159,7 +168,8 @@ export abstract class TrueNasApiClient<
       this.reconnect.retryDelay,
       this.reconnect.maxRetry,
       this.logger,
-      this.protocol
+      this.protocol,
+      this.reconnect.maxConcurrentCalls
     );
   }
 

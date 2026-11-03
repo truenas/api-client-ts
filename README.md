@@ -249,6 +249,21 @@ version stays the same, so a different version needs a new client:
 client.connection.setEndpoint({ hostnames: ['10.0.0.5'], protocol: 'http:' });
 ```
 
+Middleware holds 20 calls per connection on current releases and refuses the
+next one, so a client that can put more than that in flight at once (an app
+loading a dashboard, say) should cap itself with `maxConcurrentCalls`. Calls
+beyond the cap wait, in order, for an answer to make room. Every frame counts,
+the client's own `core.ping` included:
+
+```typescript
+const client = await createTrueNasClient({ uuid, hostnames, enabled: true, maxConcurrentCalls: 20 });
+```
+
+Calls still waiting when a socket is lost are held until the session is
+authenticated again, since a new socket starts signed out. If the next person to
+sign in may not be the one who made those calls, end them first:
+`client.connection.refuseHeldCalls()` answers each with `ENOTAUTHENTICATED`.
+
 An appliance served without TLS needs `protocol: 'http:'`, which switches
 discovery to `http` and the socket to `ws`. It describes the appliance, not the
 page, and defaults to `https:`.

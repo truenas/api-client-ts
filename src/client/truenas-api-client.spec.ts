@@ -83,6 +83,26 @@ describe('TrueNasApiClient', () => {
     expect(client.authenticated).toBe(true);
   });
 
+  it('releases calls held from a lost socket each time the session is authenticated', () => {
+    const client = make();
+    const releaseSpy = vi.spyOn(client.connection, 'releaseHeldCalls');
+
+    client.authenticator.authenticated$.next(true);
+    client.authenticator.authenticated$.next(true);
+    client.authenticator.authenticated$.next(false);
+    client.authenticator.authenticated$.next(true);
+
+    expect(releaseSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('forwards maxConcurrentCalls to the connection', () => {
+    const client = new TestClient('uuid-1', ['h1.local'], version, false, undefined, undefined, undefined, {
+      maxConcurrentCalls: 20,
+    });
+    clients.push(client);
+    expect(client.connection.maxConcurrentCalls).toBe(20);
+  });
+
   it('close() closes the connection', () => {
     const client = make();
     const closeSpy = vi.spyOn(client.connection, 'close');
