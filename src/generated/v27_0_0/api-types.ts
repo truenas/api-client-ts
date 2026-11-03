@@ -854,9 +854,9 @@ export interface S3CredentialsModel {
   secret_access_key: string;
   endpoint?: "" | string;
   region?: string;
-  skip_region?: boolean & string;
-  signatures_v2?: boolean & string;
-  max_upload_parts?: number & string;
+  skip_region?: boolean;
+  signatures_v2?: boolean;
+  max_upload_parts?: number;
   provider?: string;
   force_path_style?: boolean;
   sign_accept_encoding?: boolean;

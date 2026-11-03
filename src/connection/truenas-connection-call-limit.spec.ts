@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ConnectionInterceptor } from '@/types/transport.type';
 import { TrueNasMessage } from '@/types/truenas-message.type';
 import { randomUUID } from '@/utils/utils';
 import { TrueNasConnection } from './truenas-connection';
@@ -20,7 +21,7 @@ const pingDelay = 20_000;
 const call = (id: string): TrueNasMessage => ({ jsonrpc: '2.0', id, method: 'test.method', params: [] });
 const answer = (id: string): TrueNasMessage => ({ jsonrpc: '2.0', id, result: null });
 
-function createConnection(maxConcurrentCalls?: number): TrueNasConnection {
+function createConnection(maxConcurrentCalls?: number, interceptor?: ConnectionInterceptor): TrueNasConnection {
   return new TrueNasConnection(
     true,
     ['truenas.test'],
@@ -31,6 +32,7 @@ function createConnection(maxConcurrentCalls?: number): TrueNasConnection {
     3,
     undefined,
     undefined,
+    interceptor,
     maxConcurrentCalls,
   );
 }
@@ -239,6 +241,19 @@ describe('TrueNasConnection with maxConcurrentCalls', () => {
       socket.next(answer('a'));
       expect(written(socket)).toEqual(['a', 'b']);
     });
+  });
+
+  it('does not count a frame the interceptor keeps off the socket', () => {
+    connection = createConnection(1, {
+      outgoing: message => message.id !== 'kept',
+    });
+    const socket = openSocket();
+    vi.spyOn(socket, 'next');
+
+    connection.send(call('kept'));
+    connection.send(call('a'));
+
+    expect(written(socket)).toEqual(['a']);
   });
 
   it('holds nothing back without a limit', () => {

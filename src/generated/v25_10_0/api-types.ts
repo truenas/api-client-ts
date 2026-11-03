@@ -2667,7 +2667,7 @@ export interface DropboxCredentialsModel {
 export interface FTPCredentialsModel {
   type: "FTP";
   host: string;
-  port?: number & string;
+  port?: number;
   user: string;
   pass: string;
 }
@@ -2722,9 +2722,9 @@ export interface CloudBackupS3CredentialsModelInput {
   secret_access_key: string;
   endpoint?: "" | string;
   region?: string;
-  skip_region?: boolean & string;
-  signatures_v2?: boolean & string;
-  max_upload_parts?: number & string;
+  skip_region?: boolean;
+  signatures_v2?: boolean;
+  max_upload_parts?: number;
   provider?: string;
   force_path_style?: boolean;
   sign_accept_encoding?: boolean;
@@ -2732,7 +2732,7 @@ export interface CloudBackupS3CredentialsModelInput {
 export interface SFTPCredentialsModel {
   type: "SFTP";
   host: string;
-  port?: number & string;
+  port?: number;
   user: string;
   pass?: string | null;
   private_key?: number | null;
@@ -2881,9 +2881,9 @@ export interface S3CredentialsModel {
   secret_access_key: string;
   endpoint?: "" | string;
   region?: string;
-  skip_region?: boolean & string;
-  signatures_v2?: boolean & string;
-  max_upload_parts?: number & string;
+  skip_region?: boolean;
+  signatures_v2?: boolean;
+  max_upload_parts?: number;
 }
 export interface StorjIxCredentialsModel {
   type: "STORJ_IX";
@@ -2950,9 +2950,9 @@ export interface CloudBackupS3CredentialsModelInput2 {
   secret_access_key: string;
   endpoint?: "" | string;
   region?: string;
-  skip_region?: boolean & string;
-  signatures_v2?: boolean & string;
-  max_upload_parts?: number & string;
+  skip_region?: boolean;
+  signatures_v2?: boolean;
+  max_upload_parts?: number;
 }
 export interface CloudBackupSnapshot {
   id: string;

@@ -186,6 +186,15 @@ The client then works against an older or newer release call for call; a
 method or field that release lacks fails when it is called rather than at
 compile time.
 
+Each version's models are under its namespace, and its enums are values there
+as well as types, so a request can be built from them:
+
+```typescript
+import { v28_0_0 } from '@truenas/api-client';
+
+const type: v28_0_0.KeychainCredentialEntryType = v28_0_0.KeychainCredentialEntryType.SshKeyPair;
+```
+
 For code that must run against any supported release, use `client.ops`. It
 offers the same calls on every version and maps them onto whatever that version
 provides:
@@ -263,6 +272,29 @@ Calls still waiting when a socket is lost are held until the session is
 authenticated again, since a new socket starts signed out. If the next person to
 sign in may not be the one who made those calls, end them first:
 `client.connection.refuseHeldCalls()` answers each with `ENOTAUTHENTICATED`.
+
+An `interceptor` sees the connection's traffic, for a debug panel or for
+mocking calls in a running app. `outgoing` gets every frame before it is
+written, including the client's own `core.set_options` and `core.ping`, and
+returning `false` keeps a frame from `send` off the socket. `injected$` frames
+are read as if the appliance had sent them, one tick later. `incoming` gets
+every frame read:
+
+```typescript
+const mocked$ = new Subject<TrueNasMessage>();
+const client = await createTrueNasClient({
+  uuid, hostnames, enabled: true,
+  interceptor: {
+    outgoing: (frame) => {
+      if (frame.method !== 'system.info') return;
+      mocked$.next({ jsonrpc: '2.0', id: frame.id, result: fakeInfo });
+      return false;
+    },
+    incoming: (frame) => console.debug('<-', frame),
+    injected$: mocked$,
+  },
+});
+```
 
 An appliance served without TLS needs `protocol: 'http:'`, which switches
 discovery to `http` and the socket to `ws`. It describes the appliance, not the

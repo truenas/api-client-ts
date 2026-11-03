@@ -150,6 +150,35 @@ describe('preprocess', () => {
     expect(definitions['Sample'].examples).toBeUndefined();
   });
 
+  /**
+   * Middleware redacts a `Secret[...]` field's default to a string whatever
+   * the field's type, and json-schema-to-typescript intersects a default's
+   * type with the declared one: `boolean & string`, which nothing can hold.
+   * The field named `default` beside it must survive, and so must a `const`
+   * whose value happens to carry the key.
+   */
+  it('drops default keywords but keeps a field named default', () => {
+    const { definitions } = preprocess(version([
+      method('x.get', args({}, []), returnsDoc({ $ref: '#/$defs/Creds' }, {
+        Creds: {
+          title: 'Creds', type: 'object', additionalProperties: false,
+          properties: {
+            skip_region: { type: 'boolean', default: '' },
+            max_upload_parts: { type: 'integer', default: '**********' },
+            default: { type: 'string', default: 'x' },
+            marker: { const: { default: 1 } },
+          },
+        },
+      })),
+    ]));
+    expect(definitions['Creds'].properties).toEqual({
+      skip_region: { type: 'boolean' },
+      max_upload_parts: { type: 'integer' },
+      default: { type: 'string' },
+      marker: { const: { default: 1 } },
+    });
+  });
+
   it('splits a model rendered differently per mode into Name and NameInput', () => {
     const inputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' } } };
     const outputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' }, b: { type: 'integer' } } };

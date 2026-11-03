@@ -1,3 +1,6 @@
+import type { Observable } from 'rxjs';
+import type { TrueNasMessage } from '@/types/truenas-message.type';
+
 /**
  * The scheme used to reach the appliance, in `location.protocol` form.
  *
@@ -56,8 +59,28 @@ export interface ReconnectOptions {
   maxRetry?: number;
 }
 
-/** How the connection paces requests, beside how it reconnects. */
+/**
+ * A seam over the connection's traffic, for a debug panel or for mocking calls
+ * in a running app. It sees what every part of the client writes and reads.
+ */
+export interface ConnectionInterceptor {
+  /**
+   * Called with every frame before it is written, the connection's own
+   * `core.set_options` and `core.ping` included. Return `false` to keep a frame
+   * given to `send` off the socket and answer it through `injected$` instead;
+   * the connection's own frames are written regardless.
+   */
+  outgoing?(message: TrueNasMessage): boolean | void;
+  /** Called with every frame `messages()` emits, injected ones included. */
+  incoming?(message: TrueNasMessage): void;
+  /** Frames read as if the appliance sent them; delivered on a later tick. */
+  injected$?: Observable<TrueNasMessage>;
+}
+
+/** How the connection is set up, beside how it reconnects. */
 export interface ConnectionOptions extends ReconnectOptions {
+  /** See {@link ConnectionInterceptor}. Unset (the default), nothing is intercepted. */
+  interceptor?: ConnectionInterceptor;
   /**
    * How many requests may await an answer at once; beyond it they wait, in
    * order, for an answer to make room. Unset (the default), nothing waits.

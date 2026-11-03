@@ -19,6 +19,8 @@ import type {
   v25_10_3,
   v25_10_4,
   v25_10_5,
+  v27_0_0,
+  v28_0_0,
 } from '@/generated';
 
 const generatedDir = path.join(
@@ -242,5 +244,27 @@ describe('the pool.dataset event payload', () => {
     expectTypeOf<
       v25_10_5.ApiEventDirectory['pool.dataset.query']['added']['fields']
     >().toEqualTypeOf<v25_10_5.PoolDatasetEntry>();
+  });
+});
+
+/**
+ * Middleware redacts a `Secret[...]` field's default to a string whatever the
+ * field's type, and the emitter used to read that default as a second type:
+ * `boolean & string`, which is `never`, so no value could be written to the
+ * field. The generator drops defaults now; v25.10.0 is frozen, so its copies
+ * were corrected by hand, and these hold both the frozen and the regenerated
+ * side to the field's real type.
+ */
+describe('Secret fields with a redacted default', () => {
+  it('types the S3 credentials by their field type', () => {
+    expectTypeOf<v25_10_0.S3CredentialsModel['skip_region']>().toEqualTypeOf<boolean | undefined>();
+    expectTypeOf<v25_10_0.S3CredentialsModel['max_upload_parts']>().toEqualTypeOf<number | undefined>();
+    expectTypeOf<v27_0_0.S3CredentialsModel['signatures_v2']>().toEqualTypeOf<boolean | undefined>();
+    expectTypeOf<v28_0_0.S3CredentialsModel['skip_region']>().toEqualTypeOf<boolean | undefined>();
+  });
+
+  it('types the FTP and SFTP ports as numbers', () => {
+    expectTypeOf<v25_10_0.FTPCredentialsModel['port']>().toEqualTypeOf<number | undefined>();
+    expectTypeOf<v25_10_0.SFTPCredentialsModel['port']>().toEqualTypeOf<number | undefined>();
   });
 });

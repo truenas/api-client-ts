@@ -84,7 +84,7 @@ export abstract class TrueNasApiClient<
 
   protected readonly protocol: ApplianceProtocol;
 
-  /** Retry and call pacing forwarded to the connection; unset fields take its defaults. */
+  /** Retry pacing, call pacing and the interceptor, forwarded to the connection; unset fields take its defaults. */
   protected readonly reconnect: ConnectionOptions;
 
   constructor(
@@ -169,6 +169,7 @@ export abstract class TrueNasApiClient<
       this.reconnect.maxRetry,
       this.logger,
       this.protocol,
+      this.reconnect.interceptor,
       this.reconnect.maxConcurrentCalls
     );
   }

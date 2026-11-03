@@ -24,6 +24,9 @@ import {
   distinctUntilChanged,
   skip,
   merge,
+  share,
+  observeOn,
+  asapScheduler,
   Subscription,
 } from 'rxjs';
 import { Logger, noopLogger } from '@/logger';
@@ -35,6 +38,7 @@ import { TrueNasSocket } from '@/connection/truenas-socket';
 import {
   socketScheme,
   type ApplianceProtocol,
+  type ConnectionInterceptor,
   type ConnectionClose,
   type ConnectionEndpoint,
 } from '@/types/transport.type';
@@ -147,6 +151,7 @@ export class TrueNasConnection {
         { legacy_jobs: false },
       ]);
 
+      this.interceptor?.outgoing?.(initMessage);
       connection.ws.next(initMessage);
       return connection.ws.messages().pipe(
         filter(msg => msg.id === initMessage.id),
@@ -266,10 +271,11 @@ export class TrueNasConnection {
   private readonly refusals$ = new Subject<TrueNasMessage>();
 
   /**
-   * observable which always emits messages from the current socket, and the
-   * refusals `refuseHeldCalls()` gives.
+   * observable which always emits messages from the current socket, the
+   * refusals `refuseHeldCalls()` gives, and the frames an `interceptor`
+   * injects. Assigned in the constructor, which has it.
    */
-  messages$ = merge(this.socketMessages$, this.refusals$);
+  messages$: Observable<TrueNasMessage>;
 
   /** Set when `maxConcurrentCalls` is; see there. */
   private readonly limiter: CallLimiter | null;
@@ -284,6 +290,8 @@ export class TrueNasConnection {
     readonly maxRetry: number = 3,
     readonly logger: Logger = noopLogger,
     protocol: ApplianceProtocol = 'https:',
+    /** Sees every frame in and out, and can answer in the appliance's place. */
+    private readonly interceptor?: ConnectionInterceptor,
     /**
      * How many requests may await an answer at once; the rest wait their turn.
      * Unset, nothing is held back. See `ConnectionOptions.maxConcurrentCalls`.
@@ -296,6 +304,12 @@ export class TrueNasConnection {
     this.limiter = maxConcurrentCalls === undefined
       ? null
       : new CallLimiter(maxConcurrentCalls, message => this.writeToNextSocket(message));
+    // Injected frames arrive on a later tick, as the appliance's would: a verb
+    // writes its call before it listens for the answer, so an answer given
+    // inside `outgoing` would be lost.
+    this.messages$ = interceptor?.injected$
+      ? merge(this.socketMessages$, this.refusals$, interceptor.injected$.pipe(observeOn(asapScheduler), share()))
+      : merge(this.socketMessages$, this.refusals$);
     this.endpoint$.next(resolveEndpoint(hostnames, protocol));
 
     // Ping while a socket exists, and only then: a socket arriving starts a
@@ -319,6 +333,7 @@ export class TrueNasConnection {
         this.logger.debug('Skipping core.ping: every concurrent call place is taken');
         return;
       }
+      this.interceptor?.outgoing?.(ping);
       ws.next(ping);
     });
 
@@ -334,6 +349,11 @@ export class TrueNasConnection {
         }
         wasOpen = isOpen;
       });
+    }
+
+    if (interceptor?.incoming) {
+      const incoming = interceptor.incoming.bind(interceptor);
+      this.messages$.pipe(takeUntil(this.closeConnection)).subscribe(message => incoming(message));
     }
 
     // compatibility property subscriptions
@@ -430,6 +450,13 @@ export class TrueNasConnection {
    * not written yet, waiting or queued.
    */
   send(message: TrueNasMessage): Subscription {
+    // A frame the interceptor keeps is never written, so there is nothing left
+    // for a caller to give up on: an already-closed handle says so.
+    if (this.interceptor?.outgoing?.(message) === false) {
+      return Subscription.EMPTY;
+    }
+    // Asked before the limiter: a kept frame is answered through `injected$`,
+    // never by the socket, so it must not hold a place nothing would free.
     return this.limiter ? this.limiter.send(message) : this.writeToNextSocket(message);
   }
 

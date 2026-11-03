@@ -56,6 +56,9 @@ const INERT = [
   'hasExhaustedRetries',
   'hostname',
   'hostname$',
+  // The real connection's traffic seam. The fake's frames are scripted
+  // through `receive` and read through `sent`, which serves the same purpose.
+  'interceptor',
   'lastAttempted',
   'lastErrorMessage',
   'lastErrorMessage$',
