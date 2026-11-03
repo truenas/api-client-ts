@@ -165,9 +165,15 @@ type EventArm<
 
 /**
  * The payload as declared, except that a `core.get_jobs` update's `fields` is a
- * {@link Job}, the shape `job()` and the query verbs give the same object.
+ * {@link Job}, the shape `job()` and the query verbs give the same object. An
+ * arm declared without `fields`, such as a `removed` carrying only an `id`, is
+ * left as it is.
  */
-type EventPayload<E, P> = E extends 'core.get_jobs' ? Omit<P, 'fields'> & { fields: Job } : P;
+type EventPayload<E, P> = E extends 'core.get_jobs'
+  ? P extends { fields: unknown }
+    ? Omit<P, 'fields'> & { fields: Job }
+    : P
+  : P;
 
 /** The kinds the directory says this event reports. */
 type DeclaredKinds<

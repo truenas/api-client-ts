@@ -469,6 +469,17 @@ describe('jobs read outside job()', () => {
     expectTypeOf<Extract<JobEvent, { msg: 'removed' }>>().toEqualTypeOf<{ msg: 'removed'; id?: unknown }>();
   });
 
+  it('leaves a core.get_jobs arm declared without fields as declared', () => {
+    interface RemovedOnly {
+      call: object;
+      job: object;
+      event: { 'core.get_jobs': { removed: { id: number } } };
+    }
+
+    expectTypeOf<Extract<EventUnion<RemovedOnly, 'core.get_jobs'>, { msg: 'removed' }>>()
+      .toEqualTypeOf<{ msg: 'removed' } & { id: number }>();
+  });
+
   it('types core.get_jobs rows as Job, projections included', () => {
     expectTypeOf(api.query('core.get_jobs')).toEqualTypeOf<Observable<Job[]>>();
     expectTypeOf(api.queryOne('core.get_jobs', [['id', '=', 1]])).toEqualTypeOf<Observable<Job>>();
