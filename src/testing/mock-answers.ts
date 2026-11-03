@@ -14,7 +14,7 @@ import type {
 import type { Job } from '@/types/job.type';
 import { fakeApiError } from './fake-api-error';
 import { fakeJob, type FakeJobOverrides } from './fake-job';
-import type { QueryEntity, QueryMethod } from '@/types/query.type';
+import type { QueryMethod, QueryRow } from '@/types/query.type';
 import type { TrueNasMessage } from '@/types/truenas-message.type';
 import { subscriptionName } from '@/utils/subscription.utils';
 
@@ -60,7 +60,7 @@ export interface MockAnswers<D extends ApiDirectoryShape> {
    */
   query<M extends QueryMethod<D['call']> & string>(
     method: M,
-    rows: QueryEntity<D['call'], M>[]
+    rows: QueryRow<D['call'], M>[]
   ): void;
 
   /**
