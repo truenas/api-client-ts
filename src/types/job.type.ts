@@ -1,6 +1,5 @@
 import type { ApiCallDirectoryV25_10_0 } from '@/generated';
 import type { QueryEntity } from '@/types/query.type';
-import { TrueNasDate } from '@/types/truenas-date.type';
 
 /**
  * What `core.get_jobs` says a job looks like, straight from the generated
@@ -20,7 +19,6 @@ type GeneratedJob = QueryEntity<ApiCallDirectoryV25_10_0, 'core.get_jobs'>;
  * weaker than what the server sends.
  *
  * - `state`: a bare `string` in the dump; {@link JobState} is the real set.
- * - `time_started` / `time_finished`: ISO strings in the dump, `{$date}` on the wire.
  * - `description` / `progress.description`: sent but missing from the dump.
  * - `result`: `null` while running and after a failure, so check `error` or
  *   `state`, not just that the job finished.
@@ -33,8 +31,6 @@ export type Job<R = unknown> = Omit<
   | 'state'
   | 'result'
   | 'progress'
-  | 'time_started'
-  | 'time_finished'
   | 'message_ids'
   | 'exc_info'
 > & {
@@ -42,8 +38,6 @@ export type Job<R = unknown> = Omit<
   /** The job's result once it succeeds; `null` while it runs, and on failure. */
   result: R | null;
   progress: JobProgress;
-  time_started: TrueNasDate | null;
-  time_finished: TrueNasDate | null;
   description: string | null;
   /**
    * Array of JSON-RPC request IDs that triggered this job.
