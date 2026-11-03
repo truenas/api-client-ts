@@ -117,10 +117,15 @@ export type {
 // name any arm — nor script one through `fakeAuthResponse` or `failNextLogin`.
 export { AuthResponseType } from '@/types/auth.type';
 export type { AuthResponse } from '@/types/auth.type';
+// A wire frame. Exported because a `ConnectionInterceptor` is handed them and
+// injects them, so a consumer writing one has to name the type.
+export type { TrueNasMessage } from '@/types/truenas-message.type';
 export type {
   ApplianceProtocol,
   ConnectionClose,
   ConnectionEndpoint,
+  ConnectionInterceptor,
+  ConnectionOptions,
   ReconnectOptions,
 } from '@/types/transport.type';
 export type { Container } from '@/types/container.type';

@@ -23,6 +23,11 @@ import {
   shareReplay,
   distinctUntilChanged,
   skip,
+  merge,
+  share,
+  observeOn,
+  asapScheduler,
+  Subscription,
 } from 'rxjs';
 import { Logger, noopLogger } from '@/logger';
 import { TrueNasMessage } from '@/types/truenas-message.type';
@@ -32,6 +37,7 @@ import { TrueNasSocket } from '@/connection/truenas-socket';
 import {
   socketScheme,
   type ApplianceProtocol,
+  type ConnectionInterceptor,
   type ConnectionClose,
   type ConnectionEndpoint,
 } from '@/types/transport.type';
@@ -144,6 +150,7 @@ export class TrueNasConnection {
         { legacy_jobs: false },
       ]);
 
+      this.interceptor?.outgoing?.(initMessage);
       connection.ws.next(initMessage);
       return connection.ws.messages().pipe(
         filter(msg => msg.id === initMessage.id),
@@ -251,15 +258,19 @@ export class TrueNasConnection {
     takeUntil(this.closeConnection),
   );
 
-  /**
-   * observable which always emits messages from the current socket.
-   */
-  messages$ = this.ws$.pipe(
+  /** What the appliance sends, on whichever socket is current. */
+  private readonly socketMessages$ = this.ws$.pipe(
     filter(ws => ws !== null),
     switchMap(ws => ws.messages().pipe(
       catchError(() => EMPTY),
     )),
   );
+
+  /**
+   * observable which always emits messages from the current socket, and the
+   * frames an `interceptor` injects. Assigned in the constructor, which has it.
+   */
+  messages$: Observable<TrueNasMessage>;
 
   constructor(
     initialEnabled: boolean,
@@ -271,7 +282,15 @@ export class TrueNasConnection {
     readonly maxRetry: number = 3,
     readonly logger: Logger = noopLogger,
     protocol: ApplianceProtocol = 'https:',
+    /** Sees every frame in and out, and can answer in the appliance's place. */
+    private readonly interceptor?: ConnectionInterceptor,
   ) {
+    // Injected frames arrive on a later tick, as the appliance's would: a verb
+    // writes its call before it listens for the answer, so an answer given
+    // inside `outgoing` would be lost.
+    this.messages$ = interceptor?.injected$
+      ? merge(this.socketMessages$, interceptor.injected$.pipe(observeOn(asapScheduler), share()))
+      : this.socketMessages$;
     this.endpoint$.next(resolveEndpoint(hostnames, protocol));
 
     // Ping while a socket exists, and only then: a socket arriving starts a
@@ -287,8 +306,15 @@ export class TrueNasConnection {
       switchMap(ws => ws ? interval(twentySeconds).pipe(map(() => ws)) : EMPTY),
       takeUntil(this.closeConnection),
     ).subscribe(ws => {
-      ws.next(createJsonRpcMessage('core.ping'));
+      const ping = createJsonRpcMessage('core.ping');
+      this.interceptor?.outgoing?.(ping);
+      ws.next(ping);
     });
+
+    if (interceptor?.incoming) {
+      const incoming = interceptor.incoming.bind(interceptor);
+      this.messages$.pipe(takeUntil(this.closeConnection)).subscribe(message => incoming(message));
+    }
 
     // compatibility property subscriptions
     this.opened$.subscribe(val => this.opened.next(val));
@@ -379,7 +405,12 @@ export class TrueNasConnection {
    * the next websocket is opened. messages sent via `send` will not be lost until after
    * the next `closed$` emission.
    */
-  send(message: TrueNasMessage) {
+  send(message: TrueNasMessage): Subscription {
+    // A frame the interceptor keeps is never written, so there is nothing left
+    // for a caller to give up on: an already-closed handle says so.
+    if (this.interceptor?.outgoing?.(message) === false) {
+      return Subscription.EMPTY;
+    }
     return this.ws$.pipe(
       filter(ws => ws !== null),
       take(1),
