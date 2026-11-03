@@ -478,6 +478,41 @@ function stripDocs(node: unknown): unknown {
   return out;
 }
 
+/** Keywords whose value maps *field names* to schemas, so its keys are never keywords. */
+const NAMED_SCHEMA_MAPS = new Set(['properties', '$defs', 'definitions', 'patternProperties', 'dependentSchemas']);
+/** Keywords whose value is data rather than a schema, so nothing inside it is a keyword. */
+const DATA_KEYWORDS = new Set(['const', 'enum']);
+
+/**
+ * Remove every `default` keyword. No default is rendered, but
+ * json-schema-to-typescript reads one as a type: `{ type: 'boolean', default: '' }`
+ * compiles to `boolean & string`, which is `never`. Middleware redacts the
+ * default of every `Secret[...]` field to a string (`''`, or `'**********'`
+ * for one with a value), whatever its type, so each `Secret[bool]` and
+ * `Secret[int]` field came out uninhabitable (`S3CredentialsModel.skip_region`,
+ * `signatures_v2`, `max_upload_parts`).
+ *
+ * Positional, not by value: a `default` is a keyword everywhere except as a key
+ * of a `properties`-like map, where it is a field name, and its value can be
+ * any JSON at all, so the type test `stripDocs` uses cannot tell the two apart.
+ */
+export function stripDefaults(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(stripDefaults);
+  if (node === null || typeof node !== 'object') return node;
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'default') continue;
+    if (DATA_KEYWORDS.has(key)) {
+      out[key] = value;
+    } else if (NAMED_SCHEMA_MAPS.has(key) && value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      out[key] = Object.fromEntries(Object.entries(value).map(([name, schema]) => [name, stripDefaults(schema)]));
+    } else {
+      out[key] = stripDefaults(value);
+    }
+  }
+  return out;
+}
+
 /** Apply enum hoisting to a whole document: def bodies first, then the root. */
 function hoistDocEnums(doc: Schema): { doc: Schema; owners: Map<string, string> } {
   doc.$defs ??= {};
@@ -511,8 +546,8 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
 
   const table = new DefTable();
   for (const method of methods) {
-    const accepts = hoistDocEnums(stripDocs(method.schemas.accepts) as Schema);
-    const returns = hoistDocEnums(stripDocs(method.schemas.returns) as Schema);
+    const accepts = hoistDocEnums(stripDefaults(stripDocs(method.schemas.accepts)) as Schema);
+    const returns = hoistDocEnums(stripDefaults(stripDocs(method.schemas.returns)) as Schema);
     method.schemas.accepts = accepts.doc;
     method.schemas.returns = returns.doc;
     recordDoc(table, accepts.doc, 'input', method.name, accepts.owners);
@@ -520,7 +555,7 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
   }
   for (const event of events) {
     for (const [variant, rawDoc] of Object.entries(event.schemas)) {
-      const hoisted = hoistDocEnums(stripDocs(rawDoc) as Schema);
+      const hoisted = hoistDocEnums(stripDefaults(stripDocs(rawDoc)) as Schema);
       const doc = hoisted.doc;
       event.schemas[variant] = doc;
       recordDoc(table, doc, 'input', event.name, hoisted.owners);
