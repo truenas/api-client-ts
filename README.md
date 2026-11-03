@@ -249,6 +249,29 @@ version stays the same, so a different version needs a new client:
 client.connection.setEndpoint({ hostnames: ['10.0.0.5'], protocol: 'http:' });
 ```
 
+An `interceptor` sees the connection's traffic, for a debug panel or for
+mocking calls in a running app. `outgoing` gets every frame before it is
+written, including the client's own `core.set_options` and `core.ping`, and
+returning `false` keeps a frame from `send` off the socket. `injected$` frames
+are read as if the appliance had sent them, one tick later. `incoming` gets
+every frame read:
+
+```typescript
+const mocked$ = new Subject<TrueNasMessage>();
+const client = await createTrueNasClient({
+  uuid, hostnames, enabled: true,
+  interceptor: {
+    outgoing: (frame) => {
+      if (frame.method !== 'system.info') return;
+      mocked$.next({ jsonrpc: '2.0', id: frame.id, result: fakeInfo });
+      return false;
+    },
+    incoming: (frame) => console.debug('<-', frame),
+    injected$: mocked$,
+  },
+});
+```
+
 An appliance served without TLS needs `protocol: 'http:'`, which switches
 discovery to `http` and the socket to `ws`. It describes the appliance, not the
 page, and defaults to `https:`.

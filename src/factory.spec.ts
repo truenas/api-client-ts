@@ -293,6 +293,21 @@ describe('createTrueNasClient', () => {
     });
   });
 
+  describe('interceptor', () => {
+    it('reaches the connection', async () => {
+      const outgoing = vi.fn();
+      const client = await createTrueNasClient({
+        uuid: 'uuid-1234', hostnames: ['box'], enabled: false,
+        version: 'v28.0.0', interceptor: { outgoing },
+      });
+      created.push(client as unknown as TrueNasApiClient);
+
+      client.connection.send({ jsonrpc: '2.0', id: 'a', method: 'test.method' }).unsubscribe();
+
+      expect(outgoing).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }));
+    });
+  });
+
   describe('a caller that names the version', () => {
     it('skips discovery entirely — no request is made', async () => {
       const client = await createTrueNasClient({
