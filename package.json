@@ -40,7 +40,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node scripts/fix-namespace-enums.mjs",
     "prepack": "yarn build",
     "dev": "tsup --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.spec.json && tsc -p tsconfig.scripts.json",
