@@ -2,11 +2,13 @@
 //  1. no unresolved `@/` path-alias specifier leaked into the shipped code/types
 //     (source maps legitimately embed the original `@/` source, so they are excluded);
 //  2. both entries load in both formats and expose what they promise;
-//  3. the testing entry's client is the *same* class the main entry exports.
-import { readdirSync, readFileSync } from 'node:fs';
+//  3. the testing entry's client is the *same* class the main entry exports;
+//  4. the version namespaces' enums are values in the declarations, not types only.
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import ts from 'typescript';
 
 // Everything shipped, found rather than listed.
 //
@@ -107,3 +109,74 @@ for (const [format, { main, testing }] of Object.entries(builds)) {
   }
 }
 console.log('✓ both entries share one copy of the client classes');
+
+// 4. The version namespaces' enums are values in the declarations too.
+//
+// The runtime namespaces carry each enum's const object, so
+// `v28_0_0.Aclmode.Passthrough` works when run. The bundled `.d.ts` used to
+// declare every namespace member as a type only, so the same line did not
+// compile and consumers kept their own copy of each enum.
+// `fix-namespace-enums.mjs` restores them after tsup; this compiles a probe
+// that reads every enum the runtime namespaces carry, through both entries'
+// declarations, so the day the bundler's output changes shape the build
+// fails here rather than shipping types-only enums again.
+const enumReads = Object.keys(builds.ESM.main)
+  .filter((name) => /^v\d+_\d+_\d+$/.test(name))
+  .flatMap((ns) =>
+    Object.entries(builds.ESM.main[ns])
+      .filter(([, value]) => value !== null && typeof value === 'object')
+      .map(([name, value]) => `${ns}.${name}[${JSON.stringify(Object.keys(value)[0])}]`)
+  );
+if (enumReads.length === 0) {
+  console.error('✗ no enum const objects found in the runtime version namespaces');
+  process.exit(1);
+}
+
+// `process.exit` inside the `try` would skip the `finally` and leave the probe behind.
+let diagnostics = [];
+const probeDir = mkdtempSync(resolve('.check-dist-probe-'));
+try {
+  const names = [...new Set(enumReads.map((read) => read.split('.')[0]))].join(', ');
+  const body = `export const reads: unknown[] = [\n  ${enumReads.join(',\n  ')},\n];\n`;
+  const distPath = resolve('dist').replaceAll('\\', '/');
+  writeFileSync(
+    resolve(probeDir, 'esm.mts'),
+    `import { ${names} } from '${distPath}/index.js';\n${body}`
+  );
+  writeFileSync(
+    resolve(probeDir, 'cjs.cts'),
+    `import { ${names} } from '${distPath}/index.cjs';\n${body}`
+  );
+  const program = ts.createProgram(
+    [resolve(probeDir, 'esm.mts'), resolve(probeDir, 'cjs.cts')],
+    {
+      module: ts.ModuleKind.NodeNext,
+      moduleResolution: ts.ModuleResolutionKind.NodeNext,
+      target: ts.ScriptTarget.ES2022,
+      strict: true,
+      noEmit: true,
+      skipLibCheck: true,
+      types: [],
+    }
+  );
+  diagnostics = ts.getPreEmitDiagnostics(program);
+} finally {
+  rmSync(probeDir, { recursive: true, force: true });
+}
+if (diagnostics.length > 0) {
+  console.error(
+    ts.formatDiagnostics(diagnostics.slice(0, 10), {
+      getCanonicalFileName: (fileName) => fileName,
+      getCurrentDirectory: () => process.cwd(),
+      getNewLine: () => '\n',
+    })
+  );
+  console.error(
+    `✗ ${diagnostics.length} error(s) reading the version namespaces' enums as ` +
+      'values through the declarations — did fix-namespace-enums.mjs run after tsup?'
+  );
+  process.exit(1);
+}
+console.log(
+  `✓ ${enumReads.length} enum reads compile through the namespaces in ESM and CJS declarations`
+);
