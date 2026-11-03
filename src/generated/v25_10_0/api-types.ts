@@ -1766,6 +1766,32 @@ export interface Maintainer {
   email: string;
   url: string | null;
 }
+export interface AppAvailableItemQueryResultItem {
+  app_readme?: string | null;
+  categories?: string[];
+  description?: string;
+  healthy?: boolean;
+  healthy_error?: string | null;
+  home?: string;
+  location?: string;
+  latest_version?: string | null;
+  latest_app_version?: string | null;
+  latest_human_version?: string | null;
+  last_update?: string | null;
+  name?: string;
+  recommended?: boolean;
+  title?: string;
+  maintainers?: Maintainer[];
+  tags?: string[];
+  screenshots?: string[];
+  sources?: string[];
+  icon_url?: string | null;
+  catalog?: string;
+  installed?: boolean;
+  train?: string;
+  popularity_rank?: number | null;
+  [k: string]: unknown;
+}
 export interface AppCertificate {
   id: number;
   name: string;
@@ -1890,6 +1916,58 @@ export interface AppInfo {
   id: string;
   name: string;
   state: string;
+}
+export interface AppLatestItem {
+  app_readme: string | null;
+  categories: string[];
+  description: string;
+  healthy: boolean;
+  healthy_error?: string | null;
+  home: string;
+  location: string;
+  latest_version: string | null;
+  latest_app_version: string | null;
+  latest_human_version: string | null;
+  last_update: string | null;
+  name: string;
+  recommended: boolean;
+  title: string;
+  maintainers: Maintainer[];
+  tags: string[];
+  screenshots: string[];
+  sources: string[];
+  icon_url?: string | null;
+  catalog: string;
+  installed: boolean;
+  train: string;
+  popularity_rank: number | null;
+  [k: string]: unknown;
+}
+export interface AppLatestItemQueryResultItem {
+  app_readme?: string | null;
+  categories?: string[];
+  description?: string;
+  healthy?: boolean;
+  healthy_error?: string | null;
+  home?: string;
+  location?: string;
+  latest_version?: string | null;
+  latest_app_version?: string | null;
+  latest_human_version?: string | null;
+  last_update?: string | null;
+  name?: string;
+  recommended?: boolean;
+  title?: string;
+  maintainers?: Maintainer[];
+  tags?: string[];
+  screenshots?: string[];
+  sources?: string[];
+  icon_url?: string | null;
+  catalog?: string;
+  installed?: boolean;
+  train?: string;
+  popularity_rank?: number | null;
+  [k: string]: unknown;
 }
 export interface AppPullImages {
   redeploy?: boolean;
@@ -5822,6 +5900,20 @@ export interface NVMetGlobalEntry {
   rdma: boolean;
   xport_referral: boolean;
 }
+export interface NVMetGlobalSessionsItem {
+  host_traddr: string;
+  hostnqn: string;
+  subsys_id: number;
+  port_id: number;
+  ctrl: number;
+}
+export interface NVMetGlobalSessionsItemQueryResultItem {
+  host_traddr?: string;
+  hostnqn?: string;
+  subsys_id?: number;
+  port_id?: number;
+  ctrl?: number;
+}
 export interface NVMetGlobalUpdateArgs {
   basenqn?: string;
   kernel?: boolean;
@@ -7656,6 +7748,30 @@ export interface ReportingGetDataResponse {
   start: number;
   end: number;
   legend: string[];
+}
+export interface ReportingGraphsItem {
+  name: string;
+  title: string;
+  vertical_label: string;
+  identifiers: string[] | null;
+}
+export interface ReportingGraphsItemQueryResultItem {
+  name?: string;
+  title?: string;
+  vertical_label?: string;
+  identifiers?: string[] | null;
+}
+export interface ReportingNetdataGraphsItem {
+  name: string;
+  title: string;
+  vertical_label: string;
+  identifiers: string[] | null;
+}
+export interface ReportingNetdataGraphsItemQueryResultItem {
+  name?: string;
+  title?: string;
+  vertical_label?: string;
+  identifiers?: string[] | null;
 }
 export interface ReportingQuery {
   unit?: ("HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR") | null;

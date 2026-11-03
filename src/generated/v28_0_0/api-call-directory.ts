@@ -11,13 +11,20 @@ import type {
 } from '../shared/query-types';
 
 import type {
-  AppAvailableItem,
   AppsIxVolumeEntry,
   AuditUpdate,
+  AuthRespAuthErr,
+  AuthRespAuthRedirect,
+  AuthRespExpired,
+  AuthRespOTPRequired,
   AzureBlobCredentialsModel,
   B2CredentialsModel,
   BootEnvironmentEntry,
   BoxCredentialsModel,
+  CloudBackupCreate,
+  CloudBackupUpdate,
+  CloudSyncCreate,
+  CloudSyncUpdate,
   DNSAuthenticatorEntry,
   DropboxCredentialsModel,
   Enclosure2SetSlotStatusArgs,
@@ -34,24 +41,37 @@ import type {
   KeychainCredentialUpdateSSHCredentialsEntry,
   KeychainCredentialUpdateSSHKeyPairEntry,
   MegaCredentialsModel,
+  NFSEntry,
   OneDriveCredentialsModel,
   PCloudCredentialsModel,
   PoolAttachment,
   PoolProcess,
   QueryOptionsModel,
+  ReplicationCountEligibleManualSnapshotsArgs,
   ReportingEntry,
   ReportingExportsEntry,
   ReportingQuery,
+  RestoreOpts,
+  RsyncTaskCreate,
+  RsyncTaskUpdate,
   SFTPCredentialsModel,
   SSHKeyPair,
   StorjIxCredentialsModelInput,
   SwiftCredentialsModel,
+  TwoFactorAuthEntry,
   VMDeviceUpdate,
   WebDavCredentialsModel,
   YandexCredentialsModel,
 } from '../v25_10_0/api-types';
 import type {
+  AuthApiKeyPlain,
+  AuthOTPToken,
+  AuthPasswordPlain,
+  AuthRespDenied,
+  AuthSCRAM,
+  AuthTokenPlain,
   ContainerDeviceEntry,
+  ContainerUpdate,
   DiskEntry,
   GraphIdentifier,
   LXCConfigEntry,
@@ -59,18 +79,18 @@ import type {
   S3CredentialsModel,
   TrueNASConnectEntry,
   TruecommandEntry,
+  TwofactorOptions,
   VMUpdate,
   ZFSResourceEntry,
   ZFSResourceQuery,
+  ZFSResourceSnapshotEntry,
+  ZFSResourceSnapshotQuery,
 } from '../v27_0_0/api-types';
 import type {
   ACMEDNSAuthenticatorCreate,
   Alert,
-  AppAvailableItemQueryResultItem,
   AppEntry,
   AppImageDockerhubRateLimitInfo,
-  AppLatestItem,
-  AppLatestItemQueryResultItem,
   AppQueryResultItem,
   AppUpgradeSummary,
   AppUpgradeSummaryOptions,
@@ -78,13 +98,22 @@ import type {
   AuditQuery,
   AuditQueryResultItem,
   AuditQueryResultItemQueryResultItem,
+  AuthMeResult,
+  AuthRespScram,
+  AuthRespSuccess,
   BootEnvironmentActivate,
   BootEnvironmentClone,
   BootEnvironmentDestroy,
   BootEnvironmentKeep,
+  CloudBackupEntry,
+  CloudBackupQueryResultItem,
+  CloudSyncEntry,
   CloudSyncListDirectory,
+  CloudSyncQueryResultItem,
   ContainerDeviceCreate,
   ContainerDeviceNicAttachChoices,
+  ContainerEntry,
+  ContainerQueryResultItem,
   CredentialsVerifyData,
   DockerBackupMap,
   DockerEntry,
@@ -93,6 +122,9 @@ import type {
   FilesystemDirEntry,
   FilesystemDirQueryResultItem,
   FilesystemMkdirData,
+  FilesystemStatData,
+  GroupGetGroupObj,
+  GroupGetGroupObjData,
   InterfaceCreate,
   InterfaceEntry,
   InterfaceQueryResultItem,
@@ -100,25 +132,32 @@ import type {
   LXCConfigUpdate,
   MailEntry,
   MailUpdate,
-  NVMetGlobalSessionsItem,
-  NVMetGlobalSessionsItemQueryResultItem,
+  NFSUpdate,
   PoolDatasetChecksumChoicesResult,
   PoolDatasetCreateFilesystem,
   PoolDatasetCreateVolume,
   PoolDatasetUpdate,
+  ReplicationEligibleManualSnapshots,
   ReportingExportsCreate,
   ReportingGetDataResponse,
-  ReportingGraphsItem,
-  ReportingGraphsItemQueryResultItem,
-  ReportingNetdataGraphsItem,
-  ReportingNetdataGraphsItemQueryResultItem,
   ReportingUpdate,
+  RsyncTaskEntry,
+  RsyncTaskQueryResultItem,
   SNMPEntry,
   SNMPUpdate,
+  SharingWebshareCreate,
+  SharingWebshareEntry,
+  SharingWebshareQueryResultItem,
+  SharingWebshareUpdate,
   TrueNASConnectUpdate,
   TruecommandUpdate,
   TunableEntry,
   TunableQueryResultItem,
+  TwoFactorAuthUpdate,
+  UserGetUserObj,
+  UserGetUserObjData,
+  UserRenew2FaSecret,
+  UserSetPassword,
   VMBootloaderOptions,
   VMCreate,
   VMDeviceCreate,
@@ -141,10 +180,20 @@ import type {
   WebshareEntry,
   WebshareUpdate,
   ZFSResourceCreateArgsData,
+  ZFSResourceEncryptionInheritArgsData,
   ZFSResourcePromoteArgsData,
   ZFSResourceRenameArgsData,
   ZFSResourceSetArgsData,
-  ZFSResourceSnapshotCloneQuery,
+  ZFSResourceSnapshotCloneArgsData,
+  ZFSResourceSnapshotCreateArgsData,
+  ZFSResourceSnapshotDestroyArgsData,
+  ZFSResourceSnapshotHoldArgsData,
+  ZFSResourceSnapshotReleaseArgsData,
+  ZFSResourceSnapshotRenameArgsData,
+  ZFSResourceSnapshotRollbackArgsData,
+  ZFSResourceUserspaceEntry,
+  ZFSResourceUserspaceQuery,
+  ZFSResourceUserspaceSetArgsData,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
@@ -157,12 +206,6 @@ export interface ApiCallDirectoryDelta {
   'alert.list': {
     params: [];
     response: Alert[];
-  };
-
-  'app.available': {
-    params: [filters?: QueryFilters<AppAvailableItem>, options?: QueryOptions<AppAvailableItem>];
-    response: AppAvailableItem[] | AppAvailableItem | AppAvailableItemQueryResultItem[] | AppAvailableItemQueryResultItem | number;
-    entity: AppAvailableItem;
   };
 
   'app.get_instance': {
@@ -178,12 +221,6 @@ export interface ApiCallDirectoryDelta {
   'app.ix_volume.get_instance': {
     params: [id: string, options?: QueryOptions<AppsIxVolumeEntry>];
     response: AppsIxVolumeEntry;
-  };
-
-  'app.latest': {
-    params: [filters?: QueryFilters<AppLatestItem>, options?: QueryOptions<AppLatestItem>];
-    response: AppLatestItem[] | AppLatestItem | AppLatestItemQueryResultItem[] | AppLatestItemQueryResultItem | number;
-    entity: AppLatestItem;
   };
 
   'app.query': {
@@ -212,6 +249,26 @@ export interface ApiCallDirectoryDelta {
     response: AuditEntry;
   };
 
+  'auth.login_ex': {
+    params: [login_data: AuthApiKeyPlain | AuthPasswordPlain | AuthTokenPlain | AuthOTPToken | AuthSCRAM];
+    response: AuthRespSuccess | AuthRespAuthErr | AuthRespExpired | AuthRespOTPRequired | AuthRespAuthRedirect | AuthRespScram | AuthRespDenied;
+  };
+
+  'auth.login_ex_continue': {
+    params: [login_data: AuthOTPToken];
+    response: AuthRespSuccess | AuthRespAuthErr | AuthRespExpired | AuthRespOTPRequired | AuthRespAuthRedirect | AuthRespDenied;
+  };
+
+  'auth.me': {
+    params: [];
+    response: AuthMeResult;
+  };
+
+  'auth.twofactor.update': {
+    params: [auth_twofactor_update: TwoFactorAuthUpdate];
+    response: TwoFactorAuthEntry;
+  };
+
   'boot.environment.activate': {
     params: [boot_environment_activate: BootEnvironmentActivate];
     response: BootEnvironmentEntry;
@@ -232,14 +289,61 @@ export interface ApiCallDirectoryDelta {
     response: BootEnvironmentEntry;
   };
 
+  'cloud_backup.create': {
+    params: [cloud_backup: CloudBackupCreate];
+    response: CloudBackupEntry;
+  };
+
+  'cloud_backup.get_instance': {
+    params: [id: number, options?: QueryOptions<CloudBackupEntry>];
+    response: CloudBackupEntry;
+  };
+
+  'cloud_backup.query': {
+    params: [filters?: QueryFilters<CloudBackupEntry>, options?: QueryOptions<CloudBackupEntry>];
+    response: CloudBackupEntry[] | CloudBackupEntry | CloudBackupQueryResultItem[] | CloudBackupQueryResultItem | number;
+    entity: CloudBackupEntry;
+  };
+
+  'cloud_backup.update': {
+    params: [id: number, data: CloudBackupUpdate];
+    response: CloudBackupEntry;
+  };
+
+  'cloudsync.create': {
+    params: [cloud_sync_create: CloudSyncCreate];
+    response: CloudSyncEntry;
+  };
+
   'cloudsync.credentials.verify': {
     params: [cloud_sync_credentials_create: AzureBlobCredentialsModel | B2CredentialsModel | BoxCredentialsModel | DropboxCredentialsModel | FTPCredentialsModel | GoogleCloudStorageCredentialsModel | GoogleDriveCredentialsModel | GooglePhotosCredentialsModel | HTTPCredentialsModel | HubicCredentialsModel | MegaCredentialsModel | OneDriveCredentialsModel | PCloudCredentialsModel | S3CredentialsModel | SFTPCredentialsModel | StorjIxCredentialsModelInput | SwiftCredentialsModel | WebDavCredentialsModel | YandexCredentialsModel];
     response: CredentialsVerifyData;
   };
 
+  'cloudsync.get_instance': {
+    params: [id: number, options?: QueryOptions<CloudSyncEntry>];
+    response: CloudSyncEntry;
+  };
+
   'cloudsync.list_directory': {
     params: [cloud_sync_ls: CloudSyncListDirectory];
     response: (Record<string, unknown>)[];
+  };
+
+  'cloudsync.query': {
+    params: [filters?: QueryFilters<CloudSyncEntry>, options?: QueryOptions<CloudSyncEntry>];
+    response: CloudSyncEntry[] | CloudSyncEntry | CloudSyncQueryResultItem[] | CloudSyncQueryResultItem | number;
+    entity: CloudSyncEntry;
+  };
+
+  'cloudsync.restore': {
+    params: [id: number, opts: RestoreOpts];
+    response: CloudSyncEntry;
+  };
+
+  'cloudsync.update': {
+    params: [id: number, cloud_sync_update: CloudSyncUpdate];
+    response: CloudSyncEntry;
   };
 
   'container.device.create': {
@@ -257,9 +361,25 @@ export interface ApiCallDirectoryDelta {
     response: ContainerDeviceNicAttachChoices;
   };
 
+  'container.get_instance': {
+    params: [id: number, options?: QueryOptions<ContainerEntry>];
+    response: ContainerEntry;
+  };
+
   'container.pool_choices': {
     params: [];
     response: Record<string, string>;
+  };
+
+  'container.query': {
+    params: [filters?: QueryFilters<ContainerEntry>, options?: QueryOptions<ContainerEntry>];
+    response: ContainerEntry[] | ContainerEntry | ContainerQueryResultItem[] | ContainerQueryResultItem | number;
+    entity: ContainerEntry;
+  };
+
+  'container.update': {
+    params: [id: number, container_update: ContainerUpdate];
+    response: ContainerEntry;
   };
 
   'disk.get_instance': {
@@ -302,9 +422,19 @@ export interface ApiCallDirectoryDelta {
     response: FilesystemDirEntry;
   };
 
+  'filesystem.stat': {
+    params: [path: string];
+    response: FilesystemStatData;
+  };
+
   'ftp.update': {
     params: [data: FTPUpdate];
     response: FTPEntry;
+  };
+
+  'group.get_group_obj': {
+    params: [get_group_obj?: GroupGetGroupObj];
+    response: GroupGetGroupObjData;
   };
 
   'interface.create': {
@@ -363,10 +493,9 @@ export interface ApiCallDirectoryDelta {
     response: MailEntry;
   };
 
-  'nvmet.global.sessions': {
-    params: [filters?: QueryFilters<NVMetGlobalSessionsItem>, options?: QueryOptions<NVMetGlobalSessionsItem>];
-    response: NVMetGlobalSessionsItem[] | NVMetGlobalSessionsItem | NVMetGlobalSessionsItemQueryResultItem[] | NVMetGlobalSessionsItemQueryResultItem | number;
-    entity: NVMetGlobalSessionsItem;
+  'nfs.update': {
+    params: [nfs_update: NFSUpdate];
+    response: NFSEntry;
   };
 
   'pool.dataset.checksum_choices': {
@@ -384,6 +513,11 @@ export interface ApiCallDirectoryDelta {
     response: PoolDatasetEntry;
   };
 
+  'replication.count_eligible_manual_snapshots': {
+    params: [count_eligible_manual_snapshots: ReplicationCountEligibleManualSnapshotsArgs];
+    response: ReplicationEligibleManualSnapshots;
+  };
+
   'reporting.exporters.create': {
     params: [reporting_exporter_create: ReportingExportsCreate];
     response: ReportingExportsEntry;
@@ -399,12 +533,6 @@ export interface ApiCallDirectoryDelta {
     response: ReportingGetDataResponse[];
   };
 
-  'reporting.graphs': {
-    params: [filters?: QueryFilters<ReportingGraphsItem>, options?: QueryOptions<ReportingGraphsItem>];
-    response: ReportingGraphsItem[] | ReportingGraphsItem | ReportingGraphsItemQueryResultItem[] | ReportingGraphsItemQueryResultItem | number;
-    entity: ReportingGraphsItem;
-  };
-
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
@@ -415,15 +543,51 @@ export interface ApiCallDirectoryDelta {
     response: ReportingGetDataResponse[];
   };
 
-  'reporting.netdata_graphs': {
-    params: [filters?: QueryFilters<ReportingNetdataGraphsItem>, options?: QueryOptions<ReportingNetdataGraphsItem>];
-    response: ReportingNetdataGraphsItem[] | ReportingNetdataGraphsItem | ReportingNetdataGraphsItemQueryResultItem[] | ReportingNetdataGraphsItemQueryResultItem | number;
-    entity: ReportingNetdataGraphsItem;
-  };
-
   'reporting.update': {
     params: [reporting_update: ReportingUpdate];
     response: ReportingEntry;
+  };
+
+  'rsynctask.create': {
+    params: [rsync_task_create: RsyncTaskCreate];
+    response: RsyncTaskEntry;
+  };
+
+  'rsynctask.get_instance': {
+    params: [id: number, options?: QueryOptions<RsyncTaskEntry>];
+    response: RsyncTaskEntry;
+  };
+
+  'rsynctask.query': {
+    params: [filters?: QueryFilters<RsyncTaskEntry>, options?: QueryOptions<RsyncTaskEntry>];
+    response: RsyncTaskEntry[] | RsyncTaskEntry | RsyncTaskQueryResultItem[] | RsyncTaskQueryResultItem | number;
+    entity: RsyncTaskEntry;
+  };
+
+  'rsynctask.update': {
+    params: [id: number, rsync_task_update: RsyncTaskUpdate];
+    response: RsyncTaskEntry;
+  };
+
+  'sharing.webshare.create': {
+    params: [data: SharingWebshareCreate];
+    response: SharingWebshareEntry;
+  };
+
+  'sharing.webshare.get_instance': {
+    params: [id: number, options?: QueryOptions<SharingWebshareEntry>];
+    response: SharingWebshareEntry;
+  };
+
+  'sharing.webshare.query': {
+    params: [filters?: QueryFilters<SharingWebshareEntry>, options?: QueryOptions<SharingWebshareEntry>];
+    response: SharingWebshareEntry[] | SharingWebshareEntry | SharingWebshareQueryResultItem[] | SharingWebshareQueryResultItem | number;
+    entity: SharingWebshareEntry;
+  };
+
+  'sharing.webshare.update': {
+    params: [id: number, data: SharingWebshareUpdate];
+    response: SharingWebshareEntry;
   };
 
   'snmp.config': {
@@ -455,6 +619,31 @@ export interface ApiCallDirectoryDelta {
     params: [filters?: QueryFilters<TunableEntry>, options?: QueryOptions<TunableEntry>];
     response: TunableEntry[] | TunableEntry | TunableQueryResultItem[] | TunableQueryResultItem | number;
     entity: TunableEntry;
+  };
+
+  'user.get_user_obj': {
+    params: [get_user_obj?: UserGetUserObj];
+    response: UserGetUserObjData;
+  };
+
+  'user.renew_2fa_secret': {
+    params: [username: string, twofactor_options: TwofactorOptions, force?: boolean];
+    response: UserRenew2FaSecret;
+  };
+
+  'user.set_password': {
+    params: [set_password_data: UserSetPassword];
+    response: null;
+  };
+
+  'user.shell_choices': {
+    params: [group_ids?: number[]];
+    response: Record<string, string>;
+  };
+
+  'user.unset_2fa_secret': {
+    params: [username: string, force?: boolean];
+    response: null;
   };
 
   'vm.bootloader_aavmf_choices': {
@@ -624,6 +813,11 @@ export interface ApiCallDirectoryDelta {
     response: ZFSResourceEntry;
   };
 
+  'zfs.resource.encryption.inherit': {
+    params: [data: ZFSResourceEncryptionInheritArgsData];
+    response: null;
+  };
+
   'zfs.resource.list': {
     params: [data?: ZFSResourceQuery];
     response: ZFSResourceEntry[];
@@ -665,7 +859,52 @@ export interface ApiCallDirectoryDelta {
   };
 
   'zfs.resource.snapshot.clone': {
-    params: [data: ZFSResourceSnapshotCloneQuery];
+    params: [data: ZFSResourceSnapshotCloneArgsData];
+    response: null;
+  };
+
+  'zfs.resource.snapshot.create': {
+    params: [data: ZFSResourceSnapshotCreateArgsData];
+    response: ZFSResourceSnapshotEntry;
+  };
+
+  'zfs.resource.snapshot.destroy': {
+    params: [data: ZFSResourceSnapshotDestroyArgsData];
+    response: null;
+  };
+
+  'zfs.resource.snapshot.hold': {
+    params: [data: ZFSResourceSnapshotHoldArgsData];
+    response: null;
+  };
+
+  'zfs.resource.snapshot.list': {
+    params: [data?: ZFSResourceSnapshotQuery];
+    response: ZFSResourceSnapshotEntry[];
+  };
+
+  'zfs.resource.snapshot.release': {
+    params: [data: ZFSResourceSnapshotReleaseArgsData];
+    response: null;
+  };
+
+  'zfs.resource.snapshot.rename': {
+    params: [data: ZFSResourceSnapshotRenameArgsData];
+    response: null;
+  };
+
+  'zfs.resource.snapshot.rollback': {
+    params: [data: ZFSResourceSnapshotRollbackArgsData];
+    response: null;
+  };
+
+  'zfs.resource.userspace.list': {
+    params: [data: ZFSResourceUserspaceQuery];
+    response: ZFSResourceUserspaceEntry[];
+  };
+
+  'zfs.resource.userspace.set': {
+    params: [data: ZFSResourceUserspaceSetArgsData];
     response: null;
   };
 }
