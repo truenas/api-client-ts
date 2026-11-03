@@ -22,3 +22,4 @@ docs/
 
 # packaging artifacts
 package.tgz
+.check-dist-probe-*/
