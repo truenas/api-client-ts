@@ -81,6 +81,16 @@ export interface ConnectionInterceptor {
 export interface ConnectionOptions extends ReconnectOptions {
   /** See {@link ConnectionInterceptor}. Unset (the default), nothing is intercepted. */
   interceptor?: ConnectionInterceptor;
+  /**
+   * How many requests may await an answer at once; beyond it they wait, in
+   * order, for an answer to make room. Unset (the default), nothing waits.
+   * Middleware refuses calls past 20 per connection on current releases, so an
+   * app that bursts past that sets 20. Every frame the client writes counts, its
+   * `core.ping` included (skipped, not queued, while every place is taken).
+   * Calls waiting when a socket is lost are held until the session is
+   * authenticated again; `connection.refuseHeldCalls()` ends them instead.
+   */
+  maxConcurrentCalls?: number;
 }
 
 /** One socket closing, as `connection.closes$` reports it. */
