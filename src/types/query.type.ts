@@ -1,6 +1,6 @@
 import type { ApiCallDirectoryBase } from '@/generated/shared/api-call-directory-base';
 import type { QueryOptions } from '@/generated/shared/query-types';
-import type { Job } from '@/types/job.type';
+import type { JobOf } from '@/types/job.type';
 
 /**
  * Types for the query verbs — `api.query` / `queryOne` / `queryCount`.
@@ -39,10 +39,13 @@ export type QueryEntity<Dir, M extends keyof Dir> = Dir[M] extends {
  * What a query method's rows are typed as: its entity, except `core.get_jobs`,
  * whose rows are {@link Job}, as `job()` emits them. The dump types a job's
  * `state` as a bare string and its timestamps as strings, where the wire
- * sends a {@link JobState} and `{ $date }` envelopes. Filters and options
- * still take the entity, so they name the same fields either way.
+ * sends a {@link JobState} and `{ $date }` envelopes (`JobOf` keeps any
+ * field `Job` does not know). Filters and options still take the entity, so
+ * they name the same fields either way.
  */
-export type QueryRow<Dir, M extends keyof Dir> = M extends 'core.get_jobs' ? Job : QueryEntity<Dir, M>;
+export type QueryRow<Dir, M extends keyof Dir> = M extends 'core.get_jobs'
+  ? JobOf<QueryEntity<Dir, M>>
+  : QueryEntity<Dir, M>;
 
 /**
  * Forbids a key rather than merely omitting it.

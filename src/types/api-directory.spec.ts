@@ -29,7 +29,7 @@ import type {
   SubscriptionParams,
 } from '@/types/api-directory.type';
 import type { Job, JobProgress, JobState } from '@/types/job.type';
-import type { QueryEntity } from '@/types/query.type';
+import type { QueryEntity, QueryRow } from '@/types/query.type';
 import type { TrueNasDate } from '@/types/truenas-date.type';
 
 describe('the surface a client is typed against', () => {
@@ -478,6 +478,27 @@ describe('jobs read outside job()', () => {
 
     expectTypeOf<Extract<EventUnion<RemovedOnly, 'core.get_jobs'>, { msg: 'removed' }>>()
       .toEqualTypeOf<{ msg: 'removed' } & { id: number }>();
+  });
+
+  it('keeps core.get_jobs fields that Job does not know', () => {
+    interface NewerJob {
+      id: number;
+      state: string;
+      added_later: string;
+    }
+    interface NewerVersion {
+      call: { 'core.get_jobs': { entity: NewerJob } };
+      job: object;
+      event: { 'core.get_jobs': { changed: { id: number; fields: NewerJob } } };
+    }
+
+    type Row = QueryRow<NewerVersion['call'], 'core.get_jobs'>;
+    expectTypeOf<Row['added_later']>().toEqualTypeOf<string>();
+    expectTypeOf<Row['state']>().toEqualTypeOf<Job['state']>();
+
+    type Changed = Extract<EventUnion<NewerVersion, 'core.get_jobs'>, { msg: 'changed' }>['fields'];
+    expectTypeOf<Changed['added_later']>().toEqualTypeOf<string>();
+    expectTypeOf<Changed['state']>().toEqualTypeOf<Job['state']>();
   });
 
   it('types core.get_jobs rows as Job, projections included', () => {

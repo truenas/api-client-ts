@@ -59,6 +59,16 @@ export type Job<R = unknown> = Omit<
 };
 
 /**
+ * A version's `core.get_jobs` entity read as a {@link Job}: `Job`'s fields, plus
+ * any field `Job` does not know with the entity's type. `Job` is built from one
+ * version's dump, so a field a later version adds would otherwise be dropped.
+ * Plain `Job` while there is no such field, which is every version today.
+ */
+export type JobOf<E> = [Exclude<keyof E, keyof Job>] extends [never]
+  ? Job
+  : Omit<E, keyof Job> & Job;
+
+/**
  * The generated progress shape plus the `description` the server sends and the
  * dump does not declare.
  */
