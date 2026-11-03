@@ -228,7 +228,9 @@ describe('job results', () => {
     // one. `extra` survives for the same reason.
     expectTypeOf<Job['progress']['percent']>().toEqualTypeOf<number | null>();
     expectTypeOf<Job['progress']['description']>().toEqualTypeOf<string>();
-    expectTypeOf<Job['time_started']>().toEqualTypeOf<TrueNasDate | null>();
+    // Never null: middleware stamps it in `Job.__init__`, before the job waits.
+    expectTypeOf<Job['time_started']>().toEqualTypeOf<TrueNasDate>();
+    expectTypeOf<Job['time_finished']>().toEqualTypeOf<TrueNasDate | null>();
     expectTypeOf<Job['progress']>().toEqualTypeOf<JobProgress>();
     expectTypeOf<Job['description']>().toEqualTypeOf<string | null>();
 
@@ -442,5 +444,42 @@ describe('events', () => {
       api.events('filesystem.file_tail_follow', { path: '/var/log/messages' })
     ).toEqualTypeOf<Observable<TailEvent>>();
     expectTypeOf<Extract<TailEvent, { msg: 'added' }>>().toHaveProperty('fields');
+  });
+});
+
+/**
+ * A job reached through a subscription or a query is the object `job()` emits,
+ * so it is typed as one: the dump's `state: string` and string timestamps are
+ * what the wire does not send.
+ */
+describe('jobs read outside job()', () => {
+  const api = {
+    events: () => undefined,
+    query: () => undefined,
+    queryOne: () => undefined,
+  } as unknown as TrueNasApi<ApiDirectoryV27_0_0>;
+
+  it('types core.get_jobs updates as Job', () => {
+    type JobEvent = EventUnion<ApiDirectoryV27_0_0, 'core.get_jobs'>;
+
+    expectTypeOf<Extract<JobEvent, { msg: 'added' }>['fields']>().toEqualTypeOf<Job>();
+    expectTypeOf<Extract<JobEvent, { msg: 'changed' }>['fields']>().toEqualTypeOf<Job>();
+    expectTypeOf<Extract<JobEvent, { msg: 'changed' }>['id']>().toEqualTypeOf<number>();
+    // Not declared by the dump, so it is the payload-less arm every collection gets.
+    expectTypeOf<Extract<JobEvent, { msg: 'removed' }>>().toEqualTypeOf<{ msg: 'removed'; id?: unknown }>();
+  });
+
+  it('types core.get_jobs rows as Job, projections included', () => {
+    expectTypeOf(api.query('core.get_jobs')).toEqualTypeOf<Observable<Job[]>>();
+    expectTypeOf(api.queryOne('core.get_jobs', [['id', '=', 1]])).toEqualTypeOf<Observable<Job>>();
+    expectTypeOf(api.query('core.get_jobs', [], { select: ['id', 'state'] })).toEqualTypeOf<
+      Observable<Pick<Job, 'id' | 'state'>[]>
+    >();
+  });
+
+  it('leaves every other query method on its entity', () => {
+    expectTypeOf(api.query('user.query')).toEqualTypeOf<
+      Observable<QueryEntity<ApiCallDirectoryV27_0_0, 'user.query'>[]>
+    >();
   });
 });

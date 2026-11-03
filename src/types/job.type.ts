@@ -20,7 +20,8 @@ type GeneratedJob = QueryEntity<ApiCallDirectoryV25_10_0, 'core.get_jobs'>;
  * weaker than what the server sends.
  *
  * - `state`: a bare `string` in the dump; {@link JobState} is the real set.
- * - `time_started` / `time_finished`: ISO strings in the dump, `{$date}` on the wire.
+ * - `time_started` / `time_finished`: ISO strings in the dump, `{$date}` on the
+ *   wire; the start is never null, as `Job.__init__` stamps it.
  * - `description` / `progress.description`: sent but missing from the dump.
  * - `result`: `null` while running and after a failure, so check `error` or
  *   `state`, not just that the job finished.
@@ -42,7 +43,7 @@ export type Job<R = unknown> = Omit<
   /** The job's result once it succeeds; `null` while it runs, and on failure. */
   result: R | null;
   progress: JobProgress;
-  time_started: TrueNasDate | null;
+  time_started: TrueNasDate;
   time_finished: TrueNasDate | null;
   description: string | null;
   /**
