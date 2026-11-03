@@ -186,6 +186,15 @@ The client then works against an older or newer release call for call; a
 method or field that release lacks fails when it is called rather than at
 compile time.
 
+Each version's models are under its namespace, and its enums are values there
+as well as types, so a request can be built from them:
+
+```typescript
+import { v28_0_0 } from '@truenas/api-client';
+
+const type: v28_0_0.KeychainCredentialEntryType = v28_0_0.KeychainCredentialEntryType.SshKeyPair;
+```
+
 For code that must run against any supported release, use `client.ops`. It
 offers the same calls on every version and maps them onto whatever that version
 provides:
