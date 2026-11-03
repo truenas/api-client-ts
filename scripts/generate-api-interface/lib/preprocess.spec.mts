@@ -179,6 +179,34 @@ describe('preprocess', () => {
     });
   });
 
+  /**
+   * Middleware's encoder sends a `datetime` as `{ $date }` and a `date` as
+   * `{ $type: 'date', $value }`, while the schema says `string`. The format is
+   * what tells them apart, and the shape comparison ignores formats, so the
+   * envelope has to be in place before naming or a model with a date and one
+   * with a plain string would share a name.
+   */
+  it('types date-time and date strings as the envelopes the API sends', () => {
+    const { definitions, methods } = preprocess(version([
+      method('x.get', args({ since: { type: 'string', format: 'date-time' } }, ['since']), returnsDoc({ $ref: '#/$defs/Stamped' }, {
+        Stamped: {
+          title: 'Stamped', type: 'object', additionalProperties: false,
+          properties: {
+            at: { type: 'string', format: 'date-time' },
+            on: { anyOf: [{ type: 'string', format: 'date' }, { type: 'null' }] },
+            link: { type: 'string', format: 'uri' },
+          },
+        },
+      })),
+    ]));
+    expect(definitions['Stamped'].properties).toEqual({
+      at: { tsType: '{ $date: number }' },
+      on: { anyOf: [{ tsType: "{ $type: 'date'; $value: string }" }, { type: 'null' }] },
+      link: { type: 'string', format: 'uri' },
+    });
+    expect(methods[0].params[0].schema).toEqual({ tsType: '{ $date: number }' });
+  });
+
   it('splits a model rendered differently per mode into Name and NameInput', () => {
     const inputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' } } };
     const outputRender: Schema = { title: 'W', type: 'object', additionalProperties: false, properties: { a: { type: 'string' }, b: { type: 'integer' } } };
