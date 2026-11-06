@@ -42,6 +42,7 @@ import type {
   ApiKeyQueryResultItem,
   ApiKeyUpdate,
   AppAvailableItem,
+  AppAvailableItemQueryResultItem,
   AppCertificate,
   AppContainerIDOptions,
   AppContainerResponse,
@@ -51,6 +52,8 @@ import type {
   AppImageDockerhubRateLimitResult,
   AppImageEntry,
   AppImageQueryResultItem,
+  AppLatestItem,
+  AppLatestItemQueryResultItem,
   AppQueryResultItem,
   AppRegistryCreate,
   AppRegistryEntry,
@@ -277,6 +280,8 @@ import type {
   NTPServerQueryResultItem,
   NTPServerUpdate,
   NVMetGlobalEntry,
+  NVMetGlobalSessionsItem,
+  NVMetGlobalSessionsItemQueryResultItem,
   NVMetGlobalUpdateArgs,
   NVMetHostCreate,
   NVMetHostDeleteOptions,
@@ -386,6 +391,10 @@ import type {
   ReportingExportsEntry,
   ReportingExportsQueryResultItem,
   ReportingGetDataResponse,
+  ReportingGraphsItem,
+  ReportingGraphsItemQueryResultItem,
+  ReportingNetdataGraphsItem,
+  ReportingNetdataGraphsItemQueryResultItem,
   ReportingQuery,
   ReportingUpdateArgs,
   RestoreOpts,
@@ -659,6 +668,12 @@ export interface ApiCallDirectory {
     response: ApiKeyEntryWithKey | ApiKeyEntry;
   };
 
+  'app.available': {
+    params: [filters?: QueryFilters<AppAvailableItem>, options?: QueryOptions<AppAvailableItem>];
+    response: AppAvailableItem[] | AppAvailableItem | AppAvailableItemQueryResultItem[] | AppAvailableItemQueryResultItem | number;
+    entity: AppAvailableItem;
+  };
+
   'app.available_space': {
     params: [];
     response: number;
@@ -734,6 +749,12 @@ export interface ApiCallDirectory {
     params: [filters?: QueryFilters<AppsIxVolumeEntry>, options?: QueryOptions<AppsIxVolumeEntry>];
     response: AppsIxVolumeEntry[] | AppsIxVolumeEntry | AppsIxVolumeQueryResultItem[] | AppsIxVolumeQueryResultItem | number;
     entity: AppsIxVolumeEntry;
+  };
+
+  'app.latest': {
+    params: [filters?: QueryFilters<AppLatestItem>, options?: QueryOptions<AppLatestItem>];
+    response: AppLatestItem[] | AppLatestItem | AppLatestItemQueryResultItem[] | AppLatestItemQueryResultItem | number;
+    entity: AppLatestItem;
   };
 
   'app.outdated_docker_images': {
@@ -2199,6 +2220,12 @@ export interface ApiCallDirectory {
     response: NVMetGlobalEntry;
   };
 
+  'nvmet.global.sessions': {
+    params: [filters?: QueryFilters<NVMetGlobalSessionsItem>, options?: QueryOptions<NVMetGlobalSessionsItem>];
+    response: NVMetGlobalSessionsItem[] | NVMetGlobalSessionsItem | NVMetGlobalSessionsItemQueryResultItem[] | NVMetGlobalSessionsItemQueryResultItem | number;
+    entity: NVMetGlobalSessionsItem;
+  };
+
   'nvmet.global.update': {
     params: [nvmet_update?: NVMetGlobalUpdateArgs];
     response: NVMetGlobalEntry;
@@ -2830,6 +2857,12 @@ export interface ApiCallDirectory {
     response: ReportingGetDataResponse[];
   };
 
+  'reporting.graphs': {
+    params: [filters?: QueryFilters<ReportingGraphsItem>, options?: QueryOptions<ReportingGraphsItem>];
+    response: ReportingGraphsItem[] | ReportingGraphsItem | ReportingGraphsItemQueryResultItem[] | ReportingGraphsItemQueryResultItem | number;
+    entity: ReportingGraphsItem;
+  };
+
   'reporting.netdata_get_data': {
     params: [graphs: GraphIdentifier[], query?: ReportingQuery];
     response: ReportingGetDataResponse[];
@@ -2838,6 +2871,12 @@ export interface ApiCallDirectory {
   'reporting.netdata_graph': {
     params: [str: string, query?: ReportingQuery];
     response: ReportingGetDataResponse[];
+  };
+
+  'reporting.netdata_graphs': {
+    params: [filters?: QueryFilters<ReportingNetdataGraphsItem>, options?: QueryOptions<ReportingNetdataGraphsItem>];
+    response: ReportingNetdataGraphsItem[] | ReportingNetdataGraphsItem | ReportingNetdataGraphsItemQueryResultItem[] | ReportingNetdataGraphsItemQueryResultItem | number;
+    entity: ReportingNetdataGraphsItem;
   };
 
   'reporting.update': {

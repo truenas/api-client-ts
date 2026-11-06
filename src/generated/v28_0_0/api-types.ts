@@ -9,9 +9,15 @@ import type {
   AppVersionInfo,
   Atime,
   AuditEntrySpace,
+  AuthMeSource,
+  Authenticator,
   Bootloader,
   Casesensitivity,
+  CloudCron,
   CloudFlareSchema,
+  CloudSyncBwlimit,
+  CloudSyncCreateDirection,
+  CloudTaskAttributes,
   CloudTaskAttributesInput,
   DigitalOceanSchema,
   DockerStatusInfoStatusInput,
@@ -26,8 +32,8 @@ import type {
   InterfaceCreateFailoverAlias2,
   InterfaceCreateTypeInput,
   InterfaceEntryAlias,
+  KeychainCredentialEntry,
   MailEntryOAuth,
-  Maintainer,
   OVHSchema,
   PoolDatasetCreateFilesystemAcltypeInput,
   PoolDatasetCreateFilesystemChecksum,
@@ -38,6 +44,9 @@ import type {
   Protocol,
   QueryOptionsModel,
   Route53Schema,
+  RsyncTaskCreateDirection,
+  RsyncTaskCreateMode,
+  RsyncTaskSchedule,
   Security,
   ShellSchema,
   Snapdev,
@@ -45,6 +54,8 @@ import type {
   Sync,
   Time,
   TunableCreateType,
+  TwoFactorAuthServices,
+  UserTwofactorConfigEntry,
   VMCDROMDevice,
   VMDiskDevice,
   VMDiskDeviceInput,
@@ -66,16 +77,20 @@ import type {
   AuditExportQueryOptions,
   CertificateExtensions,
   ContainerCreateImage,
+  ContainerDeviceEntry,
   ContainerFilesystemDevice,
   ContainerGPUDevice,
   ContainerNICDeviceInput,
+  ContainerStatus,
   ContainerUSBDevice,
+  CredentialsEntry,
   DefaultIdmapConfiguration,
   FilesystemSetZfsAttributesOptions,
   InterfaceEntryState,
   IsolatedIdmapConfiguration,
   Passkey,
   PoolCreateEncryptionOptions,
+  TierInfo,
   TierInfoInput,
   VMStatus,
 } from '../v27_0_0/api-types';
@@ -167,6 +182,18 @@ export const VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput = {
 } as const;
 export type VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput = (typeof VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput)[keyof typeof VMWareMatchDatastoresWithDatasetsResultFilesystemTypeInput];
 
+export const ZFSResourceUserspaceEntryType = {
+  User: 'user',
+  Group: 'group',
+} as const;
+export type ZFSResourceUserspaceEntryType = (typeof ZFSResourceUserspaceEntryType)[keyof typeof ZFSResourceUserspaceEntryType];
+
+export const ZFSResourceUserspaceEntryTypeInput = {
+  User: 'user',
+  Group: 'group',
+} as const;
+export type ZFSResourceUserspaceEntryTypeInput = (typeof ZFSResourceUserspaceEntryTypeInput)[keyof typeof ZFSResourceUserspaceEntryTypeInput];
+
 export type DockerBackupMap = Record<string, DockerBackupEntry>;
 
 export interface ACMEDNSAuthenticatorCreate {
@@ -208,32 +235,6 @@ export interface AlertListAddedEvent {
 export interface AlertListChangedEvent {
   id: number;
   fields: Alert;
-}
-export interface AppAvailableItemQueryResultItem {
-  app_readme?: string | null;
-  categories?: string[];
-  description?: string;
-  healthy?: boolean;
-  healthy_error?: string | null;
-  home?: string;
-  location?: string;
-  latest_version?: string | null;
-  latest_app_version?: string | null;
-  latest_human_version?: string | null;
-  last_update?: string | null;
-  name?: string;
-  recommended?: boolean;
-  title?: string;
-  maintainers?: Maintainer[];
-  tags?: string[];
-  screenshots?: string[];
-  sources?: string[];
-  icon_url?: string | null;
-  catalog?: string;
-  installed?: boolean;
-  train?: string;
-  popularity_rank?: number | null;
-  [k: string]: unknown;
 }
 export interface AppBulkUpgradeJobResult {
   app_name: string;
@@ -293,58 +294,6 @@ export interface AppImageDockerhubRateLimitInfo {
 export interface AppImagePull {
   auth_config?: AppImageAuthConfig | null;
   image: string;
-}
-export interface AppLatestItem {
-  app_readme: string | null;
-  categories: string[];
-  description: string;
-  healthy: boolean;
-  healthy_error?: string | null;
-  home: string;
-  location: string;
-  latest_version: string | null;
-  latest_app_version: string | null;
-  latest_human_version: string | null;
-  last_update: string | null;
-  name: string;
-  recommended: boolean;
-  title: string;
-  maintainers: Maintainer[];
-  tags: string[];
-  screenshots: string[];
-  sources: string[];
-  icon_url?: string | null;
-  catalog: string;
-  installed: boolean;
-  train: string;
-  popularity_rank: number | null;
-  [k: string]: unknown;
-}
-export interface AppLatestItemQueryResultItem {
-  app_readme?: string | null;
-  categories?: string[];
-  description?: string;
-  healthy?: boolean;
-  healthy_error?: string | null;
-  home?: string;
-  location?: string;
-  latest_version?: string | null;
-  latest_app_version?: string | null;
-  latest_human_version?: string | null;
-  last_update?: string | null;
-  name?: string;
-  recommended?: boolean;
-  title?: string;
-  maintainers?: Maintainer[];
-  tags?: string[];
-  screenshots?: string[];
-  sources?: string[];
-  icon_url?: string | null;
-  catalog?: string;
-  installed?: boolean;
-  train?: string;
-  popularity_rank?: number | null;
-  [k: string]: unknown;
 }
 export interface AppQueryResultItem {
   name?: string;
@@ -463,6 +412,66 @@ export interface AuditQueryResultItemQueryResultItem {
   success?: boolean;
   [k: string]: unknown;
 }
+export interface AuthMeResult {
+  pw_name: string;
+  pw_gecos: string;
+  pw_dir: string;
+  pw_shell: string;
+  pw_uid: number;
+  pw_gid: number;
+  grouplist: number[] | null;
+  sid: string | null;
+  source: AuthMeSource;
+  local: boolean;
+  attributes: {
+    [k: string]: unknown;
+  };
+  two_factor_config: {
+    [k: string]: unknown;
+  };
+  privilege: ComposedPrivilege;
+  account_attributes: string[];
+}
+export interface ComposedPrivilege {
+  roles: string[];
+  allowlist: {
+    [k: string]: string;
+  }[];
+  web_shell?: boolean;
+  webui_access?: boolean;
+}
+export interface AuthRespScram {
+  response_type: "SCRAM_RESPONSE";
+  scram_type: "SERVER_FIRST_RESPONSE" | "SERVER_FINAL_RESPONSE";
+  rfc_str: string;
+  user_info: AuthUserInfo | null;
+}
+export interface AuthUserInfo {
+  pw_name: string;
+  pw_gecos: string;
+  pw_dir: string;
+  pw_shell: string;
+  pw_uid: number;
+  pw_gid: number;
+  grouplist: number[] | null;
+  sid: string | null;
+  source: AuthMeSource;
+  local: boolean;
+  attributes: {
+    [k: string]: unknown;
+  };
+  two_factor_config: {
+    [k: string]: unknown;
+  };
+  privilege: ComposedPrivilege;
+  account_attributes: string[];
+}
+export interface AuthRespSuccess {
+  response_type: "SUCCESS";
+  user_info: AuthUserInfo | null;
+  authenticator: Authenticator;
+  reconnect_token: string | null;
+}
 export interface BootEnvironmentActivate {
   id: string;
 }
@@ -510,6 +519,91 @@ export interface CertificateCreate {
   };
   renew_days?: number;
 }
+export interface CloudBackupEntry {
+  id: number;
+  description?: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  credentials: CredentialsEntry;
+  attributes: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job: {
+    [k: string]: unknown;
+  } | null;
+  locked: boolean | null;
+  password: string;
+  keep_last: number;
+  transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
+  absolute_paths?: boolean;
+  cache_path?: string | null;
+  rate_limit?: number | null;
+}
+export interface CloudBackupQueryResultItem {
+  id?: number;
+  description?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  credentials?: CredentialsEntry;
+  attributes?: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  locked?: boolean | null;
+  password?: string;
+  keep_last?: number;
+  transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
+  absolute_paths?: boolean;
+  cache_path?: string | null;
+  rate_limit?: number | null;
+}
+export interface CloudSyncEntry {
+  id: number;
+  description?: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  credentials: CredentialsEntry;
+  attributes: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job: {
+    [k: string]: unknown;
+  } | null;
+  locked: boolean | null;
+  bwlimit?: CloudSyncBwlimit[];
+  transfers?: number | null;
+  direction: CloudSyncCreateDirection;
+  transfer_mode: "SYNC" | "COPY" | "MOVE";
+  encryption?: boolean;
+  filename_encryption?: boolean;
+  encryption_password?: string;
+  encryption_salt?: string;
+  create_empty_src_dirs?: boolean;
+  follow_symlinks?: boolean;
+}
 export interface CloudSyncListDirectory {
   credentials: number;
   encryption?: boolean;
@@ -518,6 +612,37 @@ export interface CloudSyncListDirectory {
   encryption_salt?: string;
   attributes: CloudTaskAttributesInput;
   args?: string;
+}
+export interface CloudSyncQueryResultItem {
+  id?: number;
+  description?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  credentials?: CredentialsEntry;
+  attributes?: CloudTaskAttributes;
+  schedule?: CloudCron;
+  pre_script?: string;
+  post_script?: string;
+  snapshot?: boolean;
+  include?: string[];
+  exclude?: string[];
+  args?: string;
+  enabled?: boolean;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+  locked?: boolean | null;
+  bwlimit?: CloudSyncBwlimit[];
+  transfers?: number | null;
+  direction?: CloudSyncCreateDirection;
+  transfer_mode?: "SYNC" | "COPY" | "MOVE";
+  encryption?: boolean;
+  filename_encryption?: boolean;
+  encryption_password?: string;
+  encryption_salt?: string;
+  create_empty_src_dirs?: boolean;
+  follow_symlinks?: boolean;
 }
 export interface ContainerCreate {
   uuid?: string | null;
@@ -549,6 +674,56 @@ export interface ContainerDeviceCreate {
 export interface ContainerDeviceNicAttachChoices {
   BRIDGE: string[];
   MACVLAN: string[];
+}
+export interface ContainerEntry {
+  id: number;
+  uuid: string;
+  name: string;
+  description?: string;
+  devices?: ContainerDeviceEntry[];
+  cpuset?: string | null;
+  autostart?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  dataset: string;
+  init?: string;
+  initdir?: string | null;
+  initenv?: {
+    [k: string]: string;
+  };
+  inituser?: string | null;
+  initgroup?: string | null;
+  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
+  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
+  capabilities_state?: {
+    [k: string]: boolean;
+  };
+  status: ContainerStatus | null;
+}
+export interface ContainerQueryResultItem {
+  id?: number;
+  uuid?: string;
+  name?: string;
+  description?: string;
+  devices?: ContainerDeviceEntry[];
+  cpuset?: string | null;
+  autostart?: boolean;
+  time?: Time;
+  shutdown_timeout?: number;
+  dataset?: string;
+  init?: string;
+  initdir?: string | null;
+  initenv?: {
+    [k: string]: string;
+  };
+  inituser?: string | null;
+  initgroup?: string | null;
+  idmap?: (DefaultIdmapConfiguration | IsolatedIdmapConfiguration) | null;
+  capabilities_policy?: "DEFAULT" | "ALLOW" | "DENY";
+  capabilities_state?: {
+    [k: string]: boolean;
+  };
+  status?: ContainerStatus | null;
 }
 export interface CredentialsVerifyData {
   valid: boolean;
@@ -618,7 +793,17 @@ export interface FilesystemDirEntry {
   is_mountpoint: boolean;
   is_ctldir: boolean | null;
   attributes: (
-    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
+    | "COMPRESSED"
+    | "APPEND"
+    | "NODUMP"
+    | "ENCRYPTED"
+    | "IMMUTABLE"
+    | "AUTOMOUNT"
+    | "MOUNT_ROOT"
+    | "VERIFY"
+    | "DAX"
+    | "POSIXACL"
+    | "NFSV4ACL"
   )[];
   xattrs: string[] | null;
   zfs_attrs:
@@ -655,7 +840,17 @@ export interface FilesystemDirQueryResultItem {
   is_mountpoint?: boolean;
   is_ctldir?: boolean | null;
   attributes?: (
-    "COMPRESSED" | "APPEND" | "NODUMP" | "ENCRYPTED" | "IMMUTABLE" | "AUTOMOUNT" | "MOUNT_ROOT" | "VERIFY" | "DAX"
+    | "COMPRESSED"
+    | "APPEND"
+    | "NODUMP"
+    | "ENCRYPTED"
+    | "IMMUTABLE"
+    | "AUTOMOUNT"
+    | "MOUNT_ROOT"
+    | "VERIFY"
+    | "DAX"
+    | "POSIXACL"
+    | "NFSV4ACL"
   )[];
   xattrs?: string[] | null;
   zfs_attrs?:
@@ -685,6 +880,41 @@ export interface FilesystemSetZfsAttributesData {
   path: string;
   zfs_file_attributes: ZFSFileAttrsData;
   options?: FilesystemSetZfsAttributesOptions;
+}
+export interface FilesystemStatData {
+  realpath: string;
+  type: FilesystemDirEntryType;
+  size: number;
+  allocation_size: number;
+  mode: number;
+  mount_id: number;
+  uid: number;
+  gid: number;
+  atime: number;
+  mtime: number;
+  ctime: number;
+  btime: number;
+  dev: number;
+  inode: number;
+  nlink: number;
+  acl: boolean;
+  is_mountpoint: boolean;
+  is_ctldir: boolean;
+  attributes: (
+    | "COMPRESSED"
+    | "APPEND"
+    | "NODUMP"
+    | "ENCRYPTED"
+    | "IMMUTABLE"
+    | "AUTOMOUNT"
+    | "MOUNT_ROOT"
+    | "VERIFY"
+    | "DAX"
+    | "POSIXACL"
+    | "NFSV4ACL"
+  )[];
+  user: string | null;
+  group: string | null;
 }
 export interface FTPUpdate {
   port?: number;
@@ -727,6 +957,19 @@ export interface FTPUpdate {
   tls_opt_ip_address_required?: boolean;
   ssltls_certificate?: number | null;
   options?: string;
+}
+export interface GroupGetGroupObj {
+  groupname?: string | null;
+  gid?: number | null;
+  sid_info?: boolean;
+}
+export interface GroupGetGroupObjData {
+  gr_name: string;
+  gr_gid: number;
+  gr_mem: string[];
+  sid?: string | null;
+  source: AuthMeSource;
+  local: boolean;
 }
 export interface InterfaceAddedEvent {
   id: string;
@@ -895,19 +1138,20 @@ export interface MailUpdate {
   pass?: string | null;
   oauth?: MailEntryOAuth | null;
 }
-export interface NVMetGlobalSessionsItem {
-  host_traddr: string;
-  hostnqn: string;
-  subsys_id: number;
-  port_id: number;
-  ctrl: number;
-}
-export interface NVMetGlobalSessionsItemQueryResultItem {
-  host_traddr?: string;
-  hostnqn?: string;
-  subsys_id?: number;
-  port_id?: number;
-  ctrl?: number;
+export interface NFSUpdate {
+  servers?: number | null;
+  allow_nonroot?: boolean;
+  protocols?: ("NFSV3" | "NFSV4")[];
+  v4_krb?: boolean;
+  v4_domain?: string;
+  bindip?: string[];
+  mountd_port?: number | null;
+  rpcstatd_port?: number | null;
+  rpclockd_port?: number | null;
+  mountd_log?: boolean;
+  statd_lockd_log?: boolean;
+  userd_manage_gids?: boolean;
+  rdma?: boolean;
 }
 export interface PoolDatasetChecksumChoicesResult {
   ON: "ON";
@@ -1027,6 +1271,10 @@ export interface SourceValueInput {
   type: SourceValueTypeInput;
   value: string | null;
 }
+export interface ReplicationEligibleManualSnapshots {
+  total: number;
+  eligible: number;
+}
 export interface ReportingExportsCreate {
   enabled: boolean;
   attributes: GraphiteExporter;
@@ -1041,34 +1289,110 @@ export interface ReportingGetDataResponse {
   end: number;
   legend: string[];
 }
-export interface ReportingGraphsItem {
-  name: string;
-  title: string;
-  vertical_label: string;
-  identifiers: string[] | null;
-}
-export interface ReportingGraphsItemQueryResultItem {
-  name?: string;
-  title?: string;
-  vertical_label?: string;
-  identifiers?: string[] | null;
-}
-export interface ReportingNetdataGraphsItem {
-  name: string;
-  title: string;
-  vertical_label: string;
-  identifiers: string[] | null;
-}
-export interface ReportingNetdataGraphsItemQueryResultItem {
-  name?: string;
-  title?: string;
-  vertical_label?: string;
-  identifiers?: string[] | null;
-}
 export interface ReportingUpdate {
   tier0_days?: number;
   tier1_days?: number;
   tier1_update_interval?: number;
+}
+export interface RsyncTaskEntry {
+  id: number;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  user: string;
+  mode?: RsyncTaskCreateMode;
+  remotehost?: string | null;
+  remoteport?: number | null;
+  remotemodule?: string | null;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  remotepath?: string;
+  direction?: RsyncTaskCreateDirection;
+  desc?: string;
+  schedule?: RsyncTaskSchedule;
+  recursive?: boolean;
+  times?: boolean;
+  compress?: boolean;
+  archive?: boolean;
+  delete?: boolean;
+  quiet?: boolean;
+  preserveperm?: boolean;
+  preserveattr?: boolean;
+  delayupdates?: boolean;
+  extra?: string[];
+  enabled?: boolean;
+  locked: boolean | null;
+  job: {
+    [k: string]: unknown;
+  } | null;
+}
+export interface RsyncTaskQueryResultItem {
+  id?: number;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  user?: string;
+  mode?: RsyncTaskCreateMode;
+  remotehost?: string | null;
+  remoteport?: number | null;
+  remotemodule?: string | null;
+  ssh_credentials?: KeychainCredentialEntry | null;
+  remotepath?: string;
+  direction?: RsyncTaskCreateDirection;
+  desc?: string;
+  schedule?: RsyncTaskSchedule;
+  recursive?: boolean;
+  times?: boolean;
+  compress?: boolean;
+  archive?: boolean;
+  delete?: boolean;
+  quiet?: boolean;
+  preserveperm?: boolean;
+  preserveattr?: boolean;
+  delayupdates?: boolean;
+  extra?: string[];
+  enabled?: boolean;
+  locked?: boolean | null;
+  job?: {
+    [k: string]: unknown;
+  } | null;
+}
+export interface SharingWebshareCreate {
+  name: string;
+  path: string;
+  enabled?: boolean;
+  readonly?: boolean;
+  is_home_base?: boolean;
+}
+export interface SharingWebshareEntry {
+  id: number;
+  name: string;
+  path: string;
+  dataset: string | null;
+  relative_path: string | null;
+  enabled?: boolean;
+  readonly?: boolean;
+  is_home_base?: boolean;
+  locked: boolean | null;
+  tier?: TierInfo | null;
+}
+export interface SharingWebshareQueryResultItem {
+  id?: number;
+  name?: string;
+  path?: string;
+  dataset?: string | null;
+  relative_path?: string | null;
+  enabled?: boolean;
+  readonly?: boolean;
+  is_home_base?: boolean;
+  locked?: boolean | null;
+  tier?: TierInfo | null;
+}
+export interface SharingWebshareUpdate {
+  name?: string;
+  path?: string;
+  enabled?: boolean;
+  readonly?: boolean;
+  is_home_base?: boolean;
 }
 export interface SNMPEntry {
   id: number;
@@ -1138,6 +1462,71 @@ export interface TunableQueryResultItem {
   id?: number;
   orig_value?: string;
 }
+export interface TwoFactorAuthUpdate {
+  enabled?: boolean;
+  services?: TwoFactorAuthServices;
+  window?: number;
+  force?: boolean;
+}
+export interface UserGetUserObj {
+  username?: string | null;
+  uid?: number | null;
+  get_groups?: boolean;
+  sid_info?: boolean;
+}
+export interface UserGetUserObjData {
+  pw_name: string;
+  pw_gecos: string;
+  pw_dir: string;
+  pw_shell: string;
+  pw_uid: number;
+  pw_gid: number;
+  grouplist: number[] | null;
+  sid: string | null;
+  source: AuthMeSource;
+  local: boolean;
+}
+export interface UserRenew2FaSecret {
+  id: number;
+  uid: number;
+  username: string;
+  unixhash: string | null;
+  smbhash: string | null;
+  home?: string;
+  shell?: string;
+  full_name: string;
+  builtin: boolean;
+  smb?: boolean;
+  webshare?: boolean;
+  userns_idmap?: ("DIRECT" | null) | number;
+  group: {
+    [k: string]: unknown;
+  };
+  groups?: number[];
+  password_disabled?: boolean;
+  ssh_password_enabled?: boolean;
+  sshpubkey?: string | null;
+  locked?: boolean;
+  sudo_commands?: string[];
+  sudo_commands_nopasswd?: string[];
+  email?: string | null;
+  local: boolean;
+  immutable: boolean;
+  twofactor_auth_configured: boolean;
+  sid: string | null;
+  last_password_change: string | null;
+  password_age: number | null;
+  password_history: unknown[] | null;
+  password_change_required: boolean;
+  roles: string[];
+  api_keys: number[];
+  twofactor_config: UserTwofactorConfigEntry;
+}
+export interface UserSetPassword {
+  username: string;
+  old_password?: string | null;
+  new_password: string;
+}
 export interface VMAddedEvent {
   id: number;
   fields: VMEntryInput;
@@ -1165,6 +1554,7 @@ export interface VMEntryInput {
   autostart?: boolean;
   hide_from_msr?: boolean;
   ensure_display_device?: boolean;
+  video_model?: "QXL" | "VGA" | "VIRTIO";
   time?: Time;
   shutdown_timeout?: number;
   arch_type?: string | null;
@@ -1173,7 +1563,7 @@ export interface VMEntryInput {
   devices: VMDeviceEntryInput[];
   display_available: boolean;
   id: number;
-  status: VMStatus;
+  status: VMStatus | null;
   enable_secure_boot?: boolean;
 }
 export interface VMDeviceEntryInput {
@@ -1229,6 +1619,7 @@ export interface VMCreate {
   autostart?: boolean;
   hide_from_msr?: boolean;
   ensure_display_device?: boolean;
+  video_model?: ("QXL" | "VGA" | "VIRTIO") | null;
   time?: Time;
   shutdown_timeout?: number;
   arch_type?: string | null;
@@ -1333,6 +1724,7 @@ export interface VMEntry {
   autostart?: boolean;
   hide_from_msr?: boolean;
   ensure_display_device?: boolean;
+  video_model?: "QXL" | "VGA" | "VIRTIO";
   time?: Time;
   shutdown_timeout?: number;
   arch_type?: string | null;
@@ -1341,7 +1733,7 @@ export interface VMEntry {
   devices: VMDeviceEntry[];
   display_available: boolean;
   id: number;
-  status: VMStatus;
+  status: VMStatus | null;
   enable_secure_boot?: boolean;
 }
 export interface VMFlags {
@@ -1407,6 +1799,7 @@ export interface VMQueryResultItem {
   autostart?: boolean;
   hide_from_msr?: boolean;
   ensure_display_device?: boolean;
+  video_model?: "QXL" | "VGA" | "VIRTIO";
   time?: Time;
   shutdown_timeout?: number;
   arch_type?: string | null;
@@ -1415,7 +1808,7 @@ export interface VMQueryResultItem {
   devices?: VMDeviceEntry[];
   display_available?: boolean;
   id?: number;
-  status?: VMStatus;
+  status?: VMStatus | null;
   enable_secure_boot?: boolean;
 }
 export interface VMVirtualizationDetails {
@@ -1635,7 +2028,7 @@ export interface ZFSResourceCreateProperties {
   readonly?: ("off" | "on") | null;
   recordsize?: number | null;
   refquota?: number | null;
-  refreservation?: number | null;
+  refreservation?: number | "auto" | null;
   reservation?: number | null;
   snapdev?: ("hidden" | "visible") | null;
   snapdir?: ("hidden" | "visible" | "disabled") | null;
@@ -1650,6 +2043,77 @@ export interface ZFSResourceCreateEncryption {
   key?: string | null;
   passphrase?: string | null;
   pbkdf2iters?: number;
+}
+export interface ZFSResourceEncryptionChangeKeyArgsData {
+  path: string;
+  generate_key?: boolean;
+  key_file?: boolean;
+  pbkdf2iters?: number;
+  passphrase?: string | null;
+  key?: string | null;
+}
+export interface ZFSResourceEncryptionExportKeyArgsData {
+  path: string;
+  download?: boolean;
+}
+export interface ZFSResourceEncryptionExportKeysArgsData {
+  path: string;
+}
+export interface ZFSResourceEncryptionExportReplicationKeysArgsData {
+  id: number;
+}
+export interface ZFSResourceEncryptionInheritArgsData {
+  path: string;
+}
+export interface ZFSResourceEncryptionLockArgsData {
+  path: string;
+  force_unmount?: boolean;
+}
+export interface ZFSResourceEncryptionUnlockArgsData {
+  path: string;
+  recursive?: boolean;
+  force?: boolean;
+  key_file?: boolean;
+  keys?: ZFSResourceEncryptionUnlockKey[];
+  start_attachments?: boolean;
+}
+export interface ZFSResourceEncryptionUnlockKey {
+  path: string;
+  key?: string | null;
+  passphrase?: string | null;
+  force?: boolean;
+  recursive?: boolean;
+}
+export interface ZFSResourceEncryptionUnlockEntry {
+  unlocked: string[];
+  failed: {
+    [k: string]: ZFSResourceEncryptionUnlockFailure;
+  };
+}
+export interface ZFSResourceEncryptionUnlockFailure {
+  error: string | null;
+  skipped: string[];
+}
+export interface ZFSResourceEncryptionUnlockSummaryArgsData {
+  path: string;
+  force?: boolean;
+  key_file?: boolean;
+  keys?: ZFSResourceEncryptionUnlockSummaryKey[];
+}
+export interface ZFSResourceEncryptionUnlockSummaryKey {
+  path: string;
+  key?: string | null;
+  passphrase?: string | null;
+  force?: boolean;
+}
+export interface ZFSResourceEncryptionUnlockSummaryEntry {
+  path: string;
+  key_format: "hex" | "raw" | "passphrase";
+  key_present_in_database: boolean;
+  valid_key: boolean;
+  locked: boolean;
+  unlock_error: string | null;
+  unlock_successful: boolean;
 }
 export interface ZFSResourceEntryInput {
   createtxg: number;
@@ -1802,11 +2266,249 @@ export interface ZFSResourceSetProperties {
   volsize?: number | null;
   xattr?: ("off" | "sa" | "dir") | null;
 }
-export interface ZFSResourceSnapshotCloneQuery {
+export interface ZFSResourceSnapshotCloneArgsData {
   snapshot: string;
   dataset: string;
-  properties?: {
-    [k: string]: string | number;
+  properties?: ZFSResourceSnapshotCloneProperties;
+  user_properties?: {
+    [k: string]: string;
   };
   no_mount?: boolean;
+}
+export interface ZFSResourceSnapshotCloneProperties {
+  aclinherit?: ("discard" | "noallow" | "restricted" | "passthrough" | "passthrough-x") | null;
+  aclmode?: ("discard" | "groupmask" | "passthrough" | "restricted") | null;
+  acltype?: ("off" | "posix" | "nfsv4") | null;
+  atime?: ("off" | "on") | null;
+  checksum?: ("on" | "off" | "fletcher2" | "fletcher4" | "sha256" | "sha512" | "skein" | "edonr" | "blake3") | null;
+  compression?:
+    | (
+        | "on"
+        | "off"
+        | "lzjb"
+        | "gzip"
+        | "gzip-1"
+        | "gzip-2"
+        | "gzip-3"
+        | "gzip-4"
+        | "gzip-5"
+        | "gzip-6"
+        | "gzip-7"
+        | "gzip-8"
+        | "gzip-9"
+        | "zle"
+        | "lz4"
+        | "zstd"
+        | "zstd-1"
+        | "zstd-2"
+        | "zstd-3"
+        | "zstd-4"
+        | "zstd-5"
+        | "zstd-6"
+        | "zstd-7"
+        | "zstd-8"
+        | "zstd-9"
+        | "zstd-10"
+        | "zstd-11"
+        | "zstd-12"
+        | "zstd-13"
+        | "zstd-14"
+        | "zstd-15"
+        | "zstd-16"
+        | "zstd-17"
+        | "zstd-18"
+        | "zstd-19"
+        | "zstd-fast"
+        | "zstd-fast-1"
+        | "zstd-fast-2"
+        | "zstd-fast-3"
+        | "zstd-fast-4"
+        | "zstd-fast-5"
+        | "zstd-fast-6"
+        | "zstd-fast-7"
+        | "zstd-fast-8"
+        | "zstd-fast-9"
+        | "zstd-fast-10"
+        | "zstd-fast-20"
+        | "zstd-fast-30"
+        | "zstd-fast-40"
+        | "zstd-fast-50"
+        | "zstd-fast-60"
+        | "zstd-fast-70"
+        | "zstd-fast-80"
+        | "zstd-fast-90"
+        | "zstd-fast-100"
+        | "zstd-fast-500"
+        | "zstd-fast-1000"
+      )
+    | null;
+  copies?: number | null;
+  dedup?:
+    | (
+        | "on"
+        | "off"
+        | "verify"
+        | "sha256"
+        | "sha256,verify"
+        | "sha512"
+        | "sha512,verify"
+        | "skein"
+        | "skein,verify"
+        | "edonr,verify"
+        | "blake3"
+        | "blake3,verify"
+      )
+    | null;
+  exec?: ("off" | "on") | null;
+  quota?: number | null;
+  readonly?: ("off" | "on") | null;
+  recordsize?: number | null;
+  refquota?: number | null;
+  refreservation?: number | "auto" | null;
+  reservation?: number | null;
+  snapdev?: ("hidden" | "visible") | null;
+  snapdir?: ("hidden" | "visible" | "disabled") | null;
+  special_small_blocks?: number | null;
+  sync?: ("standard" | "always" | "disabled") | null;
+  xattr?: ("off" | "sa" | "dir") | null;
+}
+export interface ZFSResourceSnapshotCreateArgsData {
+  dataset: string;
+  name: string;
+  recursive?: boolean;
+  exclude?: string[];
+  user_properties?: {
+    [k: string]: string;
+  };
+}
+export interface ZFSResourceSnapshotDestroyArgsData {
+  path: string;
+  recursive?: boolean;
+  all_snapshots?: boolean;
+  defer?: boolean;
+}
+export interface ZFSResourceSnapshotEntryInput {
+  createtxg: number;
+  guid: number;
+  name: string;
+  pool: string;
+  dataset: string;
+  snapshot_name: string;
+  type?: "SNAPSHOT";
+  holds: unknown[] | null;
+  properties: ZFSResourceSnapshotPropertiesEntryInput | null;
+  user_properties: {
+    [k: string]: string;
+  } | null;
+}
+export interface ZFSResourceSnapshotPropertiesEntryInput {
+  type?: PropertyValueInput;
+  creation?: PropertyValueInput;
+  used?: PropertyValueInput;
+  referenced?: PropertyValueInput;
+  compressratio?: PropertyValueInput;
+  createtxg?: PropertyValueInput;
+  guid?: PropertyValueInput;
+  primarycache?: PropertyValueInput;
+  secondarycache?: PropertyValueInput;
+  objsetid?: PropertyValueInput;
+  mlslabel?: PropertyValueInput;
+  refcompressratio?: PropertyValueInput;
+  written?: PropertyValueInput;
+  logicalreferenced?: PropertyValueInput;
+  context?: PropertyValueInput;
+  fscontext?: PropertyValueInput;
+  defcontext?: PropertyValueInput;
+  rootcontext?: PropertyValueInput;
+  encryption?: PropertyValueInput;
+  encryptionroot?: PropertyValueInput;
+  keystatus?: PropertyValueInput;
+  redact_snaps?: PropertyValueInput;
+  prefetch?: PropertyValueInput;
+  devices?: PropertyValueInput;
+  exec?: PropertyValueInput;
+  setuid?: PropertyValueInput;
+  xattr?: PropertyValueInput;
+  version?: PropertyValueInput;
+  utf8only?: PropertyValueInput;
+  normalization?: PropertyValueInput;
+  casesensitivity?: PropertyValueInput;
+  nbmand?: PropertyValueInput;
+  acltype?: PropertyValueInput;
+  defaultuserquota?: PropertyValueInput;
+  defaultgroupquota?: PropertyValueInput;
+  defaultprojectquota?: PropertyValueInput;
+  defaultuserobjquota?: PropertyValueInput;
+  defaultgroupobjquota?: PropertyValueInput;
+  defaultprojectobjquota?: PropertyValueInput;
+  volsize?: PropertyValueInput;
+}
+export interface ZFSResourceSnapshotHoldArgsData {
+  path: string;
+  tag?: string;
+  recursive?: boolean;
+}
+export interface ZFSResourceSnapshotHoldsChange {
+  holds: string[];
+}
+export interface ZFSResourceSnapshotListAddedEvent {
+  id: string;
+  fields: ZFSResourceSnapshotEntryInput;
+}
+export interface ZFSResourceSnapshotListChangedEvent {
+  id: string;
+  fields: ZFSResourceSnapshotHoldsChange;
+}
+export interface ZFSResourceSnapshotListRemovedEvent {
+  id: string;
+}
+export interface ZFSResourceSnapshotReleaseArgsData {
+  path: string;
+  tag?: string | null;
+  recursive?: boolean;
+}
+export interface ZFSResourceSnapshotRenameArgsData {
+  current_name: string;
+  new_name: string;
+  recursive?: boolean;
+  force?: boolean;
+}
+export interface ZFSResourceSnapshotRollbackArgsData {
+  path: string;
+  recursive?: boolean;
+  recursive_clones?: boolean;
+  force?: boolean;
+  recursive_rollback?: boolean;
+}
+export interface ZFSResourceUserspaceEntry {
+  dataset: string;
+  type: ZFSResourceUserspaceEntryType;
+  xid: number;
+  used: number;
+  quota: number;
+  objused: number;
+  objquota: number;
+}
+export interface ZFSResourceUserspaceQuery {
+  /**
+   * @minItems 1
+   */
+  paths: [string, ...string[]];
+  /**
+   * @minItems 1
+   */
+  types?: ["user" | "group", ...("user" | "group")[]];
+}
+export interface ZFSResourceUserspaceQuota {
+  type: ZFSResourceUserspaceEntryTypeInput;
+  xid: number;
+  quota?: number | null;
+  objquota?: number | null;
+}
+export interface ZFSResourceUserspaceSetArgsData {
+  path: string;
+  /**
+   * @minItems 1
+   */
+  quotas: [ZFSResourceUserspaceQuota, ...ZFSResourceUserspaceQuota[]];
 }
