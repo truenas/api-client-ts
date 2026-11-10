@@ -16,7 +16,7 @@ import { ApiVersion } from '@/types/api-version.type';
 import { legacyCutoffYear } from '@/utils/api-version.utils';
 import { TrueNasAuthMechanism } from '@/enums/truenas-auth-mechanism.enum';
 import { AuthError, AuthErrorCode } from '@/errors/auth.errors';
-import { getApiErrorMessage } from '@/types/api-error.type';
+import { TrueNasErrorFrame, getApiErrorMessage } from '@/types/api-error.type';
 import { ApiKeyCreate } from '@/types/api-key-create.type';
 import { AuthResponse, AuthResponseType } from '@/types/auth.type';
 import { createJsonRpcMessage } from '@/utils/jsonrpc.utils';
@@ -45,6 +45,17 @@ const throwOnAuthenticationFailure = (code: AuthErrorCode, message: string) =>
 
     return of(response);
   });
+
+/**
+ * Whether an error frame is middleware refusing a one-time code because no
+ * login is waiting for one: `CallError('OTP_TOKEN: no authentication in
+ * progress', EINVAL)`, raised the same way on 25.10 and 26+. On 26+ it is what
+ * a second code after a wrong one gets, since the first refusal drops the login.
+ */
+const isOtpLoginNotPending = (error: TrueNasErrorFrame): boolean =>
+  error.data?.errname === 'EINVAL' &&
+  typeof error.data.reason === 'string' &&
+  error.data.reason.includes('OTP_TOKEN: no authentication in progress');
 
 /**
  * TrueNAS authenticator using the JSON-RPC 2.0 protocol.
@@ -323,6 +334,19 @@ export class TrueNasAuthenticator {
     );
   }
 
+  /**
+   * The second step of a two-factor login, after `loginWithUserPass` answered
+   * `OTP_REQUIRED`.
+   *
+   * Emits the answer when the code is accepted (`SUCCESS`), or when middleware
+   * refuses the account outright (`EXPIRED`, `DENIED`, `REDIRECT`); never
+   * `OTP_REQUIRED`. A refused code errors with `AuthError`, the same way on
+   * every release:
+   *
+   * - `OtpAuthFailed` with `loginPending: true`: ask for another code.
+   * - `OtpAuthFailed` with `loginPending: false`: start over with the password.
+   * - `OtpLoginNotPending`: no login was waiting for a code; start over.
+   */
   loginWithOtp(code: string) {
     const { sentDuring, callerInitiated } = this.beginLogin();
     let answered = false;
@@ -347,6 +371,13 @@ export class TrueNasAuthenticator {
       }),
       map(msg => {
         if (msg.error) {
+          if (isOtpLoginNotPending(msg.error)) {
+            throw new AuthError(
+              AuthErrorCode.OtpLoginNotPending,
+              'TrueNAS is no longer waiting for a one-time passcode for this ' +
+                'login. Please sign in with your password again.'
+            );
+          }
           const errorMessage = getApiErrorMessage(
             msg.error,
             'Authentication failed'
@@ -354,6 +385,25 @@ export class TrueNasAuthenticator {
           throw new Error(errorMessage);
         }
         return msg.result as AuthResponse;
+      }),
+      // A wrong code is answered differently by release, and the API version
+      // does not say which: 25.10 answers `OTP_REQUIRED` and keeps the login
+      // for another code, 26+ answers `AUTH_ERR` and drops it. Both are the
+      // same failure to the caller, told apart only by `loginPending`, so no
+      // caller has to read `OTP_REQUIRED` as "wrong code".
+      map(res => {
+        const loginPending = res?.response_type === AuthResponseType.OtpRequired;
+        if (loginPending || res?.response_type === AuthResponseType.AuthErr) {
+          throw new AuthError(
+            AuthErrorCode.OtpAuthFailed,
+            loginPending
+              ? 'TrueNAS rejected the one-time passcode. Please verify it and try again.'
+              : 'TrueNAS rejected the one-time passcode. Please sign in with your password again.',
+            res,
+            { loginPending }
+          );
+        }
+        return res;
       }),
       tap(res => {
         if (res?.response_type === AuthResponseType.Success) {
@@ -364,10 +414,6 @@ export class TrueNasAuthenticator {
           this.authenticated$.next(true);
         }
       }),
-      throwOnAuthenticationFailure(
-        AuthErrorCode.OtpAuthFailed,
-        'TrueNAS authentication failed. Please verify your one-time passcode and try again.'
-      ),
       finalize(() => {
         this.endLogin(sentDuring, callerInitiated, answered);
       }),
