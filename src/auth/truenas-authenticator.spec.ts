@@ -198,7 +198,7 @@ describe('TrueNasAuthenticator', () => {
 
   /**
    * A wrong code is answered `OTP_REQUIRED` by 25.10 (login kept) and
-   * `AUTH_ERR` by 26+ (login dropped, and the next code refused with EINVAL).
+   * `AUTH_ERR` by 27+ (login dropped, and the next code refused with EINVAL).
    * The connection negotiates the same version either way, so each case is
    * run against both a v25.10 and a v27 authenticator: only the answer may
    * decide.

@@ -86,7 +86,7 @@ errors with an `AuthError` carrying an `AuthErrorCode`, plus the refusing
 
 A wrong one-time code errors from `loginWithOtp(code)`; it never emits
 `OTP_REQUIRED`. Releases differ on whether the login survives a wrong code
-(25.10 keeps it for up to three tries, 26 and later drop it), and the API
+(25.10 keeps it for up to three tries, 27 and later drop it), and the API
 version does not tell them apart, so read `loginPending` off the error instead:
 
 ```typescript

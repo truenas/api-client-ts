@@ -49,7 +49,7 @@ const throwOnAuthenticationFailure = (code: AuthErrorCode, message: string) =>
 /**
  * Whether an error frame is middleware refusing a one-time code because no
  * login is waiting for one: `CallError('OTP_TOKEN: no authentication in
- * progress', EINVAL)`, raised the same way on 25.10 and 26+. On 26+ it is what
+ * progress', EINVAL)`, raised the same way on 25.10 and 27+. On 27+ it is what
  * a second code after a wrong one gets, since the first refusal drops the login.
  */
 const isOtpLoginNotPending = (error: TrueNasErrorFrame): boolean =>
@@ -388,7 +388,7 @@ export class TrueNasAuthenticator {
       }),
       // A wrong code is answered differently by release, and the API version
       // does not say which: 25.10 answers `OTP_REQUIRED` and keeps the login
-      // for another code, 26+ answers `AUTH_ERR` and drops it. Both are the
+      // for another code, 27+ answers `AUTH_ERR` and drops it. Both are the
       // same failure to the caller, told apart only by `loginPending`, so no
       // caller has to read `OTP_REQUIRED` as "wrong code".
       map(res => {

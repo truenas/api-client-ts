@@ -47,7 +47,7 @@ export class AuthError extends Error {
    * the caller can ask for a new one-time code instead of the password.
    *
    * Only a refused code can leave it `true`, and only on releases that keep a
-   * two-factor login after a wrong code (25.10, up to three tries); 26 and
+   * two-factor login after a wrong code (25.10, up to three tries); 27 and
    * later drop it on the first. It is read from the appliance's answer, never
    * from the API version, which does not tell the two apart. Every other
    * failure is `false`: the next attempt is a fresh login.
