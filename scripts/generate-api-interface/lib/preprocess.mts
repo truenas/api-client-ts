@@ -513,6 +513,40 @@ export function stripDefaults(node: unknown): unknown {
   return out;
 }
 
+/**
+ * What middleware's encoder (`truenas_api_client.ejson`) puts on the wire for
+ * each date format, in both directions: it encodes results and events with it,
+ * and decodes incoming calls with it, so the envelope is also accepted as a
+ * parameter. The schema says `type: 'string'`, which is what pydantic would
+ * write as JSON, but the API never sends one. Kept identical to `TrueNasDate`
+ * and `TrueNasCalendarDate` in `src/types/truenas-date.type.ts`, which a
+ * consumer can name these by.
+ */
+const DATE_ENVELOPES: Record<string, string> = {
+  'date-time': '{ $date: number }',
+  date: '{ $type: \'date\'; $value: string }',
+};
+
+/**
+ * Type `date-time` and `date` strings as the envelopes the API sends them in.
+ *
+ * Done before naming, so a model carrying a date compares by its envelope,
+ * not by the `format` that the shape comparison ignores.
+ */
+export function typeDateEnvelopes(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(typeDateEnvelopes);
+  if (node === null || typeof node !== 'object') return node;
+  const schema = node as Schema;
+  const format = schema['format'];
+  const envelope = schema.type === 'string' && typeof format === 'string'
+    ? DATE_ENVELOPES[format]
+    : undefined;
+  if (envelope) return { tsType: envelope };
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(schema)) out[key] = typeDateEnvelopes(value);
+  return out;
+}
+
 /** Apply enum hoisting to a whole document: def bodies first, then the root. */
 function hoistDocEnums(doc: Schema): { doc: Schema; owners: Map<string, string> } {
   doc.$defs ??= {};
@@ -546,8 +580,8 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
 
   const table = new DefTable();
   for (const method of methods) {
-    const accepts = hoistDocEnums(stripDefaults(stripDocs(method.schemas.accepts)) as Schema);
-    const returns = hoistDocEnums(stripDefaults(stripDocs(method.schemas.returns)) as Schema);
+    const accepts = hoistDocEnums(typeDateEnvelopes(stripDefaults(stripDocs(method.schemas.accepts))) as Schema);
+    const returns = hoistDocEnums(typeDateEnvelopes(stripDefaults(stripDocs(method.schemas.returns))) as Schema);
     method.schemas.accepts = accepts.doc;
     method.schemas.returns = returns.doc;
     recordDoc(table, accepts.doc, 'input', method.name, accepts.owners);
@@ -555,7 +589,7 @@ export function preprocess(versionDump: ApiDumpVersion, includePrefixes: string[
   }
   for (const event of events) {
     for (const [variant, rawDoc] of Object.entries(event.schemas)) {
-      const hoisted = hoistDocEnums(stripDefaults(stripDocs(rawDoc)) as Schema);
+      const hoisted = hoistDocEnums(typeDateEnvelopes(stripDefaults(stripDocs(rawDoc))) as Schema);
       const doc = hoisted.doc;
       event.schemas[variant] = doc;
       recordDoc(table, doc, 'input', event.name, hoisted.owners);

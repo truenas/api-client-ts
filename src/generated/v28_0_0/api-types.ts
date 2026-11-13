@@ -218,8 +218,8 @@ export interface Alert {
   args: unknown;
   node: string;
   key: string;
-  datetime: string;
-  last_occurrence: string;
+  datetime: {$date: number};
+  last_occurrence: {$date: number};
   dismissed: boolean;
   mail: unknown;
   text: string;
@@ -379,7 +379,7 @@ export interface AuditQuery {
 export interface AuditQueryResultItem {
   audit_id: string | number | null;
   message_timestamp: number;
-  timestamp: string;
+  timestamp: {$date: number};
   address: string;
   username: string;
   session: string | number | null;
@@ -397,7 +397,7 @@ export interface AuditQueryResultItem {
 export interface AuditQueryResultItemQueryResultItem {
   audit_id?: string | number | null;
   message_timestamp?: number;
-  timestamp?: string;
+  timestamp?: {$date: number};
   address?: string;
   username?: string;
   session?: string | number | null;
@@ -1514,7 +1514,7 @@ export interface UserRenew2FaSecret {
   immutable: boolean;
   twofactor_auth_configured: boolean;
   sid: string | null;
-  last_password_change: string | null;
+  last_password_change: {$date: number} | null;
   password_age: number | null;
   password_history: unknown[] | null;
   password_change_required: boolean;

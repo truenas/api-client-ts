@@ -344,8 +344,8 @@ export interface Alert {
   args: unknown;
   node: string;
   key: string;
-  datetime: string;
-  last_occurrence: string;
+  datetime: {$date: number};
+  last_occurrence: {$date: number};
   dismissed: boolean;
   mail: unknown;
   text: string;
@@ -360,8 +360,8 @@ export interface AlertInput {
   args: unknown;
   node: string;
   key: string;
-  datetime: string;
-  last_occurrence: string;
+  datetime: {$date: number};
+  last_occurrence: {$date: number};
   dismissed: boolean;
   mail: unknown;
   text: string;
@@ -395,8 +395,8 @@ export interface ApiKeyEntry {
   salt: string;
   stored_key: string;
   server_key: string;
-  created_at: string;
-  expires_at?: string | null;
+  created_at: {$date: number};
+  expires_at?: {$date: number} | null;
   local: boolean;
   revoked: boolean;
   revoked_reason: string | null;
@@ -414,8 +414,8 @@ export interface ApiKeyEntryWithKey {
   salt: string;
   stored_key: string;
   server_key: string;
-  created_at: string;
-  expires_at?: string | null;
+  created_at: {$date: number};
+  expires_at?: {$date: number} | null;
   local: boolean;
   revoked: boolean;
   revoked_reason: string | null;
@@ -431,8 +431,8 @@ export interface ApiKeyQueryResultItem {
   salt?: string;
   stored_key?: string;
   server_key?: string;
-  created_at?: string;
-  expires_at?: string | null;
+  created_at?: {$date: number};
+  expires_at?: {$date: number} | null;
   local?: boolean;
   revoked?: boolean;
   revoked_reason?: string | null;
@@ -573,7 +573,7 @@ export interface AuditExportQueryOptions {
 export interface AuditQueryResultItem {
   audit_id: string | number | null;
   message_timestamp: number;
-  timestamp: string;
+  timestamp: {$date: number};
   address: string;
   username: string;
   session: string | number | null;
@@ -591,7 +591,7 @@ export interface AuditQueryResultItem {
 export interface AuditQueryResultItemQueryResultItem {
   audit_id?: string | number | null;
   message_timestamp?: number;
-  timestamp?: string;
+  timestamp?: {$date: number};
   address?: string;
   username?: string;
   session?: string | number | null;
@@ -685,13 +685,13 @@ export interface BootGetState {
 export interface PoolScan {
   function: Function;
   state: PoolScanState;
-  start_time: string;
-  end_time: string | null;
+  start_time: {$date: number};
+  end_time: {$date: number} | null;
   percentage: number;
   bytes_to_process: number;
   bytes_processed: number;
   bytes_issued: number;
-  pause: string | null;
+  pause: {$date: number} | null;
   errors: number;
   total_secs_left: number | null;
 }
@@ -706,7 +706,7 @@ export interface CatalogAppDetails {
   latest_version: string | null;
   latest_app_version: string | null;
   latest_human_version: string | null;
-  last_update: string | null;
+  last_update: {$date: number} | null;
   name: string;
   recommended: boolean;
   title: string;
@@ -1363,8 +1363,8 @@ export interface CoreGetJobsItem {
   exception: string | null;
   exc_info: CoreGetJobsItemExcInfo | null;
   state: string;
-  time_started: string | null;
-  time_finished: string | null;
+  time_started: {$date: number} | null;
+  time_finished: {$date: number} | null;
   credentials: CoreGetJobsItemCredentials | null;
 }
 export interface CoreGetJobsItemExcInfo {
@@ -1395,8 +1395,8 @@ export interface CoreGetJobsItemQueryResultItem {
   exception?: string | null;
   exc_info?: CoreGetJobsItemExcInfo | null;
   state?: string;
-  time_started?: string | null;
-  time_finished?: string | null;
+  time_started?: {$date: number} | null;
+  time_finished?: {$date: number} | null;
   credentials?: CoreGetJobsItemCredentials | null;
 }
 export interface CredentialsAddedEvent {
@@ -1494,7 +1494,7 @@ export interface DiskEntry {
   transfermode: string;
   hddstandby: Hddstandby;
   advpowermgmt: Advpowermgmt;
-  expiretime: string | null;
+  expiretime: {$date: number} | null;
   model: string | null;
   rotationrate: number | null;
   type: string | null;
@@ -1528,7 +1528,7 @@ export interface DiskQueryResultItem {
   transfermode?: string;
   hddstandby?: Hddstandby;
   advpowermgmt?: Advpowermgmt;
-  expiretime?: string | null;
+  expiretime?: {$date: number} | null;
   model?: string | null;
   rotationrate?: number | null;
   type?: string | null;
@@ -1871,8 +1871,8 @@ export interface ISCSITargetExtentQueryResultItem {
 }
 export interface LicenseFeatureEntry {
   name: string;
-  start_date: string | null;
-  expires_at: string | null;
+  start_date: {$type: "date"; $value: string} | null;
+  expires_at: {$type: "date"; $value: string} | null;
   type: string | null;
 }
 export interface LicenseInfoEntry {
@@ -2057,13 +2057,13 @@ export interface PoolEntryInput {
 export interface PoolScanInput {
   function: Function;
   state: PoolScanStateInput;
-  start_time: string;
-  end_time: string | null;
+  start_time: {$date: number};
+  end_time: {$date: number} | null;
   percentage: number;
   bytes_to_process: number;
   bytes_processed: number;
   bytes_issued: number;
-  pause: string | null;
+  pause: {$date: number} | null;
   errors: number;
   total_secs_left: number | null;
 }
@@ -2501,7 +2501,7 @@ export interface RemoteInfo {
   system_serial: string;
   hostname: string;
   uptime_seconds: number;
-  datetime: string;
+  datetime: {$date: number};
 }
 export interface ReplicationAddedEvent {
   id: number;
@@ -2778,9 +2778,9 @@ export interface S3AccesskeyEntryInput {
   access_key: string;
   secret: string | null;
   enabled: boolean;
-  expires_at?: string | null;
-  created_at: string;
-  last_used_at?: string | null;
+  expires_at?: {$date: number} | null;
+  created_at: {$date: number};
+  last_used_at?: {$date: number} | null;
   manage_buckets?: boolean;
   status: S3AccesskeyEntryStatusInput;
 }
@@ -2794,7 +2794,7 @@ export interface S3AccesskeyCreate {
   access_key?: string | null;
   secret?: string | null;
   enabled?: boolean;
-  expires_at?: string | null;
+  expires_at?: {$date: number} | null;
   manage_buckets?: boolean;
 }
 export interface S3AccesskeyEntry {
@@ -2806,9 +2806,9 @@ export interface S3AccesskeyEntry {
   access_key: string;
   secret: string | null;
   enabled: boolean;
-  expires_at?: string | null;
-  created_at: string;
-  last_used_at?: string | null;
+  expires_at?: {$date: number} | null;
+  created_at: {$date: number};
+  last_used_at?: {$date: number} | null;
   manage_buckets?: boolean;
   status: S3AccesskeyEntryStatus;
 }
@@ -2821,9 +2821,9 @@ export interface S3AccesskeyQueryResultItem {
   access_key?: string;
   secret?: string | null;
   enabled?: boolean;
-  expires_at?: string | null;
-  created_at?: string;
-  last_used_at?: string | null;
+  expires_at?: {$date: number} | null;
+  created_at?: {$date: number};
+  last_used_at?: {$date: number} | null;
   manage_buckets?: boolean;
   status?: S3AccesskeyEntryStatus;
 }
@@ -2833,7 +2833,7 @@ export interface S3AccesskeyRemovedEvent {
 export interface S3AccesskeyUpdate {
   name?: string;
   enabled?: boolean;
-  expires_at?: string | null;
+  expires_at?: {$date: number} | null;
   manage_buckets?: boolean;
   rotate?: boolean;
 }
@@ -3526,7 +3526,7 @@ export interface SysInfo {
   system_serial: string;
   hostname: string;
   uptime_seconds: number;
-  datetime: string;
+  datetime: {$date: number};
   remote_info: RemoteInfo | null;
 }
 export interface SystemAdvancedEntry {
@@ -3717,7 +3717,7 @@ export interface UserEntry {
   immutable: boolean;
   twofactor_auth_configured: boolean;
   sid: string | null;
-  last_password_change: string | null;
+  last_password_change: {$date: number} | null;
   password_age: number | null;
   password_history: unknown[] | null;
   password_change_required: boolean;
@@ -3780,7 +3780,7 @@ export interface UserCreateUpdateResult {
   immutable: boolean;
   twofactor_auth_configured: boolean;
   sid: string | null;
-  last_password_change: string | null;
+  last_password_change: {$date: number} | null;
   password_age: number | null;
   password_history: unknown[] | null;
   password_change_required: boolean;
@@ -3816,7 +3816,7 @@ export interface UserQueryResultItem {
   immutable?: boolean;
   twofactor_auth_configured?: boolean;
   sid?: string | null;
-  last_password_change?: string | null;
+  last_password_change?: {$date: number} | null;
   password_age?: number | null;
   password_history?: unknown[] | null;
   password_change_required?: boolean;
@@ -3851,7 +3851,7 @@ export interface UserRenew2FaSecretResult {
   immutable: boolean;
   twofactor_auth_configured: boolean;
   sid: string | null;
-  last_password_change: string | null;
+  last_password_change: {$date: number} | null;
   password_age: number | null;
   password_history: unknown[] | null;
   password_change_required: boolean;
@@ -4078,7 +4078,7 @@ export interface VMWareEntryInput {
 export interface VMWareEntryStateInput {
   state?: VMWareEntryStateStateInput;
   error?: string;
-  datetime?: string;
+  datetime?: {$date: number};
 }
 export interface VMWareChangedEvent {
   id: number;
@@ -4096,7 +4096,7 @@ export interface VMWareEntry {
 export interface VMWareEntryState {
   state?: VMWareEntryStateState;
   error?: string;
-  datetime?: string;
+  datetime?: {$date: number};
 }
 export interface VMWareQueryResultItem {
   id?: number;

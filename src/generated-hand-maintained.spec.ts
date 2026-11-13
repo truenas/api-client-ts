@@ -22,6 +22,7 @@ import type {
   v27_0_0,
   v28_0_0,
 } from '@/generated';
+import type { TrueNasCalendarDate, TrueNasDate } from '@/types/truenas-date.type';
 
 const generatedDir = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -266,5 +267,23 @@ describe('Secret fields with a redacted default', () => {
   it('types the FTP and SFTP ports as numbers', () => {
     expectTypeOf<v25_10_0.FTPCredentialsModel['port']>().toEqualTypeOf<number | undefined>();
     expectTypeOf<v25_10_0.SFTPCredentialsModel['port']>().toEqualTypeOf<number | undefined>();
+  });
+});
+
+/**
+ * Middleware's encoder sends a `datetime` as `{ $date }` and a `date` as
+ * `{ $type: 'date', $value }`; the dump calls both `string`. The generator
+ * types them by their format now. v25.10.0 is frozen, so its copies were
+ * corrected by hand, and these hold the frozen and the regenerated side alike.
+ */
+describe('date fields', () => {
+  it('types a date-time as the $date envelope', () => {
+    expectTypeOf<v25_10_0.SystemInfoResult['boottime']>().toEqualTypeOf<TrueNasDate>();
+    expectTypeOf<v27_0_0.SystemInfoResult['boottime']>().toEqualTypeOf<TrueNasDate>();
+    expectTypeOf<v28_0_0.SystemInfoResult['boottime']>().toEqualTypeOf<TrueNasDate>();
+  });
+
+  it('types a date as the $type/$value envelope', () => {
+    expectTypeOf<v28_0_0.LicenseFeatureEntry['expires_at']>().toEqualTypeOf<TrueNasCalendarDate | null>();
   });
 });
