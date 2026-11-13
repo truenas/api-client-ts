@@ -84,6 +84,22 @@ errors with an `AuthError` carrying an `AuthErrorCode`, plus the refusing
 `response` when middleware answered with one (`response.response_type` tells
 `EXPIRED`, `DENIED` and `REDIRECT` apart from `AUTH_ERR`).
 
+A wrong one-time code errors from `loginWithOtp(code)`; it never emits
+`OTP_REQUIRED`. Releases differ on whether the login survives a wrong code
+(25.10 keeps it for up to three tries, 27 and later drop it), and the API
+version does not tell them apart, so read `loginPending` off the error instead:
+
+```typescript
+client.authenticator.loginWithOtp(code).subscribe({
+  next: () => { /* signed in */ },
+  error: (err: unknown) => {
+    if (!(err instanceof AuthError)) throw err;
+    if (err.loginPending) askForAnotherCode();  // OtpAuthFailed, login still open
+    else startOverWithPassword();               // OtpAuthFailed or OtpLoginNotPending
+  },
+});
+```
+
 ## Calls
 
 ```typescript

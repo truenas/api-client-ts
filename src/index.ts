@@ -96,6 +96,7 @@ export type {
   QueryEntity,
   QueryListOptions,
   QueryMethod,
+  QueryRow,
   QuerySingleOptions,
 } from '@/types/query.type';
 

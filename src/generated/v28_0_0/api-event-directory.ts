@@ -24,6 +24,9 @@ import type {
   ZFSResourceListAddedEvent,
   ZFSResourceListChangedEvent,
   ZFSResourceListRemovedEvent,
+  ZFSResourceSnapshotListAddedEvent,
+  ZFSResourceSnapshotListChangedEvent,
+  ZFSResourceSnapshotListRemovedEvent,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
@@ -60,6 +63,12 @@ export interface ApiEventDirectoryDelta {
     added: ZFSResourceListAddedEvent;
     changed: ZFSResourceListChangedEvent;
     removed: ZFSResourceListRemovedEvent;
+  };
+
+  'zfs.resource.snapshot.list': {
+    added: ZFSResourceSnapshotListAddedEvent;
+    changed: ZFSResourceSnapshotListChangedEvent;
+    removed: ZFSResourceSnapshotListRemovedEvent;
   };
 }
 

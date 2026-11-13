@@ -14,6 +14,7 @@
 import { concat, from, map, switchMap, toArray } from 'rxjs';
 import { TrueNasApiClient } from '@/client/truenas-api-client';
 import type { ApiDirectoryV28_0_0, v28_0_0 } from '@/generated';
+import { AppState } from '@/types/app-query.type';
 import { Container } from '@/types/container.type';
 import { OperationMappings } from '@/types/operation-mappings.interface';
 import { toSmbStatusParams } from '@/utils/smb-status.utils';
@@ -22,10 +23,9 @@ import { toAppState } from '@/utils/app-state.utils';
 /**
  * API client for TrueNAS API v28 (JSON-RPC 2.0 over /api/v28.{minor}.{patch}).
  *
- * Operations currently match `TrueNasApiClientV27`'s because v28 inherits every
- * entry they use. The spec pins the four container entries to v27's;
- * `smb.status` is unpinned, so a widened param or narrowed response would
- * still compile here. Duplicated rather than shared so the series can diverge.
+ * Operations no longer all match `TrueNasApiClientV27`'s: v28 made
+ * `ContainerEntry.status` nullable, so `toContainer` here handles a null and
+ * v27's does not. The rest is still the same work on the same shapes.
  */
 export class TrueNasApiClientV28 extends TrueNasApiClient<ApiDirectoryV28_0_0> {
   /**
@@ -114,8 +114,8 @@ export class TrueNasApiClientV28 extends TrueNasApiClient<ApiDirectoryV28_0_0> {
  * Transform a v28 `container` entry into the unified Container.
  *
  * `cpu`, `memory` and `image` are not part of `container.query` in v28 and are
- * left unset, as in v27. `v28_0_0.ContainerEntry` is v27's, re-exported — v28
- * does not re-declare it — so this reads the same fields for the same reasons.
+ * left unset, as in v27. v28 re-declares `ContainerEntry` where v27's was
+ * inherited, for `status` alone; the rest is read for the same reasons.
  */
 function toContainer(container: v28_0_0.ContainerEntry): Container {
   const { description } = container;
@@ -123,7 +123,12 @@ function toContainer(container: v28_0_0.ContainerEntry): Container {
   return {
     id: container.id.toString(),
     name: container.name,
-    status: toAppState(container.status.state),
+    // `status` is nullable from v28. Middleware's own word on when: "`null` if
+    // `query-options.extra.retrieve_status` is `false`" — so a null is status
+    // that was not fetched, not a container in an unreportable state. That is
+    // what `Unknown` is for ("no usable state"), and it keeps `Container.status`
+    // non-optional for every caller.
+    status: container.status ? toAppState(container.status.state) : AppState.Unknown,
     // Optional in the generated entry, required by `Container`.
     autostart: container.autostart ?? false,
     description,

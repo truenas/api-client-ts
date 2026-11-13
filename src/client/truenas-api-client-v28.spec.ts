@@ -27,10 +27,21 @@ type Identical<A, B> =
   (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
 type Assert<T extends true> = T;
 
+/**
+ * `container.query` is the one that has diverged, and this records it rather
+ * than dropping the check: v28 made `ContainerEntry.status` nullable — middleware
+ * returns `null` when `query-options.extra.retrieve_status` is `false` — so the
+ * two entries are no longer the same type and the two `toContainer`s no longer
+ * do the same work.
+ *
+ * Asserted as *not* identical so the pin works in both directions. If the two
+ * ever line up again, this fails and someone re-reads which of the clients
+ * still needs its own copy.
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type _SameQuery = Assert<Identical<
+type _QueryDiverged = Assert<Identical<
   ApiDirectoryV27_0_0['call']['container.query'],
-  ApiDirectoryV28_0_0['call']['container.query']>>;
+  ApiDirectoryV28_0_0['call']['container.query']> extends false ? true : false>;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type _SameStart = Assert<Identical<
   ApiDirectoryV27_0_0['call']['container.start'],
@@ -108,6 +119,29 @@ describe('TrueNasApiClientV28', () => {
     const [result] = await firstValueFrom(client.ops.containerQuery());
 
     expect(result.status).toBe(AppState.Suspended);
+  });
+
+  /**
+   * v28 made `status` nullable and said why: `null` when
+   * `query-options.extra.retrieve_status` is `false`. So a null is status that
+   * was not fetched rather than a container in an unreportable state, and
+   * `Unknown` ("no usable state") is the honest mapping. Without this the field
+   * would have thrown on a dereference, since `Container.status` is required.
+   */
+  it('maps a container with no retrieved status to Unknown rather than throwing', async () => {
+    const container = {
+      id: 7,
+      name: 'unqueried',
+      description: '',
+      autostart: false,
+      status: null,
+    } as unknown as v28_0_0.ContainerEntry;
+    vi.spyOn(client.api, 'query').mockReturnValue(of([container]) as never);
+
+    const [result] = await firstValueFrom(client.ops.containerQuery());
+
+    expect(result.status).toBe(AppState.Unknown);
+    expect(result.name).toBe('unqueried');
   });
 
   it('containerStart calls container.start (numeric id) synchronously and emits null', async () => {

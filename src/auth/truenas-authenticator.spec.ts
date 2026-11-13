@@ -196,23 +196,142 @@ describe('TrueNasAuthenticator', () => {
       respondWith(successResponse([]));
     }));
 
-  it('OTP auth failure throws AuthError(OtpAuthFailed)', () =>
-    new Promise<void>((resolve, reject) => {
+  /**
+   * A wrong code is answered `OTP_REQUIRED` by 25.10 (login kept) and
+   * `AUTH_ERR` by 27+ (login dropped, and the next code refused with EINVAL).
+   * The connection negotiates the same version either way, so each case is
+   * run against both a v25.10 and a v27 authenticator: only the answer may
+   * decide.
+   */
+  describe('loginWithOtp: a wrong code', () => {
+    const noLoginInProgress = {
+      code: -32001,
+      message: 'Method call error',
+      data: {
+        error: 22,
+        errname: 'EINVAL',
+        reason: '[EINVAL] OTP_TOKEN: no authentication in progress',
+        extra: null,
+        trace: null,
+      },
+    };
+
+    function respondWithError(error: unknown): void {
+      const sent = sendSpy.mock.calls.at(-1)?.[0] as TrueNasMessage;
+      messages$.next({ id: sent.id, error } as unknown as TrueNasMessage);
+    }
+
+    /** Subscribe, answer, and hand back what the login settled with. */
+    function settle(
+      answer: () => void
+    ): { emitted: AuthResponse[]; error: unknown } {
+      const outcome = { emitted: [] as AuthResponse[], error: undefined as unknown };
       authenticator.loginWithOtp('000000').subscribe({
-        next: () => reject(new Error('should have errored')),
-        error: (err: unknown) => {
-          try {
-            expect(err).toBeInstanceOf(AuthError);
-            expect((err as AuthError).code).toBe(AuthErrorCode.OtpAuthFailed);
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
+        next: res => outcome.emitted.push(res),
+        error: err => {
+          outcome.error = err;
         },
       });
+      answer();
+      return outcome;
+    }
 
-      respondWith(authErrResponse);
-    }));
+    for (const [label, version] of [['v25.10', v25], ['v27', v27]] as const) {
+      describe(`on a ${label} connection`, () => {
+        beforeEach(() => {
+          authenticator = makeAuthenticator(version);
+        });
+
+        it('OTP_REQUIRED errors OtpAuthFailed with the login still pending', () => {
+          const answer = { response_type: AuthResponseType.OtpRequired } as AuthResponse;
+          const { emitted, error } = settle(() => respondWith(answer));
+
+          expect(emitted).toEqual([]);
+          expect(error).toBeInstanceOf(AuthError);
+          expect((error as AuthError).code).toBe(AuthErrorCode.OtpAuthFailed);
+          expect((error as AuthError).loginPending).toBe(true);
+          expect((error as AuthError).response).toBe(answer);
+          expect(authenticator.authenticated$.value).toBe(false);
+          expect(authenticator.authenticating$.value).toBe(false);
+        });
+
+        it('a code after OTP_REQUIRED is sent and can succeed', () => {
+          settle(() => respondWith({ response_type: AuthResponseType.OtpRequired }));
+
+          const second = settle(() => respondWith(successResponse([])));
+
+          expect(sendSpy).toHaveBeenCalledTimes(2);
+          expect((sendSpy.mock.calls[1][0] as TrueNasMessage).params).toEqual([
+            { mechanism: TrueNasAuthMechanism.Otp, otp_token: '000000' },
+          ]);
+          expect(second.error).toBeUndefined();
+          expect(second.emitted.map(r => r.response_type)).toEqual([
+            AuthResponseType.Success,
+          ]);
+          expect(authenticator.authenticated$.value).toBe(true);
+        });
+
+        it('AUTH_ERR errors OtpAuthFailed with the login gone', () => {
+          const { emitted, error } = settle(() => respondWith(authErrResponse));
+
+          expect(emitted).toEqual([]);
+          expect(error).toBeInstanceOf(AuthError);
+          expect((error as AuthError).code).toBe(AuthErrorCode.OtpAuthFailed);
+          expect((error as AuthError).loginPending).toBe(false);
+          expect((error as AuthError).response).toBe(authErrResponse);
+        });
+
+        it('EINVAL "no authentication in progress" errors OtpLoginNotPending', () => {
+          const { emitted, error } = settle(() => respondWithError(noLoginInProgress));
+
+          expect(emitted).toEqual([]);
+          expect(error).toBeInstanceOf(AuthError);
+          expect((error as AuthError).code).toBe(AuthErrorCode.OtpLoginNotPending);
+          expect((error as AuthError).loginPending).toBe(false);
+          expect(authenticator.authenticating$.value).toBe(false);
+        });
+
+        it('SUCCESS emits and sets authenticated$', () => {
+          const { emitted, error } = settle(() => respondWith(successResponse([])));
+
+          expect(error).toBeUndefined();
+          expect(emitted.map(r => r.response_type)).toEqual([AuthResponseType.Success]);
+          expect(authenticator.authenticated$.value).toBe(true);
+        });
+      });
+    }
+
+    it('any other error frame stays a plain Error', () => {
+      const { error } = settle(() =>
+        respondWithError({
+          ...noLoginInProgress,
+          data: {
+            ...noLoginInProgress.data,
+            error: 95,
+            errname: 'EOPNOTSUPP',
+            reason: '[EOPNOTSUPP] OTP_TOKEN: mechanism is not supported at current authenticator level.',
+          },
+        })
+      );
+
+      expect(error).toBeInstanceOf(Error);
+      expect(error).not.toBeInstanceOf(AuthError);
+    });
+
+    it('EXPIRED is still emitted, not thrown', () => {
+      const { emitted, error } = settle(() =>
+        respondWith({ response_type: AuthResponseType.Expired })
+      );
+
+      expect(error).toBeUndefined();
+      expect(emitted.map(r => r.response_type)).toEqual([AuthResponseType.Expired]);
+      expect(authenticator.authenticated$.value).toBe(false);
+    });
+  });
+
+  it('AuthError defaults loginPending to false', () => {
+    expect(new AuthError(AuthErrorCode.PasswordAuthFailed, 'x').loginPending).toBe(false);
+  });
 
   it('API-key auth failure throws AuthError(ApiKeyAuthFailed)', () =>
     new Promise<void>((resolve, reject) => {

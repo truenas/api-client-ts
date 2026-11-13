@@ -48,7 +48,8 @@ export function fakeJob<R = unknown>(
     exception: null,
     exc_info: null,
     state: JobState.Running,
-    time_started: null,
+    // Middleware stamps every job when it creates it, so a fixture has a start too.
+    time_started: { $date: 0 },
     time_finished: null,
     credentials: null,
     ...present(overrides),

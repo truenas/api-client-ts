@@ -16,9 +16,6 @@ import type {
   ZFSFileAttrsData,
 } from '../v25_10_0/api-types';
 import type {
-  ContainerEntry,
-} from '../v27_0_0/api-types';
-import type {
   AppBulkUpgradeJobResult,
   AppCreate,
   AppEntry,
@@ -28,6 +25,7 @@ import type {
   AuditExport,
   CertificateCreate,
   ContainerCreate,
+  ContainerEntry,
   DockerEntry,
   DockerUpdate,
   FilesystemSetZfsAttributesData,
@@ -38,6 +36,15 @@ import type {
   SystemSecurityUpdate,
   TunableEntry,
   VMDeviceConvert,
+  ZFSResourceEncryptionChangeKeyArgsData,
+  ZFSResourceEncryptionExportKeyArgsData,
+  ZFSResourceEncryptionExportKeysArgsData,
+  ZFSResourceEncryptionExportReplicationKeysArgsData,
+  ZFSResourceEncryptionLockArgsData,
+  ZFSResourceEncryptionUnlockArgsData,
+  ZFSResourceEncryptionUnlockEntry,
+  ZFSResourceEncryptionUnlockSummaryArgsData,
+  ZFSResourceEncryptionUnlockSummaryEntry,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
@@ -140,6 +147,41 @@ export interface ApiJobDirectoryDelta {
   'vm.device.convert': {
     params: [vm_convert: VMDeviceConvert];
     response: boolean;
+  };
+
+  'zfs.resource.encryption.change_key': {
+    params: [data: ZFSResourceEncryptionChangeKeyArgsData];
+    response: null;
+  };
+
+  'zfs.resource.encryption.export_key': {
+    params: [data: ZFSResourceEncryptionExportKeyArgsData];
+    response: string | null;
+  };
+
+  'zfs.resource.encryption.export_keys': {
+    params: [data: ZFSResourceEncryptionExportKeysArgsData];
+    response: null;
+  };
+
+  'zfs.resource.encryption.export_replication_keys': {
+    params: [data: ZFSResourceEncryptionExportReplicationKeysArgsData];
+    response: null;
+  };
+
+  'zfs.resource.encryption.lock': {
+    params: [data: ZFSResourceEncryptionLockArgsData];
+    response: null;
+  };
+
+  'zfs.resource.encryption.unlock': {
+    params: [data: ZFSResourceEncryptionUnlockArgsData];
+    response: ZFSResourceEncryptionUnlockEntry;
+  };
+
+  'zfs.resource.encryption.unlock_summary': {
+    params: [data: ZFSResourceEncryptionUnlockSummaryArgsData];
+    response: ZFSResourceEncryptionUnlockSummaryEntry[];
   };
 }
 

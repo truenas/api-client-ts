@@ -51,7 +51,7 @@ causes a change.
 | api_key.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | api_key.query | event | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | api_key.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
-| app.available | call | introduced v28.0.0 |
+| app.available | call | introduced v25.10.0 |
 | app.available_space | call | introduced v25.10.0 |
 | app.categories | call | introduced v25.10.0 |
 | app.certificate_choices | call | introduced v25.10.0 |
@@ -73,7 +73,7 @@ causes a change.
 | app.ix_volume.exists | call | introduced v25.10.0 |
 | app.ix_volume.get_instance | call | introduced v28.0.0 |
 | app.ix_volume.query | call | introduced v25.10.0 |
-| app.latest | call | introduced v28.0.0 |
+| app.latest | call | introduced v25.10.0 |
 | app.outdated_docker_images | call | introduced v25.10.0 |
 | app.pull_images | job | introduced v25.10.0 |
 | app.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
@@ -104,12 +104,12 @@ causes a change.
 | auth.generate_onetime_password | call | introduced v25.10.0 |
 | auth.generate_token | call | introduced v25.10.0 |
 | auth.login | call | introduced v25.10.0 |
-| auth.login_ex | call | introduced v25.10.0; changed v27.0.0 |
-| auth.login_ex_continue | call | introduced v25.10.0; changed v27.0.0 |
+| auth.login_ex | call | introduced v25.10.0; changed v27.0.0, v28.0.0 (via referenced types) |
+| auth.login_ex_continue | call | introduced v25.10.0; changed v27.0.0, v28.0.0 (via referenced types) |
 | auth.login_with_api_key | call | introduced v25.10.0 |
 | auth.login_with_token | call | introduced v25.10.0 |
 | auth.logout | call | introduced v25.10.0 |
-| auth.me | call | introduced v25.10.0 |
+| auth.me | call | introduced v25.10.0; changed v28.0.0 (via referenced types) |
 | auth.mechanism_choices | call | introduced v25.10.0 |
 | auth.sessions | call | introduced v25.10.0 |
 | auth.sessions | event | introduced v25.10.0 |
@@ -117,7 +117,7 @@ causes a change.
 | auth.terminate_other_sessions | call | introduced v25.10.0 |
 | auth.terminate_session | call | introduced v25.10.0 |
 | auth.twofactor.config | call | introduced v25.10.0 |
-| auth.twofactor.update | call | introduced v25.10.0 |
+| auth.twofactor.update | call | introduced v25.10.0; changed v28.0.0 (via referenced types) |
 | boot.attach | job | introduced v25.10.0 |
 | boot.detach | call | introduced v25.10.0 |
 | boot.environment.activate | call | introduced v25.10.0; changed v28.0.0 |
@@ -150,20 +150,20 @@ causes a change.
 | certificate.query | event | introduced v25.10.0; changed v25.10.2 (via referenced types) |
 | certificate.update | job | introduced v25.10.0 |
 | cloud_backup.abort | call | introduced v25.10.0 |
-| cloud_backup.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloud_backup.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | cloud_backup.delete | call | introduced v25.10.0 |
 | cloud_backup.delete_snapshot | job | introduced v25.10.0 |
-| cloud_backup.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloud_backup.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | cloud_backup.list_snapshot_directory | call | introduced v25.10.0 |
 | cloud_backup.list_snapshots | call | introduced v25.10.0 |
-| cloud_backup.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloud_backup.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | cloud_backup.query | event | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | cloud_backup.restore | job | introduced v25.10.0 |
 | cloud_backup.sync | job | introduced v25.10.0 |
 | cloud_backup.transfer_setting_choices | call | introduced v25.10.0 |
-| cloud_backup.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloud_backup.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | cloudsync.abort | call | introduced v25.10.0 |
-| cloudsync.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloudsync.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | cloudsync.create_bucket | call | introduced v25.10.0 |
 | cloudsync.credentials.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | cloudsync.credentials.delete | call | introduced v25.10.0 |
@@ -174,17 +174,17 @@ causes a change.
 | cloudsync.credentials.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | cloudsync.credentials.verify | call | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | cloudsync.delete | call | introduced v25.10.0 |
-| cloudsync.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloudsync.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | cloudsync.list_buckets | call | introduced v25.10.0 |
 | cloudsync.list_directory | call | introduced v25.10.0; changed v28.0.0 |
 | cloudsync.onedrive_list_drives | call | introduced v25.10.0 |
 | cloudsync.providers | call | introduced v25.10.0 |
-| cloudsync.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloudsync.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | cloudsync.query | event | introduced v25.10.0; changed v27.0.0 (via referenced types) |
-| cloudsync.restore | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloudsync.restore | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | cloudsync.sync | job | introduced v25.10.0 |
 | cloudsync.sync_onetime | job | introduced v25.10.0 |
-| cloudsync.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| cloudsync.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | config.reset | job | introduced v25.10.0 |
 | config.save | job | introduced v25.10.0 |
 | config.upload | job | introduced v25.10.0 |
@@ -199,16 +199,16 @@ causes a change.
 | container.device.query | event | introduced v27.0.0 |
 | container.device.update | call | introduced v27.0.0 |
 | container.device.usb_choices | call | introduced v27.0.0 |
-| container.get_instance | call | introduced v27.0.0 |
+| container.get_instance | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | container.image.query_registry | call | introduced v27.0.0 |
 | container.metrics | event | introduced v25.10.0 |
 | container.migrate | job | introduced v27.0.0 |
 | container.pool_choices | call | introduced v27.0.0; changed v28.0.0 |
-| container.query | call | introduced v27.0.0 |
+| container.query | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | container.query | event | introduced v27.0.0 |
 | container.start | call | introduced v27.0.0 |
 | container.stop | job | introduced v27.0.0 |
-| container.update | call | introduced v27.0.0 |
+| container.update | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | core.arp | call | introduced v25.10.0 |
 | core.bulk | job | introduced v25.10.0 |
 | core.download | call | introduced v25.10.0 |
@@ -321,13 +321,13 @@ causes a change.
 | filesystem.set_zfs_attributes | job | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 |
 | filesystem.setacl | job | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | filesystem.setperm | job | introduced v25.10.0 |
-| filesystem.stat | call | introduced v25.10.0 |
+| filesystem.stat | call | introduced v25.10.0; changed v28.0.0 (via referenced types) |
 | filesystem.statfs | call | introduced v25.10.0 |
 | ftp.config | call | introduced v25.10.0 |
 | ftp.update | call | introduced v25.10.0; changed v28.0.0 |
 | group.create | call | introduced v25.10.0 |
 | group.delete | call | introduced v25.10.0 |
-| group.get_group_obj | call | introduced v25.10.0 |
+| group.get_group_obj | call | introduced v25.10.0; changed v28.0.0 |
 | group.get_instance | call | introduced v25.10.0 |
 | group.get_next_gid | call | introduced v25.10.0 |
 | group.has_password_enabled_user | call | introduced v25.10.0 |
@@ -475,9 +475,9 @@ causes a change.
 | nfs.config | call | introduced v25.10.0 |
 | nfs.get_nfs3_clients | call | introduced v25.10.0 |
 | nfs.get_nfs4_clients | call | introduced v25.10.0 |
-| nfs.update | call | introduced v25.10.0 |
+| nfs.update | call | introduced v25.10.0; changed v28.0.0 |
 | nvmet.global.config | call | introduced v25.10.0 |
-| nvmet.global.sessions | call | introduced v28.0.0 |
+| nvmet.global.sessions | call | introduced v25.10.0 |
 | nvmet.global.update | call | introduced v25.10.0 |
 | nvmet.host_subsys.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | nvmet.host_subsys.delete | call | introduced v25.10.0 |
@@ -617,7 +617,7 @@ causes a change.
 | rdma.get_card_choices | call | introduced v25.10.0 |
 | replication.config.config | call | introduced v25.10.0 |
 | replication.config.update | call | introduced v25.10.0 |
-| replication.count_eligible_manual_snapshots | call | introduced v25.10.0 |
+| replication.count_eligible_manual_snapshots | call | introduced v25.10.0; changed v28.0.0 |
 | replication.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | replication.create_dataset | call | introduced v25.10.0 |
 | replication.delete | call | introduced v25.10.0 |
@@ -641,21 +641,21 @@ causes a change.
 | reporting.exporters.update | call | introduced v25.10.0 |
 | reporting.get_data | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | reporting.graph | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
-| reporting.graphs | call | introduced v28.0.0 |
+| reporting.graphs | call | introduced v25.10.0 |
 | reporting.netdata_get_data | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | reporting.netdata_graph | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
-| reporting.netdata_graphs | call | introduced v28.0.0 |
+| reporting.netdata_graphs | call | introduced v25.10.0 |
 | reporting.realtime | event | introduced v25.10.0 |
 | reporting.update | call | introduced v25.10.0; changed v28.0.0 |
 | route.ipv4gw_reachable | call | introduced v25.10.0 |
 | route.system_routes | call | introduced v25.10.0 |
-| rsynctask.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| rsynctask.create | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | rsynctask.delete | call | introduced v25.10.0 |
-| rsynctask.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
-| rsynctask.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| rsynctask.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
+| rsynctask.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | rsynctask.query | event | introduced v25.10.0 |
 | rsynctask.run | job | introduced v25.10.0 |
-| rsynctask.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| rsynctask.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | s3.accesskey.create | call | introduced v27.0.0 |
 | s3.accesskey.delete | call | introduced v27.0.0 |
 | s3.accesskey.get_instance | call | introduced v27.0.0 |
@@ -702,12 +702,12 @@ causes a change.
 | sharing.smb.setacl | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | sharing.smb.share_precheck | call | introduced v25.10.0 |
 | sharing.smb.update | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types) |
-| sharing.webshare.create | call | introduced v27.0.0 |
+| sharing.webshare.create | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | sharing.webshare.delete | call | introduced v27.0.0 |
-| sharing.webshare.get_instance | call | introduced v27.0.0 |
-| sharing.webshare.query | call | introduced v27.0.0 |
+| sharing.webshare.get_instance | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
+| sharing.webshare.query | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | sharing.webshare.query | event | introduced v27.0.0 |
-| sharing.webshare.update | call | introduced v27.0.0 |
+| sharing.webshare.update | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | smb.bindip_choices | call | introduced v25.10.0 |
 | smb.config | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | smb.status | call | introduced v27.0.0 |
@@ -838,15 +838,15 @@ causes a change.
 | user.delete | call | introduced v25.10.0 |
 | user.get_instance | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | user.get_next_uid | call | introduced v25.10.0 |
-| user.get_user_obj | call | introduced v25.10.0 |
+| user.get_user_obj | call | introduced v25.10.0; changed v28.0.0 |
 | user.has_local_administrator_set_up | call | introduced v25.10.0 |
 | user.query | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | user.query | event | introduced v25.10.0; changed v27.0.0 (via referenced types) |
-| user.renew_2fa_secret | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
-| user.set_password | call | introduced v25.10.0 |
+| user.renew_2fa_secret | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 |
+| user.set_password | call | introduced v25.10.0; changed v28.0.0 |
 | user.setup_local_administrator | call | introduced v25.10.0 |
-| user.shell_choices | call | introduced v25.10.0 |
-| user.unset_2fa_secret | call | introduced v25.10.0 |
+| user.shell_choices | call | introduced v25.10.0; changed v28.0.0 |
+| user.unset_2fa_secret | call | introduced v25.10.0; changed v28.0.0 |
 | user.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | user.web_ui_login_disabled | event | introduced v25.10.0 |
 | vm.bootloader_aavmf_choices | call | introduced v28.0.0 |
@@ -925,6 +925,14 @@ causes a change.
 | zfs.resource.compression_choices | call | introduced v28.0.0 |
 | zfs.resource.create | call | introduced v28.0.0 |
 | zfs.resource.destroy | call | introduced v27.0.0 |
+| zfs.resource.encryption.change_key | job | introduced v28.0.0 |
+| zfs.resource.encryption.export_key | job | introduced v28.0.0 |
+| zfs.resource.encryption.export_keys | job | introduced v28.0.0 |
+| zfs.resource.encryption.export_replication_keys | job | introduced v28.0.0 |
+| zfs.resource.encryption.inherit | call | introduced v28.0.0 |
+| zfs.resource.encryption.lock | job | introduced v28.0.0 |
+| zfs.resource.encryption.unlock | job | introduced v28.0.0 |
+| zfs.resource.encryption.unlock_summary | job | introduced v28.0.0 |
 | zfs.resource.list | call | introduced v28.0.0 |
 | zfs.resource.list | event | introduced v28.0.0 |
 | zfs.resource.processes | call | introduced v28.0.0 |
@@ -935,16 +943,20 @@ causes a change.
 | zfs.resource.rename | call | introduced v28.0.0 |
 | zfs.resource.set | call | introduced v28.0.0 |
 | zfs.resource.share_type_choices | call | introduced v28.0.0 |
-| zfs.resource.snapshot.clone | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
+| zfs.resource.snapshot.clone | call | introduced v27.0.0; changed v28.0.0 |
 | zfs.resource.snapshot.count | call | introduced v27.0.0 |
-| zfs.resource.snapshot.create | call | introduced v27.0.0 |
-| zfs.resource.snapshot.destroy | call | introduced v27.0.0 |
-| zfs.resource.snapshot.hold | call | introduced v27.0.0 |
+| zfs.resource.snapshot.create | call | introduced v27.0.0; changed v28.0.0 |
+| zfs.resource.snapshot.destroy | call | introduced v27.0.0; changed v28.0.0 |
+| zfs.resource.snapshot.hold | call | introduced v27.0.0; changed v28.0.0 |
 | zfs.resource.snapshot.holds | call | introduced v27.0.0 |
+| zfs.resource.snapshot.list | call | introduced v28.0.0 |
+| zfs.resource.snapshot.list | event | introduced v28.0.0 |
 | zfs.resource.snapshot.query | call | introduced v27.0.0 |
-| zfs.resource.snapshot.release | call | introduced v27.0.0 |
-| zfs.resource.snapshot.rename | call | introduced v27.0.0 |
-| zfs.resource.snapshot.rollback | call | introduced v27.0.0 |
+| zfs.resource.snapshot.release | call | introduced v27.0.0; changed v28.0.0 |
+| zfs.resource.snapshot.rename | call | introduced v27.0.0; changed v28.0.0 |
+| zfs.resource.snapshot.rollback | call | introduced v27.0.0; changed v28.0.0 |
+| zfs.resource.userspace.list | call | introduced v28.0.0 |
+| zfs.resource.userspace.set | call | introduced v28.0.0 |
 | zfs.tier.config | call | introduced v27.0.0 |
 | zfs.tier.dataset_set_tier | call | introduced v27.0.0 |
 | zfs.tier.rewrite_job_cancel | call | introduced v27.0.0 |
@@ -1024,7 +1036,7 @@ causes a change.
 | AppActiveWorkloadsInput | type | introduced v25.10.0 |
 | AppAddedEvent | type | introduced v25.10.0 |
 | AppAvailableItem | type | introduced v25.10.0 |
-| AppAvailableItemQueryResultItem | type | introduced v28.0.0 |
+| AppAvailableItemQueryResultItem | type | introduced v25.10.0 |
 | AppBulkUpgradeJobResult | type | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | AppCertificate | type | introduced v25.10.0 |
 | AppChangedEvent | type | introduced v25.10.0 |
@@ -1053,8 +1065,8 @@ causes a change.
 | AppImagePullArgs | type | introduced v25.10.0; removed v28.0.0 |
 | AppImageQueryResultItem | type | introduced v25.10.0; changed v27.0.0 |
 | AppInfo | type | introduced v25.10.0; removed v28.0.0 |
-| AppLatestItem | type | introduced v28.0.0 |
-| AppLatestItemQueryResultItem | type | introduced v28.0.0 |
+| AppLatestItem | type | introduced v25.10.0 |
+| AppLatestItemQueryResultItem | type | introduced v25.10.0 |
 | AppNetworks | type | introduced v25.10.0 |
 | AppPullImages | type | introduced v25.10.0 |
 | AppQueryResultItem | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
@@ -1094,7 +1106,7 @@ causes a change.
 | AuthCommonOptions | type | introduced v25.10.0; changed v27.0.0 |
 | Authenticator | type | introduced v25.10.0 |
 | AuthGenerateOnetimePasswordArgs | type | introduced v25.10.0 |
-| AuthMeResult | type | introduced v25.10.0 |
+| AuthMeResult | type | introduced v25.10.0; changed v28.0.0 |
 | AuthMeSource | type | introduced v25.10.0 |
 | Authmethod | type | introduced v25.10.0 |
 | AuthOTPToken | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
@@ -1104,8 +1116,8 @@ causes a change.
 | AuthRespDenied | type | introduced v27.0.0 |
 | AuthRespExpired | type | introduced v25.10.0 |
 | AuthRespOTPRequired | type | introduced v25.10.0 |
-| AuthRespScram | type | introduced v27.0.0 |
-| AuthRespSuccess | type | introduced v25.10.0; changed v27.0.0 |
+| AuthRespScram | type | introduced v27.0.0; changed v28.0.0 (via referenced types) |
+| AuthRespSuccess | type | introduced v25.10.0; changed v27.0.0, v28.0.0 (via referenced types) |
 | AuthSCRAM | type | introduced v27.0.0 |
 | AuthSessionsAddedEvent | type | introduced v25.10.0 |
 | AuthSessionsEntry | type | introduced v25.10.0 |
@@ -1113,7 +1125,7 @@ causes a change.
 | AuthSessionsRemovedEvent | type | introduced v25.10.0 |
 | AuthSessionsRemovedEventFields | type | introduced v25.10.0 |
 | AuthTokenPlain | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
-| AuthUserInfo | type | introduced v25.10.0 |
+| AuthUserInfo | type | introduced v25.10.0; changed v28.0.0 |
 | Autotrim | type | introduced v25.10.0 |
 | AWSSNSServiceModel | type | introduced v25.10.0 |
 | AzureBlobCredentialsModel | type | introduced v25.10.0 |
@@ -1169,9 +1181,9 @@ causes a change.
 | CloudBackupAddedEvent | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | CloudBackupChangedEvent | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | CloudBackupCreate | type | introduced v25.10.0 |
-| CloudBackupEntry | type | introduced v25.10.0; changed v27.0.0 |
+| CloudBackupEntry | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | CloudBackupEntryInput | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
-| CloudBackupQueryResultItem | type | introduced v25.10.0; changed v27.0.0 |
+| CloudBackupQueryResultItem | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | CloudBackupRemovedEvent | type | introduced v25.10.0 |
 | CloudBackupRestoreOptions | type | introduced v25.10.0 |
 | CloudBackupS3CredentialsModelInput | type | introduced v25.10.0; removed v27.0.0 |
@@ -1191,7 +1203,7 @@ causes a change.
 | CloudSyncCreate | type | introduced v25.10.0 |
 | CloudSyncCreateDirection | type | introduced v25.10.0 |
 | CloudSyncCreateDirectionInput | type | introduced v25.10.0 |
-| CloudSyncEntry | type | introduced v25.10.0; changed v27.0.0 |
+| CloudSyncEntry | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | CloudSyncEntryInput | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | CloudSyncListDirectory | type | introduced v28.0.0 |
 | CloudSyncListDirectoryArgs | type | introduced v25.10.0; removed v28.0.0 |
@@ -1199,7 +1211,7 @@ causes a change.
 | CloudSyncOneDriveListDrivesDrive | type | introduced v25.10.0 |
 | CloudSyncProvider | type | introduced v25.10.0 |
 | CloudSyncProviderTaskSchemaItem | type | introduced v25.10.0 |
-| CloudSyncQueryResultItem | type | introduced v25.10.0; changed v27.0.0 |
+| CloudSyncQueryResultItem | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | CloudSyncRemovedEvent | type | introduced v25.10.0 |
 | CloudSyncSyncOptions | type | introduced v25.10.0 |
 | CloudSyncUpdate | type | introduced v25.10.0 |
@@ -1208,6 +1220,7 @@ causes a change.
 | CloudTaskAttributesEncryptionInput | type | introduced v25.10.0 |
 | CloudTaskAttributesInput | type | introduced v25.10.0 |
 | Code | type | introduced v25.10.0 |
+| ComposedPrivilege | type | introduced v28.0.0 |
 | Compression | type | introduced v25.10.0; changed v28.0.0 |
 | ConfigReset | type | introduced v25.10.0 |
 | ConfigSave | type | introduced v25.10.0 |
@@ -1230,7 +1243,7 @@ causes a change.
 | ContainerDeviceQueryResultItem | type | introduced v27.0.0 |
 | ContainerDeviceRemovedEvent | type | introduced v27.0.0 |
 | ContainerDeviceUpdate | type | introduced v27.0.0 |
-| ContainerEntry | type | introduced v27.0.0 |
+| ContainerEntry | type | introduced v27.0.0; changed v28.0.0 |
 | ContainerEntryInput | type | introduced v27.0.0 |
 | ContainerFilesystemDevice | type | introduced v27.0.0 |
 | ContainerGPUDevice | type | introduced v27.0.0 |
@@ -1240,7 +1253,7 @@ causes a change.
 | ContainerNICDeviceInput | type | introduced v27.0.0 |
 | ContainerNICDeviceType | type | introduced v27.0.0 |
 | ContainerNICDeviceTypeInput | type | introduced v27.0.0 |
-| ContainerQueryResultItem | type | introduced v27.0.0 |
+| ContainerQueryResultItem | type | introduced v27.0.0; changed v28.0.0 |
 | ContainerRemovedEvent | type | introduced v27.0.0 |
 | ContainersMetricsEventSourceArgs | type | introduced v25.10.0 |
 | ContainersMetricsEventSourceEvent | type | introduced v25.10.0 |
@@ -1415,7 +1428,7 @@ causes a change.
 | FilesystemSetZfsAttributesArgs | type | introduced v25.10.0; changed v27.0.0; removed v28.0.0 |
 | FilesystemSetZfsAttributesData | type | introduced v28.0.0 |
 | FilesystemSetZfsAttributesOptions | type | introduced v27.0.0 |
-| FilesystemStatData | type | introduced v25.10.0 |
+| FilesystemStatData | type | introduced v25.10.0; changed v28.0.0 |
 | FilesystemStatfsData | type | introduced v25.10.0 |
 | FTPCredentialsModel | type | introduced v25.10.0 |
 | FTPEntry | type | introduced v25.10.0 |
@@ -1438,8 +1451,10 @@ causes a change.
 | GroupCreate | type | introduced v25.10.0 |
 | GroupDeleteOptions | type | introduced v25.10.0 |
 | GroupEntry | type | introduced v25.10.0 |
-| GroupGetGroupObjArgs | type | introduced v25.10.0 |
-| GroupGetGroupObjResult | type | introduced v25.10.0 |
+| GroupGetGroupObj | type | introduced v28.0.0 |
+| GroupGetGroupObjArgs | type | introduced v25.10.0; removed v28.0.0 |
+| GroupGetGroupObjData | type | introduced v28.0.0 |
+| GroupGetGroupObjResult | type | introduced v25.10.0; removed v28.0.0 |
 | GroupQueryResultItem | type | introduced v25.10.0 |
 | GroupRemovedEvent | type | introduced v25.10.0 |
 | GroupUpdate | type | introduced v25.10.0 |
@@ -1608,6 +1623,7 @@ causes a change.
 | KMIPEntry | type | introduced v25.10.0 |
 | KMIPUpdate | type | introduced v28.0.0 |
 | KMIPUpdateArgs | type | introduced v25.10.0; removed v28.0.0 |
+| Layout | type | introduced v27.0.0 |
 | LDAP_Idmap | type | introduced v25.10.0 |
 | LDAPAttributeMaps | type | introduced v25.10.0 |
 | LDAPConfig | type | introduced v25.10.0 |
@@ -1660,7 +1676,8 @@ causes a change.
 | NFSGetNfs4ClientsQueryResultItem | type | introduced v25.10.0 |
 | NfsShareCreate | type | introduced v25.10.0 |
 | NfsShareUpdate | type | introduced v25.10.0 |
-| NFSUpdateArgs | type | introduced v25.10.0 |
+| NFSUpdate | type | introduced v28.0.0 |
+| NFSUpdateArgs | type | introduced v25.10.0; removed v28.0.0 |
 | NTPServerAddedEvent | type | introduced v25.10.0 |
 | NTPServerChangedEvent | type | introduced v25.10.0 |
 | NTPServerCreate | type | introduced v25.10.0 |
@@ -1669,8 +1686,8 @@ causes a change.
 | NTPServerRemovedEvent | type | introduced v25.10.0 |
 | NTPServerUpdate | type | introduced v25.10.0 |
 | NVMetGlobalEntry | type | introduced v25.10.0 |
-| NVMetGlobalSessionsItem | type | introduced v28.0.0 |
-| NVMetGlobalSessionsItemQueryResultItem | type | introduced v28.0.0 |
+| NVMetGlobalSessionsItem | type | introduced v25.10.0 |
+| NVMetGlobalSessionsItemQueryResultItem | type | introduced v25.10.0 |
 | NVMetGlobalUpdateArgs | type | introduced v25.10.0 |
 | NVMetHostAddedEvent | type | introduced v25.10.0; changed v27.0.0 |
 | NVMetHostChangedEvent | type | introduced v25.10.0; changed v27.0.0 |
@@ -1882,11 +1899,12 @@ causes a change.
 | ReplicationConfigEntry | type | introduced v25.10.0 |
 | ReplicationConfigUpdateArgs | type | introduced v25.10.0 |
 | ReplicationCountEligibleManualSnapshotsArgs | type | introduced v25.10.0 |
-| ReplicationCountEligibleManualSnapshotsResult | type | introduced v25.10.0 |
+| ReplicationCountEligibleManualSnapshotsResult | type | introduced v25.10.0; removed v28.0.0 |
 | ReplicationCountEligibleManualSnapshotsTransport | type | introduced v25.10.0 |
 | ReplicationCountEligibleManualSnapshotsTransportInput | type | introduced v25.10.0 |
 | ReplicationCreate | type | introduced v25.10.0 |
 | ReplicationCreateReadonlyInput | type | introduced v25.10.0 |
+| ReplicationEligibleManualSnapshots | type | introduced v28.0.0 |
 | ReplicationEntry | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | ReplicationEntryInput | type | introduced v25.10.0; changed v27.0.0 |
 | ReplicationLifetimeModel | type | introduced v25.10.0 |
@@ -1909,10 +1927,10 @@ causes a change.
 | ReportingExportsQueryResultItem | type | introduced v25.10.0 |
 | ReportingExportsRemovedEvent | type | introduced v25.10.0 |
 | ReportingGetDataResponse | type | introduced v25.10.0; changed v27.0.0, v28.0.0 (via referenced types) |
-| ReportingGraphsItem | type | introduced v28.0.0 |
-| ReportingGraphsItemQueryResultItem | type | introduced v28.0.0 |
-| ReportingNetdataGraphsItem | type | introduced v28.0.0 |
-| ReportingNetdataGraphsItemQueryResultItem | type | introduced v28.0.0 |
+| ReportingGraphsItem | type | introduced v25.10.0 |
+| ReportingGraphsItemQueryResultItem | type | introduced v25.10.0 |
+| ReportingNetdataGraphsItem | type | introduced v25.10.0 |
+| ReportingNetdataGraphsItemQueryResultItem | type | introduced v25.10.0 |
 | ReportingQuery | type | introduced v25.10.0 |
 | ReportingRealtimeEventSourceArgs | type | introduced v25.10.0 |
 | ReportingRealtimeEventSourceEvent | type | introduced v25.10.0 |
@@ -1942,9 +1960,9 @@ causes a change.
 | RsyncTaskCreateDirectionInput | type | introduced v25.10.0 |
 | RsyncTaskCreateMode | type | introduced v25.10.0 |
 | RsyncTaskCreateModeInput | type | introduced v25.10.0 |
-| RsyncTaskEntry | type | introduced v25.10.0; changed v27.0.0 |
+| RsyncTaskEntry | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | RsyncTaskEntryInput | type | introduced v25.10.0 |
-| RsyncTaskQueryResultItem | type | introduced v25.10.0; changed v27.0.0 |
+| RsyncTaskQueryResultItem | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | RsyncTaskRemovedEvent | type | introduced v25.10.0 |
 | RsyncTaskSchedule | type | introduced v25.10.0 |
 | RsyncTaskUpdate | type | introduced v25.10.0 |
@@ -2028,12 +2046,12 @@ causes a change.
 | SharingSmbVeeamRepositoryOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
 | SharingWebshareAddedEvent | type | introduced v27.0.0 |
 | SharingWebshareChangedEvent | type | introduced v27.0.0 |
-| SharingWebshareCreate | type | introduced v27.0.0 |
-| SharingWebshareEntry | type | introduced v27.0.0 |
+| SharingWebshareCreate | type | introduced v27.0.0; changed v28.0.0 |
+| SharingWebshareEntry | type | introduced v27.0.0; changed v28.0.0 |
 | SharingWebshareEntryInput | type | introduced v27.0.0 |
-| SharingWebshareQueryResultItem | type | introduced v27.0.0 |
+| SharingWebshareQueryResultItem | type | introduced v27.0.0; changed v28.0.0 |
 | SharingWebshareRemovedEvent | type | introduced v27.0.0 |
-| SharingWebshareUpdate | type | introduced v27.0.0 |
+| SharingWebshareUpdate | type | introduced v27.0.0; changed v28.0.0 |
 | ShellSchema | type | introduced v25.10.0 |
 | Shutdown | type | introduced v25.10.0 |
 | SigningKeyUsageModel | type | introduced v27.0.0 |
@@ -2158,7 +2176,7 @@ causes a change.
 | TunableUpdate | type | introduced v25.10.0 |
 | TwoFactorAuthEntry | type | introduced v25.10.0 |
 | TwoFactorAuthServices | type | introduced v25.10.0 |
-| TwoFactorAuthUpdate | type | introduced v25.10.0 |
+| TwoFactorAuthUpdate | type | introduced v25.10.0; changed v28.0.0 |
 | TwofactorOptions | type | introduced v25.10.0; changed v27.0.0 |
 | Unixcharset | type | introduced v25.10.0 |
 | UnmappedGroupEntry | type | introduced v25.10.0 |
@@ -2197,13 +2215,16 @@ causes a change.
 | UserDeleteOptions | type | introduced v25.10.0 |
 | UserEntry | type | introduced v25.10.0; changed v27.0.0 |
 | UserEntryInput | type | introduced v25.10.0; removed v27.0.0 |
-| UserGetUserObj | type | introduced v25.10.0 |
-| UserGetUserObjArgs | type | introduced v25.10.0 |
+| UserGetUserObj | type | introduced v25.10.0; changed v28.0.0 |
+| UserGetUserObjArgs | type | introduced v25.10.0; removed v28.0.0 |
+| UserGetUserObjData | type | introduced v28.0.0 |
 | Username | type | introduced v25.10.0 |
 | UserQueryResultItem | type | introduced v25.10.0; changed v27.0.0 |
 | UserRemovedEvent | type | introduced v25.10.0 |
-| UserRenew2FaSecretResult | type | introduced v25.10.0; changed v27.0.0 |
-| UserSetPasswordArgs | type | introduced v25.10.0 |
+| UserRenew2FaSecret | type | introduced v28.0.0 |
+| UserRenew2FaSecretResult | type | introduced v25.10.0; changed v27.0.0; removed v28.0.0 |
+| UserSetPassword | type | introduced v28.0.0 |
+| UserSetPasswordArgs | type | introduced v25.10.0; removed v28.0.0 |
 | UserSetupLocalAdministratorEC2Options | type | introduced v25.10.0 |
 | UserSetupLocalAdministratorOptions | type | introduced v25.10.0 |
 | UserTwofactorConfigEntry | type | introduced v25.10.0 |
@@ -2223,7 +2244,7 @@ causes a change.
 | VMChangedEvent | type | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 (via referenced types) |
 | VMCpuModelChoicesResult | type | introduced v25.10.0; removed v28.0.0 |
 | VMCreate | type | introduced v28.0.0 |
-| VMCreateArgs | type | introduced v25.10.0; removed v28.0.0 |
+| VMCreateArgs | type | introduced v25.10.0; changed v27.0.0; removed v28.0.0 |
 | VMDeleteOptions | type | introduced v25.10.0 |
 | VMDeviceAddedEvent | type | introduced v25.10.0; changed v28.0.0 (via referenced types) |
 | VMDeviceBindChoicesResult | type | introduced v25.10.0; removed v28.0.0 |
@@ -2259,7 +2280,7 @@ causes a change.
 | VMDisplayDevice | type | introduced v25.10.0 |
 | VMDisplayDeviceInfo | type | introduced v28.0.0 |
 | VMDisplayWebURIOptions | type | introduced v28.0.0 |
-| VMEntry | type | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 |
+| VMEntry | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | VMEntryInput | type | introduced v25.10.0; changed v27.0.0, v28.0.0 (via referenced types) |
 | VMFlags | type | introduced v28.0.0 |
 | VMFlagsResult | type | introduced v25.10.0; removed v28.0.0 |
@@ -2279,7 +2300,7 @@ causes a change.
 | VMPCIDevice | type | introduced v25.10.0 |
 | VMPortWizard | type | introduced v28.0.0 |
 | VMPortWizardResult | type | introduced v25.10.0; removed v28.0.0 |
-| VMQueryResultItem | type | introduced v25.10.0; changed v27.0.0 (via referenced types), v28.0.0 |
+| VMQueryResultItem | type | introduced v25.10.0; changed v27.0.0, v28.0.0 |
 | VMRAWDevice | type | introduced v25.10.0 |
 | VMRAWDeviceInput | type | introduced v25.10.0 |
 | VMRemovedEvent | type | introduced v25.10.0 |
@@ -2324,6 +2345,19 @@ causes a change.
 | ZFSResourceCreateEncryption | type | introduced v28.0.0 |
 | ZFSResourceCreateProperties | type | introduced v28.0.0 |
 | ZFSResourceDestroyArgsData | type | introduced v27.0.0 |
+| ZFSResourceEncryptionChangeKeyArgsData | type | introduced v28.0.0 |
+| ZFSResourceEncryptionExportKeyArgsData | type | introduced v28.0.0 |
+| ZFSResourceEncryptionExportKeysArgsData | type | introduced v28.0.0 |
+| ZFSResourceEncryptionExportReplicationKeysArgsData | type | introduced v28.0.0 |
+| ZFSResourceEncryptionInheritArgsData | type | introduced v28.0.0 |
+| ZFSResourceEncryptionLockArgsData | type | introduced v28.0.0 |
+| ZFSResourceEncryptionUnlockArgsData | type | introduced v28.0.0 |
+| ZFSResourceEncryptionUnlockEntry | type | introduced v28.0.0 |
+| ZFSResourceEncryptionUnlockFailure | type | introduced v28.0.0 |
+| ZFSResourceEncryptionUnlockKey | type | introduced v28.0.0 |
+| ZFSResourceEncryptionUnlockSummaryArgsData | type | introduced v28.0.0 |
+| ZFSResourceEncryptionUnlockSummaryEntry | type | introduced v28.0.0 |
+| ZFSResourceEncryptionUnlockSummaryKey | type | introduced v28.0.0 |
 | ZFSResourceEntry | type | introduced v25.10.0; changed v27.0.0 |
 | ZFSResourceEntryInput | type | introduced v28.0.0 |
 | ZFSResourceListAddedEvent | type | introduced v28.0.0 |
@@ -2335,18 +2369,38 @@ causes a change.
 | ZFSResourceSetArgsData | type | introduced v28.0.0 |
 | ZFSResourceSetChange | type | introduced v28.0.0 |
 | ZFSResourceSetProperties | type | introduced v28.0.0 |
-| ZFSResourceSnapshotCloneQuery | type | introduced v27.0.0; changed v28.0.0 |
+| ZFSResourceSnapshotCloneArgsData | type | introduced v28.0.0 |
+| ZFSResourceSnapshotCloneProperties | type | introduced v28.0.0 |
+| ZFSResourceSnapshotCloneQuery | type | introduced v27.0.0; removed v28.0.0 |
 | ZFSResourceSnapshotCountQuery | type | introduced v27.0.0 |
-| ZFSResourceSnapshotCreateQuery | type | introduced v27.0.0 |
-| ZFSResourceSnapshotDestroyQuery | type | introduced v27.0.0 |
+| ZFSResourceSnapshotCreateArgsData | type | introduced v28.0.0 |
+| ZFSResourceSnapshotCreateQuery | type | introduced v27.0.0; removed v28.0.0 |
+| ZFSResourceSnapshotDestroyArgsData | type | introduced v28.0.0 |
+| ZFSResourceSnapshotDestroyQuery | type | introduced v27.0.0; removed v28.0.0 |
 | ZFSResourceSnapshotEntry | type | introduced v27.0.0 |
-| ZFSResourceSnapshotHoldQuery | type | introduced v27.0.0 |
+| ZFSResourceSnapshotEntryInput | type | introduced v28.0.0 |
+| ZFSResourceSnapshotHoldArgsData | type | introduced v28.0.0 |
+| ZFSResourceSnapshotHoldQuery | type | introduced v27.0.0; removed v28.0.0 |
+| ZFSResourceSnapshotHoldsChange | type | introduced v28.0.0 |
 | ZFSResourceSnapshotHoldsQuery | type | introduced v27.0.0 |
+| ZFSResourceSnapshotListAddedEvent | type | introduced v28.0.0 |
+| ZFSResourceSnapshotListChangedEvent | type | introduced v28.0.0 |
+| ZFSResourceSnapshotListRemovedEvent | type | introduced v28.0.0 |
 | ZFSResourceSnapshotPropertiesEntry | type | introduced v27.0.0 |
+| ZFSResourceSnapshotPropertiesEntryInput | type | introduced v28.0.0 |
 | ZFSResourceSnapshotQuery | type | introduced v27.0.0 |
-| ZFSResourceSnapshotReleaseQuery | type | introduced v27.0.0 |
-| ZFSResourceSnapshotRenameQuery | type | introduced v27.0.0 |
-| ZFSResourceSnapshotRollbackQuery | type | introduced v27.0.0 |
+| ZFSResourceSnapshotReleaseArgsData | type | introduced v28.0.0 |
+| ZFSResourceSnapshotReleaseQuery | type | introduced v27.0.0; removed v28.0.0 |
+| ZFSResourceSnapshotRenameArgsData | type | introduced v28.0.0 |
+| ZFSResourceSnapshotRenameQuery | type | introduced v27.0.0; removed v28.0.0 |
+| ZFSResourceSnapshotRollbackArgsData | type | introduced v28.0.0 |
+| ZFSResourceSnapshotRollbackQuery | type | introduced v27.0.0; removed v28.0.0 |
+| ZFSResourceUserspaceEntry | type | introduced v28.0.0 |
+| ZFSResourceUserspaceEntryType | type | introduced v28.0.0 |
+| ZFSResourceUserspaceEntryTypeInput | type | introduced v28.0.0 |
+| ZFSResourceUserspaceQuery | type | introduced v28.0.0 |
+| ZFSResourceUserspaceQuota | type | introduced v28.0.0 |
+| ZFSResourceUserspaceSetArgsData | type | introduced v28.0.0 |
 | ZfsTierDatasetSetTierArgs | type | introduced v27.0.0 |
 | ZfsTierEntry | type | introduced v27.0.0 |
 | ZfsTierRewriteJobCancelArgs | type | introduced v27.0.0 |

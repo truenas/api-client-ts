@@ -1,5 +1,6 @@
 import type { ApiCallDirectoryV25_10_0 } from '@/generated';
 import type { QueryEntity } from '@/types/query.type';
+import type { TrueNasDate } from '@/types/truenas-date.type';
 
 /**
  * What `core.get_jobs` says a job looks like, straight from the generated
@@ -19,6 +20,8 @@ type GeneratedJob = QueryEntity<ApiCallDirectoryV25_10_0, 'core.get_jobs'>;
  * weaker than what the server sends.
  *
  * - `state`: a bare `string` in the dump; {@link JobState} is the real set.
+ * - `time_started`: nullable in the dump, but never null on the wire, as
+ *   `Job.__init__` stamps it.
  * - `description` / `progress.description`: sent but missing from the dump.
  * - `result`: `null` while running and after a failure, so check `error` or
  *   `state`, not just that the job finished.
@@ -31,6 +34,7 @@ export type Job<R = unknown> = Omit<
   | 'state'
   | 'result'
   | 'progress'
+  | 'time_started'
   | 'message_ids'
   | 'exc_info'
 > & {
@@ -38,6 +42,7 @@ export type Job<R = unknown> = Omit<
   /** The job's result once it succeeds; `null` while it runs, and on failure. */
   result: R | null;
   progress: JobProgress;
+  time_started: TrueNasDate;
   description: string | null;
   /**
    * Array of JSON-RPC request IDs that triggered this job.
@@ -50,6 +55,16 @@ export type Job<R = unknown> = Omit<
    */
   exc_info: (GeneratedJob['exc_info'] & { errname?: string | null }) | null;
 };
+
+/**
+ * A version's `core.get_jobs` entity read as a {@link Job}: `Job`'s fields, plus
+ * any field `Job` does not know with the entity's type. `Job` is built from one
+ * version's dump, so a field a later version adds would otherwise be dropped.
+ * Plain `Job` while there is no such field, which is every version today.
+ */
+export type JobOf<E> = [Exclude<keyof E, keyof Job>] extends [never]
+  ? Job
+  : Omit<E, keyof Job> & Job;
 
 /**
  * The generated progress shape plus the `description` the server sends and the

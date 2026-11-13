@@ -193,6 +193,12 @@ export const Interval = {
 } as const;
 export type Interval = (typeof Interval)[keyof typeof Interval];
 
+export const Layout = {
+  Bucket: 'BUCKET',
+  Dataset: 'DATASET',
+} as const;
+export type Layout = (typeof Layout)[keyof typeof Layout];
+
 export const Name = {
   Cpu: 'cpu',
   Cputemp: 'cputemp',
@@ -816,7 +822,7 @@ export interface CloudBackupEntryInput {
   job: {
     [k: string]: unknown;
   } | null;
-  locked: boolean;
+  locked: boolean | null;
   password: string;
   keep_last: number;
   transfer_setting?: "DEFAULT" | "PERFORMANCE" | "FAST_STORAGE";
@@ -1012,7 +1018,7 @@ export interface CloudSyncEntryInput {
   job: {
     [k: string]: unknown;
   } | null;
-  locked: boolean;
+  locked: boolean | null;
   bwlimit?: CloudSyncBwlimit[];
   transfers?: number | null;
   direction: CloudSyncCreateDirectionInput;
@@ -1117,8 +1123,7 @@ export interface ContainerEntryInput {
   capabilities_state?: {
     [k: string]: boolean;
   };
-  default_network?: string | null;
-  status: ContainerStatusInput;
+  status: ContainerStatusInput | null;
 }
 export interface ContainerDeviceEntryInput {
   id: number;
@@ -2995,6 +3000,7 @@ export interface SharingS3EntryInput {
   id: number;
   name: string;
   dataset: string;
+  layout?: Layout;
   enabled?: boolean;
   owner: string;
   owner_uid: number;
@@ -3045,6 +3051,7 @@ export interface SharingS3ChangedEvent {
 export interface SharingS3Create {
   name: string;
   dataset?: string | null;
+  layout?: Layout;
   enabled?: boolean;
   owner: string;
   grants?: S3Grant[];
@@ -3089,6 +3096,7 @@ export interface SharingS3Entry {
   id: number;
   name: string;
   dataset: string;
+  layout?: Layout;
   enabled?: boolean;
   owner: string;
   owner_uid: number;
@@ -3136,6 +3144,7 @@ export interface SharingS3QueryResultItem {
   id?: number;
   name?: string;
   dataset?: string;
+  layout?: Layout;
   enabled?: boolean;
   owner?: string;
   owner_uid?: number;
@@ -3182,6 +3191,7 @@ export interface SharingS3QueryResultItem {
 export interface SharingS3RecoverableBucket {
   name: string;
   dataset: string;
+  layout?: Layout;
   enabled?: boolean;
   owner: string;
   owner_uid: number;
@@ -3395,6 +3405,7 @@ export interface SharingWebshareEntryInput {
   dataset: string | null;
   relative_path: string | null;
   enabled?: boolean;
+  readonly?: boolean;
   is_home_base?: boolean;
   locked: boolean | null;
   tier?: TierInfoInput | null;
@@ -3897,6 +3908,7 @@ export interface VMEntryInput {
   autostart?: boolean;
   hide_from_msr?: boolean;
   ensure_display_device?: boolean;
+  video_model?: "QXL" | "VGA" | "VIRTIO";
   time?: Time;
   shutdown_timeout?: number;
   arch_type?: string | null;
@@ -3905,7 +3917,7 @@ export interface VMEntryInput {
   devices: VMDeviceEntryInput[];
   display_available: boolean;
   id: number;
-  status: VMStatus;
+  status: VMStatus | null;
   enable_secure_boot?: boolean;
 }
 export interface VMStatus {
@@ -3916,6 +3928,37 @@ export interface VMStatus {
 export interface VMChangedEvent {
   id: number;
   fields: VMEntryInput;
+}
+export interface VMCreateArgs {
+  command_line_args?: string;
+  cpu_mode?: "CUSTOM" | "HOST-MODEL" | "HOST-PASSTHROUGH";
+  cpu_model?: string | null;
+  name: string;
+  description?: string;
+  vcpus?: number;
+  cores?: number;
+  threads?: number;
+  cpuset?: string | null;
+  nodeset?: string | null;
+  enable_cpu_topology_extension?: boolean;
+  pin_vcpus?: boolean;
+  suspend_on_snapshot?: boolean;
+  trusted_platform_module?: boolean;
+  memory: number;
+  min_memory?: number | null;
+  hyperv_enlightenments?: boolean;
+  bootloader?: Bootloader;
+  bootloader_ovmf?: string | null;
+  autostart?: boolean;
+  hide_from_msr?: boolean;
+  ensure_display_device?: boolean;
+  video_model?: ("QXL" | "VGA" | "VIRTIO") | null;
+  time?: Time;
+  shutdown_timeout?: number;
+  arch_type?: string | null;
+  machine_type?: string | null;
+  uuid?: string | null;
+  enable_secure_boot?: boolean;
 }
 export interface VMDeviceNicAttachChoicesResult {
   BRIDGE: string[];
@@ -3944,6 +3987,7 @@ export interface VMEntry {
   autostart?: boolean;
   hide_from_msr?: boolean;
   ensure_display_device?: boolean;
+  video_model?: "QXL" | "VGA" | "VIRTIO";
   time?: Time;
   shutdown_timeout?: number;
   arch_type?: string | null;
@@ -3978,6 +4022,7 @@ export interface VMQueryResultItem {
   autostart?: boolean;
   hide_from_msr?: boolean;
   ensure_display_device?: boolean;
+  video_model?: "QXL" | "VGA" | "VIRTIO";
   time?: Time;
   shutdown_timeout?: number;
   arch_type?: string | null;
@@ -4011,6 +4056,7 @@ export interface VMUpdate {
   autostart?: boolean;
   hide_from_msr?: boolean;
   ensure_display_device?: boolean;
+  video_model?: "QXL" | "VGA" | "VIRTIO";
   time?: Time;
   shutdown_timeout?: number;
   arch_type?: string | null;
