@@ -190,7 +190,7 @@ describe('mock answers', () => {
    */
   it('chains to a core.get_jobs scripted before it', async () => {
     const c = client();
-    c.mock.query('core.get_jobs', [fakeJob({ id: 999, state: JobState.Failed }) as unknown as v27_0_0.CoreGetJobsItem]);
+    c.mock.query('core.get_jobs', [fakeJob({ id: 999, state: JobState.Failed })]);
     c.mock.job('app.delete', { state: JobState.Success });
 
     // The job's own reads are answered by the job.

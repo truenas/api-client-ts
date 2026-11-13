@@ -45,6 +45,7 @@ import type {
 import type { TrueNasErrorData } from '@/types/api-error.type';
 import type {
   QueryEntity,
+  QueryRow,
   QueryListOptions,
   QueryMethod,
   QuerySingleOptions,
@@ -233,7 +234,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     method: M,
     filters?: QueryFilters<QueryEntity<D['call'], M>>,
     options?: O
-  ): Observable<QueryProjection<QueryEntity<D['call'], M>, O>[]> {
+  ): Observable<QueryProjection<QueryRow<D['call'], M>, O>[]> {
     return this.dispatch(method, [filters ?? [], options ?? {}]);
   }
 
@@ -253,7 +254,7 @@ export class TrueNasApi<D extends ApiDirectoryShape = BaseApiDirectory> {
     method: M,
     filters?: QueryFilters<QueryEntity<D['call'], M>>,
     options?: O
-  ): Observable<QueryProjection<QueryEntity<D['call'], M>, O>> {
+  ): Observable<QueryProjection<QueryRow<D['call'], M>, O>> {
     return this.dispatch(method, [filters ?? [], { ...options, get: true }]);
   }
 

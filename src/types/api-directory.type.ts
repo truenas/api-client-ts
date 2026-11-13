@@ -1,6 +1,7 @@
 import type { ApiCallDirectoryBase } from '@/generated/shared/api-call-directory-base';
 import type { ApiEventDirectoryBase } from '@/generated/shared/api-event-directory-base';
 import type { ApiJobDirectoryBase } from '@/generated/shared/api-job-directory-base';
+import type { JobOf } from '@/types/job.type';
 
 /**
  * The API surface a client is typed against.
@@ -160,7 +161,19 @@ type EventArm<
   D extends ApiDirectoryShape,
   E extends SubscribableEvent<D>,
   K extends EventKind,
-> = K extends keyof D['event'][E] ? { msg: K } & D['event'][E][K] : never;
+> = K extends keyof D['event'][E] ? { msg: K } & EventPayload<E, D['event'][E][K]> : never;
+
+/**
+ * The payload as declared, except that a `core.get_jobs` update's `fields` is a
+ * {@link Job} ({@link JobOf}), the shape `job()` and the query verbs give the
+ * same object. An arm declared without `fields`, such as a `removed` carrying
+ * only an `id`, is left as it is.
+ */
+type EventPayload<E, P> = E extends 'core.get_jobs'
+  ? P extends { fields: infer F }
+    ? Omit<P, 'fields'> & { fields: JobOf<F> }
+    : P
+  : P;
 
 /** The kinds the directory says this event reports. */
 type DeclaredKinds<
