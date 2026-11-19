@@ -35,10 +35,12 @@ import type {
   CoreGetJobsItemProgress,
   DiskEntryEnclosure,
   DropboxCredentialsModel,
+  EmptyDict,
   Exec,
   ExternalOpt,
   ExternalOptInput,
   FTPCredentialsModel,
+  FilesystemDirEntryType,
   Function,
   GoogleCloudStorageCredentialsModel,
   GoogleDriveCredentialsModel,
@@ -57,6 +59,7 @@ import type {
   KeychainCredentialEntryInput,
   LegacyOpt,
   LegacyOptInput,
+  MailEntryOAuth,
   Maintainer,
   MegaCredentialsModel,
   NFS4ACEInput,
@@ -94,6 +97,7 @@ import type {
   SMBEntryEncryption,
   SMBEntryEncryptionInput,
   SMBShareAclEntryWhoId,
+  Security,
   Serialspeed,
   Service,
   Shutdown,
@@ -275,6 +279,14 @@ export const S3AccesskeyEntryStatusInput = {
   SecretLost: 'SECRET_LOST',
 } as const;
 export type S3AccesskeyEntryStatusInput = (typeof S3AccesskeyEntryStatusInput)[keyof typeof S3AccesskeyEntryStatusInput];
+
+export const TruesearchDatasetStatusState = {
+  Ready: 'READY',
+  Indexing: 'INDEXING',
+  Unavailable: 'UNAVAILABLE',
+  Stopped: 'STOPPED',
+} as const;
+export type TruesearchDatasetStatusState = (typeof TruesearchDatasetStatusState)[keyof typeof TruesearchDatasetStatusState];
 
 export const Versioning = {
   Off: 'OFF',
@@ -1107,6 +1119,7 @@ export interface ContainerEntryInput {
   description?: string;
   devices?: ContainerDeviceEntryInput[];
   cpuset?: string | null;
+  memory?: number | null;
   autostart?: boolean;
   time?: Time;
   shutdown_timeout?: number;
@@ -1173,6 +1186,7 @@ export interface ContainerCreateArgs {
   name: string;
   description?: string;
   cpuset?: string | null;
+  memory?: number | null;
   autostart?: boolean;
   time?: Time;
   shutdown_timeout?: number;
@@ -1259,6 +1273,7 @@ export interface ContainerEntry {
   description?: string;
   devices?: ContainerDeviceEntry[];
   cpuset?: string | null;
+  memory?: number | null;
   autostart?: boolean;
   time?: Time;
   shutdown_timeout?: number;
@@ -1297,6 +1312,7 @@ export interface ContainerQueryResultItem {
   description?: string;
   devices?: ContainerDeviceEntry[];
   cpuset?: string | null;
+  memory?: number | null;
   autostart?: boolean;
   time?: Time;
   shutdown_timeout?: number;
@@ -1327,6 +1343,7 @@ export interface ContainerUpdate {
   name?: string;
   description?: string;
   cpuset?: string | null;
+  memory?: number | null;
   autostart?: boolean;
   time?: Time;
   shutdown_timeout?: number;
@@ -1900,6 +1917,79 @@ export interface LXCConfigUpdateArgs {
   v4_network?: string;
   v6_network?: string;
 }
+export interface MailEntry {
+  fromemail: string;
+  fromname: string;
+  outgoingserver: string;
+  port: number;
+  security: Security;
+  validate_certificate: boolean;
+  smtp: boolean;
+  user: string | null;
+  pass: string | null;
+  oauth: MailEntryOAuth | EmptyDict | null;
+  id: number;
+}
+export interface MailUpdate {
+  fromemail?: string;
+  fromname?: string;
+  outgoingserver?: string;
+  port?: number;
+  security?: Security;
+  validate_certificate?: boolean;
+  smtp?: boolean;
+  user?: string | null;
+  pass?: string | null;
+  oauth?: MailEntryOAuth | EmptyDict | null;
+}
+export interface NTPServerAddedEvent {
+  id: number;
+  fields: NTPServerEntry;
+}
+export interface NTPServerEntry {
+  id: number;
+  address: string;
+  burst?: boolean;
+  iburst?: boolean;
+  prefer?: boolean;
+  minpoll?: number;
+  maxpoll?: number;
+  nts?: boolean;
+}
+export interface NTPServerChangedEvent {
+  id: number;
+  fields: NTPServerEntry;
+}
+export interface NTPServerCreate {
+  address: string;
+  burst?: boolean;
+  iburst?: boolean;
+  prefer?: boolean;
+  minpoll?: number;
+  maxpoll?: number;
+  nts?: boolean;
+  force?: boolean;
+}
+export interface NTPServerQueryResultItem {
+  id?: number;
+  address?: string;
+  burst?: boolean;
+  iburst?: boolean;
+  prefer?: boolean;
+  minpoll?: number;
+  maxpoll?: number;
+  nts?: boolean;
+}
+export interface NTPServerUpdate {
+  address?: string;
+  burst?: boolean;
+  iburst?: boolean;
+  prefer?: boolean;
+  minpoll?: number;
+  maxpoll?: number;
+  nts?: boolean;
+  force?: boolean;
+}
 export interface NVMetHostAddedEvent {
   id: number;
   fields: NVMetHostEntry;
@@ -2432,6 +2522,9 @@ export interface PoolQueryResultItem {
   topology?: PoolTopology | null;
 }
 export interface PoolScanChangedEvent {
+  fields: PoolScanChangedEventFields;
+}
+export interface PoolScanChangedEventFields {
   name: string;
   scan: PoolScanInput;
 }
@@ -2776,7 +2869,6 @@ export interface S3AccesskeyEntryInput {
   user_identifier: number | string;
   local: boolean;
   access_key: string;
-  secret: string | null;
   enabled: boolean;
   expires_at?: {$date: number} | null;
   created_at: {$date: number};
@@ -2792,10 +2884,10 @@ export interface S3AccesskeyCreate {
   name: string;
   username: string;
   access_key?: string | null;
-  secret?: string | null;
   enabled?: boolean;
   expires_at?: {$date: number} | null;
   manage_buckets?: boolean;
+  secret?: string | null;
 }
 export interface S3AccesskeyEntry {
   id: number;
@@ -2804,13 +2896,27 @@ export interface S3AccesskeyEntry {
   user_identifier: number | string;
   local: boolean;
   access_key: string;
-  secret: string | null;
   enabled: boolean;
   expires_at?: {$date: number} | null;
   created_at: {$date: number};
   last_used_at?: {$date: number} | null;
   manage_buckets?: boolean;
   status: S3AccesskeyEntryStatus;
+}
+export interface S3AccesskeyEntryWithSecret {
+  id: number;
+  name: string;
+  username: string | null;
+  user_identifier: number | string;
+  local: boolean;
+  access_key: string;
+  enabled: boolean;
+  expires_at?: {$date: number} | null;
+  created_at: {$date: number};
+  last_used_at?: {$date: number} | null;
+  manage_buckets?: boolean;
+  status: S3AccesskeyEntryStatus;
+  secret: string;
 }
 export interface S3AccesskeyQueryResultItem {
   id?: number;
@@ -2819,7 +2925,6 @@ export interface S3AccesskeyQueryResultItem {
   user_identifier?: number | string;
   local?: boolean;
   access_key?: string;
-  secret?: string | null;
   enabled?: boolean;
   expires_at?: {$date: number} | null;
   created_at?: {$date: number};
@@ -3617,6 +3722,27 @@ export interface SystemGeneralEntry {
   ds_auth: boolean;
   ui_certificate_name: string | null;
 }
+export interface SystemSecurityEntry {
+  id: number;
+  enable_fips: boolean;
+  enable_gpos_stig: boolean;
+  require_nts?: boolean;
+  min_password_age?: number | null;
+  max_password_age?: number | null;
+  password_complexity_ruleset?: ("UPPER" | "LOWER" | "NUMBER" | "SPECIAL")[] | null;
+  min_password_length?: number | null;
+  password_history_length?: number | null;
+}
+export interface SystemSecurityUpdateArgs {
+  enable_fips?: boolean;
+  enable_gpos_stig?: boolean;
+  require_nts?: boolean;
+  min_password_age?: number | null;
+  max_password_age?: number | null;
+  password_complexity_ruleset?: ("UPPER" | "LOWER" | "NUMBER" | "SPECIAL")[] | null;
+  min_password_length?: number | null;
+  password_history_length?: number | null;
+}
 export interface TruecommandEntry {
   id: number;
   api_key: string | null;
@@ -3653,6 +3779,49 @@ export interface TrueNASConnectUpdateArgs {
 }
 export interface TrueNASLicenseUploadOptions {
   ha_propagate?: boolean;
+}
+export interface TruesearchDatasetStatus {
+  dataset: string;
+  path: string;
+  state: TruesearchDatasetStatusState;
+  reason: string | null;
+  served: boolean;
+  entries: number | null;
+  watching: boolean | null;
+  last_full_pass: {$date: number} | null;
+  last_directory_pass: {$date: number} | null;
+  index_size: number | null;
+}
+export interface TruesearchEntry {
+  path: string;
+  name: string;
+  type: FilesystemDirEntryType;
+  size: number | null;
+  mode: number | null;
+  uid: number | null;
+  gid: number | null;
+  mtime: {$date: number} | null;
+  btime: {$date: number} | null;
+  atime: {$date: number} | null;
+  inode: number | null;
+  handle: string | null;
+}
+export interface TruesearchQuery {
+  path: string;
+  username?: string | null;
+  recursive?: boolean;
+  "query-filters"?: unknown[];
+  "query-options"?: TruesearchQueryOptions;
+}
+export interface TruesearchQueryOptions {
+  limit?: number;
+}
+export interface TruesearchStatusData {
+  running: boolean;
+  index_bytes: number | null;
+  free_bytes: number | null;
+  space_low: boolean | null;
+  datasets: TruesearchDatasetStatus[];
 }
 export interface TwofactorOptions {
   otp_digits?: number;
@@ -4113,12 +4282,18 @@ export interface WebshareEntry {
   search: boolean;
   passkey: Passkey;
   groups: string[];
+  mcp_enabled: boolean;
+  mcp_allowed_groups: string[];
+  mcp_allow_write: boolean;
 }
 export interface WebshareUpdate {
   bindip?: string[];
   search?: boolean;
   passkey?: Passkey;
   groups?: string[];
+  mcp_enabled?: boolean;
+  mcp_allowed_groups?: string[];
+  mcp_allow_write?: boolean;
 }
 export interface ZFSResourceDestroyArgsData {
   path: string;
@@ -4306,11 +4481,16 @@ export interface ZfsTierRewriteJobQueryArgs {
   "query-filters"?: unknown[];
   "query-options"?: QueryOptionsModel;
 }
-export interface ZfsTierRewriteJobQueryEventSourceEvent {
+export interface ZfsTierRewriteJobQueryEventSourceChangedEvent {
+  id: string;
   fields: ZfsTierRewriteJobEntryInput;
 }
-export interface ZfsTierRewriteJobQueryEventSourceEvent2 {
-  fields: ZfsTierRewriteJobQueryEventSourceEvent;
+export interface ZfsTierRewriteJobQueryEventSourceEvent {
+  id: string;
+  fields: ZfsTierRewriteJobEntryInput;
+}
+export interface ZfsTierRewriteJobQueryEventSourceRemovedEvent {
+  id: string;
 }
 export interface ZfsTierRewriteJobQueryResultItem {
   tier_job_id?: string;
@@ -4358,9 +4538,6 @@ export interface ZfsTierRewriteJobStatusEventSourceArgs {
 }
 export interface ZfsTierRewriteJobStatusEventSourceEvent {
   fields: ZfsTierRewriteJobStatusEntryInput;
-}
-export interface ZfsTierRewriteJobStatusEventSourceEvent2 {
-  fields: ZfsTierRewriteJobStatusEventSourceEvent;
 }
 export interface ZfsTierUpdateArgs {
   enabled?: boolean;

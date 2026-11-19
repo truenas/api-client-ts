@@ -12,7 +12,6 @@ import type {
   CertificateEntry,
   DISABLED_ACLResult,
   MailSendMessage,
-  MailUpdate,
   NFS4ACLResult,
   POSIXACLResult,
   SupportNewTicketCommunity,
@@ -35,12 +34,15 @@ import type {
   DockerUpdateArgs,
   FilesystemSetZfsAttributesArgs,
   FilesystemSetaclArgs,
+  MailUpdate,
   PoolCreate,
   PoolEntry,
   PoolScrubAction,
   PoolUpdate,
   ReplicationRunOptions,
   SupportNewTicket,
+  SystemSecurityEntry,
+  SystemSecurityUpdateArgs,
   ZpoolScrubRun,
 } from './api-types';
 
@@ -174,6 +176,11 @@ export interface ApiJobDirectoryDelta {
   'support.new_ticket': {
     params: [data: SupportNewTicketEnterprise | SupportNewTicketCommunity];
     response: SupportNewTicket;
+  };
+
+  'system.security.update': {
+    params: [system_security_update?: SystemSecurityUpdateArgs];
+    response: SystemSecurityEntry;
   };
 
   'truenas.set_production': {
