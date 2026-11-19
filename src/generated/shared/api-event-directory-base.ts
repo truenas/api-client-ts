@@ -50,7 +50,6 @@ export type ApiEventDirectoryBase = Pick<
   | 'rsynctask.query'
   | 'service.query'
   | 'staticroute.query'
-  | 'system.ntpserver.query'
   | 'system.ready'
   | 'system.reboot'
   | 'system.reboot.info'

@@ -13,6 +13,7 @@ import type {
   CredentialsRemovedEvent,
   DiskQueryRemovedEvent,
   InterfaceRemovedEvent,
+  NTPServerRemovedEvent,
   NVMetHostRemovedEvent,
   NVMetHostSubsysRemovedEvent,
   NVMetNamespaceRemovedEvent,
@@ -49,6 +50,8 @@ import type {
   DiskQueryChangedEvent,
   InterfaceAddedEvent,
   InterfaceChangedEvent,
+  NTPServerAddedEvent,
+  NTPServerChangedEvent,
   NVMetHostAddedEvent,
   NVMetHostChangedEvent,
   NVMetHostSubsysAddedEvent,
@@ -87,9 +90,11 @@ import type {
   ZPoolQueryChangedEvent,
   ZPoolQueryRemovedEvent,
   ZfsTierRewriteJobQueryEventSourceArgs,
-  ZfsTierRewriteJobQueryEventSourceEvent2,
+  ZfsTierRewriteJobQueryEventSourceChangedEvent,
+  ZfsTierRewriteJobQueryEventSourceEvent,
+  ZfsTierRewriteJobQueryEventSourceRemovedEvent,
   ZfsTierRewriteJobStatusEventSourceArgs,
-  ZfsTierRewriteJobStatusEventSourceEvent2,
+  ZfsTierRewriteJobStatusEventSourceEvent,
 } from './api-types';
 
 /** Entries added or changed in this version (directly, or through a referenced type). */
@@ -229,6 +234,12 @@ export interface ApiEventDirectoryDelta {
     removed: SharingWebshareRemovedEvent;
   };
 
+  'system.ntpserver.query': {
+    added: NTPServerAddedEvent;
+    changed: NTPServerChangedEvent;
+    removed: NTPServerRemovedEvent;
+  };
+
   'user.query': {
     added: UserAddedEvent;
     changed: UserChangedEvent;
@@ -249,12 +260,14 @@ export interface ApiEventDirectoryDelta {
 
   'zfs.tier.rewrite_job_query': {
     subscriptionParams: ZfsTierRewriteJobQueryEventSourceArgs;
-    added: ZfsTierRewriteJobQueryEventSourceEvent2;
+    added: ZfsTierRewriteJobQueryEventSourceEvent;
+    changed: ZfsTierRewriteJobQueryEventSourceChangedEvent;
+    removed: ZfsTierRewriteJobQueryEventSourceRemovedEvent;
   };
 
   'zfs.tier.rewrite_job_status': {
     subscriptionParams: ZfsTierRewriteJobStatusEventSourceArgs;
-    added: ZfsTierRewriteJobStatusEventSourceEvent2;
+    changed: ZfsTierRewriteJobStatusEventSourceEvent;
   };
 
   'zpool.query': {

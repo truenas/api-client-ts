@@ -68,6 +68,7 @@ import type {
   VMUSBDevice,
   Volblocksize,
   ZFSFileAttrsData,
+  ZFSPropertiesEntry,
 } from '../v25_10_0/api-types';
 import type {
   DockerStatusInfoStatus,
@@ -88,7 +89,6 @@ import type {
   FilesystemSetZfsAttributesOptions,
   InterfaceEntryState,
   IsolatedIdmapConfiguration,
-  Passkey,
   PoolCreateEncryptionOptions,
   TierInfo,
   TierInfoInput,
@@ -649,6 +649,7 @@ export interface ContainerCreate {
   name: string;
   description?: string;
   cpuset?: string | null;
+  memory?: number | null;
   autostart?: boolean;
   time?: Time;
   shutdown_timeout?: number;
@@ -682,6 +683,7 @@ export interface ContainerEntry {
   description?: string;
   devices?: ContainerDeviceEntry[];
   cpuset?: string | null;
+  memory?: number | null;
   autostart?: boolean;
   time?: Time;
   shutdown_timeout?: number;
@@ -707,6 +709,7 @@ export interface ContainerQueryResultItem {
   description?: string;
   devices?: ContainerDeviceEntry[];
   cpuset?: string | null;
+  memory?: number | null;
   autostart?: boolean;
   time?: Time;
   shutdown_timeout?: number;
@@ -804,6 +807,7 @@ export interface FilesystemDirEntry {
     | "DAX"
     | "POSIXACL"
     | "NFSV4ACL"
+    | "RDONLY"
   )[];
   xattrs: string[] | null;
   zfs_attrs:
@@ -851,6 +855,7 @@ export interface FilesystemDirQueryResultItem {
     | "DAX"
     | "POSIXACL"
     | "NFSV4ACL"
+    | "RDONLY"
   )[];
   xattrs?: string[] | null;
   zfs_attrs?:
@@ -912,6 +917,7 @@ export interface FilesystemStatData {
     | "DAX"
     | "POSIXACL"
     | "NFSV4ACL"
+    | "RDONLY"
   )[];
   user: string | null;
   group: string | null;
@@ -1108,6 +1114,7 @@ export interface MailEntry {
   outgoingserver: string;
   port: number;
   security: Security;
+  validate_certificate: boolean;
   smtp: boolean;
   user: string | null;
   pass: string | null;
@@ -1133,6 +1140,7 @@ export interface MailUpdate {
   outgoingserver?: string;
   port?: number;
   security?: Security;
+  validate_certificate?: boolean;
   smtp?: boolean;
   user?: string | null;
   pass?: string | null;
@@ -1431,6 +1439,7 @@ export interface SupportAttachTicket {
 export interface SystemSecurityUpdate {
   enable_fips?: boolean;
   enable_gpos_stig?: boolean;
+  require_nts?: boolean;
   min_password_age?: number | null;
   max_password_age?: number | null;
   password_complexity_ruleset?: ("UPPER" | "LOWER" | "NUMBER" | "SPECIAL")[] | null;
@@ -1440,6 +1449,23 @@ export interface SystemSecurityUpdate {
 export interface TruecommandUpdate {
   enabled?: boolean;
   api_key?: string | null;
+}
+export interface TrueNASConnectEntry {
+  id: number;
+  enabled: boolean;
+  registration_details: {
+    [k: string]: unknown;
+  };
+  status: string;
+  status_reason: string;
+  certificate: number | null;
+  account_service_base_url: string;
+  leca_service_base_url: string;
+  tnc_base_url: string;
+  heartbeat_url: string;
+  allowed_origins: string[];
+  tier: ("FOUNDATION" | "PLUS" | "BUSINESS") | null;
+  last_heartbeat_failure_datetime: string | null;
 }
 export interface TrueNASConnectUpdate {
   enabled?: boolean;
@@ -1815,24 +1841,74 @@ export interface VMVirtualizationDetails {
   supported: boolean;
   error: string | null;
 }
-export interface WebshareEntry {
-  id: number;
-  bindip: string[];
-  search: boolean;
-  passkey: Passkey;
-  groups: string[];
-  mcp_enabled: boolean;
-  mcp_allowed_groups: string[];
-  mcp_allow_write: boolean;
+export interface WebUIDatasetApp {
+  name: string;
+  path: string;
 }
-export interface WebshareUpdate {
-  bindip?: string[];
-  search?: boolean;
-  passkey?: Passkey;
-  groups?: string[];
-  mcp_enabled?: boolean;
-  mcp_allowed_groups?: string[];
-  mcp_allow_write?: boolean;
+export interface WebUIDatasetConsumers {
+  smb: WebUIDatasetSMBShare[] | null;
+  nfs: WebUIDatasetNFSShare[] | null;
+  webshare: WebUIDatasetWebshareShare[] | null;
+  iscsi: WebUIDatasetISCSIExtent[] | null;
+  nvmet: WebUIDatasetNVMetNamespace[] | null;
+  vms: WebUIDatasetVM[] | null;
+  containers: WebUIDatasetContainer[] | null;
+  apps: WebUIDatasetApp[] | null;
+}
+export interface WebUIDatasetSMBShare {
+  enabled: boolean;
+  path: string;
+  share_name: string;
+}
+export interface WebUIDatasetNFSShare {
+  enabled: boolean;
+  path: string;
+}
+export interface WebUIDatasetWebshareShare {
+  enabled: boolean;
+  path: string;
+  share_name: string;
+}
+export interface WebUIDatasetISCSIExtent {
+  enabled: boolean;
+  type: "DISK" | "FILE";
+  path: string;
+}
+export interface WebUIDatasetNVMetNamespace {
+  enabled: boolean;
+  type: "ZVOL" | "FILE";
+  path: string;
+}
+export interface WebUIDatasetVM {
+  name: string;
+  path: string;
+}
+export interface WebUIDatasetContainer {
+  name: string;
+  path: string;
+}
+export interface WebUIDatasetDetailsEntry {
+  id: string;
+  name: string;
+  pool: string;
+  type: "FILESYSTEM" | "VOLUME";
+  createtxg: number;
+  guid: number;
+  properties: ZFSPropertiesEntry;
+  user_properties: {
+    [k: string]: string;
+  };
+  tier: TierInfo | null;
+  snapshot_count: number | null;
+  thick_provisioned: boolean | null;
+  consumers: WebUIDatasetConsumers;
+  tasks: WebUIDatasetTasks;
+}
+export interface WebUIDatasetTasks {
+  snapshot: number | null;
+  replication: number | null;
+  cloudsync: number | null;
+  rsync: number | null;
 }
 export interface ZFSPropertiesEntryInput {
   aclinherit?: PropertyValueInput;

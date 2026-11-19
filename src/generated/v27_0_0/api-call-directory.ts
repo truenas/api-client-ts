@@ -159,6 +159,12 @@ import type {
   LXCConfigEntry,
   LXCConfigUpdateArgs,
   LicenseInfoEntry,
+  MailEntry,
+  MailUpdate,
+  NTPServerCreate,
+  NTPServerEntry,
+  NTPServerQueryResultItem,
+  NTPServerUpdate,
   NVMetHostCreate,
   NVMetHostEntry,
   NVMetHostQueryResultItem,
@@ -184,6 +190,7 @@ import type {
   RsyncTaskQueryResultItem,
   S3AccesskeyCreate,
   S3AccesskeyEntry,
+  S3AccesskeyEntryWithSecret,
   S3AccesskeyQueryResultItem,
   S3AccesskeyUpdate,
   S3CredentialsModel,
@@ -213,11 +220,15 @@ import type {
   SystemAdvancedEntry,
   SystemAdvancedUpdate,
   SystemGeneralEntry,
+  SystemSecurityEntry,
   TierInfo,
   TrueNASConnectEntry,
   TrueNASConnectUpdateArgs,
   TrueNASLicenseUploadOptions,
   TruecommandEntry,
+  TruesearchEntry,
+  TruesearchQuery,
+  TruesearchStatusData,
   TwofactorOptions,
   UPSUpdate,
   USBPassthroughDevice,
@@ -680,6 +691,16 @@ export interface ApiCallDirectoryDelta {
     response: LXCConfigEntry;
   };
 
+  'mail.config': {
+    params: [];
+    response: MailEntry;
+  };
+
+  'mail.update': {
+    params: [data: MailUpdate];
+    response: MailEntry;
+  };
+
   'nvmet.host.create': {
     params: [nvmet_host_create: NVMetHostCreate];
     response: NVMetHostEntry;
@@ -891,7 +912,7 @@ export interface ApiCallDirectoryDelta {
 
   's3.accesskey.create': {
     params: [data: S3AccesskeyCreate];
-    response: S3AccesskeyEntry;
+    response: S3AccesskeyEntryWithSecret;
   };
 
   's3.accesskey.delete': {
@@ -912,7 +933,7 @@ export interface ApiCallDirectoryDelta {
 
   's3.accesskey.update': {
     params: [id: number, data: S3AccesskeyUpdate];
-    response: S3AccesskeyEntry;
+    response: S3AccesskeyEntryWithSecret | S3AccesskeyEntry;
   };
 
   's3.bindip_choices': {
@@ -1099,6 +1120,32 @@ export interface ApiCallDirectoryDelta {
     response: SystemGeneralEntry;
   };
 
+  'system.ntpserver.create': {
+    params: [ntp_server_create: NTPServerCreate];
+    response: NTPServerEntry;
+  };
+
+  'system.ntpserver.get_instance': {
+    params: [id: number, options?: QueryOptions<NTPServerEntry>];
+    response: NTPServerEntry;
+  };
+
+  'system.ntpserver.query': {
+    params: [filters?: QueryFilters<NTPServerEntry>, options?: QueryOptions<NTPServerEntry>];
+    response: NTPServerEntry[] | NTPServerEntry | NTPServerQueryResultItem[] | NTPServerQueryResultItem | number;
+    entity: NTPServerEntry;
+  };
+
+  'system.ntpserver.update': {
+    params: [id: number, ntp_server_update: NTPServerUpdate];
+    response: NTPServerEntry;
+  };
+
+  'system.security.config': {
+    params: [];
+    response: SystemSecurityEntry;
+  };
+
   'tn_connect.config': {
     params: [];
     response: TrueNASConnectEntry;
@@ -1152,6 +1199,16 @@ export interface ApiCallDirectoryDelta {
   'truenas.license.upload': {
     params: [license: string, options?: TrueNASLicenseUploadOptions];
     response: null;
+  };
+
+  'truesearch.query': {
+    params: [data: TruesearchQuery];
+    response: TruesearchEntry[];
+  };
+
+  'truesearch.status': {
+    params: [];
+    response: TruesearchStatusData;
   };
 
   'ups.update': {

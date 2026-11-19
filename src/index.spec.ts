@@ -47,6 +47,7 @@ const RUNTIME_EXPORTS = [
   'v25_10_4',
   'v25_10_5',
   'v27_0_0',
+  'v27_1_0',
   'v28_0_0',
 ] as const;
 
