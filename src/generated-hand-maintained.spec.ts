@@ -208,6 +208,41 @@ describe('the core.get_jobs event payload', () => {
   });
 });
 
+describe('the sharing.smb.query legacy options', () => {
+  /**
+   * Middleware #20256 took `streams` off master's SMB share model, and the
+   * dump gives 25.10's events master's models, so generation names a second,
+   * `streams`-less legacy options type and later versions import both names
+   * from 25.10. The frozen files keep the correct shape, so both are aliases
+   * of it — this fails if either stops pointing at what 25.10 sends.
+   */
+  it('names the shape this version sends', () => {
+    expectTypeOf<v25_10_0.SharingSmbLegacyOptInput>().toEqualTypeOf<v25_10_0.LegacyOptInput>();
+    expectTypeOf<v25_10_0.SharingSmbLegacyOptInput2>().toEqualTypeOf<v25_10_0.LegacyOptInput>();
+    expectTypeOf<v25_10_0.SharingSmbLegacyOptInput2>().toHaveProperty('streams');
+  });
+
+  /** v27.0.0 reads its event payload through them, so it keeps the shape too. */
+  it('keeps streams in the v27.0.0 event payload', () => {
+    expectTypeOf<v27_0_0.SharingSmbLegacyOptInput2>().toHaveProperty('streams');
+  });
+
+  /** As with `core.get_jobs`, each patch directory re-exports them by name. */
+  it('carries the aliases to every version of the 25.10 chain', () => {
+    expectTypeOf<v25_10_1.SharingSmbLegacyOptInput2>().toEqualTypeOf<v25_10_1.LegacyOptInput>();
+    expectTypeOf<v25_10_2.SharingSmbLegacyOptInput2>().toEqualTypeOf<v25_10_2.LegacyOptInput>();
+    expectTypeOf<v25_10_3.SharingSmbLegacyOptInput2>().toEqualTypeOf<v25_10_3.LegacyOptInput>();
+    expectTypeOf<v25_10_4.SharingSmbLegacyOptInput2>().toEqualTypeOf<v25_10_4.LegacyOptInput>();
+    expectTypeOf<v25_10_5.SharingSmbLegacyOptInput2>().toEqualTypeOf<v25_10_5.LegacyOptInput>();
+
+    expectTypeOf<v25_10_1.SharingSmbLegacyOptInput>().toEqualTypeOf<v25_10_1.LegacyOptInput>();
+    expectTypeOf<v25_10_2.SharingSmbLegacyOptInput>().toEqualTypeOf<v25_10_2.LegacyOptInput>();
+    expectTypeOf<v25_10_3.SharingSmbLegacyOptInput>().toEqualTypeOf<v25_10_3.LegacyOptInput>();
+    expectTypeOf<v25_10_4.SharingSmbLegacyOptInput>().toEqualTypeOf<v25_10_4.LegacyOptInput>();
+    expectTypeOf<v25_10_5.SharingSmbLegacyOptInput>().toEqualTypeOf<v25_10_5.LegacyOptInput>();
+  });
+});
+
 describe('the pool.dataset event payload', () => {
   /**
    * The dump gives every version's events master's models, so v25.10's

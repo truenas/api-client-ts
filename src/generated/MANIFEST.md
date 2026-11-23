@@ -664,8 +664,8 @@ causes a change.
 | s3.accesskey.query | event | introduced v27.0.0 |
 | s3.accesskey.update | call | introduced v27.0.0 |
 | s3.bindip_choices | call | introduced v27.0.0 |
-| s3.config | call | introduced v27.0.0 |
-| s3.update | call | introduced v27.0.0 |
+| s3.config | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| s3.update | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
 | service.control | job | introduced v25.10.0 |
 | service.get_instance | call | introduced v25.10.0 |
 | service.query | call | introduced v25.10.0 |
@@ -684,25 +684,25 @@ causes a change.
 | sharing.nfs.query | event | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | sharing.nfs.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | sharing.s3.audit_choices | call | introduced v27.0.0 |
-| sharing.s3.create | call | introduced v27.0.0 |
+| sharing.s3.create | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
 | sharing.s3.delete | call | introduced v27.0.0 |
-| sharing.s3.force_disable_versioning | call | introduced v27.0.0 |
-| sharing.s3.get_instance | call | introduced v27.0.0 |
-| sharing.s3.query | call | introduced v27.0.0 |
-| sharing.s3.query | event | introduced v27.0.0 |
-| sharing.s3.recover | call | introduced v27.0.0 |
-| sharing.s3.recoverable_buckets | call | introduced v27.0.0 |
-| sharing.s3.update | call | introduced v27.0.0 |
-| sharing.smb.create | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types) |
+| sharing.s3.force_disable_versioning | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| sharing.s3.get_instance | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| sharing.s3.query | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| sharing.s3.query | event | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| sharing.s3.recover | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| sharing.s3.recoverable_buckets | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| sharing.s3.update | call | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| sharing.smb.create | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
 | sharing.smb.delete | call | introduced v25.10.0 |
-| sharing.smb.get_instance | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types) |
+| sharing.smb.get_instance | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
 | sharing.smb.getacl | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | sharing.smb.presets | call | introduced v25.10.0 |
-| sharing.smb.query | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types) |
-| sharing.smb.query | event | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types) |
+| sharing.smb.query | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
+| sharing.smb.query | event | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
 | sharing.smb.setacl | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | sharing.smb.share_precheck | call | introduced v25.10.0 |
-| sharing.smb.update | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types) |
+| sharing.smb.update | call | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
 | sharing.webshare.create | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | sharing.webshare.delete | call | introduced v27.0.0 |
 | sharing.webshare.get_instance | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
@@ -710,10 +710,10 @@ causes a change.
 | sharing.webshare.query | event | introduced v27.0.0 |
 | sharing.webshare.update | call | introduced v27.0.0; changed v28.0.0 (via referenced types) |
 | smb.bindip_choices | call | introduced v25.10.0 |
-| smb.config | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| smb.config | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
 | smb.status | call | introduced v27.0.0 |
 | smb.unixcharset_choices | call | introduced v25.10.0 |
-| smb.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types) |
+| smb.update | call | introduced v25.10.0; changed v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
 | snmp.config | call | introduced v25.10.0; changed v28.0.0 (via referenced types) |
 | snmp.update | call | introduced v25.10.0; changed v28.0.0 |
 | ssh.bindiface_choices | call | introduced v25.10.0 |
@@ -980,7 +980,7 @@ causes a change.
 
 | Name | Kind | History |
 |------|------|---------|
-| Access | type | introduced v27.0.0 |
+| Access | type | introduced v27.0.0; removed v27.1.0 |
 | Aclmode | type | introduced v25.10.0 |
 | ACLTemplateAddedEvent | type | introduced v25.10.0 |
 | ACLTemplateByPathArgs | type | introduced v25.10.0; changed v27.0.0 |
@@ -1637,8 +1637,8 @@ causes a change.
 | LDAPMapPasswd | type | introduced v25.10.0 |
 | LDAPMapShadow | type | introduced v25.10.0 |
 | LDAPSearchBases | type | introduced v25.10.0 |
-| LegacyOpt | type | introduced v25.10.0 |
-| LegacyOptInput | type | introduced v25.10.0 |
+| LegacyOpt | type | introduced v25.10.0; changed v27.1.0 |
+| LegacyOptInput | type | introduced v27.1.0 |
 | Level | type | introduced v25.10.0 |
 | LicenseFeatureEntry | type | introduced v27.0.0 |
 | LicenseInfoEntry | type | introduced v27.0.0 |
@@ -1984,11 +1984,12 @@ causes a change.
 | S3AccesskeyRemovedEvent | type | introduced v27.0.0 |
 | S3AccesskeyUpdate | type | introduced v27.0.0 |
 | S3CredentialsModel | type | introduced v25.10.0; changed v27.0.0 |
-| S3Entry | type | introduced v27.0.0 |
-| S3Grant | type | introduced v27.0.0 |
-| S3GrantEntry | type | introduced v27.0.0 |
+| S3Entry | type | introduced v27.0.0; changed v27.1.0 |
+| S3Grant | type | introduced v27.0.0; changed v27.1.0 |
+| S3GrantEntry | type | introduced v27.0.0; changed v27.1.0 |
+| S3GrantEntryInput | type | introduced v27.0.0; removed v27.1.0 |
 | S3Listener | type | introduced v27.0.0 |
-| S3Update | type | introduced v27.0.0 |
+| S3Update | type | introduced v27.0.0; changed v27.1.0 |
 | Schema | type | introduced v25.10.0 |
 | Security | type | introduced v25.10.0 |
 | SerialInfo | type | introduced v25.10.0 |
@@ -2017,31 +2018,33 @@ causes a change.
 | SharingNFSEntryInput | type | introduced v25.10.0; changed v27.0.0 |
 | SharingNFSQueryResultItem | type | introduced v25.10.0; changed v27.0.0 |
 | SharingNFSRemovedEvent | type | introduced v25.10.0 |
-| SharingS3AddedEvent | type | introduced v27.0.0 |
-| SharingS3ChangedEvent | type | introduced v27.0.0 |
-| SharingS3Create | type | introduced v27.0.0 |
-| SharingS3Entry | type | introduced v27.0.0 |
-| SharingS3EntryInput | type | introduced v27.0.0 |
-| SharingS3QueryResultItem | type | introduced v27.0.0 |
-| SharingS3RecoverableBucket | type | introduced v27.0.0 |
+| SharingS3AddedEvent | type | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| SharingS3ChangedEvent | type | introduced v27.0.0; changed v27.1.0 (via referenced types) |
+| SharingS3Create | type | introduced v27.0.0; changed v27.1.0 |
+| SharingS3Entry | type | introduced v27.0.0; changed v27.1.0 |
+| SharingS3EntryInput | type | introduced v27.0.0; changed v27.1.0 |
+| SharingS3QueryResultItem | type | introduced v27.0.0; changed v27.1.0 |
+| SharingS3RecoverableBucket | type | introduced v27.0.0; changed v27.1.0 |
 | SharingS3RecoverBucket | type | introduced v27.0.0 |
-| SharingS3RecoveredBucket | type | introduced v27.0.0 |
+| SharingS3RecoveredBucket | type | introduced v27.0.0; changed v27.1.0 (via referenced types) |
 | SharingS3RemovedEvent | type | introduced v27.0.0 |
-| SharingS3Update | type | introduced v27.0.0 |
-| SharingSMBAddedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types) |
-| SharingSMBChangedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types) |
+| SharingS3Update | type | introduced v27.0.0; changed v27.1.0 |
+| SharingSMBAddedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
+| SharingSMBChangedEvent | type | introduced v25.10.0; changed v25.10.1 (via referenced types), v27.0.0 (via referenced types), v27.1.0 (via referenced types) |
 | SharingSmbDefaultOptInput | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSmbDefaultOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
-| SharingSMBEntry | type | introduced v25.10.0; changed v25.10.1, v27.0.0 |
-| SharingSMBEntryInput | type | introduced v25.10.0; changed v25.10.1, v27.0.0 |
+| SharingSMBEntry | type | introduced v25.10.0; changed v25.10.1, v27.0.0, v27.1.0 (via referenced types) |
+| SharingSMBEntryInput | type | introduced v25.10.0; changed v25.10.1, v27.0.0, v27.1.0 |
 | SharingSMBEntryPurposeInput | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSMBEntryPurposeInput2 | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSMBGetaclArgs | type | introduced v25.10.0 |
+| SharingSmbLegacyOptInput | type | introduced v25.10.0; removed v27.1.0 |
+| SharingSmbLegacyOptInput2 | type | introduced v25.10.0; removed v27.1.0 |
 | SharingSmbMultiprotocolOptInput | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSmbMultiprotocolOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSmbPrivateDatasetOptInput | type | introduced v25.10.0; removed v25.10.1 |
 | SharingSmbPrivateDatasetOptInput2 | type | introduced v25.10.0; removed v25.10.1 |
-| SharingSMBQueryResultItem | type | introduced v25.10.0; changed v25.10.1, v27.0.0 |
+| SharingSMBQueryResultItem | type | introduced v25.10.0; changed v25.10.1, v27.0.0, v27.1.0 (via referenced types) |
 | SharingSMBRemovedEvent | type | introduced v25.10.0 |
 | SharingSMBSetaclArgs | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | SharingSMBSharePrecheckArgs | type | introduced v25.10.0 |
@@ -2064,16 +2067,16 @@ causes a change.
 | SigningKeyUsageModel | type | introduced v27.0.0 |
 | SlackServiceModel | type | introduced v25.10.0 |
 | SmbAuditConfig | type | introduced v25.10.0 |
-| SMBEntry | type | introduced v25.10.0; changed v27.0.0 |
+| SMBEntry | type | introduced v25.10.0; changed v27.0.0, v27.1.0 |
 | SMBEntryEncryption | type | introduced v25.10.0 |
 | SMBEntryEncryptionInput | type | introduced v25.10.0 |
 | SMBShareAcl | type | introduced v25.10.0; changed v27.0.0 (via referenced types) |
 | SMBShareAclEntry | type | introduced v25.10.0; changed v27.0.0 |
 | SMBShareAclEntryWhoId | type | introduced v25.10.0 |
-| SmbShareCreate | type | introduced v25.10.0; changed v25.10.1 |
-| SmbShareUpdate | type | introduced v25.10.0; changed v25.10.1 |
+| SmbShareCreate | type | introduced v25.10.0; changed v25.10.1, v27.1.0 |
+| SmbShareUpdate | type | introduced v25.10.0; changed v25.10.1, v27.1.0 |
 | SMBStatusOptions | type | introduced v27.0.0 |
-| SMBUpdateArgs | type | introduced v25.10.0; changed v27.0.0 |
+| SMBUpdateArgs | type | introduced v25.10.0; changed v27.0.0, v27.1.0 |
 | Snapdev | type | introduced v25.10.0 |
 | Snapdir | type | introduced v25.10.0 |
 | SNMPEntry | type | introduced v25.10.0; changed v28.0.0 |

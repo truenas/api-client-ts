@@ -5,5 +5,33 @@
 
 import type { ApiEventDirectory as PreviousApiEventDirectory } from '../v27_0_0/api-event-directory';
 
-/** Identical to the previous version's surface. */
-export type ApiEventDirectory = PreviousApiEventDirectory;
+import type {
+  SharingSMBRemovedEvent,
+} from '../v25_10_0/api-types';
+import type {
+  SharingS3RemovedEvent,
+} from '../v27_0_0/api-types';
+import type {
+  SharingS3AddedEvent,
+  SharingS3ChangedEvent,
+  SharingSMBAddedEvent,
+  SharingSMBChangedEvent,
+} from './api-types';
+
+/** Entries added or changed in this version (directly, or through a referenced type). */
+export interface ApiEventDirectoryDelta {
+  'sharing.s3.query': {
+    added: SharingS3AddedEvent;
+    changed: SharingS3ChangedEvent;
+    removed: SharingS3RemovedEvent;
+  };
+
+  'sharing.smb.query': {
+    added: SharingSMBAddedEvent;
+    changed: SharingSMBChangedEvent;
+    removed: SharingSMBRemovedEvent;
+  };
+}
+
+/** This version's surface: the previous version's, updated by the delta. */
+export type ApiEventDirectory = Omit<PreviousApiEventDirectory, keyof ApiEventDirectoryDelta> & ApiEventDirectoryDelta;
