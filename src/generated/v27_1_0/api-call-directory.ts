@@ -5,5 +5,110 @@
 
 import type { ApiCallDirectory as PreviousApiCallDirectory } from '../v27_0_0/api-call-directory';
 
-/** Identical to the previous version's surface. */
-export type ApiCallDirectory = PreviousApiCallDirectory;
+import type {
+  QueryFilters,
+  QueryOptions,
+} from '../shared/query-types';
+
+import type {
+  SharingS3RecoverBucket,
+} from '../v27_0_0/api-types';
+import type {
+  S3Entry,
+  S3Update,
+  SMBEntry,
+  SMBUpdateArgs,
+  SharingS3Create,
+  SharingS3Entry,
+  SharingS3QueryResultItem,
+  SharingS3RecoverableBucket,
+  SharingS3RecoveredBucket,
+  SharingS3Update,
+  SharingSMBEntry,
+  SharingSMBQueryResultItem,
+  SmbShareCreate,
+  SmbShareUpdate,
+} from './api-types';
+
+/** Entries added or changed in this version (directly, or through a referenced type). */
+export interface ApiCallDirectoryDelta {
+  's3.config': {
+    params: [];
+    response: S3Entry;
+  };
+
+  's3.update': {
+    params: [data: S3Update];
+    response: S3Entry;
+  };
+
+  'sharing.s3.create': {
+    params: [data: SharingS3Create];
+    response: SharingS3Entry;
+  };
+
+  'sharing.s3.force_disable_versioning': {
+    params: [id: number];
+    response: SharingS3Entry;
+  };
+
+  'sharing.s3.get_instance': {
+    params: [id: number, options?: QueryOptions<SharingS3Entry>];
+    response: SharingS3Entry;
+  };
+
+  'sharing.s3.query': {
+    params: [filters?: QueryFilters<SharingS3Entry>, options?: QueryOptions<SharingS3Entry>];
+    response: SharingS3Entry[] | SharingS3Entry | SharingS3QueryResultItem[] | SharingS3QueryResultItem | number;
+    entity: SharingS3Entry;
+  };
+
+  'sharing.s3.recover': {
+    params: [buckets: SharingS3RecoverBucket[]];
+    response: SharingS3RecoveredBucket[];
+  };
+
+  'sharing.s3.recoverable_buckets': {
+    params: [];
+    response: SharingS3RecoverableBucket[];
+  };
+
+  'sharing.s3.update': {
+    params: [id: number, data: SharingS3Update];
+    response: SharingS3Entry;
+  };
+
+  'sharing.smb.create': {
+    params: [data: SmbShareCreate];
+    response: SharingSMBEntry;
+  };
+
+  'sharing.smb.get_instance': {
+    params: [id: number, options?: QueryOptions<SharingSMBEntry>];
+    response: SharingSMBEntry;
+  };
+
+  'sharing.smb.query': {
+    params: [filters?: QueryFilters<SharingSMBEntry>, options?: QueryOptions<SharingSMBEntry>];
+    response: SharingSMBEntry[] | SharingSMBEntry | SharingSMBQueryResultItem[] | SharingSMBQueryResultItem | number;
+    entity: SharingSMBEntry;
+  };
+
+  'sharing.smb.update': {
+    params: [id: number, data: SmbShareUpdate];
+    response: SharingSMBEntry;
+  };
+
+  'smb.config': {
+    params: [];
+    response: SMBEntry;
+  };
+
+  'smb.update': {
+    params: [smb_update?: SMBUpdateArgs];
+    response: SMBEntry;
+  };
+}
+
+/** This version's surface: the previous version's, updated by the delta. */
+export type ApiCallDirectory = Omit<PreviousApiCallDirectory, keyof ApiCallDirectoryDelta> & ApiCallDirectoryDelta;

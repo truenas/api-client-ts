@@ -970,6 +970,8 @@ export type {
   SharingSMBRemovedEvent,
   SharingSMBSetaclArgs,
   SharingSMBSharePrecheckArgs,
+  SharingSmbLegacyOptInput,
+  SharingSmbLegacyOptInput2,
   ShellSchema,
   SlackServiceModel,
   SmbAuditConfig,

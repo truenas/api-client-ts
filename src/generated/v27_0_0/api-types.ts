@@ -58,7 +58,6 @@ import type {
   KeychainCredentialEntry,
   KeychainCredentialEntryInput,
   LegacyOpt,
-  LegacyOptInput,
   MailEntryOAuth,
   Maintainer,
   MegaCredentialsModel,
@@ -100,6 +99,7 @@ import type {
   Security,
   Serialspeed,
   Service,
+  SharingSmbLegacyOptInput2,
   Shutdown,
   SmbAuditConfig,
   Snapdev,
@@ -2994,6 +2994,57 @@ export interface S3Grant {
   xid?: number | null;
   access: Access;
 }
+export interface S3GrantEntryInput {
+  principal_type: "USER" | "GROUP" | "EVERYONE";
+  xid?: number | null;
+  access:
+    | ("READONLY" | "WRITEONLY" | "READWRITE" | "DENY")
+    | [
+        (
+          | "GetObject"
+          | "PutObject"
+          | "DeleteObject"
+          | "GetObjectTagging"
+          | "PutObjectTagging"
+          | "DeleteObjectTagging"
+          | "ListBucket"
+          | "GetBucketLocation"
+          | "ListBucketMultipartUploads"
+          | "ListMultipartUploadParts"
+          | "AbortMultipartUpload"
+          | "PutObjectRetention"
+          | "PutObjectLegalHold"
+          | "ListAllMyBuckets"
+          | "GetObjectAcl"
+          | "PutObjectAcl"
+          | "GetBucketAcl"
+          | "PutBucketAcl"
+          | "GetBucketPolicy"
+        ),
+        ...(
+          | "GetObject"
+          | "PutObject"
+          | "DeleteObject"
+          | "GetObjectTagging"
+          | "PutObjectTagging"
+          | "DeleteObjectTagging"
+          | "ListBucket"
+          | "GetBucketLocation"
+          | "ListBucketMultipartUploads"
+          | "ListMultipartUploadParts"
+          | "AbortMultipartUpload"
+          | "PutObjectRetention"
+          | "PutObjectLegalHold"
+          | "ListAllMyBuckets"
+          | "GetObjectAcl"
+          | "PutObjectAcl"
+          | "GetBucketAcl"
+          | "PutBucketAcl"
+          | "GetBucketPolicy"
+        )[]
+      ];
+  name: string;
+}
 export interface S3Update {
   listeners?: S3Listener[];
   servers?: number;
@@ -3109,7 +3160,7 @@ export interface SharingS3EntryInput {
   enabled?: boolean;
   owner: string;
   owner_uid: number;
-  grants?: S3GrantEntry[];
+  grants?: S3GrantEntryInput[];
   permissions_model?: "S3" | "MULTIPROTOCOL";
   object_ownership?: "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER";
   versioning?: Versioning;
@@ -3142,6 +3193,9 @@ export interface SharingS3EntryInput {
         | "PutBucketVersioning"
         | "CreateBucket"
         | "DeleteBucket"
+        | "GetBucketPolicy"
+        | "PutBucketPolicy"
+        | "DeleteBucketPolicy"
       )[]
     | "ALL"
     | null;
@@ -3413,7 +3467,7 @@ export interface SharingSMBEntryInput {
   audit?: SmbAuditConfig;
   options?:
     | (
-        | LegacyOptInput
+        | SharingSmbLegacyOptInput2
         | DefaultOptInput
         | TimeMachineOptInput
         | MultiprotocolOptInput

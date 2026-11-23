@@ -5630,6 +5630,24 @@ export interface LegacyOptInput {
   vuid?: string | null;
   auxsmbconf?: string;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * SharingSmbLegacyOptInput / SharingSmbLegacyOptInput2 — HAND-MAINTAINED,
+ * as CoreGetJobsItemInput is.
+ *
+ * Middleware #20256 dropped `streams` from master's SMB share model, and the
+ * dump gives every version's events master's models, so this version's
+ * `sharing.smb.query` event arms come back as a second, `streams`-less legacy
+ * options type. Generation then names the two `SharingSmbLegacyOptInput` and
+ * `SharingSmbLegacyOptInput2` instead of `LegacyOptInput`, and later versions
+ * import those names from here.
+ *
+ * The files themselves are frozen and keep the correct shape. Both names point
+ * at what this version really sends, so v27.0.0's event payload keeps it too.
+ * See `src/generated-hand-maintained.spec.ts`.
+ * ───────────────────────────────────────────────────────────────────────────*/
+export type SharingSmbLegacyOptInput = LegacyOptInput;
+export type SharingSmbLegacyOptInput2 = LegacyOptInput;
 export interface MailEntry {
   fromemail: string;
   fromname: string;
